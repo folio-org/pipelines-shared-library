@@ -252,7 +252,7 @@ def consortiaSecureMemberTenant(
         folioDefault.consortiaTenants()
           .findAll {!(it.value.isCentralConsortiaTenant)}
           .collect{it.value.tenantId}
-      , String description = 'Select consortia member tenants'
+      , String description = 'Select secure tenant'
 ) {
   return _paramChoice(paramName, value, description)
 }
