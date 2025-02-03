@@ -38,6 +38,10 @@ void call(CreateNamespaceParameters args) {
     tfConfig.addVar('eureka', args.platform == PlatformType.EUREKA)
     tfConfig.addVar('kong_version', args.kongVersion)
     tfConfig.addVar('keycloak_version', args.keycloakVersion)
+    if (args.dataset) {
+      tfConfig.addVar('pg_rds_snapshot_name', Constants.BUGFEST_SNAPSHOT_NAME)
+      tfConfig.addVar('pg_dbname', Constants.BUGFEST_SNAPSHOT_DBNAME)
+    }
 
     //TODO: Remove it via ticket https://folio-org.atlassian.net/browse/RANCHER-1893
     if (args.clusterName in ['folio-dev', 'folio-testing', 'folio-perf']) {
@@ -70,8 +74,13 @@ void call(CreateNamespaceParameters args) {
       return
     }
 
+    String defaultTenantId
     //Set install configuration
-    String defaultTenantId = 'diku'
+    if (args.dataset) {
+       defaultTenantId = 'fs09000000'
+    } else {
+       defaultTenantId = 'diku'
+    }
     String folioRepository = 'platform-complete'
     boolean isRelease = args.folioBranch ==~ /^R\d-\d{4}.*/
     String commitHash = common.getLastCommitHash(folioRepository, args.folioBranch)
@@ -118,8 +127,8 @@ void call(CreateNamespaceParameters args) {
     if (args.folioExtensions.contains('consortia-eureka')) {
       namespace.setEnableConsortia(true, isRelease)
 
-      DTO.convertMapTo(folioDefault.consortiaTenants([], installRequestParams), EurekaTenantConsortia.class)
-        .values().each { tenant ->
+      DTO.convertMapTo(args.dataset ? folioDefault.tenants().findAll { it.value.getTenantId().startsWith('cs00000int') } :
+        folioDefault.consortiaTenants([], installRequestParams), EurekaTenantConsortia.class).values().each { tenant ->
         tenant.withInstallJson(installJson)
           .withAWSSecretStoragePathName("${namespace.getClusterName()}-${namespace.getNamespaceName()}")
 
@@ -199,10 +208,10 @@ void call(CreateNamespaceParameters args) {
           //TODO: Refactoring is needed!!! Utilization of extension should be applied.
           // Remove this shit with consortia and linkedData. Apps have to be taken as it is.
           args.applications -
-                  (args.consortia ? [:] : ["app-consortia": "snapshot", "app-consortia-manager": "snapshot"]) -
-                  (args.consortia ? [:] : ["app-consortia": "master", "app-consortia-manager": "master"]) -
-                  (args.linkedData ? [:] : ["app-linked-data": "snapshot"]) -
-                  (args.linkedData ? [:] : ["app-linked-data": "master"])
+            (args.consortia ? [:] : ["app-consortia": "snapshot", "app-consortia-manager": "snapshot"]) -
+            (args.consortia ? [:] : ["app-consortia": "master", "app-consortia-manager": "master"]) -
+            (args.linkedData ? [:] : ["app-linked-data": "snapshot"]) -
+            (args.linkedData ? [:] : ["app-linked-data": "master"])
           , namespace.getModules().getModuleVersionMap()
           , namespace.getTenants().values() as List<EurekaTenant>
         )

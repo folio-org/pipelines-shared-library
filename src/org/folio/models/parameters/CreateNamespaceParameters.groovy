@@ -43,13 +43,15 @@ class CreateNamespaceParameters implements Cloneable {
 
   boolean uiBuild
 
+  boolean dataset = false
+
   //TODO: remove after pipeline refactoring. Just utilize it. Use this only in the main pipeline for developers
   // as a select-simplicity approach. Don't use it, and do not include it in the underlying
   // base pipeline or step-separated pipelines.
   @Deprecated
   String applicationSet = 'Complete'
 
-  Map<String,String> applications = [:]
+  Map<String, String> applications = [:]
 
   List<String> folioExtensions = []
 
@@ -282,6 +284,17 @@ class CreateNamespaceParameters implements Cloneable {
      */
     Builder rtr(boolean rtr) {
       parameters.rtr = rtr
+      return this
+    }
+
+    /**
+     * Defines the type of environment to be used.
+     * @param sprint
+     * @return
+     */
+
+    Builder dataset(boolean dataset) {
+      parameters.dataset = dataset
       return this
     }
 
