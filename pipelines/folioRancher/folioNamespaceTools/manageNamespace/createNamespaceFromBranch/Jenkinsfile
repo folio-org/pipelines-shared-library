@@ -66,12 +66,12 @@ properties([
     , "PLATFORM")
     ,folioParameters.hideParameters(
     [
-      'off' :['HAS_SECURE_TENANT', 'SECURE_TENANT']
+      '' :['HAS_SECURE_TENANT', 'SECURE_TENANT']
     ]
     , "CONSORTIA")
     ,folioParameters.hideParameters(
     [
-      'off' :['SECURE_TENANT']
+      '' :['SECURE_TENANT']
     ]
     , "HAS_SECURE_TENANT")
   ])
