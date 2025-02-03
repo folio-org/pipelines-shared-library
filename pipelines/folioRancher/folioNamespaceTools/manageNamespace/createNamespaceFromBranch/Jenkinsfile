@@ -18,7 +18,7 @@ println(folioDefault.consortiaTenants())
 
 println(folioDefault.consortiaTenants().findAll {!(it.value.isCentralConsortiaTenant)})
 
-println(folioDefault.consortiaTenants().findAll {!(it.value.isCentralConsortiaTenant)}*.getValue().tenantId)
+println((folioDefault.consortiaTenants() as Map<String, OkapiTenantConsortia>).findAll {!(it.value.isCentralConsortiaTenant)}.collect{it.value.tenantId})
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
