@@ -76,6 +76,8 @@ void call(CreateNamespaceParameters args) {
     }
 
     String defaultTenantId
+    List installJson
+
     //Set install configuration
     if (args.dataset) {
        defaultTenantId = 'fs09000000'
@@ -85,8 +87,11 @@ void call(CreateNamespaceParameters args) {
     String folioRepository = 'platform-complete'
     boolean isRelease = args.folioBranch ==~ /^R\d-\d{4}.*/
     String commitHash = common.getLastCommitHash(folioRepository, args.folioBranch)
-
-    List installJson = new GitHubUtility(this).getEnableList(folioRepository, args.folioBranch)
+    if (args.dataset) {
+      installJson = new GitHubUtility(this).getEnableList(folioRepository, 'snapshot')
+    } else {
+      installJson = new GitHubUtility(this).getEnableList(folioRepository, args.folioBranch)
+    }
     def eurekaPlatform = new GitHubUtility(this).getEurekaList(folioRepository, args.folioBranch)
     installJson.addAll(eurekaPlatform)
 
