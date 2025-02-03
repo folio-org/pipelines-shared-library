@@ -2,7 +2,6 @@
 package folioRancher.folioNamespaceTools.manageNamespace.createNamespaceFromBranch
 
 import org.folio.models.OkapiTenant
-import org.folio.models.OkapiTenantConsortia
 import org.folio.models.OkapiUser
 import org.folio.models.RancherNamespace
 import org.folio.models.parameters.CreateNamespaceParameters
