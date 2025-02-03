@@ -248,8 +248,10 @@ def moduleSource() {
 
 def consortiaSecureMemberTenant(
       String paramName = 'SECURE_TENANT'
-      , List value = folioDefault.consortiaTenants()
-                      .findAll {!(it.value.isCentralConsortiaTenant)}*.tenantId
+      , List value =
+        folioDefault.consortiaTenants()
+          .findAll {!(it.value.isCentralConsortiaTenant)}
+          .collect{it.value.tenantId}
       , String description = 'Select consortia member tenants'
 ) {
   return _paramChoice(paramName, value, description)
