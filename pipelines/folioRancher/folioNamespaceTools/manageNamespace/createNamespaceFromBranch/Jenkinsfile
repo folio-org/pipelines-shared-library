@@ -11,7 +11,7 @@ import org.folio.rest_v2.PlatformType
 import org.jenkinsci.plugins.workflow.libs.Library
 
 //TODO remove branch before merge to master
-@Library('pipelines-shared-library@RANCHER-1334') _
+@Library('pipelines-shared-library@RANCHER-2013-test') _
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
@@ -35,6 +35,8 @@ properties([
     booleanParam(name: 'SPLIT_FILES', defaultValue: true, description: '(Optional) Set true to enable split-files functionality'),
     booleanParam(name: 'RW_SPLIT', defaultValue: true, description: '(Optional) Set true to Enable Read/Write split'),
     booleanParam(name: 'ECS_CCL', defaultValue: false, description: '(Optional) Set true to enable ECS Circulation + Congressional loans functionality'),
+    booleanParam(name: 'HAS_SECURE_TENANT', defaultValue: true, description: '(Optional) Set true to enable secure tenant on one of the consortia institutional tenant'),
+    folioParameters.defaultConsortiaSecureMemberTenants(),
     booleanParam(name: 'GREENMAIL', defaultValue: false, description: '(Optional) Set true to deploy greenmail server'),
     booleanParam(name: 'MOCK_SERVER', defaultValue: false, description: '(Optional) Set true to deploy mock-server'),
     booleanParam(name: 'RTR', defaultValue: false, description: '(Optional) Set true to enable RTR'),
@@ -55,6 +57,16 @@ properties([
       'OKAPI': ['APPLICATION_SET', 'APPLICATIONS' ]
     ]
     , "PLATFORM")
+    ,folioParameters.hideParameters(
+    [
+      false :['HAS_SECURE_TENANT', 'SECURE_TENANT']
+    ]
+    , "CONSORTIA")
+    ,folioParameters.hideParameters(
+    [
+      false :['SECURE_TENANT']
+    ]
+    , "HAS_SECURE_TENANT")
   ])
 ])
 
