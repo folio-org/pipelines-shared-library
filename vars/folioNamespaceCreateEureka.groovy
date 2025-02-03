@@ -41,6 +41,7 @@ void call(CreateNamespaceParameters args) {
     if (args.dataset) {
       tfConfig.addVar('pg_rds_snapshot_name', Constants.BUGFEST_SNAPSHOT_NAME)
       tfConfig.addVar('pg_dbname', Constants.BUGFEST_SNAPSHOT_DBNAME)
+      tfConfig.addVar('pg_instance_type', 'db.r6g.xlarge')
     }
 
     //TODO: Remove it via ticket https://folio-org.atlassian.net/browse/RANCHER-1893
