@@ -33,7 +33,7 @@ properties([
     booleanParam(name: 'CONSORTIA', defaultValue: true, description: '(Optional) Set true to create consortium'),
     booleanParam(name: 'LINKED_DATA', defaultValue: true, description: '(Optional) Set true to deploy LinkedData'),
     booleanParam(name: 'SPLIT_FILES', defaultValue: true, description: '(Optional) Set true to enable split-files functionality'),
-    booleanParam(name: 'RW_SPLIT', defaultValue: true, description: '(Optional) Set true to Enable Read/Write split'),
+    booleanParam(name: 'RW_SPLIT', defaultValue: false, description: '(Optional) Set true to Enable Read/Write split'),
     booleanParam(name: 'ECS_CCL', defaultValue: false, description: '(Optional) Set true to enable ECS Circulation + Congressional loans functionality'),
     booleanParam(name: 'GREENMAIL', defaultValue: false, description: '(Optional) Set true to deploy greenmail server'),
     booleanParam(name: 'MOCK_SERVER', defaultValue: false, description: '(Optional) Set true to deploy mock-server'),
@@ -124,7 +124,7 @@ if(namespaceParams.platform == PlatformType.EUREKA) {
   cypressSanityParameters.setTestsSrcBranch('eureka-test-snapshot')
   cypressSanityParameters.setOkapiUrl("https://${namespace.getDomains().kong}")
   //TODO: Temporary exclusion of the eholdings and software-version test cases.
-  cypressSanityParameters.setExecParameters('--env grepTags="fse+sanity+-eholdings+-software-version"')
+  cypressSanityParameters.setExecParameters('--env grepTags="fse+sanity+-eholdings+-inventory"')
 }else {
   cypressSanityParameters.setTestsSrcBranch('master')
   cypressSanityParameters.setOkapiUrl("https://${namespace.getDomains().okapi}")
