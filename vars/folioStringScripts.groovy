@@ -203,7 +203,7 @@ return selectors ? \"\"\"
       display: none !important;
     }
   </style>
-  \"\"\" : ""
+  \"\"\" : "<div>Nothing to do</div>"
 """
 }
 
