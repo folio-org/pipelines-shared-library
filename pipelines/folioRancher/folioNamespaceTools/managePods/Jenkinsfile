@@ -50,7 +50,7 @@ properties([buildDiscarder(logRotator(numToKeepStr: '60')),
         35 22 * * * %ACTION=stop;CLUSTER=folio-tmp;NAMESPACE=test-2
         0 23 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=citation
         10 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=corsair
-        0 0 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=eureka
+        0 1 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=eureka
         0 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=firebird
         5 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=folijet
         11 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=spitfire
