@@ -405,7 +405,7 @@ static String determineModulePlacement(String moduleName, String moduleVersion, 
       case ~/^\d{1,3}\.\d{1,3}\.\d{1,3}-SNAPSHOT\.\d{1,3}$/:
         repository = "folioci"
         break
-      case ~/^\d{1,3}\.\d{1,3}\.\d{1,3}-SNAPSHOT\.[\d\w]{7}$/:
+      case ~/^\d{1,3}\.\d{1,3}\.\d{1,3}-SNAPSHOT\.[\d\w]{5,}$/:
         repository = Constants.ECR_FOLIO_REPOSITORY
         break
       case ~/^\d{1,3}\.\d{1,3}\.\d{1,3}-SNAPSHOT\$/:
