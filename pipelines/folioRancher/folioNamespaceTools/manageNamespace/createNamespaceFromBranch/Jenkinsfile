@@ -17,56 +17,56 @@ properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
 //  disableConcurrentBuilds(),
   parameters([
-    folioParameters.platform(),
-    folioParameters.cluster('PLATFORM'),
-    folioParameters.namespace(),
-    folioParameters.branch(),
-    folioParameters.okapiVersion(),
-    folioParameters.applicationSet(),
-    folioParameters.applications(),
-    folioParameters.configType(),
-    folioParameters.groupParameters("Environment features"
-      , [ "LOAD_REFERENCE", "LOAD_SAMPLE", "BUILD_UI", "CONSORTIA", "LINKED_DATA", "SPLIT_FILES", "RW_SPLIT", "ECS_CCL", "GREENMAIL", "MOCK_SERVER", "RTR" ]),
-    folioParameters.loadReference(),
-    folioParameters.loadSample(),
-    booleanParam(name: 'BUILD_UI', defaultValue: true, description: '(Optional) Set true to include UI'),
+//    folioParameters.platform(),
+//    folioParameters.cluster('PLATFORM'),
+//    folioParameters.namespace(),
+//    folioParameters.branch(),
+//    folioParameters.okapiVersion(),
+//    folioParameters.applicationSet(),
+//    folioParameters.applications(),
+//    folioParameters.configType(),
+//    folioParameters.groupParameters("Environment features"
+//      , [ "LOAD_REFERENCE", "LOAD_SAMPLE", "BUILD_UI", "CONSORTIA", "LINKED_DATA", "SPLIT_FILES", "RW_SPLIT", "ECS_CCL", "GREENMAIL", "MOCK_SERVER", "RTR" ]),
+//    folioParameters.loadReference(),
+//    folioParameters.loadSample(),
+//    booleanParam(name: 'BUILD_UI', defaultValue: true, description: '(Optional) Set true to include UI'),
     booleanParam(name: 'CONSORTIA', defaultValue: true, description: '(Optional) Set true to create consortium'),
-    booleanParam(name: 'LINKED_DATA', defaultValue: true, description: '(Optional) Set true to deploy LinkedData'),
-    booleanParam(name: 'SPLIT_FILES', defaultValue: true, description: '(Optional) Set true to enable split-files functionality'),
-    booleanParam(name: 'RW_SPLIT', defaultValue: false, description: '(Optional) Set true to Enable Read/Write split'),
-    booleanParam(name: 'ECS_CCL', defaultValue: false, description: '(Optional) Set true to enable ECS Circulation + Congressional loans functionality'),
+//    booleanParam(name: 'LINKED_DATA', defaultValue: true, description: '(Optional) Set true to deploy LinkedData'),
+//    booleanParam(name: 'SPLIT_FILES', defaultValue: true, description: '(Optional) Set true to enable split-files functionality'),
+//    booleanParam(name: 'RW_SPLIT', defaultValue: false, description: '(Optional) Set true to Enable Read/Write split'),
+//    booleanParam(name: 'ECS_CCL', defaultValue: false, description: '(Optional) Set true to enable ECS Circulation + Congressional loans functionality'),
     booleanParam(name: 'HAS_SECURE_TENANT', defaultValue: true, description: '(Optional) Set true to enable secure tenant on one of the consortia institutional tenant'),
-    folioParameters.defaultConsortiaSecureMemberTenants(),
-    booleanParam(name: 'GREENMAIL', defaultValue: false, description: '(Optional) Set true to deploy greenmail server'),
-    booleanParam(name: 'MOCK_SERVER', defaultValue: false, description: '(Optional) Set true to deploy mock-server'),
-    booleanParam(name: 'RTR', defaultValue: false, description: '(Optional) Set true to enable RTR'),
-    folioParameters.groupParameters("Integrations"
-      , [ "POSTGRESQL", "DB_VERSION", "KAFKA", "OPENSEARCH", "S3_BUCKET" ]),
-    folioParameters.pgType(),
-    folioParameters.pgVersion(),
-    folioParameters.kafkaType(),
-    folioParameters.opensearchType(),
-    folioParameters.s3Type(),
-    folioParameters.runSanityCheck(),
-    string(name: 'MEMBERS', defaultValue: '', description: '(Optional) Coma separated list of GitHub teams who need an access to the namespace'),
-    folioParameters.agent(),
-    folioParameters.refreshParameters()
-    ,folioParameters.hideParameters(
-    [
-      'EUREKA':['OKAPI_VERSION'],
-      'OKAPI': ['APPLICATION_SET', 'APPLICATIONS' ]
-    ]
-    , "PLATFORM")
-    ,folioParameters.hideParameters(
-    [
-      false :['HAS_SECURE_TENANT', 'SECURE_TENANT']
-    ]
-    , "CONSORTIA")
-    ,folioParameters.hideParameters(
-    [
-      false :['SECURE_TENANT']
-    ]
-    , "HAS_SECURE_TENANT")
+    folioParameters.consortiaSecureMemberTenant(),
+//    booleanParam(name: 'GREENMAIL', defaultValue: false, description: '(Optional) Set true to deploy greenmail server'),
+//    booleanParam(name: 'MOCK_SERVER', defaultValue: false, description: '(Optional) Set true to deploy mock-server'),
+//    booleanParam(name: 'RTR', defaultValue: false, description: '(Optional) Set true to enable RTR'),
+//    folioParameters.groupParameters("Integrations"
+//      , [ "POSTGRESQL", "DB_VERSION", "KAFKA", "OPENSEARCH", "S3_BUCKET" ]),
+//    folioParameters.pgType(),
+//    folioParameters.pgVersion(),
+//    folioParameters.kafkaType(),
+//    folioParameters.opensearchType(),
+//    folioParameters.s3Type(),
+//    folioParameters.runSanityCheck(),
+//    string(name: 'MEMBERS', defaultValue: '', description: '(Optional) Coma separated list of GitHub teams who need an access to the namespace'),
+//    folioParameters.agent(),
+//    folioParameters.refreshParameters()
+//    ,folioParameters.hideParameters(
+//    [
+//      'EUREKA':['OKAPI_VERSION'],
+//      'OKAPI': ['APPLICATION_SET', 'APPLICATIONS' ]
+//    ]
+//    , "PLATFORM")
+//    ,folioParameters.hideParameters(
+//    [
+//      false :['HAS_SECURE_TENANT', 'SECURE_TENANT']
+//    ]
+//    , "CONSORTIA")
+//    ,folioParameters.hideParameters(
+//    [
+//      false :['SECURE_TENANT']
+//    ]
+//    , "HAS_SECURE_TENANT")
   ])
 ])
 

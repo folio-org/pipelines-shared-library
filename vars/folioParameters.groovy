@@ -246,7 +246,7 @@ def moduleSource() {
   return _paramChoice('MODULE_SOURCE', Constants.EUREKA_MODULE_SOURCES, 'Select Eureka module source')
 }
 
-def defaultConsortiaSecureMemberTenants(
+def consortiaSecureMemberTenant(
       String paramName = 'SECURE_TENANT'
       , List value = folioDefault.consortiaTenants()
                       .findAll {!(it.value.isCentralConsortiaTenant)}*.tenantId
