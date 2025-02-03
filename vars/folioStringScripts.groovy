@@ -197,7 +197,7 @@ def selectors = ${hideMap.inspect()}[${reference}.toString()]?.collect {
     "div.jenkins-form-item:has(input[value='\$it']):not(:has([id^=hiddenPanel]))"
   }?.join(", \\n")
 
-def test = ${reference}.getClass().getName()
+def test = ${reference}
 
 return selectors ? \"\"\"
   <style>
