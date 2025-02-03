@@ -2,6 +2,7 @@
 package folioRancher.folioNamespaceTools.manageNamespace.createNamespaceFromBranch
 
 import org.folio.models.OkapiTenant
+import org.folio.models.OkapiTenantConsortia
 import org.folio.models.OkapiUser
 import org.folio.models.RancherNamespace
 import org.folio.models.parameters.CreateNamespaceParameters
@@ -17,7 +18,7 @@ println(folioDefault.consortiaTenants())
 
 println(folioDefault.consortiaTenants().findAll {!(it.value.isCentralConsortiaTenant)})
 
-println(folioDefault.consortiaTenants().findAll {!(it.value.isCentralConsortiaTenant)}*.tenantId)
+println(folioDefault.consortiaTenants().findAll {!(it.value.isCentralConsortiaTenant)}*.getValue().tenantId)
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
