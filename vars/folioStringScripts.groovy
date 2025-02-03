@@ -205,7 +205,7 @@ return selectors ? \"\"\"
       display: none !important;
     }
   </style>
-  \"\"\" : "<div>Nothing to do with \$test </div>"
+  \"\"\" : "<div>Nothing to do with '\$test' </div>"
 """
 }
 
