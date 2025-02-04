@@ -30,12 +30,15 @@ void call(CreateNamespaceParameters args) {
   tfConfig.addVar('pg_ldp_user_password', ldpConfig.getLdpAdminDbUserPassword())
   tfConfig.addVar('github_team_ids', folioTools.getGitHubTeamsIds("${Constants.ENVS_MEMBERS_LIST[args.namespaceName]},${args.members}").collect { "\"${it}\"" })
 
+  stage('[AWS Parameter Store] cleanup') {
+    awscli.withAwsClient {
+      folioTools.deleteSSMParameters(args.clusterName, args.namespaceName)
+    }
+  }
+
   folioHelm.withKubeConfig(args.clusterName) {
     stage('[Helm uninstall] All') {
       folioHelm.deleteFolioModulesParallel(args.namespaceName)
-    }
-    stage('[AWS Params] cleanup') {
-      folioTools.deleteSSMParameters(args.clusterName, args.namespaceName)
     }
     retry(2) {
       if (args.opensearchType != 'built-in') {
