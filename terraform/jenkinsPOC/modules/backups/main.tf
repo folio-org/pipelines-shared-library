@@ -1,6 +1,6 @@
 resource "aws_dlm_lifecycle_policy" "ebs_snapshot_policy" {
-  description = "${var.name}-ebs-snapshot-lifecycle"
-  state       = "ENABLED"
+  description        = "${var.name}-ebs-snapshot-lifecycle"
+  state              = "ENABLED"
   execution_role_arn = var.dlm_role_arn == "" ? null : var.dlm_role_arn
 
   # This policy will find volumes with matching tag
@@ -22,9 +22,9 @@ resource "aws_dlm_lifecycle_policy" "ebs_snapshot_policy" {
       }
 
       retain_rule {
-              interval      = 180
-              interval_unit = "DAYS"
-            }
+        interval      = 180
+        interval_unit = "DAYS"
+      }
     }
   }
 
@@ -32,5 +32,5 @@ resource "aws_dlm_lifecycle_policy" "ebs_snapshot_policy" {
     var.tags,
     {
       Name = "${var.name}-ebs-snapshot-policy"
-    })
+  })
 }

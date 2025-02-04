@@ -5,17 +5,17 @@ resource "aws_security_group" "jenkins_sg" {
 
   # Outbound for internet / updates
   ingress {
-    from_port = 0
-    to_port   = 0
-    protocol  = "-1"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
 }
 
 resource "aws_instance" "jenkins" {
-  ami           = var.ami_id
-  instance_type = var.instance_type
-  subnet_id     = var.subnet_id
+  ami                    = var.ami_id
+  instance_type          = var.instance_type
+  subnet_id              = var.subnet_id
   vpc_security_group_ids = [aws_security_group.jenkins_sg.id]
 
   # Root volume settings (optional tuning)
@@ -34,7 +34,7 @@ resource "aws_instance" "jenkins" {
     var.tags,
     {
       Name = "${var.name}-jenkins"
-    })
+  })
 }
 
 # EBS Volume (either new or from snapshot if restore is enabled)
@@ -48,14 +48,14 @@ resource "aws_ebs_volume" "jenkins_data" {
     var.tags,
     {
       Name = "${var.name}-jenkins-volume"
-    })
+  })
 }
 
 # Attach volume to EC2 instance
 resource "aws_volume_attachment" "jenkins_data_attachment" {
-  device_name = "/dev/sdf"
-  volume_id   = aws_ebs_volume.jenkins_data.id
-  instance_id = aws_instance.jenkins.id
+  device_name  = "/dev/sdf"
+  volume_id    = aws_ebs_volume.jenkins_data.id
+  instance_id  = aws_instance.jenkins.id
   force_detach = true
   # NOTE: force_detach is true to allow re-attaching if we run a restore
 }
