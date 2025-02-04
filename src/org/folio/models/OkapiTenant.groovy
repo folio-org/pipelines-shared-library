@@ -151,16 +151,16 @@ class OkapiTenant {
    * This method retrieves the latest version of each specified extension module
    * and adds them to the tenant's installed modules.
    *
-   * @param script The Jenkins script context for accessing pipeline steps.
+   * @param steps The Jenkins script context for accessing pipeline steps.
    * @param extensions List of extension IDs to enable.
    * @param isRelease Indicates whether to fetch the release version of the modules (default is false).
    */
-  OkapiTenant enableFolioExtensions(def script, List<String> extensions, boolean isRelease = false) {
+  OkapiTenant enableFolioExtensions(Object steps, List<String> extensions, boolean isRelease = false) {
     extensions.each { extentionId ->
-      List modulesList = getExtensionModulesList(script, extentionId)
+      List modulesList = getExtensionModulesList(steps, extentionId)
       modulesList*.id.each { moduleName ->
         if (!this.modules.installJsonObject.any { module -> (module.name == moduleName) }) {
-          String moduleId = new FolioModule().getLatestVersionFromRegistry(moduleName, isRelease)
+          String moduleId = new FolioModule().getLatestVersionFromRegistry(steps, moduleName, isRelease)
           this.modules.addModule(moduleId, 'enable')
         }
         FolioModule module = this.modules.getModuleByName(moduleName)
@@ -179,13 +179,13 @@ class OkapiTenant {
    * Retrieves a list of module names associated with the specified extension.
    * This method reads the JSON file for the extension and returns the list of modules.
    *
-   * @param script The Jenkins script context for accessing pipeline steps.
+   * @param steps The Jenkins script context for accessing pipeline steps.
    * @param extensionName The name of the extension to retrieve modules for.
    * @return A list of module names associated with the extension.
    */
   @SuppressWarnings('GrMethodMayBeStatic')
-  List getExtensionModulesList(def script, String extensionName) {
+  List getExtensionModulesList(Object steps, String extensionName) {
     final String EXTENSIONS_PATH = 'folio-extensions'
-    return script.readJSON(text: script.libraryResource("${EXTENSIONS_PATH}/${extensionName}.json"))
+    return steps.readJSON(text: steps.libraryResource("${EXTENSIONS_PATH}/${extensionName}.json"))
   }
 }
