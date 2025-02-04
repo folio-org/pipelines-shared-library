@@ -2,7 +2,7 @@
 import com.cloudbees.groovy.cps.NonCPS
 import groovy.json.JsonSlurperClassic
 import groovy.text.GStringTemplateEngine
-import org.folio.rest.model.DataMigrationTenant
+import org.folio.models.DataMigrationTenant
 import org.folio.utilities.Tools
 
 import java.util.concurrent.TimeUnit
