@@ -314,8 +314,10 @@ void call(CreateNamespaceParameters args) {
 
     //TODO: Add adequate slack notification https://folio-org.atlassian.net/browse/RANCHER-1892
     stage('[Notify] Eureka') {
-      slackSend(color: 'good', message: 'eureka-snapshot env successfully built\n' + "1. https://${namespace.generateDomain('diku')}\n" +
-        "2. https://${namespace.generateDomain('consortium')}", channel: '#rancher_tests_notifications')
+      slackSend(color: 'good', message: args.clusterName + "-" + args.namespaceName + " env successfully built\n" +
+        "1. https://${namespace.generateDomain('diku')}\n" +
+        "2. https://${namespace.generateDomain('consortium')}",
+        channel: '#rancher_tests_notifications')
     }
 
 //    stage('Deploy ldp') {
