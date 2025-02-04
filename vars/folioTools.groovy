@@ -150,8 +150,6 @@ void deleteSSMParameters(String cluster, String namespace) {
   folioHelm.withK8sClient {
     def ssm_params = sh(script: """aws ssm describe-parameters --parameter-filters "Key=Name,Option=Contains,Values=${cluster}-${namespace}" --query Parameters[].Name --output text --region ${Constants.AWS_REGION}""", returnStdout: true).trim()
     int Limit = 10
-    println("Params to be deleted: " + ssm_params)
-    input(message: 'Delete SSM parameters?', ok: 'Yes')
     def branches = [:]
     ssm_params.tokenize().collate(Limit).each { ssm_param ->
       ssm_param.each { param ->
