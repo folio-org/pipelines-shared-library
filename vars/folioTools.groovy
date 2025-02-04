@@ -153,8 +153,8 @@ void deleteSSMParameters(String cluster, String namespace) {
     println("Params to be deleted: " + params)
     input(message: 'Delete SSM parameters?', ok: 'Yes')
     def branches = [:]
-    ssm_params.tokenize().collate(Limit).each { params ->
-      params.each { param ->
+    ssm_params.tokenize().collate(Limit).each { ssm_param ->
+      ssm_param.each { param ->
         branches[param.toString().trim()] = {
           sh(script: "aws ssm delete-parameter --name ${param.toString().trim()} --region ${Constants.AWS_REGION}", returnStdout: true)
         }
