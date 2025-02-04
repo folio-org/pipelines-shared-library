@@ -23,7 +23,7 @@ module "jenkins" {
   backup_bucket       = "my-jenkins-backups"
   tags = {
     Environment = "dev"
-    Project     = "jenkins-poc"
+    Project     = "jenkins"
   }
 }
 ```
