@@ -51,6 +51,8 @@ void call(CreateNamespaceParameters args) {
       return
     }
 
+    boolean TF_REFRESH_REQUESTED = false
+
     stage('[Terraform] Provision') {
       switch (args.type) {
         case 'full':
@@ -58,12 +60,17 @@ void call(CreateNamespaceParameters args) {
           break
         case 'terraform':
           folioTerraformFlow.manageNamespace('apply', tfConfig)
-          return
+          TF_REFRESH_REQUESTED = true
           break
         case 'update':
           logger.info("Skip [Terraform] Provision stage")
           break
       }
+    }
+
+    if (TF_REFRESH_REQUESTED) {
+      currentBuild.result = 'ABORTED'
+      return
     }
 
     if (args.greenmail) {
