@@ -158,7 +158,7 @@ void deleteSSMParameters(String cluster, String namespace) {
         }
       }
       parallel branches
-      sleep(3000) // AWS API Throttling workaround(nothing to do with it).
+      sleep(5) // AWS API Throttling workaround(nothing to do with it).
     }
   }
 }
