@@ -27,8 +27,8 @@ terraform {
     }
 
     postgresql = {
-       source  = "cyrilgdn/postgresql"
-       version = "1.22.0"
+      source  = "cyrilgdn/postgresql"
+      version = "1.22.0"
     }
 
     kubernetes = {

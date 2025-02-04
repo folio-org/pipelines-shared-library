@@ -81,9 +81,9 @@ void call(CreateNamespaceParameters args) {
 
     //Set install configuration
     if (args.dataset) {
-       defaultTenantId = 'fs09000000'
+      defaultTenantId = 'fs09000000'
     } else {
-       defaultTenantId = 'diku'
+      defaultTenantId = 'diku'
     }
     String folioRepository = 'platform-complete'
     boolean isRelease = args.folioBranch ==~ /^R\d-\d{4}.*/
