@@ -77,6 +77,8 @@ class CreateNamespaceParameters implements Cloneable {
 
   String kongVersion = 'latest'
 
+  String type = 'full'
+
   private CreateNamespaceParameters() {}
 
   @NonCPS
@@ -429,6 +431,11 @@ class CreateNamespaceParameters implements Cloneable {
 
     Builder keycloakVersion(String keycloakVersion) {
       parameters.keycloakVersion = keycloakVersion
+      return this
+    }
+
+    Builder type(String type) {
+      parameters.type = type
       return this
     }
 

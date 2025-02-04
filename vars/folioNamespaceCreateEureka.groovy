@@ -52,7 +52,18 @@ void call(CreateNamespaceParameters args) {
     }
 
     stage('[Terraform] Provision') {
-      folioTerraformFlow.manageNamespace('apply', tfConfig)
+      switch (args.type) {
+        case 'full':
+          folioTerraformFlow.manageNamespace('apply', tfConfig)
+          break
+        case 'terraform':
+          folioTerraformFlow.manageNamespace('apply', tfConfig)
+          return
+          break
+        case 'update':
+          logger.info("Skip [Terraform] Provision stage")
+          break
+      }
     }
 
     if (args.greenmail) {
