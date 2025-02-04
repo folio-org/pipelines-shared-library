@@ -155,9 +155,9 @@ void deleteSSMParameters(String cluster, String namespace) {
     def branches = [:]
     params.tokenize().collate(Limit).each { param ->
       branches[param.toString().trim()] = {
-        sh(script: "aws ssm delete-parameters --names ${param.toString().trim()} --region ${Constants.AWS_REGION}", returnStdout: true)
+        sh(script: "aws ssm delete-parameter --name ${param.toString().trim()} --region ${Constants.AWS_REGION}", returnStdout: true)
       }
+      parallel branches
     }
-    parallel branches
   }
 }
