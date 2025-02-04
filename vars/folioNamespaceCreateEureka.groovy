@@ -63,6 +63,7 @@ void call(CreateNamespaceParameters args) {
 
     if (TF_REFRESH_REQUESTED) {
       currentBuild.result = 'ABORTED'
+      currentBuild.description = 'Terraform refresh complete'
       return
     }
 
