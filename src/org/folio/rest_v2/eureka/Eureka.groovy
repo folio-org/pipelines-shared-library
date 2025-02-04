@@ -128,6 +128,9 @@ class Eureka extends Base {
         tenant.applications.remove("app-consortia-manager")
         tenant.applications.remove("app-linked-data")
       }
+
+      if (!tenant.isSecureTenant)
+        tenant.applications.remove("app-requests-mediated-ui")
     }
 
     return this
