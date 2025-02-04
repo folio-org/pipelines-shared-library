@@ -44,13 +44,6 @@ void call(CreateNamespaceParameters args) {
       tfConfig.addVar('pg_instance_type', 'db.r6g.xlarge')
     }
 
-    //TODO: Remove it via ticket https://folio-org.atlassian.net/browse/RANCHER-1893
-    if (args.clusterName in ['folio-dev', 'folio-testing', 'folio-perf']) {
-      folioPrint.colored("ERROR: Target cluster IS NOT EUREKA!", 'red')
-      currentBuild.result = 'ABORTED'
-      return
-    }
-
     boolean TF_REFRESH_REQUESTED = false
 
     stage('[Terraform] Provision') {
