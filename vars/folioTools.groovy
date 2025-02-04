@@ -149,6 +149,8 @@ def addGithubTeamsToRancherProjectMembersList(String teams, String project) {
 void deleteSSMParameters(String cluster, String namespace) {
   def params = sh(script: """aws ssm describe-parameters --parameter-filters "Key=Name,Option=Contains,Values=${cluster}-${namespace}" --query Parameters[].Name --output text""", returnStdout: true).trim()
   int Limit = 10
+  println("Params to be deleted: " + params)
+  input(message: 'Delete SSM parameters?', ok: 'Yes')
   def branches = [:]
   params.tokenize().collate(Limit).each { param ->
     branches[param.toString().trim()] = {
