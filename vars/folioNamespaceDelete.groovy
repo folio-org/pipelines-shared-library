@@ -34,6 +34,9 @@ void call(CreateNamespaceParameters args) {
     stage('[Helm uninstall] All') {
       folioHelm.deleteFolioModulesParallel(args.namespaceName)
     }
+    stage('[AWS Params] cleanup') {
+      folioTools.deleteSSMParameters(args.clusterName, args.namespaceName)
+    }
     retry(2) {
       if (args.opensearchType != 'built-in') {
         stage('[Kubectl] Cleanup opensearch indices') {

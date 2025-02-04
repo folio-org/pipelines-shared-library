@@ -145,3 +145,14 @@ def addGithubTeamsToRancherProjectMembersList(String teams, String project) {
     folioPrint.colored("Skipping adding teams to project members list for ${project}\nReason: ${project} is not in ${Constants.AWS_EKS_DEV_NAMESPACES}", "red")
   }
 }
+
+void deleteSSMParameters(String cluster, String namespace) {
+  def params = sh( script: """aws ssm describe-parameters --parameter-filters "Key=Name,Option=Contains,Values=${cluster}-${namespace}" --query Parameters[].Name --output text""", returnStdout: true).trim()
+  def branches = [:]
+  params.tokenize().each { param ->
+    branches[param] = {
+      sh(script: "aws ssm delete-parameter --name ${param} --region ${Constants.AWS_REGION}", returnStdout: true)
+    }
+  }
+  parallel branches
+}
