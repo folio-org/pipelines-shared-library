@@ -26,11 +26,15 @@ properties([
     folioParameters.applications(),
     folioParameters.configType(),
     folioParameters.groupParameters("Environment features"
-      , [ "LOAD_REFERENCE", "LOAD_SAMPLE", "BUILD_UI", "CONSORTIA", "LINKED_DATA", "SPLIT_FILES", "RW_SPLIT", "ECS_CCL", "GREENMAIL", "MOCK_SERVER", "RTR" ]),
+      , [ "LOAD_REFERENCE", "LOAD_SAMPLE", "BUILD_UI", "CONSORTIA", "LINKED_DATA", "SPLIT_FILES"
+          , "RW_SPLIT", "ECS_CCL", "GREENMAIL", "MOCK_SERVER", "RTR", "HAS_SECURE_TENANT", "SECURE_TENANT"
+    ]),
     folioParameters.loadReference(),
     folioParameters.loadSample(),
     booleanParam(name: 'BUILD_UI', defaultValue: true, description: '(Optional) Set true to include UI'),
     booleanParam(name: 'CONSORTIA', defaultValue: true, description: '(Optional) Set true to create consortium'),
+    booleanParam(name: 'HAS_SECURE_TENANT', defaultValue: true, description: '(Optional) Set true to enable secure tenant on one of the consortia institutional tenant'),
+    folioParameters.consortiaSecureMemberTenant(),
     booleanParam(name: 'LINKED_DATA', defaultValue: true, description: '(Optional) Set true to deploy LinkedData'),
     booleanParam(name: 'SPLIT_FILES', defaultValue: true, description: '(Optional) Set true to enable split-files functionality'),
     booleanParam(name: 'RW_SPLIT', defaultValue: false, description: '(Optional) Set true to Enable Read/Write split'),
@@ -55,6 +59,16 @@ properties([
       'OKAPI': ['APPLICATION_SET', 'APPLICATIONS' ]
     ]
     , "PLATFORM")
+    ,folioParameters.hideParameters(
+    [
+      '' :['HAS_SECURE_TENANT', 'SECURE_TENANT']
+    ]
+    , "CONSORTIA")
+    ,folioParameters.hideParameters(
+    [
+      '' :['SECURE_TENANT']
+    ]
+    , "HAS_SECURE_TENANT")
   ])
 ])
 
@@ -87,6 +101,8 @@ CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builde
   .applicationSet(params.APPLICATION_SET)
   .applications(Constants.APPLICATION_BRANCH(params.APPLICATION_SET as String
     , (params.APPLICATIONS as String).split(',') as List))
+  .hasSecureTenant(params.HAS_SECURE_TENANT)
+  .secureTenantId(params.SECURE_TENANT)
   .pgType(params.POSTGRESQL)
   .pgVersion(params.DB_VERSION)
   .kafkaType(params.KAFKA)
