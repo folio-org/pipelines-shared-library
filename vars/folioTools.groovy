@@ -145,3 +145,20 @@ def addGithubTeamsToRancherProjectMembersList(String teams, String project) {
     folioPrint.colored("Skipping adding teams to project members list for ${project}\nReason: ${project} is not in ${Constants.AWS_EKS_DEV_NAMESPACES}", "red")
   }
 }
+
+void deleteSSMParameters(String cluster, String namespace) {
+  folioHelm.withK8sClient {
+    def ssm_params = sh(script: """aws ssm describe-parameters --parameter-filters "Key=Name,Option=Contains,Values=${cluster}-${namespace}" --query Parameters[].Name --output text --region ${Constants.AWS_REGION}""", returnStdout: true).trim()
+    int Limit = 10
+    ssm_params.tokenize().collate(Limit).each { ssm_param ->
+      def branches = [:]
+      ssm_param.each { param ->
+        branches[param.toString().trim()] = {
+          sh(script: "aws ssm delete-parameter --name ${param.toString().trim()} --region ${Constants.AWS_REGION} || true", returnStdout: true)
+        }
+      }
+      parallel branches
+      sleep(5) // AWS API Throttling workaround(nothing to do with it).
+    }
+  }
+}

@@ -19,7 +19,7 @@ resource "rancher2_secret" "keycloak-credentials" {
 resource "helm_release" "keycloak" {
   count        = (var.eureka ? 1 : 0)
   chart        = "keycloak"
-  depends_on   = [rancher2_secret.keycloak-credentials, helm_release.postgresql]
+  depends_on   = [rancher2_secret.keycloak-credentials, rancher2_secret.db-credentials, helm_release.postgresql, module.rds.cluster_instances]
   name         = "keycloak-${var.rancher_project_name}"
   namespace    = rancher2_namespace.this.id
   version      = "21.0.4"
