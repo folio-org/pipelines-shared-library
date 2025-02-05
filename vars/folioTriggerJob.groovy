@@ -33,6 +33,8 @@ def createNamespaceFromBranch(String jobName, CreateNamespaceParameters namespac
       booleanParam(name: 'GREENMAIL', value: namespaceParams.getGreenmail()),
       booleanParam(name: 'MOCK_SERVER', value: namespaceParams.getMockServer()),
       booleanParam(name: 'RTR', value: namespaceParams.getRtr()),
+      booleanParam(name: 'HAS_SECURE_TENANT', value: namespaceParams.getHasSecureTenant()),
+      string(name: 'SECURE_TENANT', value: namespaceParams.getSecureTenantId()),
       //TODO: Remove in the future release with getApplicationSet() method
       string(name: 'APPLICATION_SET', value: namespaceParams.getApplicationSet()),
       string(name: 'APPLICATIONS', value: namespaceParams.getApplications().keySet().join(',')),

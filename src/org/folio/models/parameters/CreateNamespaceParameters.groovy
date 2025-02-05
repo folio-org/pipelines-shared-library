@@ -41,6 +41,10 @@ class CreateNamespaceParameters implements Cloneable {
 
   boolean rtr
 
+  boolean hasSecureTenant
+
+  String secureTenantId
+
   boolean uiBuild
 
   //TODO: remove after pipeline refactoring. Just utilize it. Use this only in the main pipeline for developers
@@ -282,6 +286,26 @@ class CreateNamespaceParameters implements Cloneable {
      */
     Builder rtr(boolean rtr) {
       parameters.rtr = rtr
+      return this
+    }
+
+    /**
+     * Activate or not secure tenant
+     * @param has `true` to activate security on tenant secureTenantId
+     * @return Builder instance for method chaining.
+     */
+    Builder hasSecureTenant(boolean has) {
+      parameters.hasSecureTenant = has
+      return this
+    }
+
+    /**
+     * Defines the id of the tenant to secure
+     * @param id The id of the tenant to secure
+     * @return Builder instance for method chaining.
+     */
+    Builder secureTenantId(String id) {
+      parameters.secureTenantId = id
       return this
     }
 
