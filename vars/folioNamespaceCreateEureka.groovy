@@ -145,6 +145,23 @@ void call(CreateNamespaceParameters args) {
         .enableFolioExtensions(this, args.folioExtensions - 'consortia-eureka' - 'consortia')
     )
 
+    if (args.dataset) {
+      List nonECS = ['fs09000002', 'fs09000003']
+      nonECS.each { tenantId ->
+        namespace.addTenant(
+          folioDefault.tenants()[tenantId]
+            .convertTo(EurekaTenant.class)
+            .withAWSSecretStoragePathName("${namespace.getClusterName()}-${namespace.getNamespaceName()}")
+            .withInstallJson(installJson)
+            .withIndex(new Index('instance', true, true))
+            .withIndex(new Index('authority', true, false))
+            .withInstallRequestParams(installRequestParams.clone())
+            .withTenantUi(tenantUi.clone())
+            .enableFolioExtensions(this, args.folioExtensions - 'consortia-eureka' - 'consortia')
+        )
+      }
+    }
+
     if (args.folioExtensions.contains('consortia-eureka')) {
       namespace.setEnableConsortia(true, isRelease)
 
