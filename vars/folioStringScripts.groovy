@@ -193,7 +193,7 @@ return result
 
 static String getHideHTMLScript(Map hideMap, String reference) {
   return """
-def selectors = ${hideMap.inspect()}[${reference}]?.collect {
+def selectors = ${hideMap.inspect()}[${reference}.toString()]?.collect {
     "div.jenkins-form-item:has(input[value='\$it']):not(:has([id^=hiddenPanel]))"
   }?.join(", \\n")
 
