@@ -193,11 +193,6 @@ void call(CreateNamespaceParameters args) {
           counter++
 
           Applications.get(eureka.kong).getRegisteredApplications()
-
-          if (counter > 5 && args.dataset) {
-            kubectl.rolloutDeployment(namespace.getNamespaceName(), "kong-" + namespace.getNamespaceName())
-            kubectl.checkDeploymentStatus("kong-" + namespace.getNamespaceName(), namespace.getNamespaceName(), "600")
-          }
         }
       }
     }
