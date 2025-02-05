@@ -121,6 +121,7 @@ void call(CreateNamespaceParameters args) {
       DTO.convertMapTo(folioDefault.consortiaTenants([], installRequestParams), EurekaTenantConsortia.class)
         .values().each { tenant ->
         tenant.withInstallJson(installJson)
+          .withSecureTenant(args.hasSecureTenant && args.secureTenantId == tenant.getTenantId())
           .withAWSSecretStoragePathName("${namespace.getClusterName()}-${namespace.getNamespaceName()}")
 
         if (tenant.getIsCentralConsortiaTenant()) {
