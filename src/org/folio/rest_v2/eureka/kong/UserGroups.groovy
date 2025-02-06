@@ -99,6 +99,18 @@ class UserGroups extends Kong{
     }
   }
 
+  Map invokeGroupsMigration(EurekaTenant tenant) {
+    logger.info("Invoking groups(roles) migration for ${tenant.tenantId}...")
+
+    Map<String, String> headers = getTenantHttpHeaders(tenant)
+
+    restClient.post(generateUrl("/roles-keycloak/migrations"), "", headers)
+
+    sleep(30)
+
+    return this as Map
+  }
+
   @NonCPS
   static UserGroups get(Kong kong){
     return new UserGroups(kong)
