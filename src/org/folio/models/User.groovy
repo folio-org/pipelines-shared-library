@@ -68,7 +68,7 @@ class User {
     ]
 
     if(patronGroup)
-      ret.put("group", patronGroup.uuid.trim() == "" ? patronGroup.group : patronGroup.uuid)
+      ret.put("patronGroup", patronGroup.uuid.trim() == "" ? patronGroup.group : patronGroup.uuid)
 
     if(uuid.trim())
       ret.put("id", uuid)
@@ -103,7 +103,7 @@ class User {
     User:
       {
         "username": "$username"
-        , "group":  "${patronGroup ? (patronGroup.uuid.trim() == "" ? patronGroup.group : patronGroup.uuid) : ""}"
+        , "patronGroup":  "${patronGroup ? (patronGroup.uuid.trim() == "" ? patronGroup.group : patronGroup.uuid) : ""}"
         , "active": $active
         , "type": "$type"
         , "personal": {
