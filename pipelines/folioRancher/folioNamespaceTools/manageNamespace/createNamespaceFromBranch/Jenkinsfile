@@ -121,7 +121,7 @@ cypressSanityParameters.setNumberOfWorkers(4)
 cypressSanityParameters.setTimeout('60')
 
 if(namespaceParams.platform == PlatformType.EUREKA) {
-  cypressSanityParameters.setTestsSrcBranch('eureka-test-snapshot')
+  cypressSanityParameters.setTestsSrcBranch('eureka')
   cypressSanityParameters.setOkapiUrl("https://${namespace.getDomains().kong}")
   //TODO: Temporary exclusion of the eholdings and software-version test cases.
   cypressSanityParameters.setExecParameters('--env grepTags="fse+sanity+-eholdings+-inventory"')
