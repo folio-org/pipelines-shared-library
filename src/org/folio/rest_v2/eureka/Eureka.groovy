@@ -70,6 +70,11 @@ class Eureka extends Base {
   }
 
   Eureka createUserFlow(EurekaTenant tenant, User user, Role role, List<String> permissions, List<String> permissionSets, boolean migrate = false) {
+    if (migrate) {
+      Users.get(kong).invokeUsersMigration(tenant)
+      UserGroups.get(kong).invokeGroupsMigration(tenant)
+    }
+
     user.patronGroup.setUuid(
       UserGroups.get(kong)
         .createUserGroup(tenant, user.patronGroup)
@@ -81,11 +86,6 @@ class Eureka extends Base {
         .createUser(tenant, user)
         .getUuid()
     )
-
-    if (migrate) {
-      Users.get(kong).invokeUsersMigration(tenant)
-      UserGroups.get(kong).invokeGroupsMigration(tenant)
-    }
 
     Users.get(kong).setUpdatePassword(tenant, user)
 
@@ -204,7 +204,7 @@ class Eureka extends Base {
   }
 
   Eureka initializeFromScratch(Map<String, EurekaTenant> tenants, String cluster, String namespace, boolean enableConsortia, boolean migrate = false) {
-    tenants.each { tenantId, tenant -> createTenantFlow(tenant, cluster, namespace) }
+    tenants.each { tenantId, tenant -> createTenantFlow(tenant, cluster, namespace, migrate) }
 
     if (enableConsortia)
       setUpConsortiaFlow(
