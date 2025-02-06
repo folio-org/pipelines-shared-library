@@ -269,7 +269,7 @@ void call(CreateNamespaceParameters args) {
           , namespace.getClusterName()
           , namespace.getNamespaceName()
           , namespace.getEnableConsortia()
-          , args.dataset
+//          , args.dataset
         )
       }
     }
