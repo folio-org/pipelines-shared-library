@@ -3304,7 +3304,7 @@ mod-users-keycloak:
     - name: KAFKA_SYS_USER_CAPABILITIES_RETRY_DELAY
       value: '5s'
     - name: KAFKA_SYS_USER_CAPABILITIES_RETRY_ATTEMPTS
-      value: '60'
+      value: '100'
     - name: MIGRATION_BATCH_SIZE
       value: '20'
     - name: INCLUDE_ONLY_VISIBLE_PERMISSIONS
