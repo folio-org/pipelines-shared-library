@@ -7,7 +7,7 @@
   {
     "team": "Core: Platform",
     "modules": ["mod-configuration", "mod-permissions", "mod-login-saml", "mod-user-import"],
-    "slackChannel": "#core-platform"
+    "slackChannel": "#core-platform-jenkins"
   },
   {
     "team": "Falcon",

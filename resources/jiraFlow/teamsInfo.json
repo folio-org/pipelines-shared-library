@@ -36,7 +36,7 @@
     "Core: Platform": {
       "info": {
         "id": "10432",
-        "slack": "#core-platform",
+        "slack": "#core-platform-jenkins",
         "modules": [
           "edge-common",
           "mod-authtoken",
