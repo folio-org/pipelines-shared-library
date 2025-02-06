@@ -235,30 +235,30 @@ void call(CreateNamespaceParameters args) {
       )
     }
 
-//    stage('[Helm] Deploy modules') {
-//      folioHelm.withKubeConfig(namespace.getClusterName()) {
-//        logger.info(namespace.getModules().getBackendModules())
-//
-//        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getBackendModules())
-//        folioHelm.checkDeploymentsRunning(namespace.getNamespaceName(), namespace.getModules().getBackendModules())
-//      }
-//    }
-//
-//    stage('[Helm] Deploy edge') {
-//      folioHelm.withKubeConfig(namespace.getClusterName()) {
-//        folioEdge.renderEphemeralPropertiesEureka(namespace)
-//        namespace.getModules().getEdgeModules().each { module ->
-//          kubectl.createConfigMap("${module.name}-ephemeral-properties", namespace.getNamespaceName(), "./${module.name}-ephemeral-properties")
-//        }
-//
-//        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getEdgeModules())
-//        folioHelm.checkDeploymentsRunning(namespace.getNamespaceName(), namespace.getModules().getEdgeModules())
-//
-//      }
-//    }
+    stage('[Helm] Deploy modules') {
+      folioHelm.withKubeConfig(namespace.getClusterName()) {
+        logger.info(namespace.getModules().getBackendModules())
+
+        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getBackendModules())
+        folioHelm.checkDeploymentsRunning(namespace.getNamespaceName(), namespace.getModules().getBackendModules())
+      }
+    }
+
+    stage('[Helm] Deploy edge') {
+      folioHelm.withKubeConfig(namespace.getClusterName()) {
+        folioEdge.renderEphemeralPropertiesEureka(namespace)
+        namespace.getModules().getEdgeModules().each { module ->
+          kubectl.createConfigMap("${module.name}-ephemeral-properties", namespace.getNamespaceName(), "./${module.name}-ephemeral-properties")
+        }
+
+        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getEdgeModules())
+        folioHelm.checkDeploymentsRunning(namespace.getNamespaceName(), namespace.getModules().getEdgeModules())
+
+      }
+    }
 
     stage('[Rest] Initialize') {
-      int counter = 1
+      int counter = 0
       retry(10) {
         // The first wait time should be at least 10 minutes due to module's long time instantiation
         sleep time: (counter == 0 ? 10 : 2), unit: 'MINUTES'
