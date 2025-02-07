@@ -155,6 +155,7 @@ void call(CreateNamespaceParameters args) {
             .withInstallJson(installJson)
             .withIndex(new Index('instance', true, true))
             .withIndex(new Index('authority', true, false))
+            .withIndex(new Index('location', true, false))
             .withInstallRequestParams(installRequestParams.clone())
             .withTenantUi(tenantUi.clone())
             .enableFolioExtensions(this, args.folioExtensions - 'consortia-eureka' - 'consortia')
@@ -172,10 +173,10 @@ void call(CreateNamespaceParameters args) {
             tenant.withIndex(new Index('instance', true, true))
             tenant.withIndex(new Index('authority', true, false))
             tenant.withIndex(new Index('location', true, false))
-            tenant.withInstallRequestParams(new InstallRequestParams().addTenantParameter('centralTenantId', 'cs00000int'))
+            tenant.withInstallRequestParams(installRequestParams.addTenantParameter('centralTenantId', 'cs00000int'))
               break
           case ~/cs00000int_00.*/:
-            tenant.withInstallRequestParams(new InstallRequestParams().addTenantParameter('centralTenantId', 'cs00000int'))
+            tenant.withInstallRequestParams(installRequestParams.addTenantParameter('centralTenantId', 'cs00000int'))
             break
         }
         tenant.withInstallJson(installJson)
