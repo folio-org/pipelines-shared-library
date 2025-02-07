@@ -46,29 +46,29 @@ void call(CreateNamespaceParameters args) {
       return
     }
 
-    stage('[Terraform] Provision') {
-      folioTerraformFlow.manageNamespace('apply', tfConfig)
-    }
-
-    if (args.greenmail) {
-      stage('[Helm] Deploy greenmail') {
-        folioHelm.withKubeConfig(namespace.getClusterName()) {
-          folioHelmFlow.deployGreenmail(namespace.getNamespaceName())
-        }
-      }
-    }
-
-    if (args.mockServer) {
-      stage('[Helm] Deploy mock-server') {
-        folioHelm.withKubeConfig(namespace.getClusterName()) {
-          folioHelmFlow.deployMockServer(namespace)
-        }
-      }
-    }
-
-    if (args.namespaceOnly) {
-      return
-    }
+//    stage('[Terraform] Provision') {
+//      folioTerraformFlow.manageNamespace('apply', tfConfig)
+//    }
+//
+//    if (args.greenmail) {
+//      stage('[Helm] Deploy greenmail') {
+//        folioHelm.withKubeConfig(namespace.getClusterName()) {
+//          folioHelmFlow.deployGreenmail(namespace.getNamespaceName())
+//        }
+//      }
+//    }
+//
+//    if (args.mockServer) {
+//      stage('[Helm] Deploy mock-server') {
+//        folioHelm.withKubeConfig(namespace.getClusterName()) {
+//          folioHelmFlow.deployMockServer(namespace)
+//        }
+//      }
+//    }
+//
+//    if (args.namespaceOnly) {
+//      return
+//    }
 
     //Set install configuration
     String defaultTenantId = 'diku'
@@ -149,7 +149,7 @@ void call(CreateNamespaceParameters args) {
     }
 
     //Don't move from here because it increases Keycloak TTL before mgr modules to be deployed
-    Eureka eureka = new Eureka(this, namespace.generateDomain('kong'), namespace.generateDomain('keycloak'))
+    Eureka eureka = new Eureka(this, namespace.generateDomain('kong'), namespace.generateDomain('keycloak'), true)
       .defineKeycloakTTL()
 
     // TODO: Below [ASG] stage could be moved to one the shared libs and called with an appropriate parameters.
@@ -178,63 +178,63 @@ void call(CreateNamespaceParameters args) {
 //      }
 //    }
 
-    stage('[Helm] Deploy mgr-*') {
-      folioHelm.withKubeConfig(namespace.getClusterName()) {
-        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getMgrModules())
-
-        //Check availability of the mgr-applications /applications endpoint to ensure the module up and running
-        int counter = 0
-        retry(10) {
-          sleep time: (counter == 0 ? 0 : 30), unit: 'SECONDS'
-          counter++
-
-          Applications.get(eureka.kong).getRegisteredApplications()
-        }
-      }
-    }
-
-    stage('[Rest] Preinstall') {
-      namespace.withApplications(
-        eureka.registerApplicationsFlow(
-          //TODO: Refactoring is needed!!! Utilization of extension should be applied.
-          // Remove this shit with consortia and linkedData. Apps have to be taken as it is.
-          args.applications -
-                  (args.consortia ? [:] : ["app-consortia": "snapshot", "app-consortia-manager": "snapshot"]) -
-                  (args.consortia ? [:] : ["app-consortia": "master", "app-consortia-manager": "master"]) -
-                  (args.linkedData ? [:] : ["app-linked-data": "snapshot"]) -
-                  (args.linkedData ? [:] : ["app-linked-data": "master"])
-          , namespace.getModules().getModuleVersionMap()
-          , namespace.getTenants().values() as List<EurekaTenant>
-        )
-      )
-
-      eureka.registerModulesFlow(
-        namespace.getModules()
-        , namespace.getApplications()
-      )
-    }
-
-    stage('[Helm] Deploy modules') {
-      folioHelm.withKubeConfig(namespace.getClusterName()) {
-        logger.info(namespace.getModules().getBackendModules())
-
-        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getBackendModules())
-        folioHelm.checkDeploymentsRunning(namespace.getNamespaceName(), namespace.getModules().getBackendModules())
-      }
-    }
-
-    stage('[Helm] Deploy edge') {
-      folioHelm.withKubeConfig(namespace.getClusterName()) {
-        folioEdge.renderEphemeralPropertiesEureka(namespace)
-        namespace.getModules().getEdgeModules().each { module ->
-          kubectl.createConfigMap("${module.name}-ephemeral-properties", namespace.getNamespaceName(), "./${module.name}-ephemeral-properties")
-        }
-
-        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getEdgeModules())
-        folioHelm.checkDeploymentsRunning(namespace.getNamespaceName(), namespace.getModules().getEdgeModules())
-
-      }
-    }
+//    stage('[Helm] Deploy mgr-*') {
+//      folioHelm.withKubeConfig(namespace.getClusterName()) {
+//        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getMgrModules())
+//
+//        //Check availability of the mgr-applications /applications endpoint to ensure the module up and running
+//        int counter = 0
+//        retry(10) {
+//          sleep time: (counter == 0 ? 0 : 30), unit: 'SECONDS'
+//          counter++
+//
+//          Applications.get(eureka.kong).getRegisteredApplications()
+//        }
+//      }
+//    }
+//
+//    stage('[Rest] Preinstall') {
+//      namespace.withApplications(
+//        eureka.registerApplicationsFlow(
+//          //TODO: Refactoring is needed!!! Utilization of extension should be applied.
+//          // Remove this shit with consortia and linkedData. Apps have to be taken as it is.
+//          args.applications -
+//                  (args.consortia ? [:] : ["app-consortia": "snapshot", "app-consortia-manager": "snapshot"]) -
+//                  (args.consortia ? [:] : ["app-consortia": "master", "app-consortia-manager": "master"]) -
+//                  (args.linkedData ? [:] : ["app-linked-data": "snapshot"]) -
+//                  (args.linkedData ? [:] : ["app-linked-data": "master"])
+//          , namespace.getModules().getModuleVersionMap()
+//          , namespace.getTenants().values() as List<EurekaTenant>
+//        )
+//      )
+//
+//      eureka.registerModulesFlow(
+//        namespace.getModules()
+//        , namespace.getApplications()
+//      )
+//    }
+//
+//    stage('[Helm] Deploy modules') {
+//      folioHelm.withKubeConfig(namespace.getClusterName()) {
+//        logger.info(namespace.getModules().getBackendModules())
+//
+//        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getBackendModules())
+//        folioHelm.checkDeploymentsRunning(namespace.getNamespaceName(), namespace.getModules().getBackendModules())
+//      }
+//    }
+//
+//    stage('[Helm] Deploy edge') {
+//      folioHelm.withKubeConfig(namespace.getClusterName()) {
+//        folioEdge.renderEphemeralPropertiesEureka(namespace)
+//        namespace.getModules().getEdgeModules().each { module ->
+//          kubectl.createConfigMap("${module.name}-ephemeral-properties", namespace.getNamespaceName(), "./${module.name}-ephemeral-properties")
+//        }
+//
+//        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getEdgeModules())
+//        folioHelm.checkDeploymentsRunning(namespace.getNamespaceName(), namespace.getModules().getEdgeModules())
+//
+//      }
+//    }
 
     stage('[Rest] Initialize') {
       int counter = 0

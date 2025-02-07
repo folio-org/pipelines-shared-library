@@ -33,18 +33,18 @@ class Eureka extends Base {
     tenant.withUUID(createdTenant.getUuid())
       .withClientSecret(retrieveTenantClientSecretFromAWSSSM(tenant))
 
-    kong.keycloak.defineTTL(tenant.tenantId, 3600)
-
-    List<String> entitledApps = Tenants.get(kong).getEnabledApplications(tenant).keySet().toList().collect { appId ->
-      appId.split("-\\d+\\.\\d+\\.\\d+")[0]
-    }
-
-    Tenants.get(kong).enableApplicationsOnTenant(
-      tenant
-      , tenant.applications.values().toList().findAll{app -> !(entitledApps.contains(app.split("-\\d+\\.\\d+\\.\\d+")[0]))}
-    )
-
-    context.folioTools.stsKafkaLag(cluster, namespace, tenant.tenantId)
+//    kong.keycloak.defineTTL(tenant.tenantId, 3600)
+//
+//    List<String> entitledApps = Tenants.get(kong).getEnabledApplications(tenant).keySet().toList().collect { appId ->
+//      appId.split("-\\d+\\.\\d+\\.\\d+")[0]
+//    }
+//
+//    Tenants.get(kong).enableApplicationsOnTenant(
+//      tenant
+//      , tenant.applications.values().toList().findAll{app -> !(entitledApps.contains(app.split("-\\d+\\.\\d+\\.\\d+")[0]))}
+//    )
+//
+//    context.folioTools.stsKafkaLag(cluster, namespace, tenant.tenantId)
 
     //create tenant admin user
     createUserFlow(tenant, tenant.adminUser
@@ -199,6 +199,8 @@ class Eureka extends Base {
 
   Eureka initializeFromScratch(Map<String, EurekaTenant> tenants, String cluster, String namespace, boolean enableConsortia) {
     tenants.each { tenantId, tenant -> createTenantFlow(tenant, cluster, namespace) }
+
+    input message: "Let's wait"
 
     if (enableConsortia)
       setUpConsortiaFlow(
