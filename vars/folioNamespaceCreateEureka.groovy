@@ -240,7 +240,7 @@ void call(CreateNamespaceParameters args) {
       int counter = 0
       retry(10) {
         // The first wait time should be at least 10 minutes due to module's long time instantiation
-        sleep time: (counter == 0 ? 10 : 2), unit: 'MINUTES'
+        sleep time: (counter == 0 ? 0 : 2), unit: 'MINUTES'
         counter++
 
         eureka.initializeFromScratch(
@@ -273,8 +273,8 @@ void call(CreateNamespaceParameters args) {
 
     //TODO: Add adequate slack notification https://folio-org.atlassian.net/browse/RANCHER-1892
     stage('[Notify] Eureka') {
-      slackSend(color: 'good', message: 'eureka-snapshot env successfully built\n' + "1. https://${namespace.generateDomain('diku')}\n" +
-        "2. https://${namespace.generateDomain('consortium')}", channel: '#rancher_tests_notifications')
+//      slackSend(color: 'good', message: 'eureka-snapshot env successfully built\n' + "1. https://${namespace.generateDomain('diku')}\n" +
+//        "2. https://${namespace.generateDomain('consortium')}", channel: '#rancher_tests_notifications')
     }
 
 //    stage('Deploy ldp') {
@@ -286,7 +286,7 @@ void call(CreateNamespaceParameters args) {
   } catch (Exception e) {
     println(e)
     //TODO: Add adequate slack notification https://folio-org.atlassian.net/browse/RANCHER-1892
-    slackSend(color: 'danger', message: "eureka-snapshot env build failed...\n" + "${env.BUILD_URL}", channel: '#rancher_tests_notifications')
+//    slackSend(color: 'danger', message: "eureka-snapshot env build failed...\n" + "${env.BUILD_URL}", channel: '#rancher_tests_notifications')
     throw new Exception(e)
   }
 }
