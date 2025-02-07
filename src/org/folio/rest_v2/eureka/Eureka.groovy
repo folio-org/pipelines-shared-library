@@ -44,7 +44,7 @@ class Eureka extends Base {
       , tenant.applications.values().toList().findAll{app -> !(entitledApps.contains(app.split("-\\d+\\.\\d+\\.\\d+")[0]))}
     )
 
-    context.folioTools.stsKafkaLag(cluster, namespace, tenant.tenantId)
+//    context.folioTools.stsKafkaLag(cluster, namespace, tenant.tenantId)
 
     //create tenant admin user
     createUserFlow(tenant, tenant.adminUser
