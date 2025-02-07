@@ -40,27 +40,27 @@ class Users extends Kong{
   }
 
   User getUser(EurekaTenant tenant, String userId){
-    return getUsers(tenant, userId)[0]
+    return getUsers(tenant, "id==${userId}")[0]
   }
 
   User getUserByName(EurekaTenant tenant, String name){
-    return getUsers(tenant, "", "name==${name}")[0]
+    return getUsers(tenant, "name==${name}")[0]
   }
 
   User getUserByUsername(EurekaTenant tenant, String username){
-    return getUsers(tenant, "", "username=${username}")[0]
+    return getUsers(tenant, "username=${username}")[0]
   }
 
   boolean isUserExist(EurekaTenant tenant, String userId) {
     return getUser(tenant, userId) ? true : false
   }
 
-  List<User> getUsers(EurekaTenant tenant, String userId = "", String query = "", int limit = 3000){
-    logger.info("Get users${userId ? " with ,userId=${userId}" : ""}${query ? " with query=${query}" : ""} for tenant ${tenant.tenantId}...")
+  List<User> getUsers(EurekaTenant tenant, String query = "", int limit = 3000){
+    logger.info("Get users${query ? " with query=${query}" : ""} for tenant ${tenant.tenantId}...")
 
     Map<String, String> headers = getTenantHttpHeaders(tenant)
 
-    String url = generateUrl("/users${userId ? "/${userId}" : ""}${query ? "?query=${query}&limit=${limit}" : "?limit=${limit}"}")
+    String url = generateUrl("/users${query ? "?query=${query}&limit=${limit}" : "?limit=${limit}"}")
 
     Map response = restClient.get(url, headers).body as Map
 
