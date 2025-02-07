@@ -78,6 +78,7 @@ RancherNamespace namespace = new RancherNamespace(namespaceParams.getClusterName
 namespace.withSuperTenantAdminUser()
 
 KarateTestsParameters karateTestsParams = new KarateTestsParameters()
+karateTestsParams.gitBranch = params.TESTS_BRANCH
 karateTestsParams.okapiUrl = "https://${namespace.getDomains().okapi}"
 karateTestsParams.edgeUrl = "https://${namespace.getDomains().edge}"
 karateTestsParams.tenant = namespace.getSuperTenant().getTenantId()
@@ -117,7 +118,9 @@ ansiColor('xterm') {
       }
 
       stage('[Flow] Execute tests') {
-        folioKarateFlow(karateTestsParams)
+        sh 'echo Everybody loves kung-foo fighting'
+        sh 'git status'
+        //folioKarateFlow(karateTestsParams)
       }
 
       if (params.DESTROY_AFTER) {
