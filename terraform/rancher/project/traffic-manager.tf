@@ -55,7 +55,7 @@ resource "kubernetes_role" "port_forward_role" {
   rule {
     api_groups = [""]
     resources  = ["pods", "pods/log", "services"]
-    verbs      = ["get", "list", "watch"]
+    verbs      = ["get", "list", "watch", "update"]
   }
   rule {
     api_groups = [""]
