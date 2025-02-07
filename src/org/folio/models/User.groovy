@@ -80,7 +80,7 @@ class User {
     return new User(
       uuid: content.id,
       username: content.username,
-      patronGroup: groupsAPI.getUserGroup(tenant, content.patronGroup as String),
+      patronGroup: content.patronGroup ? groupsAPI.getUserGroup(tenant, content.patronGroup as String) : null,
       active: content.active,
       type: content.type,
       firstName: content.personal.firstName,
