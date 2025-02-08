@@ -166,19 +166,8 @@ void call(CreateNamespaceParameters args) {
     if (args.folioExtensions.contains('consortia-eureka')) {
       namespace.setEnableConsortia(true, isRelease)
 
-      DTO.convertMapTo(args.dataset ? folioDefault.tenants().findAll { it.value.getTenantId().startsWith('cs00000int') } :
+      DTO.convertMapTo(args.dataset ? folioDefault.tenants([], installRequestParams).findAll { it.value.getTenantId().startsWith('cs00000int') } :
         folioDefault.consortiaTenants([], installRequestParams), EurekaTenantConsortia.class).values().each { tenant ->
-        switch (tenant.tenantId) {
-          case 'cs00000int':
-            tenant.withIndex(new Index('instance', true, true))
-            tenant.withIndex(new Index('authority', true, false))
-            tenant.withIndex(new Index('location', true, false))
-            tenant.withInstallRequestParams(installRequestParams.addTenantParameter('centralTenantId', 'cs00000int'))
-              break
-          case ~/cs00000int_00.*/:
-            tenant.withInstallRequestParams(installRequestParams.addTenantParameter('centralTenantId', 'cs00000int'))
-            break
-        }
         tenant.withInstallJson(installJson)
           .withAWSSecretStoragePathName("${namespace.getClusterName()}-${namespace.getNamespaceName()}")
 
