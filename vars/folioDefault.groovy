@@ -130,7 +130,7 @@ Map<String, OkapiTenant> tenants(
       .withConfiguration(new OkapiConfig().withSmtp(smtp).withKbApiKey(kbApiKey))
       .withInstallJson(installJson.collect())
       .withInstallRequestParams(installQueryParameters.clone())
-      .withIndex(new Index('instance', true, true))
+      .withIndex(new Index('instance', true, false))
       .withIndex(new Index('authority', true, false))
       .withIndex(new Index('location', true, false)),
 

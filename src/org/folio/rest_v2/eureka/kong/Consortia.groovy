@@ -150,7 +150,7 @@ class Consortia extends Kong {
       "isCentral": false
     ]
 
-    def response = restClient.post(url, body, headers, [201, 409])
+    def response = restClient.post(url, body, headers, [201, 409, 500])
 
     String contentStr = response.body.toString()
 
@@ -163,6 +163,15 @@ class Consortia extends Kong {
     else
 
       logger.info("${institutionalTenant.tenantId} successfully added to ${centralConsortiaTenant.consortiaName} consortia")
+
+    if (response.responseCode == 500)
+      logger.info("""
+        Tenant : ${institutionalTenant.tenantId} add operation failed!
+        Try to delete the tenant and re-add it operation started...""")
+
+    restClient.delete(generateUrl("/consortia/${centralConsortiaTenant.consortiaUuid}/tenants/${institutionalTenant.tenantId}"), headers)
+
+    addConsortiaTenant(centralConsortiaTenant, institutionalTenant)
 
     return this
   }
