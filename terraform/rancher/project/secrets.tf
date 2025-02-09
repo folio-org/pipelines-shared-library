@@ -32,7 +32,7 @@ resource "rancher2_secret" "system_user" {
   data = merge(
     {
       SYSTEM_USER_NAME     = base64encode("${each.value == "mod-consortia-keycloak" ? "consortia-system-user" : each.value}${var.eureka ? "" : "-system"}")
-      SYSTEM_USER_USERNAME = base64encode("${each.value}${var.eureka ? "" : "-system"}")
+      SYSTEM_USER_USERNAME = base64encode("${each.value == "mod-consortia-keycloak" ? "consortia-system-user" : each.value}${var.eureka ? "" : "-system"}")
     },
     var.eureka ? {
       SYSTEM_USER_CREATE        = base64encode("false")
