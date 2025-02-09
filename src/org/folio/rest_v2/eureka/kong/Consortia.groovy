@@ -173,7 +173,7 @@ class Consortia extends Kong {
         logger.info("""
           Tenant : ${institutionalTenant.tenantId} add operation failed!
           Try to delete the tenant and re-add it operation started...""")
-        restClient.delete(generateUrl("/consortia/${centralConsortiaTenant.consortiaUuid}/tenants/${institutionalTenant.tenantId}"), headers)
+        restClient.delete(generateUrl("/consortia/${centralConsortiaTenant.consortiaUuid}/tenants/${institutionalTenant.uuid}"), headers)
         sleep(15)
         addConsortiaTenant(centralConsortiaTenant, institutionalTenant)
         break
