@@ -69,6 +69,8 @@ class Tenants extends Kong{
       Response content:
       ${contentStr}""")
 
+    sleep(15) //On large number of tenants, the tenant is not created immediately!!!
+
     return EurekaTenant.getTenantFromContent(content)
   }
 
