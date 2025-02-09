@@ -154,24 +154,30 @@ class Consortia extends Kong {
 
     String contentStr = response.body.toString()
 
-    if (response.responseCode == 409)
-      logger.info("""
-        Consortia tenant already added
-        Status: ${response.responseCode}
-        Response content:
-        ${contentStr}""")
-    else
-
-      logger.info("${institutionalTenant.tenantId} successfully added to ${centralConsortiaTenant.consortiaName} consortia")
-
-    if (response.responseCode == 500)
-      logger.info("""
-        Tenant : ${institutionalTenant.tenantId} add operation failed!
-        Try to delete the tenant and re-add it operation started...""")
-
-    restClient.delete(generateUrl("/consortia/${centralConsortiaTenant.consortiaUuid}/tenants/${institutionalTenant.tenantId}"), headers)
-
-    addConsortiaTenant(centralConsortiaTenant, institutionalTenant)
+    switch (response.responseCode) {
+      case 201:
+        logger.info("""
+          Tenant : ${institutionalTenant.tenantId} added successfully
+          Status: ${response.responseCode}
+          Response content:
+          ${contentStr}""")
+        break
+      case 409:
+        logger.info("""
+          Tenant : ${institutionalTenant.tenantId} already added
+          Status: ${response.responseCode}
+          Response content:
+          ${contentStr}""")
+        break
+      case 500:
+        logger.info("""
+          Tenant : ${institutionalTenant.tenantId} add operation failed!
+          Try to delete the tenant and re-add it operation started...""")
+        restClient.delete(generateUrl("/consortia/${centralConsortiaTenant.consortiaUuid}/tenants/${institutionalTenant.tenantId}"), headers)
+        sleep(15)
+        addConsortiaTenant(centralConsortiaTenant, institutionalTenant)
+        break
+    }
 
     return this
   }
