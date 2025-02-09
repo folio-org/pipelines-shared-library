@@ -49,6 +49,19 @@ void build(String okapiUrl, OkapiTenant tenant, boolean isEureka = false, String
             okapiUrl = binding.kongUrl
           }
 
+          switch (tenantId) {
+            case 'fs09000002':
+              binding.kongUrl = "https://fs02-${kongDomain}"
+              binding.isSingleTenant = true
+              okapiUrl = binding.kongUrl
+              break
+            case 'fs09000003':
+              binding.kongUrl = "https://fs03-${kongDomain}"
+              binding.isSingleTenant = true
+              okapiUrl = binding.kongUrl
+              break
+          }
+
           writeFile(file: 'stripes.config.js'
             , text: make_tpl(readFile(file: 'stripes.config.js', encoding: "UTF-8") as String, binding)
             , encoding: 'UTF-8')

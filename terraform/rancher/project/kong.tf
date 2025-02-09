@@ -95,6 +95,26 @@ ingress:
                name: http-proxy
          path: /*
          pathType: ImplementationSpecific
+   - host: ${join(".", [join("-", ["fs02", data.rancher2_cluster.this.name, var.rancher_project_name, "kong"]), var.root_domain])}
+     http:
+       paths:
+       - backend:
+           service:
+             name: kong-${var.rancher_project_name}
+             port:
+               name: http-proxy
+         path: /*
+         pathType: ImplementationSpecific
+   - host: ${join(".", [join("-", ["fs03", data.rancher2_cluster.this.name, var.rancher_project_name, "kong"]), var.root_domain])}
+     http:
+       paths:
+       - backend:
+           service:
+             name: kong-${var.rancher_project_name}
+             port:
+               name: http-proxy
+         path: /*
+         pathType: ImplementationSpecific
 kong:
   livenessProbe:
     enabled: false
