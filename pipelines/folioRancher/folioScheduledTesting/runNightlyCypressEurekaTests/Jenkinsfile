@@ -22,7 +22,7 @@ properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
   disableConcurrentBuilds(),
   parameters([
-    string(name: 'CYPRESS_BRANCH', defaultValue: 'eureka-test-snapshot', description: "(Required) Insert what 'stripes-testing' branch use for build"),
+    string(name: 'CYPRESS_BRANCH', defaultValue: 'eureka', description: "(Required) Insert what 'stripes-testing' branch use for build"),
     folioParameters.agent(),
     folioParameters.refreshParameters()
   ])
@@ -81,7 +81,7 @@ cypressParameters.setTenantUrl("https://${namespace.generateDomain('diku')}")
 cypressParameters.setOkapiUrl("https://${namespace.getDomains().kong}")
 cypressParameters.setTenant(new OkapiTenant('diku')
   .withAdminUser(new OkapiUser('diku_admin', 'admin')))
-cypressParameters.setExecParameters('--env grepTags="smoke criticalPath --eurekaTemporaryECS"')
+cypressParameters.setExecParameters('--env grepTags="smoke criticalPath"')
 cypressParameters.setTestrailProjectID('14')
 cypressParameters.setTestrailRunID('2723')
 cypressParameters.setWorkerLabel('cypress')
