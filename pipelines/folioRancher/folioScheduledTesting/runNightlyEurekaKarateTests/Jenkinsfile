@@ -112,7 +112,7 @@ ansiColor('xterm') {
       }
 
       stage('[Flow] Execute tests') {
-       sh 'git status && git log'
+       sh 'ls -la'
        // folioKarateFlow(karateTestsParams)
       }
 
