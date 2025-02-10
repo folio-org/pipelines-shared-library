@@ -138,7 +138,7 @@ void call(CreateNamespaceParameters args) {
         .convertTo(EurekaTenant.class)
         .withAWSSecretStoragePathName("${namespace.getClusterName()}-${namespace.getNamespaceName()}")
         .withInstallJson(installJson)
-        .withIndex(new Index('instance', true, false))
+        .withIndex(new Index('instance', true, true))
         .withIndex(new Index('authority', true, false))
         .withIndex(new Index('location', true, false))
         .withInstallRequestParams(installRequestParams.clone())
