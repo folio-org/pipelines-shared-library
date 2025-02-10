@@ -16,7 +16,7 @@ class GitHubClient {
 
   GitHubClient(Object context) {
     this.logger = new Logger(context, this.getClass().getCanonicalName())
-    this.restClient = new RestClient(context,true)
+    this.restClient = new RestClient(context)
     this.gitHubToken = SystemCredentialsProvider.getInstance().getStore()
       .getCredentials(Domain.global()).find { it.getId().equals(GITHUB_TOKEN_CREDENTIAL_ID) }.getSecret()
   }

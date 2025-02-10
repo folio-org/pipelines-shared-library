@@ -2,8 +2,6 @@ package org.folio.utilities
 
 import groovy.json.internal.LazyMap
 
-import java.util.regex.Pattern
-
 /**
  * A Jenkins-friendly REST client that executes HTTP requests using `curl`.
  * This class supports multiple HTTP verbs (GET, POST, PUT, DELETE, and file upload)
@@ -19,8 +17,6 @@ import java.util.regex.Pattern
  * </pre>
  */
 class RestClient {
-
-  private static final Pattern HEADER_LINE_PATTERN = ~/^[!#$%&'*+.^_`|~0-9a-zA-Z-]+: .*$/
 
   /**
    * The Jenkins pipeline context (usually `this` in a Pipeline script),
@@ -390,8 +386,6 @@ class RestClient {
       responseCode = lastLine.replace('HTTP_CODE:', '').trim().toInteger()
       lines.remove(lines.size() - 1)
     }
-
-    logger.debug(lines)
 
     // Separate headers from body by a blank line or a possible fallback location
     Map<String, List<String>> headersMap = [:]
