@@ -12,9 +12,9 @@ import org.folio.utilities.Logger
 import org.folio.utilities.Tools
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-2074') _ // remove
 
-CONFIG_BRANCH = 'master'
+CONFIG_BRANCH = 'RANCHER-2074' // remove
 
 properties([buildDiscarder(logRotator(numToKeepStr: '30')),
             disableConcurrentBuilds(),
@@ -195,6 +195,26 @@ ansiColor('xterm') {
           }
 
           folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getEdgeModules())
+        }
+      }
+
+      stage('Okapi Update') {
+        folioHelm.withKubeConfig(namespace.getClusterName()) {
+          def currentOkapiVersion = namespace.getModules().getOkapiVersion()
+          def targetOkapiVersion = "okapi-6.2.0-SNAPSHOT.902"
+
+          if (currentOkapiVersion != targetOkapiVersion) {
+            folioPrint.colored("Updating Okapi from ${currentOkapiVersion} to ${targetOkapiVersion}", "yellow")
+            
+            namespace.getModules().updateModuleVersion('okapi', targetOkapiVersion)
+            
+            folioHelm.deployFolioModule(namespace, 'okapi', targetOkapiVersion, true)
+            folioHelm.checkDeploymentsRunning(namespace.getNamespaceName(), ['okapi'])
+
+            folioPrint.colored("Okapi successfully updated to ${targetOkapiVersion}", "green")
+          } else {
+            folioPrint.colored("Okapi is already at ${targetOkapiVersion}, skipping update.", "blue")
+          }
         }
       }
 
