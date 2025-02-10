@@ -118,9 +118,7 @@ ansiColor('xterm') {
       }
 
       stage('[Flow] Execute tests') {
-        sh 'echo Everybody loves kung-foo fighting'
-        sh 'git status'
-        //folioKarateFlow(karateTestsParams)
+        folioKarateFlow(karateTestsParams)
       }
 
       if (params.DESTROY_AFTER) {
