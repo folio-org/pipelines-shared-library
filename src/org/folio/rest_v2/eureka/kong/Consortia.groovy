@@ -150,19 +150,39 @@ class Consortia extends Kong {
       "isCentral": false
     ]
 
-    def response = restClient.post(url, body, headers, [201, 409])
+    def response = restClient.post(url, body, headers, [201, 409, 500])
 
     String contentStr = response.body.toString()
 
-    if (response.responseCode == 409)
-      logger.info("""
-        Consortia tenant already added
-        Status: ${response.responseCode}
-        Response content:
-        ${contentStr}""")
-    else
-
-      logger.info("${institutionalTenant.tenantId} successfully added to ${centralConsortiaTenant.consortiaName} consortia")
+    switch (response.responseCode) {
+      case 201:
+        logger.info("""
+          Tenant : ${institutionalTenant.tenantId} added successfully
+          Status: ${response.responseCode}
+          Response content:
+          ${contentStr}""")
+        break
+      case 409:
+        logger.info("""
+          Tenant : ${institutionalTenant.tenantId} already added
+          Status: ${response.responseCode}
+          Response content:
+          ${contentStr}""")
+        break
+      case 500:
+        logger.info("""
+          Tenant : ${institutionalTenant.tenantId} add operation failed!
+          Try to delete the tenant and re-add it operation started...""")
+          def fix = restClient.delete(generateUrl("/consortia/${centralConsortiaTenant.consortiaUuid}/tenants/${institutionalTenant.tenantId}"), headers, [204, 404])
+          if (fix.responseCode == 204) {
+            logger.info("Tenant : ${institutionalTenant.tenantId} deleted successfully from consortia.\nTrying to add it again...")
+            addConsortiaTenant(centralConsortiaTenant, institutionalTenant)
+          } else {
+            logger.warning("Adding tenant : ${institutionalTenant.tenantId} in consortia operation end with errors!\nContinue with current execution...")
+          }
+        break
+    }
+    sleep(10000)
 
     return this
   }
