@@ -198,26 +198,6 @@ ansiColor('xterm') {
         }
       }
 
-      stage('Okapi Update') {
-        folioHelm.withKubeConfig(namespace.getClusterName()) {
-          def currentOkapiVersion = namespace.getModules().getOkapiVersion()
-          def targetOkapiVersion = "okapi-6.2.0-SNAPSHOT.902"
-
-          if (currentOkapiVersion != targetOkapiVersion) {
-            folioPrint.colored("Updating Okapi from ${currentOkapiVersion} to ${targetOkapiVersion}", "yellow")
-            
-            namespace.getModules().updateModuleVersion('okapi', targetOkapiVersion)
-            
-            folioHelm.deployFolioModule(namespace, 'okapi', targetOkapiVersion, true)
-            folioHelm.checkDeploymentsRunning(namespace.getNamespaceName(), ['okapi'])
-
-            folioPrint.colored("Okapi successfully updated to ${targetOkapiVersion}", "green")
-          } else {
-            folioPrint.colored("Okapi is already at ${targetOkapiVersion}, skipping update.", "blue")
-          }
-        }
-      }
-
       stage('Enable') {
         retry(2) {
           sleep time: 5, unit: 'MINUTES' //mod-agreements, service-interaction etc | federation lock
