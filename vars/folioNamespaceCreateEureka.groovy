@@ -44,8 +44,6 @@ void call(CreateNamespaceParameters args) {
       tfConfig.addVar('pg_instance_type', 'db.r6g.xlarge')
     }
 
-    boolean TF_REFRESH_REQUESTED = false
-
     stage('[Terraform] Provision') {
       switch (args.type) {
         case 'full':
@@ -53,18 +51,16 @@ void call(CreateNamespaceParameters args) {
           break
         case 'terraform':
           folioTerraformFlow.manageNamespace('apply', tfConfig)
-          TF_REFRESH_REQUESTED = true
+
+          currentBuild.result = 'ABORTED'
+          currentBuild.description = 'Terraform refresh complete'
+          return
+
           break
         case 'update':
           logger.info("Skip [Terraform] Provision stage")
           break
       }
-    }
-
-    if (TF_REFRESH_REQUESTED) {
-      currentBuild.result = 'ABORTED'
-      currentBuild.description = 'Terraform refresh complete'
-      return
     }
 
     if (args.greenmail) {
@@ -87,28 +83,14 @@ void call(CreateNamespaceParameters args) {
       return
     }
 
-    String defaultTenantId
-    List installJson
-    List eurekaPlatform
-
-    //Set install configuration
-    if (args.dataset) {
-      defaultTenantId = 'fs09000000'
-    } else {
-      defaultTenantId = 'diku'
-    }
+    defaultTenantId = args.dataset ? 'fs09000000' : 'diku'
     String folioRepository = 'platform-complete'
     boolean isRelease = args.folioBranch ==~ /^R\d-\d{4}.*/
     String commitHash = common.getLastCommitHash(folioRepository, args.folioBranch)
-    if (args.dataset) {
-      installJson = new GitHubUtility(this).getEnableList(folioRepository, 'snapshot')
-      eurekaPlatform = new GitHubUtility(this).getEurekaList(folioRepository, 'snapshot')
-      installJson.addAll(eurekaPlatform)
-    } else {
-      installJson = new GitHubUtility(this).getEnableList(folioRepository, args.folioBranch)
-      eurekaPlatform = new GitHubUtility(this).getEnableList(folioRepository, args.folioBranch)
-      installJson.addAll(eurekaPlatform)
-    }
+
+    List installJson = new GitHubUtility(this).getEnableList(folioRepository, args.folioBranch)
+    List eurekaPlatform = new GitHubUtility(this).getEurekaList(folioRepository, args.folioBranch)
+    installJson.addAll(eurekaPlatform)
 
     //TODO: Temporary solution. Unused by Eureka modules have been removed.
     installJson.removeAll { module -> module.id =~ /(mod-login|mod-authtoken|mod-login-saml)-\d+\..*/ }
@@ -167,20 +149,24 @@ void call(CreateNamespaceParameters args) {
     if (args.folioExtensions.contains('consortia-eureka')) {
       namespace.setEnableConsortia(true, isRelease)
 
-      DTO.convertMapTo(args.dataset ? folioDefault.tenants([], installRequestParams).findAll { it.value.getTenantId().startsWith('cs00000int') } :
-        folioDefault.consortiaTenants([], installRequestParams), EurekaTenantConsortia.class).values().each { tenant ->
-        tenant.withInstallJson(installJson)
-          .withSecureTenant(args.hasSecureTenant && args.secureTenantId == tenant.getTenantId())
-          .withAWSSecretStoragePathName("${namespace.getClusterName()}-${namespace.getNamespaceName()}")
+      Map defaultConsortiaTenants = args.dataset ?
+        folioDefault.tenants([], installRequestParams).findAll { it instanceof OkapiTenantConsortia } :
+        folioDefault.consortiaTenants([], installRequestParams)
 
-        if (tenant.getIsCentralConsortiaTenant()) {
-          tenant.withTenantUi(tenantUi.clone())
-//          tenant.okapiConfig.setLdpConfig(ldpConfig)
+
+      DTO.convertMapTo(defaultConsortiaTenants, EurekaTenantConsortia.class)
+        .values()
+        .each { tenant ->
+          tenant.withInstallJson(installJson)
+            .withSecureTenant(args.hasSecureTenant && args.secureTenantId == tenant.getTenantId())
+            .withAWSSecretStoragePathName("${namespace.getClusterName()}-${namespace.getNamespaceName()}")
+
+          if (tenant.getIsCentralConsortiaTenant())
+            tenant.withTenantUi(tenantUi.clone())
+
+          tenant.enableFolioExtensions(this, args.folioExtensions)
+          namespace.addTenant(tenant)
         }
-
-        tenant.enableFolioExtensions(this, args.folioExtensions)
-        namespace.addTenant(tenant)
-      }
     }
 
     // TODO: Move this part to one of Eureka classes later. | DO NOT REMOVE | FIX FOR DNS PROPAGATION ISSUE!!!
