@@ -282,7 +282,7 @@ void call(CreateNamespaceParameters args) {
           , namespace.getClusterName()
           , namespace.getNamespaceName()
           , namespace.getEnableConsortia()
-//        , args.dataset
+//        , args.dataset // Uncomment this option when users & groups migration is required.
         )
       }
     }
@@ -333,11 +333,7 @@ void call(CreateNamespaceParameters args) {
   } catch (Exception e) {
     println(e)
     //TODO: Add adequate slack notification https://folio-org.atlassian.net/browse/RANCHER-1892
-      if (args.dataset) {
-          slackSend(color: 'danger', message: "eureka-snapshot env build failed...\n" + "${env.BUILD_URL}", channel: '#eureka-sprint-testing')
-      } else {
-          slackSend(color: 'danger', message: "eureka-snapshot env build failed...\n" + "${env.BUILD_URL}", channel: '#rancher_tests_notifications')
-      }
+    slackSend(color: 'danger', message: "eureka-snapshot env build failed...\n" + "${env.BUILD_URL}", channel: args.dataset ? '#eureka-sprint-testing' : '#rancher_tests_notifications')
     throw new Exception(e)
   }
 }
