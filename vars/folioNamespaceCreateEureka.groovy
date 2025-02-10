@@ -260,6 +260,17 @@ void call(CreateNamespaceParameters args) {
     }
 
     stage('[Rest] Initialize') {
+      if (args.dataset) { // Prepare for large dataset reindex
+        folioHelm.withKubeConfig(namespace.getClusterName()) {
+
+          kubectl.setKubernetesResourceCount('deployment', 'mod-inventory-storage', namespace.getNamespaceName(), '4')
+          sleep(time: 10, unit: 'SECONDS')
+          kubectl.setKubernetesResourceCount('deployment', 'mod-search', namespace.getNamespaceName(), '4')
+
+          folioHelm.checkDeploymentsRunning(namespace.getNamespaceName(), namespace.getModules().getBackendModules())
+
+        }
+      }
       int counter = 0
       retry(10) {
         // The first wait time should be at least 10 minutes due to module's long time instantiation
