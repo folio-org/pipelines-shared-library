@@ -175,7 +175,7 @@ void deleteEvictedPods(String namespace = 'default') {
     def pods = sh(script: "kubectl get pod --no-headers --namespace ${namespace}", returnStdout: true).trim()
     pods.toString().eachLine { pod ->
       if (pod.contains('Evicted')) {
-      deletePod(namespace, pod.split()[0].toString().trim())
+        deletePod(namespace, pod.split()[0].toString().trim())
       }
     }
   } catch (Exception e) {

@@ -67,7 +67,10 @@ Map<String, OkapiTenantConsortia> consortiaTenants(
   ]
 }
 
-Map<String, OkapiTenant> tenants() {
+Map<String, OkapiTenant> tenants(
+  Object installJson = [],
+  InstallRequestParams installQueryParameters = new InstallRequestParams()) {
+
   SmtpConfig smtp = null
   String kbApiKey = ''
 
@@ -79,6 +82,8 @@ Map<String, OkapiTenant> tenants() {
     smtp = new SmtpConfig(Constants.EMAIL_SMTP_SERVER, Constants.EMAIL_SMTP_PORT, EMAIL_USERNAME, EMAIL_PASSWORD, Constants.EMAIL_FROM)
     kbApiKey = KB_API_KEY
   }
+
+  installQueryParameters.addTenantParameter('centralTenantId', 'cs00000int')
 
   return [
     diku           : new OkapiTenant('diku')
@@ -122,7 +127,12 @@ Map<String, OkapiTenant> tenants() {
       .withTenantName('Central tenant')
       .withTenantDescription('cs00000int, Central tenant created via Jenkins')
       .withAdminUser(adminOkapiUser('ECSAdmin', 'admin'))
-      .withConfiguration(new OkapiConfig().withSmtp(smtp).withKbApiKey(kbApiKey)),
+      .withConfiguration(new OkapiConfig().withSmtp(smtp).withKbApiKey(kbApiKey))
+      .withInstallJson(installJson.collect())
+      .withInstallRequestParams(installQueryParameters.clone())
+      .withIndex(new Index('instance', true, false))
+      .withIndex(new Index('authority', true, false))
+      .withIndex(new Index('location', true, false)),
 
     cs00000int_0001: new OkapiTenantConsortia('cs00000int_0001')
       .withTenantCode('COL')
@@ -130,7 +140,9 @@ Map<String, OkapiTenant> tenants() {
       .withTenantName('Colleague tenant')
       .withTenantDescription('cs00000int_0001, Colleague tenant created via Jenkins')
       .withAdminUser(adminOkapiUser('ECS0001Admin', 'admin'))
-      .withConfiguration(new OkapiConfig().withSmtp(smtp)),
+      .withConfiguration(new OkapiConfig().withSmtp(smtp))
+      .withInstallJson(installJson.collect())
+      .withInstallRequestParams(installQueryParameters.clone()),
 
     cs00000int_0002: new OkapiTenantConsortia('cs00000int_0002')
       .withTenantCode('PROF')
@@ -138,7 +150,9 @@ Map<String, OkapiTenant> tenants() {
       .withTenantName('Professional tenant')
       .withTenantDescription('cs00000int_0002, Professional tenant created via Jenkins')
       .withAdminUser(adminOkapiUser('ECS0002Admin', 'admin'))
-      .withConfiguration(new OkapiConfig().withSmtp(smtp)),
+      .withConfiguration(new OkapiConfig().withSmtp(smtp))
+      .withInstallJson(installJson.collect())
+      .withInstallRequestParams(installQueryParameters.clone()),
 
     cs00000int_0003: new OkapiTenantConsortia('cs00000int_0003')
       .withTenantCode('SCHO')
@@ -146,7 +160,9 @@ Map<String, OkapiTenant> tenants() {
       .withTenantName('School tenant')
       .withTenantDescription('cs00000int_0003, School tenant created via Jenkins')
       .withAdminUser(adminOkapiUser('ECS0003Admin', 'admin'))
-      .withConfiguration(new OkapiConfig().withSmtp(smtp)),
+      .withConfiguration(new OkapiConfig().withSmtp(smtp))
+      .withInstallJson(installJson.collect())
+      .withInstallRequestParams(installQueryParameters.clone()),
 
     cs00000int_0004: new OkapiTenantConsortia('cs00000int_0004')
       .withTenantCode('SPE')
@@ -154,7 +170,9 @@ Map<String, OkapiTenant> tenants() {
       .withTenantName('Special tenant')
       .withTenantDescription('cs00000int_0004, Special tenant created via Jenkins')
       .withAdminUser(adminOkapiUser('ECS0004Admin', 'admin'))
-      .withConfiguration(new OkapiConfig().withSmtp(smtp)),
+      .withConfiguration(new OkapiConfig().withSmtp(smtp))
+      .withInstallJson(installJson.collect())
+      .withInstallRequestParams(installQueryParameters.clone()),
 
     cs00000int_0005: new OkapiTenantConsortia('cs00000int_0005')
       .withTenantCode('UNI')
@@ -162,7 +180,9 @@ Map<String, OkapiTenant> tenants() {
       .withTenantName('University tenant')
       .withTenantDescription('cs00000int_0005, University tenant created via Jenkins')
       .withAdminUser(adminOkapiUser('ECS0005Admin', 'admin'))
-      .withConfiguration(new OkapiConfig().withSmtp(smtp)),
+      .withConfiguration(new OkapiConfig().withSmtp(smtp))
+      .withInstallJson(installJson.collect())
+      .withInstallRequestParams(installQueryParameters.clone()),
 
     cs00000int_0006: new OkapiTenantConsortia('cs00000int_0006')
       .withTenantCode('AQA')
@@ -170,7 +190,9 @@ Map<String, OkapiTenant> tenants() {
       .withTenantName('AQA ECS tenant')
       .withTenantDescription('cs00000int_0006, AQA ECS tenant created via Jenkins')
       .withAdminUser(adminOkapiUser('ECS0006Admin', 'admin'))
-      .withConfiguration(new OkapiConfig().withSmtp(smtp)),
+      .withConfiguration(new OkapiConfig().withSmtp(smtp))
+      .withInstallJson(installJson.collect())
+      .withInstallRequestParams(installQueryParameters.clone()),
 
     cs00000int_0007: new OkapiTenantConsortia('cs00000int_0007')
       .withTenantCode('AQA2')
@@ -178,7 +200,9 @@ Map<String, OkapiTenant> tenants() {
       .withTenantName('AQA2 ECS tenant')
       .withTenantDescription('cs00000int_0007, AQA2 ECS tenant created via Jenkins')
       .withAdminUser(adminOkapiUser('ECS0007Admin', 'admin'))
-      .withConfiguration(new OkapiConfig().withSmtp(smtp)),
+      .withConfiguration(new OkapiConfig().withSmtp(smtp))
+      .withInstallJson(installJson.collect())
+      .withInstallRequestParams(installQueryParameters.clone()),
 
     cs00000int_0008: new OkapiTenantConsortia('cs00000int_0008')
       .withTenantCode('PUB')
@@ -186,7 +210,9 @@ Map<String, OkapiTenant> tenants() {
       .withTenantName('Public tenant')
       .withTenantDescription('cs00000int_0008, Public tenant created via Jenkins')
       .withAdminUser(adminOkapiUser('ECS0008Admin', 'admin'))
-      .withConfiguration(new OkapiConfig().withSmtp(smtp)),
+      .withConfiguration(new OkapiConfig().withSmtp(smtp))
+      .withInstallJson(installJson.collect())
+      .withInstallRequestParams(installQueryParameters.clone()),
 
     cs00000int_0009: new OkapiTenantConsortia('cs00000int_0009')
       .withTenantCode('MED')
@@ -194,7 +220,9 @@ Map<String, OkapiTenant> tenants() {
       .withTenantName('Medical tenant')
       .withTenantDescription('cs00000int_0009, Medical tenant created via Jenkins')
       .withAdminUser(adminOkapiUser('ECS0009Admin', 'admin'))
-      .withConfiguration(new OkapiConfig().withSmtp(smtp)),
+      .withConfiguration(new OkapiConfig().withSmtp(smtp))
+      .withInstallJson(installJson.collect())
+      .withInstallRequestParams(installQueryParameters.clone()),
 
     cs00000int_0010: new OkapiTenantConsortia('cs00000int_0010')
       .withTenantCode('WORK')
@@ -202,7 +230,9 @@ Map<String, OkapiTenant> tenants() {
       .withTenantName('Workflow tenant')
       .withTenantDescription('cs00000int_0010, Workflow tenant created via Jenkins')
       .withAdminUser(adminOkapiUser('ECS0010Admin', 'admin'))
-      .withConfiguration(new OkapiConfig().withSmtp(smtp)),
+      .withConfiguration(new OkapiConfig().withSmtp(smtp))
+      .withInstallJson(installJson.collect())
+      .withInstallRequestParams(installQueryParameters.clone()),
 
     cs00000int_0011: new OkapiTenantConsortia('cs00000int_0011')
       .withTenantCode('MGMT')
@@ -211,5 +241,7 @@ Map<String, OkapiTenant> tenants() {
       .withTenantDescription('cs00000int_0011, Management Division tenant created via Jenkins')
       .withAdminUser(adminOkapiUser('ECS0011Admin', 'admin'))
       .withConfiguration(new OkapiConfig().withSmtp(smtp))
+      .withInstallJson(installJson.collect())
+      .withInstallRequestParams(installQueryParameters.clone())
   ]
 }

@@ -47,6 +47,8 @@ class CreateNamespaceParameters implements Cloneable {
 
   boolean uiBuild
 
+  boolean dataset = false
+
   //TODO: remove after pipeline refactoring. Just utilize it. Use this only in the main pipeline for developers
   // as a select-simplicity approach. Don't use it, and do not include it in the underlying
   // base pipeline or step-separated pipelines.
@@ -78,6 +80,8 @@ class CreateNamespaceParameters implements Cloneable {
   String keycloakVersion = 'latest'
 
   String kongVersion = 'latest'
+
+  String type = 'full'
 
   private CreateNamespaceParameters() {}
 
@@ -310,6 +314,17 @@ class CreateNamespaceParameters implements Cloneable {
     }
 
     /**
+     * Defines the type of environment to be used.
+     * @param dataset `true` to enable BF like dataset; `false` to disable.
+     * @return
+     */
+
+    Builder dataset(boolean dataset) {
+      parameters.dataset = dataset
+      return this
+    }
+
+    /**
      * Specifies the application list for Eureka platform
      * @param list The list of application-branch map to entitle.
      * @return Builder instance for method chaining.
@@ -440,6 +455,11 @@ class CreateNamespaceParameters implements Cloneable {
 
     Builder keycloakVersion(String keycloakVersion) {
       parameters.keycloakVersion = keycloakVersion
+      return this
+    }
+
+    Builder type(String type) {
+      parameters.type = type
       return this
     }
 
