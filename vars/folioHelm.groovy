@@ -303,6 +303,28 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
           name: 'MOD_USERS_ID',
           value: 'mod-users-' + ns.getModules().getModuleByName('mod-users').getVersion()
         ]
+
+        break
+      case 'mod-requests-mediated':
+        moduleConfig['extraEnvVars'] += ns.hasSecureTenant ? [
+          name: 'SECURE_TENANT_ID',
+          value: ns.getSecureTenant().tenantId
+        ] : []
+
+        break
+      case 'edge-patron':
+        moduleConfig['integrations']['okapi'] = [enabled: false]
+
+        moduleConfig['extraEnvVars'] += ns.hasSecureTenant ? [
+          name: 'SECURE_TENANT_ID',
+          value: ns.getSecureTenant().tenantId
+        ] : []
+
+        moduleConfig['extraEnvVars'] += ns.hasSecureTenant ? [
+          name: 'SECURE_REQUESTS_FEATURE_ENABLED',
+          value: ns.getSecureTenant().hasSecureTenant
+        ] : []
+
         break
       case ~/edge-.*$/:
         moduleConfig['integrations']['okapi'] = [enabled: false]

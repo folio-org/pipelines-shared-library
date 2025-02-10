@@ -130,7 +130,7 @@ def branch(String paramName = 'FOLIO_BRANCH', String repository = 'platform-comp
   return _paramExtendedSingleSelect(paramName, '', folioStringScripts.getRepositoryBranches(repository), "(Required) Select what '${repository}' branch use for build")
 }
 
-def branchWithRef(String paramName = 'FOLIO_BRANCH', String reference) {
+def branchWithRef(String paramName = 'FOLIO_BRANCH', String reference = "") {
   return _paramExtendedSingleSelect(paramName, reference, folioStringScripts.getRepositoryBranches("\${${reference}}"), "(Required) Select what '${reference}' branch use for build")
 }
 
@@ -244,4 +244,15 @@ def containerImageTag(String paramName = 'CONTAINER_IMAGE_TAG', String reference
 
 def moduleSource() {
   return _paramChoice('MODULE_SOURCE', Constants.EUREKA_MODULE_SOURCES, 'Select Eureka module source')
+}
+
+def consortiaSecureMemberTenant(
+      String paramName = 'SECURE_TENANT'
+      , List value =
+        folioDefault.consortiaTenants()
+          .findAll {!(it.value.isCentralConsortiaTenant)}
+          .collect{it.value.tenantId}
+      , String description = 'Select secure tenant'
+) {
+  return _paramChoice(paramName, value, description)
 }

@@ -26,11 +26,16 @@ properties([
     folioParameters.applications(),
     folioParameters.configType(),
     folioParameters.groupParameters("Environment features"
-      , ["LOAD_REFERENCE", "LOAD_SAMPLE", "BUILD_UI", "CONSORTIA", "LINKED_DATA", "SPLIT_FILES", "RW_SPLIT", "ECS_CCL", "GREENMAIL", "MOCK_SERVER", "RTR", "DATASET", "TYPE"]),
+      , [ "LOAD_REFERENCE", "LOAD_SAMPLE", "BUILD_UI", "CONSORTIA", "LINKED_DATA", "SPLIT_FILES"
+          , "RW_SPLIT", "ECS_CCL", "GREENMAIL", "MOCK_SERVER", "RTR", "DATASET", "TYPE"
+          , "HAS_SECURE_TENANT", "SECURE_TENANT"
+    ]),
     folioParameters.loadReference(),
     folioParameters.loadSample(),
     booleanParam(name: 'BUILD_UI', defaultValue: true, description: '(Optional) Set true to include UI'),
     booleanParam(name: 'CONSORTIA', defaultValue: true, description: '(Optional) Set true to create consortium'),
+    booleanParam(name: 'HAS_SECURE_TENANT', defaultValue: true, description: '(Optional) Set true to enable secure tenant on one of the consortia institutional tenant'),
+    folioParameters.consortiaSecureMemberTenant(),
     booleanParam(name: 'LINKED_DATA', defaultValue: true, description: '(Optional) Set true to deploy LinkedData'),
     booleanParam(name: 'SPLIT_FILES', defaultValue: true, description: '(Optional) Set true to enable split-files functionality'),
     booleanParam(name: 'RW_SPLIT', defaultValue: false, description: '(Optional) Set true to Enable Read/Write split'),
@@ -41,7 +46,7 @@ properties([
     booleanParam(name: 'DATASET', defaultValue: false, description: '(Optional) Set true to build BF like environment'),
     choice(name: 'TYPE', choices: ['full', 'terraform', 'update'], description: '(Required) Set action TYPE to perform'),
     folioParameters.groupParameters("Integrations"
-      , ["POSTGRESQL", "DB_VERSION", "KAFKA", "OPENSEARCH", "S3_BUCKET"]),
+      , [ "POSTGRESQL", "DB_VERSION", "KAFKA", "OPENSEARCH", "S3_BUCKET" ]),
     folioParameters.pgType(),
     folioParameters.pgVersion(),
     folioParameters.kafkaType(),
@@ -51,12 +56,22 @@ properties([
     string(name: 'MEMBERS', defaultValue: '', description: '(Optional) Coma separated list of GitHub teams who need an access to the namespace'),
     folioParameters.agent(),
     folioParameters.refreshParameters()
-    , folioParameters.hideParameters(
+    ,folioParameters.hideParameters(
     [
-      'EUREKA': ['OKAPI_VERSION'],
-      'OKAPI' : ['APPLICATION_SET', 'APPLICATIONS']
+      'EUREKA':['OKAPI_VERSION'],
+      'OKAPI': ['APPLICATION_SET', 'APPLICATIONS' ]
     ]
     , "PLATFORM")
+    ,folioParameters.hideParameters(
+    [
+      '' :['HAS_SECURE_TENANT', 'SECURE_TENANT']
+    ]
+    , "CONSORTIA")
+    ,folioParameters.hideParameters(
+    [
+      '' :['SECURE_TENANT']
+    ]
+    , "HAS_SECURE_TENANT")
   ])
 ])
 
@@ -93,6 +108,8 @@ CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builde
   .applicationSet(params.APPLICATION_SET)
   .applications(Constants.APPLICATION_BRANCH(params.APPLICATION_SET as String
     , (params.APPLICATIONS as String).split(',') as List))
+  .hasSecureTenant(params.HAS_SECURE_TENANT)
+  .secureTenantId(params.SECURE_TENANT)
   .pgType(params.POSTGRESQL)
   .pgVersion(params.DB_VERSION)
   .kafkaType(params.KAFKA)
@@ -133,7 +150,7 @@ if(namespaceParams.platform == PlatformType.EUREKA) {
   cypressSanityParameters.setOkapiUrl("https://${namespace.getDomains().kong}")
   //TODO: Temporary exclusion of the eholdings and software-version test cases.
   cypressSanityParameters.setExecParameters('--env grepTags="fse+sanity+-eholdings+-inventory"')
-} else {
+}else {
   cypressSanityParameters.setTestsSrcBranch('master')
   cypressSanityParameters.setOkapiUrl("https://${namespace.getDomains().okapi}")
   cypressSanityParameters.setExecParameters('--env grepTags="fse+sanity"')
@@ -159,8 +176,8 @@ ansiColor('xterm') {
         folioNamespaceCreate(namespaceParams)
       }
 
-      stage('[Cypress] Run sanity check') {
-        if (params.RUN_SANITY_CHECK) {
+      stage('[Cypress] Run sanity check'){
+        if(params.RUN_SANITY_CHECK) {
           folioCypressFlow.runWrapper(cypressSanityParameters.getCiBuildId(), false, '', false) {
             folioCypressFlow.multiThreadRun(cypressSanityParameters)
           }

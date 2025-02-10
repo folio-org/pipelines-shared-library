@@ -41,6 +41,10 @@ class CreateNamespaceParameters implements Cloneable {
 
   boolean rtr
 
+  boolean hasSecureTenant
+
+  String secureTenantId
+
   boolean uiBuild
 
   boolean dataset = false
@@ -51,7 +55,7 @@ class CreateNamespaceParameters implements Cloneable {
   @Deprecated
   String applicationSet = 'Complete'
 
-  Map<String, String> applications = [:]
+  Map<String,String> applications = [:]
 
   List<String> folioExtensions = []
 
@@ -286,6 +290,26 @@ class CreateNamespaceParameters implements Cloneable {
      */
     Builder rtr(boolean rtr) {
       parameters.rtr = rtr
+      return this
+    }
+
+    /**
+     * Activate or not secure tenant
+     * @param has `true` to activate security on tenant secureTenantId
+     * @return Builder instance for method chaining.
+     */
+    Builder hasSecureTenant(boolean has) {
+      parameters.hasSecureTenant = has
+      return this
+    }
+
+    /**
+     * Defines the id of the tenant to secure
+     * @param id The id of the tenant to secure
+     * @return Builder instance for method chaining.
+     */
+    Builder secureTenantId(String id) {
+      parameters.secureTenantId = id
       return this
     }
 
