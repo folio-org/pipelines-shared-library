@@ -26,7 +26,7 @@ properties([
     folioParameters.applications(),
     folioParameters.configType(),
     folioParameters.groupParameters("Environment features"
-      , [ "LOAD_REFERENCE", "LOAD_SAMPLE", "BUILD_UI", "CONSORTIA", "LINKED_DATA", "SPLIT_FILES", "RW_SPLIT", "ECS_CCL", "GREENMAIL", "MOCK_SERVER", "RTR" ]),
+      , ["LOAD_REFERENCE", "LOAD_SAMPLE", "BUILD_UI", "CONSORTIA", "LINKED_DATA", "SPLIT_FILES", "RW_SPLIT", "ECS_CCL", "GREENMAIL", "MOCK_SERVER", "RTR", "DATASET", "TYPE"]),
     folioParameters.loadReference(),
     folioParameters.loadSample(),
     booleanParam(name: 'BUILD_UI', defaultValue: true, description: '(Optional) Set true to include UI'),
@@ -38,8 +38,10 @@ properties([
     booleanParam(name: 'GREENMAIL', defaultValue: false, description: '(Optional) Set true to deploy greenmail server'),
     booleanParam(name: 'MOCK_SERVER', defaultValue: false, description: '(Optional) Set true to deploy mock-server'),
     booleanParam(name: 'RTR', defaultValue: false, description: '(Optional) Set true to enable RTR'),
+    booleanParam(name: 'DATASET', defaultValue: false, description: '(Optional) Set true to build BF like environment'),
+    choice(name: 'TYPE', choices: ['full', 'terraform', 'update'], description: '(Required) Set action TYPE to perform'),
     folioParameters.groupParameters("Integrations"
-      , [ "POSTGRESQL", "DB_VERSION", "KAFKA", "OPENSEARCH", "S3_BUCKET" ]),
+      , ["POSTGRESQL", "DB_VERSION", "KAFKA", "OPENSEARCH", "S3_BUCKET"]),
     folioParameters.pgType(),
     folioParameters.pgVersion(),
     folioParameters.kafkaType(),
@@ -49,10 +51,10 @@ properties([
     string(name: 'MEMBERS', defaultValue: '', description: '(Optional) Coma separated list of GitHub teams who need an access to the namespace'),
     folioParameters.agent(),
     folioParameters.refreshParameters()
-    ,folioParameters.hideParameters(
+    , folioParameters.hideParameters(
     [
-      'EUREKA':['OKAPI_VERSION'],
-      'OKAPI': ['APPLICATION_SET', 'APPLICATIONS' ]
+      'EUREKA': ['OKAPI_VERSION'],
+      'OKAPI' : ['APPLICATION_SET', 'APPLICATIONS']
     ]
     , "PLATFORM")
   ])
@@ -64,6 +66,10 @@ if (params.REFRESH_PARAMETERS) {
 }
 
 if (params.CLUSTER == 'folio-testing') {
+  folioCommon.kitfoxApproval()
+}
+
+if (params.DATASET) {
   folioCommon.kitfoxApproval()
 }
 
@@ -96,6 +102,8 @@ CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builde
   .uiBuild(params.BUILD_UI)
   .kongVersion('latest')
   .keycloakVersion('latest')
+  .dataset(params.DATASET)
+  .type(params.TYPE)
   .build()
 
 if (params.CONSORTIA) {
@@ -125,7 +133,7 @@ if(namespaceParams.platform == PlatformType.EUREKA) {
   cypressSanityParameters.setOkapiUrl("https://${namespace.getDomains().kong}")
   //TODO: Temporary exclusion of the eholdings and software-version test cases.
   cypressSanityParameters.setExecParameters('--env grepTags="fse+sanity+-eholdings+-inventory"')
-}else {
+} else {
   cypressSanityParameters.setTestsSrcBranch('master')
   cypressSanityParameters.setOkapiUrl("https://${namespace.getDomains().okapi}")
   cypressSanityParameters.setExecParameters('--env grepTags="fse+sanity"')
@@ -151,8 +159,8 @@ ansiColor('xterm') {
         folioNamespaceCreate(namespaceParams)
       }
 
-      stage('[Cypress] Run sanity check'){
-        if(params.RUN_SANITY_CHECK) {
+      stage('[Cypress] Run sanity check') {
+        if (params.RUN_SANITY_CHECK) {
           folioCypressFlow.runWrapper(cypressSanityParameters.getCiBuildId(), false, '', false) {
             folioCypressFlow.multiThreadRun(cypressSanityParameters)
           }

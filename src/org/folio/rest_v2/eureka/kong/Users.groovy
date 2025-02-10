@@ -137,6 +137,19 @@ class Users extends Kong{
 
   }
 
+  Users invokeUsersMigration(EurekaTenant tenant) {
+
+    logger.info("Invoking users migration for ${tenant.tenantId}...")
+
+    Map<String, String> headers = getTenantHttpHeaders(tenant)
+
+    restClient.post(generateUrl("/users-keycloak/migrations"), "",headers)
+
+    sleep(30)
+
+    return this
+  }
+
   @NonCPS
   static Users get(Kong kong){
     return new Users(kong)

@@ -146,7 +146,7 @@ if (moduleVersionList.getResponseCode().equals(200)) {
 }
 
 static String getPostgresqlVersion() {
-  return '''def versions = ["12.12", "12.14", "13.13", "14.10", "15.5", "16.1"]
+  return '''def versions = ["12.12", "12.14", "13.13", "14.10", "15.5", "16.1", "16.4"]
 
 List pgVersions = versions.findAll { it != '16.1' }
 pgVersions.add(0, '16.1')
