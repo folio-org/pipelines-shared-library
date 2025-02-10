@@ -389,7 +389,7 @@ class RestClient {
 
     // Separate headers from body by a blank line or a possible fallback location
     Map<String, List<String>> headersMap = [:]
-    int blankLineIndex = lines.indexOf('')
+    int blankLineIndex = lines.findIndexOf { it.trim().isEmpty() }
     if (blankLineIndex == -1) {
       blankLineIndex = findHeaderBodySplit(lines)
     }
