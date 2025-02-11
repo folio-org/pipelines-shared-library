@@ -46,6 +46,13 @@ class RestClient {
   private Logger logger
 
   /**
+   *   Maximum allowed length for an inline request body. If the text representation of the body is shorter than this,
+   *   it will be passed inline to the curl command.
+   */
+
+  private static final int INLINE_BODY_MAX_SIZE = 4096
+
+  /**
    * Constructs a new RestClient.
    *
    * @param context                  A reference to the Jenkins pipeline `this` context.
@@ -199,22 +206,22 @@ class RestClient {
                         int connectionTimeout,
                         int readTimeout) {
 
-    String bodyFilePath = null
+    // Prepare the body (either as inline data or in a temporary file)
+    Map preparedBody = prepareRequestBody(body, headers)
+    String inlineData = preparedBody.inlineData
+    String bodyFilePath = preparedBody.filePath
 
     try {
       if (debug) {
         logger.debug("[HTTP REQUEST] method=${method}, url=${url}, headers=${headers}, body=${body}")
       }
 
-      // Prepare the request body: write to a temporary file if needed
-      bodyFilePath = writeRequestBodyToFile(body, headers)
-
       // Convert timeouts from milliseconds to seconds for the curl command
       int connectSeconds = Math.round(connectionTimeout / 1000)
       int readSeconds = Math.round(readTimeout / 1000)
 
       // Build the curl command string
-      String curlCmd = buildCurlCommand(method, url, headers, bodyFilePath, connectSeconds, readSeconds, body)
+      String curlCmd = buildCurlCommand(method, url, headers, bodyFilePath, inlineData, connectSeconds, readSeconds, body)
       if (debug) {
         logger.debug("[CURL COMMAND] ${curlCmd}")
       }
@@ -249,10 +256,14 @@ class RestClient {
   }
 
   /**
-   * Writes the request body to a temporary file (if not null) and returns its path.
-   * Automatically sets the Content-Type header if not provided.
+   * Prepares the request body.
    *
-   * @param body    The request body object, which can be:
+   * For binary data (byte[]), it always writes to a temporary file.
+   * For Map/List or String, it first converts the data to a text representation.
+   * If the resulting text is small enough (<= INLINE_BODY_MAX_SIZE), it returns the data inline;
+   * otherwise, it writes the data to a temporary file.
+   *
+   * @param body The request body object, which can be:
    *                <ul>
    *                  <li>Map/List: converted to JSON</li>
    *                  <li>byte[]: stored as base64 in the file</li>
@@ -260,41 +271,49 @@ class RestClient {
    *                  <li>null: no file is written</li>
    *                </ul>
    * @param headers A map of headers; may be updated with a default Content-Type if absent.
-   * @return The path to the temporary file, or null if no file was needed.
+   * @return a map with one of:
+   *   - [inlineData: <String>]
+   *   - [filePath: <String>]
    */
-  private String writeRequestBodyToFile(Object body, Map<String, String> headers) {
+  private Map prepareRequestBody(Object body, Map<String, String> headers) {
     if (body == null) {
-      return null
+      return [:]
     }
 
-    // Only set Content-Type if not already provided
-    if (!headers['Content-Type']) {
-      if (body instanceof Map || body instanceof List) {
-        headers['Content-Type'] = 'application/json'
-      } else if (body instanceof byte[]) {
+    if (body instanceof byte[]) {
+      if (!headers['Content-Type']) {
         headers['Content-Type'] = 'application/octet-stream'
-      } else {
-        headers['Content-Type'] = 'text/plain'
       }
-    }
-
-    // Create a unique temp filename with a random UUID to avoid collisions in parallel steps
-    String fileName = "restClientBody_${System.currentTimeMillis()}_${UUID.randomUUID().toString()}.tmp"
-
-    if (body instanceof Map || body instanceof List) {
-      // Convert to JSON string
-      String jsonStr = steps.writeJSON(returnText: true, json: body)
-      steps.writeFile file: fileName, text: jsonStr, encoding: 'UTF-8'
-    } else if (body instanceof byte[]) {
-      // Write binary data as base64 so we can decode it in the shell
+      // Create a unique temp filename with a random UUID to avoid collisions in parallel steps
+      String fileName = "restClientBody_${System.currentTimeMillis()}_${UUID.randomUUID().toString()}.tmp"
+      // Write binary data as base64
       String base64data = body.encodeBase64().toString()
       steps.writeFile file: fileName, text: base64data, encoding: 'UTF-8'
+      return [filePath: fileName]
     } else {
-      // Treat as a string
-      steps.writeFile file: fileName, text: body.toString(), encoding: 'UTF-8'
+      String textBody
+      if (body instanceof Map || body instanceof List) {
+        // Convert to JSON string
+        textBody = steps.writeJSON(returnText: true, json: body)
+        if (!headers['Content-Type']) {
+          headers['Content-Type'] = 'application/json'
+        }
+      } else {
+        // Treat as a string
+        textBody = body.toString()
+        if (!headers['Content-Type']) {
+          headers['Content-Type'] = 'text/plain'
+        }
+      }
+      // If the text is small enough, return it inline.
+      if (textBody.length() <= INLINE_BODY_MAX_SIZE) {
+        return [inlineData: textBody]
+      } else {
+        String fileName = "restClientBody_${System.currentTimeMillis()}_${UUID.randomUUID().toString()}.tmp"
+        steps.writeFile file: fileName, text: textBody, encoding: 'UTF-8'
+        return [filePath: fileName]
+      }
     }
-
-    return fileName
   }
 
   /**
@@ -314,6 +333,7 @@ class RestClient {
                                   String url,
                                   Map<String, String> headers,
                                   String bodyFilePath,
+                                  String inlineData,
                                   int connectTimeoutSec,
                                   int readTimeoutSec,
                                   Object originalBody) {
@@ -332,11 +352,13 @@ class RestClient {
     // Capture response headers in stdout (`-D -`)
     cmd.append(" -D -")
 
-    // If we have a file with the request body, attach it properly
-    if (bodyFilePath) {
+    if (inlineData) {
+      // Use inline payload with --data-raw.
+      cmd.append(" --data-raw '${escapeSingleQuotes(inlineData)}'")
+    } else if (bodyFilePath) {
       if (originalBody instanceof byte[]) {
         // For binary data, decode from base64, then pipe into curl as binary
-        cmd.insert(0, "base64 --decode ${bodyFilePath} | ") // prepend the decode
+        cmd.insert(0, "base64 --decode ${escapeSingleQuotes(bodyFilePath)} | ") // prepend the decode
         cmd.append(" --data-binary @-")
       } else {
         // For JSON or text, just pass the file content directly
