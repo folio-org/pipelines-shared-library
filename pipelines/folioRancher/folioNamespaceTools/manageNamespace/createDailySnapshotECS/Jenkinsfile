@@ -236,11 +236,11 @@ ansiColor('xterm') {
       //     }
       //   }
 
-        slackSend(color: 'good', message: 'ecs-snapshot env successfully built', channel: '#arsen_test') //remove
-      }
-      stage('The rest components placeholder') {
-        // GreenMail, LDP, Mock server, etc.
-      }
+      //   slackSend(color: 'good', message: 'ecs-snapshot env successfully built', channel: '#arsen_test') //remove
+      // }
+      // stage('The rest components placeholder') {
+      //   // GreenMail, LDP, Mock server, etc.
+      // }
 
     } catch (e) {
       stage('Notify') {
