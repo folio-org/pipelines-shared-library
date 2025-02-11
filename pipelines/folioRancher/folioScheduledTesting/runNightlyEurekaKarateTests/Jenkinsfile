@@ -18,7 +18,7 @@ properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
   disableConcurrentBuilds(),
   parameters([
-    string(name: 'TESTS_BRANCH', defaultValue: 'eureka-master', description: "(Required) Karate tests repository branch to checkout"),
+    string(name: 'TESTS_BRANCH', defaultValue: 'master-eureka', description: "(Required) Karate tests repository branch to checkout"),
     string(name: 'THREADS_COUNT', defaultValue: '4', description: "(Required) Number of parallel threads"),
     booleanParam(name: 'DESTROY_AFTER', defaultValue: true, description: '(Optional) Set to false to not destroy namespace after tests execution'),
     folioParameters.refreshParameters()
