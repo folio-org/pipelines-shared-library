@@ -78,6 +78,7 @@ void call(CreateNamespaceParameters args) {
 
     //TODO: Temporary solution. Unused by Eureka modules have been removed.
     installJson.removeAll { module -> module.id =~ /(mod-login|mod-authtoken|mod-login-saml|mod-reporting)-\d+\..*/ }
+    installJson.removeAll { module -> module.id == 'okapi' }
 
     TenantUi tenantUi = new TenantUi("${namespace.getClusterName()}-${namespace.getNamespaceName()}",
       commitHash, args.folioBranch)
