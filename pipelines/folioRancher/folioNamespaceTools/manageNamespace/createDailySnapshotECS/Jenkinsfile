@@ -1,7 +1,7 @@
 #!groovy
 package folioRancher.folioNamespaceTools.manageNamespace.createDailySnapshotECS
 
-import groovy.json.JsonSlurperClassic
+
 import org.folio.Constants
 import org.folio.models.*
 import org.folio.models.parameters.CreateNamespaceParameters
@@ -31,7 +31,7 @@ properties([buildDiscarder(logRotator(numToKeepStr: '30')),
                         folioParameters.agent(),
                         folioParameters.refreshParameters()]),
             pipelineTriggers([parameterizedCron('''45 20 * * * %CLUSTER=folio-testing;NAMESPACE=ecs-snapshot;CONFIG_TYPE=testing;CONSORTIA=true;RW_SPLIT=false;RETRY_ENABLE=false;POSTGRESQL=built-in;KAFKA=built-in;OPENSEARCH=aws;S3_BUCKET=built-in;AGENT=rancher''')])
-            ])
+])
 
 if (params.REFRESH_PARAMETERS) {
   currentBuild.result = 'ABORTED'
@@ -70,8 +70,7 @@ namespace.addDeploymentConfig(CONFIG_BRANCH)
 Logger logger = new Logger(this, env.JOB_BASE_NAME)
 
 String installJsonS3Path = "${Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME}/ecs-snapshot/"
-List newInstallJson = new GitHubUtility(this).getEnableList('platform-complete', 'snapshot')
-newInstallJson.removeAll { module -> module.id == 'okapi' }
+List newInstallJson = []
 InstallRequestParams installRequestParams = new InstallRequestParams(reinstall: true)
   .withTenantParameters("centralTenantId=cs00000int")
 Main main = new Main(this, namespace.generateDomain('okapi'), namespace.getSuperTenant())
@@ -98,6 +97,8 @@ ansiColor('xterm') {
     stage('Ini') {
       buildName "${tfConfig.getWorkspace()}-${env.BUILD_ID}"
       buildDescription "Config: ${params.CONFIG_TYPE}"
+      newInstallJson = new GitHubUtility(this).getEnableList('platform-complete', 'snapshot')
+      newInstallJson.removeAll { module -> module.id == 'okapi' }
     }
     try {
       stage('Checkout') {
