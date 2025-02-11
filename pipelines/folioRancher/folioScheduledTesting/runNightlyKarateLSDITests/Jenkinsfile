@@ -61,6 +61,8 @@ CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builde
   .rtr(false)
   .applicationSet('Complete')
   .applications(RestConstants.APPLICATION_BRANCH('Complete'))
+  .hasSecureTenant(true)
+  .secureTenantId(folioDefault.consortiaTenants().get('university').getTenantId())
   .pgType('built-in')
   .pgVersion('16.1')
   .kafkaType('built-in')

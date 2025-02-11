@@ -69,6 +69,8 @@ CreateNamespaceParameters namespaceFromBranchParams = namespaceBaseParams.toBuil
   .rtr(false)
   .applicationSet('Complete')
   .applications(org.folio.rest_v2.Constants.APPLICATION_BRANCH('Complete'))
+  .hasSecureTenant(true)
+  .secureTenantId(folioDefault.consortiaTenants().get('university').getTenantId())
   .uiBuild(true)
   .build()
 
