@@ -40,7 +40,6 @@ final String deleteNamespaceJobName = Constants.JENKINS_DELETE_NAMESPACE_JOB
 String okapiVersion = folioTools.eval(folioStringScripts.getOkapiVersions(), ['FOLIO_BRANCH': 'snapshot'])[0]
 
 CreateNamespaceParameters namespaceBaseParams = new CreateNamespaceParameters.Builder()
-  .platform(PlatformType.EUREKA)
   .clusterName('folio-etesting')
   .namespaceName('karate')
   .rwSplit(false)
@@ -57,6 +56,7 @@ CreateNamespaceParameters namespaceBaseParams = new CreateNamespaceParameters.Bu
   .build()
 
 CreateNamespaceParameters namespaceFromBranchParams = namespaceBaseParams.toBuilder()
+  .platform(PlatformType.EUREKA)
   .folioBranch('snapshot')
   .okapiVersion(okapiVersion)
   .configType('testing')
