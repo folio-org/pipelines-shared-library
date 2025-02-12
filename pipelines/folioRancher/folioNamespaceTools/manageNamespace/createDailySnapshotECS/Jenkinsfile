@@ -130,8 +130,8 @@ ansiColor('xterm') {
 
           folioHelm.withKubeConfig(params.CLUSTER) {
             folioPrint.colored("Restoring psql ecs dump...\nEstimated duration: ~ 1-2 hours", "green")
-            psqlDumpMethods.restoreHelmData("psql-restore", "psql-dump", "1.0.6", "roles-backup-new",
-              "ecs-snapshot-03", Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME,
+            psqlDumpMethods.restoreHelmData("psql-restore", "psql-dump", "1.0.6", "roles-backup-2",
+              "ecs-snapshot-04", Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME,
               "ecs-snapshot", "${params.NAMESPACE}")
             sys_psswd = kubectl.getSecretValue(namespace.getNamespaceName(), 'mod-consortia-systemuser', 'SYSTEM_USER_PASSWORD')
             kubectl.patchSecret("mod-consortia-systemuser", "SYSTEM_USER_NAME", "consortia-system-user", "${params.NAMESPACE}")
