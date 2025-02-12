@@ -30,6 +30,7 @@ locals {
     }
   ]
   testing_cluster = "folio-testing"
+  etesting_cluster   = "folio-etesting"
 }
 
 module "eks_cluster" {
@@ -130,7 +131,7 @@ module "eks_cluster" {
       # For future schedule https://registry.terraform.io/modules/terraform-aws-modules/eks/aws/latest/submodules/eks-managed-node-group#input_schedules
     }
     },
-    terraform.workspace == local.testing_cluster ? {
+    terraform.workspace == local.testing_cluster || terraform.workspace == local.etesting_cluster ? {
       eks_node_group_cicypress = {
         cluster_name = terraform.workspace
         name         = "cicypress"
