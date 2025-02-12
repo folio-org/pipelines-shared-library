@@ -89,9 +89,9 @@ karateTestsParams.prototypeTenant = 'consortium'
 karateTestsParams.adminUserName = namespace.getSuperTenant().getAdminUser().getUsername()
 karateTestsParams.adminPassword = namespace.getSuperTenant().getAdminUser().getPassword()
 karateTestsParams.threadsCount = params.THREADS_COUNT
-karateTestsParams.reportPortalProjectName = 'junit5-integration'
+karateTestsParams.reportPortalProjectName = ''
 karateTestsParams.sendSlackNotification = true
-karateTestsParams.syncWithJira = true
+karateTestsParams.syncWithJira = false
 karateTestsParams.timeout = '2'
 
 /**
