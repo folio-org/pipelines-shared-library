@@ -154,11 +154,12 @@ class Eureka extends Base {
     return registeredApps
   }
 
-  Eureka registerModulesFlow(FolioInstallJson<EurekaModule> modules, Map<String, String> apps) {
+  Eureka registerModulesFlow(FolioInstallJson<EurekaModule> modules, Map<String, String> apps, boolean update = false) {
     Applications.get(kong).registerModules(
       [
         "discovery": modules.getDiscoveryList(getApplicationModules(apps))
       ]
+      , update
     )
 
     return this

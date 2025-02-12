@@ -221,6 +221,7 @@ void call(CreateNamespaceParameters args) {
       eureka.registerModulesFlow(
         namespace.getModules()
         , namespace.getApplications()
+        , args.type == 'update'
       )
     }
 

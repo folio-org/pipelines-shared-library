@@ -94,7 +94,23 @@ class Applications extends Kong{
     }
   }
 
-  Applications registerModules(def jsonModuleList) {
+  Applications registerModules(def jsonModuleList, boolean update = false) {
+
+    if (update) {
+
+      logger.info("Update module list...")
+
+      Map<String, String> headers = getMasterHttpHeaders()
+
+      def existing_modules = restClient.post(generateUrl("/modules/discovery"), jsonModuleList, headers, [409]).body
+
+      existing_modules.each { module ->
+
+        restClient.delete(generateUrl("/modules/${module}/discovery"), headers)
+
+      }
+    }
+
     logger.info("Register module list...")
 
     Map<String, String> headers = getMasterHttpHeaders()
