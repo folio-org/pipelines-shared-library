@@ -141,13 +141,28 @@ networkPolicy:
   enabled: false
 
 livenessProbe:
-  enabled: false
+  enabled: true
+  initialDelaySeconds: 60
+  periodSeconds: 1
+  timeoutSeconds: 10
+  failureThreshold: 5
+  successThreshold: 1
 
 readinessProbe:
-  enabled: false
+  enabled: true
+  initialDelaySeconds: 30
+  periodSeconds: 10
+  timeoutSeconds: 10
+  failureThreshold: 10
+  successThreshold: 1
 
 startupProbe:
   enabled: false
+  initialDelaySeconds: 30
+  periodSeconds: 5
+  timeoutSeconds: 1
+  failureThreshold: 300
+  successThreshold: 1
 
 ingress:
   enabled: true
