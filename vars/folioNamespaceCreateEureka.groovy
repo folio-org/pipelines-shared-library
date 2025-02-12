@@ -150,7 +150,7 @@ void call(CreateNamespaceParameters args) {
       namespace.setEnableConsortia(true, isRelease)
 
       Map defaultConsortiaTenants = args.dataset ?
-        folioDefault.tenants([], installRequestParams).findAll { it instanceof OkapiTenantConsortia } :
+        folioDefault.tenants([], installRequestParams).findAll { it.value.getTenantId().startsWith('cs00000int') } :
         folioDefault.consortiaTenants([], installRequestParams)
 
 
