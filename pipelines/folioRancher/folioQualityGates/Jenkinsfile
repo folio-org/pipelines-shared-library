@@ -74,6 +74,7 @@ CreateNamespaceParameters namespaceFromBranchParams = namespaceBaseParams.toBuil
   .configType('testing')
   .loadReference(true)
   .loadSample(true)
+  .mockServer(false)
   .consortia(true)
   .linkedData(true)
   .splitFiles(true)
