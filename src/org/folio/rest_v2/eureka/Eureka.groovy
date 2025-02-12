@@ -27,7 +27,7 @@ class Eureka extends Base {
     return this
   }
 
-  Eureka createTenantFlow(EurekaTenant tenant, String cluster, String namespace, boolean migrate = false) {
+  Eureka createTenantFlow(EurekaTenant tenant, String cluster, String namespace, boolean migrate = false, boolean upgrade = false) {
     EurekaTenant createdTenant = Tenants.get(kong).createTenant(tenant)
 
     tenant.withUUID(createdTenant.getUuid())
@@ -42,6 +42,7 @@ class Eureka extends Base {
     Tenants.get(kong).enableApplicationsOnTenant(
       tenant
       , tenant.applications.values().toList().findAll{app -> !(entitledApps.contains(app.split("-\\d+\\.\\d+\\.\\d+")[0]))}
+      , upgrade
     )
 
     context.folioTools.stsKafkaLag(cluster, namespace, tenant.tenantId)
@@ -206,8 +207,8 @@ class Eureka extends Base {
     return this
   }
 
-  Eureka initializeFromScratch(Map<String, EurekaTenant> tenants, String cluster, String namespace, boolean enableConsortia, boolean migrate = false) {
-    tenants.each { tenantId, tenant -> createTenantFlow(tenant, cluster, namespace, migrate) }
+  Eureka initializeFromScratch(Map<String, EurekaTenant> tenants, String cluster, String namespace, boolean enableConsortia, boolean migrate = false, boolean upgrade = false) {
+    tenants.each { tenantId, tenant -> createTenantFlow(tenant, cluster, namespace, migrate, upgrade) }
 
     if (enableConsortia)
       setUpConsortiaFlow(
