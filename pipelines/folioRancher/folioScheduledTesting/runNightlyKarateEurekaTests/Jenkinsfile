@@ -41,14 +41,14 @@ if (params.REFRESH_PARAMETERS) {
 Logger logger = new Logger(this, env.JOB_BASE_NAME)
 
 final String createNamespaceJobName = Constants.JENKINS_CREATE_NAMESPACE_FROM_BRANCH_JOB_EUREKA
-final String deleteNamespaceJobName = Constants.JENKINS_DELETE_NAMESPACE_JOB
+final String deleteNamespaceJobName = Constants.JENKINS_DELETE_NAMESPACE_JOB_EUREKA
 String okapiVersion = folioTools.eval(folioStringScripts.getOkapiVersions(), ['FOLIO_BRANCH': 'snapshot'])[0]
 
 CreateNamespaceParameters namespaceBaseParams = new CreateNamespaceParameters.Builder()
   .platform(PlatformType.EUREKA)
   .clusterName('folio-etesting')
   .namespaceName('karate')
-  .rwSplit(true)
+  .rwSplit(false)
   .greenmail(false)
   .mockServer(false)
   .pgType('built-in')
@@ -63,21 +63,18 @@ CreateNamespaceParameters namespaceBaseParams = new CreateNamespaceParameters.Bu
   .build()
 
 CreateNamespaceParameters namespaceFromBranchParams = namespaceBaseParams.toBuilder()
-  .platform(PlatformType.EUREKA)
   .folioBranch('snapshot')
   .okapiVersion(okapiVersion)
   .configType('testing')
   .loadReference(true)
   .loadSample(true)
   .consortia(true)
-  .splitFiles(true)
-  .ecsCCL(true)
   .rtr(false)
+  .applicationSet('Complete')
+  .applications(org.folio.rest_v2.Constants.APPLICATION_BRANCH('Complete'))
   .hasSecureTenant(true)
   .secureTenantId(folioDefault.consortiaTenants().get('university').getTenantId())
-  .applicationSet('Complete')
-  .linkedData(true)
-  .applications(RestConstants.APPLICATION_BRANCH('Complete'))
+  .uiBuild(true)
   .build()
 
 RancherNamespace namespace = new RancherNamespace(namespaceBaseParams.getClusterName(), namespaceBaseParams.getNamespaceName())
@@ -114,14 +111,22 @@ ansiColor('xterm') {
           nsExists = kubectl.checkNamespaceExistence("${namespaceBaseParams.getNamespaceName()}")
         }
         if (nsExists) {
-          folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceBaseParams)
+          retry(2) {
+            folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceBaseParams)
+          }
         } else {
           logger.warning("${namespaceBaseParams.getNamespaceName()} namespace does not exists!")
         }
       }
 
       stage('[Job] Provision environment') {
-        folioTriggerJob.createNamespaceFromBranch(createNamespaceJobName, namespaceFromBranchParams)
+        try {
+          folioTriggerJob.createNamespaceFromBranch(createNamespaceJobName, namespaceFromBranchParams)
+        } catch (Exception new_ex) {
+          slackSend(attachments: folioSlackNotificationUtils.renderFailedBuildResultMessage()
+            , channel: "#rancher_tests_notifications")
+          throw new Exception("Provision of the environment is failed: " + new_ex)
+        }
       }
 
       stage('[Flow] Execute tests') {

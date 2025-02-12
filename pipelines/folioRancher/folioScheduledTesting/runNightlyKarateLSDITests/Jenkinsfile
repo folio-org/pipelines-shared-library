@@ -38,8 +38,8 @@ if (params.REFRESH_PARAMETERS) {
  */
 Logger logger = new Logger(this, env.JOB_BASE_NAME)
 
-final String createNamespaceJobName = Constants.JENKINS_CREATE_NAMESPACE_FROM_BRANCH_JOB
 @Field final String deleteNamespaceJobName = Constants.JENKINS_DELETE_NAMESPACE_JOB_EUREKA
+@Field final String createNamespaceJobName = Constants.JENKINS_CREATE_NAMESPACE_FROM_BRANCH_JOB_EUREKA
 
 String okapiVersion = folioTools.eval(folioStringScripts.getOkapiVersions(), ['FOLIO_BRANCH': 'snapshot'])[0]
 
