@@ -111,7 +111,7 @@ class Tenants extends Kong{
     return getTenant(tenantId) ? true : false
   }
 
-  Tenants enableApplicationsOnTenant(EurekaTenant tenant, List<String> appIds, boolean skipExists = false){
+  Tenants enableApplicationsOnTenant(EurekaTenant tenant, List<String> appIds, boolean skipExists = false, boolean upgrade = false){
     if(!appIds)
       return this
 
@@ -130,12 +130,23 @@ class Tenants extends Kong{
 
     List responseCodes = skipExists ? [201, 400] : []
 
-    def response = restClient.post(
-      generateUrl("/entitlements${tenant.getInstallRequestParams()?.toQueryString() ?: ''}")
-      , body
-      , headers
-      , responseCodes
-    )
+    def response
+
+    if (upgrade) {
+      response = restClient.put(
+        generateUrl("/entitlements${tenant.getInstallRequestParams()?.toQueryString() ?: ''}")
+        , body
+        , headers
+        , responseCodes
+      )
+    } else {
+      response = restClient.post(
+        generateUrl("/entitlements${tenant.getInstallRequestParams()?.toQueryString() ?: ''}")
+        , body
+        , headers
+        , responseCodes
+      )
+    }
 
     String contentStr = response.body.toString()
 
