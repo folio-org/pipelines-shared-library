@@ -303,7 +303,7 @@ void call(CreateNamespaceParameters args) {
     //TODO: Add adequate slack notification https://folio-org.atlassian.net/browse/RANCHER-1892
     stage('[Notify] Eureka') {
       if (args.dataset) {
-        logger.warning("SUCCESS: Eureka sprint testing env successfully built!!!")
+        logger.warning("SUCCESS: Eureka ${args.clusterName}-${args.namespaceName} env successfully built!!!")
         slackSend(color: 'good', message: args.clusterName + "-" + args.namespaceName + " env successfully built\n" +
                 "1. https://${namespace.generateDomain('fs09000000')} creds: folio:folio\n" +
                 "2. https://${namespace.generateDomain('fs09000002')} creds: folio-plus:Folio-plus1\n" +
