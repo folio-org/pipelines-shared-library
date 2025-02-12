@@ -1,7 +1,10 @@
 #!groovy
 package folioRancher.folioScheduledTesting.runNightlyKarateTests
 
+import groovy.transform.Field
 import org.folio.Constants
+import org.folio.models.OkapiTenant
+import org.folio.models.OkapiUser
 import org.folio.models.RancherNamespace
 import org.folio.models.parameters.CreateNamespaceParameters
 import org.folio.models.parameters.KarateTestsParameters
@@ -41,19 +44,24 @@ final String deleteNamespaceJobName = Constants.JENKINS_DELETE_NAMESPACE_JOB
 String okapiVersion = folioTools.eval(folioStringScripts.getOkapiVersions(), ['FOLIO_BRANCH': 'snapshot'])[0]
 
 CreateNamespaceParameters namespaceBaseParams = new CreateNamespaceParameters.Builder()
+  .platform(PlatformType.EUREKA)
   .clusterName('folio-etesting')
   .namespaceName('karate')
   .rwSplit(false)
   .greenmail(false)
-  .mockServer(true)
+  .mockServer(false)
   .pgType('built-in')
   .pgVersion('16.1')
   .kafkaType('built-in')
-  .opensearchType('built-in')
+  .opensearchType('aws')
   .s3Type('built-in')
   .runSanityCheck(false)
-  .members('')
+  .members('folijet')
+  .uiBuild(true)
   .worker('rancher')
+  .applicationSet('Complete')
+  linkedData(true)
+  .applications(RestConstants.APPLICATION_BRANCH('Complete'))
   .build()
 
 CreateNamespaceParameters namespaceFromBranchParams = namespaceBaseParams.toBuilder()
@@ -64,7 +72,7 @@ CreateNamespaceParameters namespaceFromBranchParams = namespaceBaseParams.toBuil
   .loadReference(true)
   .loadSample(true)
   .consortia(true)
-  .splitFiles(false)
+  .splitFiles(true)
   .ecsCCL(false)
   .rtr(false)
   .hasSecureTenant(true)
