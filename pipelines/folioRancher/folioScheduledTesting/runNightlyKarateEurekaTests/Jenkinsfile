@@ -8,9 +8,10 @@ import org.folio.models.OkapiUser
 import org.folio.models.RancherNamespace
 import org.folio.models.parameters.CreateNamespaceParameters
 import org.folio.models.parameters.KarateTestsParameters
+import org.folio.rest_v2.PlatformType
 import org.folio.utilities.Logger
 import org.jenkinsci.plugins.workflow.libs.Library
-import org.folio.rest_v2.PlatformType
+import org.folio.rest_v2.Constants as RestConstants
 
 @Library('pipelines-shared-library@RANCHER-1334') _
 
@@ -56,12 +57,9 @@ CreateNamespaceParameters namespaceBaseParams = new CreateNamespaceParameters.Bu
   .opensearchType('aws')
   .s3Type('built-in')
   .runSanityCheck(false)
-  .members('folijet')
+  .members('')
   .uiBuild(true)
   .worker('rancher')
-  .applicationSet('Complete')
-  linkedData(true)
-  .applications(RestConstants.APPLICATION_BRANCH('Complete'))
   .build()
 
 CreateNamespaceParameters namespaceFromBranchParams = namespaceBaseParams.toBuilder()
@@ -77,6 +75,9 @@ CreateNamespaceParameters namespaceFromBranchParams = namespaceBaseParams.toBuil
   .rtr(false)
   .hasSecureTenant(true)
   .secureTenantId(folioDefault.consortiaTenants().get('university').getTenantId())
+  .applicationSet('Complete')
+  .linkedData(true)
+  .applications(RestConstants.APPLICATION_BRANCH('Complete'))
   .build()
 
 RancherNamespace namespace = new RancherNamespace(namespaceBaseParams.getClusterName(), namespaceBaseParams.getNamespaceName())
