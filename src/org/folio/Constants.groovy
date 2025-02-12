@@ -123,7 +123,7 @@ class Constants {
       name: 'folio-eperf'
       , platform: [ PlatformType.EUREKA ]
       , namespaces: AWS_EKS_DEV_NAMESPACES + AWS_EKS_RELEASE_NAMESPACES
-      , disabled: true
+      , disabled: false
     ],
     [
       name: 'folio-etmp'
