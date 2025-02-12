@@ -201,7 +201,7 @@ void call(CreateNamespaceParameters args) {
           Applications.get(eureka.kong).getRegisteredApplications()
         }
         if (args.type == 'update') {
-          String sql_cmd = "DELETE FROM public.module; DELETE FROM public.entitlement; DELETE FROM public.entitlement_module; DELETE FROM public.application_flow;"
+          String sql_cmd = "DELETE FROM public.module; DELETE FROM public.entitlement; DELETE FROM public.entitlement_module; DELETE FROM public.application; DELETE FROM public.application_flow;"
           String pod = sh(script: "kubectl get pod -l 'app.kubernetes.io/name=pgadmin4' -o=name -n ${namespace.getNamespaceName()}", returnStdout: true).trim()
           sh(script: """kubectl exec ${pod} --namespace ${namespace.getNamespaceName()} -- /usr/local/pgsql-16/psql -c ${sql_cmd}""", returnStdout: true)
         }
