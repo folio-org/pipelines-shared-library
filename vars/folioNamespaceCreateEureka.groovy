@@ -150,7 +150,7 @@ void call(CreateNamespaceParameters args) {
       namespace.setEnableConsortia(true, isRelease)
 
       Map defaultConsortiaTenants = args.dataset ?
-        folioDefault.tenants([], installRequestParams).findAll { it instanceof OkapiTenantConsortia } :
+        folioDefault.tenants([], installRequestParams).findAll { it.value.getTenantId().startsWith('cs00000int') } :
         folioDefault.consortiaTenants([], installRequestParams)
 
 
@@ -199,6 +199,13 @@ void call(CreateNamespaceParameters args) {
           counter++
 
           Applications.get(eureka.kong).getRegisteredApplications()
+        }
+        if (args.type == 'update') {
+          List sql_cmd = ['DELETE FROM public.module', 'DELETE FROM public.entitlement',
+                          'DELETE FROM public.entitlement_module', 'DELETE FROM public.application',
+                          'DELETE FROM public.application_flow']
+          String pod = sh(script: "kubectl get pod -l 'app.kubernetes.io/name=pgadmin4' -o=name -n ${namespace.getNamespaceName()}", returnStdout: true).trim()
+          sql_cmd.each {sh(script: "kubectl exec ${pod} --namespace ${namespace.getNamespaceName()} -- /usr/local/pgsql-16/psql -c '${it}'", returnStdout: true)}
         }
       }
     }
