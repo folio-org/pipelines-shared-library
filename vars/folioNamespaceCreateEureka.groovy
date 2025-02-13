@@ -169,6 +169,11 @@ void call(CreateNamespaceParameters args) {
         }
     }
 
+    //In case update environment the reindex is not needed
+    if(args.type == 'update')
+      namespace.getTenants().values().each { tenant -> tenant.indexes.clear() }
+
+
     // TODO: Move this part to one of Eureka classes later. | DO NOT REMOVE | FIX FOR DNS PROPAGATION ISSUE!!!
     timeout(time: 25, unit: 'MINUTES') {
       def check = ''
@@ -276,8 +281,7 @@ void call(CreateNamespaceParameters args) {
           , namespace.getClusterName()
           , namespace.getNamespaceName()
           , namespace.getEnableConsortia()
-          , !args.dataset // Set this option true, when users & groups migration is required.
-          , args.type != 'update'
+          , args.dataset // Set this option true, when users & groups migration is required.
         )
       }
     }

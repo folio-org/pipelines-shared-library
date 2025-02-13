@@ -207,7 +207,7 @@ class Eureka extends Base {
   }
 
   Eureka initializeFromScratch(Map<String, EurekaTenant> tenants, String cluster, String namespace
-                               , boolean enableConsortia, boolean migrate = false, boolean reindex = false) {
+                               , boolean enableConsortia, boolean migrate = false) {
     tenants.each { tenantId, tenant -> createTenantFlow(tenant, cluster, namespace, migrate) }
 
     if (enableConsortia)
@@ -217,12 +217,10 @@ class Eureka extends Base {
         } as List<EurekaTenantConsortia>
       )
 
-    if (reindex) {
-      tenants.each { tenantId, tenant ->
-        if (tenant.indexes) {
-          tenant.indexes.each { index ->
-            Indexes.get(kong).runIndexFlow(tenant, index)
-          }
+    tenants.each { tenantId, tenant ->
+      if (tenant.indexes) {
+        tenant.indexes.each { index ->
+          Indexes.get(kong).runIndexFlow(tenant, index)
         }
       }
     }
