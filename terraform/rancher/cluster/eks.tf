@@ -29,8 +29,8 @@ locals {
       groups   = user == "rancher-port-forward" ? ["rancher-port-forward"] : ["system:masters"]
     }
   ]
-  testing_cluster = "folio-testing"
-  etesting_cluster   = "folio-etesting"
+  testing_cluster  = "folio-testing"
+  etesting_cluster = "folio-etesting"
 }
 
 module "eks_cluster" {
