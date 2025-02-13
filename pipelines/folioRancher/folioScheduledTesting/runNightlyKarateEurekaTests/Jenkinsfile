@@ -11,7 +11,6 @@ import org.folio.models.parameters.KarateTestsParameters
 import org.folio.rest_v2.PlatformType
 import org.folio.utilities.Logger
 import org.jenkinsci.plugins.workflow.libs.Library
-import org.folio.rest_v2.Constants as RestConstants
 
 @Library('pipelines-shared-library@RANCHER-1334') _
 
@@ -46,8 +45,8 @@ String okapiVersion = folioTools.eval(folioStringScripts.getOkapiVersions(), ['F
 
 CreateNamespaceParameters namespaceBaseParams = new CreateNamespaceParameters.Builder()
   .platform(PlatformType.EUREKA)
-  .clusterName('folio-tmp')
-  .namespaceName('test-1')
+  .clusterName('folio-etesting')
+  .namespaceName('karate')
   .rwSplit(false)
   .greenmail(false)
   .mockServer(false)
