@@ -151,7 +151,7 @@ def addGithubTeamsToRancherProjectMembersList(String teams, String project) {
 
 void deleteSSMParameters(String cluster, String namespace) {
   folioHelm.withK8sClient {
-    def ssm_params = sh(script: """aws ssm describe-parameters --parameter-filters "Key=Name,Option=Contains,Values=${cluster}-${namespace}" --query Parameters[].Name --output text --region ${Constants.AWS_REGION}""", returnStdout: true).trim()
+    def ssm_params = sh(script: """aws ssm describe-parameters --parameter-filters "Key=Name,Option=Contains,Values=${cluster}-${namespace}_" --query Parameters[].Name --output text --region ${Constants.AWS_REGION}""", returnStdout: true).trim()
     int Limit = 10
     ssm_params.tokenize().collate(Limit).each { ssm_param ->
       def branches = [:]
