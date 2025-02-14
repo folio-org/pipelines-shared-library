@@ -160,7 +160,6 @@ void call(CreateNamespaceParameters args) {
           tenant.withInstallJson(installJson)
             .withSecureTenant(args.hasSecureTenant && args.secureTenantId == tenant.getTenantId())
             .withAWSSecretStoragePathName("${namespace.getClusterName()}-${namespace.getNamespaceName()}")
-            .withConfiguration(new OkapiConfig().withResetPasswordLink("https://${namespace.generateDomain(tenant.tenantId)}"))
 
           if (tenant.getIsCentralConsortiaTenant())
             tenant.withTenantUi(tenantUi.clone())
