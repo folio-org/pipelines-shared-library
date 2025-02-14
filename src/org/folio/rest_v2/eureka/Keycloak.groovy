@@ -82,6 +82,22 @@ class Keycloak extends Base {
     return response['access_token']
   }
 
+  String getAuthUserToken(String tenantId, String username, Secret password) {
+    logger.info("Getting access token from Keycloak service for user " + username)
+
+    String url = generateUrl("/authn/login")
+
+    Map<String, String> headers = ['Content-Type': 'application/json', 'x-okapi-tenant': tenantId]
+
+    Map requestBody = ["username": username, "password": password.getPlainText()]
+
+    def response = restClient.post(url, requestBody, headers).body
+
+    logger.info("Access token obtained successfully from Keycloak service for user " + username)
+
+    return response['okapiToken']
+  }
+
   Keycloak defineTTL(String tenantId, int ttl = 3600){
     logger.info("Increasing TTL for tenant $tenantId ....")
 
