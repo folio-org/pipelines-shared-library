@@ -128,13 +128,13 @@ void build(String okapiUrl, OkapiTenant tenant, boolean isEureka = false, String
         webOrigins                  : ["/*"],
         authorizationServicesEnabled: true,
         serviceAccountsEnabled      : true,
-        attributes                  : ['post.logout.redirect.uris': "/*##${tenantUrl}/*", login_theme: 'custom-theme'],
+        attributes                  : ['post.logout.redirect.uris': "/*##${tenantUrl}/*", login_theme: 'custom-theme']
       ]
       Map ssoUpdates = [
         ssoSessionIdleTimeout       : 7200,
         ssoSessionMaxLifespan       : 7200,
         clientSessionIdleTimeout    : 7200,
-        clientSessionMaxLifespan    : 7200,
+        clientSessionMaxLifespan    : 7200
       ]
 
       client.put(updateRealmUrl, writeJSON(json: updateContent, returnText: true), headers)
