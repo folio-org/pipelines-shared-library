@@ -125,6 +125,7 @@ void call(CreateNamespaceParameters args) {
         .withIndex(new Index('location', true, false))
         .withInstallRequestParams(installRequestParams.clone())
         .withTenantUi(tenantUi.clone())
+        .withConfiguration(new OkapiConfig().withResetPasswordLink("https://${namespace.generateDomain(namespace.getDefaultTenantId())}"))
         .enableFolioExtensions(this, args.folioExtensions - 'consortia-eureka' - 'consortia')
     )
 
@@ -141,6 +142,7 @@ void call(CreateNamespaceParameters args) {
             .withIndex(new Index('location', true, false))
             .withInstallRequestParams(installRequestParams.clone())
             .withTenantUi(tenantUi.clone())
+            .withConfiguration(new OkapiConfig().withResetPasswordLink("https://${namespace.generateDomain(tenantId)}"))
             .enableFolioExtensions(this, args.folioExtensions - 'consortia-eureka' - 'consortia')
         )
       }
@@ -160,6 +162,7 @@ void call(CreateNamespaceParameters args) {
           tenant.withInstallJson(installJson)
             .withSecureTenant(args.hasSecureTenant && args.secureTenantId == tenant.getTenantId())
             .withAWSSecretStoragePathName("${namespace.getClusterName()}-${namespace.getNamespaceName()}")
+            .withConfiguration(new OkapiConfig().withResetPasswordLink("https://${namespace.generateDomain(tenant.tenantId)}"))
 
           if (tenant.getIsCentralConsortiaTenant())
             tenant.withTenantUi(tenantUi.clone())
