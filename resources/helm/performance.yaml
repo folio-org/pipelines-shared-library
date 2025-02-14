@@ -644,7 +644,7 @@ mod-agreements:
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 55
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=65.0
+  - -XX:MaxRAMPercentage=85.0
   startupProbe:
     httpGet:
       path: /admin/health
