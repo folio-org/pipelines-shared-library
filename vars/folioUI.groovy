@@ -132,10 +132,10 @@ void build(String okapiUrl, OkapiTenant tenant, boolean isEureka = false, String
         attributes                  : ['post.logout.redirect.uris': "/*##${tenantUrl}/*", login_theme: 'custom-theme'],
       ]
       Map ssoUpdates = [
-        ssoSessionIdleTimeout       : 72000,
-        ssoSessionMaxLifespan       : 72000,
-        clientSessionIdleTimeout    : 72000,
-        clientSessionMaxLifespan    : 72000,
+        ssoSessionIdleTimeout       : 7200,
+        ssoSessionMaxLifespan       : 7200,
+        clientSessionIdleTimeout    : 7200,
+        clientSessionMaxLifespan    : 7200,
       ]
       client.put(updateRealmUrl, JsonOutput.toJson(updateContent), headers)
       //RANCHER-1762 | MUST HAVE | Keycloak SSO session timeout settings
