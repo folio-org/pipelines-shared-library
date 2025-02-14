@@ -1,6 +1,5 @@
 #!groovy
 import com.cloudbees.groovy.cps.NonCPS
-import groovy.json.JsonOutput
 import groovy.text.StreamingTemplateEngine
 import org.folio.Constants
 import org.folio.models.OkapiTenant
@@ -131,7 +130,15 @@ void build(String okapiUrl, OkapiTenant tenant, boolean isEureka = false, String
         serviceAccountsEnabled      : true,
         attributes                  : ['post.logout.redirect.uris': "/*##${tenantUrl}/*", login_theme: 'custom-theme']
       ]
-      client.put(updateRealmUrl, JsonOutput.toJson(updateContent), headers)
+      Map ssoUpdates = [
+        ssoSessionIdleTimeout       : 7200,
+        ssoSessionMaxLifespan       : 7200,
+        clientSessionIdleTimeout    : 7200,
+        clientSessionMaxLifespan    : 7200
+      ]
+
+      client.put(updateRealmUrl, writeJSON(json: updateContent, returnText: true), headers)
+      client.put("https://${keycloakDomain}/admin/realms/${tenantId}", writeJSON(json: ssoUpdates, returnText: true), headers)
     }
   }
 }
