@@ -18,7 +18,7 @@ import org.jenkinsci.plugins.workflow.libs.Library
  * Job properties and parameters
  */
 properties([
-//  pipelineTriggers([cron('H 5 * * *')]),
+  pipelineTriggers([cron('H 2 * * 1-5')]),
   buildDiscarder(logRotator(numToKeepStr: '30')),
   disableConcurrentBuilds(),
   parameters([
@@ -46,7 +46,7 @@ String okapiVersion = folioTools.eval(folioStringScripts.getOkapiVersions(), ['F
 CreateNamespaceParameters namespaceBaseParams = new CreateNamespaceParameters.Builder()
   .platform(PlatformType.EUREKA)
   .clusterName('folio-etesting')
-  .namespaceName('karate')
+  .namespaceName('karate-eureka')
   .rwSplit(false)
   .greenmail(false)
   .mockServer(false)
