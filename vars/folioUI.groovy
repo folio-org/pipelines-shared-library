@@ -138,6 +138,7 @@ void build(String okapiUrl, OkapiTenant tenant, boolean isEureka = false, String
       ]
       writeJSON(file: 'ssoUpdates.json', json: ssoUpdates, pretty: 2)
       writeJSON(file: 'updateContent.json', json: updateContent, pretty: 2)
+      input("Update Keycloak Realm ${tenantId} redirect URIs...")
       client.put(updateRealmUrl, readJSON(file: 'updateContent.json'), headers)
       client.put("https://${keycloakDomain}/admin/realms/${tenantId}", readJSON(file: 'ssoUpdates.json'), headers)
     }
