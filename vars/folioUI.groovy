@@ -1,6 +1,5 @@
 #!groovy
 import com.cloudbees.groovy.cps.NonCPS
-import groovy.json.JsonOutput
 import groovy.text.StreamingTemplateEngine
 import org.folio.Constants
 import org.folio.models.OkapiTenant
@@ -137,9 +136,9 @@ void build(String okapiUrl, OkapiTenant tenant, boolean isEureka = false, String
         clientSessionIdleTimeout    : 7200,
         clientSessionMaxLifespan    : 7200,
       ]
-      client.put(updateRealmUrl, JsonOutput.toJson(updateContent), headers)
+      client.put(updateRealmUrl, readJSON(updateContent), headers)
       //RANCHER-1762 | MUST HAVE | Keycloak SSO session timeout settings
-      client.put("https://${keycloakDomain}/admin/realms/${tenantId}", JsonOutput.toJson(ssoUpdates), headers)
+      client.put("https://${keycloakDomain}/admin/realms/${tenantId}", readJSON(ssoUpdates), headers)
     }
   }
 }
