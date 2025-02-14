@@ -68,13 +68,13 @@ variable "restore_snapshot_id" {
 variable "jenkins_version" {
   type        = string
   description = "The version of Jenkins to install."
-  default     = "2.479.3"
+  default     = "2.492.1"
 }
 
 variable "backup_bucket" {
   type        = string
   description = "Name of the S3 bucket used for Jenkins backups."
-  default     = "my-jenkins-backup-bucket"
+  default     = "folio-kitfox-jenkins-backup"
 }
 
 variable "route53_zone_id" {

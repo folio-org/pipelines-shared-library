@@ -9,7 +9,7 @@ yum update -y
 # - awscli: AWS command-line tool for S3 backups
 # - xfsprogs: Tools for working with XFS filesystems (for EBS volume)
 # - java-17-amazon-corretto: Java runtime required for Jenkins
-yum install -y wget curl awscli xfsprogs java-17-amazon-corretto fontconfig --allowerasing
+yum install -y wget curl awscli xfsprogs java-17-amazon-corretto fontconfig htop --allowerasing
 
 # Add the Jenkins repository to the system
 wget -O /etc/yum.repos.d/jenkins.repo https://pkg.jenkins.io/redhat-stable/jenkins.repo
@@ -76,23 +76,61 @@ systemctl enable jenkins
 # Start the Jenkins service
 systemctl start jenkins
 
-# Create a script to sync Jenkins data to an S3 bucket (excluding cache, tools, and plugins)
-BACKUP_SCRIPT="/usr/local/bin/jenkins_backup.sh"
-echo "Creating S3 backup script..."
+# Set up a systemd service and timer to run the backup script daily
+echo "Setting up systemd-based Jenkins backup..."
 
-cat <<EOF >"$BACKUP_SCRIPT"
+BACKUP_SCRIPT_PATH="/usr/local/bin/jenkins_backup.sh"
+SERVICE_PATH="/etc/systemd/system/jenkins_backup.service"
+TIMER_PATH="/etc/systemd/system/jenkins_backup.timer"
+
+# Create a script to sync Jenkins data to an S3 bucket (excluding cache, tools, and plugins)
+cat <<EOF > "$BACKUP_SCRIPT_PATH"
 #!/bin/bash
-TIMESTAMP=\$(date +%Y%m%d%H%M)  # Generate timestamp for backup folder
+TIMESTAMP=\$(date +'%Y-%m-%d_%H-%M-%S')
+LOGFILE="/var/log/jenkins_backup.log"
+
+echo "[\$(date)] Starting Jenkins backup..." >> \$LOGFILE
 aws s3 sync /var/lib/jenkins "s3://${backup_bucket}/\$TIMESTAMP/" \\
   --exclude "cache/*" \\
   --exclude "tools/*" \\
-  --exclude "plugins/*"
+  --exclude "plugins/*" >> \$LOGFILE 2>&1
+
+echo "[\$(date)] Backup completed." >> \$LOGFILE
 EOF
 
-# Make the backup script executable
-chmod +x /usr/local/bin/jenkins_backup.sh
+chmod +x "$BACKUP_SCRIPT_PATH"
 
-# Schedule the backup script to run every night at 2 AM via cron job
-cat <<EOF >>/etc/crontab
-0 2 * * * root /usr/local/bin/jenkins_backup.sh
+# Create a systemd service to run the backup script
+cat <<EOF > "$SERVICE_PATH"
+[Unit]
+Description=Jenkins backup service
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=$BACKUP_SCRIPT_PATH
 EOF
+
+# Create a systemd timer to run the backup service daily at 2:00 AM
+cat <<EOF > "$TIMER_PATH"
+[Unit]
+Description=Daily Jenkins backup timer
+
+[Timer]
+OnCalendar=*-*-* 02:00:00
+Unit=jenkins_backup.service
+Persistent=true
+
+[Install]
+WantedBy=timers.target
+EOF
+
+# Reload the systemd configuration
+systemctl daemon-reload
+# Enable and start the timer
+systemctl enable jenkins_backup.timer
+systemctl start jenkins_backup.timer
+
+echo "Systemd-based Jenkins backup setup complete."
+echo "Jenkins setup complete!"

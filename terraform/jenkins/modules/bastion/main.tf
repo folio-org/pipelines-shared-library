@@ -40,7 +40,7 @@ resource "aws_instance" "bastion" {
   # Root block device configuration
   root_block_device {
     volume_type = "gp3" # General Purpose SSD (gp3)
-    volume_size = 10    # Root disk size in GB
+    volume_size = 50    # Root disk size in GB
   }
 
   # Tags for the Bastion instance

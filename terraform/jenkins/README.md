@@ -160,6 +160,10 @@ sudo systemctl start jenkins
 ```
 6. Login to UI and check that new version is installed
 7. Navigate to Jenkins -> Manage Jenkins -> Manage Plugins -> Updates and install the latest plugins
+8. If all is working fine, delete the old Jenkins binaries
+```shell
+sudo rm /usr/share/java/jenkins.war.bak
+```
 
 ## **Graph**
 
