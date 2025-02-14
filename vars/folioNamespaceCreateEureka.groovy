@@ -83,7 +83,7 @@ void call(CreateNamespaceParameters args) {
       return
     }
 
-    defaultTenantId = args.dataset ? 'fs09000000' : 'diku'
+    def defaultTenantId = args.dataset ? 'fs09000000' : 'diku'
     String folioRepository = 'platform-complete'
     boolean isRelease = args.folioBranch ==~ /^R\d-\d{4}.*/
     String commitHash = common.getLastCommitHash(folioRepository, args.folioBranch)
