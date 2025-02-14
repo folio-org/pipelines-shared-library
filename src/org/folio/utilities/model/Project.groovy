@@ -2,6 +2,10 @@ package org.folio.utilities.model
 
 import org.folio.rest.model.OkapiTenant
 
+@Deprecated
+/**
+ * Remove, once uiBuild.groovy will be fully deprecated
+ */
 class Project implements Serializable {
   String hash
   String uiBundleTag

@@ -1,5 +1,9 @@
 package org.folio.utilities.model
 
+@Deprecated
+/**
+ * Remove, once uiBuild.groovy will be fully deprecated
+ */
 class Module implements Serializable {
   String name
   String version

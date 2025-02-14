@@ -1,4 +1,4 @@
-package org.folio.rest.model
+package org.folio.models
 
 class DataMigrationTenant {
   String tenantName
