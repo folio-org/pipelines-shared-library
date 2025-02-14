@@ -136,11 +136,9 @@ void build(String okapiUrl, OkapiTenant tenant, boolean isEureka = false, String
         clientSessionIdleTimeout    : 7200,
         clientSessionMaxLifespan    : 7200,
       ]
-      writeJSON(file: 'ssoUpdates.json', text: ssoUpdates, pretty: 2)
-      writeJSON(file: 'updateContent.json', text: updateContent, pretty: 2)
-      input("Update Keycloak Realm ${tenantId} redirect URIs...")
-      client.put(updateRealmUrl, readJSON(file: 'updateContent.json'), headers)
-      client.put("https://${keycloakDomain}/admin/realms/${tenantId}", readJSON(file: 'ssoUpdates.json'), headers)
+
+      client.put(updateRealmUrl, writeJSON(json: updateContent, returnText: true), headers)
+      client.put("https://${keycloakDomain}/admin/realms/${tenantId}", writeJSON(json: ssoUpdates, returnText: true), headers)
     }
   }
 }
