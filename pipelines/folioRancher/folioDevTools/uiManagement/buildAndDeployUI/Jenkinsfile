@@ -58,16 +58,16 @@ OkapiTenant tenant = new OkapiTenant(params.TENANT_ID)
   .withTenantUi(tenantUi)
   .withConfiguration(new OkapiConfig())
 
-tenant.enableFolioExtensions(this, extensions, isRelease)
-namespace.addDeploymentConfig(folioTools.getPipelineBranch())
-namespace.addTenant(tenant)
-
 ansiColor('xterm') {
   node(params.AGENT) {
     try {
       stage('Ini') {
         buildName "#${namespace.getWorkspaceName()}.${env.BUILD_ID}"
         buildDescription "Branch: ${params.FOLIO_BRANCH}\nConsortia: ${params.CONSORTIA}\nLinked-data: ${params.LINKED_DATA}"
+
+        tenant.enableFolioExtensions(this, extensions, isRelease)
+        namespace.addDeploymentConfig(folioTools.getPipelineBranch())
+        namespace.addTenant(tenant)
       }
 
       folioUI.buildAndDeploy(namespace, tenant)
