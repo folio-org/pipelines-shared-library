@@ -125,7 +125,6 @@ void call(CreateNamespaceParameters args) {
         .withIndex(new Index('location', true, false))
         .withInstallRequestParams(installRequestParams.clone())
         .withTenantUi(tenantUi.clone())
-        .withConfiguration(new OkapiConfig().withResetPasswordLink("https://${namespace.generateDomain(namespace.getDefaultTenantId())}"))
         .enableFolioExtensions(this, args.folioExtensions - 'consortia-eureka' - 'consortia')
     )
 
@@ -142,7 +141,6 @@ void call(CreateNamespaceParameters args) {
             .withIndex(new Index('location', true, false))
             .withInstallRequestParams(installRequestParams.clone())
             .withTenantUi(tenantUi.clone())
-            .withConfiguration(new OkapiConfig().withResetPasswordLink("https://${namespace.generateDomain(tenantId)}"))
             .enableFolioExtensions(this, args.folioExtensions - 'consortia-eureka' - 'consortia')
         )
       }
