@@ -129,7 +129,11 @@ void build(String okapiUrl, OkapiTenant tenant, boolean isEureka = false, String
         webOrigins                  : ["/*"],
         authorizationServicesEnabled: true,
         serviceAccountsEnabled      : true,
-        attributes                  : ['post.logout.redirect.uris': "/*##${tenantUrl}/*", login_theme: 'custom-theme']
+        attributes                  : ['post.logout.redirect.uris': "/*##${tenantUrl}/*", login_theme: 'custom-theme'],
+        ssoSessionIdleTimeout       : 72000,
+        ssoSessionMaxLifespan       : 72000,
+        clientSessionIdleTimeout    : 72000,
+        clientSessionMaxLifespan    : 72000
       ]
       client.put(updateRealmUrl, JsonOutput.toJson(updateContent), headers)
     }
