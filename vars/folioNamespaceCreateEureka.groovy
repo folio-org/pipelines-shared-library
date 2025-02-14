@@ -191,7 +191,17 @@ void call(CreateNamespaceParameters args) {
 
     //Don't move from here because it increases Keycloak TTL before mgr modules to be deployed
     Eureka eureka = new Eureka(this, namespace.generateDomain('kong'), namespace.generateDomain('keycloak'))
-      .defineKeycloakTTL()
+    Boolean check = false
+    while (!check) {
+      try {
+        eureka.defineKeycloakTTL()
+        check = true
+      } catch (Exception e) {
+        logger.warning("Keycloak TTL increase failed: ${e.getMessage()}")
+        sleep time: 5, unit: 'SECONDS'
+        check = false
+      }
+    }
 
     stage('[Helm] Deploy mgr-*') {
       folioHelm.withKubeConfig(namespace.getClusterName()) {
