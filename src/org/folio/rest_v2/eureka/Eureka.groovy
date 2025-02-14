@@ -53,6 +53,22 @@ class Eureka extends Base {
       , Permissions.get(kong).getCapabilitySetsId(tenant)
       , migrate)
 
+    configureTenant(tenant)
+
+    return this
+  }
+
+  Eureka configureTenant(EurekaTenant tenant){
+    Configurations.get(kong)
+      .setSmtp(tenant)
+      .setResetPasswordLink(tenant)
+
+    if(tenant.getModules().getModuleByName('mod-copycat'))
+      Configurations.get(kong).setWorldcat(tenant)
+
+    if(tenant.getModules().getModuleByName('mod-kb-ebsco-java'))
+      Configurations.get(kong).setRmapiConfig(tenant)
+
     return this
   }
 
