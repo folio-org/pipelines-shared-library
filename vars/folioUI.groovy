@@ -136,9 +136,10 @@ void build(String okapiUrl, OkapiTenant tenant, boolean isEureka = false, String
         clientSessionIdleTimeout    : 7200,
         clientSessionMaxLifespan    : 7200,
       ]
-      client.put(updateRealmUrl, readJSON(updateContent), headers)
-      //RANCHER-1762 | MUST HAVE | Keycloak SSO session timeout settings
-      client.put("https://${keycloakDomain}/admin/realms/${tenantId}", readJSON(ssoUpdates), headers)
+      writeJSON(file: 'ssoUpdates.json', json: ssoUpdates, pretty: 2)
+      writeJSON(file: 'updateContent.json', json: updateContent, pretty: 2)
+      client.put(updateRealmUrl, readJSON(file: 'updateContent.json'), headers)
+      client.put("https://${keycloakDomain}/admin/realms/${tenantId}", readJSON(file: 'ssoUpdates.json'), headers)
     }
   }
 }
