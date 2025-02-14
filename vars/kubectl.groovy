@@ -164,7 +164,7 @@ void execCommand(String namespace = 'default', String pod_name, String command) 
 
 void cleanUpAgreementsFedLocks(String namespace = 'default') {
   try {
-    String pod = sh(script: "kubectl get pod -l 'app.kubernetes.io/name=pgadmin4' -o=name  --ignore-not-found --namespace ${namespace}", returnStdout: true).trim()
+    String pod = sh(script: "kubectl get pod -l 'app.kubernetes.io/name=pgadmin4' -o=name  --ignore-not-found=true --namespace ${namespace}", returnStdout: true).trim()
     if (pod) {
       sh(script: "kubectl exec --namespace=${namespace} ${pod} -- /usr/local/pgsql-16/psql -c 'DELETE FROM mod_agreements__system.federation_lock'", returnStdout: true)
     }
