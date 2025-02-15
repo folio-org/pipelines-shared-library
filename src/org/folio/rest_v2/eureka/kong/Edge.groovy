@@ -55,13 +55,18 @@ class Edge extends Users {
           edgeUser.setEmail(user['tenants'][0]['username'] + '@ci.folio.org')
           edgeUser.setPreferredContactTypeId('002')
 
-          def response = restClient.post(generateUrl("/users-keycloak/users"), edgeUser.toMap(), headers).body
+          def response = restClient.post(generateUrl("/users-keycloak/users"), edgeUser.toMap(), headers, [201, 409])
+
+          if (response.statusCode == 409) {
+            logger.info("tenantId: ${tenant.tenantId} ${user['tenants'][0]['username']} user already exists...")
+            return
+          }
 
           logger.info("tenantId: ${tenant.tenantId} ${user['tenants'][0]['username']} users created...")
 
           Map userPass = [
             username: user['tenants'][0]['username'],
-            userId  : response['id'],
+            userId  : response['body']['id'],
             password: user['tenants'][0]['password']
           ]
 
@@ -71,7 +76,7 @@ class Edge extends Users {
 
           if (caps) {
             Map userCaps = [
-              userId       : response['id'],
+              userId       : response['body']['id'],
               capabilityIds: caps
             ]
 
@@ -83,7 +88,7 @@ class Edge extends Users {
           if (capSets) {
 
             Map userCapsSets = [
-              userId          : response['id'],
+              userId          : response['body']['id'],
               capabilitySetIds: capSets
             ]
 
