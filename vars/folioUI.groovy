@@ -7,6 +7,7 @@ import org.folio.models.RancherNamespace
 import org.folio.models.TenantUi
 import org.folio.models.module.FolioModule
 import org.folio.utilities.RestClient
+import groovy.json.JsonOutput
 
 void build(String okapiUrl, OkapiTenant tenant, boolean isEureka = false, String kongDomain = ''
            , String keycloakDomain = '', boolean enableEcsRequests = false) {
@@ -137,8 +138,8 @@ void build(String okapiUrl, OkapiTenant tenant, boolean isEureka = false, String
         clientSessionMaxLifespan    : 7200
       ]
 
-      client.put(updateRealmUrl, writeJSON(json: updateContent, returnText: true), headers)
-      client.put("https://${keycloakDomain}/admin/realms/${tenantId}", writeJSON(json: ssoUpdates, returnText: true), headers)
+      client.put(updateRealmUrl, JsonOutput.toJson(updateContent), headers)
+      client.put("https://${keycloakDomain}/admin/realms/${tenantId}", JsonOutput.toJson(ssoUpdates), headers)
     }
   }
 }
