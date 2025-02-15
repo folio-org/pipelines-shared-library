@@ -70,7 +70,11 @@ class Edge extends Users {
             password: user['tenants'][0]['password']
           ]
 
-          restClient.post(generateUrl("/authn/credentials"), userPass, headers)
+          def creds = restClient.post(generateUrl("/authn/credentials"), userPass, headers, [400, 409])
+          if (creds.statusCode == 400) {
+             logger.warning("Credentials for user ${userPass.username} already exists")
+             return 
+          }
 
           logger.info("tenantId: ${tenant.tenantId} ${user['tenants'][0]['username']} user password reset...")
 
