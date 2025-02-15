@@ -82,8 +82,6 @@ class Edge extends Users {
               break
           }
 
-          logger.info("tenantId: ${tenant.tenantId} ${user['tenants'][0]['username']} user password reset...")
-
           if (caps) {
             Map userCaps = [
               userId       : response['body']['id'],
@@ -106,8 +104,6 @@ class Edge extends Users {
                 logger.info("tenantId: ${tenant.tenantId} ${user['tenants'][0]['username']} user has assigned capabilities already...")
                 break
             }
-
-            logger.info("tenantId: ${tenant.tenantId} ${user['tenants'][0]['username']} user has assigned capabilities...")
           }
 
           if (capSets) {
