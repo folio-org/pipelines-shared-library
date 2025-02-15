@@ -308,6 +308,8 @@ env:
       value: ${var.pg_embedded ? local.pg_service_writer : module.rds[0].cluster_endpoint}
     - name: PGDATABASE
       value: ${local.pg_eureka_db_name}
+    - name: PGPORT
+      value: '5432'
 service:
   type: NodePort
 ingress:
