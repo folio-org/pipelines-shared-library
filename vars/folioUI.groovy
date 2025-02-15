@@ -120,7 +120,7 @@ void build(String okapiUrl, OkapiTenant tenant, boolean isEureka = false, String
       String updateRealmUrl = "https://${keycloakDomain}/admin/realms/${tenantId}/clients/${realm['id'].get(0)}"
       headers['Content-Type'] = 'application/json'
       String tenantUrl = "https://${tenantUi.getDomain()}"
-      Map updateContent = [
+      def updateContent = [
         rootUrl                     : tenantUrl,
         baseUrl                     : tenantUrl,
         adminUrl                    : tenantUrl,
@@ -130,7 +130,7 @@ void build(String okapiUrl, OkapiTenant tenant, boolean isEureka = false, String
         serviceAccountsEnabled      : true,
         attributes                  : ['post.logout.redirect.uris': "/*##${tenantUrl}/*", login_theme: 'custom-theme']
       ]
-      Map ssoUpdates = [
+      def ssoUpdates = [
         ssoSessionIdleTimeout       : 7200,
         ssoSessionMaxLifespan       : 7200,
         clientSessionIdleTimeout    : 7200,
