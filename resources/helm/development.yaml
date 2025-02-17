@@ -3158,7 +3158,7 @@ mgr-applications:
       memory: 509Mi
   readinessProbe:
     httpGet:
-      path: /entitlements
+      path: /applications
       port: 8081
     initialDelaySeconds: 20
 mgr-tenants:
@@ -3189,7 +3189,7 @@ mgr-tenants:
       memory: 546Mi
   readinessProbe:
     httpGet:
-      path: /entitlements
+      path: /tenants
       port: 8081
     initialDelaySeconds: 20
 mgr-tenant-entitlements:
