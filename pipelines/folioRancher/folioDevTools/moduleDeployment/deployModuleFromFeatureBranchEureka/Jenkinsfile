@@ -85,6 +85,15 @@ ansiColor('xterm') {
         ])
       }
 
+      stage ('[isRunning]') {
+        folioHelm.withKubeConfig(namespace.getClusterName()) {
+          def check = sh(script: "kubectl get pods --namespace ${namespace.getNamespaceName()} --no-headers", returnStdout: true).trim()
+          if (!check.contains(module.getName())) {
+            logger.error("Target environment is not running. Please start the environment and try again.")
+          }
+        }
+      }
+
       stage('[Maven/Gradle] Compile') {
         // Check if Maven or Gradle build tool is used
         module.buildTool = fileExists("${module.name}/pom.xml") ? 'maven' : 'gradle'

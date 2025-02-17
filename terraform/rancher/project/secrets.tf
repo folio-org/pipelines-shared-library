@@ -31,15 +31,15 @@ resource "rancher2_secret" "system_user" {
   namespace_id = rancher2_namespace.this.name
   data = merge(
     {
-      SYSTEM_USER_NAME     = base64encode("${each.value}${var.eureka ? "" : "-system"}")
-      SYSTEM_USER_USERNAME = base64encode("${each.value}${var.eureka ? "" : "-system"}")
+      SYSTEM_USER_NAME     = base64encode("${each.value == "mod-consortia-keycloak" ? "consortia-system-user" : each.value}${var.eureka ? "" : "-system"}")
+      SYSTEM_USER_USERNAME = base64encode("${each.value == "mod-consortia-keycloak" ? "consortia-system-user" : each.value}${var.eureka ? "" : "-system"}")
     },
     var.eureka ? {
       SYSTEM_USER_CREATE        = base64encode("false")
       SYSTEM_USER_ENABLED       = base64encode("false")
       FOLIO_SYSTEM_USER_ENABLED = base64encode("false")
       } : {
-      SYSTEM_USER_PASSWORD = base64encode(random_password.system_user_password[each.value].result)
+      SYSTEM_USER_PASSWORD = base64encode(each.value == "mod-consortia-keycloak" ? "mod-consortia-keycloak" : random_password.system_user_password[each.value].result)
     }
   )
 }

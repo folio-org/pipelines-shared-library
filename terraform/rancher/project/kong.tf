@@ -15,16 +15,9 @@ resource "rancher2_secret" "kong-credentials" {
   count        = var.eureka ? 1 : 0
 }
 resource "helm_release" "kong" {
-  count = var.eureka ? 1 : 0
-  chart = "kong"
-  depends_on = [
-    rancher2_secret.db-credentials,
-    helm_release.postgresql,
-    helm_release.pgadmin,
-    postgresql_database.kong,
-    postgresql_role.kong,
-    rancher2_secret.kong-credentials
-  ]
+  count      = var.eureka ? 1 : 0
+  chart      = "kong"
+  depends_on = [rancher2_secret.db-credentials, helm_release.postgresql, rancher2_secret.kong-credentials, module.rds.cluster_instances]
   name       = "kong-${var.rancher_project_name}"
   namespace  = rancher2_namespace.this.id
   version    = "12.0.11"
@@ -93,6 +86,26 @@ ingress:
     alb.ingress.kubernetes.io/healthcheck-path: "/version"
   extraRules:
    - host: ${join(".", [join("-", ["ecs", data.rancher2_cluster.this.name, var.rancher_project_name, "kong"]), var.root_domain])}
+     http:
+       paths:
+       - backend:
+           service:
+             name: kong-${var.rancher_project_name}
+             port:
+               name: http-proxy
+         path: /*
+         pathType: ImplementationSpecific
+   - host: ${join(".", [join("-", ["fs02", data.rancher2_cluster.this.name, var.rancher_project_name, "kong"]), var.root_domain])}
+     http:
+       paths:
+       - backend:
+           service:
+             name: kong-${var.rancher_project_name}
+             port:
+               name: http-proxy
+         path: /*
+         pathType: ImplementationSpecific
+   - host: ${join(".", [join("-", ["fs03", data.rancher2_cluster.this.name, var.rancher_project_name, "kong"]), var.root_domain])}
      http:
        paths:
        - backend:

@@ -1,6 +1,5 @@
 #!groovy
 import com.cloudbees.groovy.cps.NonCPS
-import groovy.json.JsonOutput
 import groovy.text.StreamingTemplateEngine
 import org.folio.Constants
 import org.folio.models.OkapiTenant
@@ -8,6 +7,7 @@ import org.folio.models.RancherNamespace
 import org.folio.models.TenantUi
 import org.folio.models.module.FolioModule
 import org.folio.utilities.RestClient
+import groovy.json.JsonOutput
 
 void build(String okapiUrl, OkapiTenant tenant, boolean isEureka = false, String kongDomain = ''
            , String keycloakDomain = '', boolean enableEcsRequests = false) {
@@ -47,6 +47,19 @@ void build(String okapiUrl, OkapiTenant tenant, boolean isEureka = false, String
             binding.kongUrl = "https://ecs-${kongDomain}"
             binding.isSingleTenant = false
             okapiUrl = binding.kongUrl
+          }
+
+          switch (tenantId) {
+            case 'fs09000002':
+              binding.kongUrl = "https://fs02-${kongDomain}"
+              binding.isSingleTenant = true
+              okapiUrl = binding.kongUrl
+              break
+            case 'fs09000003':
+              binding.kongUrl = "https://fs03-${kongDomain}"
+              binding.isSingleTenant = true
+              okapiUrl = binding.kongUrl
+              break
           }
 
           writeFile(file: 'stripes.config.js'
@@ -108,7 +121,7 @@ void build(String okapiUrl, OkapiTenant tenant, boolean isEureka = false, String
       String updateRealmUrl = "https://${keycloakDomain}/admin/realms/${tenantId}/clients/${realm['id'].get(0)}"
       headers['Content-Type'] = 'application/json'
       String tenantUrl = "https://${tenantUi.getDomain()}"
-      Map updateContent = [
+      def updateContent = [
         rootUrl                     : tenantUrl,
         baseUrl                     : tenantUrl,
         adminUrl                    : tenantUrl,
@@ -118,7 +131,15 @@ void build(String okapiUrl, OkapiTenant tenant, boolean isEureka = false, String
         serviceAccountsEnabled      : true,
         attributes                  : ['post.logout.redirect.uris': "/*##${tenantUrl}/*", login_theme: 'custom-theme']
       ]
+      def ssoUpdates = [
+        ssoSessionIdleTimeout       : 7200,
+        ssoSessionMaxLifespan       : 7200,
+        clientSessionIdleTimeout    : 7200,
+        clientSessionMaxLifespan    : 7200
+      ]
+
       client.put(updateRealmUrl, JsonOutput.toJson(updateContent), headers)
+      client.put("https://${keycloakDomain}/admin/realms/${tenantId}", JsonOutput.toJson(ssoUpdates), headers)
     }
   }
 }

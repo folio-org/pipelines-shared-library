@@ -65,23 +65,23 @@ class UserGroups extends Kong{
   }
 
   UserGroup getUserGroup(EurekaTenant tenant, String groupId){
-    return getUserGroups(tenant, groupId)[0]
+    return getUserGroups(tenant, "id=${groupId}")[0]
   }
 
   UserGroup getUserGroupByName(EurekaTenant tenant, String name){
-    return getUserGroups(tenant, "", "group==${name}")[0]
+    return getUserGroups(tenant, "group==${name}")[0]
   }
 
   boolean isUserGroupExist(EurekaTenant tenant, String groupId) {
     return getUserGroup(tenant, groupId) ? true : false
   }
 
-  List<UserGroup> getUserGroups(EurekaTenant tenant, String groupId = "", String query = "", int limit = 3000){
-    logger.info("Get user groups${groupId ? " with ,groupId=${groupId}" : ""}${query ? " with query=${query}" : ""} for tenant ${tenant.tenantId}...")
+  List<UserGroup> getUserGroups(EurekaTenant tenant, String query = "", int limit = 3000){
+    logger.info("Get user groups${query ? " with query=${query}" : ""} for tenant ${tenant.tenantId}...")
 
     Map<String, String> headers = getTenantHttpHeaders(tenant)
 
-    String url = generateUrl("/groups${groupId ? "/${groupId}" : ""}${query ? "?query=${query}&limit=${limit}" : "?limit=${limit}"}")
+    String url = generateUrl("/groups${query ? "?query=${query}&limit=${limit}" : "?limit=${limit}"}")
 
     def response = restClient.get(url, headers).body
 
@@ -97,6 +97,18 @@ class UserGroups extends Kong{
       logger.debug("HTTP response is: ${response}")
       throw new Exception("User group(s) not found")
     }
+  }
+
+  Map invokeGroupsMigration(EurekaTenant tenant) {
+    logger.info("Invoking groups(roles) migration for ${tenant.tenantId}...")
+
+    Map<String, String> headers = getTenantHttpHeaders(tenant)
+
+    restClient.post(generateUrl("/roles-keycloak/migrations"), "", headers)
+
+    sleep(30)
+
+    return this as Map
   }
 
   @NonCPS

@@ -41,6 +41,9 @@ void stsKafkaLag(String cluster, String namespace, String tenantId) {
       kubectl.waitPodIsRunning("${namespace}", 'kafka-sh')
     }
     def check = kubectl.execCommand("${namespace}", 'kafka-sh', "${lag}")
+    if (check.contains("0\n0")) {
+      check = check.tokenize()[0]
+    }
     while (check.toInteger() != 0) {
       logger.debug("Waiting for capabilities to be propagated on tenant: ${tenantId}")
       sleep time: 30, unit: 'SECONDS'
@@ -143,5 +146,22 @@ def addGithubTeamsToRancherProjectMembersList(String teams, String project) {
     }
   } else {
     folioPrint.colored("Skipping adding teams to project members list for ${project}\nReason: ${project} is not in ${Constants.AWS_EKS_DEV_NAMESPACES}", "red")
+  }
+}
+
+void deleteSSMParameters(String cluster, String namespace) {
+  folioHelm.withK8sClient {
+    def ssm_params = sh(script: """aws ssm describe-parameters --parameter-filters "Key=Name,Option=Contains,Values=${cluster}-${namespace}_" --query Parameters[].Name --output text --region ${Constants.AWS_REGION}""", returnStdout: true).trim()
+    int Limit = 10
+    ssm_params.tokenize().collate(Limit).each { ssm_param ->
+      def branches = [:]
+      ssm_param.each { param ->
+        branches[param.toString().trim()] = {
+          sh(script: "aws ssm delete-parameter --name ${param.toString().trim()} --region ${Constants.AWS_REGION} || true", returnStdout: true)
+        }
+      }
+      parallel branches
+      sleep(5) // AWS API Throttling workaround(nothing to do with it).
+    }
   }
 }

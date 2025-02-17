@@ -40,7 +40,11 @@ void install(String release_name, String namespace, String values_path, String c
 }
 
 void upgrade(String release_name, String namespace, String values_path, String chart_repo, String chart_name) {
-  sh "helm upgrade --install ${release_name} --namespace=${namespace} ${valuesPathOption(values_path)} ${chart_repo}/${chart_name}"
+  if (release_name.startsWith("mgr-")) {
+    sh "helm upgrade --install ${release_name} --namespace=${namespace} ${valuesPathOption(values_path)} ${chart_repo}/${chart_name} --wait"
+  } else {
+    sh "helm upgrade --install ${release_name} --namespace=${namespace} ${valuesPathOption(values_path)} ${chart_repo}/${chart_name}"
+  }
 }
 
 void deployFolioModule(RancherNamespace ns, String moduleName, String moduleVersion, boolean customModule = false, String tenantId = ns.defaultTenantId) {
@@ -141,7 +145,7 @@ void checkPodRunning(String ns, String podName) {
  * Use checkDeploymentsRunning functions instead
  */
 void checkAllPodsRunning(String ns) {
-  timeout(time: ns == 'ecs-snapshot' ? 20 : 10, unit: 'MINUTES') {
+  timeout(time: 20, unit: 'MINUTES')  {
     boolean notAllRunning = true
     while (notAllRunning) {
       sleep(time: 30, unit: 'SECONDS')
@@ -172,9 +176,11 @@ void checkDeploymentsRunning(String ns, FolioModule deploymentModule) {
 void checkDeploymentsRunning(String ns, List<FolioModule> deploymentsList) {
   println('Starting deployment monitoring...')
 
+  kubectl.deleteEvictedPods(ns)
+
   boolean allDeploymentsUpdated = false
   int timer = 0
-  int maxTime = 20 * 60 // 20 minutes in seconds
+  int maxTime = 30 * 60 // 30 minutes in seconds
 
   try {
     while (!allDeploymentsUpdated) {
@@ -233,7 +239,7 @@ void checkDeploymentsRunning(String ns, List<FolioModule> deploymentsList) {
 
       // Check the timer
       if (timer >= maxTime) {
-        error("Timeout: Some deployments are still not updated after 10 minutes.")
+        error("Timeout: Some deployments are still not updated after 20 minutes.")
       }
     }
   } catch (Exception e) {
@@ -301,6 +307,28 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
           name: 'MOD_USERS_ID',
           value: 'mod-users-' + ns.getModules().getModuleByName('mod-users').getVersion()
         ]
+
+        break
+      case 'mod-requests-mediated':
+        moduleConfig['extraEnvVars'] += ns.hasSecureTenant ? [
+          name: 'SECURE_TENANT_ID',
+          value: ns.getSecureTenant().tenantId
+        ] : []
+
+        break
+      case 'edge-patron':
+        moduleConfig['integrations']['okapi'] = [enabled: false]
+
+        moduleConfig['extraEnvVars'] += ns.hasSecureTenant ? [
+          name: 'SECURE_TENANT_ID',
+          value: ns.getSecureTenant().tenantId
+        ] : []
+
+        moduleConfig['extraEnvVars'] += ns.hasSecureTenant ? [
+          name: 'SECURE_REQUESTS_FEATURE_ENABLED',
+          value: ns.getSecureTenant().hasSecureTenant
+        ] : []
+
         break
       case ~/edge-.*$/:
         moduleConfig['integrations']['okapi'] = [enabled: false]
@@ -403,7 +431,7 @@ static String determineModulePlacement(String moduleName, String moduleVersion, 
       case ~/^\d{1,3}\.\d{1,3}\.\d{1,3}-SNAPSHOT\.\d{1,3}$/:
         repository = "folioci"
         break
-      case ~/^\d{1,3}\.\d{1,3}\.\d{1,3}-SNAPSHOT\.[\d\w]{7}$/:
+      case ~/^\d{1,3}\.\d{1,3}\.\d{1,3}-SNAPSHOT\.[\d\w]{5,}$/:
         repository = Constants.ECR_FOLIO_REPOSITORY
         break
       case ~/^\d{1,3}\.\d{1,3}\.\d{1,3}-SNAPSHOT\$/:

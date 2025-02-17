@@ -9,19 +9,7 @@ import org.folio.utilities.RequestException
 
 class Eureka extends Base {
 
-  static Map<String, String> CURRENT_APPLICATIONS = [
-    "app-platform-full"      : "snapshot"
-    , "app-consortia"        : "snapshot"
-    , "app-consortia-manager": "master"
-    , "app-linked-data"      : "snapshot"
-  ]
-
-  static Map<String, String> CURRENT_APPLICATIONS_WO_CONSORTIA = [
-    "app-platform-full": "snapshot"
-    , "app-linked-data": "snapshot"
-  ]
-
-  private Kong kong
+  Kong kong
 
   Eureka(def context, String kongUrl, String keycloakUrl, boolean debug = false) {
     this(new Kong(context, kongUrl, keycloakUrl, debug))
@@ -39,7 +27,7 @@ class Eureka extends Base {
     return this
   }
 
-  Eureka createTenantFlow(EurekaTenant tenant, String cluster, String namespace) {
+  Eureka createTenantFlow(EurekaTenant tenant, String cluster, String namespace, boolean migrate = false) {
     EurekaTenant createdTenant = Tenants.get(kong).createTenant(tenant)
 
     tenant.withUUID(createdTenant.getUuid())
@@ -62,7 +50,25 @@ class Eureka extends Base {
     createUserFlow(tenant, tenant.adminUser
       , new Role(name: "adminRole", desc: "Admin role")
       , Permissions.get(kong).getCapabilitiesId(tenant)
-      , Permissions.get(kong).getCapabilitySetsId(tenant))
+      , Permissions.get(kong).getCapabilitySetsId(tenant)
+      , migrate)
+
+    configureTenant(tenant)
+
+    return this
+  }
+
+  Eureka configureTenant(EurekaTenant tenant){
+    Configurations.get(kong)
+      .setSmtp(tenant)
+      .setResetPasswordLink(tenant)
+
+    if(tenant.getModules().getModuleByName('mod-copycat'))
+      Configurations.get(kong).setWorldcat(tenant)
+
+    //TODO: RANCHER-2107. Uncomment when the MODKBEKBJ-777 ticket is done
+//    if(tenant.getModules().getModuleByName('mod-kb-ebsco-java'))
+//      Configurations.get(kong).setRmapiConfig(tenant)
 
     return this
   }
@@ -80,7 +86,12 @@ class Eureka extends Base {
     }
   }
 
-  Eureka createUserFlow(EurekaTenant tenant, User user, Role role, List<String> permissions, List<String> permissionSets) {
+  Eureka createUserFlow(EurekaTenant tenant, User user, Role role, List<String> permissions, List<String> permissionSets, boolean migrate = false) {
+    if (migrate) {
+      Users.get(kong).invokeUsersMigration(tenant)
+      UserGroups.get(kong).invokeGroupsMigration(tenant)
+    }
+
     user.patronGroup.setUuid(
       UserGroups.get(kong)
         .createUserGroup(tenant, user.patronGroup)
@@ -140,6 +151,9 @@ class Eureka extends Base {
         tenant.applications.remove("app-consortia-manager")
         tenant.applications.remove("app-linked-data")
       }
+
+      if (!tenant.isSecureTenant)
+        tenant.applications.remove("app-requests-mediated-ui")
     }
 
     return this
@@ -209,8 +223,9 @@ class Eureka extends Base {
     return this
   }
 
-  Eureka initializeFromScratch(Map<String, EurekaTenant> tenants, String cluster, String namespace, boolean enableConsortia) {
-    tenants.each { tenantId, tenant -> createTenantFlow(tenant, cluster, namespace) }
+  Eureka initializeFromScratch(Map<String, EurekaTenant> tenants, String cluster, String namespace
+                               , boolean enableConsortia, boolean migrate = false) {
+    tenants.each { tenantId, tenant -> createTenantFlow(tenant, cluster, namespace, migrate) }
 
     if (enableConsortia)
       setUpConsortiaFlow(

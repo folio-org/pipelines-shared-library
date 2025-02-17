@@ -30,7 +30,16 @@ void call(CreateNamespaceParameters args) {
   tfConfig.addVar('pg_ldp_user_password', ldpConfig.getLdpAdminDbUserPassword())
   tfConfig.addVar('github_team_ids', folioTools.getGitHubTeamsIds("${Constants.ENVS_MEMBERS_LIST[args.namespaceName]},${args.members}").collect { "\"${it}\"" })
 
+  stage('[AWS Parameter Store] cleanup') {
+    awscli.withAwsClient {
+      folioTools.deleteSSMParameters(args.clusterName, args.namespaceName)
+    }
+  }
+
   folioHelm.withKubeConfig(args.clusterName) {
+    stage('[Helm uninstall] All') {
+      folioHelm.deleteFolioModulesParallel(args.namespaceName)
+    }
     retry(2) {
       if (args.opensearchType != 'built-in') {
         stage('[Kubectl] Cleanup opensearch indices') {
@@ -42,9 +51,6 @@ void call(CreateNamespaceParameters args) {
           folioTools.deleteKafkaTopics(args.clusterName, args.namespaceName)
         }
       }
-    }
-    stage('[Helm uninstall] All') {
-      folioHelm.deleteFolioModulesParallel(args.namespaceName)
     }
   }
 
