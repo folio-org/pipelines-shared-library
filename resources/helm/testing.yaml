@@ -4448,6 +4448,11 @@ mgr-applications:
       memory: 1024Mi
     requests:
       memory: 675Mi
+  readinessProbe:
+    httpGet:
+      path: /applications
+      port: 8081
+      initialDelaySeconds: 20
 mgr-tenants:
   extraEnvVars:
     - name: MODULE_URL
@@ -4475,6 +4480,11 @@ mgr-tenants:
       memory: 818Mi
     requests:
       memory: 562Mi
+  readinessProbe:
+    httpGet:
+      path: /tenants
+      port: 8081
+      initialDelaySeconds: 20
 mgr-tenant-entitlements:
   extraJavaOpts:
     - "-Dlogging.level.root=DEBUG -Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties"
@@ -4507,6 +4517,11 @@ mgr-tenant-entitlements:
       memory: 1024Mi
     requests:
       memory: 800Mi
+  readinessProbe:
+    httpGet:
+      path: /entitlements
+      port: 8081
+      initialDelaySeconds: 20
 mod-consortia-keycloak:
   extraEnvVars:
     - name: CUSTOM_FIELDS_RETRY_BACKOFF_DELAY
