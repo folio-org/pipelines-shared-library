@@ -1,3 +1,4 @@
+import org.folio.Constants
 import org.folio.utilities.Logger
 
 def createConfigMap(String name, String namespace, files) {
@@ -156,17 +157,40 @@ void execCommand(String namespace = 'default', String pod_name, String command) 
     return sh(script: "set +x && kubectl exec --namespace=${namespace} ${pod_name} -- ${command}",
       returnStdout: true).trim()
   } catch (Exception e) {
-    currentBuild.result = 'UNSTABLE'
+//    currentBuild.result = 'UNSTABLE'
+    println("Requested command: ${command} failed\nError: " + e.getMessage())
+  }
+}
+
+void cleanUpAgreementsFedLocks(String namespace = 'default') {
+  try {
+    String pod = sh(script: "kubectl get pod -l 'app.kubernetes.io/name=pgadmin4' -o=name  --ignore-not-found=true --namespace ${namespace}", returnStdout: true).trim()
+    if (pod) {
+      sh(script: "kubectl exec --request-timeout=20s --namespace=${namespace} ${pod} -- /usr/local/pgsql-16/psql -c 'DELETE FROM mod_agreements__system.federation_lock'", returnStatus: false)
+    }
+  } catch (Exception e) {
     println(e.getMessage())
   }
 }
 
 void deletePod(String namespace = 'default', String pod_name, Boolean wait = true) {
   try {
-    sh "kubectl delete pod --namespace=${namespace} ${pod_name} --wait=${wait}"
+    sh "kubectl delete pod --namespace=${namespace} ${pod_name} --ignore-not-found=true --wait=${wait} --force --grace-period=0"
   } catch (Exception e) {
-    currentBuild.result = 'UNSTABLE'
     println(e.getMessage())
+  }
+}
+
+void deleteEvictedPods(String namespace = 'default') {
+  try {
+    def pods = sh(script: "kubectl get pod --no-headers --namespace ${namespace}", returnStdout: true).trim()
+    pods.toString().eachLine { pod ->
+      if (pod.contains('Evicted')) {
+        deletePod(namespace, pod.split()[0].toString().trim())
+      }
+    }
+  } catch (Exception e) {
+    println("Unable to delete evicted pods!\nError: " + e.getMessage())
   }
 }
 
@@ -268,10 +292,21 @@ boolean checkNamespaceExistence(String namespace) {
   }
 }
 
-void portForwardPSQL(String namespace, Map ports = [5432:5432]){
+void portForwardPSQL(String namespace, Map ports = [5432: 5432]) {
   try {
-    sh(script: "kubectl pod/port-forward postgresql-${namespace}-0 ${ports} -n ${namespace}" )
+    sh(script: "kubectl pod/port-forward postgresql-${namespace}-0 ${ports} -n ${namespace}")
   } catch (Exception e) {
-    new Logger(this,'kubectl').error("Unable to forward port,\nError: ${e.getMessage()}")
+    new Logger(this, 'kubectl').error("Unable to forward port,\nError: ${e.getMessage()}")
+  }
+}
+
+void patchDefaultServiceAccount(String namespace) {
+  try {
+    withCredentials([usernamePassword(credentialsId: 'DockerHubIDJenkins', passwordVariable: 'dockerPassword', usernameVariable: 'dockerUser')]) {
+      sh(script: """kubectl create secret docker-registry docker-hub --docker-server=https://index.docker.io/v1/ --docker-username=${env.dockerUser} --docker-password=${env.dockerPassword} --docker-email=${Constants.EMAIL_FROM} ---namespace ${namespace}""")
+      sh(script: """kubectl patch sa default -p '{"imagePullSecrets":[{"name": "docker-hub"}]} --namespace ${namespace}""")
+    }
+  } catch (Exception e) {
+    new Logger(this, 'kubectl').error("Unable to patch default service account,\nError: ${e.getMessage()}")
   }
 }

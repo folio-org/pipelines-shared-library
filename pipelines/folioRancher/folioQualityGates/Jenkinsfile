@@ -9,6 +9,7 @@ import org.folio.models.parameters.CreateNamespaceParameters
 import org.folio.models.parameters.CypressTestsParameters
 import org.folio.models.parameters.KarateTestsParameters
 import org.folio.rest_v2.Constants
+import org.folio.rest_v2.PlatformType
 import org.folio.slack.SlackHelper
 import org.folio.testing.TestType
 import org.folio.testing.cypress.results.CypressRunExecutionSummary
@@ -16,7 +17,7 @@ import org.folio.testing.karate.results.KarateRunExecutionSummary
 import org.folio.utilities.Logger
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-1334') _
 
 properties([
   pipelineTriggers([cron('H 6,9,12,15,18,21 * * 1-5')]),
@@ -49,7 +50,7 @@ String okapiVersion = folioTools.eval(folioStringScripts.getOkapiVersions(), ['F
 
 Map envsMap = [
   karate : [cluster: 'folio-testing', namespace: 'cikarate'],
-  cypress: [cluster: 'folio-testing', namespace: 'cicypress'],
+  cypress: [cluster: 'folio-etesting', namespace: 'cicypress', platform: 'eureka'],
 //  schema : [cluster: 'folio-tmp', namespace: 'cischema']
 ]
 
@@ -60,7 +61,7 @@ CreateNamespaceParameters namespaceBaseParams = new CreateNamespaceParameters.Bu
   .pgType('built-in')
   .pgVersion('16.1')
   .kafkaType('built-in')
-  .opensearchType('built-in')
+  .opensearchType('aws')
   .s3Type('built-in')
   .runSanityCheck(false)
   .members('')
@@ -73,11 +74,16 @@ CreateNamespaceParameters namespaceFromBranchParams = namespaceBaseParams.toBuil
   .configType('testing')
   .loadReference(true)
   .loadSample(true)
+  .mockServer(false)
   .consortia(true)
   .linkedData(true)
   .splitFiles(true)
   .ecsCCL(false)
   .rtr(false)
+  .applicationSet('Complete')
+  .applications(org.folio.rest_v2.Constants.APPLICATION_BRANCH('Complete'))
+  .hasSecureTenant(true)
+  .secureTenantId(folioDefault.consortiaTenants().get('university').getTenantId())
   .build()
 
 ansiColor('xterm') {
@@ -122,7 +128,7 @@ ansiColor('xterm') {
           cypressParameters.setCiBuildId(env.JOB_BASE_NAME)
           cypressParameters.setTestsSrcBranch('master')
           cypressParameters.setTenantUrl("https://${envsMap['cypress']['cluster']}-${envsMap['cypress']['namespace']}-diku.${Constants.CI_ROOT_DOMAIN}")
-          cypressParameters.setOkapiUrl("https://${envsMap['cypress']['cluster']}-${envsMap['cypress']['namespace']}-okapi.${Constants.CI_ROOT_DOMAIN}")
+          cypressParameters.setOkapiUrl("https://${envsMap['cypress']['cluster']}-${envsMap['cypress']['namespace']}-kong.${Constants.CI_ROOT_DOMAIN}")
           cypressParameters.setTenant(new OkapiTenant('diku')
             .withAdminUser(new OkapiUser('diku_admin', 'admin')))
           cypressParameters.setExecParameters('--env grepTags="shiftLeft"')
@@ -143,7 +149,7 @@ ansiColor('xterm') {
           karateTestsParams.adminUserName = 'super_admin'
           karateTestsParams.adminPassword = 'admin'
           karateTestsParams.threadsCount = '4'
-          karateTestsParams.reportPortalProjectName = 'junit5-integration'
+//          karateTestsParams.reportPortalProjectName = 'junit5-integration'
           karateTestsParams.sendSlackNotification = false
           karateTestsParams.sendTeamsSlackNotification = true
           karateTestsParams.syncWithJira = true
@@ -201,21 +207,58 @@ ansiColor('xterm') {
 
 void provisionFromBranchParallelStage(String jobName, Map envsMap, CreateNamespaceParameters namespaceFromBranchParams, String slackChannel) {
   stage('Provisioning') {
+    /** Map of Sub Job Objects [<id:object>,] */
+    Map subJobsMap = [:]
+
+    /** List of sections for slack notification */
+    List<String> sections = []
+
     try {
       Map branches = [failFast: false]
+
       envsMap.each { id, metadata ->
         CreateNamespaceParameters namespaceCreateParams = namespaceFromBranchParams.toBuilder()
-          .clusterName(metadata['cluster'])
-          .namespaceName(metadata['namespace'])
+          .clusterName(metadata['cluster'] as String)
+          .namespaceName(metadata['namespace'] as String)
+          .platform(metadata['platform'] == 'eureka' ? PlatformType.EUREKA : PlatformType.OKAPI)
           .build()
-        branches["${namespaceCreateParams.getClusterName()}-${namespaceCreateParams.getNamespaceName()}"] = { ->
-          folioTriggerJob.createNamespaceFromBranch(jobName, namespaceCreateParams)
+
+        /** Complete Environment Name */
+        String envName = "${namespaceCreateParams.getClusterName()}-${namespaceCreateParams.getNamespaceName()}"
+
+        branches[envName] = { ->
+          subJobsMap[id] = folioTriggerJob.createNamespaceFromBranch(metadata['platform'] == 'eureka' ?
+            CommonConstants.JENKINS_CREATE_NAMESPACE_FROM_BRANCH_JOB_EUREKA : jobName, namespaceCreateParams, false, true)
+
+          if (subJobsMap[id]?.getResult() == 'FAILURE') {
+            throw new Exception(subJobsMap[id]?.getDescription() as String)
+          }
         }
       }
       parallel(branches)
+
     } catch (e) {
+      /** Set Job build result to FAILURE */
       currentBuild.result = 'FAILURE'
-      slackSend(attachments: folioSlackNotificationUtils.renderBuildResultMessage(), channel: slackChannel)
+
+      /** Add the build result section to the slack notification */
+      sections.add(folioSlackNotificationUtils.renderBuildResultSection() as String)
+
+      /** Add the sub job build result sections to the slack notification */
+      subJobsMap.each { jobId, jobObject ->
+        sections.add(folioSlackNotificationUtils.renderSubJobBuildResultSection(
+          jobObject?.getProjectName(),
+          jobObject?.getDisplayName(),
+          jobObject?.getAbsoluteUrl() + 'console',
+          jobObject?.getResult(),
+          jobObject?.getDescription()
+        ) as String)
+      }
+
+      /** Attachments for slack notification */
+      String attachments = SlackHelper.renderMessage(sections)
+
+      slackSend(attachments: attachments, channel: slackChannel)
       throw new Exception("Provision of the environment is failed: " + e)
     }
   }
@@ -231,7 +274,8 @@ void destroyParallelStage(String jobName, Map namespacesMap, CreateNamespacePara
           .namespaceName(metadata['namespace'])
           .build()
         branches["${namespaceDeleteParams.getClusterName()}-${namespaceDeleteParams.getNamespaceName()}"] = { ->
-          folioTriggerJob.deleteNamespace(jobName, namespaceDeleteParams)
+          folioTriggerJob.deleteNamespace(metadata['platform'] == 'eureka' ?
+            CommonConstants.JENKINS_DELETE_NAMESPACE_JOB_EUREKA : jobName, namespaceDeleteParams)
         }
       }
       parallel(branches)

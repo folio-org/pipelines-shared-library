@@ -98,7 +98,10 @@ readReplicas:
     max_wal_size = '4GB'
   ${indent(2, local.schedule_value)}
 image:
+  registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
+  repository: postgresql
   tag: ${join(".", [var.pg_version, "0"])}
+  pullPolicy: IfNotPresent
 auth:
   database: ${local.pg_eureka_db_name}
   postgresPassword: ${var.pg_password}
@@ -151,6 +154,11 @@ primary:
   ${indent(2, local.schedule_value)}
 volumePermissions:
   enabled: true
+  image:
+    registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
+    repository: os-shell
+    tag: 11-debian-11-r91
+    pullPolicy: IfNotPresent
 metrics:
   enabled: false
   resources:
@@ -278,6 +286,11 @@ resource "helm_release" "pgadmin" {
   chart      = "pgadmin4"
   version    = "1.10.1"
   values = [<<-EOF
+image:
+  tag: 8.14
+  registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
+  repository: pgadmin4
+  pullPolicy: IfNotPresent
 resources:
   requests:
     memory: 256Mi
@@ -289,6 +302,14 @@ env:
   variables:
     - name: PGPASSWORD
       value: ${var.pg_password}
+    - name: PGUSER
+      value: ${var.pg_embedded ? var.pg_username : module.rds[0].cluster_master_username}
+    - name: PGHOST
+      value: ${var.pg_embedded ? local.pg_service_writer : module.rds[0].cluster_endpoint}
+    - name: PGDATABASE
+      value: ${local.pg_eureka_db_name}
+    - name: PGPORT
+      value: '5432'
 service:
   type: NodePort
 ingress:

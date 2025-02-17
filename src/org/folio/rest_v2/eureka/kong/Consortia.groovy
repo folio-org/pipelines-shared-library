@@ -2,20 +2,18 @@ package org.folio.rest_v2.eureka.kong
 
 import com.cloudbees.groovy.cps.NonCPS
 import org.folio.models.EurekaTenantConsortia
+import org.folio.models.Role
+import org.folio.models.User
 import org.folio.rest_v2.eureka.Keycloak
 import org.folio.rest_v2.eureka.Kong
 
-class Consortia extends Kong{
+class Consortia extends Kong {
 
-  Consortia(def context, String kongUrl, Keycloak keycloak, boolean debug = false){
+  Consortia(def context, String kongUrl, Keycloak keycloak, boolean debug = false) {
     super(context, kongUrl, keycloak, debug)
   }
 
-  Consortia(def context, String kongUrl, String keycloakUrl, boolean debug = false){
-    super(context, kongUrl, keycloakUrl, debug)
-  }
-
-  Consortia(Kong kong){
+  Consortia(Kong kong) {
     this(kong.context, kong.kongUrl, kong.keycloak, kong.getDebug())
   }
 
@@ -67,7 +65,7 @@ class Consortia extends Kong{
     return content.id
   }
 
-  String getConsortiaID(EurekaTenantConsortia centralConsortiaTenant){
+  String getConsortiaID(EurekaTenantConsortia centralConsortiaTenant) {
     logger.info("Get tenant's ${centralConsortiaTenant.getTenantId()} ${centralConsortiaTenant.getUuid()} consortia ID ...")
 
     Map<String, String> headers = getTenantHttpHeaders(centralConsortiaTenant, true)
@@ -78,7 +76,7 @@ class Consortia extends Kong{
       logger.debug("Found consortia: ${response.consortia}")
 
       return response.consortia[0].id
-    }else if (response.totalRecords > 1){
+    } else if (response.totalRecords > 1) {
       logger.debug("${response.totalRecords} consortias have been found")
       logger.debug("HTTP response is: ${response}")
       throw new Exception("Too many consortias")
@@ -152,17 +150,39 @@ class Consortia extends Kong{
       "isCentral": false
     ]
 
-    def response = restClient.post(url, body, headers, [201, 409])
+    def response = restClient.post(url, body, headers, [201, 409, 500])
+
     String contentStr = response.body.toString()
 
-    if (response.responseCode == 409)
-      logger.info("""
-        Consortia tenant already added
-        Status: ${response.responseCode}
-        Response content:
-        ${contentStr}""")
-    else
-      logger.info("${institutionalTenant.tenantId} successfully added to ${centralConsortiaTenant.consortiaName} consortia")
+    switch (response.responseCode) {
+      case 201:
+        logger.info("""
+          Tenant : ${institutionalTenant.tenantId} added successfully
+          Status: ${response.responseCode}
+          Response content:
+          ${contentStr}""")
+        break
+      case 409:
+        logger.info("""
+          Tenant : ${institutionalTenant.tenantId} already added
+          Status: ${response.responseCode}
+          Response content:
+          ${contentStr}""")
+        break
+      case 500:
+        logger.info("""
+          Tenant : ${institutionalTenant.tenantId} add operation failed!
+          Try to delete the tenant and re-add it operation started...""")
+          def fix = restClient.delete(generateUrl("/consortia/${centralConsortiaTenant.consortiaUuid}/tenants/${institutionalTenant.tenantId}"), headers, [204, 404])
+          if (fix.responseCode == 204) {
+            logger.info("Tenant : ${institutionalTenant.tenantId} deleted successfully from consortia.\nTrying to add it again...")
+            addConsortiaTenant(centralConsortiaTenant, institutionalTenant)
+          } else {
+            logger.warning("Adding tenant : ${institutionalTenant.tenantId} in consortia operation end with errors!\nContinue with current execution...")
+          }
+        break
+    }
+    sleep(10000)
 
     return this
   }
@@ -203,8 +223,31 @@ class Consortia extends Kong{
     return this
   }
 
+  void addRoleToShadowAdminUser(EurekaTenantConsortia centralConsortiaTenant, EurekaTenantConsortia tenant, boolean execute = false) {
+
+    if (execute) {
+
+      sleep(10000) // wait for tenant to be ready in consortia
+
+      Role role = Permissions.get(this).getRoleByName(tenant, "adminRole")
+      User user = Users.get(this).getUserByUsername(tenant, centralConsortiaTenant.getAdminUser().getUsername())
+
+      logger.info("""
+                   Task: Add admin role to shadow admin user
+                   user: ${user.username}
+                   tenant: ${tenant.tenantId}
+                  """)
+
+      Permissions.get(this).assignRolesToUser(tenant, user, [role], true)
+
+      logger.info("Task: Add admin role to shadow admin ${user.username} in tenant ${tenant.tenantId} completed")
+
+    }
+
+  }
+
   @NonCPS
-  static Consortia get(Kong kong){
+  static Consortia get(Kong kong) {
     return new Consortia(kong)
   }
 }

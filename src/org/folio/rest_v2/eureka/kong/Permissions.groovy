@@ -213,37 +213,40 @@ class Permissions extends Kong{
 
     Map<String, String> headers = getTenantHttpHeaders(tenant)
 
-    Map body = [
-      "roleId"       : role.uuid,
-      "capabilityIds": ids
-    ]
+    ids.collate(1000).each { chunk ->
 
-    def response
+      Map body = [
+        "roleId"       : role.uuid,
+        "capabilityIds": chunk
+      ]
 
-    if(skipExists)
-      response = restClient.post(generateUrl("/roles/capabilities"), body, headers, [201, 400], connectionTimeout)
-    else
-      response = restClient.post(generateUrl("/roles/capabilities"), body, headers, [], connectionTimeout)
+      def response
 
-    String contentStr = response.body.toString()
+      if(skipExists)
+        response = restClient.post(generateUrl("/roles/capabilities"), body, headers, [201, 400], connectionTimeout)
+      else
+        response = restClient.post(generateUrl("/roles/capabilities"), body, headers, [], connectionTimeout)
 
-    if (response.responseCode == 400) {
-      if (contentStr.contains("type:EntityExistsException")) {
-        logger.info("""
+      String contentStr = response.body.toString()
+
+      if (response.responseCode == 400) {
+        if (contentStr.contains("type:EntityExistsException")) {
+          logger.info("""
           Capabilities already asigned to role \"${role.uuid}\"
           Status: ${response.responseCode}
           Response content:
           ${contentStr}""")
 
-        return this
-      } else {
-        logger.error("""
+          return this
+        } else {
+          logger.error("""
           Assigning capabilities to role error
           Status: ${response.responseCode}
           Response content:
           ${contentStr}""")
 
-        throw new Exception("Build failed: " + contentStr)
+          throw new Exception("Build failed: " + contentStr)
+        }
       }
     }
 
@@ -297,10 +300,10 @@ class Permissions extends Kong{
     return this
   }
 
-  Permissions assignRolesToUser(EurekaTenant tenant, User user, List<Role> roles){
+  Permissions assignRolesToUser(EurekaTenant tenant, User user, List<Role> roles, boolean adjustHeaders = false){
     logger.info("Assigning roles to user ${user.username}(${user.uuid}) for ${tenant.tenantId}...")
 
-    Map<String, String> headers = getTenantHttpHeaders(tenant)
+    Map<String, String> headers = adjustHeaders ? getTenantHttpHeaders(tenant, true) :  getTenantHttpHeaders(tenant)
 
     List<String> roleIds = []
     roles.each {role -> roleIds.add(role.uuid)}

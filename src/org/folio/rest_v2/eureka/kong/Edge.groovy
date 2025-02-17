@@ -55,41 +55,80 @@ class Edge extends Users {
           edgeUser.setEmail(user['tenants'][0]['username'] + '@ci.folio.org')
           edgeUser.setPreferredContactTypeId('002')
 
-          def response = restClient.post(generateUrl("/users-keycloak/users"), edgeUser.toMap(), headers).body
+          def response = restClient.post(generateUrl("/users-keycloak/users"), edgeUser.toMap(), headers, [201, 409])
 
-          logger.info("tenantId: ${tenant.tenantId} ${user['tenants'][0]['username']} users created...")
+          if (response.responseCode == 409) {
+            logger.info("tenantId: ${tenant.tenantId} ${user['tenants'][0]['username']} user already exists...")
+          } else {
+            logger.info("tenantId: ${tenant.tenantId} ${user['tenants'][0]['username']} user created...")
+          }
 
           Map userPass = [
             username: user['tenants'][0]['username'],
-            userId  : response['id'],
+            userId  : response['body']['id'],
             password: user['tenants'][0]['password']
           ]
 
-          restClient.post(generateUrl("/authn/credentials"), userPass, headers)
-
-          logger.info("tenantId: ${tenant.tenantId} ${user['tenants'][0]['username']} user password reset...")
+          def creds = restClient.post(generateUrl("/authn/credentials"), userPass, headers, [201, 400, 409])
+          switch (creds.responseCode) {
+            case 201:
+              logger.info("tenantId: ${tenant.tenantId} ${user['tenants'][0]['username']} user password set...")
+              break
+            case 400:
+              logger.warning("tenantId: ${tenant.tenantId} ${user['tenants'][0]['username']} user password set failed...")
+              break
+            case 409:
+              logger.info("tenantId: ${tenant.tenantId} ${user['tenants'][0]['username']} user password already set...")
+              break
+          }
 
           if (caps) {
             Map userCaps = [
-              userId       : response['id'],
+              userId       : response['body']['id'],
               capabilityIds: caps
             ]
 
-            restClient.post(generateUrl("/users/capabilities"), userCaps, headers)
+            def capsStatus = restClient.post(generateUrl("/users/capabilities"), userCaps, headers, [200, 201, 400, 409])
 
-            logger.info("tenantId: ${tenant.tenantId} ${user['tenants'][0]['username']} user has assigned capabilities...")
+            switch (capsStatus.responseCode) {
+              case 200:
+                logger.info("tenantId: ${tenant.tenantId} ${user['tenants'][0]['username']} user has assigned capabilities...")
+                break
+              case 201:
+                logger.info("tenantId: ${tenant.tenantId} ${user['tenants'][0]['username']} user has assigned capabilities...")
+                break
+              case 400:
+                logger.warning("tenantId: ${tenant.tenantId} ${user['tenants'][0]['username']} user has assigned capabilities failed...")
+                break
+              case 409:
+                logger.info("tenantId: ${tenant.tenantId} ${user['tenants'][0]['username']} user has assigned capabilities already...")
+                break
+            }
           }
 
           if (capSets) {
 
             Map userCapsSets = [
-              userId          : response['id'],
+              userId          : response['body']['id'],
               capabilitySetIds: capSets
             ]
 
-            restClient.post(generateUrl("/users/capability-sets"), userCapsSets, headers)
+            def capsSetsStatus = restClient.post(generateUrl("/users/capability-sets"), userCapsSets, headers, [200, 201, 400, 409])
 
-            logger.info("tenantId: ${tenant.tenantId} ${user['tenants'][0]['username']} user has assigned capabilitiesSets...")
+            switch (capsSetsStatus.responseCode) {
+              case 200:
+                logger.info("tenantId: ${tenant.tenantId} ${user['tenants'][0]['username']} user has assigned capability sets...")
+                break
+              case 201:
+                logger.info("tenantId: ${tenant.tenantId} ${user['tenants'][0]['username']} user has assigned capability sets...")
+                break
+              case 400:
+                logger.warning("tenantId: ${tenant.tenantId} ${user['tenants'][0]['username']} user has assigned capability sets failed...")
+                break
+              case 409:
+                logger.info("tenantId: ${tenant.tenantId} ${user['tenants'][0]['username']} user has assigned capability sets already...")
+                break
+            }
           }
         }
       }

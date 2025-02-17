@@ -19,7 +19,7 @@ resource "rancher2_secret" "keycloak-credentials" {
 resource "helm_release" "keycloak" {
   count        = (var.eureka ? 1 : 0)
   chart        = "keycloak"
-  depends_on   = [rancher2_secret.keycloak-credentials, helm_release.postgresql]
+  depends_on   = [rancher2_secret.keycloak-credentials, rancher2_secret.db-credentials, helm_release.postgresql, module.rds.cluster_instances]
   name         = "keycloak-${var.rancher_project_name}"
   namespace    = rancher2_namespace.this.id
   version      = "21.0.4"
@@ -30,7 +30,7 @@ resource "helm_release" "keycloak" {
 image:
   registry: folioci
   repository: folio-keycloak
-  tag: latest
+  tag: ${var.keycloak_version}
   pullPolicy: Always
   debug: false
 
@@ -141,13 +141,28 @@ networkPolicy:
   enabled: false
 
 livenessProbe:
-  enabled: false
+  enabled: true
+  initialDelaySeconds: 60
+  periodSeconds: 1
+  timeoutSeconds: 10
+  failureThreshold: 5
+  successThreshold: 1
 
 readinessProbe:
-  enabled: false
+  enabled: true
+  initialDelaySeconds: 30
+  periodSeconds: 10
+  timeoutSeconds: 10
+  failureThreshold: 10
+  successThreshold: 1
 
 startupProbe:
   enabled: false
+  initialDelaySeconds: 30
+  periodSeconds: 5
+  timeoutSeconds: 1
+  failureThreshold: 300
+  successThreshold: 1
 
 ingress:
   enabled: true

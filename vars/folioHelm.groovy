@@ -40,7 +40,11 @@ void install(String release_name, String namespace, String values_path, String c
 }
 
 void upgrade(String release_name, String namespace, String values_path, String chart_repo, String chart_name) {
-  sh "helm upgrade --install ${release_name} --namespace=${namespace} ${valuesPathOption(values_path)} ${chart_repo}/${chart_name}"
+  if (release_name.startsWith("mgr-")) {
+    sh "helm upgrade --install ${release_name} --namespace=${namespace} ${valuesPathOption(values_path)} ${chart_repo}/${chart_name} --wait"
+  } else {
+    sh "helm upgrade --install ${release_name} --namespace=${namespace} ${valuesPathOption(values_path)} ${chart_repo}/${chart_name}"
+  }
 }
 
 void deployFolioModule(RancherNamespace ns, String moduleName, String moduleVersion, boolean customModule = false, String tenantId = ns.defaultTenantId) {
@@ -106,6 +110,10 @@ void deleteFolioModulesParallel(String ns) {
   }
 }
 
+@Deprecated
+/**
+ * Use checkDeploymentsRunning functions instead
+ */
 void checkPodRunning(String ns, String podName) {
   timeout(time: ns == 'ecs-snapshot' ? 15 : 5, unit: 'MINUTES') {
     def podNotRunning = true
@@ -132,8 +140,12 @@ void checkPodRunning(String ns, String podName) {
   }
 }
 
+@Deprecated
+/**
+ * Use checkDeploymentsRunning functions instead
+ */
 void checkAllPodsRunning(String ns) {
-  timeout(time: ns == 'ecs-snapshot' ? 20 : 10, unit: 'MINUTES') {
+  timeout(time: 20, unit: 'MINUTES')  {
     boolean notAllRunning = true
     while (notAllRunning) {
       sleep(time: 30, unit: 'SECONDS')
@@ -156,6 +168,89 @@ void checkAllPodsRunning(String ns) {
     }
   }
 }
+
+void checkDeploymentsRunning(String ns, FolioModule deploymentModule) {
+  checkDeploymentsRunning(ns, [deploymentModule])
+}
+
+void checkDeploymentsRunning(String ns, List<FolioModule> deploymentsList) {
+  println('Starting deployment monitoring...')
+
+  kubectl.deleteEvictedPods(ns)
+
+  boolean allDeploymentsUpdated = false
+  int timer = 0
+  int maxTime = 30 * 60 // 30 minutes in seconds
+
+  try {
+    while (!allDeploymentsUpdated) {
+      def jsonOutput
+      try {
+        // Execute the kubectl command
+        jsonOutput = sh(
+          script: "kubectl get deployments -n ${ns} -o json",
+          returnStdout: true
+        ).trim()
+      } catch (Exception e) {
+        error("Failed to execute kubectl command: ${e.message}")
+      }
+
+      def deploymentsJson
+      try {
+        // Parse the JSON output
+        deploymentsJson = readJSON text: jsonOutput
+      } catch (Exception e) {
+        error("Failed to parse JSON output: ${e.message}")
+      }
+
+      // Check if there are any deployments in the namespace
+      if (!deploymentsJson.items || deploymentsJson.items.isEmpty()) {
+        error("No deployments found in namespace '${ns}'. Please check the namespace or deployment configuration.")
+      }
+
+      def unfinishedDeployments = []
+
+      // Check each deployment from the list
+      deploymentsList.each { folioModule ->
+        def deployment = deploymentsJson.items.find { it.metadata.name == folioModule.name }
+        if (deployment) {
+          def status = deployment.status
+          def specReplicas = deployment.spec.replicas
+          if (status.updatedReplicas != specReplicas ||
+              status.readyReplicas != specReplicas ||
+              status.unavailableReplicas > 0 ||
+              status.conditions.any { it.type == "Available" && it.status == "False" }) {
+            unfinishedDeployments << folioModule.name
+          }
+        } else {
+          println("Warning: Deployment '${folioModule.name}' not found in namespace '${ns}'")
+        }
+      }
+
+      if (unfinishedDeployments) {
+        println("Unfinished deployments: ${unfinishedDeployments}")
+        println("Rechecking in 30 seconds...")
+        sleep(time: 30, unit: 'SECONDS')
+        timer += 30
+      } else {
+        println("All deployments are successfully updated!")
+        allDeploymentsUpdated = true
+      }
+
+      // Check the timer
+      if (timer >= maxTime) {
+        error("Timeout: Some deployments are still not updated after 20 minutes.")
+      }
+    }
+  } catch (Exception e) {
+    // Handle general errors
+    println("Error occurred during deployment monitoring: ${e.message}")
+    throw e // Rethrow the error to mark the Jenkins build as failed
+  }
+}
+
+
+
 
 static String valuesPathOption(String path) {
   return path.trim() ? "-f ${path}" : ''
@@ -204,11 +299,36 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
     ]
 
     switch (moduleName) { // let it still be switch in case we need to add an additional module
+      case 'mod-consortia-keycloak':
+        println('https://folio-org.atlassian.net/browse/RANCHER-2035')
+        break
       case ~/mod-.*-keycloak/:
         moduleConfig['extraEnvVars'] += [
           name: 'MOD_USERS_ID',
           value: 'mod-users-' + ns.getModules().getModuleByName('mod-users').getVersion()
         ]
+
+        break
+      case 'mod-requests-mediated':
+        moduleConfig['extraEnvVars'] += ns.hasSecureTenant ? [
+          name: 'SECURE_TENANT_ID',
+          value: ns.getSecureTenant().tenantId
+        ] : []
+
+        break
+      case 'edge-patron':
+        moduleConfig['integrations']['okapi'] = [enabled: false]
+
+        moduleConfig['extraEnvVars'] += ns.hasSecureTenant ? [
+          name: 'SECURE_TENANT_ID',
+          value: ns.getSecureTenant().tenantId
+        ] : []
+
+        moduleConfig['extraEnvVars'] += ns.hasSecureTenant ? [
+          name: 'SECURE_REQUESTS_FEATURE_ENABLED',
+          value: ns.getSecureTenant().hasSecureTenant
+        ] : []
+
         break
       case ~/edge-.*$/:
         moduleConfig['integrations']['okapi'] = [enabled: false]
@@ -311,7 +431,7 @@ static String determineModulePlacement(String moduleName, String moduleVersion, 
       case ~/^\d{1,3}\.\d{1,3}\.\d{1,3}-SNAPSHOT\.\d{1,3}$/:
         repository = "folioci"
         break
-      case ~/^\d{1,3}\.\d{1,3}\.\d{1,3}-SNAPSHOT\.[\d\w]{7}$/:
+      case ~/^\d{1,3}\.\d{1,3}\.\d{1,3}-SNAPSHOT\.[\d\w]{5,}$/:
         repository = Constants.ECR_FOLIO_REPOSITORY
         break
       case ~/^\d{1,3}\.\d{1,3}\.\d{1,3}-SNAPSHOT\$/:

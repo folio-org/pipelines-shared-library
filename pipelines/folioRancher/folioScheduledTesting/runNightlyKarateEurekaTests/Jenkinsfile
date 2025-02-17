@@ -1,5 +1,5 @@
 #!groovy
-package folioRancher.folioScheduledTesting.runNightlyCypressEurekaTests
+package folioRancher.folioScheduledTesting.runNightlyKarateTests
 
 import groovy.transform.Field
 import org.folio.Constants
@@ -7,7 +7,7 @@ import org.folio.models.OkapiTenant
 import org.folio.models.OkapiUser
 import org.folio.models.RancherNamespace
 import org.folio.models.parameters.CreateNamespaceParameters
-import org.folio.models.parameters.CypressTestsParameters
+import org.folio.models.parameters.KarateTestsParameters
 import org.folio.rest_v2.PlatformType
 import org.folio.utilities.Logger
 import org.jenkinsci.plugins.workflow.libs.Library
@@ -18,12 +18,13 @@ import org.jenkinsci.plugins.workflow.libs.Library
  * Job properties and parameters
  */
 properties([
-  pipelineTriggers([cron('H 21 * * 1-5')]),
+  pipelineTriggers([cron('H 2 * * 1-5')]),
   buildDiscarder(logRotator(numToKeepStr: '30')),
   disableConcurrentBuilds(),
   parameters([
-    string(name: 'CYPRESS_BRANCH', defaultValue: 'eureka', description: "(Required) Insert what 'stripes-testing' branch use for build"),
-    folioParameters.agent(),
+    string(name: 'TESTS_BRANCH', defaultValue: 'master-eureka', description: "(Required) Karate tests repository branch to checkout"),
+    string(name: 'THREADS_COUNT', defaultValue: '4', description: "(Required) Number of parallel threads"),
+    booleanParam(name: 'DESTROY_AFTER', defaultValue: true, description: '(Optional) Set to false to not destroy namespace after tests execution'),
     folioParameters.refreshParameters()
   ])
 ])
@@ -38,15 +39,14 @@ if (params.REFRESH_PARAMETERS) {
  */
 Logger logger = new Logger(this, env.JOB_BASE_NAME)
 
-@Field final String deleteNamespaceJobName = Constants.JENKINS_DELETE_NAMESPACE_JOB_EUREKA
-@Field final String createNamespaceJobName = Constants.JENKINS_CREATE_NAMESPACE_FROM_BRANCH_JOB_EUREKA
-
-final String platformCompleteBranch = 'snapshot'
+final String createNamespaceJobName = Constants.JENKINS_CREATE_NAMESPACE_FROM_BRANCH_JOB_EUREKA
+final String deleteNamespaceJobName = Constants.JENKINS_DELETE_NAMESPACE_JOB_EUREKA
+String okapiVersion = folioTools.eval(folioStringScripts.getOkapiVersions(), ['FOLIO_BRANCH': 'snapshot'])[0]
 
 CreateNamespaceParameters namespaceBaseParams = new CreateNamespaceParameters.Builder()
   .platform(PlatformType.EUREKA)
   .clusterName('folio-etesting')
-  .namespaceName('cypress')
+  .namespaceName('karate-eureka')
   .rwSplit(false)
   .greenmail(false)
   .mockServer(false)
@@ -55,13 +55,15 @@ CreateNamespaceParameters namespaceBaseParams = new CreateNamespaceParameters.Bu
   .kafkaType('built-in')
   .opensearchType('aws')
   .s3Type('built-in')
+  .runSanityCheck(false)
   .members('')
+  .uiBuild(true)
   .worker('rancher')
   .build()
 
 CreateNamespaceParameters namespaceFromBranchParams = namespaceBaseParams.toBuilder()
-  .folioBranch(platformCompleteBranch)
-  .okapiVersion('latest')
+  .folioBranch('snapshot')
+  .okapiVersion(okapiVersion)
   .configType('testing')
   .loadReference(true)
   .loadSample(true)
@@ -75,40 +77,34 @@ CreateNamespaceParameters namespaceFromBranchParams = namespaceBaseParams.toBuil
   .build()
 
 RancherNamespace namespace = new RancherNamespace(namespaceBaseParams.getClusterName(), namespaceBaseParams.getNamespaceName())
+namespace.withSuperTenantAdminUser()
 
-CypressTestsParameters cypressParameters = new CypressTestsParameters()
-cypressParameters.setCiBuildId(env.JOB_BASE_NAME)
-cypressParameters.setTestsSrcBranch(params.CYPRESS_BRANCH)
-cypressParameters.setTenantUrl("https://${namespace.generateDomain('diku')}")
-cypressParameters.setOkapiUrl("https://${namespace.getDomains().kong}")
-cypressParameters.setTenant(new OkapiTenant('diku')
-  .withAdminUser(new OkapiUser('diku_admin', 'admin')))
-cypressParameters.setExecParameters('--env grepTags="smoke criticalPath"')
-cypressParameters.setTestrailProjectID('14')
-cypressParameters.setTestrailRunID('2723')
-cypressParameters.setWorkerLabel('cypress')
-cypressParameters.setNumberOfWorkers(12)
-cypressParameters.setTimeout('480')
-
-boolean reportPortalUse = true
-String reportPortalRunType = 'evrk'
+KarateTestsParameters karateTestsParams = new KarateTestsParameters()
+karateTestsParams.gitBranch = params.TESTS_BRANCH
+karateTestsParams.okapiUrl = "https://${namespace.getDomains().kong}"
+karateTestsParams.edgeUrl = "https://${namespace.getDomains().edge}"
+karateTestsParams.tenant = namespace.getSuperTenant().getTenantId()
+karateTestsParams.prototypeTenant = 'consortium'
+karateTestsParams.adminUserName = namespace.getSuperTenant().getAdminUser().getUsername()
+karateTestsParams.adminPassword = namespace.getSuperTenant().getAdminUser().getPassword()
+karateTestsParams.threadsCount = params.THREADS_COUNT
+karateTestsParams.reportPortalProjectName = ''
+karateTestsParams.sendSlackNotification = false
+karateTestsParams.syncWithJira = false
+karateTestsParams.timeout = '2'
 
 /**
  * Pipeline
  */
 ansiColor('xterm') {
-  node(params.AGENT) {
+  node('jenkins-agent-java17') {
     try {
       stage('Ini') {
-        buildDescription "Branch: ${params.CYPRESS_BRANCH}\nConfig: ${namespaceFromBranchParams.getConfigType()}\nEnv: ${cypressParameters.tenantUrl}"
+        buildDescription "Branch: ${params.TESTS_BRANCH}\nThreads: ${params.THREADS_COUNT}\nDestroy after: ${params.DESTROY_AFTER}"
         cleanWs()
       }
 
-      stage('Checkout') {
-        checkout scm
-      }
-
-      stage('[Job] Destroy environment') {
+      stage('[Job] Destroy environment (before)') {
         def nsExists
         folioHelm.withKubeConfig(namespaceBaseParams.getClusterName()) {
           nsExists = kubectl.checkNamespaceExistence("${namespaceBaseParams.getNamespaceName()}")
@@ -133,8 +129,12 @@ ansiColor('xterm') {
       }
 
       stage('[Flow] Execute tests') {
-        cypressTestsExecutionSummary = folioCypressFlow.runWrapper(cypressParameters.getCiBuildId(), reportPortalUse, reportPortalRunType) {
-          folioCypressFlow.multiThreadRun(cypressParameters)
+       folioKarateFlow(karateTestsParams)
+      }
+
+      if (params.DESTROY_AFTER) {
+        stage('[Job] Destroy environment (after)') {
+          folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceBaseParams)
         }
       }
     } catch (e) {

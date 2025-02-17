@@ -71,6 +71,7 @@ Logger logger = new Logger(this, env.JOB_BASE_NAME)
 
 String installJsonS3Path = "${Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME}/ecs-snapshot/"
 List newInstallJson = new GitHubUtility(this).getEnableList('platform-complete', 'snapshot')
+newInstallJson.removeAll { module -> module.id == 'okapi' }
 InstallRequestParams installRequestParams = new InstallRequestParams(reinstall: true)
   .withTenantParameters("centralTenantId=cs00000int")
 Main main = new Main(this, namespace.generateDomain('okapi'), namespace.getSuperTenant())
@@ -185,6 +186,7 @@ ansiColor('xterm') {
       stage('Update') {
         folioHelm.withKubeConfig(namespace.getClusterName()) {
           folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getBackendModules())
+          folioHelm.checkDeploymentsRunning(namespace.getNamespaceName(), namespace.getModules().getBackendModules())
 
           folioEdge.renderEphemeralProperties(namespace)
           namespace.getModules().getEdgeModules().each { module ->
@@ -193,7 +195,6 @@ ansiColor('xterm') {
           }
 
           folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getEdgeModules())
-          folioHelm.checkAllPodsRunning(namespace.getNamespaceName())
         }
       }
 

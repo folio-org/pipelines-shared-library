@@ -10,10 +10,10 @@ void deleteOpenSearchIndices(String cluster, String namespace) {
   //TODO This is unsafe, we should change this approach after Jenkins migration
   String delete_indices_command = "curl -u ${opensearch_username}:${opensearch_password} -X DELETE ${opensearch_url}/${cluster}-${namespace}_*"
 
-  kubectl.runPodWithCommand('curl', 'curlimages/curl:7.88.1')
-  kubectl.waitPodIsRunning('curl')
-  kubectl.execCommand('curl', delete_indices_command)
-  kubectl.deletePod('curl')
+  kubectl.runPodWithCommand("${namespace}", 'curl', Constants.ECR_FOLIO_REPOSITORY + '/curl:7.88.1')
+  kubectl.waitPodIsRunning("${namespace}", 'curl')
+  kubectl.execCommand("${namespace}", 'curl', delete_indices_command)
+  kubectl.deletePod("${namespace}", 'curl')
 }
 
 void deleteKafkaTopics(String cluster, String namespace) {
@@ -21,12 +21,12 @@ void deleteKafkaTopics(String cluster, String namespace) {
   String kafka_port = kubectl.getSecretValue(namespace, 'kafka-credentials', 'KAFKA_PORT')
   String delete_topic_command = "kafka-topics.sh --bootstrap-server ${kafka_host}:${kafka_port} --delete --topic ${cluster}-${namespace}.*"
 
-  kubectl.runPodWithCommand('kafka', 'bitnami/kafka:2.8.0')
-  kubectl.waitPodIsRunning('kafka')
+  kubectl.runPodWithCommand("${namespace}", 'kafka', Constants.ECR_FOLIO_REPOSITORY + '/kafka:3.5.0')
+  kubectl.waitPodIsRunning("${namespace}", 'kafka')
   retry(3) {
-    kubectl.execCommand('kafka', delete_topic_command)
+    kubectl.execCommand("${namespace}", 'kafka', delete_topic_command)
   }
-  kubectl.deletePod('kafka')
+  kubectl.deletePod("${namespace}", 'kafka')
 }
 
 void stsKafkaLag(String cluster, String namespace, String tenantId) {
@@ -37,10 +37,13 @@ void stsKafkaLag(String cluster, String namespace, String tenantId) {
     String lag = "kafka-consumer-groups.sh --bootstrap-server ${kafka_host}:${kafka_port} --describe --group ${cluster}-${namespace}-mod-roles-keycloak-capability-group | grep ${tenantId} | awk '" + '''{print $6}''' + "'"
     def status = sh(script: "kubectl get pod kafka-sh --ignore-not-found=true --namespace ${namespace}", returnStdout: true).trim()
     if (status == '') {
-      kubectl.runPodWithCommand("${namespace}", 'kafka-sh', 'bitnami/kafka:3.5.0', 'sleep 60m')
+      kubectl.runPodWithCommand("${namespace}", 'kafka-sh', Constants.ECR_FOLIO_REPOSITORY + '/kafka:3.5.0', 'sleep 60m')
       kubectl.waitPodIsRunning("${namespace}", 'kafka-sh')
     }
     def check = kubectl.execCommand("${namespace}", 'kafka-sh', "${lag}")
+    if (check.contains("0\n0")) {
+      check = check.tokenize()[0]
+    }
     while (check.toInteger() != 0) {
       logger.debug("Waiting for capabilities to be propagated on tenant: ${tenantId}")
       sleep time: 30, unit: 'SECONDS'
@@ -143,5 +146,22 @@ def addGithubTeamsToRancherProjectMembersList(String teams, String project) {
     }
   } else {
     folioPrint.colored("Skipping adding teams to project members list for ${project}\nReason: ${project} is not in ${Constants.AWS_EKS_DEV_NAMESPACES}", "red")
+  }
+}
+
+void deleteSSMParameters(String cluster, String namespace) {
+  folioHelm.withK8sClient {
+    def ssm_params = sh(script: """aws ssm describe-parameters --parameter-filters "Key=Name,Option=Contains,Values=${cluster}-${namespace}_" --query Parameters[].Name --output text --region ${Constants.AWS_REGION}""", returnStdout: true).trim()
+    int Limit = 10
+    ssm_params.tokenize().collate(Limit).each { ssm_param ->
+      def branches = [:]
+      ssm_param.each { param ->
+        branches[param.toString().trim()] = {
+          sh(script: "aws ssm delete-parameter --name ${param.toString().trim()} --region ${Constants.AWS_REGION} || true", returnStdout: true)
+        }
+      }
+      parallel branches
+      sleep(5) // AWS API Throttling workaround(nothing to do with it).
+    }
   }
 }
