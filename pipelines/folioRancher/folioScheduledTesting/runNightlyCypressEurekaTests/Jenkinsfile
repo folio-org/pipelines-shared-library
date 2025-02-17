@@ -22,7 +22,7 @@ properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
   disableConcurrentBuilds(),
   parameters([
-    string(name: 'CYPRESS_BRANCH', defaultValue: 'eureka', description: "(Required) Insert what 'stripes-testing' branch use for build"),
+    string(name: 'CYPRESS_BRANCH', defaultValue: 'master', description: "(Required) Insert what 'stripes-testing' branch use for build"),
     folioParameters.agent(),
     folioParameters.refreshParameters()
   ])
