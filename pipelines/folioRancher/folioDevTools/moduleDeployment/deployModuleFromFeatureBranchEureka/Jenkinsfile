@@ -86,16 +86,12 @@ ansiColor('xterm') {
       }
 
       stage ('[isRunning]') {
-        def check
         folioHelm.withKubeConfig(namespace.getClusterName()) {
-           check = sh(script: "kubectl get pods --namespace ${namespace.getNamespaceName()} --no-headers", returnStdout: true).trim()
+          def check = sh(script: "kubectl get pods --namespace ${namespace.getNamespaceName()} --no-headers", returnStdout: true).trim()
+          if (!check.contains(module.getName())) {
+            logger.error("Target environment is not running. Please start the environment and try again.")
+          }
         }
-        if (!check.contains(module.getName())) {
-          folioPrint.colored("Namespace ${namespace.getNamespaceName()} is not running. Aborting the build.\nPlease start it via managePods job.", "red")
-          currentBuild.result = 'ABORTED'
-          return
-        }
-        input("Namespace ${namespace.getNamespaceName()} is being checked up. Continue?", "Proceed")
       }
 
       stage('[Maven/Gradle] Compile') {
