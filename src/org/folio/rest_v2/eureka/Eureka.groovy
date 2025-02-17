@@ -66,8 +66,9 @@ class Eureka extends Base {
     if(tenant.getModules().getModuleByName('mod-copycat'))
       Configurations.get(kong).setWorldcat(tenant)
 
-    if(tenant.getModules().getModuleByName('mod-kb-ebsco-java'))
-      Configurations.get(kong).setRmapiConfig(tenant)
+    //TODO: RANCHER-2107. Uncomment when the MODKBEKBJ-777 ticket is done
+//    if(tenant.getModules().getModuleByName('mod-kb-ebsco-java'))
+//      Configurations.get(kong).setRmapiConfig(tenant)
 
     return this
   }
