@@ -151,7 +151,7 @@ if(namespaceParams.platform == PlatformType.EUREKA) {
   //TODO: Temporary exclusion of the eholdings and software-version test cases.
   cypressSanityParameters.setExecParameters('--env grepTags="fse+sanity+-eholdings+-inventory"')
 }else {
-  cypressSanityParameters.setTestsSrcBranch('master')
+  cypressSanityParameters.setTestsSrcBranch('okapi')
   cypressSanityParameters.setOkapiUrl("https://${namespace.getDomains().okapi}")
   cypressSanityParameters.setExecParameters('--env grepTags="fse+sanity"')
 }
