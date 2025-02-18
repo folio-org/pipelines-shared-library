@@ -635,16 +635,16 @@ mod-agreements:
   replicaCount: 1
   resources:
     limits:
-      memory: 2048Mi
+      memory: 3072Mi
     requests:
-      memory: 1548Mi
+      memory: 2048Mi
   autoscaling:
     enabled: false
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 85
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=75.0
+  - -XX:MaxRAMPercentage=65.0
   startupProbe:
     httpGet:
       path: /admin/health
