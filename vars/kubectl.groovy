@@ -166,7 +166,7 @@ void cleanUpAgreementsFedLocks(String namespace = 'default') {
   try {
     String pod = sh(script: "kubectl get pod -l 'app.kubernetes.io/name=pgadmin4' -o=name  --ignore-not-found=true --namespace ${namespace}", returnStdout: true).trim()
     if (pod) {
-      sh(script: "kubectl exec --request-timeout=20s --namespace=${namespace} ${pod} -- /usr/local/pgsql-16/psql -c 'DELETE FROM mod_agreements__system.federation_lock'", returnStatus: false)
+      sh(script: "kubectl exec --request-timeout=20s --namespace=${namespace} ${pod} -- /usr/local/pgsql-16/psql -c 'TRUNCATE mod_agreements__system.federation_lock'", returnStatus: false)
     }
   } catch (Exception e) {
     println(e.getMessage())
