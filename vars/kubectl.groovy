@@ -183,11 +183,13 @@ void deletePod(String namespace = 'default', String pod_name, Boolean wait = tru
 
 void deleteEvictedPods(String namespace = 'default') {
   try {
-    def pods = sh(script: "kubectl get pod --no-headers --namespace ${namespace}", returnStdout: true).trim()
-    pods.toString().eachLine { pod ->
-      if (pod.contains('Evicted')) {
-        deletePod(namespace, pod.split()[0].toString().trim())
+    def pods = sh(script: "kubectl get pods --field-selector=status.phase=Failed --no-headers --namespace ${namespace} | grep Evicted | awk '{print \$1}'", returnStdout: true).trim()
+    if (pods) {
+      pods.tokenize().each { pod ->
+        sh(script: "kubectl delete pod ${pod} --force --namespace=${namespace}", returnStatus: false)
       }
+    } else {
+      println("No evicted pods found. Nothing to delete.")
     }
   } catch (Exception e) {
     println("Unable to delete evicted pods!\nError: " + e.getMessage())
