@@ -44,8 +44,8 @@ String okapiVersion = folioTools.eval(folioStringScripts.getOkapiVersions(), ['F
 
 CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builder()
   .platform(PlatformType.EUREKA)
-  .clusterName('folio-etesting')
-  .namespaceName('lsdi')
+  .clusterName('folio-tmp')
+  .namespaceName('test-1')
   .folioBranch('snapshot')
   .okapiVersion(okapiVersion)
   .configType('testing')
