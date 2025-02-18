@@ -10,7 +10,7 @@ String projectName = params.okapiUrl.minus("https://").split("-")[2]
 List edgeModulesRollout = []
 
 pipeline {
-  agent { label 'jenkins-agent-java17' }
+  agent { label 'jenkins-agent-java21' }
 
   parameters {
     string(name: 'branch', defaultValue: 'master', description: 'Karate tests repository branch to checkout')
