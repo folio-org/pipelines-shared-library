@@ -635,14 +635,14 @@ mod-agreements:
   replicaCount: 1
   resources:
     limits:
-      memory: 1592Mi
+      memory: 3072Mi
     requests:
-      memory: 1488Mi
+      memory: 2048Mi
   autoscaling:
-    enabled: true
+    enabled: false
     minReplicas: 1
     maxReplicas: 2
-    targetMemoryUtilizationPercentage: 55
+    targetMemoryUtilizationPercentage: 85
   extraJavaOpts:
   - -XX:MaxRAMPercentage=85.0
   startupProbe:

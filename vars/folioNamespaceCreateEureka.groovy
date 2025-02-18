@@ -288,14 +288,6 @@ void call(CreateNamespaceParameters args) {
         sleep time: (counter == 0 ? 10 : 2), unit: 'MINUTES'
         counter++
 
-        if (counter > 1) {
-          folioHelm.withKubeConfig(namespace.getClusterName()) {
-//            kubectl.rolloutDeployment('mod-agreements', namespace.getNamespaceName())
-//            folioHelm.checkDeploymentsRunning(namespace.getNamespaceName(), namespace.getModules().getBackendModules())
-            kubectl.cleanUpAgreementsFedLocks(namespace.getNamespaceName())
-          }
-        }
-
         eureka.initializeFromScratch(
           namespace.getTenants()
           , namespace.getClusterName()
