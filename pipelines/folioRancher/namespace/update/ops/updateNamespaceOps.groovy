@@ -18,7 +18,7 @@ properties([
   parameters([
     folioParameters.moduleName(), // MODULE_NAME, Folio Module name
     folioParameters.moduleSource(), // MODULE_SOURCE, Eureka Module source (Github, DockerHub, AWS ECR)
-    folioParameters.branchWithRef('MODULE_BRANCH', 'MODULE_NAME,MODULE_SOURCE'), // MODULE_BRANCH, Eureka Module Github branch
+    folioParameters.branchWithRef('MODULE_BRANCH', 'MODULE_NAME'), // MODULE_BRANCH, Eureka Module Github branch
     string(name: 'MAVEN_ARGS', defaultValue: '-DskipTests', description: 'Maven build arguments'),
     folioParameters.containerImageTag('CONTAINER_IMAGE_TAG', 'MODULE_NAME, MODULE_SOURCE'), // CONTAINER_IMAGE_TAG, Container image tag
     folioParameters.cluster(),
