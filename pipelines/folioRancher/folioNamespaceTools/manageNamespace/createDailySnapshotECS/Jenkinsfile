@@ -137,7 +137,7 @@ ansiColor('xterm') {
             sys_psswd = kubectl.getSecretValue(namespace.getNamespaceName(), 'mod-consortia-systemuser', 'SYSTEM_USER_PASSWORD')
             kubectl.patchSecret("mod-consortia-systemuser", "SYSTEM_USER_NAME", "consortia-system-user", "${params.NAMESPACE}")
             sys_psswd1 = kubectl.getSecretValue(namespace.getNamespaceName(), 'mod-search-systemuser', 'SYSTEM_USER_PASSWORD')
-            kubectl.patchSecret("mod-search-systemuser", "SYSTEM_USER_NAME", "mod-search", "${params.NAMESPACE}")
+            kubectl.patchSecret("mod-search-systemuser", "SYSTEM_USER_USERNAME", "mod-search", "${params.NAMESPACE}")
           }
         }
       }
