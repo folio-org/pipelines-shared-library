@@ -45,8 +45,8 @@ String okapiVersion = folioTools.eval(folioStringScripts.getOkapiVersions(), ['F
 
 CreateNamespaceParameters namespaceBaseParams = new CreateNamespaceParameters.Builder()
   .platform(PlatformType.EUREKA)
-  .clusterName('folio-etesting')
-  .namespaceName('karate-eureka')
+  .clusterName('folio-tmp')
+  .namespaceName('test-1')
   .rwSplit(false)
   .greenmail(false)
   .mockServer(false)
