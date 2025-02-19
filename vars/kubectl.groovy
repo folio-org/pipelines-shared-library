@@ -168,7 +168,7 @@ void cleanUpAgreementsFedLocks(String namespace = 'default') {
     if (pod) {
       def agreements = sh(script: "kubectl get pod  -l 'app.kubernetes.io/name=mod-agreements' -o=name -n ${namespace}", returnStdout: true).trim()
       agreements.tokenize().each { agreement ->
-        sh(script: "kubectl delete pod ${agreement} --force --namespace=${namespace}", returnStatus: false)
+        sh(script: "kubectl delete ${agreement} --force --namespace=${namespace}", returnStatus: false)
       }
       sleep(3000)
       sh(script: "kubectl exec --request-timeout=20s --namespace=${namespace} ${pod} -- /usr/local/pgsql-16/psql -c 'TRUNCATE mod_agreements__system.federation_lock'", returnStatus: false)
