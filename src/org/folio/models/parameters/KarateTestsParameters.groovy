@@ -23,7 +23,7 @@ class KarateTestsParameters {
 
   String karateConfig = 'folio-testing-karate'
 
-  String javaVerson = 'openjdk-17-jenkins-slave-all'
+  String javaVerson = 'openjdk-21-jenkins-slave-all'
 
   String mavenVersion = 'maven3-jenkins-slave-all'
 
