@@ -231,7 +231,9 @@ void checkDeploymentsRunning(String ns, List<FolioModule> deploymentsList) {
         println("Unfinished deployments: ${unfinishedDeployments}")
         println("Rechecking in 30 seconds...")
         sleep(time: 30, unit: 'SECONDS')
-        unfinishedDeployments.contains('mod-agreements') ? kubectl.cleanUpAgreementsFedLocks(ns) : println("-=No mod-agreements fed locks to clean up=-") //Would say that it's a workaround, but it's not)))
+        if (timer > 120) {
+          unfinishedDeployments.contains('mod-agreements') ? kubectl.cleanUpAgreementsFedLocks(ns) : println("-=No mod-agreements fed locks to clean up=-") //Would say that it's a workaround, but it's not)))
+        }
         timer += 30
       } else {
         println("All deployments are successfully updated!")
