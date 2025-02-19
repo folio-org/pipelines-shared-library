@@ -228,24 +228,29 @@ void call(CreateNamespaceParameters args) {
     }
 
     stage('[Rest] Preinstall') {
-      namespace.withApplications(
-        eureka.registerApplicationsFlow(
-          //TODO: Refactoring is needed!!! Utilization of extension should be applied.
-          // Remove this shit with consortia and linkedData. Apps have to be taken as it is.
-          args.applications -
-            (args.consortia ? [:] : ["app-consortia": "snapshot", "app-consortia-manager": "snapshot"]) -
-            (args.consortia ? [:] : ["app-consortia": "master", "app-consortia-manager": "master"]) -
-            (args.linkedData ? [:] : ["app-linked-data": "snapshot"]) -
-            (args.linkedData ? [:] : ["app-linked-data": "master"])
-          , namespace.getModules().getModuleVersionMap()
-          , namespace.getTenants().values() as List<EurekaTenant>
+      int counter = 0
+      retry(5) {
+        sleep time: (counter == 0 ? 0 : 30), unit: 'SECONDS'
+        counter++
+        namespace.withApplications(
+          eureka.registerApplicationsFlow(
+            //TODO: Refactoring is needed!!! Utilization of extension should be applied.
+            // Remove this shit with consortia and linkedData. Apps have to be taken as it is.
+            args.applications -
+              (args.consortia ? [:] : ["app-consortia": "snapshot", "app-consortia-manager": "snapshot"]) -
+              (args.consortia ? [:] : ["app-consortia": "master", "app-consortia-manager": "master"]) -
+              (args.linkedData ? [:] : ["app-linked-data": "snapshot"]) -
+              (args.linkedData ? [:] : ["app-linked-data": "master"])
+            , namespace.getModules().getModuleVersionMap()
+            , namespace.getTenants().values() as List<EurekaTenant>
+          )
         )
-      )
 
-      eureka.registerModulesFlow(
-        namespace.getModules()
-        , namespace.getApplications()
-      )
+        eureka.registerModulesFlow(
+          namespace.getModules()
+          , namespace.getApplications()
+        )
+      }
     }
 
     stage('[Helm] Deploy modules') {
