@@ -120,6 +120,14 @@ class Constants {
       , dependsOn: ["app-platform-minimal", "app-platform-complete"]
     ],
     [
+      name: "app-acquisitions"
+      , branch: "master"
+      , consortia: false
+      , core: false
+      , byDefault: true
+      , dependsOn: ["app-platform-minimal", "app-platform-complete"]
+    ],
+    [
       name: "app-dcb"
       , branch: "master"
       , consortia: false
