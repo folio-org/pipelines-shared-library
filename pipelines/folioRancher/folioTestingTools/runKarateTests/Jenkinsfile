@@ -3,7 +3,7 @@ import hudson.util.Secret
 import org.folio.models.parameters.KarateTestsParameters
 import org.folio.utilities.Logger
 
-@Library('pipelines-shared-library@RANCHER-2073') _
+@Library('pipelines-shared-library') _
 
 /**
  * Job properties and parameters
