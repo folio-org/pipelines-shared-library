@@ -103,7 +103,6 @@ CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builde
   .ecsCCL(params.ECS_CCL)
   .rwSplit(params.RW_SPLIT)
   .linkedData(params.LINKED_DATA)
-  .marcMigrations(params.MARC_MIGRATIONS)
   .greenmail(params.GREENMAIL)
   .mockServer(params.MOCK_SERVER)
   .rtr(params.RTR)
