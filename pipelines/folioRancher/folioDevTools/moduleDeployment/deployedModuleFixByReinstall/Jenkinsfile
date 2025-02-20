@@ -32,7 +32,7 @@ ansiColor('xterm') {
   node(params.AGENT) {
     try {
       stage('Ini') {
-        buildName "Reinstall ${params.MODULE} on ${params.CLUSTER}-${params.NAMESPACE}"
+        buildName "Reinstall ${params.MODULE} on ${params.TENANT}"
         buildDescription "${params.CLUSTER}-${params.NAMESPACE}"
       }
 
@@ -41,7 +41,7 @@ ansiColor('xterm') {
       }
 
       stage('[FIX] module DB schema by reinstall') {
-        logger.info("Fixing module: ${params.MODULE} DB schema on ${params.CLUSTER}-${params.NAMESPACE}")
+        logger.info("Fixing module: ${params.MODULE} DB schema on tenant: ${params.TENANT}")
         folioHelm.withKubeConfig(params.CLUSTER) {
           def imageId= sh(script: "kubectl get deploy $params.MODULE -n $params.NAMESPACE -o=jsonpath='{\$.spec.template.spec.containers[:1].image}'", returnStdout: true).trim()
           def id = imageId.split('/')[1].replace(':', '-')
