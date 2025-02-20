@@ -4548,9 +4548,9 @@ mod-consortia-keycloak:
   replicaCount: 1
   resources:
     limits:
-      memory: 628Mi
+      memory: 1024Mi
     requests:
-      memory: 494Mi
+      memory: 512Mi
   sidecarContainers:
     eureka:
       extraEnvVars:
