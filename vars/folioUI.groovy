@@ -6,45 +6,46 @@ import org.folio.models.RancherNamespace
 import org.folio.models.TenantUi
 
 void build(String okapiUrl, OkapiTenant tenant) {
-  final String baseDir = "platform-complete-${tenant.getTenantId()}"
-  TenantUi tenantUi = tenant.getTenantUi()
+  podTemplate(inheritFrom: 'base-agent', containers: [
+    containerTemplate(name: 'kaniko', image: 'gcr.io/kaniko-project/executor:debug', alwaysPullImage: true,
+      command: 'sleep', args: '99d', resourceRequestMemory: '8Gi', resourceLimitMemory: '9Gi')
+  ]) {
+    node(POD_LABEL) {
+      final String baseDir = "platform-complete-${tenant.getTenantId()}"
+      TenantUi tenantUi = tenant.getTenantUi()
 
-  stage('[UI] Checkout') {
-    dir(baseDir) {
-      cleanWs()
-    }
-    checkout([$class           : 'GitSCM',
-              branches         : [[name: tenantUi.getHash()]],
-              extensions       : [[$class: 'CleanBeforeCheckout', deleteUntrackedNestedRepositories: true],
-                                  [$class: 'RelativeTargetDirectory', relativeTargetDir: baseDir]],
-              userRemoteConfigs: [[url: 'https://github.com/folio-org/platform-complete.git']]])
-  }
+      stage('[UI] Checkout') {
+        dir(baseDir) {
+          cleanWs()
+        }
+        checkout([$class           : 'GitSCM',
+                  branches         : [[name: tenantUi.getHash()]],
+                  extensions       : [[$class: 'CleanBeforeCheckout', deleteUntrackedNestedRepositories: true],
+                                      [$class: 'RelativeTargetDirectory', relativeTargetDir: baseDir]],
+                  userRemoteConfigs: [[url: 'https://github.com/folio-org/platform-complete.git']]])
+      }
 
-  stage('[UI] Add folio extensions') {
-    if (tenantUi.getCustomUiModules()) {
-      dir(baseDir) {
-        List uiModulesToAdd = _updatePackageJsonFile(tenantUi)
-        _updateStripesConfigJsFile(uiModulesToAdd)
+      stage('[UI] Add folio extensions') {
+        if (tenantUi.getCustomUiModules()) {
+          dir(baseDir) {
+            List uiModulesToAdd = _updatePackageJsonFile(tenantUi)
+            _updateStripesConfigJsFile(uiModulesToAdd)
+          }
+        }
+      }
+
+      stage('[UI] Build and Push') {
+        dir(baseDir) {
+          container('kaniko') {
+            withAWS(credentials: Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID, region: Constants.AWS_REGION) {
+              ecrLogin()
+              sh """/kaniko/executor --destination ${tenantUi.getImageName()} --build-arg OKAPI_URL=${okapiUrl} \
+--build-arg TENANT_ID=${tenant.getTenantId()} --dockerfile docker/Dockerfile --context ."""
+            }
+          }
+        }
       }
     }
-  }
-  stage('[UI] Build and Push') {
-    dir(baseDir) {
-      docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
-        def image = docker.build(
-          tenantUi.getImageName(),
-          "--build-arg OKAPI_URL=${okapiUrl} " +
-            "--build-arg TENANT_ID=${tenant.getTenantId()} " +
-            "-f docker/Dockerfile " +
-            "."
-        )
-        image.push()
-      }
-    }
-  }
-
-  stage('[UI] Cleanup') {
-    common.removeImage(tenantUi.getImageName())
   }
 }
 

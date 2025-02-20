@@ -6,15 +6,11 @@ import org.folio.utilities.Logger
 import java.time.LocalDateTime
 
 void withK8sClient(Closure closure) {
-  container('jnlp') {
-    withCredentials([[$class           : 'AmazonWebServicesCredentialsBinding',
-                      credentialsId    : Constants.AWS_CREDENTIALS_ID,
-                      accessKeyVariable: 'AWS_ACCESS_KEY_ID',
-                      secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
-
-      closure()
-
-    }
+  withCredentials([[$class           : 'AmazonWebServicesCredentialsBinding',
+                    credentialsId    : Constants.AWS_CREDENTIALS_ID,
+                    accessKeyVariable: 'AWS_ACCESS_KEY_ID',
+                    secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
+    closure()
   }
 }
 
@@ -139,7 +135,7 @@ void checkPodRunning(String ns, String podName) {
  * Use checkDeploymentsRunning functions instead
  */
 void checkAllPodsRunning(String ns) {
-  timeout(time: 20, unit: 'MINUTES')  {
+  timeout(time: ns == 'ecs-snapshot' ? 20 : 10, unit: 'MINUTES') {
     boolean notAllRunning = true
     while (notAllRunning) {
       sleep(time: 30, unit: 'SECONDS')
@@ -211,9 +207,9 @@ void checkDeploymentsRunning(String ns, List<FolioModule> deploymentsList) {
           def status = deployment.status
           def specReplicas = deployment.spec.replicas
           if (status.updatedReplicas != specReplicas ||
-              status.readyReplicas != specReplicas ||
-              status.unavailableReplicas > 0 ||
-              status.conditions.any { it.type == "Available" && it.status == "False" }) {
+            status.readyReplicas != specReplicas ||
+            status.unavailableReplicas > 0 ||
+            status.conditions.any { it.type == "Available" && it.status == "False" }) {
             unfinishedDeployments << folioModule.name
           }
         } else {
@@ -242,8 +238,6 @@ void checkDeploymentsRunning(String ns, List<FolioModule> deploymentsList) {
     throw e // Rethrow the error to mark the Jenkins build as failed
   }
 }
-
-
 
 
 static String valuesPathOption(String path) {

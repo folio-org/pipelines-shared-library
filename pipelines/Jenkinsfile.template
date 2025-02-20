@@ -39,6 +39,36 @@ Logger logger = new Logger(this, env.JOB_BASE_NAME)
 /**
  * Pipeline
  */
+podTemplate(inheritFrom: 'base-agent', containers: [
+  containerTemplate(name: 'jdk21', image: 'amazoncorretto:21-alpine-jdk', command: 'sleep', args: '99d'),
+  containerTemplate(name: 'kaniko', image: 'gcr.io/kaniko-project/executor:debug', command: 'sleep', args: '99d')
+]) {
+  ansiColor('xterm') {
+    node(POD_LABEL) {
+      try {
+        stage('Ini') {
+          buildName ""
+          buildDescription ""
+        }
+        /**
+         * Placeholder for stages
+         */
+      } catch (e) {
+        logger.warning("Caught exception: ${e}")
+        error(e.getMessage())
+      } finally {
+        stage('Cleanup') {
+          logger.debug("Workspace size: ${sh(returnStdout: true, script: 'du -sh .').trim()}")
+          cleanWs notFailBuild: true
+        }
+      }
+    }
+  }
+}
+
+/**
+ * or
+ */
 ansiColor('xterm') {
   node(params.AGENT) {
     try {
