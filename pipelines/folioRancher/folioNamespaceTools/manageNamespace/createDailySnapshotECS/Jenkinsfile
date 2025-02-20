@@ -243,7 +243,7 @@ ansiColor('xterm') {
           }
         }
 
-        slackSend(color: 'good', message: 'ecs-snapshot env successfully built', channel: '#arsen_test') //remove
+        slackSend(color: 'good', message: 'ecs-snapshot env successfully built', channel: '#arsen-test') //remove
       }
       stage('The rest components placeholder') {
         // GreenMail, LDP, Mock server, etc.
@@ -252,7 +252,7 @@ ansiColor('xterm') {
     } catch (e) {
       stage('Notify') {
         println "Caught exception: ${e}"
-        slackSend(color: 'danger', message: "ecs-snapshot env build failed...", channel: '#arsen_test') //remove
+        slackSend(color: 'danger', message: "ecs-snapshot env build failed...", channel: '#arsen-test') //remove
       }
       error(e.getMessage())
     } finally {
