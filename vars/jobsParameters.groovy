@@ -61,7 +61,8 @@ static List jenkinsAgentsList() {
           'jenkins-agent-java11-test',
           'jenkins-agent-java17',
           'jenkins-agent-java17-test',
-          'rancher||jenkins-agent-java11'
+          'rancher||jenkins-agent-java11',
+          'jenkins-agent-java21'
   ]
 }
 

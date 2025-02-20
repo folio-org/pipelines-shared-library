@@ -25,7 +25,7 @@ properties([buildDiscarder(logRotator(numToKeepStr: '30')),
                         folioParameters.agent(),
                         folioParameters.refreshParameters()]),
             pipelineTriggers([parameterizedCron('''
-              H 20 * * * %PLATFORM=EUREKA;CLUSTER=folio-edev;NAMESPACE=eureka;CONFIG_TYPE=development;AGENT=jenkins-agent-java17
+              H 20 * * * %PLATFORM=EUREKA;CLUSTER=folio-edev;NAMESPACE=eureka;CONFIG_TYPE=development;AGENT=jenkins-agent-java21
             ''')])])
 // Get back when the ticket is resolved https://folio-org.atlassian.net/browse/RANCHER-1546
 //            pipelineTriggers([parameterizedCron('''
