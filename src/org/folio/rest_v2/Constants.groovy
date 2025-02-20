@@ -183,6 +183,14 @@ class Constants {
       , byDefault: true
       , dependsOn: ["app-platform-minimal", "app-platform-complete", "app-requests-mediated"]
     ]
+    [
+      name: "app-marc-migrations"
+      , branch: "master"
+      , consortia: false
+      , core: false
+      , byDefault: false
+      , dependsOn: ["app-platform-minimal", "app-platform-complete"]
+    ]
   ]
 
   public static final Map<String, List<Map<String, ?>>> APPLICATION_SETS = [
