@@ -182,7 +182,7 @@ class Constants {
       , core: false
       , byDefault: true
       , dependsOn: ["app-platform-minimal", "app-platform-complete", "app-requests-mediated"]
-    ]
+    ],
     [
       name: "app-marc-migrations"
       , branch: "master"
