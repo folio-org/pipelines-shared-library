@@ -3,6 +3,7 @@ package folioRancher.namespace.update.ops
 import hudson.AbortException
 import org.folio.Constants
 import org.folio.models.module.EurekaModule
+import org.folio.rest_v2.PlatformType
 import org.folio.utilities.GitHubClient
 import org.folio.utilities.Logger
 import org.folio.models.EurekaNamespace
@@ -16,7 +17,7 @@ properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
   disableConcurrentBuilds(),
   parameters([
-    folioParameters.cluster(null, 'EUREKA'),
+    folioParameters.cluster(null, PlatformType.EUREKA.name()),
     folioParameters.namespace(),
     booleanParam(name: 'UPDATE_ALL', defaultValue: true, description: 'Update all namespace modules with the latest versions'),
     folioParameters.moduleName(), // MODULE_NAME, Folio Module name
@@ -27,7 +28,7 @@ properties([
     folioParameters.configType(),
     folioParameters.agent(),
     folioParameters.refreshParameters()
-    ,folioParameters.hideParameters(
+    , folioParameters.hideParameters(
       [
         'github/folio-org': ['CONTAINER_IMAGE_TAG'],
         'dockerhub/folioci': ['MODULE_BRANCH'],
@@ -35,7 +36,7 @@ properties([
       ]
       , "MODULE_SOURCE"
     )
-    ,folioParameters.hideParameters(
+    , folioParameters.hideParameters(
       [
         'github/folio-org': ['CONTAINER_IMAGE_TAG'],
         'dockerhub/folioci': ['MODULE_BRANCH'],
