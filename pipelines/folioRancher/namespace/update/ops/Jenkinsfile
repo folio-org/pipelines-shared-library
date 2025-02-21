@@ -16,16 +16,26 @@ properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
   disableConcurrentBuilds(),
   parameters([
+    folioParameters.platform(),
+    folioParameters.cluster('PLATFORM'),
+    folioParameters.namespace(),
+    booleanParam(name: 'UPDATE_ALL', defaultValue: true, description: 'Update all modules to the '),
     folioParameters.moduleName(), // MODULE_NAME, Folio Module name
     folioParameters.moduleSource(), // MODULE_SOURCE, Eureka Module source (Github, DockerHub, AWS ECR)
     folioParameters.branchWithRef('MODULE_BRANCH', 'MODULE_NAME'), // MODULE_BRANCH, Eureka Module Github branch
     folioParameters.containerImageTag('CONTAINER_IMAGE_TAG', 'MODULE_NAME, MODULE_SOURCE'), // CONTAINER_IMAGE_TAG, Container image tag
     string(name: 'MAVEN_ARGS', defaultValue: '-DskipTests', description: 'Maven build arguments'),
-    folioParameters.cluster(),
-    folioParameters.namespace(),
     folioParameters.configType(),
     folioParameters.agent(),
     folioParameters.refreshParameters()
+    ,folioParameters.hideParameters(
+      [
+        'github/folio-org': ['CONTAINER_IMAGE_TAG'],
+        'dockerhub/folioci': ['MODULE_BRANCH'],
+        'dockerhub/folioorg': ['MODULE_BRANCH']
+      ]
+      , "MODULE_SOURCE"
+    )
     ,folioParameters.hideParameters(
       [
         'github/folio-org': ['CONTAINER_IMAGE_TAG'],

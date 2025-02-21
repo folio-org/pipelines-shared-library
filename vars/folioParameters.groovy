@@ -99,7 +99,7 @@ def cypressAgent() {
 }
 
 def platform() {
-  return _paramChoice('PLATFORM', PlatformType.values().collect{it.name() }, 'Select FOLIO platform')
+  return _paramChoice('PLATFORM', PlatformType.values().collect{it.name() == 'EUREKA' ? it.name() + ":selected" : it.name() }, 'Select FOLIO platform')
 }
 
 def applicationSet() {
