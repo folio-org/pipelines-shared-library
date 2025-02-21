@@ -27,7 +27,7 @@ static String getRepositoryBranches(String repository) {
 def apiUrl = "${Constants.FOLIO_GITHUB_REPOS_URL}/${repository}/branches"
 def perPage = 100
 def fetchBranches(String url) {
-def credentialId = "id-jenkins-github-personal-token"
+def credentialId = "github-jenkins-service-user-token"
 def credential = com.cloudbees.plugins.credentials.SystemCredentialsProvider.getInstance().getStore().getCredentials(com.cloudbees.plugins.credentials.domains.Domain.global()).find { it.getId().equals(credentialId) }
 def secret_value = credential.getSecret().getPlainText()
     def branches = []
@@ -92,7 +92,7 @@ static String getBackendModulesList() {
 def apiUrl = "https://api.github.com/orgs/folio-org/repos"
 def perPage = 100
 def fetchModules(String url) {
-  def credentialId = "id-jenkins-github-personal-token"
+  def credentialId = "github-jenkins-service-user-token"
   def credential = com.cloudbees.plugins.credentials.SystemCredentialsProvider.getInstance().getStore().getCredentials(com.cloudbees.plugins.credentials.domains.Domain.global()).find { it.getId().equals(credentialId) }
   def secret_value = credential.getSecret().getPlainText()
   def modules = []
