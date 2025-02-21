@@ -114,8 +114,8 @@ def refreshParameters() {
   return _paramBoolean('REFRESH_PARAMETERS', false, 'Set to true for update pipeline parameters, it will not run a pipeline')
 }
 
-def cluster(String reference = null, String paramName = 'CLUSTER') {
-  return _paramExtendedSingleSelect(paramName, reference, folioStringScripts.getClusters(reference), '(Required) Select cluster for current job')
+def cluster(String reference = null, String platform = null, String paramName = 'CLUSTER') {
+  return _paramExtendedSingleSelect(paramName, reference, folioStringScripts.getClusters(reference, platform), '(Required) Select cluster for current job')
 }
 
 def namespace() {
