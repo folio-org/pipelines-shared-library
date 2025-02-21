@@ -4,11 +4,12 @@ import org.folio.rest_v2.PlatformType
 import org.folio.rest_v2.Constants as RestConstants
 
 static String getClusters(String platformParam = null, String platformValue = null) {
-  return """
-return ${platformParam} && ${PlatformType.values().collect{it.name() }.inspect()}.contains(${platformParam}.trim()) ?
-${Constants.AWS_EKS_PLATFORM_CLUSTERS().inspect()}[${platformParam}.trim()] :
-${Constants.AWS_EKS_CLUSTERS_LIST.inspect()}
-"""
+  return "return $platformValue"
+//  return """
+//return ${platformParam} && ${PlatformType.values().collect{it.name() }.inspect()}.contains(${platformParam}.trim()) ?
+//${Constants.AWS_EKS_PLATFORM_CLUSTERS().inspect()}[${platformParam}.trim()] :
+//${Constants.AWS_EKS_CLUSTERS_LIST.inspect()}
+//"""
 }
 
 static String getNamespaces() {

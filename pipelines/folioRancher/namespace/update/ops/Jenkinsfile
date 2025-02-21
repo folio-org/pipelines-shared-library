@@ -18,7 +18,7 @@ properties([
   parameters([
     folioParameters.cluster(null, 'EUREKA'),
     folioParameters.namespace(),
-    booleanParam(name: 'UPDATE_ALL', defaultValue: true, description: 'Update all modules to the '),
+    booleanParam(name: 'UPDATE_ALL', defaultValue: true, description: 'Update all namespace modules with the latest versions'),
     folioParameters.moduleName(), // MODULE_NAME, Folio Module name
     folioParameters.moduleSource(), // MODULE_SOURCE, Eureka Module source (Github, DockerHub, AWS ECR)
     folioParameters.branchWithRef('MODULE_BRANCH', 'MODULE_NAME'), // MODULE_BRANCH, Eureka Module Github branch
