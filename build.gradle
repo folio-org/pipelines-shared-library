@@ -31,7 +31,7 @@ test {
 // add jenkinsResources as resources folder as it contains idea.gdsl
 def jenkinsResourcesFolder = 'jenkinsResources'
 def pipelinesFolder = 'pipelines'
-def allSrcDirs = [pipelinesFolder, jenkinsResourcesFolder, 'vars', 'src']
+def allSrcDirs = [pipelinesFolder, jenkinsResourcesFolder, 'vars', 'src', 'scripts']
 
 sourceSets {
   main {
