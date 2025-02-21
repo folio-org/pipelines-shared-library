@@ -2694,9 +2694,9 @@ mod-marc-migrations:
   replicaCount: 1
   resources:
     limits:
-      memory: 1024Mi
+      memory: 4096Mi
     requests:
-      memory: 512Mi
+      memory: 1024Mi
   autoscaling:
     enabled: true
     minReplicas: 1

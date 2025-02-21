@@ -1995,9 +1995,9 @@ mod-marc-migrations:
   replicaCount: 1
   resources:
     limits:
-      memory: 1024Mi
+      memory: 409Mi
     requests:
-      memory: 512Mi
+      memory: 356Mi
   extraJavaOpts:
   - -XX:MaxRAMPercentage=85.0
   startupProbe:
