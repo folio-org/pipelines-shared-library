@@ -10,7 +10,7 @@ void call(CreateNamespaceParameters args) {
   println("Delete operation parameters:\n${prettyPrint(toJson(args))}")
 
   LdpConfig ldpConfig = new LdpConfig()
-  withCredentials([string(credentialsId: 'ldp_db_password', variable: 'LDP_DB_PASSWORD')]) {
+  withCredentials([string(credentialsId: 'ldp-db-password', variable: 'LDP_DB_PASSWORD')]) {
     ldpConfig.setLdpAdminDbUserPassword(LDP_DB_PASSWORD)
   }
   //Set terraform configuration

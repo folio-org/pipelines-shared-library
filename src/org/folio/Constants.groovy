@@ -28,12 +28,12 @@ class Constants {
 
   //AWS
   static String AWS_REGION = 'us-west-2'
-  static String AWS_CREDENTIALS_ID = 'stanislav_test'
-  static String AWS_S3_SERVICE_ACCOUNT_ID = 'ci-s3-service-account'
+  static String AWS_CREDENTIALS_ID = 'aws-jenkins-service-user'
+  static String AWS_S3_SERVICE_ACCOUNT_ID = 'aws-s3-ci-credentials'
   static String AWS_S3_DATA_EXPORT_ID = 'ci-data-export-s3'
-  static String AWS_S3_POSTGRES_BACKUPS = 'manage-postgres-db-backups-s3'
+  static String AWS_S3_POSTGRES_BACKUPS = 'aws-s3-db-backups-credentials'
   static String AWS_EKS_VPC_NAME = 'folio-rancher-vpc'
-  static String AWS_EKS_ADMIN_USERS = 'rancher-port-forward,oleksandrhaimanov,eldiiarduishenaliev,tarasspashchenko,stanislav,arsenatoyan,dmytromoroz,vasylavramenko,yaroslavishchenko,sergiimasiuk'
+  static String AWS_EKS_ADMIN_USERS = 'rancher-port-forward,jenkins-service-user,oleksandrhaimanov,eldiiarduishenaliev,tarasspashchenko,stanislav,arsenatoyan,dmytromoroz,vasylavramenko,yaroslavishchenko,sergiimasiuk'
   static List AWS_EKS_CLUSTERS = ['folio-testing', 'folio-dev', 'folio-perf', 'folio-tmp', 'folio-etesting', 'folio-edev', 'folio-eperf']
   static List AWS_EKS_TMP_NAMESPACES = ['test', 'test-1', 'test-2', 'tdspora']
   static List AWS_EKS_TESTING_NAMESPACES = ['cypress', 'data-migration', 'ecs-snapshot', 'karate', 'snapshot', 'snapshot2', 'sprint', 'pre-bugfest', 'orchid-migration']
@@ -117,14 +117,14 @@ class Constants {
   static String CI_ROOT_DOMAIN = 'ci.folio.org'
   static String FOLIO_OPEN_SEARCH_URL = 'https://vpc-folio-opensearch-yq77h7fbng7nq6esvgparhiida.us-west-2.es.amazonaws.com'
 
-  static String GITHUB_CREDENTIALS_ID = 'id-jenkins-github-personal-token'
+  static String GITHUB_CREDENTIALS_ID = 'github-jenkins-service-user-token'
   static String GITHUB_SSH_CREDENTIALS_ID = 'jenkins-github-sshkey'
-  static String PRIVATE_GITHUB_CREDENTIALS_ID = 'id-jenkins-github-personal-token-with-username'
+  static String PRIVATE_GITHUB_CREDENTIALS_ID = 'github-jenkins-service-user'
 
   //Rancher
-  static String RANCHER_TOKEN_ID = 'rancher_token_v2'
+  static String RANCHER_TOKEN_ID = 'rancher-token'
 
-  static String EBSCO_KB_CREDENTIALS_ID = 'cypress_api_key_apidvcorp'
+  static String EBSCO_KB_CREDENTIALS_ID = 'cypress-apidvcorp-api-key'
 
   static String PG_ROOT_DEFAULT_PASSWORD = 'postgres_password_123!'
   static String PG_LDP_DEFAULT_PASSWORD = 'diku_ldp9367'
@@ -140,12 +140,12 @@ class Constants {
   static String RANCHER_API_URL = 'https://rancher.ci.folio.org/v3'
 
   //SMTP
-  static String EMAIL_SMTP_CREDENTIALS_ID = 'ses-smtp-rancher'
+  static String EMAIL_SMTP_CREDENTIALS_ID = 'aws-ses-credentials'
   static String EMAIL_SMTP_SERVER = 'email-smtp.us-west-2.amazonaws.com'
   static String EMAIL_SMTP_PORT = '587'
   static String EMAIL_FROM = 'noreply@ci.folio.org'
 
-  static String NEXUS_PUBLISH_CREDENTIALS_ID = 'jenkins-nexus'
+  static String NEXUS_PUBLISH_CREDENTIALS_ID = 'nexus-jenkins-service-user'
   static String FOLIO_HELM_REPO_NAME = 'folio-helm'
   static String FOLIO_HELM_REPO_URL = 'https://folio-org.github.io/folio-helm'
   static String FOLIO_HELM_HOSTED_REPO_NAME = 'helm-hosted'
@@ -162,7 +162,7 @@ class Constants {
   static String DOCKERHUB_URL = 'https://hub.docker.com/v2'
   static String DOCKER_DEV_REPOSITORY_CREDENTIALS_ID = 'folio-docker-dev'
   static String DOCKER_DEV_REPOSITORY = 'docker.dev.folio.org'
-  static String DOCKER_FOLIO_REPOSITORY_CREDENTIALS_ID = 'DockerHubIDJenkins'
+  static String DOCKER_FOLIO_REPOSITORY_CREDENTIALS_ID = 'dockerhub-jenkins-service-user'
   static String DOCKER_FOLIO_REPOSITORY = 'docker-folio.dev.folio.org'
   static String ECR_FOLIO_REPOSITORY = '732722833398.dkr.ecr.us-west-2.amazonaws.com'
   static String ECR_FOLIO_REPOSITORY_CREDENTIALS_ID = 'aws-ecr-rw-credentials'
@@ -175,7 +175,9 @@ class Constants {
   static String JENKINS_JOB_RESTORE_PG_BACKUP = 'Rancher/Create-Restore-PosgreSQL-DB-backup'
   static String JENKINS_JOB_CREATE_TENANT = 'Rancher/Update/create-tenant'
   static String JENKINS_JOB_BACKEND_MODULES_DEPLOY_BRANCH = '/Rancher/Update/backend-modules-deploy-branch'
-  static List JENKINS_AGENTS = ['rancher',
+  static List JENKINS_AGENTS = ['base-agent',
+                                'cicd-agent',
+                                'rancher',
                                 'rancher||jenkins-agent-java11',
                                 'jenkins-agent-java11',
                                 'jenkins-agent-java11-test',

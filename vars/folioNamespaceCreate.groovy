@@ -17,8 +17,8 @@ void call(CreateNamespaceParameters args) {
 
     RancherNamespace namespace = new RancherNamespace(args.clusterName, args.namespaceName)
     LdpConfig ldpConfig = new LdpConfig()
-    withCredentials([string(credentialsId: 'ldp_db_password', variable: 'LDP_DB_PASSWORD'),
-                     string(credentialsId: 'ldp_queries_gh_token', variable: 'LDP_SQCONFIG_TOKEN')]) {
+    withCredentials([string(credentialsId: 'ldp-db-password', variable: 'LDP_DB_PASSWORD'),
+                     string(credentialsId: 'ldp-queries-gh-token', variable: 'LDP_SQCONFIG_TOKEN')]) {
       ldpConfig.setLdpDbUserPassword(LDP_DB_PASSWORD)
       ldpConfig.setLdpAdminDbUserPassword(LDP_DB_PASSWORD)
       ldpConfig.setLdpConfigDbUserPassword(LDP_DB_PASSWORD)
@@ -143,7 +143,6 @@ void call(CreateNamespaceParameters args) {
     }
 
     stage('[Rest] Initialize') {
-      sleep time: 10, unit: 'MINUTES' //mod-agreements, service-interaction etc | federation lock
       main.initializeFromScratch(namespace.getTenants(), namespace.getEnableConsortia())
     }
 
@@ -166,7 +165,7 @@ void call(CreateNamespaceParameters args) {
       namespace.getTenants().each { tenantId, tenant ->
         if (tenant.getTenantUi()) {
           branches[tenantId] = {
-            logger.debug(groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(tenant.getTenantUi())))
+            logger.debug(prettyPrint(toJson(tenant.getTenantUi())))
             folioUI.buildAndDeploy(namespace, tenant)
           }
         }
