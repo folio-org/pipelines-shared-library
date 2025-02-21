@@ -100,7 +100,7 @@ karateTestsParams.karateConfig = "etesting-lsdi"
  */
 
 ansiColor('xterm') {
-  node('jenkins-agent-java17') {
+  node('jenkins-agent-java21') {
     try {
       stage('Ini') {
         buildDescription "Branch: ${params.TESTS_BRANCH}\nThreads: ${params.THREADS_COUNT}\nDestroy after: ${params.DESTROY_AFTER}"
