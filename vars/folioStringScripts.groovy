@@ -7,7 +7,6 @@ static String getClusters(String platformParam = null, String platformValue = nu
   String clusters = platformValue ? Constants.AWS_EKS_PLATFORM_CLUSTERS()[platformValue].inspect() : Constants.AWS_EKS_CLUSTERS_LIST.inspect()
 
   return """
-
   return ${platformParam} && ${PlatformType.values().collect{it.name() }.inspect()}.contains(${platformParam}.trim()) ?
   ${Constants.AWS_EKS_PLATFORM_CLUSTERS().inspect()}[${platformParam}.trim()] : $clusters
 """
