@@ -40,7 +40,7 @@ if (params.REFRESH_PARAMETERS) {
 
 String defaultTenantId = 'cs00000int'
 String sys_psswd = ''
-String sys_psswd1 = ''
+// String sys_psswd1 = '' //TMP
 
 TerraformConfig tfConfig = new TerraformConfig('terraform/rancher/project')
   .withWorkspace("${params.CLUSTER}-${params.NAMESPACE}")
@@ -136,8 +136,8 @@ ansiColor('xterm') {
               "ecs-snapshot", "${params.NAMESPACE}")
             sys_psswd = kubectl.getSecretValue(namespace.getNamespaceName(), 'mod-consortia-systemuser', 'SYSTEM_USER_PASSWORD')
             kubectl.patchSecret("mod-consortia-systemuser", "SYSTEM_USER_NAME", "consortia-system-user", "${params.NAMESPACE}")
-            sys_psswd1 = kubectl.getSecretValue(namespace.getNamespaceName(), 'mod-search-systemuser', 'SYSTEM_USER_PASSWORD')
-            kubectl.patchSecret("mod-search-systemuser", "SYSTEM_USER_USERNAME", "mod-search-system", "${params.NAMESPACE}")
+            // sys_psswd1 = kubectl.getSecretValue(namespace.getNamespaceName(), 'mod-search-systemuser', 'SYSTEM_USER_PASSWORD') //TMP
+            // kubectl.patchSecret("mod-search-systemuser", "SYSTEM_USER_USERNAME", "mod-search-system", "${params.NAMESPACE}")
           }
         }
       }
@@ -165,7 +165,7 @@ ansiColor('xterm') {
         Users users = new Users(this, namespace.generateDomain('okapi'))
         namespace.getModules().setInstallJsonObject(newInstallJson)
         OkapiUser okapiUser = new OkapiUser('consortia-system-user', sys_psswd)
-        OkapiUser okapiUser1 = new OkapiUser('mod-search-system', sys_psswd1)
+        // OkapiUser okapiUser1 = new OkapiUser('mod-search-system', sys_psswd1) //TMP
         namespace.setEnableConsortia(params.CONSORTIA, false)
         namespace.tenants.each { name, id ->
           switch (id.getTenantId()) {
@@ -183,9 +183,9 @@ ansiColor('xterm') {
           def user = users.getUserByName(id, okapiUser)
           okapiUser.setUuid(user.get('id'))
           users.resetUserPassword(id, okapiUser)
-          def user1 = users.getUserByName(id, okapiUser1)
-          okapiUser1.setUuid(user1.get('id'))
-          users.resetUserPassword(id, okapiUser1)
+          // def user1 = users.getUserByName(id, okapiUser1) //TMP
+          // okapiUser1.setUuid(user1.get('id'))
+          // users.resetUserPassword(id, okapiUser1)
           println('TenantId: ' + id.getTenantId() + "\nModules to enable:\n" + id.getModules().getInstallJson())
         }
         main.publishServiceDiscovery(namespace.getModules().getDiscoveryList())
