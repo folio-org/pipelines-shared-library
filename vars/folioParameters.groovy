@@ -98,8 +98,11 @@ def cypressAgent() {
   return _paramChoice('AGENT', CypressConstants.JENKINS_CYPRESS_AGENTS, 'Select Jenkins agent for build')
 }
 
-def platform() {
-  return _paramChoice('PLATFORM', PlatformType.values().collect{it.name() == 'EUREKA' ? it.name() + ":selected" : it.name() }, 'Select FOLIO platform')
+def platform(PlatformType defaultValue = null) {
+  List values = PlatformType.values().collect{it.name() } - [defaultValue?.name()]
+  values = defaultValue ? [defaultValue.name()] + values : values
+
+  return _paramChoice('PLATFORM', values, 'Select FOLIO platform')
 }
 
 def applicationSet() {
@@ -114,8 +117,8 @@ def refreshParameters() {
   return _paramBoolean('REFRESH_PARAMETERS', false, 'Set to true for update pipeline parameters, it will not run a pipeline')
 }
 
-def cluster(String reference = null, String platform = null, String paramName = 'CLUSTER') {
-  return _paramExtendedSingleSelect(paramName, reference, folioStringScripts.getClusters(reference, platform), '(Required) Select cluster for current job')
+def cluster(String reference = null, String paramName = 'CLUSTER') {
+  return _paramExtendedSingleSelect(paramName, reference, folioStringScripts.getClusters(reference), '(Required) Select cluster for current job')
 }
 
 def namespace() {
@@ -228,6 +231,10 @@ def runSanityCheck(boolean value = true) {
 
 def hideParameters(Map valueParams, String reference) {
   return _paramHiddenHTML(folioStringScripts.getHideHTMLScript(valueParams, reference), reference)
+}
+
+def hideParameters(List params) {
+  return _paramHiddenHTML(folioStringScripts.getHideHTMLScript(['first': params], 'first'), '')
 }
 
 def groupParameters(String title, List groupedParams, String reference = "") {
