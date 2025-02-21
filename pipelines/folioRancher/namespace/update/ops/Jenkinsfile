@@ -30,9 +30,10 @@ properties([
     folioParameters.refreshParameters()
     , folioParameters.hideParameters(
       [
-        'github/folio-org': ['CONTAINER_IMAGE_TAG'],
-        'dockerhub/folioci': ['MODULE_BRANCH', 'MAVEN_ARGS'],
-        'dockerhub/folioorg': ['MODULE_BRANCH', 'MAVEN_ARGS']
+        'GitHub/folio-org': ['CONTAINER_IMAGE_TAG'],
+        'DockerHub/folioci': ['MODULE_BRANCH', 'MAVEN_ARGS'],
+        'DockerHub/folioorg': ['MODULE_BRANCH', 'MAVEN_ARGS'],
+        'ECR': ['MODULE_BRANCH', 'MAVEN_ARGS']
       ]
       , "MODULE_SOURCE"
     )
