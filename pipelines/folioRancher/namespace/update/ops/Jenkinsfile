@@ -16,7 +16,7 @@ properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
   disableConcurrentBuilds(),
   parameters([
-    folioParameters.cluster(platform: 'EUREKA'),
+    folioParameters.cluster(null, 'EUREKA'),
     folioParameters.namespace(),
     booleanParam(name: 'UPDATE_ALL', defaultValue: true, description: 'Update all modules to the '),
     folioParameters.moduleName(), // MODULE_NAME, Folio Module name
