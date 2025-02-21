@@ -7,7 +7,7 @@ import org.folio.Constants
 
 class GitHubClient {
 
-  private static final String GITHUB_TOKEN_CREDENTIAL_ID = "id-jenkins-github-personal-token"
+  private static final String GITHUB_TOKEN_CREDENTIAL_ID = "github-jenkins-service-user-token"
 
   private Secret gitHubToken
 

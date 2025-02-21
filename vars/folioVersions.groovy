@@ -195,7 +195,7 @@ static ComparisonResult compareReleases(List currentRelease, List newRelease) {
 static ComparisonResult compareGitHashes(String moduleName, String currentHash, String newHash) {
   URL url = new URL("${Constants.FOLIO_GITHUB_REPOS_URL}/${moduleName}/compare/${currentHash}...${newHash}")
   HttpURLConnection conn = (HttpURLConnection) url.openConnection()
-  withCredentials([string(credentialsId: 'id-jenkins-github-personal-token', variable: 'token')]) {
+  withCredentials([string(credentialsId: 'github-jenkins-service-user-token', variable: 'token')]) {
     conn.setRequestProperty("Authorization", "Bearer \$token")
   }
 
