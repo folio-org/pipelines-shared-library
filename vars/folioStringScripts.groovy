@@ -87,7 +87,10 @@ static String getModuleId(String moduleName) {
   }
 }
 
-static String getBackendModulesList() {
+static String getBackendModulesList(PlatformType platform = PlatformType.OKAPI){
+  String filter = platform == PlatformType.OKAPI ? "it == 'okapi' || it.startsWith('mod-') || it.startsWith('edge-')" :
+    "it == 'folio-kong' || 'folio-keycloak || it.startsWith('mod-') || it.startsWith('edge-') || it.startsWith('mgr-')"
+
   return '''import groovy.json.JsonSlurperClassic
 def apiUrl = "https://api.github.com/orgs/folio-org/repos"
 def perPage = 100
@@ -120,7 +123,7 @@ def fetchModules(String url) {
     processResponse(nextConn)
   }
   processResponse(new URL(url).openConnection())
-  return modules.findAll { it == 'okapi' || it.startsWith('mod-') || it.startsWith('edge-') }.sort()
+  return modules.findAll { $filter }.sort()
 }
 fetchModules("${apiUrl}?per_page=${perPage}")'''
 }
