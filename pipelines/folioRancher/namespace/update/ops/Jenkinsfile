@@ -79,7 +79,7 @@ folioHelm.withKubeConfig(namespace.getClusterName()) {
   isDeployed = sh(script: "kubectl get pods --namespace ${namespace.getNamespaceName()} --no-headers", returnStdout: true).trim()
 }
 
-logger.debug("Check: ${check}")
+logger.debug("Check: ${isDeployed}")
 
 if (!isDeployed){
   logger.debug("Target environment is not running. Please start the environment and try again.")
