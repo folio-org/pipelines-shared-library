@@ -21,7 +21,7 @@ properties([
     folioParameters.cluster('PLATFORM'),
     folioParameters.namespace(),
     booleanParam(name: 'UPDATE_ALL', defaultValue: true, description: 'Update all namespace modules with latest versions'),
-    folioParameters.moduleName(PlatformType.EUREKA), // MODULE_NAME, Folio Module name
+    folioParameters.moduleName(PlatformType.OKAPI), // MODULE_NAME, Folio Module name
     folioParameters.moduleSource(), // MODULE_SOURCE, Eureka Module source (Github, DockerHub, AWS ECR)
     folioParameters.branchWithRef('MODULE_BRANCH', 'MODULE_NAME'), // MODULE_BRANCH, Eureka Module Github branch
     folioParameters.containerImageTag('CONTAINER_IMAGE_TAG', 'MODULE_NAME, MODULE_SOURCE'), // CONTAINER_IMAGE_TAG, Container image tag
