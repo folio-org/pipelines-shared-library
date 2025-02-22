@@ -201,8 +201,8 @@ def referenceTenantId(String tenant_id = 'diku') {
   return _paramString('REFERENCE_TENANT_ID', tenant_id, 'Reference Id used for tenant creation')
 }
 
-def moduleName() {
-  return _paramExtendedSingleSelect('MODULE_NAME', '', folioStringScripts.getBackendModulesList(), 'Select module name to install')
+def moduleName(PlatformType platform = PlatformType.OKAPI, String reference = '', String paramName = 'MODULE_NAME') {
+  return _paramExtendedSingleSelect(paramName, reference, folioStringScripts.getBackendModulesList(platform), 'Select module name to install')
 }
 
 def moduleType() {
