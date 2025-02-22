@@ -77,7 +77,7 @@ folioHelm.withKubeConfig(namespace.getClusterName()) {
   def check = sh(script: "kubectl get pods --namespace ${namespace.getNamespaceName()} --no-headers", returnStdout: true).trim()
 
   if (!check.contains(module.getName())) {
-    logger.error("Target environment is not running. Please start the environment and try again.")
+    logger.warning("Target environment is not running. Please start the environment and try again.")
 
     currentBuild.result = 'ABORTED'
     return
