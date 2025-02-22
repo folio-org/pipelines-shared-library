@@ -56,36 +56,18 @@ if (params.REFRESH_PARAMETERS) {
 /** Pipeline variables */
 Logger logger = new Logger(this, env.JOB_BASE_NAME)
 
+String featureBranch = params.MODULE_BRANCH
+String featureHash = new GitHubClient(this).getBranchInfo(module.getName(), featureBranch).commit.sha.take(7)
+String mavenArguments = params.MAVEN_ARGS.trim()
+String commonGradleOpts = '--quiet --console plain --no-daemon'
+Map<String, String> updatedAppInfoMap = [:]
+
 /** Collect Rancher Namespace Configuration */
 EurekaNamespace namespace = new EurekaNamespace(params.CLUSTER, params.NAMESPACE)
   .withDeploymentConfigType(params.CONFIG_TYPE) as EurekaNamespace
 
 /** Assign Desired Resource Profile for Environment */
 namespace.addDeploymentConfig(folioTools.getPipelineBranch())
-
-/** Assign Default Tenant Id to Namespace instance */
-String defaultTenantId = 'diku'
-namespace.withDefaultTenant(defaultTenantId)
-
-/** Collect Folio module configuration */
-EurekaModule module = new EurekaModule()
-module.name = params.MODULE_NAME
-
-/** Collect feature branch and hash */
-String featureBranch = params.MODULE_BRANCH
-String featureHash = new GitHubClient(this).getBranchInfo(module.getName(), featureBranch).commit.sha.take(7)
-
-/** Init Eureka Application Instance */
-Eureka eureka = new Eureka(this, namespace.generateDomain('kong'), namespace.generateDomain('keycloak'), false)
-
-/** Collect Maven arguments */
-String mavenArguments = params.MAVEN_ARGS.trim()
-
-/** Common Gradle Options */
-String commonGradleOpts = '--quiet --console plain --no-daemon'
-
-/** Updated Applications Info Map<AppName, AppID> */
-Map<String, String> updatedAppInfoMap = [:]
 
 /** Check if the target environment is running */
 folioHelm.withKubeConfig(namespace.getClusterName()) {
@@ -99,13 +81,23 @@ folioHelm.withKubeConfig(namespace.getClusterName()) {
   }
 }
 
+Eureka eureka = new Eureka(this, namespace.generateDomain('kong'), namespace.generateDomain('keycloak'))
+
+/** Assign Default Tenant Id to Namespace instance */
+String defaultTenantId = 'diku'
+namespace.withDefaultTenant(defaultTenantId)
+
+/** Collect Folio module configuration */
+EurekaModule module = new EurekaModule()
+module.name = params.MODULE_NAME
+
 input message: "Let's wait"
 
 /** Pipeline */
 ansiColor('xterm') {
   node(params.AGENT) {
     try {
-      stage('Ini') {
+      stage('Init') {
         buildName "#${params.MODULE_NAME}.${env.BUILD_ID}"
         buildDescription "Env: ${namespace.getWorkspaceName()}\nBranch: ${params.MODULE_BRANCH}\n" + "Config: ${params.CONFIG_TYPE}\n${currentBuild.getBuildCauses()[0].shortDescription}"
 
