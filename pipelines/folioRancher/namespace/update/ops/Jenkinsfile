@@ -80,7 +80,7 @@ folioHelm.withKubeConfig(namespace.getClusterName()) {
 }
 
 if (!(check && check.contains(module.getName()))){
-  logger.warning("Target environment is not running. Please start the environment and try again.")
+  logger.debug("Target environment is not running. Please start the environment and try again.")
 
   currentBuild.result = 'ABORTED'
   return
