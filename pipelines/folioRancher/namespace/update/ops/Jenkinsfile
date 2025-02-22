@@ -76,6 +76,8 @@ Eureka eureka = new Eureka(this, namespace.generateDomain('kong'), namespace.gen
 
 /** Pipeline */
 ansiColor('xterm') {
+  buildName "#${params.MODULE_NAME}.${env.BUILD_ID}"
+  buildDescription "Env: ${namespace.getWorkspaceName()}\nBranch: ${params.MODULE_BRANCH}\n" + "Config: ${params.CONFIG_TYPE}\n${currentBuild.getBuildCauses()[0].shortDescription}"
 
   /** Check if the target environment is running */
   boolean isEnvActive = false
@@ -91,14 +93,11 @@ ansiColor('xterm') {
     return
   }
 
+  input message: "Let's wait"
+
   node(params.AGENT) {
     try {
       stage('Init') {
-        buildName "#${params.MODULE_NAME}.${env.BUILD_ID}"
-        buildDescription "Env: ${namespace.getWorkspaceName()}\nBranch: ${params.MODULE_BRANCH}\n" + "Config: ${params.CONFIG_TYPE}\n${currentBuild.getBuildCauses()[0].shortDescription}"
-
-        input message: "Let's wait"
-
         // Run extra init steps for non-Github module sources
         if (!params.MODULE_SOURCE.contains('github')) { // Non-Github module source: Load existed module descriptor and put it to ECR. Why put it to ECR?
           // Load Module Details and set Module Version
