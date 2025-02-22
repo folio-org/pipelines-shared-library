@@ -83,15 +83,8 @@ folioHelm.withKubeConfig(namespace.getClusterName()) {
 
 Eureka eureka = new Eureka(this, namespace.generateDomain('kong'), namespace.generateDomain('keycloak'))
 
-/** Assign Default Tenant Id to Namespace instance */
-String defaultTenantId = 'diku'
-namespace.withDefaultTenant(defaultTenantId)
-
-/** Collect Folio module configuration */
 EurekaModule module = new EurekaModule()
 module.name = params.MODULE_NAME
-
-input message: "Let's wait"
 
 /** Pipeline */
 ansiColor('xterm') {
@@ -100,6 +93,8 @@ ansiColor('xterm') {
       stage('Init') {
         buildName "#${params.MODULE_NAME}.${env.BUILD_ID}"
         buildDescription "Env: ${namespace.getWorkspaceName()}\nBranch: ${params.MODULE_BRANCH}\n" + "Config: ${params.CONFIG_TYPE}\n${currentBuild.getBuildCauses()[0].shortDescription}"
+
+        input message: "Let's wait"
 
         // Run extra init steps for non-Github module sources
         if (!params.MODULE_SOURCE.contains('github')) { // Non-Github module source: Load existed module descriptor and put it to ECR. Why put it to ECR?
