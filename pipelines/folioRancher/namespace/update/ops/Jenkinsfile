@@ -54,7 +54,8 @@ if (params.REFRESH_PARAMETERS) {
 }
 
 /** Pipeline variables */
-Logger logger = new Logger(this, env.JOB_BASE_NAME)
+Logger logger = new Logger(this, 'dfdgfdgd')
+logger.info("Starting namespace update process")
 
 EurekaModule module = new EurekaModule()
 module.name = params.MODULE_NAME
