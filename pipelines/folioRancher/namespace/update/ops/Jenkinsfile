@@ -73,15 +73,15 @@ EurekaNamespace namespace = new EurekaNamespace(params.CLUSTER, params.NAMESPACE
 namespace.addDeploymentConfig(folioTools.getPipelineBranch())
 
 /** Check if the target environment is running */
-def isDeployed = null
+boolean isEnvActive = false
 
 folioHelm.withKubeConfig(namespace.getClusterName()) {
-  isDeployed = sh(script: "kubectl get pods --namespace ${namespace.getNamespaceName()} --no-headers", returnStdout: true).trim()
+  isEnvActive = sh(script: "kubectl get pods --namespace ${namespace.getNamespaceName()} --no-headers", returnStdout: true).trim()
 }
 
-logger.debug("Check: ${isDeployed}")
+logger.debug("isEnvActive: ${isEnvActive}")
 
-if (!isDeployed){
+if (!isEnvActive){
   logger.debug("Target environment is not running. Please start the environment and try again.")
 
   currentBuild.result = 'ABORTED'
