@@ -234,7 +234,7 @@ def hideParameters(Map valueParams, String reference) {
 }
 
 def hideParameters(List params) {
-  return _paramHiddenHTML(folioStringScripts.getHideHTMLScript(['first': params], 'first'), '')
+  return _paramHiddenHTML(folioStringScripts.getHideHTMLScript(['first': params], '"first"'), '')
 }
 
 def groupParameters(String title, List groupedParams, String reference = "") {
