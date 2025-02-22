@@ -27,7 +27,7 @@ properties([
     folioParameters.containerImageTag('CONTAINER_IMAGE_TAG', 'MODULE_NAME, MODULE_SOURCE'), // CONTAINER_IMAGE_TAG, Container image tag
     string(name: 'MAVEN_ARGS', defaultValue: '-DskipTests', description: 'Maven build arguments'),
     folioParameters.configType(),
-    folioParameters.agent(),
+    folioParameters.agent(Constants.JENKINS_AGENTS_DEPLOY_MODULE),
     folioParameters.refreshParameters()
     , folioParameters.hideParameters(
       [

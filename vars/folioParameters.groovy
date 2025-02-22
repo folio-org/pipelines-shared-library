@@ -90,8 +90,8 @@ private def _paramFormattedHTML(String script, String reference, boolean omitVal
   _extendedDynamicParam(name, reference, script, description, omitValue, "ET_FORMATTED_HTML")
 }
 
-def agent() {
-  return _paramChoice('AGENT', Constants.JENKINS_AGENTS, 'Select Jenkins agent for build')
+def agent(List agents = Constants.JENKINS_AGENTS, String paramName = 'AGENT') {
+  return _paramChoice(paramName, agents, 'Select Jenkins agent for build')
 }
 
 def cypressAgent() {
