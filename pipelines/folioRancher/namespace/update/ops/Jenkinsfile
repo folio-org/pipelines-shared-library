@@ -55,7 +55,6 @@ if (params.REFRESH_PARAMETERS) {
 
 /** Pipeline variables */
 Logger logger = new Logger(this, 'dfdgfdgd')
-logger.info("Starting namespace update process")
 
 EurekaModule module = new EurekaModule()
 module.name = params.MODULE_NAME
@@ -74,15 +73,15 @@ EurekaNamespace namespace = new EurekaNamespace(params.CLUSTER, params.NAMESPACE
 namespace.addDeploymentConfig(folioTools.getPipelineBranch())
 
 /** Check if the target environment is running */
-def check = null
+def isDeployed = null
 
 folioHelm.withKubeConfig(namespace.getClusterName()) {
-  check = sh(script: "kubectl get pods --namespace ${namespace.getNamespaceName()} --no-headers", returnStdout: true).trim()
+  isDeployed = sh(script: "kubectl get pods --namespace ${namespace.getNamespaceName()} --no-headers", returnStdout: true).trim()
 }
 
 logger.debug("Check: ${check}")
 
-if (!(check && check.contains(module.getName()))){
+if (!isDeployed){
   logger.debug("Target environment is not running. Please start the environment and try again.")
 
   currentBuild.result = 'ABORTED'
