@@ -98,11 +98,11 @@ def cypressAgent() {
   return _paramChoice('AGENT', CypressConstants.JENKINS_CYPRESS_AGENTS, 'Select Jenkins agent for build')
 }
 
-def platform(PlatformType defaultValue = null) {
+def platform(PlatformType defaultValue = null, String paramName = 'PLATFORM') {
   List values = PlatformType.values().collect{it.name() } - [defaultValue?.name()]
   values = defaultValue ? [defaultValue.name()] + values : values
 
-  return _paramChoice('PLATFORM', values, 'Select FOLIO platform')
+  return _paramChoice(paramName, values, 'Select FOLIO platform')
 }
 
 def applicationSet() {
