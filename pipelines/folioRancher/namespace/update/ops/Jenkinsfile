@@ -54,7 +54,7 @@ if (params.REFRESH_PARAMETERS) {
 }
 
 /** Pipeline variables */
-Logger logger = new Logger(this, 'dfdgfdgd')
+Logger logger = new Logger(this, env.JOB_BASE_NAME)
 
 EurekaModule module = new EurekaModule()
 module.name = params.MODULE_NAME
