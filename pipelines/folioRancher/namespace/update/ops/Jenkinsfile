@@ -72,26 +72,25 @@ EurekaNamespace namespace = new EurekaNamespace(params.CLUSTER, params.NAMESPACE
 /** Assign Desired Resource Profile for Environment */
 namespace.addDeploymentConfig(folioTools.getPipelineBranch())
 
-/** Check if the target environment is running */
-boolean isEnvActive = false
-
-folioHelm.withKubeConfig(namespace.getClusterName()) {
-  isEnvActive = sh(script: "kubectl get pods --namespace ${namespace.getNamespaceName()} --no-headers", returnStdout: true).trim()
-}
-
-logger.debug("isEnvActive: ${isEnvActive}")
-
-if (!isEnvActive){
-  logger.debug("Target environment is not running. Please start the environment and try again.")
-
-  currentBuild.result = 'ABORTED'
-  return
-}
-
 Eureka eureka = new Eureka(this, namespace.generateDomain('kong'), namespace.generateDomain('keycloak'))
 
 /** Pipeline */
 ansiColor('xterm') {
+
+  /** Check if the target environment is running */
+  boolean isEnvActive = false
+
+  folioHelm.withKubeConfig(namespace.getClusterName()) {
+    isEnvActive = sh(script: "kubectl get pods --namespace ${namespace.getNamespaceName()} --no-headers", returnStdout: true).trim()
+  }
+
+  if (!isEnvActive){
+    logger.warning("Target environment is not running. Please start the environment and try again.")
+
+    currentBuild.result = 'ABORTED'
+    return
+  }
+
   node(params.AGENT) {
     try {
       stage('Init') {
