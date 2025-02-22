@@ -17,7 +17,7 @@ properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
   disableConcurrentBuilds(),
   parameters([
-    folioParameters.platform(PlatformType.EUREKA.name()),
+    folioParameters.platform(PlatformType.EUREKA),
     folioParameters.cluster('PLATFORM'),
     folioParameters.namespace(),
     booleanParam(name: 'UPDATE_ALL', defaultValue: true, description: 'Update all namespace modules with latest versions'),
