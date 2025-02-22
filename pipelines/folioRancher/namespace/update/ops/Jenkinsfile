@@ -80,6 +80,8 @@ folioHelm.withKubeConfig(namespace.getClusterName()) {
   check = sh(script: "kubectl get pods --namespace ${namespace.getNamespaceName()} --no-headers", returnStdout: true).trim()
 }
 
+logger.debug("Check: ${check}")
+
 if (!(check && check.contains(module.getName()))){
   logger.debug("Target environment is not running. Please start the environment and try again.")
 
