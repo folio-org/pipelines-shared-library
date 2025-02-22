@@ -73,15 +73,17 @@ EurekaNamespace namespace = new EurekaNamespace(params.CLUSTER, params.NAMESPACE
 namespace.addDeploymentConfig(folioTools.getPipelineBranch())
 
 /** Check if the target environment is running */
+def check = null
+
 folioHelm.withKubeConfig(namespace.getClusterName()) {
-  def check = sh(script: "kubectl get pods --namespace ${namespace.getNamespaceName()} --no-headers", returnStdout: true).trim()
+  check = sh(script: "kubectl get pods --namespace ${namespace.getNamespaceName()} --no-headers", returnStdout: true).trim()
+}
 
-  if (!check.contains(module.getName())) {
-    logger.warning("Target environment is not running. Please start the environment and try again.")
+if (!(check && check.contains(module.getName()))){
+  logger.warning("Target environment is not running. Please start the environment and try again.")
 
-    currentBuild.result = 'ABORTED'
-    return
-  }
+  currentBuild.result = 'ABORTED'
+  return
 }
 
 Eureka eureka = new Eureka(this, namespace.generateDomain('kong'), namespace.generateDomain('keycloak'))
