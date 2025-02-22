@@ -53,9 +53,6 @@ if (params.REFRESH_PARAMETERS) {
   return
 }
 
-input message: "Let's wait"
-
-
 /** Pipeline variables */
 Logger logger = new Logger(this, env.JOB_BASE_NAME)
 
@@ -90,6 +87,20 @@ String commonGradleOpts = '--quiet --console plain --no-daemon'
 /** Updated Applications Info Map<AppName, AppID> */
 Map<String, String> updatedAppInfoMap = [:]
 
+/** Check if the target environment is running */
+folioHelm.withKubeConfig(namespace.getClusterName()) {
+  def check = sh(script: "kubectl get pods --namespace ${namespace.getNamespaceName()} --no-headers", returnStdout: true).trim()
+
+  if (!check.contains(module.getName())) {
+    logger.error("Target environment is not running. Please start the environment and try again.")
+
+    currentBuild.result = 'ABORTED'
+    return
+  }
+}
+
+input message: "Let's wait"
+
 /** Pipeline */
 ansiColor('xterm') {
   node(params.AGENT) {
@@ -99,15 +110,17 @@ ansiColor('xterm') {
         buildDescription "Env: ${namespace.getWorkspaceName()}\nBranch: ${params.MODULE_BRANCH}\n" + "Config: ${params.CONFIG_TYPE}\n${currentBuild.getBuildCauses()[0].shortDescription}"
 
         // Run extra init steps for non-Github module sources
-        if (!params.MODULE_SOURCE.contains('github')) {
+        if (!params.MODULE_SOURCE.contains('github')) { // Non-Github module source: Load existed module descriptor and put it to ECR. Why put it to ECR?
           // Load Module Details and set Module Version
           module.loadModuleDetails("${module.name}-${params.CONTAINER_IMAGE_TAG}")
 
           // Load Module Descriptor from Folio Descriptor Registry
           String getModuleDescriptorFromRegistry = "curl -s ${org.folio.rest_v2.Constants.OKAPI_REGISTRY}/_/proxy/modules/${module.name}-${module.version}"
-          logger.debug("Module Descriptor URL: ${getModuleDescriptorFromRegistry}")
           String moduleDescriptor = sh(label: "Get Module Descriptor from Folio Descriptor Registry", returnStdout: true, script: getModuleDescriptorFromRegistry).trim()
+
+          logger.debug("Module Descriptor URL: ${getModuleDescriptorFromRegistry}")
           logger.debug("Module Descriptor: ${moduleDescriptor}")
+
           module.descriptor = [readJSON(text: moduleDescriptor)]
 
           // Upload Module Descriptor to Eureka Descriptor Registry
@@ -118,7 +131,7 @@ ansiColor('xterm') {
         }
       }
 
-      stage('[Git] Checkout module source') {
+      stage('[Git] Checkout module source') { // GitHub. Download module source to build
         // Skip Stage if module source is not Github
         if (!params.MODULE_SOURCE.contains('github')) {
           logger.info("Skip Git checkout stage for non-Github module source: ${params.MODULE_SOURCE}")
@@ -136,7 +149,7 @@ ansiColor('xterm') {
         }
       }
 
-      stage('[Maven/Gradle] Compile') {
+      stage('[Maven/Gradle] Compile') { // GitHub. Build module source to artifact
         // Skip Stage if module source is not Github
         if (!params.MODULE_SOURCE.contains('github')) {
           logger.info("Skip Maven/Gradle build stage for non-Github module source: ${params.MODULE_SOURCE}")
@@ -147,7 +160,7 @@ ansiColor('xterm') {
         }
       }
 
-      stage('[Docker] Build and push') {
+      stage('[Docker] Build and push') { // GitHub. Build image based on artifact and push it to ECR
         // Skip Stage if module source is not Github
         if (!params.MODULE_SOURCE.contains('github')) {
           logger.info("Skip Docker build stage for non-Github module source: ${params.MODULE_SOURCE}")
