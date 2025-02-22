@@ -56,6 +56,9 @@ if (params.REFRESH_PARAMETERS) {
 /** Pipeline variables */
 Logger logger = new Logger(this, env.JOB_BASE_NAME)
 
+EurekaModule module = new EurekaModule()
+module.name = params.MODULE_NAME
+
 String featureBranch = params.MODULE_BRANCH
 String featureHash = new GitHubClient(this).getBranchInfo(module.getName(), featureBranch).commit.sha.take(7)
 String mavenArguments = params.MAVEN_ARGS.trim()
@@ -82,9 +85,6 @@ folioHelm.withKubeConfig(namespace.getClusterName()) {
 }
 
 Eureka eureka = new Eureka(this, namespace.generateDomain('kong'), namespace.generateDomain('keycloak'))
-
-EurekaModule module = new EurekaModule()
-module.name = params.MODULE_NAME
 
 /** Pipeline */
 ansiColor('xterm') {
