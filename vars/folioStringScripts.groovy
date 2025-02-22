@@ -91,7 +91,7 @@ static String getBackendModulesList(PlatformType platform = PlatformType.OKAPI){
   String filter = platform == PlatformType.OKAPI ? "it == 'okapi' || it.startsWith('mod-') || it.startsWith('edge-')" :
     "it == 'folio-kong' || 'folio-keycloak || it.startsWith('mod-') || it.startsWith('edge-') || it.startsWith('mgr-')"
 
-  return '''import groovy.json.JsonSlurperClassic
+  return """import groovy.json.JsonSlurperClassic
 def apiUrl = "https://api.github.com/orgs/folio-org/repos"
 def perPage = 100
 def fetchModules(String url) {
@@ -102,7 +102,7 @@ def fetchModules(String url) {
   def jsonSlurper = new JsonSlurperClassic()
   def getNextPage
   def processResponse = { connection ->
-    connection.setRequestProperty("Authorization", "Bearer ${secret_value}")
+    connection.setRequestProperty("Authorization", "Bearer \${secret_value}")
     if (connection.responseCode == 200) {
       def responseText = connection.getInputStream().getText()
       def json = jsonSlurper.parseText(responseText)
@@ -115,7 +115,7 @@ def fetchModules(String url) {
         }
       }
     } else {
-      println("Error fetching data: HTTP ${connection.responseCode}")
+      println("Error fetching data: HTTP \${connection.responseCode}")
     }
   }
   getNextPage = { nextPageUrl ->
@@ -125,7 +125,7 @@ def fetchModules(String url) {
   processResponse(new URL(url).openConnection())
   return modules.findAll { $filter }.sort()
 }
-fetchModules("${apiUrl}?per_page=${perPage}")'''
+fetchModules("\${apiUrl}?per_page=\${perPage}")"""
 }
 
 static String getModuleVersion() {
