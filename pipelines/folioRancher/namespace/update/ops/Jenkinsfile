@@ -96,6 +96,8 @@ Map optionalSteps = [
 /** Pipeline variables */
 Logger logger = new Logger(this, env.JOB_BASE_NAME)
 
+logger.debug("Optional steps: ${params.OPTIONAL_STEPS}")
+
 EurekaModule module = new EurekaModule()
 module.name = params.MODULE_NAME
 
