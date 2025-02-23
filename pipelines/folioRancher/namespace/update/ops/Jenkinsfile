@@ -137,9 +137,15 @@ ansiColor('xterm') {
     try {
       stage('Init') {
         buildName "#${params.MODULE_NAME}.${env.BUILD_ID}"
-        buildDescription "Env: ${namespace.getWorkspaceName()}\nBranch: ${params.MODULE_BRANCH}\n" + "Config: ${params.CONFIG_TYPE}\n${currentBuild.getBuildCauses()[0].shortDescription}"
+
+        buildDescription """Env: ${namespace.getWorkspaceName()}
+Branch: ${params.MODULE_BRANCH}
+Config: ${params.CONFIG_TYPE}
+${currentBuild.getBuildCauses()[0].shortDescription}"""
 
         input message: "Let's wait"
+
+
 
         // Run extra init steps for non-Github module sources
         if (!params.MODULE_SOURCE.contains('github')) { // Non-Github module source: Load existed module descriptor and put it to ECR. Why put it to ECR?
