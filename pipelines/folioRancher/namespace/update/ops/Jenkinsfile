@@ -27,7 +27,7 @@ properties([
     folioParameters.containerImageTag('CONTAINER_IMAGE_TAG', 'MODULE_NAME, MODULE_SOURCE'), // CONTAINER_IMAGE_TAG, Container image tag
     string(name: 'MAVEN_ARGS', defaultValue: '-DskipTests', description: 'Maven build arguments'),
     folioParameters.configType(),
-    folioParameters._paramExtendedCheckboxSelect('OPTIONAL_STEPS', '', "return [ 'Build image:selected:disabled', 'Update module deployment:selected', 'Upgrade applications:selected' ]", 'Select steps needs to be execute', false),
+    folioParameters._paramExtendedCheckboxSelect('OPTIONAL_STEPS', '', "return [ 'Build image:disabled', 'Update module deployment:selected', 'Upgrade applications:selected' ]", 'Select steps needs to be execute', false),
     folioParameters.agent(Constants.JENKINS_AGENTS_DEPLOY_MODULE),
     folioParameters.refreshParameters()
     , folioParameters.hideParameters(
