@@ -27,6 +27,7 @@ properties([
     folioParameters.containerImageTag('CONTAINER_IMAGE_TAG', 'MODULE_NAME, MODULE_SOURCE'), // CONTAINER_IMAGE_TAG, Container image tag
     string(name: 'MAVEN_ARGS', defaultValue: '-DskipTests', description: 'Maven build arguments'),
     folioParameters.configType(),
+    folioParameters._paramExtendedCheckboxSelect('OPTIONAL_STEPS', '', "return [ 'Build image', 'Update module deployment', 'Upgrade applications' ]", 'Select steps needs to be execute', false),
     folioParameters.agent(Constants.JENKINS_AGENTS_DEPLOY_MODULE),
     folioParameters.refreshParameters()
     , folioParameters.hideParameters(
@@ -52,6 +53,45 @@ if (params.REFRESH_PARAMETERS) {
   currentBuild.result = 'ABORTED'
   return
 }
+
+Map optionalSteps = [
+  'Build image': [
+    updateAll: false,
+    gitHub: true,
+    dockerHub: false,
+    ecr: false,
+    mgr: false,
+    kong: false,
+    keycloak: false,
+    sidecar: false,
+    edge: true,
+    mod: true
+  ],
+  'Update module deployment': [
+    updateAll: true,
+    gitHub: true,
+    dockerHub: true,
+    ecr: true,
+    mgr: false,
+    kong: false,
+    keycloak: false,
+    sidecar: false,
+    edge: true,
+    mod: true
+  ],
+  'Upgrade applications': [
+    updateAll: true,
+    gitHub: false,
+    dockerHub: false,
+    ecr: false,
+    mgr: false,
+    kong: false,
+    keycloak: false,
+    sidecar: false,
+    edge: true,
+    mod: true
+  ]
+]
 
 /** Pipeline variables */
 Logger logger = new Logger(this, env.JOB_BASE_NAME)
