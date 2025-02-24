@@ -106,7 +106,7 @@ void build(String okapiUrl, OkapiTenant tenant, boolean isEureka = false, String
   stage('Update keycloak redirect') {
     if (isEureka) {
       String tenantId = tenant.getTenantId()
-      RestClient client = new RestClient(this)
+      RestClient client = new RestClient(this, true)
       Map headers = ['Content-Type': 'application/x-www-form-urlencoded']
       String tokenUrl = "https://${keycloakDomain}/realms/master/protocol/openid-connect/token"
       String tokenBody = "grant_type=password&username=admin&password=SecretPassword&client_id=admin-cli"
