@@ -10,7 +10,7 @@ class PodTemplates {
   }
 
   void java11Template(Closure body) {
-    steps.podTemplate(inheritFrom: BASE_AGENT, label: 'java11-agent',
+    steps.podTemplate(inheritFrom: BASE_AGENT,
       containers: [steps.containerTemplate(name: 'java', image: 'amazoncorretto:11-alpine-jdk',
         command: 'sleep', args: '99d')]) {
       body.call()
@@ -18,7 +18,7 @@ class PodTemplates {
   }
 
   void java17Template(Closure body) {
-    steps.podTemplate(inheritFrom: BASE_AGENT, label: 'java17-agent',
+    steps.podTemplate(inheritFrom: BASE_AGENT,
       containers: [steps.containerTemplate(name: 'java', image: 'amazoncorretto:17-alpine-jdk',
         command: 'sleep', args: '99d')]) {
       body.call()
@@ -26,7 +26,7 @@ class PodTemplates {
   }
 
   void java21Template(Closure body) {
-    steps.podTemplate(inheritFrom: BASE_AGENT, label: 'java21-agent',
+    steps.podTemplate(inheritFrom: BASE_AGENT,
       containers: [steps.containerTemplate(name: 'java', image: 'amazoncorretto:21-alpine-jdk',
         command: 'sleep', args: '99d')]) {
       body.call()
@@ -34,7 +34,7 @@ class PodTemplates {
   }
 
   void stripesTemplate(Closure body) {
-    steps.podTemplate(inheritFrom: BASE_AGENT, label: 'stripes-agent',
+    steps.podTemplate(inheritFrom: BASE_AGENT,
       containers: [steps.containerTemplate(name: 'jnlp', resourceRequestMemory: '8Gi', resourceLimitMemory: '9Gi')]) {
       body.call()
     }
