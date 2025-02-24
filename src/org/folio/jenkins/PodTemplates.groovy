@@ -2,6 +2,8 @@ package org.folio.jenkins
 
 import org.csanchez.jenkins.plugins.kubernetes.pod.retention.Never
 import org.csanchez.jenkins.plugins.kubernetes.pod.yaml.Overrides
+import org.csanchez.jenkins.plugins.kubernetes.pod.yaml.Merge
+import org.eclipse.jgit.api.MergeCommand
 import org.folio.utilities.Logger
 
 /**
@@ -70,7 +72,7 @@ class PodTemplates {
 
   void stripesTemplate(Closure body) {
     defaultTemplate {
-      steps.podTemplate(label: 'stripes-agent', showRawYaml: debug,
+      steps.podTemplate(label: 'stripes-agent', yamlMergeStrategy: new Merge(), showRawYaml: debug,
         containers: [steps.containerTemplate(name: 'jnlp', resourceRequestMemory: '1024Mi', resourceLimitMemory: '2048Mi')]
       ) {
         body.call()
