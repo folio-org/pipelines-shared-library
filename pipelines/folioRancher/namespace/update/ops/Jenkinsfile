@@ -147,6 +147,9 @@ ${currentBuild.getBuildCauses()[0].shortDescription}"""
         eureka.getExistedTenantsForModule(module).values()
           .each {namespace.addTenant(it)}
 
+        logger.debug("Configured Tenants: ${namespace.tenants}")
+        logger.debug("Configured Tenants: ${namespace.modules.installJsonObject}")
+
         input message: "Let's wait"
 
 
