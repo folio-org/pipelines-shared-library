@@ -35,7 +35,7 @@ class PodTemplates {
       showRawYaml: debug,
       yamlMergeStrategy: 'override',
       podRetention: 'Never',
-      workspaceVolume: emptyDirWorkspaceVolume(),
+      workspaceVolume: steps.emptyDirWorkspaceVolume(),
       inheritYamlMergeStrategy: true,
       slaveConnectTimeout: 300,
       containers: [steps.containerTemplate(
