@@ -1,34 +1,24 @@
 package org.folio.jenkins
 
+import org.folio.utilities.Logger
+
 class PodTemplates {
   static final String BASE_AGENT = "base-agent"
 
   private Object steps
 
+  private Logger logger
+
   PodTemplates(context) {
     this.steps = context
+    this.logger = new Logger(context, 'PodTemplates')
   }
 
-  void java11Template(Closure body) {
-    steps.podTemplate(inheritFrom: BASE_AGENT,
-      containers: [steps.containerTemplate(name: 'java', image: 'amazoncorretto:11-alpine-jdk',
+  void javaTemplate(String javaVersion, Closure body) {
+    steps.podTemplate(inheritFrom: BASE_AGENT, label: 'java-agent',
+      containers: [steps.containerTemplate(name: 'java', image: "amazoncorretto:${javaVersion}-alpine-jdk",
         command: 'sleep', args: '99d')]) {
-      body.call()
-    }
-  }
-
-  void java17Template(Closure body) {
-    steps.podTemplate(inheritFrom: BASE_AGENT,
-      containers: [steps.containerTemplate(name: 'java', image: 'amazoncorretto:17-alpine-jdk',
-        command: 'sleep', args: '99d')]) {
-      body.call()
-    }
-  }
-
-  void java21Template(Closure body) {
-    steps.podTemplate(inheritFrom: BASE_AGENT,
-      containers: [steps.containerTemplate(name: 'java', image: 'amazoncorretto:21-alpine-jdk',
-        command: 'sleep', args: '99d')]) {
+      logger.info('-' * 30 + "\nJava ${javaVersion} pod template in use!\n" + '-' * 30)
       body.call()
     }
   }
