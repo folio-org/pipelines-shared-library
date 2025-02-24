@@ -89,7 +89,7 @@ class PodTemplates {
 
   void kanikoTemplate(Closure body) {
     defaultTemplate {
-      steps.podTemplate(label: 'kaniko-agent', showRawYaml: debug,
+      steps.podTemplate(showRawYaml: debug,
         containers: [
           steps.containerTemplate(
             name: 'kaniko',
