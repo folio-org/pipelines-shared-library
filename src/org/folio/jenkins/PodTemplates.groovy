@@ -78,6 +78,7 @@ class PodTemplates {
         containers: [
           steps.containerTemplate(
             name: 'jnlp',
+            image: '732722833398.dkr.ecr.us-west-2.amazonaws.com/folio-jenkins-agent:latest',
             resourceRequestMemory: '8Gi',
             resourceLimitMemory: '9Gi')]
       ) {
