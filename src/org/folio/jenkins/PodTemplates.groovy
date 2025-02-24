@@ -2,6 +2,14 @@ package org.folio.jenkins
 
 import org.folio.utilities.Logger
 
+/**
+ * PodTemplates class is responsible for defining pod templates for Jenkins pipeline.
+ * It provides a set of methods to define pod templates for different types of agents.
+ * The class is intended to be used in Jenkinsfile to define pod templates for different stages of the pipeline.
+ * Based on Jenkins documentation:
+ * https://plugins.jenkins.io/kubernetes/#plugin-content-nesting-pod-templates
+ * https://www.jenkins.io/doc/pipeline/steps/kubernetes/
+ **/
 class PodTemplates {
   static final String BASE_AGENT = "base-agent"
 
@@ -17,18 +25,45 @@ class PodTemplates {
     this.logger = new Logger(context, 'PodTemplates')
   }
 
-  void javaTemplate(String javaVersion, Closure body) {
-    steps.podTemplate(inheritFrom: BASE_AGENT, label: 'java-agent', showRawYaml: debug,
-      containers: [steps.containerTemplate(name: 'java', image: "amazoncorretto:${javaVersion}-alpine-jdk",
-        command: 'sleep', args: '99d')]) {
+  void defaultTemplate(Closure body) {
+    steps.podTemplate(
+      cloud: 'folio-tmp',
+      label: 'default-agent',
+      namespace: 'jenkins-agents',
+      serviceAccount: 'jenkins-agent-sa',
+      showRawYaml: debug,
+      yamlMergeStrategy: 'override',
+      podRetention: 'never',
+      workspaceVolume: 'emptyDirWorkspaceVolume',
+      inheritYamlMergeStrategy: true,
+      slaveConnectTimeout: 300,
+      containers: [steps.containerTemplate(
+        name: 'jnlp',
+        image: '732722833398.dkr.ecr.us-west-2.amazonaws.com/folio-jenkins-agent:latest',
+        ttyEnabled: true,
+        alwaysPullImage: true,
+        workingDir: '/home/jenkins/agent')]) {
       body.call()
     }
   }
 
+  void javaTemplate(String javaVersion, Closure body) {
+    defaultTemplate {
+      steps.podTemplate(label: 'java-agent', showRawYaml: debug,
+        containers: [steps.containerTemplate(name: 'java', image: "amazoncorretto:${javaVersion}-alpine-jdk",
+          command: 'sleep', args: '99d')]) {
+        logger.info("Java version: ${javaVersion}")
+        body.call()
+      }
+    }
+  }
+
   void stripesTemplate(Closure body) {
-    steps.podTemplate(inheritFrom: BASE_AGENT, label: 'stripes-agent', showRawYaml: debug,
-      containers: [steps.containerTemplate(name: 'jnlp', resourceRequestMemory: '8Gi', resourceLimitMemory: '9Gi')]) {
-      body.call()
+    defaultTemplate {
+      steps.podTemplate(label: 'stripes-agent', showRawYaml: debug,
+        containers: [steps.containerTemplate(name: 'jnlp', resourceRequestMemory: '8Gi', resourceLimitMemory: '9Gi')]) {
+        body.call()
+      }
     }
   }
 
