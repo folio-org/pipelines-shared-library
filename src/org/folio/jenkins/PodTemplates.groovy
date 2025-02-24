@@ -78,6 +78,17 @@ class PodTemplates {
     }
   }
 
+  void kanikoTemplate(Closure body) {
+    defaultTemplate {
+      steps.podTemplate(label: 'kaniko-agent', showRawYaml: debug,
+        containers: [steps.containerTemplate(name: 'kaniko', image: 'gcr.io/kaniko-project/executor:debug',
+          command: 'sleep', args: '99d')]
+      ) {
+        body.call()
+      }
+    }
+  }
+
   /**
    * To be implemented in scope of cypress tests adoption
    */
