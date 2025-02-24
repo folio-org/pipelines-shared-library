@@ -177,11 +177,6 @@
         },
         {
             "group": "org.jenkins-ci.plugins",
-            "name": "build-pipeline-plugin",
-            "version": "1.5.8"
-        },
-        {
-            "group": "org.jenkins-ci.plugins",
             "name": "credentials-binding",
             "version": "523.vd859a_4b_122e6"
         },

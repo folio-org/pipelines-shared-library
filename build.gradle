@@ -107,7 +107,8 @@ tasks.register('collectPluginDependencies') {
             "org.jenkins-ci.plugins.aws-java-sdk",
             "org.jenkins-ci.plugins.pipeline-stage-view",
             "jp.ikedam.jenkins.plugins",
-            "io.jenkins.blueocean"
+            "io.jenkins.blueocean",
+            "org.csanchez.jenkins.plugins"
           ]
 
           // Find the first group where the dependency resolves
