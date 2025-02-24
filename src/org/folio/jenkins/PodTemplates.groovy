@@ -4,11 +4,11 @@ class PodTemplates {
   static final String BASE_AGENT = "base-agent"
 
   void java11Template(Closure body) {
-    body.setDelegate(this)
-    body.setResolveStrategy(Closure.DELEGATE_FIRST)
+//    body.setDelegate(this)
+//    body.setResolveStrategy(Closure.DELEGATE_FIRST)
 
     podTemplate(inheritFrom: BASE_AGENT, label: 'java11-agent', containers: [
-      containerTemplate(name: 'java11', image: 'amazoncorretto:11-alpine-jdk')
+      containerTemplate(name: 'java', image: 'amazoncorretto:11-alpine-jdk')
     ]) {
       body.call()
     }
@@ -19,7 +19,7 @@ class PodTemplates {
     body.setResolveStrategy(Closure.DELEGATE_FIRST)
 
     podTemplate(inheritFrom: BASE_AGENT, label: 'java17-agent', containers: [
-      containerTemplate(name: 'java17', image: 'amazoncorretto:17-alpine-jdk')
+      containerTemplate(name: 'java', image: 'amazoncorretto:17-alpine-jdk')
     ]) {
       body.call()
     }
@@ -30,7 +30,7 @@ class PodTemplates {
     body.setResolveStrategy(Closure.DELEGATE_FIRST)
 
     podTemplate(inheritFrom: BASE_AGENT, label: 'java21-agent', containers: [
-      containerTemplate(name: 'java21', image: 'amazoncorretto:21-alpine-jdk')
+      containerTemplate(name: 'java', image: 'amazoncorretto:21-alpine-jdk')
     ]) {
       body.call()
     }
