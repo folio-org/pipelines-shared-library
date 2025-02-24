@@ -89,7 +89,7 @@ class Constants {
     ],
     [
       name: "app-platform-complete"
-      , branch: "RANCHER-2051"
+      , branch: "snapshot"
       , consortia: false
       , core     : false
       , byDefault: true
