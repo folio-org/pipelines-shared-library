@@ -116,7 +116,7 @@ void build(String okapiUrl, OkapiTenant tenant, boolean isEureka = false, String
       headers.put("Authorization", "Bearer ${token}")
 
       String getRealmUrl = "https://${keycloakDomain}/admin/realms/${tenantId}/clients?clientId=${tenantId}-application"
-      List realm = client.get(getRealmUrl, headers).body
+      def realm = client.get(getRealmUrl, headers).body
 
       String updateRealmUrl = "https://${keycloakDomain}/admin/realms/${tenantId}/clients/${realm['id'].get(0)}"
       headers['Content-Type'] = 'application/json'
