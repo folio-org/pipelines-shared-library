@@ -3,6 +3,8 @@ package org.folio.jenkins
 class PodTemplates {
   static final String BASE_AGENT = "base-agent"
 
+  PodTemplates() {}
+
   void java11Template(body) {
 //    body.setDelegate(this)
 //    body.setResolveStrategy(Closure.DELEGATE_FIRST)
