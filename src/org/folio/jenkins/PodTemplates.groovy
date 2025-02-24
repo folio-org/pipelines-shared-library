@@ -1,6 +1,7 @@
 package org.folio.jenkins
 
 import org.folio.utilities.Logger
+import org.csanchez.jenkins.plugins.kubernetes.pod.*
 
 /**
  * PodTemplates class is responsible for defining pod templates for Jenkins pipeline.
@@ -33,7 +34,7 @@ class PodTemplates {
       serviceAccount: 'jenkins-agent-sa',
       nodeUsageMode: 'EXCLUSIVE',
       showRawYaml: debug,
-      yamlMergeStrategy: 'override',
+      yamlMergeStrategy: new org.csanchez.jenkins.plugins.kubernetes.pod.yaml.Overrides(),
       podRetention: new org.csanchez.jenkins.plugins.kubernetes.pod.retention.Never(),  // ✅ FIXED
       workspaceVolume: steps.emptyDirWorkspaceVolume(),
       inheritYamlMergeStrategy: true,
