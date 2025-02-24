@@ -71,7 +71,7 @@ class PodTemplates {
   void stripesTemplate(Closure body) {
     defaultTemplate {
       steps.podTemplate(label: 'stripes-agent', showRawYaml: debug,
-        containers: [steps.containerTemplate(name: 'jnlp', resourceRequestMemory: '8Gi', resourceLimitMemory: '9Gi')]
+        containers: [steps.containerTemplate(name: 'jnlp', resourceRequestMemory: '1024Mi', resourceLimitMemory: '2048Mi')]
       ) {
         body.call()
       }
