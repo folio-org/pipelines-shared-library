@@ -40,7 +40,7 @@ class PodTemplates {
       serviceAccount: SERVICE_ACCOUNT,
       nodeUsageMode: 'EXCLUSIVE',
       showRawYaml: debug,
-      yamlMergeStrategy: new Overrides(),
+      yamlMergeStrategy: new Merge(),
       podRetention: new Never(),
       workspaceVolume: steps.emptyDirWorkspaceVolume(),
       inheritYamlMergeStrategy: true,
