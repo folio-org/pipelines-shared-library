@@ -168,6 +168,14 @@ class Constants {
       , dependsOn: ["app-platform-minimal", "app-platform-complete"]
     ],
     [
+      name: "app-fqm"
+      , branch: "master"
+      , consortia: false
+      , core: false
+      , byDefault: true
+      , dependsOn: ["app-platform-minimal", "app-platform-complete", "app-acquisitions"]
+    ],
+    [
       name: "app-requests-ecs"
       , branch: "master"
       , consortia: false
