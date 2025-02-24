@@ -34,7 +34,7 @@ class PodTemplates {
       nodeUsageMode: 'EXCLUSIVE',
       showRawYaml: debug,
       yamlMergeStrategy: 'override',
-      podRetention: 'Never',
+      podRetention: new org.csanchez.jenkins.plugins.kubernetes.pod.retention.Never(),  // ✅ FIXED
       workspaceVolume: steps.emptyDirWorkspaceVolume(),
       inheritYamlMergeStrategy: true,
       slaveConnectTimeout: 300,
@@ -43,7 +43,9 @@ class PodTemplates {
         image: '732722833398.dkr.ecr.us-west-2.amazonaws.com/folio-jenkins-agent:latest',
         ttyEnabled: true,
         alwaysPullImage: true,
-        workingDir: '/home/jenkins/agent')]) {
+        workingDir: '/home/jenkins/agent'
+      )]
+    ) {
       body.call()
     }
   }
