@@ -1,9 +1,7 @@
 package org.folio.jenkins
 
 import org.csanchez.jenkins.plugins.kubernetes.pod.retention.Never
-import org.csanchez.jenkins.plugins.kubernetes.pod.yaml.Overrides
 import org.csanchez.jenkins.plugins.kubernetes.pod.yaml.Merge
-import org.eclipse.jgit.api.MergeCommand
 import org.folio.utilities.Logger
 
 /**
@@ -61,8 +59,12 @@ class PodTemplates {
   void javaTemplate(String javaVersion, Closure body) {
     defaultTemplate {
       steps.podTemplate(label: 'java-agent', showRawYaml: debug,
-        containers: [steps.containerTemplate(name: 'java', image: "amazoncorretto:${javaVersion}-alpine-jdk",
-          command: 'sleep', args: '99d')]
+        containers: [
+          steps.containerTemplate(
+            name: 'java',
+            image: "amazoncorretto:${javaVersion}-alpine-jdk",
+            command: 'sleep',
+            args: '99d')]
       ) {
         logger.info("Java version: ${javaVersion}")
         body.call()
@@ -72,8 +74,12 @@ class PodTemplates {
 
   void stripesTemplate(Closure body) {
     defaultTemplate {
-      steps.podTemplate(label: 'stripes-agent', yamlMergeStrategy: new Merge(), showRawYaml: debug,
-        containers: [steps.containerTemplate(name: 'jnlp', resourceRequestMemory: '1024Mi', resourceLimitMemory: '2048Mi')]
+      steps.podTemplate(label: 'stripes-agent', showRawYaml: debug,
+        containers: [
+          steps.containerTemplate(
+            name: 'jnlp',
+            resourceRequestMemory: '8Gi',
+            resourceLimitMemory: '9Gi')]
       ) {
         body.call()
       }
@@ -83,8 +89,12 @@ class PodTemplates {
   void kanikoTemplate(Closure body) {
     defaultTemplate {
       steps.podTemplate(label: 'kaniko-agent', showRawYaml: debug,
-        containers: [steps.containerTemplate(name: 'kaniko', image: 'gcr.io/kaniko-project/executor:debug',
-          command: 'sleep', args: '99d')]
+        containers: [
+          steps.containerTemplate(
+            name: 'kaniko',
+            image: 'gcr.io/kaniko-project/executor:debug',
+            command: 'sleep',
+            args: '99d')]
       ) {
         body.call()
       }
