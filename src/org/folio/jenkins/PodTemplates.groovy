@@ -1,8 +1,8 @@
 package org.folio.jenkins
 
-import org.folio.utilities.Logger
-import org.csanchez.jenkins.plugins.kubernetes.pod.yaml.Overrides
 import org.csanchez.jenkins.plugins.kubernetes.pod.retention.Never
+import org.csanchez.jenkins.plugins.kubernetes.pod.yaml.Overrides
+import org.folio.utilities.Logger
 
 /**
  * PodTemplates class is responsible for defining pod templates for Jenkins pipeline.
@@ -11,9 +11,12 @@ import org.csanchez.jenkins.plugins.kubernetes.pod.retention.Never
  * Based on Jenkins documentation:
  * https://plugins.jenkins.io/kubernetes/#plugin-content-nesting-pod-templates
  * https://www.jenkins.io/doc/pipeline/steps/kubernetes/
+ * https://github.com/jenkinsci/kubernetes-plugin/tree/master/src/main/java/org/csanchez/jenkins/plugins/kubernetes
  **/
 class PodTemplates {
-  static final String BASE_AGENT = "base-agent"
+  private static final String CLOUD_NAME = 'folio-tmp'
+  private static final String NAMESPACE = 'jenkins-agents'
+  private static final String SERVICE_ACCOUNT = 'jenkins-agent-sa'
 
   private Object steps
 
@@ -29,10 +32,10 @@ class PodTemplates {
 
   void defaultTemplate(Closure body) {
     steps.podTemplate(
-      cloud: 'folio-tmp',
+      cloud: CLOUD_NAME,
       label: 'default-agent',
-      namespace: 'jenkins-agents',
-      serviceAccount: 'jenkins-agent-sa',
+      namespace: NAMESPACE,
+      serviceAccount: SERVICE_ACCOUNT,
       nodeUsageMode: 'EXCLUSIVE',
       showRawYaml: debug,
       yamlMergeStrategy: new Overrides(),
@@ -40,6 +43,7 @@ class PodTemplates {
       workspaceVolume: steps.emptyDirWorkspaceVolume(),
       inheritYamlMergeStrategy: true,
       slaveConnectTimeout: 300,
+      hostNetwork: false,
       containers: [steps.containerTemplate(
         name: 'jnlp',
         image: '732722833398.dkr.ecr.us-west-2.amazonaws.com/folio-jenkins-agent:latest',
@@ -56,7 +60,8 @@ class PodTemplates {
     defaultTemplate {
       steps.podTemplate(label: 'java-agent', showRawYaml: debug,
         containers: [steps.containerTemplate(name: 'java', image: "amazoncorretto:${javaVersion}-alpine-jdk",
-          command: 'sleep', args: '99d')]) {
+          command: 'sleep', args: '99d')]
+      ) {
         logger.info("Java version: ${javaVersion}")
         body.call()
       }
@@ -66,7 +71,8 @@ class PodTemplates {
   void stripesTemplate(Closure body) {
     defaultTemplate {
       steps.podTemplate(label: 'stripes-agent', showRawYaml: debug,
-        containers: [steps.containerTemplate(name: 'jnlp', resourceRequestMemory: '8Gi', resourceLimitMemory: '9Gi')]) {
+        containers: [steps.containerTemplate(name: 'jnlp', resourceRequestMemory: '8Gi', resourceLimitMemory: '9Gi')]
+      ) {
         body.call()
       }
     }
