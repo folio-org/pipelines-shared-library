@@ -189,7 +189,7 @@ private List<String> _updatePackageJsonFile(TenantUi tenantUi) {
   List<String> uiModulesToAdd = []
 
   // Safely read the package.json file
-  Map packageJson
+  def packageJson
   try {
     packageJson = readJSON(file: packageJsonFile)
   } catch (Exception e) {
