@@ -144,7 +144,7 @@ Branch: ${params.MODULE_BRANCH}
 Config: ${params.CONFIG_TYPE}
 ${currentBuild.getBuildCauses()[0].shortDescription}"""
 
-        eureka.getExistedTenantsForModule(module).values()
+        eureka.getExistedTenantsFlow().values()
           .each {namespace.addTenant(it)}
 
         logger.debug("Configured Tenants: ${namespace.tenants}")
