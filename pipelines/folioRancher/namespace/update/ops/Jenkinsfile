@@ -115,6 +115,7 @@ EurekaNamespace namespace = new EurekaNamespace(params.CLUSTER, params.NAMESPACE
 namespace.addDeploymentConfig(folioTools.getPipelineBranch())
 
 Eureka eureka = new Eureka(this, namespace.generateDomain('kong'), namespace.generateDomain('keycloak'))
+List<EurekaModule> modules = []
 
 /** Pipeline */
 ansiColor('xterm') {
@@ -142,6 +143,9 @@ ansiColor('xterm') {
 Branch: ${params.MODULE_BRANCH}
 Config: ${params.CONFIG_TYPE}
 ${currentBuild.getBuildCauses()[0].shortDescription}"""
+
+        eureka.getExistedTenantsForModule(module).values()
+          .each {namespace.addTenant(it)}
 
         input message: "Let's wait"
 
