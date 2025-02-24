@@ -111,7 +111,7 @@ void build(String okapiUrl, OkapiTenant tenant, boolean isEureka = false, String
       String tokenUrl = "https://${keycloakDomain}/realms/master/protocol/openid-connect/token"
       String tokenBody = "grant_type=password&username=admin&password=SecretPassword&client_id=admin-cli"
 
-      Map response = client.post(tokenUrl, tokenBody, headers).body
+      def response = client.post(tokenUrl, tokenBody, headers).body
       String token = response['access_token']
       headers.put("Authorization", "Bearer ${token}")
 
