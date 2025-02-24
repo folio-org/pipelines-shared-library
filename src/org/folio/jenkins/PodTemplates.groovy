@@ -18,7 +18,7 @@ class PodTemplates {
     steps.podTemplate(inheritFrom: BASE_AGENT, label: 'java-agent',
       containers: [steps.containerTemplate(name: 'java', image: "amazoncorretto:${javaVersion}-alpine-jdk",
         command: 'sleep', args: '99d')]) {
-      logger.info('-' * 30 + "\nJava ${javaVersion} pod template in use!\n" + '-' * 30)
+      logger.info('\n' + '-' * 30 + "\nJava ${javaVersion} pod template in use!\n" + '-' * 30)
       body.call()
     }
   }
