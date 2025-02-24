@@ -250,7 +250,8 @@ class Constants {
                                 'jenkins-agent-java11',
                                 'jenkins-agent-java11-test',
                                 'jenkins-agent-java17',
-                                'jenkins-agent-java17-test']
+                                'jenkins-agent-java17-test',
+                                'jenkins-agent-java21']
 
   static String TERRAFORM_DOCKER_CLIENT = 'hashicorp/terraform:1.4'
   static String JENKINS_JOB_SCHEMA_COMPARE = '/Rancher/folioSchemaCompare'
@@ -333,7 +334,7 @@ class Constants {
 
   //RDS
   static String BUGFEST_SNAPSHOT_DBNAME = 'folio'
-  static String BUGFEST_SNAPSHOT_NAME = 'folio-etesting-sprint-february-2025-ecs-users-clean'
+  static String BUGFEST_SNAPSHOT_NAME = 'folio-etesting-sprint-february-2025-all-users-clean-v2'
 
   static Map JMX_METRICS_AVAILABLE = ['mod-bulk-operations': '2.0.0-SNAPSHOT.71']
 

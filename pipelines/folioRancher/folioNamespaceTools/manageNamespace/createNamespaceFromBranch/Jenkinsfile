@@ -26,7 +26,7 @@ properties([
     folioParameters.applications(),
     folioParameters.configType(),
     folioParameters.groupParameters("Environment features"
-      , [ "LOAD_REFERENCE", "LOAD_SAMPLE", "BUILD_UI", "CONSORTIA", "LINKED_DATA", "SPLIT_FILES"
+      , [ "LOAD_REFERENCE", "LOAD_SAMPLE", "BUILD_UI", "CONSORTIA", "LINKED_DATA", "MARC_MIGRATIONS", "SPLIT_FILES"
           , "RW_SPLIT", "ECS_CCL", "GREENMAIL", "MOCK_SERVER", "RTR", "DATASET", "TYPE"
           , "HAS_SECURE_TENANT", "SECURE_TENANT"
     ]),
@@ -37,6 +37,7 @@ properties([
     booleanParam(name: 'HAS_SECURE_TENANT', defaultValue: true, description: '(Optional) Set true to enable secure tenant on one of the consortia institutional tenant'),
     folioParameters.consortiaSecureMemberTenant(),
     booleanParam(name: 'LINKED_DATA', defaultValue: true, description: '(Optional) Set true to deploy LinkedData'),
+    booleanParam(name: 'MARC_MIGRATIONS', defaultValue: false, description: '(Optional) Set true to deploy Marc-Migrations'),
     booleanParam(name: 'SPLIT_FILES', defaultValue: true, description: '(Optional) Set true to enable split-files functionality'),
     booleanParam(name: 'RW_SPLIT', defaultValue: false, description: '(Optional) Set true to Enable Read/Write split'),
     booleanParam(name: 'ECS_CCL', defaultValue: false, description: '(Optional) Set true to enable ECS Circulation + Congressional loans functionality'),
@@ -132,6 +133,10 @@ if (params.CONSORTIA) {
 
 if (params.LINKED_DATA) {
   namespaceParams.folioExtensions.add('linked-data')
+}
+
+if (params.MARC_MIGRATIONS) {
+  namespaceParams.folioExtensions.add('marc-migrations')
 }
 
 RancherNamespace namespace = new RancherNamespace(namespaceParams.getClusterName(), namespaceParams.getNamespaceName())

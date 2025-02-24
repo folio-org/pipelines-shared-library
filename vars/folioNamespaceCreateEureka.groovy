@@ -288,7 +288,7 @@ void call(CreateNamespaceParameters args) {
         }
       }
       int counter = 0
-      retry(10) {
+      retry(20) {
         // The first wait time should be at least 10 minutes due to module's long time instantiation
         sleep time: (counter == 0 ? 10 : 2), unit: 'MINUTES'
         counter++
@@ -349,7 +349,7 @@ void call(CreateNamespaceParameters args) {
   } catch (Exception e) {
     println(e)
     //TODO: Add adequate slack notification https://folio-org.atlassian.net/browse/RANCHER-1892
-    slackSend(color: 'danger', message: "eureka-snapshot env build failed...\n" + "${env.BUILD_URL}", channel: args.dataset ? '#eureka-sprint-testing' : '#rancher_tests_notifications')
+    slackSend(color: 'danger', message: args.clusterName + "-" + args.namespaceName + " env build failed...\n" + "Console output: ${env.BUILD_URL}", channel: args.dataset ? '#eureka-sprint-testing' : '#rancher_tests_notifications')
     throw new Exception(e)
   }
 }

@@ -162,13 +162,13 @@ void execCommand(String namespace = 'default', String pod_name, String command) 
   }
 }
 
-void cleanUpAgreementsFedLocks(String namespace = 'default', int timer = 0, String tenantId = 'default') {
+void cleanUpAgreementsFedLocks(String namespace = 'default', int timer = 0, String moduleId = 'mod-agreements', String tenantId = 'default') {
   if (tenantId != 'default') { // condition for future use. DO NOT REMOVE!!!
-    println("Trying to cleanup ${tenantId}_mod_agreements.tenant_changelog_lock.")
+    println("Trying to cleanup ${tenantId}_${moduleId}.tenant_changelog_lock.")
     String pod = sh(script: "kubectl get pod -l 'app.kubernetes.io/name=pgadmin4' -o=name  --ignore-not-found=true --namespace ${namespace}", returnStdout: true).trim()
-    def check = sh(script: "kubectl logs -l 'app.kubernetes.io/name=mod-agreements' -c mod-agreements --namespace ${namespace}", returnStdout: true)
+    def check = sh(script: "kubectl logs -l 'app.kubernetes.io/name=$moduleId' -c $moduleId --namespace ${namespace}", returnStdout: true)
     check.contains(tenantId) ?
-      sh(script: "kubectl exec --request-timeout=10s --namespace=${namespace} ${pod} -- /usr/local/pgsql-16/psql -c 'TRUNCATE ${tenantId}_mod_agreements.tenant_changelog_lock'", returnStatus: false) :
+      sh(script: "kubectl exec --request-timeout=10s --namespace=${namespace} ${pod} -- /usr/local/pgsql-16/psql -c 'TRUNCATE ${tenantId}_${moduleId.replace('-', '_')}.tenant_changelog_lock'", returnStatus: false) :
       println("Entitling for tenant: ${tenantId} is not yet completed.")
   } else {
     try {
@@ -179,17 +179,17 @@ void cleanUpAgreementsFedLocks(String namespace = 'default', int timer = 0, Stri
         case 300:
           println("5 minutes passed. Trying to cleanup federation_lock table.")
           String pod = sh(script: "kubectl get pod -l 'app.kubernetes.io/name=pgadmin4' -o=name  --ignore-not-found=true --namespace ${namespace}", returnStdout: true).trim()
-          sh(script: "kubectl exec --request-timeout=10s --namespace=${namespace} ${pod} -- /usr/local/pgsql-16/psql -c 'TRUNCATE mod_agreements__system.federation_lock'", returnStatus: false)
+          sh(script: "kubectl exec --request-timeout=10s --namespace=${namespace} ${pod} -- /usr/local/pgsql-16/psql -c 'TRUNCATE ${moduleId.replace('-', '_')}__system.federation_lock'", returnStatus: false)
           break
         case 600:
-          println("10 minutes passed. Trying to delete mod-agreements pod(s).")
-          sh(script: "kubectl delete pod -l 'app.kubernetes.io/name=mod-agreements' --force --namespace ${namespace}", returnStatus: false)
+          println("10 minutes passed. Trying to delete $moduleId pod(s).")
+          sh(script: "kubectl delete pod -l 'app.kubernetes.io/name=${moduleId}' --force --namespace ${namespace}", returnStatus: false)
           break
         case 900:
-          println("15 minutes passed. Trying to delete mod-agreements pod(s) and cleanup federation_lock table.")
-          sh(script: "kubectl delete pod -l 'app.kubernetes.io/name=mod-agreements' --force --namespace ${namespace}", returnStatus: false)
+          println("15 minutes passed. Trying to delete $moduleId pod(s) and cleanup federation_lock table.")
+          sh(script: "kubectl delete pod -l 'app.kubernetes.io/name=$moduleId' --force --namespace ${namespace}", returnStatus: false)
           String pod = sh(script: "kubectl get pod -l 'app.kubernetes.io/name=pgadmin4' -o=name  --ignore-not-found=true --namespace ${namespace}", returnStdout: true).trim()
-          sh(script: "kubectl exec --request-timeout=10s --namespace=${namespace} ${pod} -- /usr/local/pgsql-16/psql -c 'TRUNCATE mod_agreements__system.federation_lock'", returnStatus: false)
+          sh(script: "kubectl exec --request-timeout=10s --namespace=${namespace} ${pod} -- /usr/local/pgsql-16/psql -c '${moduleId.replace('-', '_')}__system.federation_lock'", returnStatus: false)
           break
         default:
           println("Did not reach the expected time yet.")

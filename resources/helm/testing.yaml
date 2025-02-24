@@ -2694,9 +2694,9 @@ mod-marc-migrations:
   replicaCount: 1
   resources:
     limits:
-      memory: 640Mi
+      memory: 4096Mi
     requests:
-      memory: 512Mi
+      memory: 1024Mi
   autoscaling:
     enabled: true
     minReplicas: 1
@@ -4548,9 +4548,9 @@ mod-consortia-keycloak:
   replicaCount: 1
   resources:
     limits:
-      memory: 628Mi
+      memory: 1024Mi
     requests:
-      memory: 494Mi
+      memory: 512Mi
   sidecarContainers:
     eureka:
       extraEnvVars:
