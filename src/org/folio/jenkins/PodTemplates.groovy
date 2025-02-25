@@ -101,7 +101,7 @@ class PodTemplates {
       }
     }
   }
-  
+
   void cypressTemplate(Closure body) {
     defaultTemplate {
       steps.podTemplate(label: 'cypress-agent', showRawYaml: debug,
