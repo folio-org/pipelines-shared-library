@@ -147,8 +147,11 @@ void build(String okapiUrl, OkapiTenant tenant, boolean isEureka = false, String
 void deploy(RancherNamespace namespace, OkapiTenant tenant) {
   stage('[UI] Deploy bundle') {
     TenantUi tenantUi = tenant.getTenantUi()
-    folioHelm.withKubeConfig(namespace.getClusterName()) {
-      folioHelm.deployFolioModule(namespace, 'ui-bundle', tenantUi.getTag(), false, tenantUi.getTenantId())
+    def clusterName = namespace.getClusterName()
+    def tenantId = tenantUi.getTenantId()
+    def tag = tenantUi.getTag()
+    folioHelm.withKubeConfig(clusterName) {
+      folioHelm.deployFolioModule(namespace, 'ui-bundle' + tenantId, tag, false, tenantId)
     }
   }
 }
