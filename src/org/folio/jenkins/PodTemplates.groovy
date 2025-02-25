@@ -101,9 +101,19 @@ class PodTemplates {
       }
     }
   }
-
-  /**
-   * To be implemented in scope of cypress tests adoption
-   */
-  void cypressTemplate(Closure body) {}
+  
+  void cypressTemplate(Closure body) {
+    defaultTemplate {
+      steps.podTemplate(label: 'cypress-agent', showRawYaml: debug,
+        containers: [
+          steps.containerTemplate(
+            name: 'cypress',
+            image: '732722833398.dkr.ecr.us-west-2.amazonaws.com/cypress/browsers:latest',
+            command: 'sleep',
+            args: '99d')]
+      ) {
+        body.call()
+      }
+    }
+  }
 }
