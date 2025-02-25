@@ -12,9 +12,9 @@ import org.folio.utilities.Logger
 import org.folio.utilities.Tools
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-2074') _ // remove
 
-CONFIG_BRANCH = 'master'
+CONFIG_BRANCH = 'RANCHER-2074' // remove
 
 properties([buildDiscarder(logRotator(numToKeepStr: '30')),
             disableConcurrentBuilds(),
@@ -30,7 +30,7 @@ properties([buildDiscarder(logRotator(numToKeepStr: '30')),
                         folioParameters.s3Type(),
                         folioParameters.agent(),
                         folioParameters.refreshParameters()]),
-            pipelineTriggers([parameterizedCron('''45 20 * * * %CLUSTER=folio-testing;NAMESPACE=ecs-snapshot;CONFIG_TYPE=testing;CONSORTIA=true;RW_SPLIT=false;RETRY_ENABLE=false;POSTGRESQL=built-in;KAFKA=built-in;OPENSEARCH=aws;S3_BUCKET=built-in;AGENT=rancher''')])
+            //  pipelineTriggers([parameterizedCron('''45 20 * * 1-5 %CLUSTER=folio-testing;NAMESPACE=ecs-snapshot;CONFIG_TYPE=testing;CONSORTIA=true;RW_SPLIT=false;RETRY_ENABLE=false;POSTGRESQL=built-in;KAFKA=built-in;OPENSEARCH=aws;S3_BUCKET=built-in;AGENT=rancher''')])
 ])
 
 if (params.REFRESH_PARAMETERS) {
@@ -40,6 +40,7 @@ if (params.REFRESH_PARAMETERS) {
 
 String defaultTenantId = 'cs00000int'
 String sys_psswd = ''
+// String sys_psswd1 = '' //TMP
 
 TerraformConfig tfConfig = new TerraformConfig('terraform/rancher/project')
   .withWorkspace("${params.CLUSTER}-${params.NAMESPACE}")
@@ -130,11 +131,13 @@ ansiColor('xterm') {
 
           folioHelm.withKubeConfig(params.CLUSTER) {
             folioPrint.colored("Restoring psql ecs dump...\nEstimated duration: ~ 1-2 hours", "green")
-            psqlDumpMethods.restoreHelmData("psql-restore", "psql-dump", "1.0.6", "roles-backup",
-              "ecs-snapshot-02", Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME,
+            psqlDumpMethods.restoreHelmData("psql-restore", "psql-dump", "1.0.6", "roles-backup-05",
+              "ecs-snapshot-05", Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME,
               "ecs-snapshot", "${params.NAMESPACE}")
             sys_psswd = kubectl.getSecretValue(namespace.getNamespaceName(), 'mod-consortia-systemuser', 'SYSTEM_USER_PASSWORD')
             kubectl.patchSecret("mod-consortia-systemuser", "SYSTEM_USER_NAME", "consortia-system-user", "${params.NAMESPACE}")
+            // sys_psswd1 = kubectl.getSecretValue(namespace.getNamespaceName(), 'mod-search-systemuser', 'SYSTEM_USER_PASSWORD') //TMP
+            // kubectl.patchSecret("mod-search-systemuser", "SYSTEM_USER_USERNAME", "mod-search-system", "${params.NAMESPACE}")
           }
         }
       }
@@ -162,6 +165,7 @@ ansiColor('xterm') {
         Users users = new Users(this, namespace.generateDomain('okapi'))
         namespace.getModules().setInstallJsonObject(newInstallJson)
         OkapiUser okapiUser = new OkapiUser('consortia-system-user', sys_psswd)
+        // OkapiUser okapiUser1 = new OkapiUser('mod-search-system', sys_psswd1) //TMP
         namespace.setEnableConsortia(params.CONSORTIA, false)
         namespace.tenants.each { name, id ->
           switch (id.getTenantId()) {
@@ -179,6 +183,9 @@ ansiColor('xterm') {
           def user = users.getUserByName(id, okapiUser)
           okapiUser.setUuid(user.get('id'))
           users.resetUserPassword(id, okapiUser)
+          // def user1 = users.getUserByName(id, okapiUser1) //TMP
+          // okapiUser1.setUuid(user1.get('id'))
+          // users.resetUserPassword(id, okapiUser1)
           println('TenantId: ' + id.getTenantId() + "\nModules to enable:\n" + id.getModules().getInstallJson())
         }
         main.publishServiceDiscovery(namespace.getModules().getDiscoveryList())
@@ -236,7 +243,7 @@ ansiColor('xterm') {
           }
         }
 
-        slackSend(color: 'good', message: 'ecs-snapshot env successfully built', channel: '#rancher_tests_notifications')
+        slackSend(color: 'good', message: 'ecs-snapshot env successfully built', channel: '#arsen-test') //remove
       }
       stage('The rest components placeholder') {
         // GreenMail, LDP, Mock server, etc.
@@ -245,7 +252,7 @@ ansiColor('xterm') {
     } catch (e) {
       stage('Notify') {
         println "Caught exception: ${e}"
-        slackSend(color: 'danger', message: "ecs-snapshot env build failed...", channel: '#rancher_tests_notifications')
+        slackSend(color: 'danger', message: "ecs-snapshot env build failed...", channel: '#arsen-test') //remove
       }
       error(e.getMessage())
     } finally {
