@@ -151,7 +151,7 @@ void deploy(RancherNamespace namespace, OkapiTenant tenant) {
     def tenantId = tenantUi.getTenantId()
     def tag = tenantUi.getTag()
     folioHelm.withKubeConfig(clusterName) {
-      folioHelm.deployFolioModule(namespace, 'ui-bundle' + tenantId, tag, false, tenantId)
+      folioHelm.deployFolioModule(namespace, 'ui-bundle', tag, false, tenantId)
     }
   }
 }
