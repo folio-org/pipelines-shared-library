@@ -31,6 +31,7 @@ properties([buildDiscarder(logRotator(numToKeepStr: '60')),
         50 21 * * * %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=aggies
         25 22 * * * %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=bama
         0 23 * * * %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=citation
+        0 23 * * * %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=dojo
         0 22 * * * %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=corsair
         0 22 * * * %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=corsair-migration-testing
         55 21 * * * %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=dreamliner
@@ -49,6 +50,7 @@ properties([buildDiscarder(logRotator(numToKeepStr: '60')),
         30 22 * * * %ACTION=stop;CLUSTER=folio-tmp;NAMESPACE=test-1
         35 22 * * * %ACTION=stop;CLUSTER=folio-tmp;NAMESPACE=test-2
         0 23 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=citation
+        0 23 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=dojo
         10 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=corsair
         0 0 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=eureka
         0 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=firebird
