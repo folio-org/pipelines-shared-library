@@ -96,16 +96,17 @@ Map optionalSteps = [
 /** Pipeline variables */
 Logger logger = new Logger(this, env.JOB_BASE_NAME)
 
-logger.debug("Optional steps: ${params.OPTIONAL_STEPS}")
-
-EurekaModule module = new EurekaModule()
-module.name = params.MODULE_NAME
-
-String featureBranch = params.MODULE_BRANCH
-String featureHash = new GitHubClient(this).getBranchInfo(module.getName(), featureBranch).commit.sha.take(7)
-String mavenArguments = params.MAVEN_ARGS.trim()
-String commonGradleOpts = '--quiet --console plain --no-daemon'
-Map<String, String> updatedAppInfoMap = [:]
+//if(params.MODULE_SOURCE.contains('github')) {
+//  EurekaModule module = new EurekaModule()
+//  module.name = params.MODULE_NAME
+//
+//}
+//
+//String featureBranch = params.MODULE_BRANCH
+//String featureHash = new GitHubClient(this).getBranchInfo(module.getName(), featureBranch).commit.sha.take(7)
+//String mavenArguments = params.MAVEN_ARGS.trim()
+//String commonGradleOpts = '--quiet --console plain --no-daemon'
+//Map<String, String> updatedAppInfoMap = [:]
 
 /** Collect Rancher Namespace Configuration */
 EurekaNamespace namespace = new EurekaNamespace(params.CLUSTER, params.NAMESPACE)
@@ -143,16 +144,6 @@ ansiColor('xterm') {
 Branch: ${params.MODULE_BRANCH}
 Config: ${params.CONFIG_TYPE}
 ${currentBuild.getBuildCauses()[0].shortDescription}"""
-
-        eureka.getExistedTenantsFlow().values()
-          .each {namespace.addTenant(it)}
-
-        logger.debug("Configured Tenants: ${namespace.tenants}")
-        logger.debug("Configured Tenants: ${namespace.modules.installJsonObject}")
-
-        input message: "Let's wait"
-
-
 
         // Run extra init steps for non-Github module sources
         if (!params.MODULE_SOURCE.contains('github')) { // Non-Github module source: Load existed module descriptor and put it to ECR. Why put it to ECR?
@@ -192,6 +183,31 @@ ${currentBuild.getBuildCauses()[0].shortDescription}"""
             userRemoteConfigs: [[url: "https://github.com/folio-org/${module.name}.git"]]
           ])
         }
+      }
+
+      stage('Env scanning') { // GitHub. Build module source to artifact
+        eureka.getExistedTenantsFlow().values()
+                .each {namespace.addTenant(it)}
+
+        logger.debug("Configured Tenants: ${namespace.tenants}")
+        logger.debug("Configured Tenants: ${namespace.modules.installJsonObject}")
+
+
+        if(!params.UPDATE_ALL) {
+          EurekaModule module = new EurekaModule()
+          module.loadModuleDetails("${params.MODULE_NAME}-${params.MODULE_SOURCE.contains('github') ?   : params.CONTAINER_IMAGE_TAG}")
+
+          module.name = params.MODULE_NAME
+        }
+
+        if()
+          String featureBranch = params.MODULE_BRANCH
+        String featureHash = new GitHubClient(this).getBranchInfo(module.getName(), featureBranch).commit.sha.take(7)
+        String mavenArguments = params.MAVEN_ARGS.trim()
+        String commonGradleOpts = '--quiet --console plain --no-daemon'
+        Map<String, String> updatedAppInfoMap = [:]
+
+        input message: "Let's wait"
       }
 
       stage('[Maven/Gradle] Compile') { // GitHub. Build module source to artifact
@@ -275,3 +291,5 @@ ${currentBuild.getBuildCauses()[0].shortDescription}"""
     }
   }
 }
+
+String get
