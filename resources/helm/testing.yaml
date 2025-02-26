@@ -632,7 +632,7 @@ mod-agreements:
     db:
       enabled: true
       existingSecret: db-credentials
-  replicaCount: 1
+  replicaCount: 2
   resources:
     limits:
       memory: 3072Mi
