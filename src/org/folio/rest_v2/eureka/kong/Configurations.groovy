@@ -61,7 +61,7 @@ class Configurations extends Kong {
       return
     }
     String url = generateUrl("/eholdings/kb-credentials/${KB_CREDENTIALS_ID}")
-    Map<String, String> headers = getTenantHttpHeaders(tenant)
+    Map<String, String> headers = getTenantHttpHeaders(tenant, true)
     headers["Content-Type"] = "application/vnd.api+json"
     headers["X-Okapi-User-Id"] = tenant.getAdminUser().uuid
     Map body = [data: [type      : "kbCredentials",
