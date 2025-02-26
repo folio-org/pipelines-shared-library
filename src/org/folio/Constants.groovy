@@ -1,7 +1,7 @@
 package org.folio
 
+import org.folio.jenkins.JenkinsAgentLabel
 import org.folio.rest_v2.PlatformType
-
 import java.util.regex.Pattern
 
 class Constants {
@@ -248,15 +248,7 @@ class Constants {
   static String JENKINS_JOB_RESTORE_PG_BACKUP = 'Rancher/Create-Restore-PosgreSQL-DB-backup'
   static String JENKINS_JOB_CREATE_TENANT = 'Rancher/Update/create-tenant'
   static String JENKINS_JOB_BACKEND_MODULES_DEPLOY_BRANCH = '/Rancher/Update/backend-modules-deploy-branch'
-  static List JENKINS_AGENTS = ['base-agent',
-                                'cicd-agent',
-                                'rancher',
-                                'rancher||jenkins-agent-java11',
-                                'jenkins-agent-java11',
-                                'jenkins-agent-java11-test',
-                                'jenkins-agent-java17',
-                                'jenkins-agent-java17-test',
-                                'jenkins-agent-java21']
+  static List JENKINS_AGENTS = JenkinsAgentLabel.getAllLabels()
 
   static String TERRAFORM_DOCKER_CLIENT = 'hashicorp/terraform:1.4'
   static String JENKINS_JOB_SCHEMA_COMPARE = '/Rancher/folioSchemaCompare'
