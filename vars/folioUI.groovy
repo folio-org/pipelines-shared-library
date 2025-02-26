@@ -106,17 +106,17 @@ void build(String okapiUrl, OkapiTenant tenant, boolean isEureka = false, String
   stage('Update keycloak redirect') {
     if (isEureka) {
       String tenantId = tenant.getTenantId()
-      RestClient client = new RestClient(this)
+      RestClient client = new RestClient(this, true)
       Map headers = ['Content-Type': 'application/x-www-form-urlencoded']
       String tokenUrl = "https://${keycloakDomain}/realms/master/protocol/openid-connect/token"
       String tokenBody = "grant_type=password&username=admin&password=SecretPassword&client_id=admin-cli"
 
-      Map response = client.post(tokenUrl, tokenBody, headers).body
+      def response = client.post(tokenUrl, tokenBody, headers).body
       String token = response['access_token']
       headers.put("Authorization", "Bearer ${token}")
 
       String getRealmUrl = "https://${keycloakDomain}/admin/realms/${tenantId}/clients?clientId=${tenantId}-application"
-      List realm = client.get(getRealmUrl, headers).body
+      def realm = client.get(getRealmUrl, headers).body
 
       String updateRealmUrl = "https://${keycloakDomain}/admin/realms/${tenantId}/clients/${realm['id'].get(0)}"
       headers['Content-Type'] = 'application/json'
@@ -147,8 +147,11 @@ void build(String okapiUrl, OkapiTenant tenant, boolean isEureka = false, String
 void deploy(RancherNamespace namespace, OkapiTenant tenant) {
   stage('[UI] Deploy bundle') {
     TenantUi tenantUi = tenant.getTenantUi()
-    folioHelm.withKubeConfig(namespace.getClusterName()) {
-      folioHelm.deployFolioModule(namespace, 'ui-bundle', tenantUi.getTag(), false, tenantUi.getTenantId())
+    def clusterName = namespace.getClusterName()
+    def tenantId = tenantUi.getTenantId()
+    def tag = tenantUi.getTag()
+    folioHelm.withKubeConfig(clusterName) {
+      folioHelm.deployFolioModule(namespace, 'ui-bundle', tag, false, tenantId)
     }
   }
 }
@@ -189,7 +192,7 @@ private List<String> _updatePackageJsonFile(TenantUi tenantUi) {
   List<String> uiModulesToAdd = []
 
   // Safely read the package.json file
-  Map packageJson
+  def packageJson
   try {
     packageJson = readJSON(file: packageJsonFile)
   } catch (Exception e) {
