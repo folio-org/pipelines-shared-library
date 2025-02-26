@@ -1,58 +1,64 @@
 #!groovy
 
 import org.folio.Constants
+import org.folio.jenkins.JenkinsAgentLabel
+import org.folio.jenkins.PodTemplates
 import org.folio.models.OkapiTenant
 import org.folio.models.RancherNamespace
 import org.folio.models.TenantUi
 
 void build(String okapiUrl, OkapiTenant tenant) {
-  final String baseDir = "platform-complete-${tenant.getTenantId()}"
   TenantUi tenantUi = tenant.getTenantUi()
+  PodTemplates podTemplates = new PodTemplates(this, true)
 
-  stage('[UI] Checkout') {
-    dir(baseDir) {
-      cleanWs()
-    }
-    checkout([$class           : 'GitSCM',
-              branches         : [[name: tenantUi.getHash()]],
-              extensions       : [[$class: 'CleanBeforeCheckout', deleteUntrackedNestedRepositories: true],
-                                  [$class: 'RelativeTargetDirectory', relativeTargetDir: baseDir]],
-              userRemoteConfigs: [[url: 'https://github.com/folio-org/platform-complete.git']]])
-  }
+  podTemplates.stripesTemplate {
+    node(JenkinsAgentLabel.STRIPES_AGENT.getLabel()) {
+      stage('[UI] Checkout') {
+        cleanWs()
 
-  stage('[UI] Add folio extensions') {
-    if (tenantUi.getCustomUiModules()) {
-      dir(baseDir) {
-        List uiModulesToAdd = _updatePackageJsonFile(tenantUi)
-        _updateStripesConfigJsFile(uiModulesToAdd)
+        checkout([$class           : 'GitSCM',
+                  branches         : [[name: tenantUi.getHash()]],
+                  extensions       : [[$class: 'CleanBeforeCheckout', deleteUntrackedNestedRepositories: true]],
+                  userRemoteConfigs: [[url: "${Constants.FOLIO_GITHUB_URL}/platform-complete.git"]]])
+      }
+
+      stage('[UI] Add folio extensions') {
+        if (tenantUi.getCustomUiModules()) {
+          List uiModulesToAdd = _updatePackageJsonFile(tenantUi)
+          _updateStripesConfigJsFile(uiModulesToAdd)
+        }
+      }
+
+      stage('[UI] Build and Push') {
+        container('kaniko') {
+          withAWS(credentials: Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID, region: Constants.AWS_REGION) {
+            ecrLogin()
+            folioKaniko.dockerHubLogin()
+            // Add YARN_CACHE_FOLDER to the Dockerfile
+            sh "sed -i '/^FROM /a ENV YARN_CACHE_FOLDER=${WORKSPACE}/.cache/yarn' docker/Dockerfile"
+            // Build and push the image
+            sh """/kaniko/executor --destination ${tenantUi.getImageName()} \
+--build-arg OKAPI_URL=${okapiUrl} \
+--build-arg TENANT_ID=${tenant.getTenantId()} \
+--dockerfile docker/Dockerfile --context ."""
+          }
+        }
       }
     }
-  }
-  stage('[UI] Build and Push') {
-    dir(baseDir) {
-      docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
-        def image = docker.build(
-          tenantUi.getImageName(),
-          "--build-arg OKAPI_URL=${okapiUrl} " +
-            "--build-arg TENANT_ID=${tenant.getTenantId()} " +
-            "-f docker/Dockerfile " +
-            "."
-        )
-        image.push()
-      }
-    }
-  }
-
-  stage('[UI] Cleanup') {
-    common.removeImage(tenantUi.getImageName())
   }
 }
 
 void deploy(RancherNamespace namespace, OkapiTenant tenant) {
-  stage('[UI] Deploy bundle') {
-    TenantUi tenantUi = tenant.getTenantUi()
-    folioHelm.withKubeConfig(namespace.getClusterName()) {
-      folioHelm.deployFolioModule(namespace, 'ui-bundle', tenantUi.getTag(), false, tenantUi.getTenantId())
+  PodTemplates podTemplates = new PodTemplates(this)
+
+  podTemplates.defaultTemplate {
+    node(JenkinsAgentLabel.DEFAULT_AGENT.getLabel()) {
+      stage('[UI] Deploy bundle') {
+        TenantUi tenantUi = tenant.getTenantUi()
+        folioHelm.withKubeConfig(namespace.getClusterName()) {
+          folioHelm.deployFolioModule(namespace, 'ui-bundle', tenantUi.getTag(), false, tenantUi.getTenantId())
+        }
+      }
     }
   }
 }
