@@ -48,8 +48,9 @@ private def _paramExtendedSingleSelect(String name, String reference, String scr
                                                   script   : script]]]
 }
 
+@Deprecated
 def agent() {
-  return _paramChoice('AGENT', Constants.JENKINS_AGENTS, 'Select Jenkins agent for build')
+  return _paramChoice('AGENT', [], 'Select Jenkins agent for build')
 }
 
 def cypressAgent() {
