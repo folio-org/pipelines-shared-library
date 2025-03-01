@@ -17,6 +17,18 @@ enum ProjectType {
 @Field
 Logger logger = new Logger(Jenkinsfile, env.JOB_BASE_NAME)
 
+properties([
+  parameters([
+    folioParameters.moduleName(null), // MODULE_NAME, Folio Module moduleName
+    folioParameters.branchWithRef('MODULE_BRANCH', 'MODULE_NAME'), // MODULE_BRANCH, Module Github branch
+    string(name: 'MAVEN_ARGS', defaultValue: '-DskipTests', description: 'Maven build arguments'),
+    booleanParam(name: 'PUSH_IMAGE_TO_ECR', defaultValue: true, description: 'Set true to push built image to the ECR repository'),
+    booleanParam(name: 'PUSH_DESCRIPTOR_TO_ECR', defaultValue: true, description: 'Set true to push module descriptor to the ECR repository'),
+    folioParameters.agent(Constants.JENKINS_AGENTS_BUILD_MODULE),
+    folioParameters.refreshParameters()
+  ])
+])
+
 pipeline {
   agent {
     label params.AGENT
@@ -27,16 +39,6 @@ pipeline {
     ansiColor('xterm')
     skipDefaultCheckout(true)
     timestamps()
-  }
-
-  parameters {
-    folioParameters.moduleName(null)
-    folioParameters.branchWithRef('MODULE_BRANCH', 'MODULE_NAME')
-    string(name: 'MAVEN_ARGS', defaultValue: '-DskipTests', description: 'Maven build arguments')
-    booleanParam(name: 'PUSH_IMAGE_TO_ECR', defaultValue: true, description: 'Set true to push built image to the ECR repository')
-    booleanParam(name: 'PUSH_DESCRIPTOR_TO_ECR', defaultValue: true, description: 'Set true to push module descriptor to the ECR repository')
-    folioParameters.agent(Constants.JENKINS_AGENTS_BUILD_MODULE)
-    folioParameters.refreshParameters()
   }
 
   environment {
