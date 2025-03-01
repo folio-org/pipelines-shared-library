@@ -15,7 +15,7 @@ enum ProjectType {
 }
 
 @Field
-Logger logger = new Logger(Jenkinsfile, env.JOB_BASE_NAME)
+Logger logger = new Logger(this, env.JOB_BASE_NAME)
 
 properties([
   parameters([
