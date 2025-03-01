@@ -29,15 +29,15 @@ pipeline {
     timestamps()
   }
 
-  parameters([
-    folioParameters.moduleName(null),
-    folioParameters.branchWithRef('MODULE_BRANCH', 'MODULE_NAME'),
-    string(name: 'MAVEN_ARGS', defaultValue: '-DskipTests', description: 'Maven build arguments'),
-    booleanParam(name: 'PUSH_IMAGE_TO_ECR', defaultValue: true, description: 'Set true to push built image to the ECR repository'),
-    booleanParam(name: 'PUSH_DESCRIPTOR_TO_ECR', defaultValue: true, description: 'Set true to push module descriptor to the ECR repository'),
-    folioParameters.agent(Constants.JENKINS_AGENTS_BUILD_MODULE),
+  parameters {
+    folioParameters.moduleName(null)
+    folioParameters.branchWithRef('MODULE_BRANCH', 'MODULE_NAME')
+    string(name: 'MAVEN_ARGS', defaultValue: '-DskipTests', description: 'Maven build arguments')
+    booleanParam(name: 'PUSH_IMAGE_TO_ECR', defaultValue: true, description: 'Set true to push built image to the ECR repository')
+    booleanParam(name: 'PUSH_DESCRIPTOR_TO_ECR', defaultValue: true, description: 'Set true to push module descriptor to the ECR repository')
+    folioParameters.agent(Constants.JENKINS_AGENTS_BUILD_MODULE)
     folioParameters.refreshParameters()
-  ])
+  }
 
   environment {
     MODULE_NAME   = "${params.MODULE_NAME}"
