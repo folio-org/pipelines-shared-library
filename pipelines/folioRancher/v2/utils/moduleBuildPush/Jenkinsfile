@@ -1,0 +1,267 @@
+//file:noinspection GroovyAssignabilityCheck
+package folioRancher.v2.utils.moduleBuildPush
+
+import groovy.transform.Field
+import org.folio.Constants
+import org.folio.utilities.GitHubClient
+import org.folio.utilities.Logger
+import org.jenkinsci.plugins.workflow.libs.Library
+
+//TODO: Switch to the RANCHER-1334
+@Library('pipelines-shared-library@RANCHER-2057-test') _
+
+enum ProjectType {
+  MAVEN, GRADLE
+}
+
+@Field
+Logger logger = new Logger(Jenkinsfile, env.JOB_BASE_NAME)
+
+pipeline {
+  agent {
+    label params.AGENT
+  }
+
+  options {
+    buildDiscarder(logRotator(numToKeepStr: '30'))
+    ansiColor('xterm')
+    skipDefaultCheckout(true)
+    timestamps()
+  }
+
+  parameters([
+    folioParameters.moduleName(null),
+    folioParameters.branchWithRef('MODULE_BRANCH', 'MODULE_NAME'),
+    string(name: 'MAVEN_ARGS', defaultValue: '-DskipTests', description: 'Maven build arguments'),
+    booleanParam(name: 'PUSH_IMAGE_TO_ECR', defaultValue: true, description: 'Set true to push built image to the ECR repository'),
+    booleanParam(name: 'PUSH_DESCRIPTOR_TO_ECR', defaultValue: true, description: 'Set true to push module descriptor to the ECR repository'),
+    folioParameters.agent(Constants.JENKINS_AGENTS_BUILD_MODULE),
+    folioParameters.refreshParameters()
+  ])
+
+  environment {
+    MODULE_NAME   = "${params.MODULE_NAME}"
+    MODULE_BRANCH = "${params.MODULE_BRANCH}"
+    MAVEN_ARGS    = "${params.MAVEN_ARGS}".trim()
+    GRADLE_OPTS   = "--quiet --console plain --no-daemon"
+  }
+
+  stages {
+    stage('Parameter Check') {
+      when {
+        expression { return params.REFRESH_PARAMETERS }
+      }
+      steps {
+        script {
+          logger.info("REFRESH_PARAMETERS is true. Aborting build.")
+          currentBuild.result = 'ABORTED'
+        }
+      }
+    }
+
+    stage('Init') {
+      steps {
+        script {
+          currentBuild.displayName = "#${env.MODULE_NAME}.${env.BUILD_ID}"
+          currentBuild.description = "Module: ${env.MODULE_NAME}\nBranch: ${env.MODULE_BRANCH}"
+        }
+      }
+    }
+
+    stage('[Git] Checkout module source') {
+      steps {
+        checkout([
+          $class           : 'GitSCM',
+          branches         : [[name: "*/${env.MODULE_BRANCH}"]],
+          extensions       : [[$class: 'RelativeTargetDirectory', relativeTargetDir: ${env.MODULE_NAME}],
+                              [$class: 'CleanBeforeCheckout', deleteUntrackedNestedRepositories: true],
+                              [$class: 'AuthorInChangelog'],
+                              [$class: 'SubmoduleOption', recursiveSubmodules: true]],
+          userRemoteConfigs: [[url: "https://github.com/folio-org/${env.MODULE_NAME}.git"]]
+        ])
+      }
+    }
+
+    stage('[Maven/Gradle] Compile') {
+      steps {
+        script {
+          String commitHash = new GitHubClient(Jenkinsfile).getBranchInfo(env.MODULE_NAME, env.MODULE_BRANCH).commit.sha.take(7)
+          String moduleId = compile(env.MODULE_NAME, commitHash, env.MAVEN_ARGS, env.GRADLE_OPTS)
+
+          currentBuild.description = "Module: ${moduleId}\nBranch: ${env.MODULE_BRANCH}"
+        }
+      }
+    }
+  }
+
+  post {
+    always {
+      script {
+        logger.info("Workspace size: ${sh(returnStdout: true, script: 'du -sh .').trim()}")
+      }
+      cleanWs deleteDirs: true, notFailBuild: true
+    }
+    failure {
+      script {
+        logger.error("Build failed.")
+      }
+    }
+  }
+}
+
+//properties([
+//  buildDiscarder(logRotator(numToKeepStr: '30')),
+//  parameters([
+//    folioParameters.moduleName(null), // MODULE_NAME, Folio Module moduleName
+//    folioParameters.branchWithRef('MODULE_BRANCH', 'MODULE_NAME'), // MODULE_BRANCH, Module Github branch
+//    string(name: 'MAVEN_ARGS', defaultValue: '-DskipTests', description: 'Maven build arguments'),
+//    booleanParam(name: 'PUSH_IMAGE_TO_ECR', defaultValue: true, description: 'Set true to push built image to the ECR repository'),
+//    booleanParam(name: 'PUSH_DESCRIPTOR_TO_ECR', defaultValue: true, description: 'Set true to push module descriptor to the ECR repository'),
+//    folioParameters.agent(Constants.JENKINS_AGENTS_BUILD_MODULE),
+//    folioParameters.refreshParameters()
+//  ])
+//])
+//
+//if (params.REFRESH_PARAMETERS) {
+//  currentBuild.result = 'ABORTED'
+//  return
+//}
+//
+//@Field
+//Logger logger = new Logger(Jenkinsfile, env.JOB_BASE_NAME)
+//
+//String moduleName = params.MODULE_NAME
+//String branch = params.MODULE_BRANCH
+//String mavenArgs = params.MAVEN_ARGS.trim()
+//String gradleOpts = '--quiet --console plain --no-daemon'
+//
+//ansiColor('xterm') {
+//  node(params.AGENT) {
+//    try {
+//      stage('Init') {
+//        buildName "#${params.MODULE_NAME}.${env.BUILD_ID}"
+//
+//        buildDescription """Module: $moduleName
+//Branch: ${branch}"""
+//      }
+//
+//      stage('[Git] Checkout module source') { // GitHub. Download module source to build
+//        checkout([
+//          $class           : 'GitSCM',
+//          branches         : [[name: "*/${branch}"]],
+//          extensions       : [[$class: 'RelativeTargetDirectory', relativeTargetDir: $moduleName],
+//                              [$class: 'CleanBeforeCheckout', deleteUntrackedNestedRepositories: true],
+//                              [$class: 'AuthorInChangelog'],
+//                              [$class: 'SubmoduleOption', recursiveSubmodules: true]],
+//          userRemoteConfigs: [[url: "https://github.com/folio-org/${moduleName}.git"]]
+//        ])
+//      }
+//
+//      stage('[Maven/Gradle] Build artifact') {
+//        String commitHash = new GitHubClient(Jenkinsfile).getBranchInfo(moduleName, branch).commit.sha.take(7)
+//        String moduleId = compile(moduleName, commitHash, mavenArgs, gradleOpts)
+//
+//        buildDescription """Module: $moduleId
+//Branch: ${branch}"""
+//      }
+//
+//      stage('[Docker] Build and push') {
+//        when {
+//          expression { return params.PUSH_IMAGE_TO_ECR }
+//        }
+//        steps {
+//          script {
+//            deployAppModule.buildAndPushContainerImage(logger, module)
+//          }
+//        }
+//      }
+//
+//      stage('[CURL] Upload module descriptor') {
+//        when {
+//          expression { return params.PUSH_DESCRIPTOR_TO_ECR }
+//        }
+//        steps {
+//          script {
+//            deployAppModule.putModuleDescriptorToRegistry(logger, module)
+//          }
+//        }
+//      }
+//    } catch (e) {
+//      logger.warning("Caught exception: ${e}")
+//      error(e.getMessage())
+//    } finally {
+//      stage('Cleanup') {
+//        logger.debug("Workspace size: ${sh(returnStdout: true, script: 'du -sh .').trim()}")
+//        cleanWs notFailBuild: true
+//      }
+//    }
+//  }
+//}
+
+String compileMaven(String moduleName, String commitHash, String mavenArgs) {
+  logger.info("Maven build tool is used")
+  String buildDir = "${env.WORKSPACE}/${moduleName}"
+
+  dir(buildDir) {
+    String moduleVersion = readMavenPom(file: 'pom.xml').version
+
+    moduleVersion += ".$commitHash"
+
+    withMaven(
+      jdk: "${common.selectJavaBasedOnAgent(params.AGENT)}".toString(),
+      maven: Constants.MAVEN_TOOL_NAME,
+      traceability: false,
+      options: [artifactsPublisher(disabled: true)])
+      {
+        sh(
+          label: 'Build with Maven', script: """
+            mvn versions:set -DnewVersion=${moduleVersion}
+            mvn package ${mavenArgs}
+          """.stripIndent().trim()
+        )
+      }
+
+    return "${moduleName}-${moduleVersion}"
+  }
+}
+
+String compileGradle(String moduleName, String commitHash, String gradleOpts) {
+  logger.info("Gradle build tool is used")
+  String buildDir = "${env.WORKSPACE}/${moduleName}/service"
+
+  dir(buildDir) {
+    String moduleVersion = readProperties(file: "gradle.properties")['appVersion']
+
+    if(!moduleVersion.contains("-SNAPSHOT")) {
+      moduleVersion += "-SNAPSHOT"
+    }
+
+    moduleVersion += ".$commitHash"
+
+    sh(label: 'Build with Gradle', script: "./gradlew ${gradleOpts} -PappVersion=${moduleVersion} assemble")
+
+    return "${moduleName}-${moduleVersion}"
+  }
+}
+
+String compile(String moduleName, String commitHash, String mavenArgs, String gradleOpts) {
+  switch (getProjectType(moduleName)) {
+    case ProjectType.MAVEN:
+      return compileMaven(moduleName, commitHash, mavenArgs)
+      break
+
+    case ProjectType.GRADLE:
+      return compileGradle(moduleName, commitHash, gradleOpts)
+      break
+
+    default:
+      throw new RuntimeException("Unsupported build tool for module: ${moduleName}")
+  }
+}
+
+ProjectType getProjectType(String moduleName){
+  boolean hasPom = fileExists("${moduleName}/pom.xml")
+  boolean hasGradle = fileExists("${moduleName}/build.gradle") || fileExists("${moduleName}/service/build.gradle")
+
+  return hasPom ? ProjectType.MAVEN : (hasGradle ? ProjectType.GRADLE : null)
+}

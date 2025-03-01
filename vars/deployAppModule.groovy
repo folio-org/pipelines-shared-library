@@ -4,94 +4,94 @@ import org.folio.rest_v2.eureka.Eureka
 import org.folio.utilities.Logger
 import org.folio.models.module.EurekaModule
 
-/**
- * Compile Application Module with Maven
- * @param logger Logger object to log messages
- * @param module EurekaModule object representing the Application Module
- * @param featureHash Commit hash of the feature branch
- * @param mavenArguments Maven arguments to be used for the build
- */
-def compileMaven(Logger logger, EurekaModule module, String featureHash, String mavenArguments) {
-  logger.info("Maven build tool is used")
-  module.buildDir = "${env.WORKSPACE}/${module.name}"
-
-  dir(module.buildDir) {
-    // Read module version from ./pom.xml
-    String moduleVersion = readMavenPom(file: 'pom.xml').version
-
-    // Load Module Details for Maven build
-    module.loadModuleDetails("${module.name}-${moduleVersion}.${featureHash}")
-
-    // Build Module as Maven Project
-    withMaven(
-      jdk: "${common.selectJavaBasedOnAgent(params.AGENT)}".toString(),
-      maven: Constants.MAVEN_TOOL_NAME,
-      traceability: false,
-      options: [artifactsPublisher(disabled: true)])
-      {
-        sh(
-          label: 'Build with Maven', script: """
-            mvn versions:set -DnewVersion=${module.getVersion()}
-            mvn package ${mavenArguments}
-          """.stripIndent().trim()
-        )
-      }
-  }
-}
-
-/**
- * Compile Application Module with Gradle
- * @param logger Logger object to log messages
- * @param module EurekaModule object representing the Application Module
- * @param featureHash Commit hash of the feature branch
- * @param commonGradleOpts Common Gradle options to be used for the build
- */
-def compileGradle(Logger logger, EurekaModule module, String featureHash, String commonGradleOpts) {
-  logger.info("Gradle build tool is used")
-  module.buildDir = "${env.WORKSPACE}/${module.name}/service"
-
-  dir(module.buildDir) {
-    // Read module version from gradle.properties
-    String moduleVersion = readProperties(file: "gradle.properties")['appVersion']
-
-    // Append -SNAPSHOT to the version if it's not a snapshot version
-    if(!moduleVersion.contains("-SNAPSHOT")) {
-      moduleVersion += "-SNAPSHOT"
-    }
-
-    // Load Module Details for Gradle builds
-    module.loadModuleDetails("${module.name}-${moduleVersion}.${featureHash}")
-
-    // Build Module as Gradle Project
-    sh(label: 'Build with Gradle', script: "./gradlew ${commonGradleOpts} -PappVersion=${module.getVersion()} assemble")
-  }
-}
-
-/**
- * Compile Application Module
- * @param logger Logger object to log messages
- * @param module EurekaModule object representing the Application Module
- * @param featureHash Commit hash of the feature branch
- * @param mavenArguments Maven arguments to be used for the build
- * @param commonGradleOpts Common Gradle options to be used for the build
- */
-def compile(Logger logger, EurekaModule module, String featureHash, String mavenArguments, String commonGradleOpts) {
-  // Check if Maven or Gradle build tool is used
-  module.buildTool = fileExists("${module.name}/pom.xml") ? 'maven' : 'gradle'
-
-  switch (module.buildTool) {
-    case 'maven':
-      compileMaven(logger, module, featureHash, mavenArguments)
-      break
-
-    case 'gradle':
-      compileGradle(logger, module, featureHash, commonGradleOpts)
-      break
-
-    default:
-      throw new RuntimeException("Unsupported build tool for Eureka module: ${module.buildTool}")
-  }
-}
+///**
+// * Compile Application Module with Maven
+// * @param logger Logger object to log messages
+// * @param module EurekaModule object representing the Application Module
+// * @param featureHash Commit hash of the feature branch
+// * @param mavenArguments Maven arguments to be used for the build
+// */
+//def compileMaven(Logger logger, EurekaModule module, String featureHash, String mavenArguments) {
+//  logger.info("Maven build tool is used")
+//  module.buildDir = "${env.WORKSPACE}/${module.name}"
+//
+//  dir(module.buildDir) {
+//    // Read module version from ./pom.xml
+//    String moduleVersion = readMavenPom(file: 'pom.xml').version
+//
+//    // Load Module Details for Maven build
+//    module.loadModuleDetails("${module.name}-${moduleVersion}.${featureHash}")
+//
+//    // Build Module as Maven Project
+//    withMaven(
+//      jdk: "${common.selectJavaBasedOnAgent(params.AGENT)}".toString(),
+//      maven: Constants.MAVEN_TOOL_NAME,
+//      traceability: false,
+//      options: [artifactsPublisher(disabled: true)])
+//      {
+//        sh(
+//          label: 'Build with Maven', script: """
+//            mvn versions:set -DnewVersion=${module.getVersion()}
+//            mvn package ${mavenArguments}
+//          """.stripIndent().trim()
+//        )
+//      }
+//  }
+//}
+//
+///**
+// * Compile Application Module with Gradle
+// * @param logger Logger object to log messages
+// * @param module EurekaModule object representing the Application Module
+// * @param featureHash Commit hash of the feature branch
+// * @param commonGradleOpts Common Gradle options to be used for the build
+// */
+//def compileGradle(Logger logger, EurekaModule module, String featureHash, String commonGradleOpts) {
+//  logger.info("Gradle build tool is used")
+//  module.buildDir = "${env.WORKSPACE}/${module.name}/service"
+//
+//  dir(module.buildDir) {
+//    // Read module version from gradle.properties
+//    String moduleVersion = readProperties(file: "gradle.properties")['appVersion']
+//
+//    // Append -SNAPSHOT to the version if it's not a snapshot version
+//    if(!moduleVersion.contains("-SNAPSHOT")) {
+//      moduleVersion += "-SNAPSHOT"
+//    }
+//
+//    // Load Module Details for Gradle builds
+//    module.loadModuleDetails("${module.name}-${moduleVersion}.${featureHash}")
+//
+//    // Build Module as Gradle Project
+//    sh(label: 'Build with Gradle', script: "./gradlew ${commonGradleOpts} -PappVersion=${module.getVersion()} assemble")
+//  }
+//}
+//
+///**
+// * Compile Application Module
+// * @param logger Logger object to log messages
+// * @param module EurekaModule object representing the Application Module
+// * @param featureHash Commit hash of the feature branch
+// * @param mavenArguments Maven arguments to be used for the build
+// * @param commonGradleOpts Common Gradle options to be used for the build
+// */
+//def compile(Logger logger, EurekaModule module, String featureHash, String mavenArguments, String commonGradleOpts) {
+//  // Check if Maven or Gradle build tool is used
+//  module.buildTool = fileExists("${module.name}/pom.xml") ? 'maven' : 'gradle'
+//
+//  switch (module.buildTool) {
+//    case 'maven':
+//      compileMaven(logger, module, featureHash, mavenArguments)
+//      break
+//
+//    case 'gradle':
+//      compileGradle(logger, module, featureHash, commonGradleOpts)
+//      break
+//
+//    default:
+//      throw new RuntimeException("Unsupported build tool for Eureka module: ${module.buildTool}")
+//  }
+//}
 
 /**
  * Build Container Image with Application Module and Push to AWS ECR Container Registry

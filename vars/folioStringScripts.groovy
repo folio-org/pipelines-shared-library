@@ -88,8 +88,12 @@ static String getModuleId(String moduleName) {
 }
 
 static String getBackendModulesList(PlatformType platform = PlatformType.OKAPI){
-  String filter = platform == PlatformType.OKAPI ? "it == 'okapi' || it.startsWith('mod-') || it.startsWith('edge-')" :
-    "it == 'folio-kong' || it == 'folio-keycloak' || it.startsWith('mod-') || it.startsWith('edge-') || it.startsWith('mgr-')"
+  String OKAPISpecific = "it == 'okapi'"
+  String EUREKASpecific = "it == 'folio-kong' || it == 'folio-keycloak' || it.startsWith('mgr-')"
+
+  String filter = "it.startsWith('mod-') || it.startsWith('edge-')"
+  filter = (!platform || platform == PlatformType.OKAPI ? "${filter} || ${OKAPISpecific}" : filter)
+  filter = (!platform || platform == PlatformType.EUREKA ? "${filter} || ${EUREKASpecific}" : filter)
 
   return """import groovy.json.JsonSlurperClassic
 def apiUrl = "https://api.github.com/orgs/folio-org/repos"
