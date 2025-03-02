@@ -69,25 +69,25 @@ Branch: ${branch}"""
 
       stage('[Docker] Build image and push') {
         if (!params.PUSH_IMAGE_TO_ECR) {
-          logger.info("Skip [Docker] Build image and push")
+          logger.info("Skip [Docker] Build image and push stage")
           Utils.markStageSkippedForConditional('[Docker] Build image and push')
         }
 
-        input message: "Let's wait"
+        input message: "Let's wait 1"
 
-        deployAppModule.buildAndPushContainerImage(logger, module)
+//        deployAppModule.buildAndPushContainerImage(logger, module)
       }
 
-//      stage('[CURL] Upload module descriptor') {
-//        when {
-//          expression { return params.PUSH_DESCRIPTOR_TO_ECR }
-//        }
-//        steps {
-//          script {
-//            deployAppModule.putModuleDescriptorToRegistry(logger, module)
-//          }
-//        }
-//      }
+      stage('[CURL] Upload module descriptor') {
+        if (!params.PUSH_DESCRIPTOR_TO_ECR) {
+          logger.info("Skip [CURL] Upload module descriptor stage")
+          Utils.markStageSkippedForConditional('[CURL] Upload module descriptor')
+        }
+
+        input message: "Let's wait 2"
+
+//        deployAppModule.putModuleDescriptorToRegistry(logger, module)
+      }
     } catch (e) {
       logger.warning("Caught exception: ${e}")
       error(e.getMessage())
