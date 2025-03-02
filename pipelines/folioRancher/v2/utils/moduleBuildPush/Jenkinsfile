@@ -165,5 +165,7 @@ ProjectType getProjectType(String moduleName){
   boolean hasPom = fileExists("${moduleName}/pom.xml")
   boolean hasGradle = fileExists("${moduleName}/build.gradle") || fileExists("${moduleName}/service/build.gradle")
 
+  println("hasPom: ${hasPom}, hasGradle: ${hasGradle}")
+
   return hasPom ? ProjectType.MAVEN : (hasGradle ? ProjectType.GRADLE : null)
 }
