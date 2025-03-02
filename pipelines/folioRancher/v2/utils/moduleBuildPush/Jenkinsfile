@@ -68,7 +68,7 @@ Branch: ${branch}"""
 Branch: ${branch}"""
       }
 
-      stage('[Docker] Build and push') {
+      stage('[Docker] Build image and push') {
         when {
           expression { return params.PUSH_IMAGE_TO_ECR }
         }
