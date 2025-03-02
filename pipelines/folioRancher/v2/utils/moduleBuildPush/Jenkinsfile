@@ -32,7 +32,7 @@ if (params.REFRESH_PARAMETERS) {
 }
 
 @Field
-Logger logger = new Logger(Jenkinsfile, env.JOB_BASE_NAME)
+Logger logger = new Logger(this, env.JOB_BASE_NAME)
 
 String moduleName = params.MODULE_NAME
 String branch = params.MODULE_BRANCH
