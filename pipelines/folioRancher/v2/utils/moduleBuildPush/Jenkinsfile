@@ -52,7 +52,7 @@ Branch: ${branch}"""
         checkout([
           $class           : 'GitSCM',
           branches         : [[name: "*/${branch}"]],
-          extensions       : [[$class: 'RelativeTargetDirectory', relativeTargetDir: $moduleName],
+          extensions       : [[$class: 'RelativeTargetDirectory', relativeTargetDir: moduleName],
                               [$class: 'CleanBeforeCheckout', deleteUntrackedNestedRepositories: true],
                               [$class: 'AuthorInChangelog'],
                               [$class: 'SubmoduleOption', recursiveSubmodules: true]],
