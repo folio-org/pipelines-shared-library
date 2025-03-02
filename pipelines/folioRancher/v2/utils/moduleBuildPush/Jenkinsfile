@@ -68,16 +68,31 @@ Branch: ${branch}"""
 Branch: ${branch}"""
       }
 
-      stage('[Docker] Build image and push') {
-        if (!params.PUSH_IMAGE_TO_ECR) {
-          logger.info("Skip [Docker] Build image and push stage")
-          Utils.markStageSkippedForConditional('[Docker] Build image and push')
+      stages{
+        stage('[Docker] Build image and push') {
+          when {
+            expression { return params.PUSH_IMAGE_TO_ECR }
+          }
+
+          steps{
+            script {
+              input message: "Let's wait 1"
+            }
+          }
         }
 
-        input message: "Let's wait 1"
-
-//        deployAppModule.buildAndPushContainerImage(logger, module)
+//        stage('[Docker] Build image and push') {
+////          if (!params.PUSH_IMAGE_TO_ECR) {
+////            logger.info("Skip [Docker] Build image and push stage")
+////            Utils.markStageSkippedForConditional('[Docker] Build image and push')
+////          }
+//
+//          input message: "Let's wait 1"
+//
+////        deployAppModule.buildAndPushContainerImage(logger, module)
+//        }
       }
+
 
       stage('[CURL] Upload module descriptor') {
         if (!params.PUSH_DESCRIPTOR_TO_ECR) {
