@@ -254,9 +254,9 @@ class Constants {
                                 'jenkins-agent-java17-test',
                                 'jenkins-agent-java21']
 
-  static List JENKINS_AGENTS_DEPLOY_MODULE = ['jenkins-agent-java17',
-                                'jenkins-agent-java17-test',
-                                'jenkins-agent-java21']
+  static List JENKINS_AGENTS_BUILD_MODULE = ['jenkins-agent-java17',
+                                            'jenkins-agent-java17-test',
+                                            'jenkins-agent-java21']
 
   static String TERRAFORM_DOCKER_CLIENT = 'hashicorp/terraform:1.4'
   static String JENKINS_JOB_SCHEMA_COMPARE = '/Rancher/folioSchemaCompare'
