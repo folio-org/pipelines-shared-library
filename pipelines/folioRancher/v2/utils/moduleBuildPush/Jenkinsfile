@@ -1,6 +1,5 @@
 package folioRancher.v2.utils.moduleBuildPush
 
-import groovy.transform.Field
 import org.folio.Constants
 import org.folio.utilities.GitHubClient
 import org.folio.utilities.Logger
@@ -69,8 +68,9 @@ Branch: ${branch}"""
       }
 
       stage('[Docker] Build image and push') {
-        when {
-          expression { return params.PUSH_IMAGE_TO_ECR }
+        if (!params.PUSH_IMAGE_TO_ECR) {
+          logger.info("Skip [Docker] Build image and push")
+          Utils.markStageSkippedForConditional('[Docker] Build image and push')
         }
 
         input message: "Let's wait"
