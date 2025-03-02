@@ -31,7 +31,6 @@ if (params.REFRESH_PARAMETERS) {
   return
 }
 
-@Field
 Logger logger = new Logger(this, env.JOB_BASE_NAME)
 
 String moduleName = params.MODULE_NAME
@@ -63,7 +62,7 @@ Branch: ${branch}"""
 
       stage('[Maven/Gradle] Build artifact') {
         String commitHash = new GitHubClient(Jenkinsfile).getBranchInfo(moduleName, branch).commit.sha.take(7)
-        String moduleId = compile(moduleName, commitHash, mavenArgs, gradleOpts)
+        String moduleId = compile(moduleName, commitHash, mavenArgs, gradleOpts, logger)
 
         buildDescription """Module: $moduleId
 Branch: ${branch}"""
@@ -101,7 +100,7 @@ Branch: ${branch}"""
   }
 }
 
-String compileMaven(String moduleName, String commitHash, String mavenArgs) {
+String compileMaven(String moduleName, String commitHash, String mavenArgs, Logger logger = new Logger(this, env.JOB_BASE_NAME)) {
   logger.info("Maven build tool is used")
   String buildDir = "${env.WORKSPACE}/${moduleName}"
 
@@ -128,7 +127,7 @@ String compileMaven(String moduleName, String commitHash, String mavenArgs) {
   }
 }
 
-String compileGradle(String moduleName, String commitHash, String gradleOpts) {
+String compileGradle(String moduleName, String commitHash, String gradleOpts, Logger logger = new Logger(this, env.JOB_BASE_NAME)) {
   logger.info("Gradle build tool is used")
   String buildDir = "${env.WORKSPACE}/${moduleName}/service"
 
@@ -147,14 +146,14 @@ String compileGradle(String moduleName, String commitHash, String gradleOpts) {
   }
 }
 
-String compile(String moduleName, String commitHash, String mavenArgs, String gradleOpts) {
+String compile(String moduleName, String commitHash, String mavenArgs, String gradleOpts, Logger logger = new Logger(this, env.JOB_BASE_NAME)) {
   switch (getProjectType(moduleName)) {
     case ProjectType.MAVEN:
-      return compileMaven(moduleName, commitHash, mavenArgs)
+      return compileMaven(moduleName, commitHash, mavenArgs, logger)
       break
 
     case ProjectType.GRADLE:
-      return compileGradle(moduleName, commitHash, gradleOpts)
+      return compileGradle(moduleName, commitHash, gradleOpts, logger)
       break
 
     default:
