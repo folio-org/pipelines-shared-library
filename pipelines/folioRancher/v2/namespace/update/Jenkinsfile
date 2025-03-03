@@ -1,5 +1,6 @@
-package folioRancher.namespace.update.ops
+package folioRancher.v2.namespace.update
 
+import groovy.transform.Field
 import hudson.AbortException
 import org.folio.Constants
 import org.folio.models.module.EurekaModule
@@ -15,7 +16,6 @@ import org.jenkinsci.plugins.workflow.libs.Library
 /** Job properties and parameters */
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
-  disableConcurrentBuilds(),
   parameters([
     folioParameters.platform(PlatformType.EUREKA),
     folioParameters.cluster('PLATFORM'),
@@ -27,8 +27,7 @@ properties([
     folioParameters.containerImageTag('CONTAINER_IMAGE_TAG', 'MODULE_NAME, MODULE_SOURCE'), // CONTAINER_IMAGE_TAG, Container image tag
     string(name: 'MAVEN_ARGS', defaultValue: '-DskipTests', description: 'Maven build arguments'),
     folioParameters.configType(),
-    folioParameters._paramExtendedCheckboxSelect('OPTIONAL_STEPS', '', "return [ 'Build image:selected:disabled', 'Update module deployment:selected', 'Upgrade applications:selected' ]", 'Select steps needs to be execute', false),
-    folioParameters.agent(Constants.JENKINS_AGENTS_DEPLOY_MODULE),
+    folioParameters.agent(Constants.JENKINS_AGENTS_BUILD_MODULE),
     folioParameters.refreshParameters()
     , folioParameters.hideParameters(
       [
@@ -54,72 +53,33 @@ if (params.REFRESH_PARAMETERS) {
   return
 }
 
-Map optionalSteps = [
-  'Build image': [
-    updateAll: false,
-    gitHub: true,
-    dockerHub: false,
-    ecr: false,
-    mgr: false,
-    kong: false,
-    keycloak: false,
-    sidecar: false,
-    edge: true,
-    mod: true
-  ],
-  'Update module deployment': [
-    updateAll: true,
-    gitHub: true,
-    dockerHub: true,
-    ecr: true,
-    mgr: false,
-    kong: false,
-    keycloak: false,
-    sidecar: false,
-    edge: true,
-    mod: true
-  ],
-  'Upgrade applications': [
-    updateAll: true,
-    gitHub: false,
-    dockerHub: false,
-    ecr: false,
-    mgr: false,
-    kong: false,
-    keycloak: false,
-    sidecar: false,
-    edge: true,
-    mod: true
-  ]
-]
-
-/** Pipeline variables */
+@Field
 Logger logger = new Logger(this, env.JOB_BASE_NAME)
-
-//if(params.MODULE_SOURCE.contains('github')) {
-//  EurekaModule module = new EurekaModule()
-//  module.name = params.MODULE_NAME
-//
-//}
-//
-//String featureBranch = params.MODULE_BRANCH
-//String featureHash = new GitHubClient(this).getBranchInfo(module.getName(), featureBranch).commit.sha.take(7)
-//String mavenArguments = params.MAVEN_ARGS.trim()
-//String commonGradleOpts = '--quiet --console plain --no-daemon'
-//Map<String, String> updatedAppInfoMap = [:]
-
-/** Collect Rancher Namespace Configuration */
-EurekaNamespace namespace = new EurekaNamespace(params.CLUSTER, params.NAMESPACE)
-  .withDeploymentConfigType(params.CONFIG_TYPE) as EurekaNamespace
-
-/** Assign Desired Resource Profile for Environment */
-namespace.addDeploymentConfig(folioTools.getPipelineBranch())
-
-Eureka eureka = new Eureka(this, namespace.generateDomain('kong'), namespace.generateDomain('keycloak'))
-List<EurekaModule> modules = []
 
 /** Pipeline */
 ansiColor('xterm') {
+
+  //if(params.MODULE_SOURCE.contains('github')) {
+  //  EurekaModule module = new EurekaModule()
+  //  module.name = params.MODULE_NAME
+  //
+  //}
+  //
+  //String featureBranch = params.MODULE_BRANCH
+  //String featureHash = new GitHubClient(this).getBranchInfo(module.getName(), featureBranch).commit.sha.take(7)
+  //String mavenArguments = params.MAVEN_ARGS.trim()
+  //String commonGradleOpts = '--quiet --console plain --no-daemon'
+  //Map<String, String> updatedAppInfoMap = [:]
+
+  /** Collect Rancher Namespace Configuration */
+  EurekaNamespace namespace = new EurekaNamespace(params.CLUSTER, params.NAMESPACE)
+    .withDeploymentConfigType(params.CONFIG_TYPE) as EurekaNamespace
+
+  /** Assign Desired Resource Profile for Environment */
+  namespace.addDeploymentConfig(folioTools.getPipelineBranch())
+
+  Eureka eureka = new Eureka(this, namespace.generateDomain('kong'), namespace.generateDomain('keycloak'))
+  List<EurekaModule> modules = []
 
   /** Check if the target environment is running */
   boolean isEnvActive = false
@@ -176,7 +136,7 @@ ${currentBuild.getBuildCauses()[0].shortDescription}"""
           checkout([
             $class           : 'GitSCM',
             branches         : [[name: "*/${featureBranch}"]],
-            extensions       : [[$class: 'RelativeTargetDirectory', relativeTargetDir: module.name],
+            extensions       : [[$class: 'RelativeTargetDirectory', relativeTargetDir: ${module.name}],
                                 [$class: 'CleanBeforeCheckout', deleteUntrackedNestedRepositories: true],
                                 [$class: 'AuthorInChangelog'],
                                 [$class: 'SubmoduleOption', recursiveSubmodules: true]],
@@ -291,5 +251,3 @@ ${currentBuild.getBuildCauses()[0].shortDescription}"""
     }
   }
 }
-
-String get
