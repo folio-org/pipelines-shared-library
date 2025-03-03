@@ -74,12 +74,8 @@ Build tool: ${module.buildTool.toString()}"""
 
         module.descriptor = [readJSON(file: module.modDescriptorPath)]
 
-        input message: "Let's wait and check"
-
-        zip zipFile: "module_artifact.zip", glob: "**/${module.name}*.jar"
-        archiveArtifacts allowEmptyArchive: true, artifacts: "artifacts.zip", fingerprint: true, defaultExcludes: false
-
-//        archiveArtifacts artifacts: "${module.buildDir}/**/*.jar", allowEmptyArchive: true, fingerprint: true, defaultExcludes: false
+        zip zipFile: "${module.name}.jar.zip", glob: "**/${module.name}*.jar"
+        archiveArtifacts allowEmptyArchive: true, artifacts: "${module.name}.jar.zip", fingerprint: true, defaultExcludes: false
       }
 
 
