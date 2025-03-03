@@ -76,7 +76,7 @@ Build tool: ${module.buildTool.toString()}"""
 
         input message: "Let's wait and check"
 
-        archiveArtifacts artifacts: "${module.buildDir}/*.jar", allowEmptyArchive: true, fingerprint: true, defaultExcludes: false
+        archiveArtifacts artifacts: "${module.buildDir}/**/*.jar", allowEmptyArchive: true, fingerprint: true, defaultExcludes: false
       }
 
 
