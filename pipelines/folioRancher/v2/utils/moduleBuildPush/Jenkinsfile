@@ -76,6 +76,8 @@ Build tool: ${module.buildTool.toString()}"""
 
         zip zipFile: "${module.name}.jar.zip", glob: "**/${module.name}*.jar"
         archiveArtifacts allowEmptyArchive: true, artifacts: "${module.name}.jar.zip", fingerprint: true, defaultExcludes: false
+
+        input message: "Let's wait"
       }
 
 
