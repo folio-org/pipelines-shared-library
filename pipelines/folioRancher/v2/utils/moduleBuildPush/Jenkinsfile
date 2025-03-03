@@ -104,7 +104,7 @@ Build tool: ${module.buildTool.toString()}"""
             script: "[ -e ${module.modDescriptorPath} ] && curl -sS -X PUT ${Constants.EUREKA_REGISTRY_URL}${module.name}-${module.version} --upload-file ${module.modDescriptorPath}"
           )
 
-          zip zipFile: "ModuleDescriptor.json.zip", glob: "${module.modDescriptorPath}"
+          zip zipFile: "ModuleDescriptor.json.zip", glob: "**/ModuleDescriptor.json"
           archiveArtifacts allowEmptyArchive: true, artifacts: "ModuleDescriptor.json.zip", fingerprint: true, defaultExcludes: false
         }
       }
