@@ -49,12 +49,12 @@ ansiColor('xterm') {
                 if (params.NAMESPACE == 'sprint') {
                     folioCommon.kitfoxApproval()
                 }
-                sh(script: "kubectl delete pod -l 'app.kubernetes.io/name=mod-search' --force --namespace $params.NAMESPACE")
-                sleep time: 3, unit: 'MINUTES' //Wait until mod-search is restarted
+//                sh(script: "kubectl delete pod -l 'app.kubernetes.io/name=mod-search' --force --namespace $params.NAMESPACE")
+//                sleep time: 3, unit: 'MINUTES' //Wait until mod-search is restarted
                 Kong kong = new Kong(this, "https://$params.CLUSTER-$params.NAMEPSACE-kong.$Constants.CI_ROOT_DOMAIN",
-                        "https://$params.CLUSTER-$params.NAMEPSACE-keycloak.$Constants.CI_ROOT_DOMAIN")
+                        "https://$params.CLUSTER-$params.NAMEPSACE-keycloak.$Constants.CI_ROOT_DOMAIN", true)
                 def URL = kong.generateUrl("/search/index/instance-records/reindex/full")
-                RestClient client = new RestClient(this)
+                RestClient client = new RestClient(this, true)
                 def headers = kong.getTenantHttpHeaders(new EurekaTenant("${params.TENANT}"), true)
                 def response = client.post(URL, null, headers, [200, 201, 202, 204])
 
