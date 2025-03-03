@@ -57,7 +57,7 @@ ansiColor('xterm') {
         module.buildTool = getBuildTool(moduleName)
         module.buildDir = getBuildDir(moduleName, module.buildTool)
         module.modDescriptorPath = getDescriptorPath(module.buildTool, module.buildDir)
-        module.descriptor = [readJSON(file: module.modDescriptorPath)]
+//        module.descriptor = [readJSON(file: module.modDescriptorPath)]
 
         module.loadModuleDetails("${moduleName}-${getModuleVersion(module.buildTool, module.buildDir)}.${commitHash}")
 
@@ -97,6 +97,8 @@ Build tool: ${module.buildTool.toString()}"""
           )
         }
       }
+
+      input message: "Let's wait"
     } catch (e) {
       logger.warning("Caught exception: ${e}")
       error(e.getMessage())
