@@ -3,7 +3,10 @@ package folioRancher.folioDevTools.moduleDeployment.reindex
 
 
 import org.folio.Constants
+import org.folio.models.EurekaTenant
+import org.folio.rest_v2.eureka.Kong
 import org.folio.utilities.Logger
+import org.folio.utilities.RestClient
 import org.jenkinsci.plugins.workflow.libs.Library
 
 @Library('pipelines-shared-library@RANCHER-1334') _
@@ -40,19 +43,23 @@ ansiColor('xterm') {
         checkout scm
       }
 
-      stage('[Start] reindex on tenant') {
-        logger.info("Start reindex on tenant: ${params.TENANT}")
-        folioHelm.withKubeConfig(params.CLUSTER) {
+        stage('[Start] reindex on tenant') {
+            logger.info("Start reindex on tenant: ${params.TENANT}")
+            folioHelm.withKubeConfig(params.CLUSTER) {
 
-          if (params.NAMESPACE == 'sprint') {
-            folioCommon.kitfoxApproval()
-          }
+                if (params.NAMESPACE == 'sprint') {
+                    folioCommon.kitfoxApproval()
+                }
+                Kong kong = new Kong(this, "https://$params.CLUSTER-$params.NAMEPSACE-kong.$Constants.CI_ROOT_DOMAIN",
+                        "https://$params.CLUSTER-$params.NAMEPSACE-keycloak.$Constants.CI_ROOT_DOMAIN")
+                def URL = kong.generateUrl("/search/index/instance-records/reindex/full")
+                RestClient client = new RestClient(this)
+                def headers = kong.getTenantHttpHeaders(new EurekaTenant("${params.TENANT}"), true)
+                def response = client.post(URL, null, headers, [200, 201, 202, 204])
 
-//          TDB
-
-
+                println(response.body)
+            }
         }
-      }
 
     } catch (e) {
       logger.warning("Caught exception: ${e}")
