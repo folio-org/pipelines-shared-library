@@ -34,7 +34,7 @@ ansiColor('xterm') {
   node(params.AGENT) {
     try {
       stage('Ini') {
-        buildName "Reinstall ${params.MODULE} on ${params.TENANT}"
+        buildName "Reindex ALL on ${params.TENANT}"
         buildDescription "${params.CLUSTER}-${params.NAMESPACE}"
       }
 
@@ -49,7 +49,7 @@ ansiColor('xterm') {
                 if (params.NAMESPACE == 'sprint') {
                     folioCommon.kitfoxApproval()
                 }
-                sh(script: "kubectl delete pod -l 'app.kubernetes.io/name=mod-search' --force --namespace $params.NAMEPSACE")
+                sh(script: "kubectl delete pod -l 'app.kubernetes.io/name=mod-search' --force --namespace ${params.NAMEPSACE}")
                 sleep time: 3, unit: 'MINUTES' //Wait until mod-search is restarted
                 Kong kong = new Kong(this, "https://$params.CLUSTER-$params.NAMEPSACE-kong.$Constants.CI_ROOT_DOMAIN",
                         "https://$params.CLUSTER-$params.NAMEPSACE-keycloak.$Constants.CI_ROOT_DOMAIN")
