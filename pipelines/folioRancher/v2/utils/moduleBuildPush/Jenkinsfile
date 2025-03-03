@@ -74,6 +74,8 @@ Build tool: ${module.buildTool.toString()}"""
 
         module.descriptor = [readJSON(file: module.modDescriptorPath)]
 
+        input message: "Let's wait and check"
+
         archiveArtifacts artifacts: "${module.buildDir}/*.jar", allowEmptyArchive: true, fingerprint: true, defaultExcludes: false
       }
 
