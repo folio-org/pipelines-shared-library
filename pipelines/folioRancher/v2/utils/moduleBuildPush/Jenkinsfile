@@ -1,6 +1,8 @@
 package folioRancher.v2.utils.moduleBuildPush
 
 import org.folio.Constants
+import org.folio.models.module.FolioModule
+import org.folio.models.module.ModuleBuildTool
 import org.folio.utilities.GitHubClient
 import org.folio.utilities.Logger
 import org.jenkinsci.plugins.pipeline.modeldefinition.Utils
@@ -8,10 +10,6 @@ import org.jenkinsci.plugins.workflow.libs.Library
 
 //TODO: Switch to the RANCHER-1334
 @Library('pipelines-shared-library@RANCHER-2057-test') _
-
-enum ProjectType {
-  MAVEN, GRADLE
-}
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
@@ -31,24 +29,19 @@ if (params.REFRESH_PARAMETERS) {
   return
 }
 
-Logger logger = new Logger(this, env.JOB_BASE_NAME)
-
 String moduleName = params.MODULE_NAME
 String branch = params.MODULE_BRANCH
 String mavenArgs = params.MAVEN_ARGS.trim()
 String gradleOpts = '--quiet --console plain --no-daemon'
 
+Logger logger = new Logger(this, env.JOB_BASE_NAME)
+FolioModule module = new FolioModule()
+String commitHash = new GitHubClient(this).getBranchInfo(moduleName, branch).commit.sha.take(7)
+
 ansiColor('xterm') {
   node(params.AGENT) {
     try {
-      stage('Init') {
-        buildName "#${params.MODULE_NAME}.${env.BUILD_ID}"
-
-        buildDescription """Module: $moduleName
-Branch: ${branch}"""
-      }
-
-      stage('[Git] Checkout module source') { // GitHub. Download module source to build
+      stage('[Git] Checkout module source') {
         checkout([
           $class           : 'GitSCM',
           branches         : [[name: "*/${branch}"]],
@@ -60,49 +53,49 @@ Branch: ${branch}"""
         ])
       }
 
+      stage('Init'){
+        module.buildTool = getBuildTool(moduleName)
+        module.buildDir = getBuildDir(moduleName, module.buildTool)
+        module.modDescriptorPath = getDescriptorPath(module.buildTool, module.buildDir)
+        module.descriptor = [readJSON(file: module.modDescriptorPath)]
+
+        module.loadModuleDetails("${moduleName}-${getModuleVersion(module.buildTool, module.buildDir)}.${commitHash}")
+
+        buildName "#${moduleName}.${env.BUILD_ID}"
+        buildDescription """Module: ${module.id}
+Branch: ${branch}
+Build tool: ${module.buildTool.toString()}"""
+      }
+
       stage('[Maven/Gradle] Build artifact') {
-        String commitHash = new GitHubClient(this).getBranchInfo(moduleName, branch).commit.sha.take(7)
-        String moduleId = compile(moduleName, commitHash, mavenArgs, gradleOpts, logger)
+        String args = module.buildTool == ModuleBuildTool.MAVEN ? mavenArgs : args
+        args = module.buildTool == ModuleBuildTool.GRADLE ? gradleOpts : args
 
-        buildDescription """Module: $moduleId
-Branch: ${branch}"""
+        compile(module, args)
       }
 
-      stages{
-        stage('[Docker] Build image and push') {
-          when {
-            expression { return params.PUSH_IMAGE_TO_ECR }
-          }
 
-          steps{
-            script {
-              input message: "Let's wait 1"
-            }
-          }
+      stage('[Docker] Build image and push') {
+        if (!params.PUSH_IMAGE_TO_ECR) {
+          logger.info("Skip [Docker] Build image and push stage")
+          Utils.markStageSkippedForConditional('[Docker] Build image and push')
+        }else{
+          buildAndPushImage(module)
         }
-
-//        stage('[Docker] Build image and push') {
-////          if (!params.PUSH_IMAGE_TO_ECR) {
-////            logger.info("Skip [Docker] Build image and push stage")
-////            Utils.markStageSkippedForConditional('[Docker] Build image and push')
-////          }
-//
-//          input message: "Let's wait 1"
-//
-////        deployAppModule.buildAndPushContainerImage(logger, module)
-//        }
       }
-
 
       stage('[CURL] Upload module descriptor') {
         if (!params.PUSH_DESCRIPTOR_TO_ECR) {
           logger.info("Skip [CURL] Upload module descriptor stage")
           Utils.markStageSkippedForConditional('[CURL] Upload module descriptor')
+        }else{
+          //noinspection GroovyAssignabilityCheck
+          sh(
+            label: "Upload Module Descriptor to Module Registry",
+            returnStdout: false,
+            script: "[ -e ${module.modDescriptorPath} ] && curl -sS -X PUT ${Constants.EUREKA_REGISTRY_URL}${module.name}-${module.version} --upload-file ${module.modDescriptorPath}"
+          )
         }
-
-        input message: "Let's wait 2"
-
-//        deployAppModule.putModuleDescriptorToRegistry(logger, module)
       }
     } catch (e) {
       logger.warning("Caught exception: ${e}")
@@ -116,72 +109,123 @@ Branch: ${branch}"""
   }
 }
 
-String compileMaven(String moduleName, String commitHash, String mavenArgs, Logger logger = new Logger(this, env.JOB_BASE_NAME)) {
-  logger.info("Maven build tool is used")
-  String buildDir = "${env.WORKSPACE}/${moduleName}"
-
-  dir(buildDir) {
-    String moduleVersion = readMavenPom(file: 'pom.xml').version
-
-    moduleVersion += ".$commitHash"
-
-    withMaven(
-      jdk: "${common.selectJavaBasedOnAgent(params.AGENT)}".toString(),
-      maven: Constants.MAVEN_TOOL_NAME,
-      traceability: false,
-      options: [artifactsPublisher(disabled: true)])
-      {
-        sh(
-          label: 'Build with Maven', script: """
-            mvn versions:set -DnewVersion=${moduleVersion}
-            mvn package ${mavenArgs}
+void compile(FolioModule module, String args) {
+  dir(module.buildDir) {
+    switch (module.buildTool) {
+      case ModuleBuildTool.MAVEN:
+        withMaven(
+          jdk: "${common.selectJavaBasedOnAgent(params.AGENT)}".toString(),
+          maven: Constants.MAVEN_TOOL_NAME,
+          traceability: false,
+          options: [artifactsPublisher(disabled: true)])
+          {
+            sh(
+              label: 'Build with Maven', script: """
+            mvn versions:set -DnewVersion=${module.version}
+            mvn package ${args}
           """.stripIndent().trim()
-        )
+            )
+          }
+        break
+
+      case ModuleBuildTool.GRADLE:
+        sh(label: 'Build with Gradle', script: "./gradlew ${args} -PappVersion=${module.version} assemble")
+        break
+
+      default:
+        throw new RuntimeException("Unsupported build tool for module: ${module.name}")
+    }
+  }
+}
+
+void buildAndPushImage(FolioModule module) {
+  docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
+    common.checkEcrRepoExistence(module.name)
+
+    dir(module.buildDir) {
+      switch (module.buildTool) {
+        case ModuleBuildTool.MAVEN:
+          docker.build("${module.name}:${module.version}", '--no-cache=true --pull=true .')
+          break
+
+        case ModuleBuildTool.GRADLE:
+          String shellCmd = """
+            echo '[INFO] Build Container Image'
+            ./gradlew ${commonGradleOpts} -PdockerRepo=folioci -PappVersion=${module.version} buildImage
+
+            echo '[INFO] Rename Local Container Image'
+            docker tag folioci/${module.name}:${module.version}.${env.BUILD_NUMBER} ${module.name}:${module.version}
+
+            echo '[INFO] Get rid of BUILD_NUMBER in Module Descriptor'
+            [ -e ${module.modDescriptorPath} ] && sed -i 's#${module.version}.${env.BUILD_NUMBER}#${module.version}#g' ${module.modDescriptorPath}
+          """.stripIndent().trim()
+
+          sh(label: 'Build Container Image', script: shellCmd)
+          break
+
+        default:
+          throw new RuntimeException("Unsupported build tool for Eureka module: ${module.buildTool}")
       }
 
-    return "${moduleName}-${moduleVersion}"
-  }
-}
-
-String compileGradle(String moduleName, String commitHash, String gradleOpts, Logger logger = new Logger(this, env.JOB_BASE_NAME)) {
-  logger.info("Gradle build tool is used")
-  String buildDir = "${env.WORKSPACE}/${moduleName}/service"
-
-  dir(buildDir) {
-    String moduleVersion = readProperties(file: "gradle.properties")['appVersion']
-
-    if(!moduleVersion.contains("-SNAPSHOT")) {
-      moduleVersion += "-SNAPSHOT"
+      docker.image("${module.name}:${module.version}").push()
     }
-
-    moduleVersion += ".$commitHash"
-
-    sh(label: 'Build with Gradle', script: "./gradlew ${gradleOpts} -PappVersion=${moduleVersion} assemble")
-
-    return "${moduleName}-${moduleVersion}"
   }
 }
 
-String compile(String moduleName, String commitHash, String mavenArgs, String gradleOpts, Logger logger = new Logger(this, env.JOB_BASE_NAME)) {
-  switch (getProjectType(moduleName)) {
-    case ProjectType.MAVEN:
-      return compileMaven(moduleName, commitHash, mavenArgs, logger)
+@SuppressWarnings('GrMethodMayBeStatic')
+String getDescriptorPath(ModuleBuildTool buildTool, String buildDir){
+  switch (buildTool) {
+    case ModuleBuildTool.MAVEN:
+      return "${buildDir}/target/ModuleDescriptor.json"
       break
 
-    case ProjectType.GRADLE:
-      return compileGradle(moduleName, commitHash, gradleOpts, logger)
+    case ModuleBuildTool.GRADLE:
+      return "${buildDir}/build/resources/main/okapi/ModuleDescriptor.json"
       break
 
     default:
-      throw new RuntimeException("Unsupported build tool for module: ${moduleName}")
+      throw new RuntimeException("Unsupported build tool for module")
   }
 }
 
-ProjectType getProjectType(String moduleName){
+String getModuleVersion(ModuleBuildTool buildTool, String buildDir){
+  dir(buildDir) {
+    switch (buildTool) {
+      case ModuleBuildTool.MAVEN:
+        return readMavenPom(file: 'pom.xml').version
+        break
+
+      case ModuleBuildTool.GRADLE:
+        String moduleVersion = readProperties(file: "gradle.properties")['appVersion']
+        moduleVersion = !moduleVersion.contains("-SNAPSHOT") ? "${moduleVersion}-SNAPSHOT" : moduleVersion
+
+        return moduleVersion
+        break
+
+      default:
+        throw new RuntimeException("Unsupported build tool for module")
+    }
+  }
+}
+
+String getBuildDir(String moduleName, ModuleBuildTool buildTool){
+  switch (buildTool) {
+    case ModuleBuildTool.MAVEN:
+      return "${env.WORKSPACE}/${moduleName}"
+      break
+
+    case ModuleBuildTool.GRADLE:
+      return "${env.WORKSPACE}/${moduleName}/service"
+      break
+
+    default:
+      throw new RuntimeException("Unsupported build tool for module")
+  }
+}
+
+ModuleBuildTool getBuildTool(String moduleName){
   boolean hasPom = fileExists("${moduleName}/pom.xml")
   boolean hasGradle = fileExists("${moduleName}/build.gradle") || fileExists("${moduleName}/service/build.gradle")
 
-  println("hasPom: ${hasPom}, hasGradle: ${hasGradle}")
-
-  return hasPom ? ProjectType.MAVEN : (hasGradle ? ProjectType.GRADLE : null)
+  return hasPom ? ModuleBuildTool.MAVEN : (hasGradle ? ModuleBuildTool.GRADLE : null)
 }

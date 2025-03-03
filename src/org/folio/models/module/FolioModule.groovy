@@ -23,7 +23,7 @@ class FolioModule {
   List descriptor    // Descriptor for the module (optional)
   Map discovery      // Discovery information for the module (e.g., URL)
   VersionType versionType // Type of version (e.g., SNAPSHOT, RELEASE)
-  String buildTool   // Build Tool Name (Maven or Gradle)
+  ModuleBuildTool buildTool   // Build Tool Name (Maven or Gradle)
   String buildDir    // Build Folder Path
   String modDescriptorPath // Module Descriptor File Path
 
