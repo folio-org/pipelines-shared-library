@@ -179,13 +179,13 @@ def buildAndPushImage(FolioModule module) {
           throw new RuntimeException("Unsupported build tool for Eureka module: ${module.buildTool}")
       }
 
-      docker.save ${module.name}:${module.version} | gzip > ${module.name}-${module.version}.tar.gz
-
       sh """
         docker save ${module.name}:${module.version} | gzip > ${module.name}-${module.version}.tar.gz
       """
 
       input message: "Let's wait 2"
+
+      docker.image("${module.name}:${module.version}").push()
     }
   }
 }
