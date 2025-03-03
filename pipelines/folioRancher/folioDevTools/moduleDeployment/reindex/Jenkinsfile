@@ -18,7 +18,6 @@ properties([
     folioParameters.cluster(),
     folioParameters.namespace(),
     folioParameters.agent(),
-    string(name: 'MODULE', defaultValue: 'mod-search', description: '(Required) Full module name to be restarted'),
     string(name: 'TENANT', defaultValue: 'diku', description: '(Required) Tenant where reindex should be performed'),
     folioParameters.refreshParameters()
   ])
