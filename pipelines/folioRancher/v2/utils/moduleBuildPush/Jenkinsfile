@@ -76,8 +76,6 @@ Build tool: ${module.buildTool.toString()}"""
 
         zip zipFile: "${module.name}.jar.zip", glob: "**/${module.name}*.jar"
         archiveArtifacts allowEmptyArchive: true, artifacts: "${module.name}.jar.zip", fingerprint: true, defaultExcludes: false
-
-        input message: "Let's wait"
       }
 
 
@@ -87,6 +85,10 @@ Build tool: ${module.buildTool.toString()}"""
           Utils.markStageSkippedForConditional('[Docker] Build image and push')
         }else{
           buildAndPushImage(module)
+
+          input message: "Let's wait"
+//          zip zipFile: "${module.name}.jar.zip", glob: "**/${module.name}*.jar"
+//          archiveArtifacts allowEmptyArchive: true, artifacts: "${module.name}.jar.zip", fingerprint: true, defaultExcludes: false
         }
       }
 
@@ -101,6 +103,9 @@ Build tool: ${module.buildTool.toString()}"""
             returnStdout: false,
             script: "[ -e ${module.modDescriptorPath} ] && curl -sS -X PUT ${Constants.EUREKA_REGISTRY_URL}${module.name}-${module.version} --upload-file ${module.modDescriptorPath}"
           )
+
+          zip zipFile: "ModuleDescriptor.json.zip", glob: "${module.modDescriptorPath}"
+          archiveArtifacts allowEmptyArchive: true, artifacts: "ModuleDescriptor.json.zip", fingerprint: true, defaultExcludes: false
         }
       }
     } catch (e) {
