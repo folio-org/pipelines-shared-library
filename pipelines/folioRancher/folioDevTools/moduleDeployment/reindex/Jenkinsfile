@@ -50,7 +50,7 @@ ansiColor('xterm') {
                     folioCommon.kitfoxApproval()
                 }
                 sh(script: "kubectl delete pod -l 'app.kubernetes.io/name=mod-search' --force --namespace $params.NAMEPSACE")
-                sleep time: 3, unit: 'MUNITES' //Wait until mod-search is restarted
+                sleep time: 3, unit: 'MINUTES' //Wait until mod-search is restarted
                 Kong kong = new Kong(this, "https://$params.CLUSTER-$params.NAMEPSACE-kong.$Constants.CI_ROOT_DOMAIN",
                         "https://$params.CLUSTER-$params.NAMEPSACE-keycloak.$Constants.CI_ROOT_DOMAIN")
                 def URL = kong.generateUrl("/search/index/instance-records/reindex/full")
