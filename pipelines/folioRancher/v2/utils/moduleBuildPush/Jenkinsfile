@@ -89,7 +89,7 @@ Build tool: ${module.buildTool.toString()}"""
 
           input message: "Let's wait"
 
-          archiveArtifacts allowEmptyArchive: true, artifacts: "${module.name}-${module.version}.tar.gz", fingerprint: true, defaultExcludes: false
+          archiveArtifacts allowEmptyArchive: true, artifacts: "**/${module.name}-${module.version}.tar.gz", fingerprint: true, defaultExcludes: false
         }
       }
 
