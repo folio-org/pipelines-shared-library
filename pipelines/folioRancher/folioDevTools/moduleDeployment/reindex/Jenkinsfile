@@ -1,0 +1,67 @@
+#!groovy
+package folioRancher.folioDevTools.moduleDeployment.reindex
+
+
+import org.folio.Constants
+import org.folio.utilities.Logger
+import org.jenkinsci.plugins.workflow.libs.Library
+
+@Library('pipelines-shared-library@RANCHER-1334') _
+
+properties([
+  buildDiscarder(logRotator(numToKeepStr: '30')),
+  disableConcurrentBuilds(),
+  parameters([
+    folioParameters.cluster(),
+    folioParameters.namespace(),
+    folioParameters.agent(),
+    string(name: 'MODULE', defaultValue: 'mod-search', description: '(Required) Full module name to be restarted'),
+    string(name: 'TENANT', defaultValue: 'diku', description: '(Required) Tenant where reindex should be performed'),
+    folioParameters.refreshParameters()
+  ])
+])
+
+if (params.REFRESH_PARAMETERS) {
+  currentBuild.result = 'ABORTED'
+  return
+}
+
+Logger logger = new Logger(this, env.JOB_BASE_NAME)
+
+ansiColor('xterm') {
+  node(params.AGENT) {
+    try {
+      stage('Ini') {
+        buildName "Reinstall ${params.MODULE} on ${params.TENANT}"
+        buildDescription "${params.CLUSTER}-${params.NAMESPACE}"
+      }
+
+      stage('Checkout') {
+        checkout scm
+      }
+
+      stage('[Start] reindex on tenant') {
+        logger.info("Start reindex on tenant: ${params.TENANT}")
+        folioHelm.withKubeConfig(params.CLUSTER) {
+
+          if (params.NAMESPACE == 'sprint') {
+            folioCommon.kitfoxApproval()
+          }
+
+//          TDB
+
+
+        }
+      }
+
+    } catch (e) {
+      logger.warning("Caught exception: ${e}")
+      error(e.getMessage())
+    } finally {
+      stage('Cleanup') {
+        logger.debug("Workspace size: ${sh(returnStdout: true, script: 'du -sh .').trim()}")
+        cleanWs notFailBuild: true
+      }
+    }
+  }
+}
