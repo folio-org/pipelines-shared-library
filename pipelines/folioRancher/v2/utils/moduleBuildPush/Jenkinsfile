@@ -157,6 +157,9 @@ void buildAndPushImage(FolioModule module) {
       switch (module.buildTool) {
         case ModuleBuildTool.MAVEN:
           docker.build("${module.name}:${module.version}", '--no-cache=true --pull=true .')
+
+          input message: "Let's wait 2"
+
           break
 
         case ModuleBuildTool.GRADLE:
