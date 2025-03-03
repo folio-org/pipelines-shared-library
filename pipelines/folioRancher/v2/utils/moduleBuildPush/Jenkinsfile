@@ -87,7 +87,7 @@ Build tool: ${module.buildTool.toString()}"""
 
           buildAndPushImage(module)
 
-          archiveArtifacts allowEmptyArchive: true, artifacts: "**/${module.name}-${module.version}.tar.gz", fingerprint: true, defaultExcludes: false
+          archiveArtifacts allowEmptyArchive: true, artifacts: "**/${module.name}-${module.version}.tar", fingerprint: true, defaultExcludes: false
         }
       }
 
@@ -178,6 +178,8 @@ def buildAndPushImage(FolioModule module) {
       }
 
       sh "docker save -o ${module.name}-${module.version}.tar ${module.name}:${module.version}"
+
+      input message: "Let's wait"
 
       docker.image("${module.name}:${module.version}").push()
     }
