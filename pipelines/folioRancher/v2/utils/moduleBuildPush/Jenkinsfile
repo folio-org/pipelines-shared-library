@@ -87,8 +87,6 @@ Build tool: ${module.buildTool.toString()}"""
 
           buildAndPushImage(module)
 
-          input message: "Let's wait"
-
           archiveArtifacts allowEmptyArchive: true, artifacts: "**/${module.name}-${module.version}.tar.gz", fingerprint: true, defaultExcludes: false
         }
       }
@@ -179,9 +177,7 @@ def buildAndPushImage(FolioModule module) {
           throw new RuntimeException("Unsupported build tool for Eureka module: ${module.buildTool}")
       }
 
-      sh """
-        docker save ${module.name}:${module.version} | gzip > ${module.name}-${module.version}.tar.gz
-      """
+      sh "docker save -o ${module.name}-${module.version}.tar ${module.name}:${module.version}"
 
       docker.image("${module.name}:${module.version}").push()
     }
