@@ -76,7 +76,10 @@ Build tool: ${module.buildTool.toString()}"""
 
         input message: "Let's wait and check"
 
-        archiveArtifacts artifacts: "${module.buildDir}/**/*.jar", allowEmptyArchive: true, fingerprint: true, defaultExcludes: false
+        zip zipFile: "artifacts.zip", glob: "**/target/*.jar"
+        archiveArtifacts allowEmptyArchive: true, artifacts: "artifacts.zip", fingerprint: true, defaultExcludes: false
+
+//        archiveArtifacts artifacts: "${module.buildDir}/**/*.jar", allowEmptyArchive: true, fingerprint: true, defaultExcludes: false
       }
 
 
