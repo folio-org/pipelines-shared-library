@@ -106,9 +106,9 @@ extraEnvVars:
 
 resources:
   requests:
-    memory: 2048Mi
-  limits:
     memory: 3072Mi
+  limits:
+    memory: 4096Mi
 
 postgresql:
   enabled: false
@@ -123,7 +123,7 @@ externalDatabase:
 
 logging:
   output: default
-  level: DEBUG
+  level: INFO
 
 enableDefaultInitContainers: false
 
