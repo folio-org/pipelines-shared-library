@@ -14,7 +14,7 @@ properties([buildDiscarder(logRotator(numToKeepStr: '30')),
             parameters([folioParameters.cluster(),
                         folioParameters.namespace(),
                         folioParameters.agent(),
-                        string(name: 'TENANT', defaultValue: 'diku', description: '(Required) Tenant where reindex should be performed'),
+                        choice(name: 'TENANT', choices: ['diku', 'consortium', 'college', 'university'], description: 'Tenant to reindex'),
                         folioParameters.refreshParameters()])])
 
 if (params.REFRESH_PARAMETERS) {
