@@ -159,6 +159,10 @@ class FolioModule {
         return ModuleType.SIDECAR
       case 'okapi':
         return ModuleType.OKAPI
+      case 'folio-kong':
+        return ModuleType.KONG
+      case 'folio-keycloak':
+        return ModuleType.KEYCLOAK
       default:
         throw new Exception("Type of ${name} module is unknown")
     }

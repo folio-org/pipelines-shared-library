@@ -72,10 +72,17 @@ Build tool: ${module.buildTool.toString()}"""
       }
 
       stage('[Maven/Gradle] Build artifact') {
-        compile(module, args)
+        boolean isCoreModule = module.type == ModuleType.OKAPI || module.type == ModuleType.KEYCLOAK || module.type == ModuleType.KONG
 
-        zip zipFile: "${module.name}.jar.zip", glob: "**/${module.name}*.jar"
-        archiveArtifacts allowEmptyArchive: true, artifacts: "${module.name}.jar.zip", fingerprint: true, defaultExcludes: false
+        if (!params.PUSH_DESCRIPTOR_TO_ECR || isCoreModule) {
+          logger.info("Skip [CURL] Upload module descriptor stage")
+          Utils.markStageSkippedForConditional('[CURL] Upload module descriptor')
+        }else{
+          compile(module, args)
+
+          zip zipFile: "${module.name}.jar.zip", glob: "**/${module.name}*.jar"
+          archiveArtifacts allowEmptyArchive: true, artifacts: "${module.name}.jar.zip", fingerprint: true, defaultExcludes: false
+        }
       }
 
 
