@@ -312,7 +312,21 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
         ]
 
         break
+      case 'mod-circulation-bff':
+        moduleConfig['extraEnvVars'] += ns.hasSecureTenant ? [
+          name: 'SECURE_TENANT_ID',
+          value: ns.getSecureTenant().tenantId
+        ] : []
+
+        break
       case 'mod-requests-mediated':
+        moduleConfig['extraEnvVars'] += ns.hasSecureTenant ? [
+          name: 'SECURE_TENANT_ID',
+          value: ns.getSecureTenant().tenantId
+        ] : []
+
+        break
+      case 'mod-patron':
         moduleConfig['extraEnvVars'] += ns.hasSecureTenant ? [
           name: 'SECURE_TENANT_ID',
           value: ns.getSecureTenant().tenantId
@@ -329,7 +343,7 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
 
         moduleConfig['extraEnvVars'] += ns.hasSecureTenant ? [
           name: 'SECURE_REQUESTS_FEATURE_ENABLED',
-          value: ns.getSecureTenant().hasSecureTenant
+          value: ns.hasSecureTenant
         ] : []
 
         break
