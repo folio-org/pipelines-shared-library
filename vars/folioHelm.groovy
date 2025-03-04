@@ -316,7 +316,8 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
         println("I'm in folioHelm for mod-requests-mediated")
         println(ns)
         println(ns.hasSecureTenant)
-        println(ns.secureTenantId)
+        println(ns.getSecureTenant())
+        println(ns.getSecureTenant().tenantId)
 
         moduleConfig['extraEnvVars'] += ns.hasSecureTenant ? [
           name: 'SECURE_TENANT_ID',
