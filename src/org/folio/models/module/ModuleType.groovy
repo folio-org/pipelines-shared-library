@@ -12,6 +12,10 @@ enum ModuleType {
    */
    static ModuleType determineModuleType(String moduleName) {
     switch (moduleName) {
+      case 'folio-kong':
+        return KONG
+      case 'folio-keycloak':
+        return KEYCLOAK
       case ~/^mod-.*/:
         return BACKEND
       case ~/^edge-.*/:
@@ -24,10 +28,6 @@ enum ModuleType {
         return SIDECAR
       case 'okapi':
         return OKAPI
-      case 'folio-kong':
-        return KONG
-      case 'folio-keycloak':
-        return KEYCLOAK
       default:
         throw new Exception("Type of ${moduleName} module is unknown")
     }
