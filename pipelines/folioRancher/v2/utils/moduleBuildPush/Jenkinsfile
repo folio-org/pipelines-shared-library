@@ -205,6 +205,10 @@ String getDescriptorPath(ModuleBuildTool buildTool, String buildDir){
       return "${buildDir}/build/resources/main/okapi/ModuleDescriptor.json"
       break
 
+    case ModuleBuildTool.NONE:
+      return ""
+      break
+
     default:
       throw new RuntimeException("Unsupported build tool for module")
   }
