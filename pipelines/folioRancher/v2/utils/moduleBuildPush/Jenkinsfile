@@ -60,7 +60,8 @@ ansiColor('xterm') {
         module.buildDir = getBuildDir(moduleName, module.buildTool)
         module.modDescriptorPath = getDescriptorPath(module.buildTool, module.buildDir)
 
-        module.loadModuleDetails("${moduleName}-${getModuleVersion(module.buildTool, module.buildDir)}.${commitHash}")
+        String version = getModuleVersion(module.buildTool, module.buildDir)
+        module.loadModuleDetails("${moduleName}-${version}.${commitHash}")
 
         args = module.buildTool == ModuleBuildTool.MAVEN ? mavenArgs : args
         args = module.buildTool == ModuleBuildTool.GRADLE ? gradleOpts : args
@@ -72,9 +73,7 @@ Build tool: ${module.buildTool.toString()}"""
       }
 
       stage('[Maven/Gradle] Build artifact') {
-        boolean isCoreModule = module.type == ModuleType.OKAPI || module.type == ModuleType.KEYCLOAK || module.type == ModuleType.KONG
-
-        if (!params.PUSH_DESCRIPTOR_TO_ECR || isCoreModule) {
+        if (!params.PUSH_DESCRIPTOR_TO_ECR || module.buildTool == ModuleBuildTool.NONE){
           logger.info("Skip [CURL] Upload module descriptor stage")
           Utils.markStageSkippedForConditional('[CURL] Upload module descriptor')
         }else{
@@ -225,6 +224,10 @@ String getModuleVersion(ModuleBuildTool buildTool, String buildDir){
         return moduleVersion
         break
 
+      case ModuleBuildTool.NONE:
+        return "SNAPSHOT"
+        break
+
       default:
         throw new RuntimeException("Unsupported build tool for module")
     }
@@ -241,12 +244,22 @@ String getBuildDir(String moduleName, ModuleBuildTool buildTool){
       return "${env.WORKSPACE}/${moduleName}/service"
       break
 
+    case ModuleBuildTool.NONE:
+      return ""
+      break
+
     default:
       throw new RuntimeException("Unsupported build tool for module")
   }
 }
 
 ModuleBuildTool getBuildTool(String moduleName){
+  ModuleType type = ModuleType.determineModuleType(moduleName)
+
+  if(type == ModuleType.KONG || type == ModuleType.KEYCLOAK){
+    return ModuleBuildTool.MAVEN
+  }
+
   boolean hasPom = fileExists("${moduleName}/pom.xml")
   boolean hasGradle = fileExists("${moduleName}/build.gradle") || fileExists("${moduleName}/service/build.gradle")
 
