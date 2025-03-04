@@ -125,7 +125,7 @@ module "eks_cluster" {
 
       min_size     = var.eks_nodes_group_size.min_size
       max_size     = var.eks_nodes_group_size.max_size
-      desired_size = var.eks_nodes_group_size.min_size
+      desired_size = var.eks_nodes_group_size.desired_size
 
       # For future schedule https://registry.terraform.io/modules/terraform-aws-modules/eks/aws/latest/submodules/eks-managed-node-group#input_schedules
     }
