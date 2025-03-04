@@ -37,7 +37,7 @@ String gradleOpts = '--quiet --console plain --no-daemon'
 Logger logger = new Logger(this, env.JOB_BASE_NAME)
 FolioModule module = new FolioModule()
 String commitHash = new GitHubClient(this).getBranchInfo(moduleName, branch).commit.sha.take(7)
-String args = mavenArgs
+String args = ""
 
 ansiColor('xterm') {
   node(params.AGENT) {
