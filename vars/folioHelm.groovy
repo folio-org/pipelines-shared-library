@@ -313,10 +313,17 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
 
         break
       case 'mod-requests-mediated':
+        println("I'm in folioHelm for mod-requests-mediated")
+        println(ns)
+        println(ns.hasSecureTenant)
+        println(ns.secureTenantId)
+
         moduleConfig['extraEnvVars'] += ns.hasSecureTenant ? [
           name: 'SECURE_TENANT_ID',
           value: ns.getSecureTenant().tenantId
         ] : []
+
+        println(moduleConfig)
 
         break
       case 'edge-patron':
