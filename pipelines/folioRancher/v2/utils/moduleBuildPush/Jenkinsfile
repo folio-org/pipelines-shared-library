@@ -3,6 +3,7 @@ package folioRancher.v2.utils.moduleBuildPush
 import org.folio.Constants
 import org.folio.models.module.FolioModule
 import org.folio.models.module.ModuleBuildTool
+import org.folio.models.module.ModuleType
 import org.folio.utilities.GitHubClient
 import org.folio.utilities.Logger
 import org.jenkinsci.plugins.pipeline.modeldefinition.Utils
