@@ -1,5 +1,6 @@
 package org.folio.models
 
+import com.cloudbees.groovy.cps.NonCPS
 import org.folio.models.module.EurekaModule
 
 /**
@@ -69,5 +70,17 @@ class EurekaNamespace extends RancherNamespace {
     return tenants.values().find {
       it instanceof EurekaTenantConsortia && it.isCentralConsortiaTenant
     } as EurekaTenantConsortia
+  }
+
+  @NonCPS
+  @Override
+  String toString(){
+    return """
+      "class_name": "EurekaNamespace",
+      "applications": "$applications"
+      "enableECS_CCL": "$enableECS_CCL",
+      "hasSecureTenant": "$hasSecureTenant",
+      "secureTenant": "$secureTenant",
+    """
   }
 }
