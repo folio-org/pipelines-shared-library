@@ -49,7 +49,7 @@ ansiColor('xterm') {
           def URL = "https://$params.CLUSTER-$params.NAMESPACE-kong.$Constants.CI_ROOT_DOMAIN/search/index/instance-records/reindex/full"
           def Auth_URL = "https://$params.CLUSTER-$params.NAMESPACE-kong.$Constants.CI_ROOT_DOMAIN/authn/login"
 
-          Map body = ["username": tenant.getAdminUser(),
+          Map body = ["username": tenant.getAdminUser().username,
                       "password": tenant.getAdminUser().passwordPlainText]
 
           def headers = ["Content-Type"  : "application/json",
