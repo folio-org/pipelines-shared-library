@@ -37,6 +37,7 @@ String gradleOpts = '--quiet --console plain --no-daemon'
 Logger logger = new Logger(this, env.JOB_BASE_NAME)
 FolioModule module = new FolioModule()
 String commitHash = new GitHubClient(this).getBranchInfo(moduleName, branch).commit.sha.take(7)
+String args = mavenArgs
 
 ansiColor('xterm') {
   node(params.AGENT) {
@@ -60,6 +61,9 @@ ansiColor('xterm') {
 
         module.loadModuleDetails("${moduleName}-${getModuleVersion(module.buildTool, module.buildDir)}.${commitHash}")
 
+        args = module.buildTool == ModuleBuildTool.MAVEN ? mavenArgs : args
+        args = module.buildTool == ModuleBuildTool.GRADLE ? gradleOpts : args
+
         buildName "#${moduleName}.${env.BUILD_ID}"
         buildDescription """Module: ${module.id}
 Branch: ${branch}
@@ -67,9 +71,6 @@ Build tool: ${module.buildTool.toString()}"""
       }
 
       stage('[Maven/Gradle] Build artifact') {
-        String args = module.buildTool == ModuleBuildTool.MAVEN ? mavenArgs : ""
-        args = module.buildTool == ModuleBuildTool.GRADLE ? gradleOpts : args
-
         compile(module, args)
 
         module.descriptor = [readJSON(file: module.modDescriptorPath)]
@@ -85,7 +86,7 @@ Build tool: ${module.buildTool.toString()}"""
           Utils.markStageSkippedForConditional('[Docker] Build image and push')
         }else{
 
-          buildAndPushImage(module)
+          buildAndPushImage(module, args)
 
           archiveArtifacts allowEmptyArchive: true, artifacts: "**/${module.name}-${module.version}.tar.gz", fingerprint: true, defaultExcludes: false
         }
@@ -148,7 +149,7 @@ void compile(FolioModule module, String args) {
   }
 }
 
-def buildAndPushImage(FolioModule module) {
+def buildAndPushImage(FolioModule module, String args) {
   docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
     common.checkEcrRepoExistence(module.name)
 
@@ -161,7 +162,7 @@ def buildAndPushImage(FolioModule module) {
         case ModuleBuildTool.GRADLE:
           String shellCmd = """
             echo '[INFO] Build Container Image'
-            ./gradlew ${commonGradleOpts} -PdockerRepo=folioci -PappVersion=${module.version} buildImage
+            ./gradlew ${args} -PdockerRepo=folioci -PappVersion=${module.version} buildImage
 
             echo '[INFO] Rename Local Container Image'
             docker tag folioci/${module.name}:${module.version}.${env.BUILD_NUMBER} ${module.name}:${module.version}
