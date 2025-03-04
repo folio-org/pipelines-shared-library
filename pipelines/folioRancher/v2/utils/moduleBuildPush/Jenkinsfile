@@ -67,12 +67,8 @@ Build tool: ${module.buildTool.toString()}"""
       }
 
       stage('[Maven/Gradle] Build artifact') {
-        println("Begin compile")
-
         String args = module.buildTool == ModuleBuildTool.MAVEN ? mavenArgs : ""
         args = module.buildTool == ModuleBuildTool.GRADLE ? gradleOpts : args
-
-        println("Before compile")
 
         compile(module, args)
 
