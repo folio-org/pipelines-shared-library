@@ -70,6 +70,8 @@ Build tool: ${module.buildTool.toString()}"""
         String args = module.buildTool == ModuleBuildTool.MAVEN ? mavenArgs : args
         args = module.buildTool == ModuleBuildTool.GRADLE ? gradleOpts : args
 
+        println("Before compile")
+
         compile(module, args)
 
         module.descriptor = [readJSON(file: module.modDescriptorPath)]
@@ -139,9 +141,7 @@ void compile(FolioModule module, String args) {
         break
 
       case ModuleBuildTool.GRADLE:
-        println("I'm in Gradle")
         sh(label: 'Build with Gradle', script: "./gradlew ${args} -PappVersion=${module.version} assemble")
-        println("I'm in Gradle after")
         break
 
       default:
