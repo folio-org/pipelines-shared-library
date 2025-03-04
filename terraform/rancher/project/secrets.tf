@@ -83,6 +83,7 @@ resource "rancher2_secret" "eureka_common" {
     #KC_URL                                        = base64encode("https://${local.keycloak_url}")
     KC_URL                                       = base64encode("http://keycloak-${rancher2_namespace.this.id}-headless.${rancher2_namespace.this.id}.svc.cluster.local:8080")
     KC_INTEGRATION_ENABLED                       = base64encode("true")
+    KC_IDENTITY_PROVIDER_BASE_URL                = base64encode("https://${local.keycloak_url}")
     KONG_ADMIN_URL                               = base64encode("http://kong-admin-api-${rancher2_namespace.this.id}")
     KONG_INTEGRATION_ENABLED                     = base64encode("true")
     OKAPI_INTEGRATION_ENABLED                    = base64encode(var.okapi_integration_enabled)

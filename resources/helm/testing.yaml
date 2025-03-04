@@ -4530,6 +4530,8 @@ mod-consortia-keycloak:
       value: '5'
     - name: SERVER_PORT
       value: '8080'
+    - name: SINGLE_TENANT_UX
+      value: 'true'
   extraJavaOpts:
     - -XX:MaxRAMPercentage=70.0
   integrations:
@@ -4650,6 +4652,8 @@ mod-users-keycloak:
       value: '20'
     - name: INCLUDE_ONLY_VISIBLE_PERMISSIONS
       value: 'false'
+    - name: SINGLE_TENANT_UX
+      value: 'true'
   integrations:
     db:
       enabled: true
