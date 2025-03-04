@@ -50,8 +50,8 @@ ansiColor('xterm') {
 
           def tenant = folioDefault.tenants()[params.TENANT]
 
-          def URL = "https//$params.CLUSTER-$params.NAMESPACE-kong.$Constants.CI_ROOT_DOMAIN/search/index/instance-records/reindex/full"
-          def Auth_URL = "https//$params.CLUSTER-$params.NAMESPACE-kong.$Constants.CI_ROOT_DOMAIN/authn/login"
+          def URL = "https://$params.CLUSTER-$params.NAMESPACE-kong.$Constants.CI_ROOT_DOMAIN/search/index/instance-records/reindex/full"
+          def Auth_URL = "https://$params.CLUSTER-$params.NAMESPACE-kong.$Constants.CI_ROOT_DOMAIN/authn/login"
 
           Map body = [
             "username": tenant.getAdminUser(),
