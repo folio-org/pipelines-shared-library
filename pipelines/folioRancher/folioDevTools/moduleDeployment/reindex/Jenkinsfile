@@ -3,9 +3,6 @@ package folioRancher.folioDevTools.moduleDeployment.reindex
 
 
 import org.folio.Constants
-import org.folio.models.EurekaTenant
-import org.folio.models.OkapiTenant
-import org.folio.rest_v2.eureka.Kong
 import org.folio.utilities.Logger
 import org.folio.utilities.RestClient
 import org.jenkinsci.plugins.workflow.libs.Library
@@ -51,7 +48,7 @@ ansiColor('xterm') {
             folioCommon.kitfoxApproval()
           }
 
-          OkapiTenant tenant = new OkapiTenant(params.TENANT)
+          def tenant = folioDefault.tenants[params.TENANT]
 
           def URL = "https//$params.CLUSTER-$params.NAMESPACE-kong.$Constants.CI_ROOT_DOMAIN/search/index/instance-records/reindex/full"
           def Auth_URL = "https//$params.CLUSTER-$params.NAMESPACE-kong.$Constants.CI_ROOT_DOMAIN/authn/login"
