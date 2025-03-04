@@ -4,6 +4,7 @@ package folioRancher.folioDevTools.moduleDeployment.reindex
 
 import org.folio.Constants
 import org.folio.models.EurekaTenant
+import org.folio.models.OkapiTenant
 import org.folio.rest_v2.eureka.Kong
 import org.folio.utilities.Logger
 import org.folio.utilities.RestClient
@@ -42,25 +43,38 @@ ansiColor('xterm') {
         checkout scm
       }
 
-        stage('[Start] reindex on tenant') {
-            logger.info("Start reindex on tenant: ${params.TENANT}")
-            folioHelm.withKubeConfig(params.CLUSTER) {
+      stage('[Start]') {
+        logger.info("Reindex on tenant: ${params.TENANT}")
+        folioHelm.withKubeConfig(params.CLUSTER) {
 
-                if (params.NAMESPACE == 'sprint') {
-                    folioCommon.kitfoxApproval()
-                }
-//                sh(script: "kubectl delete pod -l 'app.kubernetes.io/name=mod-search' --force --namespace $params.NAMESPACE")
-//                sleep time: 3, unit: 'MINUTES' //Wait until mod-search is restarted
-                Kong kong = new Kong(this, "https://$params.CLUSTER-$params.NAMEPSACE-kong.$Constants.CI_ROOT_DOMAIN",
-                        "https://$params.CLUSTER-$params.NAMEPSACE-keycloak.$Constants.CI_ROOT_DOMAIN", true)
-                def URL = kong.generateUrl("/search/index/instance-records/reindex/full")
-                RestClient client = new RestClient(this, true)
-                def headers = kong.getTenantHttpHeaders(new EurekaTenant("${params.TENANT}"), true)
-                def response = client.post(URL, null, headers, [200, 201, 202, 204])
+          if (params.NAMESPACE == 'sprint') {
+            folioCommon.kitfoxApproval()
+          }
 
-                println(response.body)
-            }
+          OkapiTenant tenant = new OkapiTenant(params.TENANT)
+
+          def URL = "https//$params.CLUSTER-$params.NAMESPACE-kong.$Constants.CI_ROOT_DOMAIN/search/index/instance-records/reindex/full"
+          def Auth_URL = "https//$params.CLUSTER-$params.NAMESPACE-kong.$Constants.CI_ROOT_DOMAIN/authn/login"
+
+          Map body = [
+            "username": tenant.getAdminUser(),
+            "password": tenant.getAdminUser().passwordPlainText
+          ]
+
+          def headers = [
+            "Content-Type": "application/json",
+            "X-Okapi-Tenant": params.TENANT
+          ]
+
+          def token = new RestClient(this).post(Auth_URL, body, headers, [200, 201, 202, 204]).body.access_token
+
+          headers.put('Authorization', "Bearer ${token}")
+
+          def response = new RestClient(this).post(URL, null, headers, [200, 201, 202, 204])
+
+          logger.info("Reindex response: ${response}")
         }
+      }
 
     } catch (e) {
       logger.warning("Caught exception: ${e}")
