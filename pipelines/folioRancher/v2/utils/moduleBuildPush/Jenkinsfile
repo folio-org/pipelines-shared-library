@@ -73,8 +73,6 @@ Build tool: ${module.buildTool.toString()}"""
       stage('[Maven/Gradle] Build artifact') {
         compile(module, args)
 
-        module.descriptor = [readJSON(file: module.modDescriptorPath)]
-
         zip zipFile: "${module.name}.jar.zip", glob: "**/${module.name}*.jar"
         archiveArtifacts allowEmptyArchive: true, artifacts: "${module.name}.jar.zip", fingerprint: true, defaultExcludes: false
       }
@@ -93,10 +91,14 @@ Build tool: ${module.buildTool.toString()}"""
       }
 
       stage('[CURL] Upload module descriptor') {
-        if (!params.PUSH_DESCRIPTOR_TO_ECR) {
+        boolean isBackendOrEdge = module.type == ModuleType.BACKEND || module.type == ModuleType.EDGE
+
+        if (!params.PUSH_DESCRIPTOR_TO_ECR || !isBackendOrEdge) {
           logger.info("Skip [CURL] Upload module descriptor stage")
           Utils.markStageSkippedForConditional('[CURL] Upload module descriptor')
         }else{
+
+          module.descriptor = [readJSON(file: module.modDescriptorPath)]
 
           sh(
             label: "Upload Module Descriptor to Module Registry",
