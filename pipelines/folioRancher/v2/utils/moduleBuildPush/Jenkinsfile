@@ -12,7 +12,7 @@ import org.jenkinsci.plugins.workflow.libs.Library
 @Library('pipelines-shared-library@RANCHER-2057-test') _
 
 properties([
-  buildDiscarder(logRotator(numToKeepStr: '30')),
+  buildDiscarder(logRotator(numToKeepStr: '10')),
   parameters([
     folioParameters.moduleName(null), // MODULE_NAME, Folio Module moduleName
     folioParameters.branchWithRef('MODULE_BRANCH', 'MODULE_NAME'), // MODULE_BRANCH, Module Github branch
