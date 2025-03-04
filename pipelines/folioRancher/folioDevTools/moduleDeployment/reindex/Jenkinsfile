@@ -44,7 +44,11 @@ ansiColor('xterm') {
             folioCommon.kitfoxApproval()
           }
 
-          def tenant = folioDefault.tenants()[params.TENANT]
+          sh(script: "kubectl delete pod -l 'app.kubernetes.io/name=mod-search' --namespace=${params.NAMESPACE}", returnStatus: true)
+
+          sleep time: 3, unit: 'MINUTES'
+
+          def tenant = params.TENANT == 'diku' ? folioDefault.tenants()[params.TENANT] : folioDefault.consortiaTenants()[params.TENANT]
 
           def URL = "https://$params.CLUSTER-$params.NAMESPACE-kong.$Constants.CI_ROOT_DOMAIN/search/index/instance-records/reindex/full"
           def Auth_URL = "https://$params.CLUSTER-$params.NAMESPACE-kong.$Constants.CI_ROOT_DOMAIN/authn/login"
