@@ -43,9 +43,9 @@ import org.folio.utilities.Logger
  * }
  *}</pre>*/
 class PodTemplates {
-  private static final String CLOUD_NAME = 'folio-tmp'
+  private static final String CLOUD_NAME = 'folio-jenkins-agents'
   private static final String NAMESPACE = 'jenkins-agents'
-  private static final String SERVICE_ACCOUNT = 'jenkins-agent-sa'
+  private static final String SERVICE_ACCOUNT = 'jenkins-service-account'
   private static final String WORKING_DIR = '/home/jenkins/agent'
 
   private Object steps
@@ -99,8 +99,9 @@ spec:
         image: '732722833398.dkr.ecr.us-west-2.amazonaws.com/folio-jenkins-agent:latest',
         ttyEnabled: true,
         alwaysPullImage: true,
-        workingDir: '/home/jenkins/agent'
-        // TODO: Define resource requests/limits after production load testing
+        workingDir: '/home/jenkins/agent',
+        resourceRequestMemory: '1536Mi',
+        resourceLimitMemory: '2048Mi',
       )]) {
       body.call()
     }
@@ -139,6 +140,16 @@ spec:
   void stripesTemplate(Closure body) {
     kanikoTemplate {
       steps.podTemplate(label: JenkinsAgentLabel.STRIPES_AGENT.getLabel(),
+        yaml: """
+spec:
+  topologySpreadConstraints:
+  - maxSkew: 2
+    topologyKey: kubernetes.io/hostname
+    whenUnsatisfiable: DoNotSchedule
+    labelSelector:
+      matchLabels:
+        jenkins/label: "stripes-agent"
+""",
         containers: [steps.containerTemplate(name: 'kaniko',
           image: 'gcr.io/kaniko-project/executor:debug',
           resourceRequestMemory: '8Gi',
