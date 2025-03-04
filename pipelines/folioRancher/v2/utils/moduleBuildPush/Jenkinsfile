@@ -257,7 +257,7 @@ ModuleBuildTool getBuildTool(String moduleName){
   ModuleType type = ModuleType.determineModuleType(moduleName)
 
   if(type == ModuleType.KONG || type == ModuleType.KEYCLOAK){
-    return ModuleBuildTool.MAVEN
+    return ModuleBuildTool.NONE
   }
 
   boolean hasPom = fileExists("${moduleName}/pom.xml")
