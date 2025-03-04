@@ -37,7 +37,7 @@ module "eks_cluster" {
   version = "~>19.12.0"
 
   cluster_name      = terraform.workspace
-  cluster_version   = "1.29"
+  cluster_version   = "1.31" #TODO: Temporary solution to use the latest version of the cluster. Remove before merging to avoid merge conflicts
   cluster_ip_family = "ipv4"
 
   cluster_endpoint_private_access = false
@@ -125,7 +125,7 @@ module "eks_cluster" {
 
       min_size     = var.eks_nodes_group_size.min_size
       max_size     = var.eks_nodes_group_size.max_size
-      desired_size = var.eks_nodes_group_size.min_size
+      desired_size = var.eks_nodes_group_size.desired_size
 
       # For future schedule https://registry.terraform.io/modules/terraform-aws-modules/eks/aws/latest/submodules/eks-managed-node-group#input_schedules
     }

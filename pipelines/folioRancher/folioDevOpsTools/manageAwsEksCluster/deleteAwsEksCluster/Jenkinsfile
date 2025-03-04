@@ -1,44 +1,25 @@
 #!groovy
 import org.folio.models.TerraformConfig
 
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-1390') _
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '20')),
   disableConcurrentBuilds(),
   parameters([
     folioParameters.cluster(),
-    folioParameters.agent(),
     folioParameters.refreshParameters()
   ])
 ])
+
+if (params.REFRESH_PARAMETERS) {
+  currentBuild.result = 'ABORTED'
+  return
+}
 
 TerraformConfig tfConfig = new TerraformConfig('terraform/rancher/cluster')
   .withWorkspace(params.CLUSTER)
 
 ansiColor('xterm') {
-  if (params.REFRESH_PARAMETERS) {
-    currentBuild.result = 'ABORTED'
-    error('DRY RUN BUILD, PARAMETERS REFRESHED!')
-  }
-  node(params.AGENT) {
-    try {
-      stage('Ini') {
-        buildName "${params.CLUSTER}.${env.BUILD_ID}"
-      }
-
-      stage('Checkout') {
-        checkout scm
-      }
-
-      folioTerraformFlow.manageCluster('destroy', tfConfig)
-    } catch (e) {
-      println "Caught exception: ${e}"
-      error(e.getMessage())
-    } finally {
-      stage('Cleanup') {
-        cleanWs notFailBuild: true
-      }
-    }
-  }
+  folioTerraformFlow.manageCluster('destroy', tfConfig)
 }

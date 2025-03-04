@@ -35,7 +35,7 @@ class Constants {
   static String AWS_S3_POSTGRES_BACKUPS = 'aws-s3-db-backups-credentials'
   static String AWS_EKS_VPC_NAME = 'folio-rancher-vpc'
   static String AWS_EKS_ADMIN_USERS = 'rancher-port-forward,jenkins-service-user,oleksandrhaimanov,eldiiarduishenaliev,tarasspashchenko,stanislav,arsenatoyan,dmytromoroz,vasylavramenko,yaroslavishchenko,sergiimasiuk'
-  static List AWS_EKS_CLUSTERS = ['folio-testing', 'folio-dev', 'folio-perf', 'folio-tmp', 'folio-etesting', 'folio-edev', 'folio-eperf']
+  static List AWS_EKS_CLUSTERS = ['folio-testing', 'folio-dev', 'folio-perf', 'folio-tmp', 'folio-etesting', 'folio-edev', 'folio-eperf', 'folio-jenkins-agents']
   static List AWS_EKS_TMP_NAMESPACES = ['test', 'test-1', 'test-2', 'tdspora']
   static List AWS_EKS_TESTING_NAMESPACES = ['cypress', 'data-migration', 'ecs-snapshot', 'karate', 'snapshot', 'snapshot2', 'sprint', 'pre-bugfest', 'orchid-migration']
   static List AWS_EKS_RELEASE_NAMESPACES = ['poppy', 'quesnelia']
@@ -102,10 +102,10 @@ class Constants {
 
   //Kubecost
   static String KUBECOST_AWS_CREDENTIALS_ID = 'kubecost_athena_aws_user'
-  static String KUBECOST_LICENSE_KEY = 'kubecost_license_key'
+  static String KUBECOST_LICENSE_KEY = 'kubecost-license-key'
 
   //Monitoring/Prometheus
-  static String SLACK_WEBHOOK_URL = 'slack_webhook_url'
+  static String SLACK_WEBHOOK_URL = 'slack-webhook-url'
 
   //Helm
   static String HELM_MODULES_CONFIG_PATH = 'resources/helm'

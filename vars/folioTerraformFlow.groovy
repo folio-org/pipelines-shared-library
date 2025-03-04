@@ -1,29 +1,48 @@
 import org.folio.Constants
+import org.folio.jenkins.JenkinsAgentLabel
+import org.folio.jenkins.PodTemplates
 import org.folio.models.TerraformConfig
 
 void manageCluster(String action, TerraformConfig config) {
-  folioTerraform.client {
-    _clusterCredentials {
-      switch (action) {
-        case 'apply':
-          apply(config, true)
-          break
-        case 'destroy':
-          Closure preAction = {
-            dir(config.getWorkDir()) {
-              try {
-                def resources = sh(script: "terraform state list | grep rancher2", returnStdout: true).trim()
-                resources.tokenize().each {
-                  it ==~ /rancher2_cluster.*/ ? null : folioTerraform.removeFromState(config.getWorkDir(), "${it}")
+  PodTemplates podTemplates = new PodTemplates(this)
+
+  podTemplates.defaultTemplate {
+    node(JenkinsAgentLabel.DEFAULT_AGENT.getLabel()) {
+      stage('Ini') {
+        buildName "#${config.getWorkspace()}.${env.BUILD_ID}"
+      }
+
+      stage('Checkout') {
+        git(url: "${Constants.FOLIO_GITHUB_URL}/pipelines-shared-library.git",
+          branch: folioTools.getPipelineBranch(),
+          credentialsId: 'github-jenkins-service-user',
+          poll: false)
+      }
+
+      folioTerraform.client {
+        _clusterCredentials {
+          switch (action) {
+            case 'apply':
+              apply(config, true)
+              break
+            case 'destroy':
+              Closure preAction = {
+                dir(config.getWorkDir()) {
+                  try {
+                    def resources = sh(script: "terraform state list | grep rancher2", returnStdout: true).trim()
+                    resources.tokenize().each {
+                      it ==~ /rancher2_cluster.*/ ? null : folioTerraform.removeFromState(config.getWorkDir(), "${it}")
+                    }
+                    folioTerraform.removeFromState(config.getWorkDir(), 'elasticstack_elasticsearch_index_template.index_template[0]')
+                  } catch (e) {
+                    println(e.getMessage())
+                  }
                 }
-                folioTerraform.removeFromState(config.getWorkDir(), 'elasticstack_elasticsearch_index_template.index_template[0]')
-              } catch (e) {
-                println(e.getMessage())
               }
-            }
+              destroy(config, true, preAction)
+              break
           }
-          destroy(config, true, preAction)
-          break
+        }
       }
     }
   }
@@ -60,7 +79,9 @@ void apply(TerraformConfig config, boolean approveRequired = false, Closure preA
     }
     folioTerraform.plan(config.getWorkDir(), config.getVarsAsString())
     if (approveRequired) {
-      folioTerraform.planApprove(config.getWorkDir())
+      timeout(30) {
+        folioTerraform.planApprove(config.getWorkDir())
+      }
     }
     folioTerraform.apply(config.getWorkDir())
     attempts++
@@ -75,8 +96,10 @@ void destroy(TerraformConfig config, boolean approveRequired = false, Closure pr
   folioTerraform.selectWorkspace(config.getWorkDir(), config.getWorkspace())
   folioTerraform.statePull(config.getWorkDir())
 
-  if (approveRequired) {
-    input message: "Are you shure that you want to destroy ${config.getWorkspace()} cluster?"
+  timeout(30) {
+    if (approveRequired) {
+      input message: "Are you shure that you want to destroy ${config.getWorkspace()} cluster?"
+    }
   }
 
   preAction.call()
