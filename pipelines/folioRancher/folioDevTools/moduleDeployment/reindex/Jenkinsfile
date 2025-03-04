@@ -55,11 +55,15 @@ ansiColor('xterm') {
           def headers = ["Content-Type"  : "application/json",
                          "X-Okapi-Tenant": params.TENANT]
 
-          def token = new RestClient(this).post(Auth_URL, body, headers, [200, 201, 202, 204]).body.okapiToken
+          def token = new RestClient(this, true).post(Auth_URL, body, headers, [200, 201, 202, 204]).body.okapiToken
+
+          println(token)
+
+          input("Reindex all instance records on tenant ${params.TENANT}?", "Proceed with reindexing?")
 
           headers.put('Authorization', "Bearer ${token}")
 
-          def response = new RestClient(this).post(URL, null, headers, [200, 201, 202, 204])
+          def response = new RestClient(this, true).post(URL, null, headers, [200, 201, 202, 204])
 
           logger.info("Reindex response: ${response}")
         }
