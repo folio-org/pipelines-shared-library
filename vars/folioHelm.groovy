@@ -343,7 +343,7 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
 
         moduleConfig['extraEnvVars'] += ns.hasSecureTenant ? [
           name: 'SECURE_REQUESTS_FEATURE_ENABLED',
-          value: ns.hasSecureTenant
+          value: ns.hasSecureTenant.toString()
         ] : []
 
         break
