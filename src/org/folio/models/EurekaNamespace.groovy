@@ -37,9 +37,10 @@ class EurekaNamespace extends RancherNamespace {
   void addTenant(OkapiTenant tenant) {
     super.addTenant(tenant)
 
-    hasSecureTenant = (tenant as EurekaTenant).isSecureTenant
-    if (hasSecureTenant)
+    if ((tenant as EurekaTenant).isSecureTenant) {
       secureTenant = tenant as EurekaTenant
+      hasSecureTenant = (tenant as EurekaTenant).isSecureTenant
+    }
 
     applications.putAll((tenant as EurekaTenant).applications)
   }
