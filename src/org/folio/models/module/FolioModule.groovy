@@ -60,7 +60,7 @@ class FolioModule {
     }
 
     // Determine module type and version type
-    this.type = _determineModuleType(this.name)
+    this.type = ModuleType.determineModuleType(this.name)
     this.versionType = _determineVersionType(this.version)
 
     // If the version is a snapshot, extract the build ID
@@ -136,36 +136,6 @@ class FolioModule {
    */
   private static Matcher _getMatcher(String id) {
     return id =~ MODULE_NAME_AND_VERSION_PATTERN
-  }
-
-  /**
-   * Determines the module type based on its name.
-   *
-   * @param name The name of the module.
-   * @return The ModuleType corresponding to the given name.
-   * @throws Exception if the module type is unknown.
-   */
-  private static ModuleType _determineModuleType(String name) {
-    switch (name) {
-      case ~/^mod-.*/:
-        return ModuleType.BACKEND
-      case ~/^edge-.*/:
-        return ModuleType.EDGE
-      case ~/^folio_.*/:
-        return ModuleType.FRONTEND
-      case ~/^mgr-.*/:
-        return ModuleType.MGR
-      case ~/.*sidecar.*/:
-        return ModuleType.SIDECAR
-      case 'okapi':
-        return ModuleType.OKAPI
-      case 'folio-kong':
-        return ModuleType.KONG
-      case 'folio-keycloak':
-        return ModuleType.KEYCLOAK
-      default:
-        throw new Exception("Type of ${name} module is unknown")
-    }
   }
 
   /**
