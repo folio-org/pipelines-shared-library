@@ -74,8 +74,8 @@ Build tool: ${module.buildTool.toString()}"""
 
       stage('[Maven/Gradle] Build artifact') {
         if (!params.PUSH_DESCRIPTOR_TO_ECR || module.buildTool == ModuleBuildTool.NONE){
-          logger.info("Skip [CURL] Upload module descriptor stage")
-          Utils.markStageSkippedForConditional('[CURL] Upload module descriptor')
+          logger.info("Skip [Maven/Gradle] Build artifact stage")
+          Utils.markStageSkippedForConditional('[Maven/Gradle] Build artifact')
         }else{
           compile(module, args)
 
