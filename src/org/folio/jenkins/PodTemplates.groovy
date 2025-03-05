@@ -1,6 +1,9 @@
 package org.folio.jenkins
 
+import org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar
 import org.csanchez.jenkins.plugins.kubernetes.pod.retention.Never
+import org.csanchez.jenkins.plugins.kubernetes.pod.retention.OnFailure
+import org.csanchez.jenkins.plugins.kubernetes.pod.retention.PodRetention
 import org.csanchez.jenkins.plugins.kubernetes.pod.yaml.Merge
 import org.folio.utilities.Logger
 
@@ -38,16 +41,17 @@ import org.folio.utilities.Logger
  *         }
  *     }
  * }
- * }</pre>
- */
+ *}</pre>*/
 class PodTemplates {
   private static final String CLOUD_NAME = 'folio-tmp'
   private static final String NAMESPACE = 'jenkins-agents'
   private static final String SERVICE_ACCOUNT = 'jenkins-agent-sa'
+  private static final String WORKING_DIR = '/home/jenkins/agent'
 
   private Object steps
   private boolean debug
   private Logger logger
+  private PodRetention podRetention = new Never()
 
   /**
    * Constructs a {@code PodTemplates} instance.
@@ -59,6 +63,9 @@ class PodTemplates {
     this.steps = context
     this.debug = debug
     this.logger = new Logger(context, 'PodTemplates')
+    if (debug) {
+      this.podRetention = new OnFailure()
+    }
   }
 
   /**
@@ -69,30 +76,32 @@ class PodTemplates {
    * @param body A closure containing the pipeline logic to execute within this pod.
    */
   void defaultTemplate(Closure body) {
-    steps.podTemplate(
-      cloud: CLOUD_NAME,
+    steps.podTemplate(cloud: CLOUD_NAME,
       label: JenkinsAgentLabel.DEFAULT_AGENT.getLabel(),
       namespace: NAMESPACE,
       serviceAccount: SERVICE_ACCOUNT,
       nodeUsageMode: 'EXCLUSIVE',
       showRawYaml: debug,
       yamlMergeStrategy: new Merge(),
-      podRetention: new Never(),
-      workspaceVolume: steps.emptyDirWorkspaceVolume(),
+      yaml: """
+spec:
+  securityContext:
+    fsGroup: 1000
+""",
+      podRetention: this.podRetention,
       inheritYamlMergeStrategy: true,
       slaveConnectTimeout: 300,
       hostNetwork: false,
-      containers: [
-        steps.containerTemplate(
-          name: 'jnlp',
-          image: '732722833398.dkr.ecr.us-west-2.amazonaws.com/folio-jenkins-agent:latest',
-          ttyEnabled: true,
-          alwaysPullImage: true,
-          workingDir: '/home/jenkins/agent'
-          // TODO: Define resource requests/limits after production load testing
-        )
-      ]
-    ) {
+      workspaceVolume: steps.genericEphemeralVolume(accessModes: 'ReadWriteOnce',
+        requestsSize: '5Gi',
+        storageClassName: 'gp3'),
+      containers: [steps.containerTemplate(name: 'jnlp',
+        image: '732722833398.dkr.ecr.us-west-2.amazonaws.com/folio-jenkins-agent:latest',
+        ttyEnabled: true,
+        alwaysPullImage: true,
+        workingDir: '/home/jenkins/agent'
+        // TODO: Define resource requests/limits after production load testing
+      )]) {
       body.call()
     }
   }
@@ -107,19 +116,13 @@ class PodTemplates {
    */
   void javaTemplate(String javaVersion, Closure body) {
     defaultTemplate {
-      steps.podTemplate(
-        label: JenkinsAgentLabel.JAVA_AGENT.getLabel(),
-        showRawYaml: debug,
-        containers: [
-          steps.containerTemplate(
-            name: 'java',
-            image: "amazoncorretto:${javaVersion}-alpine-jdk",
-            command: 'sleep',
-            args: '99d'
-            // TODO: Define resource requests/limits after production load testing
-          )
-        ]
-      ) {
+      steps.podTemplate(label: JenkinsAgentLabel.JAVA_AGENT.getLabel(),
+        containers: [steps.containerTemplate(name: 'java',
+          image: "amazoncorretto:${javaVersion}-alpine-jdk",
+          command: 'sleep',
+          args: '99d'
+          // TODO: Define resource requests/limits after production load testing
+        )]) {
         logger.info("Using Java version: ${javaVersion}")
         body.call()
       }
@@ -134,19 +137,12 @@ class PodTemplates {
    * @param body A closure containing the pipeline logic to execute within this pod.
    */
   void stripesTemplate(Closure body) {
-    defaultTemplate {
-      steps.podTemplate(
-        label: JenkinsAgentLabel.STRIPES_AGENT.getLabel(),
-        showRawYaml: debug,
-        containers: [
-          steps.containerTemplate(
-            name: 'jnlp',
-            image: '732722833398.dkr.ecr.us-west-2.amazonaws.com/folio-jenkins-agent:latest',
-            resourceRequestMemory: '8Gi',
-            resourceLimitMemory: '9Gi'
-          )
-        ]
-      ) {
+    kanikoTemplate {
+      steps.podTemplate(label: JenkinsAgentLabel.STRIPES_AGENT.getLabel(),
+        containers: [steps.containerTemplate(name: 'kaniko',
+          image: 'gcr.io/kaniko-project/executor:debug',
+          resourceRequestMemory: '8Gi',
+          resourceLimitMemory: '10Gi')]) {
         body.call()
       }
     }
@@ -159,19 +155,14 @@ class PodTemplates {
    */
   void kanikoTemplate(Closure body) {
     defaultTemplate {
-      steps.podTemplate(
-        label: JenkinsAgentLabel.KANIKO_AGENT.getLabel(),
-        showRawYaml: debug,
-        containers: [
-          steps.containerTemplate(
-            name: 'kaniko',
-            image: 'gcr.io/kaniko-project/executor:debug',
-            command: 'sleep',
-            args: '99d'
-            // TODO: Define resource requests/limits after production load testing
-          )
-        ]
-      ) {
+      steps.podTemplate(label: JenkinsAgentLabel.KANIKO_AGENT.getLabel(),
+        containers: [steps.containerTemplate(name: 'kaniko',
+          image: 'gcr.io/kaniko-project/executor:debug',
+          envVars: [new KeyValueEnvVar('KANIKO_DIR', "${WORKING_DIR}/kaniko"),],
+          command: 'sleep',
+          args: '99d'
+          // TODO: Define resource requests/limits after production load testing
+        )]) {
         body.call()
       }
     }
@@ -184,19 +175,13 @@ class PodTemplates {
    */
   void cypressTemplate(Closure body) {
     defaultTemplate {
-      steps.podTemplate(
-        label: JenkinsAgentLabel.CYPRESS_AGENT.getLabel(),
-        showRawYaml: debug,
-        containers: [
-          steps.containerTemplate(
-            name: 'cypress',
-            image: '732722833398.dkr.ecr.us-west-2.amazonaws.com/cypress/browsers:latest',
-            command: 'sleep',
-            args: '99d'
-            // TODO: Define resource requests/limits after testing
-          )
-        ]
-      ) {
+      steps.podTemplate(label: JenkinsAgentLabel.CYPRESS_AGENT.getLabel(),
+        containers: [steps.containerTemplate(name: 'cypress',
+          image: '732722833398.dkr.ecr.us-west-2.amazonaws.com/cypress/browsers:latest',
+          command: 'sleep',
+          args: '99d'
+          // TODO: Define resource requests/limits after testing
+        )]) {
         body.call()
       }
     }
