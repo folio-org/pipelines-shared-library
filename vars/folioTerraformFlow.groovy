@@ -60,7 +60,9 @@ void apply(TerraformConfig config, boolean approveRequired = false, Closure preA
     }
     folioTerraform.plan(config.getWorkDir(), config.getVarsAsString())
     if (approveRequired) {
-      folioTerraform.planApprove(config.getWorkDir())
+      timeout(30) {
+        folioTerraform.planApprove(config.getWorkDir())
+      }
     }
     folioTerraform.apply(config.getWorkDir())
     attempts++
@@ -75,8 +77,10 @@ void destroy(TerraformConfig config, boolean approveRequired = false, Closure pr
   folioTerraform.selectWorkspace(config.getWorkDir(), config.getWorkspace())
   folioTerraform.statePull(config.getWorkDir())
 
-  if (approveRequired) {
-    input message: "Are you shure that you want to destroy ${config.getWorkspace()} cluster?"
+  timeout(30) {
+    if (approveRequired) {
+      input message: "Are you shure that you want to destroy ${config.getWorkspace()} cluster?"
+    }
   }
 
   preAction.call()
