@@ -165,7 +165,9 @@ def buildAndPushImage(FolioModule module, String args) {
     dir(module.buildDir) {
       switch (module.buildTool) {
         case [ModuleBuildTool.MAVEN, ModuleBuildTool.NONE]:
-          docker.build("${module.name}:${module.version}", '--no-cache=true --pull=true .')
+          String buildArgs = module.type == ModuleType.KONG ? '--build-arg TARGETARCH=amd64' : ''
+
+          docker.build("${module.name}:${module.version}", "--no-cache=true $buildArgs --pull=true .")
           break
 
         case ModuleBuildTool.GRADLE:
