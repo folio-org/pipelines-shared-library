@@ -98,9 +98,6 @@ void build(String okapiUrl, OkapiTenant tenant, boolean isEureka = false, String
     }
   }
 
-  stage('[UI] Cleanup') {
-    common.removeImage(tenantUi.getImageName())
-  }
 
   //TODO Refactoring required
   stage('Update keycloak redirect') {
@@ -132,17 +129,23 @@ void build(String okapiUrl, OkapiTenant tenant, boolean isEureka = false, String
         attributes                  : ['post.logout.redirect.uris': "/*##${tenantUrl}/*", login_theme: 'custom-theme']
       ]
       def ssoUpdates = [
-        ssoSessionIdleTimeout       : 7200,
-        ssoSessionMaxLifespan       : 7200,
-        clientSessionIdleTimeout    : 7200,
-        clientSessionMaxLifespan    : 7200
+        ssoSessionIdleTimeout   : 7200,
+        ssoSessionMaxLifespan   : 7200,
+        clientSessionIdleTimeout: 7200,
+        clientSessionMaxLifespan: 7200
       ]
 
       client.put(updateRealmUrl, JsonOutput.toJson(updateContent), headers)
       client.put("https://${keycloakDomain}/admin/realms/${tenantId}", JsonOutput.toJson(ssoUpdates), headers)
     }
   }
+
+  stage('[UI] Cleanup') {
+    common.removeImage(tenantUi.getImageName())
+  }
+
 }
+
 
 void deploy(RancherNamespace namespace, OkapiTenant tenant) {
   stage('[UI] Deploy bundle') {

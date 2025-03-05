@@ -46,7 +46,9 @@ ansiColor('xterm') {
 
           sh(script: "kubectl delete pod -l 'app.kubernetes.io/name=mod-search' --namespace=${params.NAMESPACE}", returnStatus: true)
 
-          sleep time: 3, unit: 'MINUTES'
+          folioHelm.checkDeploymentsRunning(params.NAMESPACE, 'mod-search')
+
+          sleep time: 1, unit: 'MINUTES'
 
           def tenant = params.TENANT == 'diku' ? folioDefault.tenants()[params.TENANT] : folioDefault.consortiaTenants()[params.TENANT]
 
