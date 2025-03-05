@@ -265,7 +265,7 @@ String getBuildDir(String moduleName, ModuleBuildTool buildTool){
       break
 
     case ModuleBuildTool.NONE:
-      return ""
+      return "${env.WORKSPACE}/${moduleName}"
       break
 
     default:
