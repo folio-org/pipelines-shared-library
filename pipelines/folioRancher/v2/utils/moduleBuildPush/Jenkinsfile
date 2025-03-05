@@ -164,7 +164,7 @@ def buildAndPushImage(FolioModule module, String args) {
 
     dir(module.buildDir) {
       switch (module.buildTool) {
-        case ModuleBuildTool.MAVEN:
+        case [ModuleBuildTool.MAVEN, ModuleBuildTool.NONE]:
           docker.build("${module.name}:${module.version}", '--no-cache=true --pull=true .')
           break
 
