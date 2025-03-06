@@ -142,21 +142,21 @@ ${updateAll ? "Full update" : "Source: " + source }"""
         logger.debug("Configured Tenants: ${namespace.modules.installJsonObject}")
 
 
-        if(!params.UPDATE_ALL) {
-          EurekaModule module = new EurekaModule()
-          module.loadModuleDetails("${params.MODULE_NAME}-${params.MODULE_SOURCE.contains('github') ?   : params.CONTAINER_IMAGE_TAG}")
-
-          module.name = params.MODULE_NAME
-        }
+//        if(!params.UPDATE_ALL) {
+//          EurekaModule module = new EurekaModule()
+//          module.loadModuleDetails("${params.MODULE_NAME}-${params.MODULE_SOURCE.contains('github') ?   : params.CONTAINER_IMAGE_TAG}")
+//
+//          module.name = params.MODULE_NAME
+//        }
 
 //        if()
 //          String featureBranch = params.MODULE_BRANCH
-        String featureHash = new GitHubClient(this).getBranchInfo(module.getName(), featureBranch).commit.sha.take(7)
-        String mavenArguments = params.MAVEN_ARGS.trim()
-        String commonGradleOpts = '--quiet --console plain --no-daemon'
-        Map<String, String> updatedAppInfoMap = [:]
-
-        input message: "Let's wait"
+//        String featureHash = new GitHubClient(this).getBranchInfo(module.getName(), featureBranch).commit.sha.take(7)
+//        String mavenArguments = params.MAVEN_ARGS.trim()
+//        String commonGradleOpts = '--quiet --console plain --no-daemon'
+//        Map<String, String> updatedAppInfoMap = [:]
+//
+//        input message: "Let's wait"
       }
 
       stage('[REST] Get Tenants with Module') {
