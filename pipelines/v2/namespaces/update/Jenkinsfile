@@ -98,7 +98,7 @@ ${updateAll ? "Full update" : "Source: " + source }"""
           logger.info("Skip [Maven/Gradle] Build artifact stage")
           Utils.markStageSkippedForConditional('[GitHub] Build & Push Module')
         }else{
-          def buildResult = new ModuleBuildPushPipeline()
+          def buildResult = new ModuleBuildPushPipeline(this)
             .withModuleName(moduleName)
             .withModuleBranch(branch)
             .withMavenArgs(args)
