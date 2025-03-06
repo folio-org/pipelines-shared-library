@@ -12,9 +12,9 @@ import org.jenkinsci.plugins.workflow.libs.Library
 //TODO: Switch to the RANCHER-1334
 @Library('pipelines-shared-library@RANCHER-2057-test') _
 
-class CallModuleBuildPush {
-  static final String JOB_NAME =
-}
+//class CallModuleBuildPush {
+//  static final String JOB_NAME =
+//}
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '10')),
