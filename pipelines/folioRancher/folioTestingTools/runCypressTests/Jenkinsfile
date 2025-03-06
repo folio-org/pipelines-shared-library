@@ -4,7 +4,7 @@ import org.folio.models.OkapiTenant
 import org.folio.models.OkapiUser
 import org.folio.models.parameters.CypressTestsParameters
 
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-1412') _
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '50')),
@@ -26,7 +26,6 @@ properties([
     booleanParam(name: 'REPORT_PORTAL_USE', defaultValue: false, description: 'Set to true, to send tests results to Report Portal'),
     choice(name: 'REPORT_PORTAL_RUN_TYPE', choices: ["day", "night", "week", "evrk"], description: 'Parameter for Report portal filtering'),
     folioParameters.runSanityCheck(),
-    folioParameters.cypressAgent(),
     folioParameters.refreshParameters()
   ])
 ])
