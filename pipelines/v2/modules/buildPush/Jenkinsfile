@@ -1,4 +1,4 @@
-package folioRancher.v2.modules.buildPush
+package v2.modules.buildPush
 
 import org.folio.Constants
 import org.folio.models.module.FolioModule
