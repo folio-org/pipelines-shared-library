@@ -89,7 +89,7 @@ static String getModuleId(String moduleName) {
 
 static String getBackendModulesList(PlatformType platform = PlatformType.OKAPI){
   String OKAPISpecific = "it == 'okapi'"
-  String EUREKASpecific = "it == 'folio-kong' || it == 'folio-keycloak' || it.startsWith('mgr-')"
+  String EUREKASpecific = "it == 'folio-kong' || it == 'folio-keycloak' || it == 'folio-module-sidecar' || it.startsWith('mgr-')"
 
   String filter = "it.startsWith('mod-') || it.startsWith('edge-')"
   filter = (!platform || platform == PlatformType.OKAPI ? "${filter} || ${OKAPISpecific}" : filter)
