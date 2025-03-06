@@ -18,7 +18,7 @@ import org.jenkinsci.plugins.workflow.libs.Library
  * Job properties and parameters
  */
 properties([
-  pipelineTriggers([cron('H 2 * * 1-5')]),
+  pipelineTriggers([cron('H 4 * * 1-5')]),
   buildDiscarder(logRotator(numToKeepStr: '30')),
   disableConcurrentBuilds(),
   parameters([
@@ -56,7 +56,7 @@ CreateNamespaceParameters namespaceBaseParams = new CreateNamespaceParameters.Bu
   .opensearchType('aws')
   .s3Type('built-in')
   .runSanityCheck(false)
-  .members('')
+  .members('dojo')
   .uiBuild(true)
   .worker('rancher')
   .build()
@@ -88,7 +88,7 @@ karateTestsParams.prototypeTenant = 'consortium'
 karateTestsParams.adminUserName = namespace.getSuperTenant().getAdminUser().getUsername()
 karateTestsParams.adminPassword = namespace.getSuperTenant().getAdminUser().getPassword()
 karateTestsParams.threadsCount = params.THREADS_COUNT
-karateTestsParams.reportPortalProjectName = ''
+karateTestsParams.reportPortalProjectName = 'karate-eureka'
 karateTestsParams.sendSlackNotification = false
 karateTestsParams.syncWithJira = false
 karateTestsParams.timeout = '2'
