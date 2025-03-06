@@ -11,7 +11,7 @@ import org.folio.utilities.Logger
 import org.jenkinsci.plugins.workflow.libs.Library
 import org.folio.rest_v2.Constants as RestConstants
 
-@Library('pipelines-shared-library@RANCHER-2146') _
+@Library('pipelines-shared-library@RANCHER-1334') _
 
 /**
  * Job properties and parameters
@@ -21,7 +21,7 @@ pipelineTriggers([cron('H 2 * * 1-5')]),
 buildDiscarder(logRotator(numToKeepStr: '30')),
 disableConcurrentBuilds(),
 parameters([
-  string(name: 'TESTS_BRANCH', defaultValue: 'master-eureka', description: "(Required) Karate tests repository branch to checkout"),
+  string(name: 'TESTS_BRANCH', defaultValue: 'master', description: "(Required) Karate tests repository branch to checkout"),
   string(name: 'THREADS_COUNT', defaultValue: '4', description: "(Required) Number of parallel threads"),
   booleanParam(name: 'DESTROY_AFTER', defaultValue: true, description: '(Optional) Set to false to not destroy namespace after tests execution'),
   folioParameters.refreshParameters()
@@ -89,8 +89,8 @@ karateTestsParams.adminUserName = namespace.getSuperTenant().getAdminUser().getU
 karateTestsParams.adminPassword = namespace.getSuperTenant().getAdminUser().getPassword()
 karateTestsParams.threadsCount = params.THREADS_COUNT
 karateTestsParams.reportPortalProjectName = 'lsdi'
-karateTestsParams.sendSlackNotification = false
-karateTestsParams.syncWithJira = false
+karateTestsParams.sendSlackNotification = true
+karateTestsParams.syncWithJira = true
 karateTestsParams.timeout = '2'
 karateTestsParams.lsdi = true
 karateTestsParams.karateConfig = "etesting-lsdi"
@@ -110,24 +110,24 @@ ansiColor('xterm') {
       stage('Checkout') {
         checkout scm
       }
-//
-//      stage('[Job] Destroy environment (before)') {
-//        folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceParams)
-//      }
-//
-//      stage('[Job] Provision environment') {
-//        folioNamespaceCreateEureka(namespaceParams)
-//      }
+
+      stage('[Job] Destroy environment (before)') {
+        folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceParams)
+      }
+
+      stage('[Job] Provision environment') {
+        folioNamespaceCreateEureka(namespaceParams)
+      }
 
       stage('[Flow] Execute tests') {
         folioKarateFlow(karateTestsParams)
       }
 
-//      if (params.DESTROY_AFTER) {
-//        stage('[Job] Destroy environment (after)') {
-//          folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceParams)
-//        }
-//      }
+      if (params.DESTROY_AFTER) {
+        stage('[Job] Destroy environment (after)') {
+          folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceParams)
+        }
+      }
 
     } catch (e) {
       logger.warning("Caught exception: ${e}")
