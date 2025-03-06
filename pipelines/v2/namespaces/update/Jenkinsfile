@@ -6,7 +6,6 @@ import org.folio.models.EurekaNamespace
 import org.folio.models.module.EurekaModule
 import org.folio.rest_v2.PlatformType
 import org.folio.rest_v2.eureka.Eureka
-import org.folio.utilities.GitHubClient
 import org.folio.utilities.Logger
 import org.jenkinsci.plugins.pipeline.modeldefinition.Utils
 import org.jenkinsci.plugins.workflow.libs.Library
