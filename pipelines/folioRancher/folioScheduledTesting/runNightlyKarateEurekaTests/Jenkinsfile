@@ -89,8 +89,8 @@ karateTestsParams.adminUserName = namespace.getSuperTenant().getAdminUser().getU
 karateTestsParams.adminPassword = namespace.getSuperTenant().getAdminUser().getPassword()
 karateTestsParams.threadsCount = params.THREADS_COUNT
 karateTestsParams.reportPortalProjectName = 'karate-eureka'
-karateTestsParams.sendSlackNotification = true
-karateTestsParams.syncWithJira = true
+karateTestsParams.sendSlackNotification = false
+karateTestsParams.syncWithJira = false
 karateTestsParams.timeout = '2'
 
 /**
