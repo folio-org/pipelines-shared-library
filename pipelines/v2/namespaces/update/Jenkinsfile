@@ -1,4 +1,4 @@
-package folioRancher.v2.namespace.update
+package folioRancher.v2.namespaces.update
 
 import groovy.transform.Field
 import hudson.AbortException
