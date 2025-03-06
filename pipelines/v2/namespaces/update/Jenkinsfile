@@ -1,19 +1,19 @@
 package v2.namespaces.update
 
-import groovy.transform.Field
 import hudson.AbortException
 import org.folio.Constants
+import org.folio.models.EurekaNamespace
 import org.folio.models.module.EurekaModule
 import org.folio.rest_v2.PlatformType
+import org.folio.rest_v2.eureka.Eureka
 import org.folio.utilities.GitHubClient
 import org.folio.utilities.Logger
-import org.folio.models.EurekaNamespace
-import org.folio.rest_v2.eureka.Eureka
+import org.jenkinsci.plugins.pipeline.modeldefinition.Utils
 import org.jenkinsci.plugins.workflow.libs.Library
+import v2.modules.buildPush.ModuleBuildPushPipeline
 
 @Library('pipelines-shared-library@RANCHER-2057-test') _
 
-/** Job properties and parameters */
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
   parameters([
@@ -53,37 +53,16 @@ if (params.REFRESH_PARAMETERS) {
   return
 }
 
-@Field
 Logger logger = new Logger(this, env.JOB_BASE_NAME)
 
-/** Pipeline */
 ansiColor('xterm') {
 
-  //if(params.MODULE_SOURCE.contains('github')) {
-  //  EurekaModule module = new EurekaModule()
-  //  module.name = params.MODULE_NAME
-  //
-  //}
-  //
-  //String featureBranch = params.MODULE_BRANCH
-  //String featureHash = new GitHubClient(this).getBranchInfo(module.getName(), featureBranch).commit.sha.take(7)
-  //String mavenArguments = params.MAVEN_ARGS.trim()
-  //String commonGradleOpts = '--quiet --console plain --no-daemon'
-  //Map<String, String> updatedAppInfoMap = [:]
-
-  /** Collect Rancher Namespace Configuration */
   EurekaNamespace namespace = new EurekaNamespace(params.CLUSTER, params.NAMESPACE)
     .withDeploymentConfigType(params.CONFIG_TYPE) as EurekaNamespace
 
-  /** Assign Desired Resource Profile for Environment */
   namespace.addDeploymentConfig(folioTools.getPipelineBranch())
 
-  Eureka eureka = new Eureka(this, namespace.generateDomain('kong'), namespace.generateDomain('keycloak'))
-  List<EurekaModule> modules = []
-
-  /** Check if the target environment is running */
   boolean isEnvActive = false
-
   folioHelm.withKubeConfig(namespace.getClusterName()) {
     isEnvActive = sh(script: "kubectl get pods --namespace ${namespace.getNamespaceName()} --no-headers", returnStdout: true).trim()
   }
@@ -95,54 +74,64 @@ ansiColor('xterm') {
     return
   }
 
+  boolean updateAll = params.UPDATE_ALL
+  String source = params.MODULE_SOURCE
+  boolean isGithub = source.contains('GitHub')
+
+  String moduleName = params.MODULE_NAME
+  String branch = params.MODULE_BRANCH
+  String args = params.MAVEN_ARGS.trim()
+
+  Eureka eureka = new Eureka(this, namespace.generateDomain('kong'), namespace.generateDomain('keycloak'))
+  List<EurekaModule> modules = []
+
   node(params.AGENT) {
     try {
       stage('Init') {
         buildName "#${params.MODULE_NAME}.${env.BUILD_ID}"
-
         buildDescription """Env: ${namespace.getWorkspaceName()}
-Branch: ${params.MODULE_BRANCH}
-Config: ${params.CONFIG_TYPE}
-${currentBuild.getBuildCauses()[0].shortDescription}"""
-
-        // Run extra init steps for non-Github module sources
-        if (!params.MODULE_SOURCE.contains('github')) { // Non-Github module source: Load existed module descriptor and put it to ECR. Why put it to ECR?
-          // Load Module Details and set Module Version
-          module.loadModuleDetails("${module.name}-${params.CONTAINER_IMAGE_TAG}")
-
-          // Load Module Descriptor from Folio Descriptor Registry
-          String getModuleDescriptorFromRegistry = "curl -s ${org.folio.rest_v2.Constants.OKAPI_REGISTRY}/_/proxy/modules/${module.name}-${module.version}"
-          String moduleDescriptor = sh(label: "Get Module Descriptor from Folio Descriptor Registry", returnStdout: true, script: getModuleDescriptorFromRegistry).trim()
-
-          logger.debug("Module Descriptor URL: ${getModuleDescriptorFromRegistry}")
-          logger.debug("Module Descriptor: ${moduleDescriptor}")
-
-          module.descriptor = [readJSON(text: moduleDescriptor)]
-
-          // Upload Module Descriptor to Eureka Descriptor Registry
-          sh(label: "Put Module Descriptor to Eureka Descriptor Registry",
-            returnStdout: false,
-            script: "curl -sS -X PUT ${Constants.EUREKA_REGISTRY_URL}${module.name}-${module.version} --data @- <<EOF\n${moduleDescriptor}\nEOF"
-          )
-        }
+${updateAll ? "Full update" : "Source: " + source }"""
       }
 
-      stage('[Git] Checkout module source') { // GitHub. Download module source to build
-        // Skip Stage if module source is not Github
-        if (!params.MODULE_SOURCE.contains('github')) {
-          logger.info("Skip Git checkout stage for non-Github module source: ${params.MODULE_SOURCE}")
-          Utils.markStageSkippedForConditional('[Git] Checkout module source')
-        } else {
-          checkout([
-            $class           : 'GitSCM',
-            branches         : [[name: "*/${featureBranch}"]],
-            extensions       : [[$class: 'RelativeTargetDirectory', relativeTargetDir: ${module.name}],
-                                [$class: 'CleanBeforeCheckout', deleteUntrackedNestedRepositories: true],
-                                [$class: 'AuthorInChangelog'],
-                                [$class: 'SubmoduleOption', recursiveSubmodules: true]],
-            userRemoteConfigs: [[url: "https://github.com/folio-org/${module.name}.git"]]
-          ])
+      stage('[GitHub] Build & Push Module') {
+        if (!isGithub){
+          logger.info("Skip [Maven/Gradle] Build artifact stage")
+          Utils.markStageSkippedForConditional('[GitHub] Build & Push Module')
+        }else{
+          def buildResult = new ModuleBuildPushPipeline()
+            .withModuleName(moduleName)
+            .withModuleBranch(branch)
+            .withMavenArgs(args)
+            .doPushImage(true)
+            .doPushDescriptor(true)
+            .withAgent(params.AGENT)
+            .run()
+
+          logger.debug(buildResult)
+
+          input message: "Let's wait"
         }
+
+//        // Run extra init steps for non-Github module sources
+//        if (!params.MODULE_SOURCE.contains('github')) { // Non-Github module source: Load existed module descriptor and put it to ECR. Why put it to ECR?
+//          // Load Module Details and set Module Version
+//          module.loadModuleDetails("${module.name}-${params.CONTAINER_IMAGE_TAG}")
+//
+//          // Load Module Descriptor from Folio Descriptor Registry
+//          String getModuleDescriptorFromRegistry = "curl -s ${org.folio.rest_v2.Constants.OKAPI_REGISTRY}/_/proxy/modules/${module.name}-${module.version}"
+//          String moduleDescriptor = sh(label: "Get Module Descriptor from Folio Descriptor Registry", returnStdout: true, script: getModuleDescriptorFromRegistry).trim()
+//
+//          logger.debug("Module Descriptor URL: ${getModuleDescriptorFromRegistry}")
+//          logger.debug("Module Descriptor: ${moduleDescriptor}")
+//
+//          module.descriptor = [readJSON(text: moduleDescriptor)]
+//
+//          // Upload Module Descriptor to Eureka Descriptor Registry
+//          sh(label: "Put Module Descriptor to Eureka Descriptor Registry",
+//            returnStdout: false,
+//            script: "curl -sS -X PUT ${Constants.EUREKA_REGISTRY_URL}${module.name}-${module.version} --data @- <<EOF\n${moduleDescriptor}\nEOF"
+//          )
+//        }
       }
 
       stage('Env scanning') { // GitHub. Build module source to artifact
@@ -160,47 +149,14 @@ ${currentBuild.getBuildCauses()[0].shortDescription}"""
           module.name = params.MODULE_NAME
         }
 
-        if()
-          String featureBranch = params.MODULE_BRANCH
+//        if()
+//          String featureBranch = params.MODULE_BRANCH
         String featureHash = new GitHubClient(this).getBranchInfo(module.getName(), featureBranch).commit.sha.take(7)
         String mavenArguments = params.MAVEN_ARGS.trim()
         String commonGradleOpts = '--quiet --console plain --no-daemon'
         Map<String, String> updatedAppInfoMap = [:]
 
         input message: "Let's wait"
-      }
-
-      stage('[Maven/Gradle] Compile') { // GitHub. Build module source to artifact
-        // Skip Stage if module source is not Github
-        if (!params.MODULE_SOURCE.contains('github')) {
-          logger.info("Skip Maven/Gradle build stage for non-Github module source: ${params.MODULE_SOURCE}")
-          Utils.markStageSkippedForConditional('[Maven/Gradle] Compile')
-        } else {
-          // Compile Application Module from Source Code
-          deployAppModule.compile(logger, module, featureHash, mavenArguments, commonGradleOpts)
-        }
-      }
-
-      stage('[Docker] Build and push') { // GitHub. Build image based on artifact and push it to ECR
-        // Skip Stage if module source is not Github
-        if (!params.MODULE_SOURCE.contains('github')) {
-          logger.info("Skip Docker build stage for non-Github module source: ${params.MODULE_SOURCE}")
-          Utils.markStageSkippedForConditional('[Docker] Build and push')
-        } else {
-          // Put Container Image to Amazon ECR
-          deployAppModule.buildAndPushContainerImage(logger, module)
-        }
-      }
-
-      stage('[CURL] Upload module descriptor') {
-        // Skip Stage if module source is not Github
-        if (!params.MODULE_SOURCE.contains('github')) {
-          logger.info("Skip Docker build stage for non-Github module source: ${params.MODULE_SOURCE}")
-          Utils.markStageSkippedForConditional('[Docker] Build and push')
-        } else {
-          // Put Module Descriptor to Application Module Registry
-          deployAppModule.putModuleDescriptorToRegistry(logger, module)
-        }
       }
 
       stage('[REST] Get Tenants with Module') {
