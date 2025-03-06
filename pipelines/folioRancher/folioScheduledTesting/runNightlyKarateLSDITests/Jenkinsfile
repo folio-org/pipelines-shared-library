@@ -11,7 +11,7 @@ import org.folio.utilities.Logger
 import org.jenkinsci.plugins.workflow.libs.Library
 import org.folio.rest_v2.Constants as RestConstants
 
-@Library('pipelines-shared-library@RANCHER-1334') _
+@Library('pipelines-shared-library@RANCHER-2146') _
 
 /**
  * Job properties and parameters
@@ -89,8 +89,8 @@ karateTestsParams.adminUserName = namespace.getSuperTenant().getAdminUser().getU
 karateTestsParams.adminPassword = namespace.getSuperTenant().getAdminUser().getPassword()
 karateTestsParams.threadsCount = params.THREADS_COUNT
 karateTestsParams.reportPortalProjectName = 'lsdi'
-karateTestsParams.sendSlackNotification = true
-karateTestsParams.syncWithJira = true
+karateTestsParams.sendSlackNotification = false
+karateTestsParams.syncWithJira = false
 karateTestsParams.timeout = '2'
 karateTestsParams.lsdi = true
 karateTestsParams.karateConfig = "etesting-lsdi"
@@ -110,24 +110,24 @@ ansiColor('xterm') {
       stage('Checkout') {
         checkout scm
       }
-
-      stage('[Job] Destroy environment (before)') {
-        folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceParams)
-      }
-
-      stage('[Job] Provision environment') {
-        folioNamespaceCreateEureka(namespaceParams)
-      }
+//
+//      stage('[Job] Destroy environment (before)') {
+//        folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceParams)
+//      }
+//
+//      stage('[Job] Provision environment') {
+//        folioNamespaceCreateEureka(namespaceParams)
+//      }
 
       stage('[Flow] Execute tests') {
         folioKarateFlow(karateTestsParams)
       }
 
-      if (params.DESTROY_AFTER) {
-        stage('[Job] Destroy environment (after)') {
-          folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceParams)
-        }
-      }
+//      if (params.DESTROY_AFTER) {
+//        stage('[Job] Destroy environment (after)') {
+//          folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceParams)
+//        }
+//      }
 
     } catch (e) {
       logger.warning("Caught exception: ${e}")
