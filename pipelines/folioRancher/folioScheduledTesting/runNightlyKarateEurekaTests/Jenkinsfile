@@ -131,19 +131,18 @@ ansiColor('xterm') {
       }
 
       stage('[Flow] Execute tests') {
-       folioKarateFlow(karateTestsParams)
-      }
-
-      if (params.DESTROY_AFTER) {
-        stage('[Job] Destroy environment (after)') {
-          folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceBaseParams)
-        }
+        folioKarateFlow(karateTestsParams)
       }
     } catch (e) {
       logger.warning("Caught exception: ${e}")
       error(e.getMessage())
     } finally {
       stage('Cleanup') {
+        if (params.DESTROY_AFTER) {
+          stage('[Job] Destroy environment (after)') {
+            folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceBaseParams)
+          }
+        }
         logger.debug("Workspace size: ${sh(returnStdout: true, script: 'du -sh .').trim()}")
         cleanWs notFailBuild: true
       }
