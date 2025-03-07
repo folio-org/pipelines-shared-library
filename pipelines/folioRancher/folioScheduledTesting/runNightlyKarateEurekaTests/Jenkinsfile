@@ -94,7 +94,6 @@ karateTestsParams.sendSlackNotification = false
 karateTestsParams.sendTeamsSlackNotification = false
 karateTestsParams.syncWithJira = false
 karateTestsParams.timeout = '2'
-karateTestsParams.modulesToTest = 'mod-calendar,mod-notify,mod-copycat'
 
 /**
  * Pipeline
