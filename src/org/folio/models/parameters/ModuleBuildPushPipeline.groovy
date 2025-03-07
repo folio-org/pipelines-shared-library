@@ -1,5 +1,7 @@
 package org.folio.models.parameters
 
+import org.jenkinsci.plugins.workflow.support.steps.build.RunWrapper
+
 class ModuleBuildPushPipeline {
   static String JOB_NAME = "/v2/DevOps_Tools/modules/build_push"
 
@@ -40,7 +42,7 @@ class ModuleBuildPushPipeline {
     return this
   }
 
-  def run(boolean waitJobComplete = true, boolean propagateJobRunStatus = true) {
+  RunWrapper run(boolean waitJobComplete = true, boolean propagateJobRunStatus = true) {
     return context.build(job: JOB_NAME, wait: waitJobComplete, propagate: propagateJobRunStatus, parameters: parameters)
   }
 }
