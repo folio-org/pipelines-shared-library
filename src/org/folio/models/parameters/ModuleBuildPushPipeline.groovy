@@ -1,7 +1,7 @@
 package org.folio.models.parameters
 
 class ModuleBuildPushPipeline {
-  static String JOB_NAME = "/v2/pipelines/v2/modules/buildPush"
+  static String JOB_NAME = "/v2/DevOps_Tools/modules/build_push"
 
   List parameters = []
   def context
