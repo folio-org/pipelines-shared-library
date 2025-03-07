@@ -92,7 +92,6 @@ karateTestsParams.adminPassword = namespace.getSuperTenant().getAdminUser().getP
 karateTestsParams.threadsCount = params.THREADS_COUNT
 karateTestsParams.reportPortalProjectName = 'lsdi'
 karateTestsParams.sendTeamsSlackNotification = true
-karateTestsParams.teamAssignment = new TeamAssignment("""[{ "name": "folijet", "slackChannel": "#folijet", "modules": ["mod-data-import"] }]""")
 karateTestsParams.sendSlackNotification = true
 karateTestsParams.syncWithJira = true
 karateTestsParams.timeout = '2'
@@ -124,7 +123,7 @@ ansiColor('xterm') {
       }
 
       stage('[Flow] Execute tests') {
-//        sleep time: 5, unit: 'MINUTES' // Wait for namespace to be ready
+        sleep time: 5, unit: 'MINUTES' // Wait for namespace to be ready
         folioKarateFlow(karateTestsParams)
       }
 
