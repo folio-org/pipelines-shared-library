@@ -41,6 +41,6 @@ class ModuleBuildPushPipeline {
   }
 
   def run(boolean waitJobComplete = true, boolean propagateJobRunStatus = true) {
-    return context.build(job: v2.modules.buildPush.JOB_NAME, wait: waitJobComplete, propagate: propagateJobRunStatus, parameters: parameters)
+    return context.build(job: JOB_NAME, wait: waitJobComplete, propagate: propagateJobRunStatus, parameters: parameters)
   }
 }
