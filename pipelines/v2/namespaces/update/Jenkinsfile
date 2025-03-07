@@ -108,7 +108,7 @@ ${updateAll ? "Full update" : "Source: " + source }"""
             .withAgent(params.AGENT)
             .run()
 
-          logger.debug(buildResult.getBuildVariables())
+          buildResult.metaClass.properties.each {logger.debug("${it.key}: ${it.value}")}
 
           input message: "Let's wait"
         }
