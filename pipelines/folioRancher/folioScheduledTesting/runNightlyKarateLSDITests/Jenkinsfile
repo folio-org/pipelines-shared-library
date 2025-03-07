@@ -7,6 +7,7 @@ import org.folio.models.RancherNamespace
 import org.folio.models.parameters.CreateNamespaceParameters
 import org.folio.models.parameters.KarateTestsParameters
 import org.folio.rest_v2.PlatformType
+import org.folio.testing.teams.TeamAssignment
 import org.folio.utilities.Logger
 import org.jenkinsci.plugins.workflow.libs.Library
 import org.folio.rest_v2.Constants as RestConstants
@@ -90,6 +91,8 @@ karateTestsParams.adminUserName = namespace.getSuperTenant().getAdminUser().getU
 karateTestsParams.adminPassword = namespace.getSuperTenant().getAdminUser().getPassword()
 karateTestsParams.threadsCount = params.THREADS_COUNT
 karateTestsParams.reportPortalProjectName = 'lsdi'
+karateTestsParams.sendTeamsSlackNotification = true
+karateTestsParams.teamAssignment = new TeamAssignment("""[{ "name": "folijet", "slackChannel": "#folijet", "modules": ["mod-data-import"] }]""")
 karateTestsParams.sendSlackNotification = true
 karateTestsParams.syncWithJira = true
 karateTestsParams.timeout = '2'
@@ -121,7 +124,7 @@ ansiColor('xterm') {
       }
 
       stage('[Flow] Execute tests') {
-        sleep time: 5, unit: 'MINUTES' // Wait for namespace to be ready
+//        sleep time: 5, unit: 'MINUTES' // Wait for namespace to be ready
         folioKarateFlow(karateTestsParams)
       }
 
