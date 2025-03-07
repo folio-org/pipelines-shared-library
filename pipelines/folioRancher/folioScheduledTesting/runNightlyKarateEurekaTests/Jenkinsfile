@@ -12,7 +12,7 @@ import org.folio.rest_v2.PlatformType
 import org.folio.utilities.Logger
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library@RANCHER-1334') _
+@Library('pipelines-shared-library@RANCHER-2167') _
 
 /**
  * Job properties and parameters
@@ -22,8 +22,9 @@ properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
   disableConcurrentBuilds(),
   parameters([
-    string(name: 'TESTS_BRANCH', defaultValue: 'master-eureka', description: "(Required) Karate tests repository branch to checkout"),
+    string(name: 'TESTS_BRANCH', defaultValue: 'FAT-18503-Config-variables-fix', description: "(Required) Karate tests repository branch to checkout"),
     string(name: 'THREADS_COUNT', defaultValue: '4', description: "(Required) Number of parallel threads"),
+    booleanParam(name: 'RETRY_FAILED', defaultValue: false, description: "(Optional) Retry failed tests"),
     booleanParam(name: 'DESTROY_AFTER', defaultValue: true, description: '(Optional) Set to false to not destroy namespace after tests execution'),
     folioParameters.refreshParameters()
   ])
@@ -112,7 +113,7 @@ ansiColor('xterm') {
         }
         if (nsExists) {
           retry(2) {
-            folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceBaseParams)
+            params.RETRY_FAILED ? null : folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceBaseParams)
           }
         } else {
           logger.warning("${namespaceBaseParams.getNamespaceName()} namespace does not exists!")
@@ -121,7 +122,7 @@ ansiColor('xterm') {
 
       stage('[Job] Provision environment') {
         try {
-          folioTriggerJob.createNamespaceFromBranch(createNamespaceJobName, namespaceFromBranchParams)
+          params.RETRY_FAILED ? null : folioTriggerJob.createNamespaceFromBranch(createNamespaceJobName, namespaceFromBranchParams)
         } catch (Exception new_ex) {
           slackSend(attachments: folioSlackNotificationUtils.renderFailedBuildResultMessage()
             , channel: "#rancher_tests_notifications")
