@@ -32,6 +32,10 @@ if (params.REFRESH_PARAMETERS) {
   return
 }
 
+if (params.NAMESPACE == 'snapshot' || 'snapshot2') {
+  folioCommon.kitfoxApproval()
+}
+
 
 /** Job variables */
 Logger logger = new Logger(this, env.JOB_BASE_NAME)
