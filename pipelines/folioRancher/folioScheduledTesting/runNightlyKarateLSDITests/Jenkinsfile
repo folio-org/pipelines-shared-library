@@ -121,6 +121,7 @@ ansiColor('xterm') {
       }
 
       stage('[Flow] Execute tests') {
+        sleep time: 5, unit: 'MINUTES' // Wait for namespace to be ready
         folioKarateFlow(karateTestsParams)
       }
 
