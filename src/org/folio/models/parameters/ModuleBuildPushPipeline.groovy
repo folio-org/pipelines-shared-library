@@ -11,32 +11,32 @@ class ModuleBuildPushPipeline {
   }
 
   ModuleBuildPushPipeline withModuleName(String name) {
-    parameters.add(string(name: 'MODULE_NAME', value: name))
+    parameters.add(context.string(name: 'MODULE_NAME', value: name))
     return this
   }
 
   ModuleBuildPushPipeline withModuleBranch(String branch) {
-    parameters.add(string(name: 'MODULE_BRANCH', value: branch))
+    parameters.add(context.string(name: 'MODULE_BRANCH', value: branch))
     return this
   }
 
   ModuleBuildPushPipeline withMavenArgs(String args) {
-    parameters.add(string(name: 'MAVEN_ARGS', value: args))
+    parameters.add(context.string(name: 'MAVEN_ARGS', value: args))
     return this
   }
 
   ModuleBuildPushPipeline doPushImage(boolean isPush) {
-    parameters.add(booleanParam(name: 'PUSH_IMAGE_TO_ECR', value: isPush))
+    parameters.add(context.booleanParam(name: 'PUSH_IMAGE_TO_ECR', value: isPush))
     return this
   }
 
   ModuleBuildPushPipeline doPushDescriptor(boolean isPush) {
-    parameters.add(booleanParam(name: 'PUSH_DESCRIPTOR_TO_ECR', value: isPush))
+    parameters.add(context.booleanParam(name: 'PUSH_DESCRIPTOR_TO_ECR', value: isPush))
     return this
   }
 
   ModuleBuildPushPipeline withAgent(String agent) {
-    parameters.add(string(name: 'AGENT', value: agent))
+    parameters.add(context.string(name: 'AGENT', value: agent))
     return this
   }
 
