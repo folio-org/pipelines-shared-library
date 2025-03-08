@@ -88,8 +88,8 @@ class FolioModule {
    * @param isRelease Indicates whether to fetch the release version (default is false).
    * @return The latest version ID of the module.
    */
-  String getLatestVersionFromRegistry(boolean isRelease = false) {
-    return getLatestVersionFromRegistry(this.name, isRelease)
+  String getLatestVersionFromRegistry(Object steps, boolean isRelease = false) {
+    return getLatestVersionFromRegistry(steps, this.name, isRelease)
   }
 
   /**
@@ -100,7 +100,7 @@ class FolioModule {
    * @return The latest version ID of the specified module.
    * @throws Exception if the module version cannot be retrieved.
    */
-  String getLatestVersionFromRegistry(String moduleName, boolean isRelease = false) {
+  String getLatestVersionFromRegistry(Object steps, String moduleName, boolean isRelease = false) {
     final String URI = '/_/proxy/modules'
     String reqParams = "?filter=${moduleName}&order=desc&orderBy=id&latest=1"
 
@@ -117,7 +117,7 @@ class FolioModule {
     }
 
     String url = "${Constants.OKAPI_REGISTRY}${URI}${reqParams}"
-    RestClient restClient = new RestClient(this)
+    RestClient restClient = new RestClient(steps)
     List response = restClient.get(url, [:]).body
 
     // Handle empty response

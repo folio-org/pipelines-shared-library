@@ -10,11 +10,11 @@ class Main extends Okapi {
   private Configurations config
   private Consortia consortia
   private static KNOWN_INSTALL_ERRORS = ['Connection refused',
-                                         'Bad Request(400) - POST request for mod-service-interaction',
-                                         'Bad Request(400) - POST request for mod-serials-management',
-                                         'Bad Request(400) - POST request for mod-licenses',
-                                         'Bad Request(400) - POST request for mod-agreements',
-                                         'Bad Request(400) - POST request for mod-oa']
+                                         'HTTP request failed(400) - POST request for mod-service-interaction',
+                                         'HTTP request failed(400) - POST request for mod-serials-management',
+                                         'HTTP request failed(400) - POST request for mod-licenses',
+                                         'HTTP request failed(400) - POST request for mod-agreements',
+                                         'HTTP request failed(400) - POST request for mod-oa']
 
   Main(Object context, String okapiDomain, OkapiTenant superTenant, boolean debug = false) {
     super(context, okapiDomain, superTenant, debug)
