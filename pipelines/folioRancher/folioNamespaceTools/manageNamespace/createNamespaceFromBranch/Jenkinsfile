@@ -143,7 +143,9 @@ RancherNamespace namespace = new RancherNamespace(namespaceParams.getClusterName
 
 CypressTestsParameters cypressSanityParameters = new CypressTestsParameters()
 cypressSanityParameters.setCiBuildId(env.JOB_BASE_NAME)
+cypressSanityParameters.setTestsSrcBranch('okapi')
 cypressSanityParameters.setTenantUrl("https://${namespace.generateDomain('diku')}")
+cypressSanityParameters.setOkapiUrl("https://${namespace.getDomains().okapi}")
 cypressSanityParameters.setTenant(new OkapiTenant('diku')
   .withAdminUser(new OkapiUser('diku_admin', 'admin')))
 cypressSanityParameters.setWorkerLabel('cypress-static') // Switch back to cypress when the ticket is resolved https://folio-org.atlassian.net/browse/RANCHER-1546
