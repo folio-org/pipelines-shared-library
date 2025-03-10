@@ -164,22 +164,28 @@ class Okapi extends Authorization {
   }
 
   void refreshServicesDiscovery() {
-    List discoveryList = getServicesDiscovery()
-    discoveryList.collect { service ->
-      Matcher match = (service.srvcId =~ /^(.*)-(\d*\.\d*\.\d*.*)$/)
-      if (match) {
-        def (_, module_name, version) = match[0]
-        if (service.url != "http://${module_name}") {
-          service.url = "http://${module_name}"
+    List discoveryList = getServicesDiscovery() ?: []
+    String pattern = /^(.*)-(\d*\.\d*\.\d*.*)$/
+
+    List updatedDiscoveryList = discoveryList.findResults { service ->
+      if (service.srvcId ==~ pattern) {
+        def groups = (service.srvcId =~ pattern)[0]
+        String moduleName = groups[1]
+        String serviceUrl = "http://${moduleName}"
+        if (service.url != serviceUrl) {
+          service.url = serviceUrl
           deleteServiceDiscovery(service.srvcId)
+          return service
+        } else {
+          return null
         }
       }
-      match.reset()
-      // Return the updated service
-      service
     }
-    if (discoveryList) {
-      publishServiceDiscovery(discoveryList)
+
+    if (!updatedDiscoveryList.isEmpty()) {
+      publishServiceDiscovery(updatedDiscoveryList)
+    } else {
+      logger.info("No services to update")
     }
   }
 
@@ -304,7 +310,7 @@ class Okapi extends Authorization {
     return response*.id
   }
 
-  void runInstanceIndex(OkapiTenant tenant){
+  void runInstanceIndex(OkapiTenant tenant) {
     String url = generateUrl("/search/index/instance-records/reindex/full")
     Map<String, String> headers = getAuthorizedHeaders(tenant)
     Map body = [

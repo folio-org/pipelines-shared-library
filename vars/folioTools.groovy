@@ -130,7 +130,7 @@ def getRancherProjectInfo(String project) {
 }
 
 def addGithubTeamsToRancherProjectMembersList(String teams, String project) {
-  if (project.trim() in Constants.AWS_EKS_DEV_NAMESPACES) {
+  if (project.trim() in Constants.AWS_EKS_DEV_NAMESPACES || project.trim() == 'sprint') {
     RestClient client = new RestClient(this)
     def members = getGitHubTeamsIds(teams)
     withCredentials([string(credentialsId: Constants.RANCHER_TOKEN_ID, variable: 'RANCHER_TOKEN')]) {
@@ -138,7 +138,7 @@ def addGithubTeamsToRancherProjectMembersList(String teams, String project) {
       def projects = getRancherProjectInfo(project)
       projects.each { projectInfo ->
         members.each { member ->
-          client.post(Constants.RANCHER_API_URL + "/projectroletemplatebindings", ["roleTemplateId"  : "project-member",
+          client.post(Constants.RANCHER_API_URL + "/projectroletemplatebindings", ["roleTemplateId"  : project == 'sprint' ? 'read-only' : "project-member",
                                                                                    "projectId"       : projectInfo,
                                                                                    "groupPrincipalId": "github_team://" + member], rancher_headers)
         }
