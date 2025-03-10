@@ -1,4 +1,6 @@
 import org.folio.client.reportportal.ReportPortalClient
+import org.folio.jenkins.JenkinsAgentLabel
+import org.folio.jenkins.PodTemplates
 import org.folio.models.parameters.CypressTestsParameters
 import org.folio.testing.IRunExecutionSummary
 import org.folio.testing.TestType
@@ -21,6 +23,16 @@ private final String _reportPortalExecPramsPath() {
  */
 private final String _testsResultsPath() {
   return 'result-paths.json'
+}
+
+void call(List<CypressTestsParameters> testsToRun) {
+  podTemplates.cypressTemplate {
+    node(JenkinsAgentLabel.CYPRESS_AGENT.getLabel()) {
+      stage('[Cypress] Compile tests'){
+        folioCypress.cloneCypressRepo(params.testsSrcBranch)
+      }
+    }
+  }
 }
 
 /**
@@ -216,28 +228,32 @@ void singleThreadRun(CypressTestsParameters params) {
     params.tenant.adminUser.username,
     params.tenant.adminUser.getPasswordPlainText())
 
-  node(params.workerLabel) {
-    stage('[Cypress] Single thread run') {
-      cleanWs notFailBuild: true
+  PodTemplates podTemplates = new PodTemplates(this)
 
-      echo "Running tests with worker ID: ${workerId}"
-      dir("cypress-${workerId}") {
-        // Clone the Cypress repository and compile tests
-        folioCypress.cloneCypressRepo(params.testsSrcBranch)
-        folioCypress.compileCypressTests()
+  podTemplates.cypressTemplate {
+    node(JenkinsAgentLabel.CYPRESS_AGENT.getLabel()) {
+      stage('[Cypress] Single thread run') {
+        cleanWs notFailBuild: true
 
-        timeout(time: params.timeout, unit: 'MINUTES') {
-          // Execute tests
-          folioCypress.executeTests(params.ciBuildId,
-            params.browserName,
-            params.execParameters,
-            workerId,
-            params.testrailProjectID,
-            params.testrailRunID)
+        echo "Running tests with worker ID: ${workerId}"
+        dir("cypress-${workerId}") {
+          // Clone the Cypress repository and compile tests
+          folioCypress.cloneCypressRepo(params.testsSrcBranch)
+          folioCypress.compileCypressTests()
+
+          timeout(time: params.timeout, unit: 'MINUTES') {
+            // Execute tests
+            folioCypress.executeTests(params.ciBuildId,
+              params.browserName,
+              params.execParameters,
+              workerId,
+              params.testrailProjectID,
+              params.testrailRunID)
+          }
+
+          // Archive test results
+          stashName = folioCypress.archiveTestResults(workerId)
         }
-
-        // Archive test results
-        stashName = folioCypress.archiveTestResults(workerId)
       }
     }
   }
