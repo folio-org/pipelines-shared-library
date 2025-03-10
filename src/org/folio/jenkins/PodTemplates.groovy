@@ -43,9 +43,9 @@ import org.folio.utilities.Logger
  * }
  *}</pre>*/
 class PodTemplates {
-  private static final String CLOUD_NAME = 'folio-tmp'
+  private static final String CLOUD_NAME = 'folio-jenkins-agents'
   private static final String NAMESPACE = 'jenkins-agents'
-  private static final String SERVICE_ACCOUNT = 'jenkins-agent-sa'
+  private static final String SERVICE_ACCOUNT = 'jenkins-service-account'
   private static final String WORKING_DIR = '/home/jenkins/agent'
 
   private Object steps
