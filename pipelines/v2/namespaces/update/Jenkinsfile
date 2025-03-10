@@ -110,6 +110,10 @@ ${updateAll ? "Full update" : "Source: " + source }"""
 
           buildResult.metaClass.properties.each {logger.debug("${it.name}: ${buildResult[it.name]}")}
 
+          logger.info("buildResult.rawBuild:")
+
+          buildResult.rawBuild.metaClass.properties.each {logger.debug("${it.name}: ${buildResult.rawBuild[it.name]}")}
+
           input message: "Let's wait"
         }
 
