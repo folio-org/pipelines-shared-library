@@ -164,6 +164,7 @@ class Constants {
   static String DOCKER_DEV_REPOSITORY_CREDENTIALS_ID = 'folio-docker-dev'
   static String DOCKER_DEV_REPOSITORY = 'docker.dev.folio.org'
   static String DOCKER_FOLIO_REPOSITORY_CREDENTIALS_ID = 'dockerhub-jenkins-service-user'
+  static String DOCKER_FOLIOCI_PULL_CREDENTIALS_ID = 'dockerhub-pull-credentials'
   static String DOCKER_FOLIO_REPOSITORY = 'docker-folio.dev.folio.org'
   static String ECR_FOLIO_REPOSITORY = '732722833398.dkr.ecr.us-west-2.amazonaws.com'
   static String ECR_FOLIO_REPOSITORY_CREDENTIALS_ID = 'aws-ecr-rw-credentials'
@@ -176,7 +177,6 @@ class Constants {
   static String JENKINS_JOB_RESTORE_PG_BACKUP = 'Rancher/Create-Restore-PosgreSQL-DB-backup'
   static String JENKINS_JOB_CREATE_TENANT = 'Rancher/Update/create-tenant'
   static String JENKINS_JOB_BACKEND_MODULES_DEPLOY_BRANCH = '/Rancher/Update/backend-modules-deploy-branch'
-  static List JENKINS_AGENTS = JenkinsAgentLabel.getAllLabels()
 
   static String TERRAFORM_DOCKER_CLIENT = 'hashicorp/terraform:1.4'
   static String JENKINS_JOB_SCHEMA_COMPARE = '/Rancher/folioSchemaCompare'
