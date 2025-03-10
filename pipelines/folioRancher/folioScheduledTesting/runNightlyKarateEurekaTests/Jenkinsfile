@@ -113,7 +113,7 @@ ansiColor('xterm') {
         }
         if (nsExists) {
           retry(2) {
-            folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceBaseParams)
+            params.RETRY_FAILED ? null : folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceBaseParams)
           }
         } else {
           logger.warning("${namespaceBaseParams.getNamespaceName()} namespace does not exists!")
