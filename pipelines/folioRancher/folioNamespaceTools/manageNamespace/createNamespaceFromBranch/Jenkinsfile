@@ -1,15 +1,17 @@
 #!groovy
+import org.folio.Constants
+import org.folio.jenkins.JenkinsAgentLabel
+import org.folio.jenkins.PodTemplates
 import org.folio.models.OkapiTenant
 import org.folio.models.OkapiUser
 import org.folio.models.RancherNamespace
 import org.folio.models.parameters.CreateNamespaceParameters
 import org.folio.models.parameters.CypressTestsParameters
 
-@Library('pipelines-shared-library@RANCHER-1404') _
+@Library('pipelines-shared-library@RANCHER-650-Jenkins-upgrade') _
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
-//  disableConcurrentBuilds(),
   parameters([
     folioParameters.cluster(),
     folioParameters.namespace(),
@@ -31,8 +33,6 @@ properties([
     folioParameters.opensearchType(),
     folioParameters.s3Type(),
     folioParameters.runSanityCheck(),
-    string(name: 'MEMBERS', defaultValue: '', description: '(Optional) Coma separated list of GitHub teams who need an access to the namespace'),
-    folioParameters.agent(),
     folioParameters.refreshParameters()
   ])
 ])
@@ -66,7 +66,6 @@ CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builde
   .kafkaType(params.KAFKA)
   .opensearchType(params.OPENSEARCH)
   .s3Type(params.S3_BUCKET)
-  .members(params.MEMBERS)
   .build()
 
 if (params.CONSORTIA) {
@@ -92,39 +91,42 @@ cypressSanityParameters.setNumberOfWorkers(4)
 cypressSanityParameters.setTimeout('60')
 
 ansiColor('xterm') {
-  node(params.AGENT) {
-    try {
-      stage('Ini') {
-        buildName "${params.CLUSTER}-${params.NAMESPACE}.${env.BUILD_ID}"
-        buildDescription "Branch: ${params.FOLIO_BRANCH}\nConfig: ${params.CONFIG_TYPE}\n" +
-          "DB version: ${params.DB_VERSION}\nRW split: ${params.RW_SPLIT}\nGreenmail: ${params.POSTGRESQL}\n" +
-          "Mock server: ${params.MOCK_SERVER}\nConsortia: ${params.CONSORTIA}"
-      }
+  PodTemplates podTemplates = new PodTemplates(this)
 
-      stage('Checkout') {
-        checkout scm
-      }
+  podTemplates.defaultTemplate {
+    node(JenkinsAgentLabel.DEFAULT_AGENT.getLabel()) {
+      try {
+        stage('Ini') {
+          buildName "${params.CLUSTER}-${params.NAMESPACE}.${env.BUILD_ID}"
+          buildDescription "Branch: ${params.FOLIO_BRANCH}\nConfig: ${params.CONFIG_TYPE}\n" +
+            "DB version: ${params.DB_VERSION}\nRW split: ${params.RW_SPLIT}\nGreenmail: ${params.POSTGRESQL}\n" +
+            "Mock server: ${params.MOCK_SERVER}\nConsortia: ${params.CONSORTIA}"
+        }
 
-      folioNamespaceCreate(namespaceParams)
+        stage('Checkout') {
+          git(url: "${Constants.FOLIO_GITHUB_URL}/pipelines-shared-library.git",
+            branch: folioTools.getPipelineBranch(),
+            credentialsId: Constants.PRIVATE_GITHUB_CREDENTIALS_ID,
+            poll: false)
+        }
 
-      stage('[Cypress] Run sanity check') {
-        if (params.RUN_SANITY_CHECK) {
-          folioCypressFlow.runWrapper(cypressSanityParameters.getCiBuildId(), false, '', false) {
-            folioCypressFlow.multiThreadRun(cypressSanityParameters)
+        folioNamespaceCreate(namespaceParams)
+
+        stage('[Cypress] Run sanity check') {
+          if (params.RUN_SANITY_CHECK) {
+            folioCypressFlow.runWrapper(cypressSanityParameters.getCiBuildId(), false, '', false) {
+              folioCypressFlow.multiThreadRun(cypressSanityParameters)
+            }
           }
         }
-      }
 
-    } catch (e) {
-      /** Put error message to the Job Run description */
-      currentBuild.description = e.getMessage()
-      currentBuild.result = 'FAILURE'
+      } catch (e) {
+        /** Put error message to the Job Run description */
+        currentBuild.description = e.getMessage()
+        currentBuild.result = 'FAILURE'
 
-      println "Caught exception: ${e}"
-      error(e.getMessage())
-    } finally {
-      stage('Cleanup') {
-        cleanWs notFailBuild: true
+        println "Caught exception: ${e}"
+        error(e.getMessage())
       }
     }
   }
