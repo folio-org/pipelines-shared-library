@@ -64,7 +64,9 @@ void apply(TerraformConfig config, boolean approveRequired = false, Closure preA
     }
     folioTerraform.plan(config.getWorkDir(), config.getVarsAsString())
     if (approveRequired) {
-      folioTerraform.planApprove(config.getWorkDir())
+      timeout(30) {
+        folioTerraform.planApprove(config.getWorkDir())
+      }
     }
     folioTerraform.apply(config.getWorkDir())
     attempts++
@@ -83,8 +85,10 @@ void destroy(TerraformConfig config, boolean approveRequired = false, Closure pr
     folioTerraform.cleanUpPostgresResources(config.getWorkDir())
   }
 
-  if (approveRequired) {
-    input message: "Are you sure that you want to destroy cluster: " + config.getWorkspace() + "?"
+  timeout(30) {
+    if (approveRequired) {
+      input message: "Are you sure that you want to destroy cluster: " + config.getWorkspace() + "?"
+    }
   }
 
   preAction.call()

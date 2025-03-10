@@ -1,44 +1,45 @@
 #!groovy
+import org.folio.Constants
+import org.folio.jenkins.JenkinsAgentLabel
+import org.folio.jenkins.PodTemplates
 import org.folio.models.TerraformConfig
 
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-650-Jenkins-upgrade') _
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '20')),
   disableConcurrentBuilds(),
   parameters([
     folioParameters.cluster(),
-    folioParameters.agent(),
     folioParameters.refreshParameters()
   ])
 ])
+
+if (params.REFRESH_PARAMETERS) {
+  currentBuild.result = 'ABORTED'
+  return
+}
 
 TerraformConfig tfConfig = new TerraformConfig('terraform/rancher/cluster')
   .withWorkspace(params.CLUSTER)
 
 ansiColor('xterm') {
-  if (params.REFRESH_PARAMETERS) {
-    currentBuild.result = 'ABORTED'
-    error('DRY RUN BUILD, PARAMETERS REFRESHED!')
-  }
-  node(params.AGENT) {
-    try {
+  PodTemplates podTemplates = new PodTemplates(this)
+
+  podTemplates.defaultTemplate {
+    node(JenkinsAgentLabel.DEFAULT_AGENT.getLabel()) {
       stage('Ini') {
-        buildName "${params.CLUSTER}.${env.BUILD_ID}"
+        buildName "#${params.CLUSTER}.${env.BUILD_ID}"
       }
 
       stage('Checkout') {
-        checkout scm
+        git(url: "${Constants.FOLIO_GITHUB_URL}/pipelines-shared-library.git",
+          branch: folioTools.getPipelineBranch(),
+          credentialsId: Constants.PRIVATE_GITHUB_CREDENTIALS_ID,
+          poll: false)
       }
 
       folioTerraformFlow.manageCluster('destroy', tfConfig)
-    } catch (e) {
-      println "Caught exception: ${e}"
-      error(e.getMessage())
-    } finally {
-      stage('Cleanup') {
-        cleanWs notFailBuild: true
-      }
     }
   }
 }

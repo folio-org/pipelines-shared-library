@@ -172,10 +172,10 @@ class Constants {
 
   //Kubecost
   static String KUBECOST_AWS_CREDENTIALS_ID = 'kubecost_athena_aws_user'
-  static String KUBECOST_LICENSE_KEY = 'kubecost_license_key'
+  static String KUBECOST_LICENSE_KEY = 'kubecost-license-key'
 
   //Monitoring/Prometheus
-  static String SLACK_WEBHOOK_URL = 'slack_webhook_url'
+  static String SLACK_WEBHOOK_URL = 'slack-webhook-url'
 
   //Helm
   static String HELM_MODULES_CONFIG_PATH = 'resources/helm'
