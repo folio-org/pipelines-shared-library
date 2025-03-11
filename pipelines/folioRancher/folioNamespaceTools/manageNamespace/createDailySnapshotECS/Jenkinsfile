@@ -1,7 +1,7 @@
 #!groovy
 package folioRancher.folioNamespaceTools.manageNamespace.createDailySnapshotECS
 
-import groovy.json.JsonSlurperClassic
+
 import org.folio.Constants
 import org.folio.models.*
 import org.folio.models.parameters.CreateNamespaceParameters
@@ -31,7 +31,7 @@ properties([buildDiscarder(logRotator(numToKeepStr: '30')),
                         folioParameters.agent(),
                         folioParameters.refreshParameters()]),
             pipelineTriggers([parameterizedCron('''45 20 * * * %CLUSTER=folio-testing;NAMESPACE=ecs-snapshot;CONFIG_TYPE=testing;CONSORTIA=true;RW_SPLIT=false;RETRY_ENABLE=false;POSTGRESQL=built-in;KAFKA=built-in;OPENSEARCH=aws;S3_BUCKET=built-in;AGENT=rancher''')])
-            ])
+])
 
 if (params.REFRESH_PARAMETERS) {
   currentBuild.result = 'ABORTED'
@@ -44,22 +44,6 @@ String sys_psswd = ''
 TerraformConfig tfConfig = new TerraformConfig('terraform/rancher/project')
   .withWorkspace("${params.CLUSTER}-${params.NAMESPACE}")
 
-tfConfig.addVar('rancher_cluster_name', params.CLUSTER)
-tfConfig.addVar('rancher_project_name', params.NAMESPACE)
-tfConfig.addVar('tenant_id', defaultTenantId)
-tfConfig.addVar('pg_password', Constants.PG_ROOT_DEFAULT_PASSWORD)
-tfConfig.addVar('pgadmin_password', Constants.PGADMIN_DEFAULT_PASSWORD)
-tfConfig.addVar('pg_version', '16.1')
-tfConfig.addVar('pg_dbname', 'folio')
-tfConfig.addVar('pg_vol_size', 100)
-tfConfig.addVar('pg_embedded', params.POSTGRESQL == 'built-in')
-tfConfig.addVar('kafka_shared', params.KAFKA != 'built-in')
-tfConfig.addVar('opensearch_shared', params.OPENSEARCH != 'built-in')
-tfConfig.addVar('s3_embedded', params.S3_BUCKET == 'built-in')
-tfConfig.addVar('pgadmin4', 'true')
-tfConfig.addVar('pg_ldp_user_password', Constants.PG_LDP_DEFAULT_PASSWORD)
-tfConfig.addVar('github_team_ids', folioTools.getGitHubTeamsIds("${Constants.ENVS_MEMBERS_LIST[params.NAMESPACE]},${params.MEMBERS}").collect { "\"${it}\"" })
-
 RancherNamespace namespace = new RancherNamespace(params.CLUSTER, params.NAMESPACE)
   .withDefaultTenant(defaultTenantId)
   .withDeploymentConfigType(params.CONFIG_TYPE)
@@ -70,8 +54,7 @@ namespace.addDeploymentConfig(CONFIG_BRANCH)
 Logger logger = new Logger(this, env.JOB_BASE_NAME)
 
 String installJsonS3Path = "${Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME}/ecs-snapshot/"
-List newInstallJson = new GitHubUtility(this).getEnableList('platform-complete', 'snapshot')
-newInstallJson.removeAll { module -> module.id == 'okapi' }
+List newInstallJson = []
 InstallRequestParams installRequestParams = new InstallRequestParams(reinstall: true)
   .withTenantParameters("centralTenantId=cs00000int")
 Main main = new Main(this, namespace.generateDomain('okapi'), namespace.getSuperTenant())
@@ -98,6 +81,25 @@ ansiColor('xterm') {
     stage('Ini') {
       buildName "${tfConfig.getWorkspace()}-${env.BUILD_ID}"
       buildDescription "Config: ${params.CONFIG_TYPE}"
+      newInstallJson = new GitHubUtility(this).getEnableList('platform-complete', 'snapshot')
+      newInstallJson.removeAll { module -> module.id == 'okapi' }
+    }
+    stage('[TF] Set variables') {
+      tfConfig.addVar('rancher_cluster_name', params.CLUSTER)
+      tfConfig.addVar('rancher_project_name', params.NAMESPACE)
+      tfConfig.addVar('tenant_id', defaultTenantId)
+      tfConfig.addVar('pg_password', Constants.PG_ROOT_DEFAULT_PASSWORD)
+      tfConfig.addVar('pgadmin_password', Constants.PGADMIN_DEFAULT_PASSWORD)
+      tfConfig.addVar('pg_version', '16.1')
+      tfConfig.addVar('pg_dbname', 'folio')
+      tfConfig.addVar('pg_vol_size', 100)
+      tfConfig.addVar('pg_embedded', params.POSTGRESQL == 'built-in')
+      tfConfig.addVar('kafka_shared', params.KAFKA != 'built-in')
+      tfConfig.addVar('opensearch_shared', params.OPENSEARCH != 'built-in')
+      tfConfig.addVar('s3_embedded', params.S3_BUCKET == 'built-in')
+      tfConfig.addVar('pgadmin4', 'true')
+      tfConfig.addVar('pg_ldp_user_password', Constants.PG_LDP_DEFAULT_PASSWORD)
+      tfConfig.addVar('github_team_ids', folioTools.getGitHubTeamsIds("${Constants.ENVS_MEMBERS_LIST[params.NAMESPACE]},${params.MEMBERS}").collect { "\"${it}\"" })
     }
     try {
       stage('Checkout') {

@@ -122,7 +122,7 @@ ansiColor('xterm') {
 
       stage('[Job] Provision environment') {
         try {
-          folioTriggerJob.createNamespaceFromBranch(createNamespaceJobName, namespaceFromBranchParams)
+          params.RETRY_FAILED ? null : folioTriggerJob.createNamespaceFromBranch(createNamespaceJobName, namespaceFromBranchParams)
         } catch (Exception new_ex) {
           slackSend(attachments: folioSlackNotificationUtils.renderFailedBuildResultMessage()
             , channel: "#rancher_tests_notifications")
