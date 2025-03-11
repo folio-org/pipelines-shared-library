@@ -209,7 +209,7 @@ class Constants {
     ],
     [
       name: "app-oai-pmh"
-      , branch: "revert-11-revert-10-MODOAIPMH-603_MODBULKOPS-487"
+      , branch: "master"
       , consortia: false
       , core: false
       , byDefault: true
@@ -217,7 +217,7 @@ class Constants {
     ],
     [
       name: "app-bulk-edit"
-      , branch: "MODOAIPMH-603"
+      , branch: "master"
       , consortia: false
       , core: false
       , byDefault: true
