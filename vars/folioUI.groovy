@@ -13,7 +13,7 @@ import org.folio.utilities.RestClient
 void build(String okapiUrl, OkapiTenant tenant, boolean isEureka = false, String kongDomain = ''
            , String keycloakDomain = '', boolean enableEcsRequests = false) {
   TenantUi tenantUi = tenant.getTenantUi()
-  PodTemplates podTemplates = new PodTemplates(this, true)
+  PodTemplates podTemplates = new PodTemplates(this)
 
   podTemplates.stripesTemplate {
     node(JenkinsAgentLabel.STRIPES_AGENT.getLabel()) {
@@ -23,7 +23,8 @@ void build(String okapiUrl, OkapiTenant tenant, boolean isEureka = false, String
         checkout([$class           : 'GitSCM',
                   branches         : [[name: tenantUi.getHash()]],
                   extensions       : [[$class: 'CleanBeforeCheckout', deleteUntrackedNestedRepositories: true]],
-                  userRemoteConfigs: [[url: "${Constants.FOLIO_GITHUB_URL}/platform-complete.git"]]])
+                  userRemoteConfigs: [[credentialsId: Constants.PRIVATE_GITHUB_CREDENTIALS_ID,
+                                       url: "${Constants.FOLIO_GITHUB_URL}/platform-complete.git"]]])
       }
 
       stage('[UI] Add folio extensions') {

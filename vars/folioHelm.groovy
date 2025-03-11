@@ -11,9 +11,7 @@ void withK8sClient(Closure closure) {
                     credentialsId    : Constants.AWS_CREDENTIALS_ID,
                     accessKeyVariable: 'AWS_ACCESS_KEY_ID',
                     secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
-    docker.image(Constants.DOCKER_K8S_CLIENT_IMAGE).inside("-u 0:0 --entrypoint=") {
-      closure()
-    }
+    closure()
   }
 }
 
@@ -217,9 +215,9 @@ void checkDeploymentsRunning(String ns, List<FolioModule> deploymentsList) {
           def status = deployment.status
           def specReplicas = deployment.spec.replicas
           if (status.updatedReplicas != specReplicas ||
-              status.readyReplicas != specReplicas ||
-              status.unavailableReplicas > 0 ||
-              status.conditions.any { it.type == "Available" && it.status == "False" }) {
+            status.readyReplicas != specReplicas ||
+            status.unavailableReplicas > 0 ||
+            status.conditions.any { it.type == "Available" && it.status == "False" }) {
             unfinishedDeployments << folioModule.name
           }
         } else {
@@ -251,9 +249,6 @@ void checkDeploymentsRunning(String ns, List<FolioModule> deploymentsList) {
     throw e // Rethrow the error to mark the Jenkins build as failed
   }
 }
-
-
-
 
 static String valuesPathOption(String path) {
   return path.trim() ? "-f ${path}" : ''
@@ -373,7 +368,6 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
   }
 
   //Enable RTR functionality
-
 
   //mod-authtoken jwt.signing.key
   if (moduleName == 'mod-authtoken') {
