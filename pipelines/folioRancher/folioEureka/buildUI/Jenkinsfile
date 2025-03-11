@@ -79,12 +79,17 @@ ansiColor('xterm') {
         buildDescription "Branch: ${params.FOLIO_BRANCH}\nConsortia: ${params.CONSORTIA}\nLinked-data: ${params.LINKED_DATA}"
       }
 
-      folioUI.buildAndDeploy(namespace
-        , tenant
-        , true
-        , namespace.getDomains()['kong']
-        , namespace.getDomains()['keycloak']
-        , params.ECS_CCL)
+      // Ensure buildAndDeploy runs inside node
+      stage('Build and Deploy') {
+        folioUI.buildAndDeploy(
+          namespace,
+          tenant,
+          true,
+          namespace.getDomains()['kong'],
+          namespace.getDomains()['keycloak'],
+          params.ECS_CCL
+        )
+      }
     } catch (e) {
       logger.warning("Caught exception: ${e}")
       error(e.getMessage())
