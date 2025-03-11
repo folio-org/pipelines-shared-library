@@ -209,7 +209,7 @@ class Constants {
     ],
     [
       name: "app-oai-pmh"
-      , branch: "master"
+      , branch: "revert-11-revert-10-MODOAIPMH-603_MODBULKOPS-487"
       , consortia: false
       , core: false
       , byDefault: true
@@ -217,11 +217,11 @@ class Constants {
     ],
     [
       name: "app-bulk-edit"
-      , branch: "master"
+      , branch: "MODOAIPMH-603"
       , consortia: false
       , core: false
       , byDefault: true
-      , dependsOn: ["app-platform-minimal", "app-platform-complete"]
+      , dependsOn: ["app-platform-minimal", "app-platform-complete", "app-fqm"]
     ]
   ]
 
@@ -243,3 +243,4 @@ class Constants {
       .collectEntries { app -> [ app.name, app.branch ] }
   }
 }
+  qcdfva
