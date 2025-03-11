@@ -7,8 +7,7 @@ import org.folio.utilities.Logger
 import org.jenkinsci.plugins.workflow.libs.Library
 
 //TODO remove branch before merge to master
-@Library('pipelines-shared-library@fix-ui-build') _
-// @Library('pipelines-shared-library@RANCHER-1334') _
+@Library('pipelines-shared-library@RANCHER-1334') _
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
@@ -47,9 +46,6 @@ ansiColor('xterm') {
       extensions.add('linked-data')
     }
 
-    /**
-    * Job variables
-    **/
     boolean isRelease = params.FOLIO_BRANCH ==~ /^R\d-\d{4}.*/
     String commitHash = params.CUSTOM_HASH?.trim() ? params.CUSTOM_HASH : common.getLastCommitHash(params.FOLIO_REPOSITORY, params.FOLIO_BRANCH)
 
