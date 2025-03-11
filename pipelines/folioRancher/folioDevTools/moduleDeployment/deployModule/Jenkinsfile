@@ -57,7 +57,7 @@ module.name = params.MODULE_NAME
 
 /** Collect feature branch and hash */
 String featureBranch = params.MODULE_BRANCH
-String featureHash = new GitHubClient(this).getBranchInfo(module.getName(), featureBranch).commit.sha.take(7)
+String featureHash = ""
 
 /** Init Eureka Application Instance */
 Eureka eureka = new Eureka(this, namespace.generateDomain('kong'), namespace.generateDomain('keycloak'), false)
@@ -76,6 +76,8 @@ ansiColor('xterm') {
   node(params.AGENT) {
     try {
       stage('Ini') {
+        featureHash = new GitHubClient(this).getBranchInfo(module.getName(), featureBranch).commit.sha.take(7)
+
         buildName "#${params.MODULE_NAME}.${env.BUILD_ID}"
         buildDescription "Env: ${namespace.getWorkspaceName()}\nBranch: ${params.MODULE_BRANCH}\n" + "Config: ${params.CONFIG_TYPE}\n${currentBuild.getBuildCauses()[0].shortDescription}"
 
