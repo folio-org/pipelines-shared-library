@@ -50,7 +50,7 @@ class CreateNamespaceParameters implements Cloneable {
 
   boolean runSanityCheck
 
-  String members
+  String members = ''
 
   boolean namespaceOnly = false
 

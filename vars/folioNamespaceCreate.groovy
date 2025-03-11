@@ -179,8 +179,6 @@ void call(CreateNamespaceParameters args) {
       }
     }
   } catch (Exception e) {
-    println(e)
-//    slackNotifications.sendPipelineFailSlackNotification('#rancher_tests_notifications')
     logger.error(e)
   }
 }

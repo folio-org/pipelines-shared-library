@@ -137,7 +137,7 @@ def uiBundleTag() {
   return _paramExtendedSingleSelect('UI_BUNDLE_TAG', 'CLUSTER,NAMESPACE', folioStringScripts.getUIImagesList(), 'Select image tag/version for UI which will be deployed')
 }
 
-def tenantId(String tenant_id = folioDefault.tenants()['diku'].tenantId) {
+def tenantId(String tenant_id = 'diku') {
   return _paramString('TENANT_ID', tenant_id, 'Input Tenant ID')
 }
 
