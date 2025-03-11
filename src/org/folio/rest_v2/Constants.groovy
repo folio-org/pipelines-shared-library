@@ -89,7 +89,7 @@ class Constants {
     ],
     [
       name: "app-platform-complete"
-      , branch: "snapshot"
+      , branch: "revert-11-revert-10-MODOAIPMH-603_MODBULKOPS-487"
       , consortia: false
       , core     : false
       , byDefault: true
@@ -137,7 +137,7 @@ class Constants {
     ],
     [
       name: "app-edge-complete"
-      , branch: "snapshot"
+      , branch: "MODOAIPMH-603"
       , consortia: false
       , core     : false
       , byDefault: true
@@ -205,6 +205,22 @@ class Constants {
       , consortia: false
       , core: false
       , byDefault: false
+      , dependsOn: ["app-platform-minimal", "app-platform-complete"]
+    ],
+    [
+      name: "app-oai-pmh"
+      , branch: "master"
+      , consortia: false
+      , core: false
+      , byDefault: true
+      , dependsOn: ["app-platform-minimal", "app-platform-complete"]
+    ],
+    [
+      name: "app-bulk-edit"
+      , branch: "master"
+      , consortia: false
+      , core: false
+      , byDefault: true
       , dependsOn: ["app-platform-minimal", "app-platform-complete"]
     ]
   ]
