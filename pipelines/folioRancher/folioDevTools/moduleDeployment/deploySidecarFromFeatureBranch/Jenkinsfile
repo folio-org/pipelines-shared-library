@@ -42,7 +42,7 @@ EurekaNamespace namespace = new EurekaNamespace(params.CLUSTER, params.NAMESPACE
 
 /** Collect feature branch and hash */
 String featureBranch = params.MODULE_BRANCH
-String featureHash = new GitHubClient(this).getBranchInfo(sidecarModuleName, featureBranch).commit.sha.take(7)
+String featureHash = ""
 
 /** Collect Maven arguments */
 def mavenArguments = params.MAVEN_ARGS.trim()
@@ -59,6 +59,8 @@ ansiColor('xterm') {
 
     try {
       stage('Ini') {
+        featureHash = new GitHubClient(this).getBranchInfo(sidecarModuleName, featureBranch).commit.sha.take(7)
+
         buildName "#${sidecarModuleName}.${env.BUILD_ID}"
         buildDescription "Env: ${namespace.getWorkspaceName()}\nBranch: ${params.MODULE_BRANCH}\n" + "Config: ${params.CONFIG_TYPE}\n${currentBuild.getBuildCauses()[0].shortDescription}"
       }
