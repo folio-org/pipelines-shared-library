@@ -38,46 +38,48 @@ if (params.REFRESH_PARAMETERS) {
   return
 }
 
-String defaultTenantId = 'cs00000int'
-String sys_psswd = ''
-
-TerraformConfig tfConfig = new TerraformConfig('terraform/rancher/project')
-  .withWorkspace("${params.CLUSTER}-${params.NAMESPACE}")
-
-RancherNamespace namespace = new RancherNamespace(params.CLUSTER, params.NAMESPACE)
-  .withDefaultTenant(defaultTenantId)
-  .withDeploymentConfigType(params.CONFIG_TYPE)
-  .withSuperTenantAdminUser()
-
-namespace.addDeploymentConfig(CONFIG_BRANCH)
-
-Logger logger = new Logger(this, env.JOB_BASE_NAME)
-
-String installJsonS3Path = "${Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME}/ecs-snapshot/"
-List newInstallJson = []
-InstallRequestParams installRequestParams = new InstallRequestParams(reinstall: true)
-  .withTenantParameters("centralTenantId=cs00000int")
-Main main = new Main(this, namespace.generateDomain('okapi'), namespace.getSuperTenant())
-
-final String deleteNamespaceJobName = Constants.JENKINS_DELETE_NAMESPACE_JOB
-
-CreateNamespaceParameters namespaceBaseParams = new CreateNamespaceParameters.Builder()
-  .clusterName(params.CLUSTER)
-  .namespaceName(params.NAMESPACE)
-  .rwSplit(false)
-  .greenmail(false)
-  .mockServer(false)
-  .pgType('built-in')
-  .pgVersion('16.4')
-  .kafkaType('built-in')
-  .opensearchType('aws')
-  .s3Type('built-in')
-  .members('')
-  .worker('rancher')
-  .build()
-
 ansiColor('xterm') {
   node(params.AGENT) {
+
+    String defaultTenantId = 'cs00000int'
+    String sys_psswd = ''
+
+    TerraformConfig tfConfig = new TerraformConfig('terraform/rancher/project')
+      .withWorkspace("${params.CLUSTER}-${params.NAMESPACE}")
+
+    RancherNamespace namespace = new RancherNamespace(params.CLUSTER, params.NAMESPACE)
+      .withDefaultTenant(defaultTenantId)
+      .withDeploymentConfigType(params.CONFIG_TYPE)
+      .withSuperTenantAdminUser()
+
+    namespace.addDeploymentConfig(CONFIG_BRANCH)
+
+    Logger logger = new Logger(this, env.JOB_BASE_NAME)
+
+    String installJsonS3Path = "${Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME}/ecs-snapshot/"
+    List newInstallJson = []
+    InstallRequestParams installRequestParams = new InstallRequestParams(reinstall: true)
+      .withTenantParameters("centralTenantId=cs00000int")
+    Main main = new Main(this, namespace.generateDomain('okapi'), namespace.getSuperTenant())
+
+    final String deleteNamespaceJobName = Constants.JENKINS_DELETE_NAMESPACE_JOB
+
+    CreateNamespaceParameters namespaceBaseParams = new CreateNamespaceParameters.Builder()
+      .clusterName(params.CLUSTER)
+      .namespaceName(params.NAMESPACE)
+      .rwSplit(false)
+      .greenmail(false)
+      .mockServer(false)
+      .pgType('built-in')
+      .pgVersion('16.4')
+      .kafkaType('built-in')
+      .opensearchType('aws')
+      .s3Type('built-in')
+      .members('')
+      .worker('rancher')
+      .build()
+
+
     stage('Ini') {
       buildName "${tfConfig.getWorkspace()}-${env.BUILD_ID}"
       buildDescription "Config: ${params.CONFIG_TYPE}"
