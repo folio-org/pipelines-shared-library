@@ -89,7 +89,7 @@ class Constants {
     ],
     [
       name: "app-platform-complete"
-      , branch: "master"
+      , branch: "snapshot"
       , consortia: false
       , core     : false
       , byDefault: true
@@ -137,7 +137,7 @@ class Constants {
     ],
     [
       name: "app-edge-complete"
-      , branch: "master"
+      , branch: "snapshot"
       , consortia: false
       , core     : false
       , byDefault: true
