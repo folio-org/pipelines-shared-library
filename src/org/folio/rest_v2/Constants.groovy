@@ -89,7 +89,7 @@ class Constants {
     ],
     [
       name: "app-platform-complete"
-      , branch: "RANCHER-2153"
+      , branch: "RANCHER-2153-2"
       , consortia: false
       , core     : false
       , byDefault: true
