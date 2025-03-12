@@ -206,6 +206,22 @@ class Constants {
       , core: false
       , byDefault: false
       , dependsOn: ["app-platform-minimal", "app-platform-complete"]
+    ],
+    [
+      name: "app-oai-pmh"
+      , branch: "master"
+      , consortia: false
+      , core: false
+      , byDefault: true
+      , dependsOn: ["app-platform-minimal", "app-platform-complete"]
+    ],
+    [
+      name: "app-bulk-edit"
+      , branch: "master"
+      , consortia: false
+      , core: false
+      , byDefault: true
+      , dependsOn: ["app-platform-minimal", "app-platform-complete", "app-fqm"]
     ]
   ]
 
@@ -227,3 +243,4 @@ class Constants {
       .collectEntries { app -> [ app.name, app.branch ] }
   }
 }
+
