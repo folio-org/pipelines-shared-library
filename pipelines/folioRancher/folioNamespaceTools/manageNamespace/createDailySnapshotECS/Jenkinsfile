@@ -12,7 +12,7 @@ import org.folio.utilities.Logger
 import org.folio.utilities.Tools
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library@RANCHER-2133') _
+@Library('pipelines-shared-library') _
 
 CONFIG_BRANCH = 'master'
 
@@ -30,7 +30,7 @@ properties([buildDiscarder(logRotator(numToKeepStr: '30')),
                         folioParameters.s3Type(),
                         folioParameters.agent(),
                         folioParameters.refreshParameters()]),
-            pipelineTriggers([parameterizedCron('''45 20 * * 1,3,5 %CLUSTER=folio-testing;NAMESPACE=ecs-snapshot;CONFIG_TYPE=testing;CONSORTIA=true;RW_SPLIT=false;RETRY_ENABLE=false;POSTGRESQL=built-in;KAFKA=built-in;OPENSEARCH=aws;S3_BUCKET=built-in;AGENT=rancher''')])
+            pipelineTriggers([parameterizedCron('''45 20 * * 1-5 %CLUSTER=folio-testing;NAMESPACE=ecs-snapshot;CONFIG_TYPE=testing;CONSORTIA=true;RW_SPLIT=false;RETRY_ENABLE=false;POSTGRESQL=built-in;KAFKA=built-in;OPENSEARCH=aws;S3_BUCKET=built-in;AGENT=rancher''')])
 ])
 
 if (params.REFRESH_PARAMETERS) {
@@ -238,13 +238,14 @@ ansiColor('xterm') {
           }
         }
 
-        slackSend(color: 'good', message: 'ecs-snapshot env successfully built', channel: '#rancher_tests_notifications')
+        slackSend(color: 'good', message: 'ecs-snapshot env successfully built\n' + "UI: https://${namespace.clusterName}-${namespace.namespaceName}-${namespace.defaultTenantId}" +
+          ".${Constants.CI_ROOT_DOMAIN}\nCredentials: ecs_admin:admin", channel: '#rancher_tests_notifications')
       }
 
     } catch (e) {
       stage('Notify') {
         println "Caught exception: ${e}"
-        slackSend(color: 'danger', message: "ecs-snapshot env build failed...", channel: '#rancher_tests_notifications')
+        slackSend(color: 'danger', message: "ecs-snapshot env build failed...\nConsole output: ${env.BUILD_URL}", channel: '#rancher_tests_notifications')
       }
       error(e.getMessage())
     } finally {
