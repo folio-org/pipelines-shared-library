@@ -329,7 +329,7 @@ void call(CreateNamespaceParameters args) {
         slackSend(color: 'good', message: args.clusterName + "-" + args.namespaceName + (args.type == 'update' ? " env successfully updated\n" : " env successfully built\n") +
                 "1. https://${namespace.generateDomain('fs09000000')} creds: folio:folio\n" +
                 "2. https://${namespace.generateDomain('fs09000002')} creds: folio-plus:Folio-plus1\n" +
-                "3. https://${namespace.generateDomain('fs09000003')} creds: folio-plus:Folio-aqa1\n" +
+                "3. https://${namespace.generateDomain('fs09000003')} creds: folio-aqa:Folio-aqa1\n" +
                 "4. https://${namespace.generateDomain('cs00000int')} creds: ECSAdmin:admin",
                 channel: '#eureka-sprint-testing')
       } else {
