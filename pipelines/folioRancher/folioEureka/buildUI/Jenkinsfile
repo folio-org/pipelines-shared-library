@@ -41,38 +41,39 @@ if (params.LINKED_DATA) {
   extensions.add('linked-data')
 }
 
-/**
- * Job variables
- **/
-Logger logger = new Logger(this, env.JOB_BASE_NAME)
-boolean isRelease = params.FOLIO_BRANCH ==~ /^R\d-\d{4}.*/
-String commitHash = params.CUSTOM_HASH?.trim() ? params.CUSTOM_HASH : common.getLastCommitHash(params.FOLIO_REPOSITORY, params.FOLIO_BRANCH)
-List installJson = new GitHubUtility(this).getEurekaList("${params.FOLIO_REPOSITORY}", "${params.FOLIO_BRANCH}")
-
-def eurekaPlatform = new GitHubUtility(this).getEurekaList("${params.FOLIO_REPOSITORY}", "${params.FOLIO_BRANCH}")
-installJson.addAll(eurekaPlatform)
-
-//TODO: Temporary solution. Unused by Eureka modules have been removed.
-installJson.removeAll{ module -> module.id =~ /(mod-login|mod-authtoken|mod-login-saml|mod-reporting)-\d+\..*/ }
-
-EurekaNamespace namespace = new EurekaNamespace("${params.CLUSTER}", "${params.NAMESPACE}")
-  .withDefaultTenant("${params.TENANT_ID}")
-  .withDeploymentConfigType(params.CONFIG_TYPE)
-
-TenantUi tenantUi = new TenantUi(namespace.getWorkspaceName(), commitHash, params.FOLIO_BRANCH as String)
-
-OkapiTenant tenant = new OkapiTenant(params.TENANT_ID)
-  .convertTo(EurekaTenant.class)
-  .withInstallJson(installJson)
-  .withTenantUi(tenantUi)
-  .withConfiguration(new OkapiConfig())
-
-tenant.enableFolioExtensions(this, extensions, isRelease)
-namespace.addDeploymentConfig(folioTools.getPipelineBranch())
-namespace.addTenant(tenant)
-
 ansiColor('xterm') {
   node(params.AGENT) {
+
+    /**
+     * Job variables
+     **/
+    Logger logger = new Logger(this, env.JOB_BASE_NAME)
+    boolean isRelease = params.FOLIO_BRANCH ==~ /^R\d-\d{4}.*/
+    String commitHash = params.CUSTOM_HASH?.trim() ? params.CUSTOM_HASH : common.getLastCommitHash(params.FOLIO_REPOSITORY, params.FOLIO_BRANCH)
+    List installJson = new GitHubUtility(this).getEurekaList("${params.FOLIO_REPOSITORY}", "${params.FOLIO_BRANCH}")
+
+    def eurekaPlatform = new GitHubUtility(this).getEurekaList("${params.FOLIO_REPOSITORY}", "${params.FOLIO_BRANCH}")
+    installJson.addAll(eurekaPlatform)
+
+//TODO: Temporary solution. Unused by Eureka modules have been removed.
+    installJson.removeAll{ module -> module.id =~ /(mod-login|mod-authtoken|mod-login-saml|mod-reporting)-\d+\..*/ }
+
+    EurekaNamespace namespace = new EurekaNamespace("${params.CLUSTER}", "${params.NAMESPACE}")
+      .withDefaultTenant("${params.TENANT_ID}")
+      .withDeploymentConfigType(params.CONFIG_TYPE)
+
+    TenantUi tenantUi = new TenantUi(namespace.getWorkspaceName(), commitHash, params.FOLIO_BRANCH as String)
+
+    OkapiTenant tenant = new OkapiTenant(params.TENANT_ID)
+      .convertTo(EurekaTenant.class)
+      .withInstallJson(installJson)
+      .withTenantUi(tenantUi)
+      .withConfiguration(new OkapiConfig())
+
+    tenant.enableFolioExtensions(this, extensions, isRelease)
+    namespace.addDeploymentConfig(folioTools.getPipelineBranch())
+    namespace.addTenant(tenant)
+
     try {
       stage('Ini') {
         buildName "#${namespace.getWorkspaceName()}.${env.BUILD_ID}"
