@@ -396,7 +396,7 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
   boolean enableIngress = moduleConfig.containsKey('ingress') ? moduleConfig['ingress']['enabled'] : false
   if (enableIngress) {
     moduleConfig['ingress']['hosts'][0] += [host: domain]
-    if (moduleName == 'ui-bundle' && ns.defaultTenantId == 'diku') {
+    if (moduleName == 'ui-bundle' && ns.defaultTenantId == 'diku' || 'consortium') {
       moduleConfig['ingress']['hosts'][0] += [host: "eureka-snapshot-diku.${Constants.CI_ROOT_DOMAIN}"]
       moduleConfig['ingress']['hosts'][0] += [host: "eureka-snapshot-consortium.${Constants.CI_ROOT_DOMAIN}"]
     }
