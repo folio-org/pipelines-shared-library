@@ -122,7 +122,7 @@ void build(String okapiUrl, OkapiTenant tenant, boolean isEureka = false, String
         rootUrl                     : tenantUrl,
         baseUrl                     : tenantUrl,
         adminUrl                    : tenantUrl,
-        redirectUris                : ["${tenantUrl}/*", "http://localhost:3000/*"], //Requested by AQA Team
+        redirectUris                : ["${tenantUrl}/*", "http://localhost:3000/*", "https://eureka-snapshot-${tenantId}.${Constants.CI_ROOT_DOMAIN}/*"], //Requested by AQA Team
         webOrigins                  : ["/*"],
         authorizationServicesEnabled: true,
         serviceAccountsEnabled      : true,
