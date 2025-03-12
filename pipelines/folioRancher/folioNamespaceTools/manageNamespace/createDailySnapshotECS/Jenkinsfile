@@ -30,7 +30,7 @@ properties([buildDiscarder(logRotator(numToKeepStr: '30')),
                         folioParameters.s3Type(),
                         folioParameters.agent(),
                         folioParameters.refreshParameters()]),
-            pipelineTriggers([parameterizedCron('''45 20 * * * %CLUSTER=folio-testing;NAMESPACE=ecs-snapshot;CONFIG_TYPE=testing;CONSORTIA=true;RW_SPLIT=false;RETRY_ENABLE=false;POSTGRESQL=built-in;KAFKA=built-in;OPENSEARCH=aws;S3_BUCKET=built-in;AGENT=rancher''')])
+            pipelineTriggers([parameterizedCron('''45 20 * * 1-5 %CLUSTER=folio-testing;NAMESPACE=ecs-snapshot;CONFIG_TYPE=testing;CONSORTIA=true;RW_SPLIT=false;RETRY_ENABLE=false;POSTGRESQL=built-in;KAFKA=built-in;OPENSEARCH=aws;S3_BUCKET=built-in;AGENT=rancher''')])
 ])
 
 if (params.REFRESH_PARAMETERS) {
@@ -38,46 +38,48 @@ if (params.REFRESH_PARAMETERS) {
   return
 }
 
-String defaultTenantId = 'cs00000int'
-String sys_psswd = ''
-
-TerraformConfig tfConfig = new TerraformConfig('terraform/rancher/project')
-  .withWorkspace("${params.CLUSTER}-${params.NAMESPACE}")
-
-RancherNamespace namespace = new RancherNamespace(params.CLUSTER, params.NAMESPACE)
-  .withDefaultTenant(defaultTenantId)
-  .withDeploymentConfigType(params.CONFIG_TYPE)
-  .withSuperTenantAdminUser()
-
-namespace.addDeploymentConfig(CONFIG_BRANCH)
-
-Logger logger = new Logger(this, env.JOB_BASE_NAME)
-
-String installJsonS3Path = "${Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME}/ecs-snapshot/"
-List newInstallJson = []
-InstallRequestParams installRequestParams = new InstallRequestParams(reinstall: true)
-  .withTenantParameters("centralTenantId=cs00000int")
-Main main = new Main(this, namespace.generateDomain('okapi'), namespace.getSuperTenant())
-
-final String deleteNamespaceJobName = Constants.JENKINS_DELETE_NAMESPACE_JOB
-
-CreateNamespaceParameters namespaceBaseParams = new CreateNamespaceParameters.Builder()
-  .clusterName(params.CLUSTER)
-  .namespaceName(params.NAMESPACE)
-  .rwSplit(false)
-  .greenmail(false)
-  .mockServer(false)
-  .pgType('built-in')
-  .pgVersion('12.15')
-  .kafkaType('built-in')
-  .opensearchType('aws')
-  .s3Type('built-in')
-  .members('')
-  .worker('rancher')
-  .build()
-
 ansiColor('xterm') {
   node(params.AGENT) {
+
+    String defaultTenantId = 'cs00000int'
+    String sys_psswd = ''
+
+    TerraformConfig tfConfig = new TerraformConfig('terraform/rancher/project')
+      .withWorkspace("${params.CLUSTER}-${params.NAMESPACE}")
+
+    RancherNamespace namespace = new RancherNamespace(params.CLUSTER, params.NAMESPACE)
+      .withDefaultTenant(defaultTenantId)
+      .withDeploymentConfigType(params.CONFIG_TYPE)
+      .withSuperTenantAdminUser()
+
+    namespace.addDeploymentConfig(CONFIG_BRANCH)
+
+    Logger logger = new Logger(this, env.JOB_BASE_NAME)
+
+    String installJsonS3Path = "${Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME}/ecs-snapshot/"
+    List newInstallJson = []
+    InstallRequestParams installRequestParams = new InstallRequestParams(reinstall: true)
+      .withTenantParameters("centralTenantId=cs00000int")
+    Main main = new Main(this, namespace.generateDomain('okapi'), namespace.getSuperTenant())
+
+    final String deleteNamespaceJobName = Constants.JENKINS_DELETE_NAMESPACE_JOB
+
+    CreateNamespaceParameters namespaceBaseParams = new CreateNamespaceParameters.Builder()
+      .clusterName(params.CLUSTER)
+      .namespaceName(params.NAMESPACE)
+      .rwSplit(false)
+      .greenmail(false)
+      .mockServer(false)
+      .pgType('built-in')
+      .pgVersion('16.4')
+      .kafkaType('built-in')
+      .opensearchType('aws')
+      .s3Type('built-in')
+      .members('')
+      .worker('rancher')
+      .build()
+
+
     stage('Ini') {
       buildName "${tfConfig.getWorkspace()}-${env.BUILD_ID}"
       buildDescription "Config: ${params.CONFIG_TYPE}"
@@ -130,8 +132,8 @@ ansiColor('xterm') {
 
           folioHelm.withKubeConfig(params.CLUSTER) {
             folioPrint.colored("Restoring psql ecs dump...\nEstimated duration: ~ 1-2 hours", "green")
-            psqlDumpMethods.restoreHelmData("psql-restore", "psql-dump", "1.0.6", "roles-backup",
-              "ecs-snapshot-02", Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME,
+            psqlDumpMethods.restoreHelmData("psql-restore", "psql-dump", "1.0.6", "roles",
+              "ecs-snapshot", Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME,
               "ecs-snapshot", "${params.NAMESPACE}")
             sys_psswd = kubectl.getSecretValue(namespace.getNamespaceName(), 'mod-consortia-systemuser', 'SYSTEM_USER_PASSWORD')
             kubectl.patchSecret("mod-consortia-systemuser", "SYSTEM_USER_NAME", "consortia-system-user", "${params.NAMESPACE}")
@@ -236,16 +238,14 @@ ansiColor('xterm') {
           }
         }
 
-        slackSend(color: 'good', message: 'ecs-snapshot env successfully built', channel: '#rancher_tests_notifications')
-      }
-      stage('The rest components placeholder') {
-        // GreenMail, LDP, Mock server, etc.
+        slackSend(color: 'good', message: 'ecs-snapshot env successfully built\n' + "UI: https://${namespace.clusterName}-${namespace.namespaceName}-${namespace.defaultTenantId}" +
+          ".${Constants.CI_ROOT_DOMAIN}\nCredentials: ecs_admin:admin", channel: '#rancher_tests_notifications')
       }
 
     } catch (e) {
       stage('Notify') {
         println "Caught exception: ${e}"
-        slackSend(color: 'danger', message: "ecs-snapshot env build failed...", channel: '#rancher_tests_notifications')
+        slackSend(color: 'danger', message: "ecs-snapshot env build failed...\nConsole output: ${env.BUILD_URL}", channel: '#rancher_tests_notifications')
       }
       error(e.getMessage())
     } finally {
