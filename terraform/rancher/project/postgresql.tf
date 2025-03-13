@@ -283,8 +283,8 @@ resource "null_resource" "create_extra_dbs4eureka" {
   provisioner "local-exec" {
     command = <<EOT
       aws rds-data execute-statement \
-        --resource-arn ${module.rds.cluster_arn} \
-        --secret-arn ${module.rds.cluster_master_user_secret} \
+        --resource-arn ${module.rds[0].cluster_arn} \
+        --secret-arn ${module.rds[0].cluster_master_user_secret} \
         --database ${local.pg_eureka_db_name} \
         --sql "${var.eureka ? templatefile("${path.module}/resources/eureka.db.tpl", { dbs = ["kong", "keycloak"], pg_password = var.pg_password }) : "--fail-safe"}"
     EOT
