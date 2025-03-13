@@ -81,7 +81,7 @@ void destroy(TerraformConfig config, boolean approveRequired = false, Closure pr
   }
 
   if (approveRequired) {
-    input message: "Are you shure that you want to destroy ${config.getWorkspace()} cluster?"
+    input message: "Are you sure that you want to destroy cluster: " + config.getWorkspace() + "?"
   }
 
   preAction.call()
