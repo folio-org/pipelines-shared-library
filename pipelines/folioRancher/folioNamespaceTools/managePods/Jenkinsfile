@@ -19,8 +19,10 @@ properties([buildDiscarder(logRotator(numToKeepStr: '60')),
                         string(name: "AGENT", description: "Build agent", defaultValue: "jenkins-agent-java17"),
                         folioParameters.refreshParameters()]),
             pipelineTriggers([parameterizedCron('''
-        45 22 * * 5 %ACTION=stop;CLUSTER=folio-etesting;NAMESPACE=sprint
+        50 22 * * 5 %ACTION=stop;CLUSTER=folio-etesting;NAMESPACE=sprint
         50 23 * * 0 %ACTION=start;CLUSTER=folio-etesting;NAMESPACE=sprint
+        45 22 * * 5 %ACTION=stop;CLUSTER=folio-etesting;NAMESPACE=karate-eureka
+        55 23 * * 0 %ACTION=start;CLUSTER=folio-etesting;NAMESPACE=karate-eureka
         0 0 * * * %ACTION=stop;CLUSTER=folio-perf;NAMESPACE=corsair
         55 21 * * * %ACTION=stop;CLUSTER=folio-perf;NAMESPACE=firebird
         5 22 * * * %ACTION=stop;CLUSTER=folio-perf;NAMESPACE=folijet
