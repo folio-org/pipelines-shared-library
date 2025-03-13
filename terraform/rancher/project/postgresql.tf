@@ -278,7 +278,7 @@ module "rds" {
 }
 
 resource "postgresql_role" "kong" {
-  count     = var.eureka && !var.pg_embedded && (var.rancher_project_name == "karate-eureka") ? 1 : 0
+  count     = var.eureka && !var.pg_embedded && (var.rancher_project_name != "sprint") ? 1 : 0
   name      = "kong"
   login     = true
   password  = local.pg_password
@@ -291,7 +291,7 @@ resource "postgresql_role" "kong" {
 }
 
 resource "postgresql_role" "keycloak" {
-  count     = var.eureka && !var.pg_embedded && (var.rancher_project_name == "karate-eureka") ? 1 : 0
+  count     = var.eureka && !var.pg_embedded && (var.rancher_project_name != "sprint") ? 1 : 0
   name      = "keycloak"
   login     = true
   password  = local.pg_password
@@ -305,7 +305,7 @@ resource "postgresql_role" "keycloak" {
 
 resource "postgresql_database" "eureka_kong" {
   depends_on = [postgresql_role.kong]
-  count      = var.eureka && !var.pg_embedded && (var.rancher_project_name == "karate-eureka") ? 1 : 0
+  count     = var.eureka && !var.pg_embedded && (var.rancher_project_name != "sprint") ? 1 : 0
   name       = "kong"
   owner      = "kong"
   connection {
@@ -318,7 +318,7 @@ resource "postgresql_database" "eureka_kong" {
 
 resource "postgresql_database" "eureka_keycloak" {
   depends_on = [postgresql_role.keycloak]
-  count      = var.eureka && !var.pg_embedded && (var.rancher_project_name == "karate-eureka") ? 1 : 0
+  count     = var.eureka && !var.pg_embedded && (var.rancher_project_name != "sprint") ? 1 : 0
   name       = "keycloak"
   owner      = "keycloak"
   connection {
