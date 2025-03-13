@@ -21,7 +21,6 @@ properties([
     string(name: 'MAVEN_ARGS', defaultValue: '-DskipTests', description: 'Maven build arguments'),
     booleanParam(name: 'PUSH_IMAGE_TO_ECR', defaultValue: true, description: 'Set true to push built image to the ECR repository'),
     booleanParam(name: 'PUSH_DESCRIPTOR_TO_ECR', defaultValue: true, description: 'Set true to push module descriptor to the ECR repository'),
-    string(name: 'MODULE_ID', defaultValue: '', description: 'Return module ID to be used in the upstream jobs'),
     folioParameters.agent(Constants.JENKINS_AGENTS_BUILD_MODULE),
     folioParameters.refreshParameters()
   ])
@@ -76,6 +75,11 @@ ansiColor('xterm') {
         buildDescription """Module: ${module.id}
 Branch: ${branch}
 Build tool: ${module.buildTool.toString()}"""
+
+        writeJSON file: 'execution_result.json', json: [
+          moduleId: module.id
+        ]
+        archiveArtifacts allowEmptyArchive: true, artifacts: "execution_result.json", fingerprint: true, defaultExcludes: false
       }
 
       stage('[Maven/Gradle] Build artifact') {
