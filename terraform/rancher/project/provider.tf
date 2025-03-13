@@ -44,6 +44,7 @@ provider "postgresql" {
   database        = "postgres"
   sslmode         = "disable"
   connect_timeout = 30
+  superuser       = false
 }
 
 provider "kubernetes" {
