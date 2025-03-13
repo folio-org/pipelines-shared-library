@@ -76,10 +76,10 @@ ansiColor('xterm') {
 Branch: ${branch}
 Build tool: ${module.buildTool.toString()}"""
 
-        writeJSON file: 'execution_result.json', json: [
+        writeJSON file: 'execution_results.json', json: [
           moduleId: module.id
         ]
-        archiveArtifacts allowEmptyArchive: true, artifacts: "execution_result.json", fingerprint: true, defaultExcludes: false
+        archiveArtifacts allowEmptyArchive: true, artifacts: "execution_results.json", fingerprint: true, defaultExcludes: false
       }
 
       stage('[Maven/Gradle] Build artifact') {
