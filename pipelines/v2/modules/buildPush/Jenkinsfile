@@ -66,7 +66,7 @@ ansiColor('xterm') {
         String version = getModuleVersion(module.buildTool, module.buildDir)
         module.loadModuleDetails("${moduleName}-${version}.${commitHash}")
 
-        env.MODULE_ID = module.id // Export module ID to be used in the upstream jobs. DO NOT REMOVE!!!
+        params.MODULE_ID = module.id // Export module ID to be used in the upstream jobs. DO NOT REMOVE!!!
 
         args = module.buildTool == ModuleBuildTool.MAVEN ? mavenArgs : args
         args = module.buildTool == ModuleBuildTool.GRADLE ? gradleOpts : args
