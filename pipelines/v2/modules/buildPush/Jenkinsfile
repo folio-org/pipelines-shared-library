@@ -31,19 +31,19 @@ if (params.REFRESH_PARAMETERS) {
   return
 }
 
-String moduleName = params.MODULE_NAME
-String branch = params.MODULE_BRANCH
-String mavenArgs = params.MAVEN_ARGS.trim()
-String gradleOpts = '--quiet --console plain --no-daemon'
-
-Logger logger = new Logger(this, env.JOB_BASE_NAME)
-FolioModule module = new FolioModule()
-String commitHash = ""
-String args = ""
-
 ansiColor('xterm') {
   node(params.AGENT) {
     try {
+      String moduleName = params.MODULE_NAME
+      String branch = params.MODULE_BRANCH
+      String mavenArgs = params.MAVEN_ARGS.trim()
+      String gradleOpts = '--quiet --console plain --no-daemon'
+
+      Logger logger = new Logger(this, env.JOB_BASE_NAME)
+      FolioModule module = new FolioModule()
+      String commitHash = ""
+      String args = ""
+
       stage('[Git] Checkout module source') {
         checkout([
           $class           : 'GitSCM',
