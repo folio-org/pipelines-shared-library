@@ -110,7 +110,7 @@ ${updateAll ? "Full update" : "Source: " + source }"""
 
           modules.add(new EurekaModule().loadModuleDetails(buildResult.rawBuild.characteristicEnvVars.get('MODULE_ID')))
 
-          logger.info("buildResult.rawBuild: ${buildResult.rawBuild.characteristicEnvVars.get('MODULE_ID'))}")
+          logger.info("buildResult.rawBuild: ${buildResult.rawBuild.characteristicEnvVars.get('MODULE_ID')}")
 
           input message: "Let's wait"
         }
