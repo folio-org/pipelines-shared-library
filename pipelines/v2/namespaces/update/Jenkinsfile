@@ -126,7 +126,7 @@ ${updateAll ? "Full update" : "Source: " + source }"""
       }
 
       stage('[DockerHub/ECR] Module init') {
-        if (isGithub && updateAll) {
+        if (isGithub || updateAll) {
           logger.info("Skip [DockerHub/ECR] Module init stage")
           Utils.markStageSkippedForConditional('[DockerHub/ECR] Module init')
         } else {
