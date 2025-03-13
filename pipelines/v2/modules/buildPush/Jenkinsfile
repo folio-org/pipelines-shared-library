@@ -33,17 +33,17 @@ if (params.REFRESH_PARAMETERS) {
 
 ansiColor('xterm') {
   node(params.AGENT) {
+    String moduleName = params.MODULE_NAME
+    String branch = params.MODULE_BRANCH
+    String mavenArgs = params.MAVEN_ARGS.trim()
+    String gradleOpts = '--quiet --console plain --no-daemon'
+
+    Logger logger = new Logger(this, env.JOB_BASE_NAME)
+    FolioModule module = new FolioModule()
+    String commitHash = ""
+    String args = ""
+
     try {
-      String moduleName = params.MODULE_NAME
-      String branch = params.MODULE_BRANCH
-      String mavenArgs = params.MAVEN_ARGS.trim()
-      String gradleOpts = '--quiet --console plain --no-daemon'
-
-      Logger logger = new Logger(this, env.JOB_BASE_NAME)
-      FolioModule module = new FolioModule()
-      String commitHash = ""
-      String args = ""
-
       stage('[Git] Checkout module source') {
         checkout([
           $class           : 'GitSCM',
@@ -65,6 +65,8 @@ ansiColor('xterm') {
 
         String version = getModuleVersion(module.buildTool, module.buildDir)
         module.loadModuleDetails("${moduleName}-${version}.${commitHash}")
+
+        env.MODULE_ID = module.id // Export module ID to be used in the upstream jobs. DO NOT REMOVE!!!
 
         args = module.buildTool == ModuleBuildTool.MAVEN ? mavenArgs : args
         args = module.buildTool == ModuleBuildTool.GRADLE ? gradleOpts : args

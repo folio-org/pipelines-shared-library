@@ -53,40 +53,40 @@ if (params.REFRESH_PARAMETERS) {
   return
 }
 
-Logger logger = new Logger(this, env.JOB_BASE_NAME)
-
 ansiColor('xterm') {
   node(params.AGENT) {
+
+    Logger logger = new Logger(this, env.JOB_BASE_NAME)
+
+    EurekaNamespace namespace = new EurekaNamespace(params.CLUSTER, params.NAMESPACE)
+      .withDeploymentConfigType(params.CONFIG_TYPE) as EurekaNamespace
+
+    namespace.addDeploymentConfig(folioTools.getPipelineBranch())
+
+    boolean isEnvActive = false
+    folioHelm.withKubeConfig(namespace.getClusterName()) {
+      isEnvActive = sh(script: "kubectl get pods --namespace ${namespace.getNamespaceName()} --no-headers", returnStdout: true).trim()
+    }
+
+    if (!isEnvActive){
+      logger.warning("Target environment is not running. Please start the environment and try again.")
+
+      currentBuild.result = 'ABORTED'
+      return
+    }
+
+    boolean updateAll = params.UPDATE_ALL
+    String source = params.MODULE_SOURCE
+    boolean isGithub = source.contains('GitHub')
+
+    String moduleName = params.MODULE_NAME
+    String branch = params.MODULE_BRANCH
+    String args = params.MAVEN_ARGS.trim()
+
+    Eureka eureka = new Eureka(this, namespace.generateDomain('kong'), namespace.generateDomain('keycloak'))
+    List<EurekaModule> modules = []
+
     try {
-
-      EurekaNamespace namespace = new EurekaNamespace(params.CLUSTER, params.NAMESPACE)
-        .withDeploymentConfigType(params.CONFIG_TYPE) as EurekaNamespace
-
-      namespace.addDeploymentConfig(folioTools.getPipelineBranch())
-
-      boolean isEnvActive = false
-      folioHelm.withKubeConfig(namespace.getClusterName()) {
-        isEnvActive = sh(script: "kubectl get pods --namespace ${namespace.getNamespaceName()} --no-headers", returnStdout: true).trim()
-      }
-
-      if (!isEnvActive){
-        logger.warning("Target environment is not running. Please start the environment and try again.")
-
-        currentBuild.result = 'ABORTED'
-        return
-      }
-
-      boolean updateAll = params.UPDATE_ALL
-      String source = params.MODULE_SOURCE
-      boolean isGithub = source.contains('GitHub')
-
-      String moduleName = params.MODULE_NAME
-      String branch = params.MODULE_BRANCH
-      String args = params.MAVEN_ARGS.trim()
-
-      Eureka eureka = new Eureka(this, namespace.generateDomain('kong'), namespace.generateDomain('keycloak'))
-      List<EurekaModule> modules = []
-
       stage('Init') {
         buildName "#${params.MODULE_NAME}.${env.BUILD_ID}"
         buildDescription """Env: ${namespace.getWorkspaceName()}
