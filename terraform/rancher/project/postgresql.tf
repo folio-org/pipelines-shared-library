@@ -289,6 +289,18 @@ resource "postgresql_database" "eureka_kong" {
   }
 }
 
+resource "postgresql_database" "eureka_keycloak" {
+  count = var.eureka && !var.pg_embedded && (var.rancher_project_name == "karate-eureka") ? 1 : 0
+  name = "keycloak"
+  owner = "keycloak"
+  connection {
+    host     = var.pg_embedded ? local.pg_service_writer : module.rds[0].cluster_endpoint
+    port     = 5432
+    username = var.pg_embedded ? var.pg_username : module.rds[0].cluster_master_username
+    password = local.pg_password
+  }
+}
+
 # pgAdmin service deployment
 resource "helm_release" "pgadmin" {
   count      = var.pgadmin4 ? 1 : 0
