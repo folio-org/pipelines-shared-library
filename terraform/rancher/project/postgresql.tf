@@ -1,3 +1,11 @@
+terraform {
+  required_providers {
+    null = {
+      source  = "hashicorp/null"
+      version = "3.2.3"
+    }
+  }
+}
 resource "random_password" "pg_password" {
   length           = 16
   special          = true
@@ -275,6 +283,20 @@ module "rds" {
       kubernetes_label_team = var.rancher_project_name
       kubernetes_service    = "RDS-Database"
   })
+}
+
+resource "null_resource" "create_extra_dbs4eureka" {
+  count = var.eureka && !var.pg_embedded ? 1 : 0
+  depends_on = [module.rds.cluster_instances.writer]
+  provisioner "local-exec" {
+    command = <<EOT
+      aws rds-data execute-statement \
+        --resource-arn ${module.rds.cluster_arn} \
+        --secret-arn ${module.rds.cluster_master_user_secret} \
+        --database ${local.pg_eureka_db_name} \
+        --sql "${var.eureka ? templatefile("${path.module}/resources/eureka.db.tpl", { dbs = ["kong", "keycloak"], pg_password = var.pg_password }) : "--fail-safe"}"
+    EOT
+  }
 }
 
 # pgAdmin service deployment
