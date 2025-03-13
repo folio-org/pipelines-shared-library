@@ -94,10 +94,10 @@ ${updateAll ? "Full update" : "Source: " + source }"""
       }
 
       stage('[GitHub] Build & Push Module') {
-        if (!isGithub){
+        if (!isGithub) {
           logger.info("Skip [Maven/Gradle] Build artifact stage")
           Utils.markStageSkippedForConditional('[GitHub] Build & Push Module')
-        }else{
+        } else {
 
           RunWrapper buildResult = new ModuleBuildPushPipeline(this)
             .withModuleName(moduleName)
@@ -108,7 +108,7 @@ ${updateAll ? "Full update" : "Source: " + source }"""
             .withAgent(params.AGENT)
             .run()
 
-          if(!buildResult.rawBuild.getArtifacts().any{it.getFileName() == 'execution_results.json'})
+          if (!buildResult.rawBuild.getArtifacts().any { it.getFileName() == 'execution_results.json' })
             error "No execution_results.json artifact found"
 
           copyArtifacts(
@@ -123,52 +123,43 @@ ${updateAll ? "Full update" : "Source: " + source }"""
 
           input message: "Let's wait"
         }
-
-//        // Run extra init steps for non-Github module sources
-//        if (!params.MODULE_SOURCE.contains('github')) { // Non-Github module source: Load existed module descriptor and put it to ECR. Why put it to ECR?
-//          // Load Module Details and set Module Version
-//          module.loadModuleDetails("${module.name}-${params.CONTAINER_IMAGE_TAG}")
-//
-//          // Load Module Descriptor from Folio Descriptor Registry
-//          String getModuleDescriptorFromRegistry = "curl -s ${org.folio.rest_v2.Constants.OKAPI_REGISTRY}/_/proxy/modules/${module.name}-${module.version}"
-//          String moduleDescriptor = sh(label: "Get Module Descriptor from Folio Descriptor Registry", returnStdout: true, script: getModuleDescriptorFromRegistry).trim()
-//
-//          logger.debug("Module Descriptor URL: ${getModuleDescriptorFromRegistry}")
-//          logger.debug("Module Descriptor: ${moduleDescriptor}")
-//
-//          module.descriptor = [readJSON(text: moduleDescriptor)]
-//
-//          // Upload Module Descriptor to Eureka Descriptor Registry
-//          sh(label: "Put Module Descriptor to Eureka Descriptor Registry",
-//            returnStdout: false,
-//            script: "curl -sS -X PUT ${Constants.EUREKA_REGISTRY_URL}${module.name}-${module.version} --data @- <<EOF\n${moduleDescriptor}\nEOF"
-//          )
-//        }
       }
 
-      stage('Env scanning') { // GitHub. Build module source to artifact
+      stage('[DockerHub/ECR] Module init') {
+        if (isGithub && updateAll) {
+          logger.info("Skip [DockerHub/ECR] Module init stage")
+          Utils.markStageSkippedForConditional('[DockerHub/ECR] Module init')
+        } else {
+
+          EurekaModule module = new EurekaModule().loadModuleDetails("${moduleName}-${params.CONTAINER_IMAGE_TAG}")
+
+          // Load Module Descriptor from Folio Descriptor Registry
+          String getModuleDescriptorFromRegistry = "curl -s ${org.folio.rest_v2.Constants.OKAPI_REGISTRY}/_/proxy/modules/${module.name}-${module.version}"
+          String moduleDescriptor = sh(label: "Get Module Descriptor from Folio Descriptor Registry", returnStdout: true, script: getModuleDescriptorFromRegistry).trim()
+
+          logger.debug("Module Descriptor URL: ${getModuleDescriptorFromRegistry}")
+          logger.debug("Module Descriptor: ${moduleDescriptor}")
+
+          module.descriptor = [readJSON(text: moduleDescriptor)]
+
+          // Upload Module Descriptor to Eureka Descriptor Registry
+          sh(label: "Put Module Descriptor to Eureka Descriptor Registry",
+            returnStdout: false,
+            script: "curl -sS -X PUT ${Constants.EUREKA_REGISTRY_URL}${module.name}-${module.version} --data @- <<EOF\n${moduleDescriptor}\nEOF"
+          )
+
+          modules.add(module)
+        }
+      }
+
+      stage('Env scanning') {
         eureka.getExistedTenantsFlow().values()
                 .each {namespace.addTenant(it)}
 
         logger.debug("Configured Tenants: ${namespace.tenants}")
         logger.debug("Configured Tenants: ${namespace.modules.installJsonObject}")
 
-
-//        if(!params.UPDATE_ALL) {
-//          EurekaModule module = new EurekaModule()
-//          module.loadModuleDetails("${params.MODULE_NAME}-${params.MODULE_SOURCE.contains('github') ?   : params.CONTAINER_IMAGE_TAG}")
-//
-//          module.name = params.MODULE_NAME
-//        }
-
-//        if()
-//          String featureBranch = params.MODULE_BRANCH
-//        String featureHash = new GitHubClient(this).getBranchInfo(module.getName(), featureBranch).commit.sha.take(7)
-//        String mavenArguments = params.MAVEN_ARGS.trim()
-//        String commonGradleOpts = '--quiet --console plain --no-daemon'
-//        Map<String, String> updatedAppInfoMap = [:]
-//
-//        input message: "Let's wait"
+        input message: "Let's wait"
       }
 
       stage('[REST] Get Tenants with Module') {
