@@ -120,8 +120,6 @@ ${updateAll ? "Full update" : "Source: " + source }"""
           logger.info("moduleId: ${readJSON(file: 'execution_results.json').moduleId}")
 
           modules.add(new EurekaModule().loadModuleDetails(readJSON(file: 'execution_results.json').moduleId as String))
-
-          input message: "Let's wait"
         }
       }
 
