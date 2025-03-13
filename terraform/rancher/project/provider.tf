@@ -37,9 +37,9 @@ provider "helm" {
 }
 
 provider "postgresql" {
-  host            = module.rds[0].cluster_endpoint
-  username        = module.rds[0].cluster_master_username
-  password        = local.pg_password
+  host            = var.pg_embedded ? local.pg_service_writer : module.rds[0].cluster_endpoint
+  username        = var.pg_embedded ? var.pg_username : module.rds[0].cluster_master_username
+  password        = var.pg_password == "" ? random_password.pg_password.result : var.pg_password
   port            = 5432
   database        = local.pg_eureka_db_name
   sslmode         = "disable"
