@@ -279,7 +279,7 @@ module "rds" {
 
 resource "null_resource" "create_extra_dbs4eureka" {
   count = var.eureka && !var.pg_embedded ? 1 : 0
-  depends_on = [module.rds.cluster_instances.writer]
+  depends_on = [module.rds[0].cluster_instances.writer]
   provisioner "local-exec" {
     command = <<EOT
       aws rds-data execute-statement \
