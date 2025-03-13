@@ -20,8 +20,8 @@ properties([buildDiscarder(logRotator(numToKeepStr: '60')),
                         folioParameters.refreshParameters()]),
             pipelineTriggers([parameterizedCron('''
         50 22 * * 5 %ACTION=stop;CLUSTER=folio-etesting;NAMESPACE=sprint
-        55 23 * * 0 %ACTION=start;CLUSTER=folio-etesting;NAMESPACE=sprint
-        50 22 * * 5 %ACTION=stop;CLUSTER=folio-etesting;NAMESPACE=karate-eureka
+        50 23 * * 0 %ACTION=start;CLUSTER=folio-etesting;NAMESPACE=sprint
+        45 22 * * 5 %ACTION=stop;CLUSTER=folio-etesting;NAMESPACE=karate-eureka
         55 23 * * 0 %ACTION=start;CLUSTER=folio-etesting;NAMESPACE=karate-eureka
         0 0 * * * %ACTION=stop;CLUSTER=folio-perf;NAMESPACE=corsair
         55 21 * * * %ACTION=stop;CLUSTER=folio-perf;NAMESPACE=firebird
