@@ -108,11 +108,9 @@ ${updateAll ? "Full update" : "Source: " + source }"""
             .withAgent(params.AGENT)
             .run()
 
-          buildResult.metaClass.properties.each {logger.debug("${it.name}: ${buildResult[it.name]}")}
+          modules.add(new EurekaModule().loadModuleDetails(buildResult.rawBuild.characteristicEnvVars.get('MODULE_ID')))
 
-          logger.info("buildResult.rawBuild:")
-
-          buildResult.rawBuild.metaClass.properties.each {logger.debug("${it.name}: ${buildResult.rawBuild[it.name]}")}
+          logger.info("buildResult.rawBuild: ${buildResult.rawBuild.characteristicEnvVars.get('MODULE_ID'))}")
 
           input message: "Let's wait"
         }
