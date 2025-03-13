@@ -286,7 +286,8 @@ resource "null_resource" "create_extra_dbs4eureka" {
         --resource-arn ${module.rds[0].cluster_arn} \
         --secret-arn ${module.rds[0].cluster_master_user_secret} \
         --database ${local.pg_eureka_db_name} \
-        --sql ${templatefile("${path.module}/resources/eureka.db.tpl", { dbs = ["kong", "keycloak"], pg_password = var.pg_password })}
+        --sql ${templatefile("${path.module}/resources/eureka.db.tpl", { dbs = ["kong", "keycloak"], pg_password = var.pg_password })} \
+        --region ${var.aws_region}
     EOT
   }
 }
