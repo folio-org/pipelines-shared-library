@@ -75,6 +75,11 @@ void destroy(TerraformConfig config, boolean approveRequired = false, Closure pr
   folioTerraform.selectWorkspace(config.getWorkDir(), config.getWorkspace())
   folioTerraform.statePull(config.getWorkDir())
 
+  if (config.getVars()['pg_embedded'] != 'true') {
+    List pg_resources = ['postgresql_role.kong[0]', 'postgresql_role.keycloak[0]', 'postgresql_database.eureka_kong[0]', 'postgresql_database.eureka_keycloak[0]']
+    pg_resources.each {folioTerraform.removeFromState(config.getWorkDir(), it)}
+  }
+
   if (approveRequired) {
     input message: "Are you shure that you want to destroy ${config.getWorkspace()} cluster?"
   }
