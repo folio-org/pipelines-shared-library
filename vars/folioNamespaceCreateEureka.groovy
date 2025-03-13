@@ -43,6 +43,11 @@ void call(CreateNamespaceParameters args) {
       tfConfig.addVar('pg_dbname', Constants.BUGFEST_SNAPSHOT_DBNAME)
       tfConfig.addVar('pg_instance_type', 'db.r6g.xlarge')
     }
+    stage('[Approve REQUIRED]') {
+      if (args.pgType == 'aws') {
+        folioCommon.kitfoxApproval()
+      }
+    }
 
     stage('[Terraform] Provision') {
       switch (args.type) {
