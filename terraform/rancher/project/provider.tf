@@ -37,7 +37,7 @@ provider "helm" {
 }
 
 provider "postgresql" {
-  host            = module.rds[0].cluster_instances[0]
+  host            = module.rds[0].cluster_endpoint
   username        = module.rds[0].cluster_master_username
   password        = local.pg_password
   port            = 5432
