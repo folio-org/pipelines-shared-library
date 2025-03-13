@@ -37,11 +37,11 @@ provider "helm" {
 }
 
 provider "postgresql" {
-  host            = module.rds[0].cluster_endpoint
+  host            = module.rds[0].cluster_instances.writer
   username        = module.rds[0].cluster_master_username
-  password        = local.pg_eureka_db_name
+  password        = local.pg_password
   port            = 5432
-  database        = "folio"
+  database        = local.pg_eureka_db_name
   sslmode         = "disable"
   connect_timeout = 30
   superuser       = false
