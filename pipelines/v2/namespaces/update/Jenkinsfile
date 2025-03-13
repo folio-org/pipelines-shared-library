@@ -117,6 +117,13 @@ ${updateAll ? "Full update" : "Source: " + source }"""
 ${buildResult.rawBuild.getEnvironment(new LogTaskListener(java.util.logging.Logger.getLogger(this.class.getName()), Level.INFO))}""")
 
 //          modules.add(new EurekaModule().loadModuleDetails(buildResult.rawBuild.characteristicEnvVars.get('MODULE_ID')))
+          copyArtifacts(
+            projectName: ModuleBuildPushPipeline.JOB_NAME,
+            selector: specific(buildResult.getNumber().toString()),
+            filter: 'execution_results.json'
+          )
+
+          logger.info("moduleId: ${readJSON(file: 'execution_results.json').moduleId}")
 
           input message: "Let's wait"
         }
