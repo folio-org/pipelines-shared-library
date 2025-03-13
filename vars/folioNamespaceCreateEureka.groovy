@@ -304,7 +304,9 @@ void call(CreateNamespaceParameters args) {
     }
 
     stage('[Rest] Configure edge') {
-      args.type  == 'full' ? new Edge(this, "${namespace.generateDomain('kong')}", "${namespace.generateDomain('keycloak')}").createEurekaUsers(namespace) : null
+      retry(5) {
+        args.type  == 'full' ? new Edge(this, "${namespace.generateDomain('kong')}", "${namespace.generateDomain('keycloak')}").createEurekaUsers(namespace) : null
+      }
     }
 
     if (args.uiBuild) {
