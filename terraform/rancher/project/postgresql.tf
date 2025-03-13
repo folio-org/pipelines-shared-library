@@ -1,11 +1,3 @@
-terraform {
-  required_providers {
-    null = {
-      source  = "hashicorp/null"
-      version = "3.2.3"
-    }
-  }
-}
 resource "random_password" "pg_password" {
   length           = 16
   special          = true
