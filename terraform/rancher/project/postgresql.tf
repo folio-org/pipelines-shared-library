@@ -277,18 +277,15 @@ module "rds" {
   })
 }
 
-resource "null_resource" "create_extra_dbs4eureka" {
-  count = var.eureka && !var.pg_embedded ? 1 : 0
-  depends_on = [module.rds[0].cluster_instances]
-  provisioner "local-exec" {
-    command = <<EOT
-      aws rds-data execute-statement \
-        --resource-arn ${module.rds[0].cluster_arn} \
-        --secret-arn ${module.rds[0].cluster_master_user_secret[0]} \
-        --database ${local.pg_eureka_db_name} \
-        --sql ${templatefile("${path.module}/resources/eureka.db.tpl", { dbs = ["kong", "keycloak"], pg_password = var.pg_password })} \
-        --region ${var.aws_region}
-    EOT
+resource "postgresql_database" "eureka_kong" {
+  count = var.eureka && !var.pg_embedded && (var.rancher_project_name == "karate-eureka") ? 1 : 0
+  name = "kong"
+  owner = "kong"
+  connection {
+    host     = var.pg_embedded ? local.pg_service_writer : module.rds[0].cluster_endpoint
+    port     = 5432
+    username = var.pg_embedded ? var.pg_username : module.rds[0].cluster_master_username
+    password = local.pg_password
   }
 }
 
