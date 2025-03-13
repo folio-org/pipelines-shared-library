@@ -282,6 +282,7 @@ resource "postgresql_role" "kong" {
   name = "kong"
   login = true
   password = local.pg_password
+  superuser = false
   connection {
     host     = module.rds[0].cluster_endpoint
     port     = 5432
@@ -295,6 +296,7 @@ resource "postgresql_role" "keycloak" {
   name = "keycloak"
   login = true
   password = local.pg_password
+  superuser = false
   connection {
     host     = module.rds[0].cluster_endpoint
     port     = 5432
