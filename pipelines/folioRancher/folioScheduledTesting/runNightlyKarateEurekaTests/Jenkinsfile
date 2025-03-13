@@ -18,7 +18,7 @@ import org.jenkinsci.plugins.workflow.libs.Library
  * Job properties and parameters
  */
 properties([
-  pipelineTriggers([cron('H 4 * * 1-5')]),
+//  pipelineTriggers([cron('H 4 * * 1-5')]),
   buildDiscarder(logRotator(numToKeepStr: '30')),
   disableConcurrentBuilds(),
   parameters([
@@ -39,7 +39,7 @@ if (params.REFRESH_PARAMETERS) {
  * Pipeline
  */
 ansiColor('xterm') {
-  node('jenkins-agent-java21') {
+  node('rancher') {
     /**
      * Job variables
      */
@@ -56,8 +56,8 @@ ansiColor('xterm') {
       .rwSplit(false)
       .greenmail(false)
       .mockServer(false)
-      .pgType('built-in')
-      .pgVersion('16.1')
+      .pgType('aws')
+      .pgVersion('16.4')
       .kafkaType('built-in')
       .opensearchType('aws')
       .s3Type('built-in')
