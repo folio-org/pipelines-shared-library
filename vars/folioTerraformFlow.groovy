@@ -76,9 +76,11 @@ void destroy(TerraformConfig config, boolean approveRequired = false, Closure pr
   folioTerraform.statePull(config.getWorkDir())
 
   if (config.getVars()['pg_embedded'] != 'true') {
-    def postgresql_resources = sh(script: "terraform state list | grep postgresql_", returnStdout: true).trim()
-    if (postgresql_resources) {
-      postgresql_resources.tokenize().each { folioTerraform.removeFromState(config.getWorkDir(), it) }
+    dir(config.getWorkDir()) {
+      def postgresql_resources = sh(script: "terraform state list | grep postgresql_", returnStdout: true).trim()
+      if (postgresql_resources) {
+        postgresql_resources.tokenize().each { folioTerraform.removeFromState(config.getWorkDir(), it) }
+      }
     }
   }
 
