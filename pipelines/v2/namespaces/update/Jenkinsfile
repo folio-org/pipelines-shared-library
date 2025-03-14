@@ -21,6 +21,7 @@ properties([
     folioParameters.cluster('PLATFORM'),
     folioParameters.namespace(),
     booleanParam(name: 'UPDATE_ALL', defaultValue: true, description: 'Update all namespace modules with latest versions'),
+    folioParameters.branch(),
     folioParameters.moduleName(PlatformType.EUREKA), // MODULE_NAME, Folio Module name
     folioParameters.moduleSource(), // MODULE_SOURCE, Eureka Module source (Github, DockerHub, AWS ECR)
     folioParameters.branchWithRef('MODULE_BRANCH', 'MODULE_NAME'), // MODULE_BRANCH, Eureka Module Github branch
@@ -40,7 +41,8 @@ properties([
     )
     , folioParameters.hideParameters(
       [
-        'on': ['MODULE_NAME', 'MODULE_SOURCE', 'MODULE_BRANCH', 'CONTAINER_IMAGE_TAG', 'MAVEN_ARGS']
+        'on': ['MODULE_NAME', 'MODULE_SOURCE', 'MODULE_BRANCH', 'CONTAINER_IMAGE_TAG', 'MAVEN_ARGS'],
+        'off': ['FOLIO_BRANCH']
       ]
       , "UPDATE_ALL"
     )
@@ -89,8 +91,10 @@ ansiColor('xterm') {
     try {
       stage('Init') {
         buildName "#${params.MODULE_NAME}.${env.BUILD_ID}"
-        buildDescription """Env: ${namespace.getWorkspaceName()}
-${updateAll ? "Full update" : "Source: " + source }"""
+        buildDescription "Env: ${namespace.getWorkspaceName()}\n${updateAll ? "Full update" : "Source: " + source }"
+
+        if (isGithub || updateAll)
+          modules.add(new EurekaModule().loadModuleDetails("${moduleName}-${params.CONTAINER_IMAGE_TAG}"))
       }
 
       stage('[GitHub] Build & Push Module') {
@@ -123,67 +127,55 @@ ${updateAll ? "Full update" : "Source: " + source }"""
         }
       }
 
-      stage('[DockerHub/ECR] Module init') {
-        if (isGithub || updateAll) {
-          logger.info("Skip [DockerHub/ECR] Module init stage")
-          Utils.markStageSkippedForConditional('[DockerHub/ECR] Module init')
-        } else {
+//      stage('[DockerHub/ECR] Module init') {
+//        if (isGithub || updateAll) {
+//          logger.info("Skip [DockerHub/ECR] Module init stage")
+//          Utils.markStageSkippedForConditional('[DockerHub/ECR] Module init')
+//        } else {
+//
+//          EurekaModule module = new EurekaModule().loadModuleDetails("${moduleName}-${params.CONTAINER_IMAGE_TAG}")
+//
+//          // Load Module Descriptor from Folio Descriptor Registry
+//          String getModuleDescriptorFromRegistry = "curl -s ${org.folio.rest_v2.Constants.OKAPI_REGISTRY}/_/proxy/modules/${module.name}-${module.version}"
+//          String moduleDescriptor = sh(label: "Get Module Descriptor from Folio Descriptor Registry", returnStdout: true, script: getModuleDescriptorFromRegistry).trim()
+//
+//          logger.debug("Module Descriptor URL: ${getModuleDescriptorFromRegistry}")
+//          logger.debug("Module Descriptor: ${moduleDescriptor}")
+//
+//          module.descriptor = [readJSON(text: moduleDescriptor)]
+//
+//          // Upload Module Descriptor to Eureka Descriptor Registry
+//          sh(label: "Put Module Descriptor to Eureka Descriptor Registry",
+//            returnStdout: false,
+//            script: "curl -sS -X PUT ${Constants.EUREKA_REGISTRY_URL}${module.name}-${module.version} --data @- <<EOF\n${moduleDescriptor}\nEOF"
+//          )
+//
+//          modules.add(module)
+//        }
+//      }
 
-          EurekaModule module = new EurekaModule().loadModuleDetails("${moduleName}-${params.CONTAINER_IMAGE_TAG}")
-
-          // Load Module Descriptor from Folio Descriptor Registry
-          String getModuleDescriptorFromRegistry = "curl -s ${org.folio.rest_v2.Constants.OKAPI_REGISTRY}/_/proxy/modules/${module.name}-${module.version}"
-          String moduleDescriptor = sh(label: "Get Module Descriptor from Folio Descriptor Registry", returnStdout: true, script: getModuleDescriptorFromRegistry).trim()
-
-          logger.debug("Module Descriptor URL: ${getModuleDescriptorFromRegistry}")
-          logger.debug("Module Descriptor: ${moduleDescriptor}")
-
-          module.descriptor = [readJSON(text: moduleDescriptor)]
-
-          // Upload Module Descriptor to Eureka Descriptor Registry
-          sh(label: "Put Module Descriptor to Eureka Descriptor Registry",
-            returnStdout: false,
-            script: "curl -sS -X PUT ${Constants.EUREKA_REGISTRY_URL}${module.name}-${module.version} --data @- <<EOF\n${moduleDescriptor}\nEOF"
-          )
-
-          modules.add(module)
-        }
-      }
-
-      stage('Env scanning') {
+      stage('[Env] Scanning') {
         eureka.getExistedTenantsFlow().values()
                 .each {namespace.addTenant(it)}
-
-        logger.debug("Configured Tenants: ${namespace.tenants}")
-        logger.debug("Configured Tenants: ${namespace.modules.installJsonObject}")
-
-        input message: "Let's wait"
       }
 
-      stage('[REST] Get Tenants with Module') {
-        deployAppModule.getTenantsWithModule(logger, eureka, module, namespace)
-      }
-
-      stage("Retrieve module's sidecar"){
+      stage("[Env] Retrieve sidecar") {
         folioHelm.withKubeConfig(namespace.getClusterName()) {
-          String sidecarImage =
-            kubectl.getDeploymentContainerImageName(namespace.getNamespaceName(), module.getName(), "sidecar")
-              .replace(':', '-')
+          String sidecarImage = !updateAll ? kubectl.getDeploymentContainerImageName(namespace.getNamespaceName(), moduleName, "sidecar") : ""
 
           // In case updated module doesn't have Sidecar let's seek for it in other modules.
           if(!sidecarImage) {
             EurekaModule moduleWithSidecar = namespace.modules.getInstallJsonObject().find { fetchedModule ->
               kubectl.getDeploymentContainerImageName(namespace.getNamespaceName(), fetchedModule.getName(), "sidecar")
-                      .replace(':', '-')
+                .replace(':', '-')
             }
 
             sidecarImage =
               kubectl.getDeploymentContainerImageName(namespace.getNamespaceName(), moduleWithSidecar.getName(), "sidecar")
-                      .replace(':', '-')
           }
 
           if(sidecarImage)
-            namespace.modules.addModule(sidecarImage)
+            namespace.modules.addModule(sidecarImage.replace(':', '-'))
           else
             throw new AbortException('There are no modules with sidecar in the namespace')
         }
@@ -191,6 +183,12 @@ ${updateAll ? "Full update" : "Source: " + source }"""
         logger.debug("Configured Tenants: ${namespace.tenants}")
         logger.debug("Configured Applications: ${namespace.applications}")
         logger.debug("Namespace modules: ${namespace.modules.installJsonObject}")
+      }
+
+      input message: "Let's wait"
+
+      stage('[REST] Get Tenants with Module') {
+        deployAppModule.getTenantsWithModule(logger, eureka, module, namespace)
       }
 
       stage('Update Module Version') {
