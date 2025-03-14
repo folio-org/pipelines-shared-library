@@ -41,9 +41,10 @@ provider "postgresql" {
   username        = var.pg_embedded ? var.pg_username : module.rds[0].cluster_master_username
   password        = var.pg_password == "" ? random_password.pg_password.result : var.pg_password
   port            = 5432
-  database        = "postgres"
+  database        = local.pg_eureka_db_name
   sslmode         = "disable"
   connect_timeout = 30
+  superuser       = false
 }
 
 provider "kubernetes" {
