@@ -42,7 +42,7 @@ properties([
     , folioParameters.hideParameters(
       [
         'on': ['MODULE_NAME', 'MODULE_SOURCE', 'MODULE_BRANCH', 'CONTAINER_IMAGE_TAG', 'MAVEN_ARGS'],
-        'off': ['FOLIO_BRANCH']
+        '': ['FOLIO_BRANCH']
       ]
       , "UPDATE_ALL"
     )
