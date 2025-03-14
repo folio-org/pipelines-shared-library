@@ -1,131 +1,236 @@
 #!groovy
-package folioRancher.folioScheduledTesting.runNightlyKarateLSDITests
-
-import groovy.transform.Field
 import org.folio.Constants
-import org.folio.models.RancherNamespace
-import org.folio.models.parameters.CreateNamespaceParameters
-import org.folio.models.parameters.KarateTestsParameters
-import org.folio.rest_v2.PlatformType
-import org.folio.testing.teams.TeamAssignment
-import org.folio.utilities.Logger
+import org.folio.rest.GitHubUtility
 import org.jenkinsci.plugins.workflow.libs.Library
-import org.folio.rest_v2.Constants as RestConstants
 
-@Library('pipelines-shared-library@RANCHER-2148') _
+import java.time.LocalDateTime
 
-/**
- * Job properties and parameters
- */
+@Library('pipelines-shared-library') _
+
+
 properties([
-  pipelineTriggers([cron('H 2 * * 3')]),
-  buildDiscarder(logRotator(numToKeepStr: '30')),
+  buildDiscarder(logRotator(numToKeepStr: '20')),
   disableConcurrentBuilds(),
   parameters([
-    booleanParam(name: 'DESTROY_AFTER', defaultValue: true, description: '(Optional) Set to false to not destroy namespace after tests execution'),
-    booleanParam(name: 'RETRY_FAILED', defaultValue: false, description: '(Optional) Set to true to retry failed tests'),
+    folioParameters.repository(),
+    folioParameters.branch('FOLIO_BRANCH_SRC', params.FOLIO_REPOSITORY),
+    folioParameters.branch('FOLIO_BRANCH_DST', params.FOLIO_REPOSITORY),
+    string(name: 'BACKUP_NAME', defaultValue: '', description: '(Optional) RDS snapshot name. If empty create env from scratch', trim: true),
+    string(name: 'SLACK_CHANNEL', defaultValue: '', description: 'Slack channel name where send report (without #)', trim: true),
     folioParameters.refreshParameters()
-  ])
-])
+  ])])
 
-if (params.REFRESH_PARAMETERS) {
-  currentBuild.result = 'ABORTED'
-  return
-}
 
-/**
- * Job variables
- */
-Logger logger = new Logger(this, env.JOB_BASE_NAME)
-
-@Field final String deleteNamespaceJobName = Constants.JENKINS_DELETE_NAMESPACE_JOB_EUREKA
-
-String okapiVersion = folioTools.eval(folioStringScripts.getOkapiVersions(), ['FOLIO_BRANCH': 'snapshot'])[0]
-
-CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builder()
-  .platform(PlatformType.EUREKA)
-  .clusterName('folio-eperf')
-  .namespaceName('data-migration')
-  .folioBranch('snapshot')
-  .okapiVersion(okapiVersion)
-  .configType('performance')
-  .loadReference(true)
-  .loadSample(true)
-  .consortia(true)
-  .splitFiles(true)
-  .ecsCCL(true)
-  .rwSplit(true)
-  .linkedData(true)
-  .greenmail(false)
-  .mockServer(false)
-  .rtr(false)
-  .applicationSet('Complete')
-  .applications(RestConstants.APPLICATION_BRANCH('Complete'))
-  .hasSecureTenant(true)
-  .secureTenantId(folioDefault.consortiaTenants().get('university').getTenantId())
-  .pgType('aws')
-  .pgVersion('16.4')
-  .kafkaType('built-in')
-  .opensearchType('aws')
-  .s3Type('built-in')
-  .members('folijet,spitfire,thunderjet,vega,firebird')
-  .uiBuild(true)
-  .worker('rancher')
-  .build()
-
-namespaceParams.folioExtensions.add('consortia-eureka')
-namespaceParams.folioExtensions.add('linked-data')
-
-RancherNamespace namespace = new RancherNamespace(namespaceParams.getClusterName(), namespaceParams.getNamespaceName())
-namespace.withSuperTenantAdminUser()
-
-/**
- * Pipeline
- */
+def clusterName = 'folio-perf'
+def projectName = 'data-migration'
+def configType = 'performance'
+def tenantId
+def adminUsername
+def adminPassword
+def startMigrationTime = LocalDateTime.now()
+Integer totalTimeInMs = 0
+LinkedHashMap modulesLongMigrationTimeSlack = [:]
+List modulesMigrationFailedSlack = []
+def resultMap = [:]
+String okapiVersion = folioTools.eval(folioStringScripts.getOkapiVersions(), ['FOLIO_BRANCH': params.FOLIO_BRANCH_SRC])[0]
+def srcInstallJson = new GitHubUtility(this).getEnableList(params.FOLIO_REPOSITORY, params.FOLIO_BRANCH_SRC)
+def dstInstallJson = new GitHubUtility(this).getEnableList(params.FOLIO_REPOSITORY, params.FOLIO_BRANCH_DST)
+def pgadminURL = "https://${clusterName}-${projectName}-pgadmin.ci.folio.org/"
 
 ansiColor('xterm') {
+  if (params.refresh_parameters) {
+    currentBuild.result = 'ABORTED'
+    println('REFRESH JOB PARAMETERS!')
+    return
+  }
   node('rancher') {
     try {
-      stage('Ini') {
-        buildDescription "Destroy after: ${params.DESTROY_AFTER}\nRetry failed: ${params.RETRY_FAILED}"
-        cleanWs()
+      stage('Init') {
+        currentBuild.result = 'SUCCESS'
+        if (params.BACKUP_NAME) {
+          tenantId = 'fs09000000'
+          adminUsername = 'folio'
+          adminPassword = 'folio'
+          buildName tenantId + '-' + params.BACKUP_NAME + '.' + env.BUILD_ID
+        } else {
+          tenantId = 'diku'
+          adminUsername = 'diku'
+          adminPassword = 'diku_admin'
+          buildName tenantId + '.' + 'without-restore' + '.' + env.BUILD_ID
+        }
+
+
       }
 
-      stage('Checkout') {
-        checkout scm
+      stage('Destroy data-migration project') {
+        def jobParameters = getEnvironmentJobParameters(
+          'destroy',
+          clusterName,
+          projectName,
+          params.FOLIO_REPOSITORY,
+          params.FOLIO_BRANCH_SRC,
+          okapiVersion,
+          tenantId,
+          adminUsername,
+          adminPassword,
+          params.BACKUP_NAME)
+
+        build job: Constants.JENKINS_JOB_PROJECT, parameters: jobParameters, wait: true, propagate: false
       }
 
-      stage('[Job] Destroy environment (before)') {
-        params.RETRY_FAILED ? println('RETRY data-migration performance | Skip destroy stage') : folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceParams)
-      }
+      stage('Restore data-migration project from backup') {
+        if (params.BACKUP_NAME) {
+          def jobParameters = getEnvironmentJobParameters(
+            'apply',
+            clusterName,
+            projectName,
+            params.FOLIO_REPOSITORY,
+            params.FOLIO_BRANCH_SRC,
+            okapiVersion,
+            tenantId,
+            adminUsername,
+            adminPassword,
+            params.BACKUP_NAME,
+            true)
 
-      stage('[Job] Provision environment') {
-        params.RETRY_FAILED ? println('RETRY data-migration performance | Skip provision stage') : dataMigrationReport(namespaceParams)
-      }
-
-      stage('[Flow] Measure data-migration performance') {
-//        TDB - Add data-migration performance library here
-      }
-
-      if (params.DESTROY_AFTER) {
-        stage('[Job] Destroy environment (after)') {
-          folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceParams)
+          build job: Constants.JENKINS_JOB_PROJECT, parameters: jobParameters, wait: true, propagate: false
         }
       }
 
-    } catch (e) {
-      logger.warning("Caught exception: ${e}")
+      stage('Create data-migration project') {
+        if (!params.BACKUP_NAME) {
+          def jobParameters = getEnvironmentJobParameters(
+            'apply',
+            clusterName,
+            projectName,
+            params.FOLIO_REPOSITORY,
+            params.FOLIO_BRANCH_SRC,
+            okapiVersion,
+            tenantId,
+            adminUsername,
+            adminPassword,
+            params.BACKUP_NAME,
+            false,
+            true,
+            true,
+            true)
 
-      stage('[Job] Destroy environment (error)') {
-        folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceParams) // Always destroy namespace on error
+          build job: Constants.JENKINS_JOB_PROJECT, parameters: jobParameters, wait: true, propagate: false
+        }
       }
 
-      error(e.getMessage())
+      stage('Update with dst release versions') {
+        build job: Constants.JENKINS_JOB_BACKEND_MODULES_DEPLOY_BRANCH,
+          parameters: [
+            string(name: 'folio_repository', value: params.FOLIO_REPOSITORY),
+            string(name: 'folio_branch', value: params.FOLIO_BRANCH_DST),
+            string(name: 'rancher_cluster_name', value: clusterName),
+            string(name: 'rancher_project_name', value: projectName),
+            string(name: 'config_type', value: configType),
+            string(name: 'tenant_id', value: tenantId),
+            string(name: 'admin_username', value: adminUsername),
+            string(name: 'admin_password', value: adminPassword)
+          ]
+      }
+
+
+      stage('Generate Data Migration Time report') {
+        def result = folioexecuteDataMigrationUtils.getMigrationTime(
+          clusterName,
+          projectName,
+          resultMap,
+          srcInstallJson,
+          dstInstallJson,
+          totalTimeInMs,
+          modulesLongMigrationTimeSlack,
+          modulesMigrationFailedSlack,
+          startMigrationTime,
+          pgadminURL
+        )
+        totalTimeInMs += result[0]
+        modulesLongMigrationTimeSlack += result[1]
+        modulesMigrationFailedSlack += result[2]
+      }
+
+
+    } catch (exception) {
+      currentBuild.result = 'FAILURE'
+      error(exception.getMessage())
     } finally {
+      stage('Publish HTML Reports') {
+        publishHTML([
+          reportDir            : 'reportTime',
+          reportFiles          : '*.html',
+          reportName           : 'Data Migration Time',
+          allowMissing         : true,
+          alwaysLinkToLastBuild: true,
+          keepAll              : true])
+      }
+
+      stage('Send Slack notification') {
+        folioexecuteDataMigrationUtils.sendSlackNotification("#${params.SLACK_CHANNEL}", totalTimeInMs, modulesLongMigrationTimeSlack, modulesMigrationFailedSlack)
+      }
+
+      stage('Destroy data-migration project') {
+        def jobParameters = getEnvironmentJobParameters(
+          'destroy',
+          clusterName,
+          projectName,
+          params.FOLIO_REPOSITORY,
+          params.FOLIO_BRANCH_SRC,
+          okapiVersion,
+          tenantId,
+          adminUsername,
+          adminPassword,
+          params.BACKUP_NAME)
+
+        build job: Constants.JENKINS_JOB_PROJECT, parameters: jobParameters, wait: true, propagate: false
+      }
+
       stage('Cleanup') {
-        logger.debug("Workspace size: ${sh(returnStdout: true, script: 'du -sh .').trim()}")
         cleanWs notFailBuild: true
       }
     }
   }
+}
+
+
+private List getEnvironmentJobParameters(String action,
+                                         String clusterName,
+                                         String projectName,
+                                         String folioRepository,
+                                         String folioBranch,
+                                         String okapiVersion,
+                                         String tenantId,
+                                         String adminUsername,
+                                         String adminPassword,
+                                         String backupName,
+                                         boolean restoreFromBackup = false,
+                                         boolean loadReference = false,
+                                         boolean loadSample = false,
+                                         boolean pgEmbedded = false,
+                                         boolean kafkaShared = true,
+                                         boolean opensearchShared = true,
+                                         boolean s3Embedded = false) {
+  [
+    string(name: 'action', value: action),
+    string(name: 'rancher_cluster_name', value: clusterName),
+    string(name: 'rancher_project_name', value: projectName),
+    string(name: 'folio_repository', value: folioRepository),
+    string(name: 'folio_branch', value: folioBranch),
+    string(name: 'okapi_version', value: okapiVersion),
+    string(name: 'config_type', value: 'performance'),
+    string(name: 'tenant_id', value: tenantId),
+    string(name: 'admin_username', value: adminUsername),
+    string(name: 'admin_password', value: adminPassword),
+    string(name: 'backup_type', value: 'rds'),
+    string(name: 'backup_name', value: backupName),
+    booleanParam(name: 'restore_from_backup', value: restoreFromBackup),
+    booleanParam(name: 'load_reference', value: loadReference),
+    booleanParam(name: 'load_sample', value: loadSample),
+    booleanParam(name: 'pg_embedded', value: pgEmbedded),
+    booleanParam(name: 'kafka_shared', value: kafkaShared),
+    booleanParam(name: 'opensearch_shared', value: opensearchShared),
+    booleanParam(name: 's3_embedded', value: s3Embedded)
+  ]
 }
