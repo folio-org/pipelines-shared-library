@@ -23,7 +23,7 @@ properties([
   disableConcurrentBuilds(),
   parameters([
     string(name: 'DB_SNAPSHOT_NAME', defaultValue: Constants.DATA_MIGRATION_SNAPSHOT_NAME, description: "(Required) BF RDS snapshot name"),
-    booleanParam(name: 'DESTROY_AFTER', defaultValue: true, description: '(Optional) Set to false to not destroy namespace after tests execution'),
+    booleanParam(name: 'DESTROY_AFTER', defaultValue: false, description: '(Optional) Set to false to not destroy namespace after tests execution'),
     booleanParam(name: 'RETRY_FAILED', defaultValue: false, description: '(Optional) Set to true to retry failed tests'),
     folioParameters.refreshParameters()
   ])

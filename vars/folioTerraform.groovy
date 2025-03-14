@@ -73,7 +73,7 @@ def statePull(String path) {
   }
 }
 
-def removeFromState(String path, String resource) {
+def removeFromState(String path, String resource) { //TODO fix path Bug!
   stage('[TF] Remove from state') {
     sh "terraform state rm ${resource}"
   }
