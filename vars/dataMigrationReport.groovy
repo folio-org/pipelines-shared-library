@@ -80,7 +80,7 @@ void call(CreateNamespaceParameters args) {
       return
     }
 
-    def defaultTenantId = args.dataset ? 'fs09000000' : 'diku'
+    def defaultTenantId = 'fs09000000'
     String folioRepository = 'platform-complete'
     boolean isRelease = args.folioBranch ==~ /^R\d-\d{4}.*/
     String commitHash = common.getLastCommitHash(folioRepository, args.folioBranch)
@@ -287,7 +287,7 @@ void call(CreateNamespaceParameters args) {
       int counter = 0
       retry(20) {
         // The first wait time should be at least 10 minutes due to module's long time instantiation
-        sleep time: (counter == 0 ? 10 : 2), unit: 'MINUTES'
+        sleep time: (counter == 0 ? 5 : 2), unit: 'MINUTES'
         counter++
 
         eureka.initializeFromScratch(

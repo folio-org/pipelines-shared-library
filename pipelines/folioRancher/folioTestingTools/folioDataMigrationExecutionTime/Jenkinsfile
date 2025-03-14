@@ -72,7 +72,7 @@ CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builde
   .opensearchType('aws')
   .s3Type('built-in')
   .members('folijet,spitfire,thunderjet,vega,firebird')
-  .uiBuild(true)
+  .uiBuild(false)
   .worker('rancher')
   .build()
 
