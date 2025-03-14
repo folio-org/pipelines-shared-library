@@ -46,7 +46,7 @@ properties([
       ]
       , "UPDATE_ALL"
     )
-    , folioParameters.hideParameters([ 'PLATFORM' ])
+//    , folioParameters.hideParameters([ 'PLATFORM' ])
   ])
 ])
 
