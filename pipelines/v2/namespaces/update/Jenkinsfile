@@ -90,9 +90,11 @@ ansiColor('xterm') {
 
     try {
       stage('Init') {
+        String src = updateAll ? "\nFull update" : "\nSource: ${source}"
+        String tagOrBranch = !updateAll ? (isGithub ? "\nBranch: $branch" : "\nTag: ${params.CONTAINER_IMAGE_TAG}") : ""
+
         buildName "#${params.MODULE_NAME}.${env.BUILD_ID}"
-        buildDescription """Env: ${namespace.getWorkspaceName()}
-${updateAll ? "Full update" : "Source: ${source}\\${isGithub ? branch : params.CONTAINER_IMAGE_TAG}"}"""
+        buildDescription "Env: ${namespace.getWorkspaceName()}${src}${tagOrBranch}"
 
         if (!(isGithub || updateAll))
           modules.add(new EurekaModule().loadModuleDetails("${moduleName}-${params.CONTAINER_IMAGE_TAG}"))
