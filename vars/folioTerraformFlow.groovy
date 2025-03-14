@@ -40,6 +40,8 @@ void manageNamespace(String action, TerraformConfig config) {
           Closure preAction = {
             dir(config.getWorkDir()) {
               if (config.getVars()['pg_embedded'] != 'true' && config.getVars()['rancher_project_name'] != 'sprint') {
+                println(config.getWorkDir())
+                input('message': 'Are you sure you want to destroy the namespace?', 'ok': 'Destroy')
                 def postgresql_resources = sh(script: "terraform state list | grep postgresql_", returnStdout: true).trim()
                 if (postgresql_resources.contains('postgresql_')) {
                   postgresql_resources.tokenize().each { folioTerraform.removeFromState(config.getWorkDir(), "${it}") }
