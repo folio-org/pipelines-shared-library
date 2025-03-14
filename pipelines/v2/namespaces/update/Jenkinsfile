@@ -79,7 +79,7 @@ ansiColor('xterm') {
 
     boolean updateAll = params.UPDATE_ALL
     String source = params.MODULE_SOURCE
-    boolean isGithub = source.contains('GitHub')
+    boolean isGithub = !updateAll && source.contains('GitHub')
 
     String moduleName = params.MODULE_NAME
     String branch = params.MODULE_BRANCH
