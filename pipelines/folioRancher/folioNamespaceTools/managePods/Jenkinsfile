@@ -67,8 +67,10 @@ properties([buildDiscarder(logRotator(numToKeepStr: '60')),
   }
 
 ansiColor('xterm') {
+  PodTemplates podTemplates = new PodTemplates(this)
 
-  node("${params.AGENT}") {
+ podTemplates.defaultTemplate {
+  node(JenkinsAgentLabel.DEFAULT_AGENT.getLabel()) {
     try {
       Calendar calendar = Calendar.getInstance()
       stage('Checkout') {
@@ -204,4 +206,5 @@ ansiColor('xterm') {
       error(exception.getMessage())
     }
   }
+ }
 }
