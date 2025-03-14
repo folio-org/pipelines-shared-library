@@ -17,7 +17,7 @@ properties([buildDiscarder(logRotator(numToKeepStr: '60')),
                         choice(name: "PERIOD", choices: ['night', 'weekend'], description: '(Required) Choose period to suspend'),
                         booleanParam(defaultValue: false, description: 'Check this parameter, if you would like to suspend auto shutdown', name: 'SUSPEND'),
                         string(name: "AGENT", description: "Build agent", defaultValue: "jenkins-agent-java17"),
-                        folioParameters.refreshParameters()]),
+                        folioParameters.refreshParameters()])
 //             pipelineTriggers([parameterizedCron('''
 //         45 22 * * 5 %ACTION=stop;CLUSTER=folio-etesting;NAMESPACE=sprint
 //         50 23 * * 0 %ACTION=start;CLUSTER=folio-etesting;NAMESPACE=sprint
@@ -60,11 +60,10 @@ properties([buildDiscarder(logRotator(numToKeepStr: '60')),
 //         0 0 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=dojo
 //         0 0 * * * %ACTION=stop;CLUSTER=folio-eperf;NAMESPACE=corsair
 //    ''')])
-  if (params.REFRESH_PARAMETERS) {
-    currentBuild.result = 'ABORTED'
-    println('REFRESH JOB PARAMETERS!')
-    return
-  }
+if (params.REFRESH_PARAMETERS) {
+  currentBuild.result = 'ABORTED'
+  return
+}
 
 ansiColor('xterm') {
   PodTemplates podTemplates = new PodTemplates(this)
