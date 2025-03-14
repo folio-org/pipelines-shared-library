@@ -93,7 +93,7 @@ ansiColor('xterm') {
         buildName "#${params.MODULE_NAME}.${env.BUILD_ID}"
         buildDescription "Env: ${namespace.getWorkspaceName()}\n${updateAll ? "Full update" : "Source: " + source }"
 
-        if (isGithub || updateAll)
+        if (!(isGithub || updateAll))
           modules.add(new EurekaModule().loadModuleDetails("${moduleName}-${params.CONTAINER_IMAGE_TAG}"))
       }
 
