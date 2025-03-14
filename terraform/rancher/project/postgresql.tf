@@ -277,6 +277,58 @@ module "rds" {
   })
 }
 
+resource "postgresql_role" "kong" {
+  count    = var.eureka && !var.pg_embedded && (var.rancher_project_name != "sprint") ? 1 : 0
+  name     = "kong"
+  login    = true
+  password = local.pg_password
+  connection {
+    host     = module.rds[0].cluster_endpoint
+    port     = 5432
+    username = module.rds[0].cluster_master_username
+    password = local.pg_password
+  }
+}
+
+resource "postgresql_role" "keycloak" {
+  count    = var.eureka && !var.pg_embedded && (var.rancher_project_name != "sprint") ? 1 : 0
+  name     = "keycloak"
+  login    = true
+  password = local.pg_password
+  connection {
+    host     = module.rds[0].cluster_endpoint
+    port     = 5432
+    username = module.rds[0].cluster_master_username
+    password = local.pg_password
+  }
+}
+
+resource "postgresql_database" "eureka_kong" {
+  depends_on = [postgresql_role.kong]
+  count      = var.eureka && !var.pg_embedded && (var.rancher_project_name != "sprint") ? 1 : 0
+  name       = "kong"
+  owner      = "kong"
+  connection {
+    host     = module.rds[0].cluster_endpoint
+    port     = 5432
+    username = module.rds[0].cluster_master_username
+    password = local.pg_password
+  }
+}
+
+resource "postgresql_database" "eureka_keycloak" {
+  depends_on = [postgresql_role.keycloak]
+  count      = var.eureka && !var.pg_embedded && (var.rancher_project_name != "sprint") ? 1 : 0
+  name       = "keycloak"
+  owner      = "keycloak"
+  connection {
+    host     = module.rds[0].cluster_endpoint
+    port     = 5432
+    username = module.rds[0].cluster_master_username
+    password = local.pg_password
+  }
+}
+
 # pgAdmin service deployment
 resource "helm_release" "pgadmin" {
   count      = var.pgadmin4 ? 1 : 0

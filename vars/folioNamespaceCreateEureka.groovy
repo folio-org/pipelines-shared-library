@@ -43,6 +43,11 @@ void call(CreateNamespaceParameters args) {
       tfConfig.addVar('pg_dbname', Constants.BUGFEST_SNAPSHOT_DBNAME)
       tfConfig.addVar('pg_instance_type', 'db.r6g.xlarge')
     }
+    stage('[Approve REQUIRED]') {
+      if (args.pgType == 'aws') {
+        folioCommon.kitfoxApproval()
+      }
+    }
 
     stage('[Terraform] Provision') {
       switch (args.type) {
@@ -304,7 +309,9 @@ void call(CreateNamespaceParameters args) {
     }
 
     stage('[Rest] Configure edge') {
-      new Edge(this, "${namespace.generateDomain('kong')}", "${namespace.generateDomain('keycloak')}").createEurekaUsers(namespace)
+      retry(5) {
+        args.type  == 'full' ? new Edge(this, "${namespace.generateDomain('kong')}", "${namespace.generateDomain('keycloak')}").createEurekaUsers(namespace) : null
+      }
     }
 
     if (args.uiBuild) {
