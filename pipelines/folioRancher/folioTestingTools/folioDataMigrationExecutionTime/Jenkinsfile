@@ -39,7 +39,8 @@ if (params.REFRESH_PARAMETERS) {
  */
 Logger logger = new Logger(this, env.JOB_BASE_NAME)
 
-@Field final String deleteNamespaceJobName = Constants.JENKINS_DELETE_NAMESPACE_JOB_EUREKA
+//@Field final String deleteNamespaceJobName = Constants.JENKINS_DELETE_NAMESPACE_JOB_EUREKA
+@Field final String deleteNamespaceJobName = "$Constants.JENKINS_FOLIO_RANCHER_FOLDER/tmpFolderForDraftPipelines/EldiiarD/deleteNamespace-Eldiiar"
 
 String okapiVersion = folioTools.eval(folioStringScripts.getOkapiVersions(), ['FOLIO_BRANCH': 'snapshot'])[0]
 
