@@ -47,7 +47,7 @@ void manageNamespace(String action, TerraformConfig config) {
               }
             }
           }
-          destroy(config)
+          destroy(config, false, preAction)
           break
       }
     }
