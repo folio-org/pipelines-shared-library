@@ -45,7 +45,7 @@ KarateRunExecutionSummary call(KarateTestsParameters args) {
       timeout(time: args.timeout, unit: 'HOURS') {
         withMaven(jdk: args.javaVerson, maven: args.mavenVersion, mavenSettingsConfig: args.mavenSettings, mavenOpts: '-XX:MaxRAMPercentage=75') {
           String modules = args.modulesToTest ? "-pl common,testrail-integration," + args.modulesToTest : args.modulesToTest
-          logger.debug(sh(returnStdout: true, script: 'echo $JAVA_HOME').trim())
+          logger.debug(sh(returnStdout: true, script: 'echo $JAVA_HOME && export JAVA_HOME=$JAVA_HOME').trim())
           catchError(stageResult: 'FAILURE') {
             String execParams = "-DfailIfNoTests=false -DargLine=-Dkarate.env=${args.karateConfig}"
 
