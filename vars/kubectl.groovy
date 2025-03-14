@@ -108,19 +108,30 @@ String patchSecret(String secret_name, String value_name, String secret_value, S
   sh(script: "set +x && kubectl patch secret ${secret_name} --patch='{\"stringData\": { \"${value_name}\": \"${secret_value}\" }}' --namespace=${namespace}")
 }
 
-String getDeploymentContainerImage(String namespace, String deploymentName, String containerName) {
+String getDeploymentContainerImage(String namespace, String deploymentName, String containerName = null) {
   try {
-    return sh(script: "kubectl get deployment ${deploymentName} --namespace=${namespace} -o jsonpath='{.spec.template.spec.containers[?(@.name==\"${containerName}\")].image}'", returnStdout: true).trim()
+    String name = containerName ? "?(@.name==\"${containerName}\")" : '0'
+    return sh(script: "kubectl get deployment ${deploymentName} --namespace=${namespace} -o jsonpath='{.spec.template.spec.containers[${name}].image}'", returnStdout: true).trim()
   } catch (Exception e) {
     println("Error retrieving container image: ${e.getMessage()}")
     throw e
   }
 }
 
-String getDeploymentContainerImageName(String namespace, String deploymentName, String containerName) {
+String getDeploymentContainerImageName(String namespace, String deploymentName, String containerName = null) {
   String fullPath = getDeploymentContainerImage(namespace, deploymentName, containerName)
 
   return fullPath.substring(fullPath.lastIndexOf('/') + 1)
+}
+
+String getStatefulSetContainerImage(String namespace, String setName, String containerName = null) {
+  try {
+    String name = containerName ? "?(@.name==\"${containerName}\")" : '0'
+    return sh(script: "kubectl get statefulset ${deploymentName} --namespace=${namespace} -o jsonpath='{.spec.template.spec.containers[${name}].image}'", returnStdout: true).trim()
+  } catch (Exception e) {
+    println("Error retrieving container image: ${e.getMessage()}")
+    throw e
+  }
 }
 
 def patchConfigMap(String name, String namespace, files) {

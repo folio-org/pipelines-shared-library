@@ -188,6 +188,24 @@ ansiColor('xterm') {
         logger.debug("Namespace modules: ${namespace.modules.installJsonObject}")
       }
 
+      stage("[Env] Retrieve core modules") {
+        folioHelm.withKubeConfig(namespace.getClusterName()) {
+
+
+          String kong = kubectl.getDeploymentContainerImageName(namespace.getNamespaceName(), "kong-${namespace.getNamespaceName()}")
+          String keycloak = kubectl.getStatefulSetContainerImage(namespace.getNamespaceName(), "keycloak-${namespace.getNamespaceName()}")
+          String mgrApp = kubectl.getDeploymentContainerImageName(namespace.getNamespaceName(), "mgr-applications")
+          String mgrTenants = kubectl.getDeploymentContainerImageName(namespace.getNamespaceName(), "mgr-tenants")
+          String mgrTenantEnt = kubectl.getDeploymentContainerImageName(namespace.getNamespaceName(), "mgr-tenant-entitlements")
+
+          logger.debug("Kong: ${kong}")
+          logger.debug("Keycloak: ${keycloak}")
+          logger.debug("Mgr Applications: ${mgrApp}")
+          logger.debug("Mgr Tenants: ${mgrTenants}")
+          logger.debug("Mgr Tenant Entitlements: ${mgrTenantEnt}")
+        }
+      }
+
       input message: "Let's wait"
 
       stage('[REST] Get Tenants with Module') {
