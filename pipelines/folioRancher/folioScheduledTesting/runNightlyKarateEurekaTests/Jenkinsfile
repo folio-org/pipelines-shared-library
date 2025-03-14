@@ -39,7 +39,7 @@ if (params.REFRESH_PARAMETERS) {
  * Pipeline
  */
 ansiColor('xterm') {
-  node('rancher') {
+  node('jenkins-agent-java21') {
     /**
      * Job variables
      */
@@ -99,6 +99,7 @@ ansiColor('xterm') {
     karateTestsParams.sendTeamsSlackNotification = false
     karateTestsParams.syncWithJira = false
     karateTestsParams.timeout = '2'
+    karateTestsParams.javaVerson = ''
 
     try {
       stage('Ini') {
