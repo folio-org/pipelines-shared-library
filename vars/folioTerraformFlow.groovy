@@ -37,7 +37,17 @@ void manageNamespace(String action, TerraformConfig config) {
           apply(config)
           break
         case 'destroy':
-          destroy(config)
+          Closure preAction = {
+            dir(config.getWorkDir()) {
+              if (config.getVars()['pg_embedded'] != 'true') {
+                def postgresql_resources = sh(script: "terraform state list | grep postgresql_", returnStdout: true).trim()
+                if (postgresql_resources) {
+                  postgresql_resources.tokenize().each { folioTerraform.removeFromState(config.getWorkDir(), it) }
+                }
+              }
+            }
+          }
+          destroy(config, true, preAction)
           break
       }
     }
@@ -74,13 +84,6 @@ void destroy(TerraformConfig config, boolean approveRequired = false, Closure pr
   folioTerraform.init(config.getWorkDir())
   folioTerraform.selectWorkspace(config.getWorkDir(), config.getWorkspace())
   folioTerraform.statePull(config.getWorkDir())
-
-  if (config.getVars()['pg_embedded'] != 'true') {
-    def postgresql_resources = sh(script: "cd ${config.getWorkDir()} && terraform state list | grep postgresql_", returnStdout: true).trim()
-    if (postgresql_resources) {
-      postgresql_resources.tokenize().each { folioTerraform.removeFromState(config.getWorkDir(), it) }
-    }
-  }
 
   if (approveRequired) {
     input message: "Are you sure that you want to destroy cluster: " + config.getWorkspace() + "?"
