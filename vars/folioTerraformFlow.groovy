@@ -50,9 +50,6 @@ void apply(TerraformConfig config, boolean approveRequired = false, Closure preA
   folioTerraform.init(config.getWorkDir())
   folioTerraform.selectWorkspace(config.getWorkDir(), config.getWorkspace())
   folioTerraform.statePull(config.getWorkDir())
-  if (config.getVars()['pg_embedded'] != 'true' && config.getVars()['rancher_project_name'] != 'sprint') {
-    folioTerraform.cleanUpPostgresResources(config.getWorkDir())
-  }
 
   preAction.call()
 
@@ -77,6 +74,10 @@ void destroy(TerraformConfig config, boolean approveRequired = false, Closure pr
   folioTerraform.init(config.getWorkDir())
   folioTerraform.selectWorkspace(config.getWorkDir(), config.getWorkspace())
   folioTerraform.statePull(config.getWorkDir())
+
+  if (config.getVars()['pg_embedded'] != 'true' && config.getVars()['rancher_project_name'] != 'sprint') {
+    folioTerraform.cleanUpPostgresResources(config.getWorkDir())
+  }
 
   if (approveRequired) {
     input message: "Are you sure that you want to destroy cluster: " + config.getWorkspace() + "?"
