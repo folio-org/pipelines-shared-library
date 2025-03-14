@@ -3,6 +3,7 @@ package org.folio.models
 import com.cloudbees.groovy.cps.NonCPS
 import hudson.util.Secret
 import org.folio.models.module.EurekaModule
+import org.folio.rest.GitHubUtility
 
 /**
  * EurekaTenant class representing a tenant configuration for Eureka.
@@ -88,6 +89,7 @@ class EurekaTenant extends OkapiTenant {
    * @param installJson The install JSON object.
    * @return The OkapiTenant object for method chaining.
    */
+  @Override
   EurekaTenant withInstallJson(List<Map<String, String>> installJson) {
     //TODO: Fix DTO convert issue with transformation from FolioInstallJson<FolioModule> to FolioInstallJson<EurekaModule>
     modules = new FolioInstallJson(EurekaModule.class)
@@ -95,6 +97,21 @@ class EurekaTenant extends OkapiTenant {
     super.withInstallJson(installJson)
 
     this.modules.removeModulesByName(['mod-consortia-keycloak', 'folio_consortia-settings'])
+    return this
+  }
+
+  @Override
+  OkapiTenant initializeFromRepo(def context, String repo, String branch) {
+    List installJson = new GitHubUtility(context).getEnableList(repo, branch)
+    List eurekaPlatform = new GitHubUtility(this).getEurekaList(repo, branch)
+    installJson.addAll(eurekaPlatform)
+
+    //TODO: Temporary solution. Unused by Eureka modules have been removed.
+    installJson.removeAll { module -> module.id =~ /(mod-login|mod-authtoken|mod-login-saml)-\d+\..*/ }
+    installJson.removeAll { module -> module.id == 'okapi' }
+
+    super.withInstallJson(installJson)
+
     return this
   }
 
