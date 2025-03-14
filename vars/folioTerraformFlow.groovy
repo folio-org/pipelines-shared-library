@@ -37,15 +37,7 @@ void manageNamespace(String action, TerraformConfig config) {
           apply(config)
           break
         case 'destroy':
-          Closure preAction = {
-              if (config.getVars()['pg_embedded'] != 'true' && config.getVars()['rancher_project_name'] != 'sprint') {
-                def postgresql_resources = sh(script: "terraform state list | grep postgresql_", returnStdout: true).trim()
-                if (postgresql_resources.contains('postgresql_')) {
-                  postgresql_resources.tokenize().each { folioTerraform.removeFromState(config.getWorkDir(), "${it}") }
-                }
-              }
-          }
-          destroy(config, false, preAction)
+          destroy(config)
           break
       }
     }
@@ -58,6 +50,9 @@ void apply(TerraformConfig config, boolean approveRequired = false, Closure preA
   folioTerraform.init(config.getWorkDir())
   folioTerraform.selectWorkspace(config.getWorkDir(), config.getWorkspace())
   folioTerraform.statePull(config.getWorkDir())
+  if (config.getVars()['pg_embedded'] != 'true' && config.getVars()['rancher_project_name'] != 'sprint') {
+    folioTerraform.cleanUpPostgresResources(config.getWorkDir())
+  }
 
   preAction.call()
 
