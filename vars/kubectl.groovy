@@ -127,7 +127,7 @@ String getDeploymentContainerImageName(String namespace, String deploymentName, 
 String getStatefulSetContainerImage(String namespace, String setName, String containerName = null) {
   try {
     String name = containerName ? "?(@.name==\"${containerName}\")" : '0'
-    return sh(script: "kubectl get statefulset ${deploymentName} --namespace=${namespace} -o jsonpath='{.spec.template.spec.containers[${name}].image}'", returnStdout: true).trim()
+    return sh(script: "kubectl get statefulset ${setName} --namespace=${namespace} -o jsonpath='{.spec.template.spec.containers[${name}].image}'", returnStdout: true).trim()
   } catch (Exception e) {
     println("Error retrieving container image: ${e.getMessage()}")
     throw e
