@@ -39,7 +39,7 @@ if (params.REFRESH_PARAMETERS) {
  * Pipeline
  */
 ansiColor('xterm') {
-  node('jenkins-agent-java21') {
+  node('rancher') {
     /**
      * Job variables
      */
@@ -64,7 +64,7 @@ ansiColor('xterm') {
       .runSanityCheck(false)
       .members('dojo')
       .uiBuild(true)
-      .worker('jenkins-agent-java21')
+      .worker('rancher')
       .build()
 
     CreateNamespaceParameters namespaceFromBranchParams = namespaceBaseParams.toBuilder()
@@ -99,7 +99,6 @@ ansiColor('xterm') {
     karateTestsParams.sendTeamsSlackNotification = false
     karateTestsParams.syncWithJira = false
     karateTestsParams.timeout = '2'
-    karateTestsParams.javaVerson = ''
 
     try {
       stage('Ini') {
