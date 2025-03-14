@@ -278,10 +278,11 @@ module "rds" {
 }
 
 resource "postgresql_role" "kong" {
-  count    = var.eureka && !var.pg_embedded && (var.rancher_project_name != "sprint") ? 1 : 0
-  name     = "kong"
-  login    = true
-  password = local.pg_password
+  count      = var.eureka && !var.pg_embedded && (var.rancher_project_name != "sprint") ? 1 : 0
+  name       = "kong"
+  login      = true
+  password   = local.pg_password
+  depends_on = [module.rds]
   connection {
     host     = module.rds[0].cluster_endpoint
     port     = 5432
@@ -291,10 +292,11 @@ resource "postgresql_role" "kong" {
 }
 
 resource "postgresql_role" "keycloak" {
-  count    = var.eureka && !var.pg_embedded && (var.rancher_project_name != "sprint") ? 1 : 0
-  name     = "keycloak"
-  login    = true
-  password = local.pg_password
+  count      = var.eureka && !var.pg_embedded && (var.rancher_project_name != "sprint") ? 1 : 0
+  name       = "keycloak"
+  login      = true
+  password   = local.pg_password
+  depends_on = [module.rds]
   connection {
     host     = module.rds[0].cluster_endpoint
     port     = 5432
