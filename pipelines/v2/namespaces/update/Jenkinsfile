@@ -81,8 +81,8 @@ ansiColor('xterm') {
     String source = params.MODULE_SOURCE
     boolean isGithub = !updateAll && source.contains('GitHub')
 
-    String moduleName = params.MODULE_NAME
-    String branch = params.MODULE_BRANCH
+    String moduleName = !updateAll ? params.MODULE_NAME : null
+    String branch = isGithub ? params.MODULE_BRANCH : null
     String args = params.MAVEN_ARGS.trim()
 
     Eureka eureka = new Eureka(this, namespace.generateDomain('kong'), namespace.generateDomain('keycloak'))
