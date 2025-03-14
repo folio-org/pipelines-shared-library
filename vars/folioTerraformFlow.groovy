@@ -41,7 +41,7 @@ void manageNamespace(String action, TerraformConfig config) {
             dir(config.getWorkDir()) {
               if (config.getVars()['pg_embedded'] != 'true') {
                 def postgresql_resources = sh(script: "terraform state list | grep postgresql_", returnStdout: true).trim()
-                if (postgresql_resources) {
+                if (postgresql_resources.contains('postgresql_')) {
                   postgresql_resources.tokenize().each { folioTerraform.removeFromState(config.getWorkDir(), "${it}") }
                 }
               }
