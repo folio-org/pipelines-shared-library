@@ -64,7 +64,7 @@ ansiColor('xterm') {
       .runSanityCheck(false)
       .members('dojo')
       .uiBuild(true)
-      .worker('jenkins-agent-java17')
+      .worker('jenkins-agent-java21')
       .build()
 
     CreateNamespaceParameters namespaceFromBranchParams = namespaceBaseParams.toBuilder()
