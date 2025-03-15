@@ -14,6 +14,7 @@ import org.folio.rest_v2.Constants as RestConstants
 
 @Library('pipelines-shared-library@RANCHER-2148') _
 
+description: 'REPORT_URL: http://datamigrationsite.s3-website-us-west-2.amazonaws.com/#'
 /**
  * Job properties and parameters
  */
@@ -21,7 +22,6 @@ properties([
   pipelineTriggers([cron('H 2 * * 3')]),
   buildDiscarder(logRotator(numToKeepStr: '30')),
   disableConcurrentBuilds(),
-  description('REPORT_URL: http://datamigrationsite.s3-website-us-west-2.amazonaws.com/#'),
   parameters([
     string(name: 'DB_SNAPSHOT_NAME', defaultValue: Constants.DATA_MIGRATION_SNAPSHOT_NAME, description: "(Required) BF RDS snapshot name"),
     booleanParam(name: 'DESTROY_AFTER', defaultValue: false, description: '(Optional) Set to false to not destroy namespace after tests execution'),
