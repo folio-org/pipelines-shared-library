@@ -12,19 +12,18 @@ import org.folio.utilities.Logger
 import org.jenkinsci.plugins.workflow.libs.Library
 import org.folio.rest_v2.Constants as RestConstants
 
-@Library('pipelines-shared-library@RANCHER-2148') _
+@Library('pipelines-shared-library@RANCHER-1334') _
 
 /**
  * Job properties and parameters
  */
 properties([
-  pipelineTriggers([cron('H 2 * * 3')]),
-  buildDiscarder(logRotator(numToKeepStr: '30')),
+  buildDiscarder(logRotator(numToKeepStr: '10')),
   disableConcurrentBuilds(),
   parameters([
     string(name: 'REPORT: http://datamigrationsite.s3-website-us-west-2.amazonaws.com/#', defaultValue: Constants.DATA_MIGRATION_SNAPSHOT_NAME, description: "BF RDS snapshot name"),
     booleanParam(name: 'DESTROY_AFTER', defaultValue: false, description: '(Optional) Set to false to not destroy namespace after tests execution'),
-    booleanParam(name: 'RETRY_FAILED', defaultValue: false, description: '(Optional) Set to true to retry failed tests'),
+    booleanParam(name: 'RETRY_FAILED', defaultValue: false, description: '(Optional) Set to true to retry data-migration'),
     folioParameters.refreshParameters()
   ])
 ])
