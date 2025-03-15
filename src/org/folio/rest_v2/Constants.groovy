@@ -54,7 +54,7 @@ class Constants {
     ],
     [
       name       : "app-consortia"
-      , branch   : "snapshot"
+      , branch   : "snapshot-full"
       , consortia: true
       , core     : false
       , byDefault: true
@@ -62,7 +62,7 @@ class Constants {
     ],
     [
       name       : "app-consortia-manager"
-      , branch   : "master"
+      , branch   : "snapshot"
       , consortia: true
       , core     : false
       , byDefault: true
@@ -70,7 +70,7 @@ class Constants {
     ],
     [
       name       : "app-linked-data"
-      , branch   : "snapshot"
+      , branch   : "snapshot-full"
       , consortia: false
       , core     : false
       , byDefault: true
@@ -97,7 +97,7 @@ class Constants {
     ],
     [
       name: "app-consortia"
-      , branch: "master"
+      , branch: "snapshot"
       , consortia: true
       , core     : false
       , byDefault: true
@@ -105,7 +105,7 @@ class Constants {
     ],
     [
       name: "app-consortia-manager"
-      , branch: "master"
+      , branch: "snapshot"
       , consortia: true
       , core     : false
       , byDefault: true
@@ -113,7 +113,7 @@ class Constants {
     ],
     [
       name: "app-linked-data"
-      , branch: "master"
+      , branch: "snapshot"
       , consortia: false
       , core     : false
       , byDefault: true
@@ -121,7 +121,7 @@ class Constants {
     ],
     [
       name: "app-acquisitions"
-      , branch: "master"
+      , branch: "snapshot"
       , consortia: false
       , core: false
       , byDefault: true
@@ -129,7 +129,7 @@ class Constants {
     ],
     [
       name: "app-dcb"
-      , branch: "master"
+      , branch: "snapshot"
       , consortia: false
       , core     : false
       , byDefault: true
@@ -145,7 +145,7 @@ class Constants {
     ],
     [
       name: "app-reading-room"
-      , branch: "master"
+      , branch: "snapshot"
       , consortia: false
       , core: false
       , byDefault: true
@@ -153,7 +153,7 @@ class Constants {
     ],
     [
       name: "app-erm-usage"
-      , branch: "master"
+      , branch: "snapshot"
       , consortia: false
       , core: false
       , byDefault: true
@@ -161,7 +161,7 @@ class Constants {
     ],
     [
       name: "app-inn-reach"
-      , branch: "master"
+      , branch: "snapshot"
       , consortia: false
       , core: false
       , byDefault: true
@@ -169,7 +169,7 @@ class Constants {
     ],
     [
       name: "app-fqm"
-      , branch: "master"
+      , branch: "snapshot"
       , consortia: false
       , core: false
       , byDefault: true
@@ -177,7 +177,7 @@ class Constants {
     ],
     [
       name: "app-requests-ecs"
-      , branch: "master"
+      , branch: "snapshot"
       , consortia: false
       , core: false
       , byDefault: true
@@ -193,7 +193,7 @@ class Constants {
     ],
     [
       name: "app-requests-mediated-ui"
-      , branch: "master"
+      , branch: "snapshot"
       , consortia: false
       , core: false
       , byDefault: true
@@ -201,7 +201,7 @@ class Constants {
     ],
     [
       name: "app-marc-migrations"
-      , branch: "master"
+      , branch: "snapshot"
       , consortia: false
       , core: false
       , byDefault: false
@@ -209,7 +209,7 @@ class Constants {
     ],
     [
       name: "app-oai-pmh"
-      , branch: "master"
+      , branch: "snapshot"
       , consortia: false
       , core: false
       , byDefault: true
@@ -217,7 +217,7 @@ class Constants {
     ],
     [
       name: "app-bulk-edit"
-      , branch: "master"
+      , branch: "snapshot"
       , consortia: false
       , core: false
       , byDefault: true
