@@ -1,317 +1,351 @@
-#!groovy
-import com.cloudbees.groovy.cps.NonCPS
-import groovy.json.JsonSlurperClassic
-import groovy.text.GStringTemplateEngine
-import groovy.xml.MarkupBuilder
 import org.folio.Constants
-import org.folio.jira.JiraClient
-import org.folio.jira.model.JiraIssue
-import org.folio.testing.teams.TeamAssignment
-import org.folio.utilities.Tools
+import org.folio.models.*
+import org.folio.models.parameters.CreateNamespaceParameters
+import org.folio.rest.GitHubUtility
+import org.folio.rest_v2.PlatformType
+import org.folio.rest_v2.eureka.Eureka
+import org.folio.rest_v2.eureka.kong.Applications
+import org.folio.rest_v2.eureka.kong.Edge
+import org.folio.utilities.Logger
 
-import java.util.concurrent.TimeUnit
+import static groovy.json.JsonOutput.prettyPrint
+import static groovy.json.JsonOutput.toJson
 
-def getESLogs(cluster, indexPattern, startDate) {
-  def template = "get-logs-ES.json.template"
-  def binding = [
-    cluster     : cluster,
-    indexPattern: indexPattern,
-    startDate   : startDate
-  ]
+void call(CreateNamespaceParameters args) {
+  try {
+    Logger logger = new Logger(this, 'folioNamespaceCreateEureka')
 
-  Tools tools = new Tools(this)
-  tools.copyResourceFileToWorkspace("dataMigration/$template")
-  def content = steps.readFile template
-  String elasticRequestBody = new GStringTemplateEngine().createTemplate(content).make(binding).toString()
+    logger.info("Create operation parameters:\n${prettyPrint(toJson(args))}")
 
-  def response = httpRequest httpMode: 'GET', url: "https://${cluster}-elasticsearch.ci.folio.org/${indexPattern}*/_search", validResponseCodes: '100:599', requestBody: elasticRequestBody, contentType: "APPLICATION_JSON"
-  def result = new JsonSlurperClassic().parseText(response.content)
+    EurekaNamespace namespace = new EurekaNamespace(args.clusterName, args.namespaceName)
+    //Set terraform configuration
+    TerraformConfig tfConfig = new TerraformConfig('terraform/rancher/project')
+      .withWorkspace("${args.clusterName}-${args.namespaceName}")
 
-  return result
-}
+    tfConfig.addVar('rancher_cluster_name', args.clusterName)
+    tfConfig.addVar('rancher_project_name', args.namespaceName)
+    tfConfig.addVar('pg_password', Constants.PG_ROOT_DEFAULT_PASSWORD)
+    tfConfig.addVar('pgadmin_password', Constants.PGADMIN_DEFAULT_PASSWORD)
+    tfConfig.addVar('pg_embedded', args.pgType == 'built-in')
+    tfConfig.addVar('kafka_shared', args.kafkaType != 'built-in')
+    tfConfig.addVar('opensearch_shared', args.opensearchType != 'built-in')
+    tfConfig.addVar('s3_embedded', args.s3Type == 'built-in')
+    tfConfig.addVar('pgadmin4', 'true')
+    tfConfig.addVar('enable_rw_split', args.rwSplit)
+    tfConfig.addVar('pg_ldp_user_password', Constants.PG_LDP_DEFAULT_PASSWORD)
+    tfConfig.addVar('github_team_ids', folioTools.getGitHubTeamsIds("${Constants.ENVS_MEMBERS_LIST[args.namespaceName]},${args.members}").collect { "\"${it}\"" })
+    tfConfig.addVar('pg_version', args.pgVersion)
+    tfConfig.addVar('eureka', args.platform == PlatformType.EUREKA)
+    tfConfig.addVar('kong_version', args.kongVersion)
+    tfConfig.addVar('keycloak_version', args.keycloakVersion)
+    tfConfig.addVar('pg_rds_snapshot_name', args.dmSnapshot)
+    tfConfig.addVar('pg_dbname', Constants.BUGFEST_SNAPSHOT_DBNAME)
 
-@NonCPS
-def createTimeHtmlReport(tenantName, tenants) {
-  def sortedList = tenants.sort {
-    try {
-      it.moduleInfo.execTime.toInteger()
-    } catch (NumberFormatException ex) {
-      println "Activation of module $it failed"
+    stage('[Terraform] Provision') {
+      switch (args.type) {
+        case 'full':
+          folioTerraformFlow.manageNamespace('apply', tfConfig)
+          break
+        case 'terraform':
+          folioTerraformFlow.manageNamespace('apply', tfConfig)
+
+          currentBuild.result = 'ABORTED'
+          currentBuild.description = 'Terraform refresh complete'
+          return
+
+          break
+        case 'update':
+          logger.info("Skip [Terraform] Provision stage")
+          break
+      }
     }
-  }
 
-  def groupByTenant = sortedList.reverse().groupBy({
-    it.tenantName
-  })
-
-  int totalTime = 0
-  def modulesLongMigrationTime = [:]
-  def modulesMigrationFailed = []
-  def writer = new StringWriter()
-  def markup = new groovy.xml.MarkupBuilder(writer)
-  markup.html {
-    markup.table(style: "border-collapse: collapse;") {
-      markup.thead(style: "padding: 5px; border: solid 1px #777;") {
-        markup.tr {
-          markup.th(style: "padding: 5px; border: solid 1px #777; background-color: lightblue;", title: "Field #1", "Tenant name")
-          markup.th(style: "padding: 5px; border: solid 1px #777; background-color: lightblue;", title: "Field #2", "Module name")
-          markup.th(style: "padding: 5px; border: solid 1px #777; background-color: lightblue;", title: "Field #3", "Source version (from)")
-          markup.th(style: "padding: 5px; border: solid 1px #777; background-color: lightblue;", title: "Field #4", "Destination version (to)")
-          markup.th(style: "padding: 5px; border: solid 1px #777; background-color: lightblue;", title: "Field #5", "Time(HH:MM:SS)")
+    if (args.greenmail) {
+      stage('[Helm] Deploy greenmail') {
+        folioHelm.withKubeConfig(namespace.getClusterName()) {
+          folioHelmFlow.deployGreenmail(namespace.getNamespaceName())
         }
       }
-      markup.tbody {
-        groupByTenant[tenantName].each { tenantInfo ->
-          def moduleName = tenantInfo.moduleInfo.moduleName
-          def moduleVersionDst = tenantInfo.moduleInfo.moduleVersionDst
-          def moduleVersionSrc = tenantInfo.moduleInfo.moduleVersionSrc
-          def execTime = tenantInfo.moduleInfo.execTime
-          def moduleTime
-          if (execTime == "failed") {
-            modulesMigrationFailed += moduleName
-            moduleTime = "failed"
-          } else if (execTime.isNumber()) {
-            totalTime += execTime.toInteger()
-            moduleTime = convertTime(execTime.toInteger())
-            if (execTime.toInteger() >= 300000) {
-              modulesLongMigrationTime.put(moduleName, execTime)
+    }
+
+    if (args.mockServer) {
+      stage('[Helm] Deploy mock-server') {
+        folioHelm.withKubeConfig(namespace.getClusterName()) {
+          folioHelmFlow.deployMockServer(namespace)
+        }
+      }
+    }
+
+    if (args.namespaceOnly) {
+      return
+    }
+
+    def defaultTenantId = 'fs09000000'
+    String folioRepository = 'platform-complete'
+    boolean isRelease = args.folioBranch ==~ /^R\d-\d{4}.*/
+    String commitHash = common.getLastCommitHash(folioRepository, args.folioBranch)
+
+    List installJson = new GitHubUtility(this).getEnableList(folioRepository, args.folioBranch)
+    List eurekaPlatform = new GitHubUtility(this).getEurekaList(folioRepository, args.folioBranch)
+    installJson.addAll(eurekaPlatform)
+
+    //TODO: Temporary solution. Unused by Eureka modules have been removed.
+    installJson.removeAll { module -> module.id =~ /(mod-login|mod-authtoken|mod-login-saml)-\d+\..*/ }
+    installJson.removeAll { module -> module.id == 'okapi' }
+
+    TenantUi tenantUi = new TenantUi("${namespace.getClusterName()}-${namespace.getNamespaceName()}",
+      commitHash, args.folioBranch)
+
+    EurekaRequestParams installRequestParams = new EurekaRequestParams()
+      .withIgnoreErrors(true)
+      .doLoadReference(args.loadReference)
+      .doLoadSample(args.loadSample) as EurekaRequestParams
+
+    namespace.withSuperTenantAdminUser()
+      .withOkapiVersion(args.okapiVersion)
+      .withDefaultTenant(defaultTenantId)
+      .withDeploymentConfigType(args.configType)
+
+    namespace.setEnableSplitFiles(args.splitFiles)
+    namespace.setEnableRwSplit(args.rwSplit)
+    namespace.setEnableRtr(args.rtr)
+    namespace.setEnableECS_CCL(args.ecsCCL)
+    namespace.addDeploymentConfig(folioTools.getPipelineBranch())
+
+    namespace.addTenant(
+      folioDefault.tenants()[namespace.getDefaultTenantId()]
+        .convertTo(EurekaTenant.class)
+        .withAWSSecretStoragePathName("${namespace.getClusterName()}-${namespace.getNamespaceName()}")
+        .withInstallJson(installJson)
+//        .withIndex(new Index('instance', true, true))
+//        .withIndex(new Index('authority', true, false))
+//        .withIndex(new Index('location', true, false))
+//        .withTenantUi(tenantUi.clone())
+        .withInstallRequestParams(installRequestParams.clone())
+        .enableFolioExtensions(this, args.folioExtensions - 'consortia-eureka' - 'consortia')
+    )
+
+//    if (args.dataset) {
+//      List nonECS = ['fs09000002', 'fs09000003']
+//      nonECS.each { tenantId ->
+//        namespace.addTenant(
+//          folioDefault.tenants()[tenantId]
+//            .convertTo(EurekaTenant.class)
+//            .withAWSSecretStoragePathName("${namespace.getClusterName()}-${namespace.getNamespaceName()}")
+//            .withInstallJson(installJson)
+//            .withIndex(new Index('instance', true, true))
+//            .withIndex(new Index('authority', true, false))
+//            .withIndex(new Index('location', true, false))
+//            .withInstallRequestParams(installRequestParams.clone())
+//            .withTenantUi(tenantUi.clone())
+//            .enableFolioExtensions(this, args.folioExtensions - 'consortia-eureka' - 'consortia')
+//        )
+//      }
+//    }
+//
+//    if (args.folioExtensions.contains('consortia-eureka')) {
+//      namespace.setEnableConsortia(true, isRelease)
+//
+//      Map defaultConsortiaTenants = args.dataset ?
+//        folioDefault.tenants([], installRequestParams).findAll { it.value.getTenantId().startsWith('cs00000int') } :
+//        folioDefault.consortiaTenants([], installRequestParams)
+//
+//
+//      DTO.convertMapTo(defaultConsortiaTenants, EurekaTenantConsortia.class)
+//        .values()
+//        .each { tenant ->
+//          tenant.withInstallJson(installJson)
+//            .withSecureTenant(args.hasSecureTenant && args.secureTenantId == tenant.getTenantId())
+//            .withAWSSecretStoragePathName("${namespace.getClusterName()}-${namespace.getNamespaceName()}")
+//
+//          if (tenant.getIsCentralConsortiaTenant())
+//            tenant.withTenantUi(tenantUi.clone())
+//
+//          tenant.enableFolioExtensions(this, args.folioExtensions)
+//          namespace.addTenant(tenant)
+//        }
+//    }
+
+    //In case update environment the reindex is not needed
+    if(args.type == 'update')
+      namespace.getTenants().values().each { tenant -> tenant.indexes.clear() }
+
+
+    // TODO: Move this part to one of Eureka classes later. | DO NOT REMOVE | FIX FOR DNS PROPAGATION ISSUE!!!
+    timeout(time: 25, unit: 'MINUTES') {
+      def check = ''
+
+      while (check == '') {
+        try {
+          check = sh(script: "curl --fail --silent https://${namespace.generateDomain('keycloak')}/admin/master/console/", returnStdout: true).trim()
+          return check
+        } catch (ignored) {
+          logger.debug("DNS record: ${namespace.generateDomain('keycloak')} still not propagated!")
+          sleep time: 5, unit: "SECONDS"
+        }
+      }
+    }
+
+    //Don't move from here because it increases Keycloak TTL before mgr modules to be deployed
+    Eureka eureka = new Eureka(this, namespace.generateDomain('kong'), namespace.generateDomain('keycloak'))
+    Boolean check = false
+    timeout(time: 15, unit: 'MINUTES') {
+      while (!check) {
+        try {
+          eureka.defineKeycloakTTL()
+          check = true
+        } catch (Exception e) {
+          logger.warning("Keycloak TTL increase failed: ${e.getMessage()}")
+          sleep time: 5, unit: 'SECONDS'
+          check = false
+        }
+      }
+    }
+
+    stage('[Helm] Deploy mgr-*') {
+      folioHelm.withKubeConfig(namespace.getClusterName()) {
+        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getMgrModules())
+
+        //Check availability of the mgr-applications /applications endpoint to ensure the module up and running
+        int counter = 0
+        retry(10) {
+          sleep time: (counter == 0 ? 0 : 30), unit: 'SECONDS'
+          counter++
+
+          Applications.get(eureka.kong).getRegisteredApplications()
+        }
+        if (args.type == 'update') {
+          List sql_cmd = ['DELETE FROM public.module', 'DELETE FROM public.entitlement',
+                          'DELETE FROM public.entitlement_module', 'DELETE FROM public.application',
+                          'DELETE FROM public.application_flow']
+          String pod = sh(script: "kubectl get pod -l 'app.kubernetes.io/name=pgadmin4' -o=name -n ${namespace.getNamespaceName()}", returnStdout: true).trim()
+          sql_cmd.each {sh(script: "kubectl exec ${pod} --namespace ${namespace.getNamespaceName()} -- /usr/local/pgsql-16/psql -c '${it}'", returnStdout: true)}
+        }
+      }
+    }
+
+    stage('[Rest] Preinstall') {
+      int counter = 0
+      retry(5) {
+        sleep time: (counter == 0 ? 0 : 30), unit: 'SECONDS'
+        counter++
+        namespace.withApplications(
+          eureka.registerApplicationsFlow(
+            //TODO: Refactoring is needed!!! Utilization of extension should be applied.
+            // Remove this shit with consortia and linkedData. Apps have to be taken as it is.
+            args.applications -
+              (args.consortia ? [:] : ["app-consortia": "snapshot", "app-consortia-manager": "snapshot"]) -
+              (args.consortia ? [:] : ["app-consortia": "master", "app-consortia-manager": "master"]) -
+              (args.linkedData ? [:] : ["app-linked-data": "snapshot"]) -
+              (args.linkedData ? [:] : ["app-linked-data": "master"])
+            , namespace.getModules().getModuleVersionMap()
+            , namespace.getTenants().values() as List<EurekaTenant>
+          )
+        )
+
+        eureka.registerModulesFlow(
+          namespace.getModules()
+          , namespace.getApplications()
+        )
+      }
+    }
+
+    stage('[Helm] Deploy modules') {
+      folioHelm.withKubeConfig(namespace.getClusterName()) {
+        logger.info(namespace.getModules().getBackendModules())
+
+        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getBackendModules())
+        folioHelm.checkDeploymentsRunning(namespace.getNamespaceName(), namespace.getModules().getBackendModules())
+      }
+    }
+
+    stage('[Helm] Deploy edge') {
+      folioHelm.withKubeConfig(namespace.getClusterName()) {
+        folioEdge.renderEphemeralPropertiesEureka(namespace)
+        namespace.getModules().getEdgeModules().each { module ->
+          kubectl.createConfigMap("${module.name}-ephemeral-properties", namespace.getNamespaceName(), "./${module.name}-ephemeral-properties")
+        }
+
+        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getEdgeModules())
+        folioHelm.checkDeploymentsRunning(namespace.getNamespaceName(), namespace.getModules().getEdgeModules())
+
+      }
+    }
+
+    stage('[Rest] Initialize') {
+      if (args.dataset) { // Prepare for large dataset reindex
+        folioHelm.withKubeConfig(namespace.getClusterName()) {
+
+          kubectl.setKubernetesResourceCount('deployment', 'mod-inventory-storage', namespace.getNamespaceName(), '4')
+          sleep(time: 10, unit: 'SECONDS')
+          kubectl.setKubernetesResourceCount('deployment', 'mod-search', namespace.getNamespaceName(), '4')
+
+          folioHelm.checkDeploymentsRunning(namespace.getNamespaceName(), namespace.getModules().getBackendModules())
+
+        }
+      }
+      int counter = 0
+      retry(20) {
+        // The first wait time should be at least 10 minutes due to module's long time instantiation
+        sleep time: (counter == 0 ? 5 : 2), unit: 'MINUTES'
+        counter++
+
+        eureka.initializeFromScratch(
+          namespace.getTenants()
+          , namespace.getClusterName()
+          , namespace.getNamespaceName()
+          , namespace.getEnableConsortia()
+          , args.dataset // Set this option true, when users & groups migration is required.
+        )
+      }
+    }
+
+    stage('[Rest] Configure edge') {
+      retry(5) {
+        args.type  == 'full' ? new Edge(this, "${namespace.generateDomain('kong')}", "${namespace.generateDomain('keycloak')}").createEurekaUsers(namespace) : null
+      }
+    }
+
+    if (args.uiBuild) {
+      stage('Build and deploy UI') {
+        Map branches = [:]
+        namespace.getTenants().each { tenantId, tenant ->
+          if (tenant.getTenantUi()) {
+            branches[tenantId] = {
+              folioUI.buildAndDeploy(namespace, tenant, args.platform == PlatformType.EUREKA, namespace.getDomains()['kong'] as String
+                , namespace.getDomains()['keycloak'] as String, args.ecsCCL)
             }
           }
-
-          markup.tr(style: "padding: 5px; border: solid 1px #777;") {
-            markup.td(style: "padding: 5px; border: solid 1px #777;", tenantInfo.tenantName)
-            markup.td(style: "padding: 5px; border: solid 1px #777;", moduleName)
-            markup.td(style: "padding: 5px; border: solid 1px #777;", moduleVersionSrc)
-            markup.td(style: "padding: 5px; border: solid 1px #777;", moduleVersionDst)
-            markup.td(style: "padding: 5px; border: solid 1px #777;", moduleTime)
-          }
         }
-        markup.tr(style: "padding: 5px; border: solid 1px #777;") {
-          markup.td(style: "padding: 5px; border: solid 1px #777;", "")
-          markup.td(style: "padding: 5px; border: solid 1px #777;", "")
-          markup.td(style: "padding: 5px; border: solid 1px #777;", "")
-          markup.td(style: "padding: 5px; border: solid 1px #777;", "")
-          markup.td(style: "padding: 5px; border: solid 1px #777;", convertTime(totalTime.toInteger()))
-        }
+        parallel branches
       }
     }
-  }
-  return [writer.toString(), totalTime, modulesLongMigrationTime, modulesMigrationFailed]
-}
 
-void sendSlackNotification(String slackChannel, Integer totalTimeInMs = null, LinkedHashMap modulesLongMigrationTime = [:], modulesMigrationFailed = []) {
-  def buildStatus = currentBuild.result
-  def message = "${buildStatus}: `${env.JOB_NAME}` #${env.BUILD_NUMBER}:\n${env.BUILD_URL}\n"
-
-  def totalTimeInHours = TimeUnit.MILLISECONDS.toHours(totalTimeInMs)
-  if (totalTimeInHours >= 3) {
-    message += "Please check: Data Migration takes $totalTimeInHours hours!\n"
-  }
-
-  if (modulesLongMigrationTime) {
-    message += "List of modules with activation time bigger than 5 minutes:\n"
-    modulesLongMigrationTime.each { moduleName ->
-      def moduleTimeMinutes = TimeUnit.MILLISECONDS.toMinutes(moduleName.value.toInteger())
-      message += "${moduleName.key} takes $moduleTimeMinutes minutes\n"
+    //TODO: Add adequate slack notification https://folio-org.atlassian.net/browse/RANCHER-1892
+    stage('[Notify] Eureka') {
+      if (args.dataset) {
+        logger.warning("SUCCESS: Eureka ${args.clusterName}-${args.namespaceName} env successfully built!!!")
+        slackSend(color: 'good', message: args.clusterName + "-" + args.namespaceName + (args.type == 'update' ? " env successfully updated\n" : " env successfully built\n") +
+          "1. https://${namespace.generateDomain('fs09000000')} creds: folio:folio\n",
+          channel: '#eureka-sprint-testing')
+      } else {
+        slackSend(color: 'good', message: args.clusterName + "-" + args.namespaceName + " env successfully built\n" +
+          "1. https://${namespace.generateDomain('diku')}\n" +
+          "2. https://${namespace.generateDomain('consortium')}",
+          channel: '#rancher_tests_notifications')
+      }
     }
-  }
 
-  if (modulesMigrationFailed) {
-    message += "Modules with failed activation:\n"
-    modulesMigrationFailed.each { moduleName ->
-      message += "$moduleName\n"
-    }
-  }
+//    stage('Deploy ldp') {
+//      folioHelm.withKubeConfig(namespace.getClusterName()) {
+//        folioHelmFlow.deployLdp(namespace)
+//      }
+//    }
 
-  if (buildStatus == "FAILURE") {
-    message += "Data Migration Failed. Please check logs in job."
-  } else {
-    message += "Detailed time report: ${env.BUILD_URL}Data_20Migration_20Time/\n"
-    message += "Detailed Schemas Diff: ${env.BUILD_URL}Schemas_20Diff/\n"
-  }
-
-  try {
-    slackSend(color: karateTestUtils.getSlackColor(buildStatus), message: message, channel: slackChannel)
   } catch (Exception e) {
-    println("Unable to send slack notification to channel '${slackChannel}'")
-    e.printStackTrace()
+    println(e)
+    //TODO: Add adequate slack notification https://folio-org.atlassian.net/browse/RANCHER-1892
+    slackSend(color: 'danger', message: args.clusterName + "-" + args.namespaceName + " env build failed...\n" + "Console output: ${env.BUILD_URL}", channel: args.dataset ? '#eureka-sprint-testing' : '#rancher_tests_notifications')
+    throw new Exception(e)
   }
-}
-
-@NonCPS
-def convertTime(int ms) {
-  long hours = TimeUnit.MILLISECONDS.toHours(ms)
-  long minutes = TimeUnit.MILLISECONDS.toMinutes(ms) % TimeUnit.HOURS.toMinutes(1)
-  long seconds = TimeUnit.MILLISECONDS.toSeconds(ms) % TimeUnit.MINUTES.toSeconds(1)
-
-  String format = String.format("%02d:%02d:%02d", Math.abs(hours), Math.abs(minutes), Math.abs(seconds))
-
-  return format
-}
-
-def getBackendModulesList(String repoName, String branchName) {
-  def installJson = new URL("https://raw.githubusercontent.com/folio-org/${repoName}/${branchName}/install.json").openConnection()
-  if (installJson.getResponseCode().equals(200)) {
-    List modules_list = ['okapi']
-    new JsonSlurperClassic().parseText(installJson.getInputStream().getText())*.id.findAll { it ==~ /mod-.*/ }.each { value ->
-      modules_list.add(value)
-    }
-    return modules_list.sort()
-  }
-}
-
-@NonCPS
-def createDiffHtmlReport(diff, pgadminURL, resultMap = null) {
-  def writer = new StringWriter()
-  def builder = new MarkupBuilder(writer)
-
-  builder.html {
-    builder.head {
-      builder.style("""
-                body {
-                    font-family: Arial, sans-serif;
-                }
-                nav ul {
-                    list-style: none;
-                    padding: 0;
-                    margin: 0;
-                }
-                nav ul li {
-                    display: inline-block;
-                    margin-right: 20px;
-                }
-                section {
-                    margin-top: 40px;
-                    border-top: 1px solid #ccc;
-                }
-                h2 {
-                    display: inline-block;
-                    font-size: 24px;
-                    margin-bottom: 10px;
-                    margin-right: 20px;
-                }
-                p {
-                    font-size: 16px;
-                    line-height: 1.5;
-                    margin-bottom: 20px;
-                }
-            """)
-    }
-    builder.body {
-      builder.a(href: pgadminURL, target: "_blank") {
-        builder.h2("pgAdmin")
-      }
-      builder.a(href: "https://www.pgadmin.org/docs/pgadmin4/7.1/schema_diff.html", target: "_blank") {
-        builder.h2("Documentation")
-      }
-      // Make navigation tab
-      builder.nav {
-        builder.ul {
-          diff.each { schema ->
-            builder.li {
-              builder.a(href: "#" + schema.key) {
-                builder.h4(schema.key)
-              }
-            }
-          }
-        }
-      }
-      diff.each { schema ->
-        if (schema.key == "Unique schemas") {
-          builder.section(id: schema.key) {
-            builder.h2(schema.key)
-            builder.p(style: "white-space: pre-line", schema.value)
-          }
-        } else if (schema.key == "All schemas") {
-          builder.section(id: schema.key) {
-            builder.h2(schema.key)
-            builder.p(style: "white-space: pre-line", schema.value)
-          }
-        } else {
-          def moduleName = schema.key.replaceFirst(/^[^_]*_mod_/, "mod_").replace("_", "-")
-          // Find srcVersion and dstVersion for the given schema name
-          def srcVersion = resultMap[moduleName]?.srcVersion
-          def dstVersion = resultMap[moduleName]?.dstVersion
-          builder.section(id: schema.key) {
-            builder.h2(schema.key)
-            builder.h4("Migrated from $srcVersion to $dstVersion version for $moduleName module")
-            builder.p(style: "white-space: pre-line", schema.value)
-          }
-        }
-      }
-    }
-  }
-
-  return writer.toString()
-}
-
-def createSchemaDiffJiraIssue(schemaName, schemaDiff, resultMap, teamAssignment) {
-  JiraClient jiraClient = JiraClient.getJiraClient(this)
-
-  def moduleName = schemaName.replaceFirst(/^[^_]*_mod_/, "mod_").replace("_", "-")
-  def srcVersion = resultMap[moduleName]?.srcVersion
-  def dstVersion = resultMap[moduleName]?.dstVersion
-  def summary = "${moduleName} from ${srcVersion} to ${dstVersion} version"
-
-  String description = getIssueDescription(schemaName, schemaDiff, srcVersion, dstVersion)
-
-  def fields = [
-    Summary    : "${Constants.DM_ISSUE_SUMMARY_PREFIX} ${summary}",
-    Description: description,
-    Priority   : Constants.DM_JIRA_ISSUE_PRIORITY,
-    Labels     : [Constants.DM_ISSUE_LABEL]
-  ]
-
-  def teamName = "TEAM_MISSING"
-  def teamByModule = teamAssignment.getTeamsByModules()
-  def team = teamByModule[moduleName]
-  if (team) {
-    teamName = team.name
-    fields["Development Team"] = teamName
-  } else {
-    println "Module ${moduleName} is not assigned to any team."
-  }
-
-  try {
-    List<JiraIssue> issues = jiraClient.searchIssues(Constants.DM_ISSUES_JQL, ["summary", "status"])
-    Map<String, JiraIssue> issuesMap = issues.collectEntries { issue ->
-      def issuesSummary = issue.summary
-      [issuesSummary.substring(Constants.DM_ISSUE_SUMMARY_PREFIX.length(), issuesSummary.length()).trim(), issue]
-    }
-
-    if (issuesMap.containsKey(summary.toString())) {
-      JiraIssue issue = issuesMap[summary]
-      println "Update jira ticket for ${moduleName}, team '${teamName}'"
-      jiraClient.addIssueComment(issue.id, description)
-    } else {
-      println "Create jira ticket for ${moduleName}, team '${teamName}'"
-      def issueId = jiraClient.createJiraTicket Constants.DM_JIRA_PROJECT, Constants.DM_JIRA_ISSUE_TYPE, fields
-      println "Jira ticket '${issueId}' created for ${moduleName}, team '${teamName}'"
-    }
-  } catch (e) {
-    println("Unable to create Jira ticket. " + e.getMessage())
-    e.printStackTrace()
-  }
-}
-
-def getIssueDescription(schemaName, schemaDiff, srcVersion, dstVersion) {
-  def description =
-    "*Schema Name:* ${schemaName}\n" +
-      "*Schema diff:* ${schemaDiff}\n" +
-      "*Upgraded from:* ${srcVersion} *to* ${dstVersion} module version\n" +
-      "*Build:* ${env.JOB_NAME} #${env.BUILD_NUMBER} (${env.BUILD_URL})\n" +
-      "*Schema Diff Report:* ${env.BUILD_URL}Schemas_20Diff/ \n"
-
-  description
-    .replaceAll("\\{", "&#123;")
-    .replaceAll("\\{", "&#125;")
-}
-
-def getTeamAssignment() {
-  Tools tools = new Tools(this)
-  def assignmentPath = "teams-assignment.json"
-  tools.copyResourceFileToWorkspace("dataMigration/$assignmentPath")
-  def jsonContents = readJSON file: assignmentPath
-  def teamAssignment = new TeamAssignment(jsonContents)
-  return teamAssignment
 }
