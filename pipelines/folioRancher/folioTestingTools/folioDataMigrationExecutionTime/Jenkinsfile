@@ -22,6 +22,7 @@ properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
   disableConcurrentBuilds(),
   parameters([
+    string(name: 'REPORT_URL', defaultValue: 'http://datamigrationsite.s3-website-us-west-2.amazonaws.com/#', description: "Once build is finished, you can find the report here"),
     string(name: 'DB_SNAPSHOT_NAME', defaultValue: Constants.DATA_MIGRATION_SNAPSHOT_NAME, description: "(Required) BF RDS snapshot name"),
     booleanParam(name: 'DESTROY_AFTER', defaultValue: false, description: '(Optional) Set to false to not destroy namespace after tests execution'),
     booleanParam(name: 'RETRY_FAILED', defaultValue: false, description: '(Optional) Set to true to retry failed tests'),
