@@ -105,10 +105,6 @@ ansiColor('xterm') {
         params.RETRY_FAILED ? println('RETRY data-migration performance | Skip provision stage') : dataMigrationReport(namespaceParams)
       }
 
-      stage('[Flow] Measure data-migration performance') {
-//        TDB - Add data-migration performance library here
-      }
-
       if (params.DESTROY_AFTER) {
         stage('[Job] Destroy environment (after)') {
           folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceParams)
@@ -119,7 +115,7 @@ ansiColor('xterm') {
       logger.warning("Caught exception: ${e}")
 
       stage('[Job] Destroy environment (error)') {
-        folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceParams) // Always destroy namespace on error
+        params.RETRY_FAILED ? null : folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceParams) // Always destroy namespace on error
       }
 
       error(e.getMessage())
