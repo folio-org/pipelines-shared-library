@@ -133,13 +133,14 @@ def fetchModules(String url) {
 
   processResponse(new URL(url).openConnection())
 
-  return modules
-
   return modules.findAll {
     bool isOKAPISpecific = it == 'okapi'
     bool isEUREKASpecific = it == 'folio-kong' || it == 'folio-keycloak' || it == 'folio-module-sidecar' || it.startsWith('mgr-')
 
     bool result = it.startsWith('mod-') || it.startsWith('edge-')
+
+    return result
+
     result = (!platform || platform == 'OKAPI' ? result || isOKAPISpecific : result)
     return (!platform || platform == 'EUREKA' ? result || isEUREKASpecific : result)
   }.sort()
