@@ -17,7 +17,7 @@ import org.jenkinsci.plugins.workflow.libs.Library
 properties([
   buildDiscarder(logRotator(numToKeepStr: '10')),
   parameters([
-    folioParameters.platform(PlatformType.EUREKA),
+    folioParameters.platform(),
     folioParameters.cluster('PLATFORM'),
     folioParameters.namespace(),
     text(name: 'INSTALL_JSON', description: '(Required) Install json list with modules to install.',
