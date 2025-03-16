@@ -138,9 +138,6 @@ def fetchModules(String url) {
     boolean isEUREKASpecific = it == 'folio-kong' || it == 'folio-keycloak' || it == 'folio-module-sidecar' || it.startsWith('mgr-')
 
     boolean result = it.startsWith('mod-') || it.startsWith('edge-')
-
-    return result
-
     result = (!platform || platform == 'OKAPI' ? result || isOKAPISpecific : result)
     return (!platform || platform == 'EUREKA' ? result || isEUREKASpecific : result)
   }.sort()
