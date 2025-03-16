@@ -1,43 +1,50 @@
-package org.folio.models.parameters
+package org.folio.pipelines.modules.deployInstall
 
+
+import org.folio.rest_v2.PlatformType
 import org.jenkinsci.plugins.workflow.support.steps.build.RunWrapper
 
-class ModuleBuildPushPipeline {
+class Pipeline {
   static String JOB_NAME = "/v2/DevOps_Tools/modules/build_push"
 
   List parameters = []
   def context
 
-  ModuleBuildPushPipeline(def context) {
+  Pipeline(def context) {
     this.context = context
   }
 
-  ModuleBuildPushPipeline withModuleName(String name) {
+  Pipeline withPlatformType(PlatformType type) {
+    parameters.add(context.string(name: 'PLATFORM', value: type.name()))
+    return this
+  }
+
+  Pipeline withModuleName(String name) {
     parameters.add(context.string(name: 'MODULE_NAME', value: name))
     return this
   }
 
-  ModuleBuildPushPipeline withModuleBranch(String branch) {
+  Pipeline withModuleBranch(String branch) {
     parameters.add(context.string(name: 'MODULE_BRANCH', value: branch))
     return this
   }
 
-  ModuleBuildPushPipeline withMavenArgs(String args) {
+  Pipeline withMavenArgs(String args) {
     parameters.add(context.string(name: 'MAVEN_ARGS', value: args))
     return this
   }
 
-  ModuleBuildPushPipeline doPushImage(boolean isPush) {
+  Pipeline doPushImage(boolean isPush) {
     parameters.add(context.booleanParam(name: 'PUSH_IMAGE_TO_ECR', value: isPush))
     return this
   }
 
-  ModuleBuildPushPipeline doPushDescriptor(boolean isPush) {
+  Pipeline doPushDescriptor(boolean isPush) {
     parameters.add(context.booleanParam(name: 'PUSH_DESCRIPTOR_TO_ECR', value: isPush))
     return this
   }
 
-  ModuleBuildPushPipeline withAgent(String agent) {
+  Pipeline withAgent(String agent) {
     parameters.add(context.string(name: 'AGENT', value: agent))
     return this
   }

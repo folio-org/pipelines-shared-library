@@ -87,24 +87,26 @@ static String getModuleId(String moduleName) {
   }
 }
 
-static String getBackendModulesList(PlatformType platform = PlatformType.OKAPI){
-  String OKAPISpecific = "it == 'okapi'"
-  String EUREKASpecific = "it == 'folio-kong' || it == 'folio-keycloak' || it == 'folio-module-sidecar' || it.startsWith('mgr-')"
-
-  String filter = "it.startsWith('mod-') || it.startsWith('edge-')"
-  filter = (!platform || platform == PlatformType.OKAPI ? "${filter} || ${OKAPISpecific}" : filter)
-  filter = (!platform || platform == PlatformType.EUREKA ? "${filter} || ${EUREKASpecific}" : filter)
-
+static String getModulesList(String reference){
   return """import groovy.json.JsonSlurperClassic
+
+String platform = ${reference}
 def apiUrl = "https://api.github.com/orgs/folio-org/repos"
 def perPage = 100
+
 def fetchModules(String url) {
   def credentialId = "id-jenkins-github-personal-token"
-  def credential = com.cloudbees.plugins.credentials.SystemCredentialsProvider.getInstance().getStore().getCredentials(com.cloudbees.plugins.credentials.domains.Domain.global()).find { it.getId().equals(credentialId) }
+  def credential = com.cloudbees.plugins.credentials.SystemCredentialsProvider
+                      .getInstance()
+                      .getStore()
+                      .getCredentials(com.cloudbees.plugins.credentials.domains.Domain.global())
+                      .find { it.getId().equals(credentialId) }
+
   def secret_value = credential.getSecret().getPlainText()
   def modules = []
   def jsonSlurper = new JsonSlurperClassic()
   def getNextPage
+
   def processResponse = { connection ->
     connection.setRequestProperty("Authorization", "Bearer \${secret_value}")
     if (connection.responseCode == 200) {
@@ -122,13 +124,24 @@ def fetchModules(String url) {
       println("Error fetching data: HTTP \${connection.responseCode}")
     }
   }
+
   getNextPage = { nextPageUrl ->
     def nextConn = new URL(nextPageUrl).openConnection()
     processResponse(nextConn)
   }
+
   processResponse(new URL(url).openConnection())
-  return modules.findAll { $filter }.sort()
+
+  return modules.findAll {
+    bool isOKAPISpecific = it == 'okapi'
+    bool isEUREKASpecific = it == 'folio-kong' || it == 'folio-keycloak' || it == 'folio-module-sidecar' || it.startsWith('mgr-')
+
+    bool result = it.startsWith('mod-') || it.startsWith('edge-')
+    result = (!platform || platform == 'OKAPI' ? result || isOKAPISpecific : result)
+    return (!platform || platform == 'EUREKA' ? result || isEUREKASpecific : result)
+  }.sort()
 }
+
 fetchModules("\${apiUrl}?per_page=\${perPage}")"""
 }
 

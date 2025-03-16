@@ -3,10 +3,11 @@ package v2.namespaces.update
 import hudson.AbortException
 import org.folio.Constants
 import org.folio.models.EurekaNamespace
+import org.folio.models.FolioInstallJson
 import org.folio.models.module.EurekaModule
-import org.folio.models.parameters.ModuleBuildPushPipeline
+import org.folio.models.module.FolioModule
+import org.folio.pipelines.modules.buildPush.Pipeline
 import org.folio.rest_v2.PlatformType
-import org.folio.rest_v2.eureka.Eureka
 import org.folio.utilities.Logger
 import org.jenkinsci.plugins.pipeline.modeldefinition.Utils
 import org.jenkinsci.plugins.workflow.libs.Library
@@ -22,7 +23,7 @@ properties([
     folioParameters.namespace(),
     booleanParam(name: 'UPDATE_ALL', defaultValue: true, description: 'Update all namespace modules with latest versions'),
     folioParameters.branch(),
-    folioParameters.moduleName(PlatformType.EUREKA), // MODULE_NAME, Folio Module name
+    folioParameters.moduleName(), // MODULE_NAME, Folio Module name
     folioParameters.moduleSource(), // MODULE_SOURCE, Eureka Module source (Github, DockerHub, AWS ECR)
     folioParameters.branchWithRef('MODULE_BRANCH', 'MODULE_NAME'), // MODULE_BRANCH, Eureka Module Github branch
     folioParameters.containerImageTag('CONTAINER_IMAGE_TAG', 'MODULE_NAME, MODULE_SOURCE'), // CONTAINER_IMAGE_TAG, Container image tag
@@ -46,7 +47,6 @@ properties([
       ]
       , "UPDATE_ALL"
     )
-//    , folioParameters.hideParameters([ 'PLATFORM' ])
   ])
 ])
 
@@ -77,6 +77,7 @@ ansiColor('xterm') {
       return
     }
 
+    boolean isEureka = PlatformType.valueOf(params.PLATFORM) == PlatformType.EUREKA
     boolean updateAll = params.UPDATE_ALL
     String source = params.MODULE_SOURCE
     boolean isGithub = !updateAll && source.contains('GitHub')
@@ -85,8 +86,8 @@ ansiColor('xterm') {
     String branch = isGithub ? params.MODULE_BRANCH : null
     String args = params.MAVEN_ARGS.trim()
 
-    Eureka eureka = new Eureka(this, namespace.generateDomain('kong'), namespace.generateDomain('keycloak'))
-    List<EurekaModule> modules = []
+//    Eureka eureka = new Eureka(this, namespace.generateDomain('kong'), namespace.generateDomain('keycloak'))
+    FolioInstallJson<? extends FolioModule> modules = isEureka ? new FolioInstallJson(EurekaModule.class) : new FolioInstallJson(FolioModule.class)
 
     try {
       stage('Init') {
@@ -97,7 +98,7 @@ ansiColor('xterm') {
         buildDescription "Env: ${namespace.getWorkspaceName()}${src}${tagOrBranch}"
 
         if (!(isGithub || updateAll))
-          modules.add(new EurekaModule().loadModuleDetails("${moduleName}-${params.CONTAINER_IMAGE_TAG}"))
+          modules.addModule("${moduleName}-${params.CONTAINER_IMAGE_TAG}")
       }
 
       stage('[GitHub] Build & Push Module') {
@@ -106,7 +107,8 @@ ansiColor('xterm') {
           Utils.markStageSkippedForConditional('[GitHub] Build & Push Module')
         } else {
 
-          RunWrapper buildResult = new ModuleBuildPushPipeline(this)
+          RunWrapper buildResult = new Pipeline(this)
+            .withPlatformType(PlatformType.valueOf(params.PLATFORM))
             .withModuleName(moduleName)
             .withModuleBranch(branch)
             .withMavenArgs(args)
@@ -119,7 +121,7 @@ ansiColor('xterm') {
             error "No execution_results.json artifact found"
 
           copyArtifacts(
-            projectName: ModuleBuildPushPipeline.JOB_NAME,
+            projectName: Pipeline.JOB_NAME,
             selector: specific(buildResult.getNumber().toString()),
             filter: 'execution_results.json'
           )
