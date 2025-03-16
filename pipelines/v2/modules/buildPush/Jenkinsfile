@@ -18,8 +18,6 @@ properties([
   buildDiscarder(logRotator(numToKeepStr: '10')),
   parameters([
     folioParameters.platform(),
-    folioParameters.cluster('PLATFORM'),
-    folioParameters.namespace(),
     folioParameters.moduleName(), // MODULE_NAME, Folio Module moduleName
     folioParameters.branchWithRef('MODULE_BRANCH', 'MODULE_NAME'), // MODULE_BRANCH, Module Github branch
     string(name: 'MAVEN_ARGS', defaultValue: '-DskipTests', description: 'Maven build arguments'),
