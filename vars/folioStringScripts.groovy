@@ -90,13 +90,12 @@ static String getModuleId(String moduleName) {
 static String getModulesList(String reference){
   return """import groovy.json.JsonSlurperClassic
 
-String platform = ${reference}
 def apiUrl = "https://api.github.com/orgs/folio-org/repos"
 def perPage = 100
 
-return [platform]
-
 def fetchModules(String url) {
+  String platform = ${reference}
+
   def credentialId = "id-jenkins-github-personal-token"
   def credential = com.cloudbees.plugins.credentials.SystemCredentialsProvider
                       .getInstance()
