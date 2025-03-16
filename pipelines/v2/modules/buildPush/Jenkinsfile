@@ -71,7 +71,7 @@ ansiColor('xterm') {
         args = module.buildTool == ModuleBuildTool.MAVEN ? mavenArgs : args
         args = module.buildTool == ModuleBuildTool.GRADLE ? gradleOpts : args
 
-        buildName "#${moduleName}.${env.BUILD_ID}"
+        buildName "${moduleName}.${env.BUILD_ID}"
         buildDescription """Module: ${module.id}
 Branch: ${branch}
 Build tool: ${module.buildTool.toString()}"""

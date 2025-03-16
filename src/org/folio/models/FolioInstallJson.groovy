@@ -2,6 +2,8 @@ package org.folio.models
 
 import org.folio.models.module.FolioModule
 import org.folio.models.module.ModuleType
+import org.folio.rest.GitHubUtility
+import org.folio.rest_v2.PlatformType
 
 /**
  * The FolioInstallJson class represents a collection of Folio modules for installation.

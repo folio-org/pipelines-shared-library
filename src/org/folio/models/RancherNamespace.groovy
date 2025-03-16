@@ -55,8 +55,9 @@ class RancherNamespace {
     }
   }
 
-  RancherNamespace withDeploymentConfigType(String deploymentConfigType) {
+  RancherNamespace withDeploymentConfigType(String deploymentConfigType, String branch = DEPLOYMENT_CONFIG_BRANCH) {
     this.deploymentConfigType = deploymentConfigType
+    addDeploymentConfig(branch)
     return this
   }
 
@@ -178,6 +179,16 @@ class RancherNamespace {
 
       this.deploymentConfig = deploymentConfig
     }
+  }
+
+  boolean isActive(def context) {
+    boolean isEnvActive = false
+
+    context.folioHelm.withKubeConfig(getClusterName()) {
+      isEnvActive = sh(script: "kubectl get pods --namespace ${getNamespaceName()} --no-headers", returnStdout: true).trim()
+    }
+
+    return isEnvActive
   }
 
   protected Map getFeatureConfig(String feature, String branch = DEPLOYMENT_CONFIG_BRANCH) {
