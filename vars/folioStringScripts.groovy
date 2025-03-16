@@ -134,6 +134,8 @@ def fetchModules(String url) {
   processResponse(new URL(url).openConnection())
 
   return modules.findAll {
+    return it.startsWith('mod-') || it.startsWith('edge-')
+
     bool isOKAPISpecific = it == 'okapi'
     bool isEUREKASpecific = it == 'folio-kong' || it == 'folio-keycloak' || it == 'folio-module-sidecar' || it.startsWith('mgr-')
 
