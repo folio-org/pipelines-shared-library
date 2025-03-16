@@ -4,6 +4,7 @@ import org.folio.Constants
 import org.folio.models.module.FolioModule
 import org.folio.models.module.ModuleBuildTool
 import org.folio.models.module.ModuleType
+import org.folio.rest_v2.PlatformType
 import org.folio.utilities.GitHubClient
 import org.folio.utilities.Logger
 import org.jenkinsci.plugins.pipeline.modeldefinition.Utils
@@ -16,7 +17,9 @@ import org.jenkinsci.plugins.workflow.libs.Library
 properties([
   buildDiscarder(logRotator(numToKeepStr: '10')),
   parameters([
-    folioParameters.moduleName(), // MODULE_NAME, Folio Module moduleName
+    folioParameters.platform(PlatformType.EUREKA),
+    folioParameters.cluster('PLATFORM'),
+    folioParameters.namespace(),
     text(name: 'INSTALL_JSON', description: '(Required) Install json list with modules to install.',
       defaultValue: '''[ {
     "id" : "folio_users-x.x.x",
@@ -25,11 +28,9 @@ properties([
     "id" : "mod-users-x.x.x",
     "action" : "enable"
 } ]'''),
-    folioParameters.branchWithRef('MODULE_BRANCH', 'MODULE_NAME'), // MODULE_BRANCH, Module Github branch
-    string(name: 'MAVEN_ARGS', defaultValue: '-DskipTests', description: 'Maven build arguments'),
-    booleanParam(name: 'PUSH_IMAGE_TO_ECR', defaultValue: true, description: 'Set true to push built image to the ECR repository'),
-    booleanParam(name: 'PUSH_DESCRIPTOR_TO_ECR', defaultValue: true, description: 'Set true to push module descriptor to the ECR repository'),
-    folioParameters.agent(Constants.JENKINS_AGENTS_BUILD_MODULE),
+    booleanParam(name: 'DEPLOY', defaultValue: true, description: 'Set true to push built image to the ECR repository'),
+    booleanParam(name: 'INSTALL', defaultValue: true, description: 'Set true to push module descriptor to the ECR repository'),
+    folioParameters.agent(),
     folioParameters.refreshParameters()
   ])
 ])
