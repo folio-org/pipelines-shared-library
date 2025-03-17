@@ -1,7 +1,10 @@
 #!groovy
+import groovy.json.JsonSlurper
+
 @Library('pipelines-shared-library@move-jira') _
 
 import org.folio.client.jira.JiraClient
+import org.folio.client.jira.model.JiraIssue
 
 Object list_of_found_jira_tasks
 ArrayList list_of_jira_tasks_to_change = []
@@ -67,7 +70,7 @@ ansiColor('xterm') {
             stage('Get map with services from bugfest') {
                 String host = host_map[BugfestEnv]
                 def response = getRequest(host, tenant)
-                def json = new groovy.json.JsonSlurper().parseText(response)
+                def json = new JsonSlurper().parseText(response)
 
                 json.each { i ->
                     list_key_value = "${i}".split(':')
