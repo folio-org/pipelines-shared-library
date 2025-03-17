@@ -7,7 +7,7 @@ Logger logger = new Logger(this, 'folioEurekaAppGenerator')
 
 
 def generateApplicationDescriptor(String appName, Map<String, String> moduleList, String branch = "master", boolean debug = false) {
-  sh(script: "git clone -b master --single-branch --branch ${branch} ${Constants.FOLIO_GITHUB_URL}/${appName}.git")
+  sh(script: "rm -rf ${appName} || true && git clone --branch ${branch} --single-branch ${Constants.FOLIO_GITHUB_URL}/${appName}.git")
 
   dir(appName) {
     def updatedTemplate = setTemplateModuleLatestVersion(readJSON(file: appName + ".template.json"), moduleList)
