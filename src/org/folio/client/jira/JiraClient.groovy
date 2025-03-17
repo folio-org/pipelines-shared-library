@@ -2,7 +2,7 @@ package org.folio.client.jira
 
 import groovy.json.JsonOutput
 import hudson.AbortException
-import hudson.plugins.jira.model.JiraIssue
+import org.folio.client.jira.model.JiraIssue
 import org.apache.http.HttpHeaders
 import org.folio.client.jira.model.*
 import org.folio.karate.KarateConstants
