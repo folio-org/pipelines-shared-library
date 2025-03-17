@@ -3,7 +3,6 @@
 
 import org.folio.client.jira.model.*
 import org.folio.client.jira.JiraClient
-import org.folio.client.jira.model.JiraIssue
 
 Object list_of_found_jira_tasks
 ArrayList list_of_jira_tasks_to_change = []
