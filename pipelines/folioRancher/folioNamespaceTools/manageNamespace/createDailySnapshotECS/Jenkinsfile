@@ -245,7 +245,7 @@ ansiColor('xterm') {
     } catch (e) {
       stage('Notify') {
         println "Caught exception: ${e}"
-        slackSend(color: 'danger', message: "ecs-snapshot env build failed...", channel: '#rancher_tests_notifications')
+//        slackSend(color: 'danger', message: "ecs-snapshot env build failed...", channel: '#rancher_tests_notifications')
       }
       error(e.getMessage())
     } finally {
