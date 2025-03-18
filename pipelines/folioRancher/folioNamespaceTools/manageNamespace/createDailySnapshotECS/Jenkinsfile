@@ -70,8 +70,8 @@ ansiColor('xterm') {
       .build()
 
     stage('Ini') {
-      buildName "${tfConfig.getWorkspace()}-${env.BUILD_ID}"
-      buildDescription "Config: ${params.CONFIG_TYPE}"
+      buildName "folio-testing-ecs-snapshot-${env.BUILD_ID}"
+      buildDescription "Config: testing"
       newInstallJson = new GitHubUtility(this).getEnableList('platform-complete', 'snapshot')
       newInstallJson.removeAll { module -> module.id == 'okapi' }
     }
