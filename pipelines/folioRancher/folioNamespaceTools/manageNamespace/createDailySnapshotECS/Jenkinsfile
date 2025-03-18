@@ -22,13 +22,9 @@ properties([buildDiscarder(logRotator(numToKeepStr: '30')),
                         folioParameters.namespace(),
                         folioParameters.configType(),
                         booleanParam(name: 'RETRY_ENABLE', defaultValue: false, description: '(Optional) Set to true to retry install'),
-                        folioParameters.pgType(),
-                        folioParameters.kafkaType(),
-                        folioParameters.opensearchType(['aws']),
-                        folioParameters.s3Type(),
                         folioParameters.agent(),
                         folioParameters.refreshParameters()])
-//            ,pipelineTriggers([parameterizedCron('''45 20 * * 1-5 %CLUSTER=folio-testing;NAMESPACE=ecs-snapshot;CONFIG_TYPE=testing;RETRY_ENABLE=false;POSTGRESQL=built-in;KAFKA=built-in;OPENSEARCH=aws;S3_BUCKET=built-in;AGENT=rancher''')])
+//            ,pipelineTriggers([parameterizedCron('''45 20 * * 1-5 %CLUSTER=folio-testing;NAMESPACE=ecs-snapshot;CONFIG_TYPE=testing;RETRY_ENABLE=false;AGENT=rancher''')])
 ])
 
 if (params.REFRESH_PARAMETERS) {
