@@ -12,15 +12,15 @@ import org.folio.utilities.Logger
 import org.folio.utilities.Tools
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library@RANCHER-2133') _
+@Library('pipelines-shared-library@RANCHER-1334') _
 
-CONFIG_BRANCH = 'RANCHER-2133'
+CONFIG_BRANCH = 'RANCHER-1334'
 
 properties([buildDiscarder(logRotator(numToKeepStr: '30')),
             disableConcurrentBuilds(),
             parameters([booleanParam(name: 'RETRY_ENABLE', defaultValue: false, description: '(Optional) Set to true to retry install'),
-                        folioParameters.refreshParameters()])
-//            ,pipelineTriggers([parameterizedCron('''45 20 * * 1-5 %CLUSTER=folio-testing;NAMESPACE=ecs-snapshot;CONFIG_TYPE=testing;RETRY_ENABLE=false''')])
+                        folioParameters.refreshParameters()]),
+            pipelineTriggers([parameterizedCron('''45 20 * * 1-5 %RETRY_ENABLE=false;REFRESH_PARAMETERS=false''')])
 ])
 
 if (params.REFRESH_PARAMETERS) {
@@ -29,7 +29,7 @@ if (params.REFRESH_PARAMETERS) {
 }
 
 ansiColor('xterm') {
-  node('jenkins-agent-java17') {
+  node('rancher') {
 
     String defaultTenantId = 'cs00000int'
 
@@ -123,9 +123,9 @@ ansiColor('xterm') {
           namespace.setOkapiVersion(common.getOkapiVersion(namespace.getModules().getInstallJson()))
         }
 
-//        folioDeployFlow.restore(namespace)
+        folioDeployFlow.restore(namespace)
 
-        folioHelm.withKubeConfig(namespace.getClusterName()){
+        folioHelm.withKubeConfig(namespace.getClusterName()) {
           kubectl.patchSecret("mod-consortia-systemuser", "SYSTEM_USER_NAME", "consortia-system-user", "ecs-snapshot")
           def consortia_system_user_pwd = kubectl.getSecretValue(namespace.getNamespaceName(), 'mod-consortia-systemuser', 'SYSTEM_USER_PASSWORD')
 
@@ -147,8 +147,8 @@ ansiColor('xterm') {
 
       stage('Update') {
         Modules modules = new Modules()
-        //TMP Workaround
-        newInstallJson.add([id: 'okapi-6.3.0-SNAPSHOT.915', action: 'enable'])
+
+        newInstallJson.add([id: 'okapi-6.3.0-SNAPSHOT.915', action: 'enable']) //TMP Workaround
         newInstallJson.add([id: modules.getModuleVersion('mod-consortia'), action: 'enable'])
         newInstallJson.add([id: modules.getModuleVersion('folio_consortia-settings'), action: 'enable'])
 
@@ -188,7 +188,7 @@ ansiColor('xterm') {
     } catch (e) {
       stage('Notify') {
         println "Caught exception: ${e}"
-//        slackSend(color: 'danger', message: "ecs-snapshot env build failed...\nConsole output: ${env.BUILD_URL}", channel: '#rancher_tests_notifications')
+        slackSend(color: 'danger', message: "ecs-snapshot env build failed...\nConsole output: " + "${env.BUILD_URL}", channel: '#rancher_tests_notifications')
       }
       error(e.getMessage())
     } finally {
