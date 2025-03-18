@@ -19,7 +19,7 @@ properties([buildDiscarder(logRotator(numToKeepStr: '30')),
             parameters([booleanParam(name: 'RETRY_ENABLE', defaultValue: false, description: '(Optional) Set to true to retry install'),
                         booleanParam(name: 'NOTIFY', defaultValue: false, description: '(Optional) Set to true to notify about the build'),
                         folioParameters.refreshParameters()]),
-            pipelineTriggers([parameterizedCron('''45 20 * * 1-5 %RETRY_ENABLE=false;REFRESH_PARAMETERS=false;NOTIFY=true''')])
+            pipelineTriggers([parameterizedCron('''40 19 * * 1-5 %RETRY_ENABLE=false;REFRESH_PARAMETERS=false;NOTIFY=true''')])
 ])
 
 if (params.REFRESH_PARAMETERS) {
