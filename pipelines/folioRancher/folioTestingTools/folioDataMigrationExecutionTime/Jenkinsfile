@@ -1,5 +1,5 @@
 #!groovy
-package folioRancher.folioScheduledTesting.runNightlyKarateLSDITests
+package folioRancher.folioTestingTools.folioDataMigrationExecutionTime
 
 import groovy.transform.Field
 import org.folio.Constants
@@ -38,8 +38,7 @@ if (params.REFRESH_PARAMETERS) {
  */
 Logger logger = new Logger(this, env.JOB_BASE_NAME)
 
-//@Field final String deleteNamespaceJobName = Constants.JENKINS_DELETE_NAMESPACE_JOB_EUREKA
-@Field final String deleteNamespaceJobName = "$Constants.JENKINS_FOLIO_RANCHER_FOLDER/tmpFolderForDraftPipelines/EldiiarD/deleteNamespace-Eldiiar"
+@Field final String deleteNamespaceJobName = Constants.JENKINS_DELETE_NAMESPACE_JOB_EUREKA
 
 String okapiVersion = folioTools.eval(folioStringScripts.getOkapiVersions(), ['FOLIO_BRANCH': 'snapshot'])[0]
 
