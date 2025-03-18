@@ -49,6 +49,8 @@ class CreateNamespaceParameters implements Cloneable {
 
   boolean dataset = false
 
+  String dmSnapshot
+
   //TODO: remove after pipeline refactoring. Just utilize it. Use this only in the main pipeline for developers
   // as a select-simplicity approach. Don't use it, and do not include it in the underlying
   // base pipeline or step-separated pipelines.
@@ -324,6 +326,7 @@ class CreateNamespaceParameters implements Cloneable {
       return this
     }
 
+
     /**
      * Specifies the application list for Eureka platform
      * @param list The list of application-branch map to entitle.
@@ -460,6 +463,15 @@ class CreateNamespaceParameters implements Cloneable {
 
     Builder type(String type) {
       parameters.type = type
+      return this
+    }
+    /**
+     * Specifies the snapshot of data migration to be used.
+     * @param dmSnapshot The snapshot of data migration to use.
+     * @return Builder instance for method chaining.
+     */
+    Builder dmSnapshot(String dmSnapshot) {
+      parameters.dmSnapshot = dmSnapshot
       return this
     }
 
