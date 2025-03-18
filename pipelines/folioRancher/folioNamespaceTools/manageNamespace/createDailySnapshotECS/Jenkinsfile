@@ -38,7 +38,7 @@ ansiColor('xterm') {
 
     RancherNamespace namespace = new RancherNamespace('folio-testing', 'ecs-snapshot')
       .withDefaultTenant(defaultTenantId)
-      .withDeploymentConfigType(params.CONFIG_TYPE)
+      .withDeploymentConfigType('testing')
       .withSuperTenantAdminUser()
 
     namespace.addDeploymentConfig(CONFIG_BRANCH)
@@ -47,9 +47,6 @@ ansiColor('xterm') {
 
     String installJsonS3Path = "${Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME}/ecs-snapshot/"
     List newInstallJson = []
-    InstallRequestParams installRequestParams = new InstallRequestParams(reinstall: true)
-      .withTenantParameters("centralTenantId=cs00000int")
-    Main main = new Main(this, namespace.generateDomain('okapi'), namespace.getSuperTenant())
 
     final String deleteNamespaceJobName = Constants.JENKINS_DELETE_NAMESPACE_JOB
     final String deployModulesFromJson = Constants.JENKINS_DEPLOY_MODULES_FROM_JSON
