@@ -120,15 +120,13 @@ ansiColor('xterm') {
         }
 
         stage('[TF] Provision') {
-          folioTerraformFlow.manageNamespace('apply', tfConfig)
+          params.RETRY_ENABLE ? null : folioTerraformFlow.manageNamespace('apply', tfConfig)
         }
 
         stage('[DB and Indices] Restore') {
           folioHelm.withKubeConfig(params.CLUSTER) {
             folioPrint.colored("Restoring psql ecs dump...\nEstimated duration: ~ 1-2 hours", "green")
-            psqlDumpMethods.restoreHelmData("psql-restore", "psql-dump", "1.0.6", "roles",
-              "ecs-snapshot", Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME,
-              "ecs-snapshot", "${params.NAMESPACE}")
+            params.RETRY_ENABLE ? null : psqlDumpMethods.restoreHelmData("psql-restore", "psql-dump", "1.0.6", "roles", "ecs-snapshot", Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME, "ecs-snapshot", "${params.NAMESPACE}")
             kubectl.patchSecret("mod-consortia-systemuser", "SYSTEM_USER_NAME", "consortia-system-user", "${params.NAMESPACE}")
             kubectl.patchSecret("mod-search-systemuser", "SYSTEM_USER_NAME", "mod-search", "${params.NAMESPACE}")
           }
@@ -144,7 +142,7 @@ ansiColor('xterm') {
         sleep time: 2, unit: "MINUTES"
       }
 
-      stage('Prepare update') {
+      stage('Prepare for update') {
         folioHelm.withK8sClient {
           def consortia_system_user_pwd = kubectl.getSecretValue(namespace.getNamespaceName(), 'mod-consortia-systemuser', 'SYSTEM_USER_PASSWORD')
           def search_system_user_pwd = kubectl.getSecretValue(namespace.getNamespaceName(), 'mod-search-systemuser', 'SYSTEM_USER_PASSWORD')
@@ -168,14 +166,27 @@ ansiColor('xterm') {
       }
 
       stage('Update') {
-//        TBD
-        main.runIndex(namespace.tenants[defaultTenantId], new Index('location', true, false))
+        newInstallJson.add([id: 'okapi-' + folioStringScripts.getOkapiVersions()[0], action: 'enable']) // TMP workaround
+        build job: deployModulesFromJson,
+          parameters: [string(name: 'CLUSTER', value: 'folio-testing'),
+                       string(name: 'NAMESPACE', value: 'ecs-snapshot'),
+                       string(name: 'CONFIG_TYPE', value: 'testing'),
+                       string(name: 'DEFAULT_TENANT_ID', value: 'cs00000int'),
+                       text(name: 'INSTALL_JSON', value: newInstallJson.toString()),
+                       booleanParam(name: 'RTR', value: false),
+                       booleanParam(name: 'LOAD_REFERENCE', value: false),
+                       booleanParam(name: 'LOAD_SAMPLE', value: false),
+                       booleanParam(name: 'SIMULATE', value: true),
+                       booleanParam(name: 'REINSTALL', value: true),
+                       booleanParam(name: 'IGNORE_ERRORS', value: false),
+                       string(name: 'AGENT', value: 'rancher'),
+                       booleanParam(name: 'REFRESH_PARAMETERS', value: false)]
       }
 
       stage('Build and deploy UI') {
 
-        slackSend(color: 'good', message: 'ecs-snapshot env successfully built\n' + "UI: https://${namespace.clusterName}-${namespace.namespaceName}-${namespace.defaultTenantId}" +
-          ".${Constants.CI_ROOT_DOMAIN}\nCredentials: ecs_admin:admin", channel: '#rancher_tests_notifications')
+//        slackSend(color: 'good', message: 'ecs-snapshot env successfully built\n' + "UI: https://${namespace.clusterName}-${namespace.namespaceName}-${namespace.defaultTenantId}" +
+//          ".${Constants.CI_ROOT_DOMAIN}\nCredentials: ecs_admin:admin", channel: '#rancher_tests_notifications')
       }
 
     } catch (e) {
