@@ -19,8 +19,9 @@ CONFIG_BRANCH = 'RANCHER-1334'
 properties([buildDiscarder(logRotator(numToKeepStr: '30')),
             disableConcurrentBuilds(),
             parameters([booleanParam(name: 'RETRY_ENABLE', defaultValue: false, description: '(Optional) Set to true to retry install'),
+                        booleanParam(name: 'NOTIFY', defaultValue: false, description: '(Optional) Set to true to notify about the build'),
                         folioParameters.refreshParameters()]),
-            pipelineTriggers([parameterizedCron('''45 20 * * 1-5 %RETRY_ENABLE=false;REFRESH_PARAMETERS=false''')])
+            pipelineTriggers([parameterizedCron('''45 20 * * 1-5 %RETRY_ENABLE=false;REFRESH_PARAMETERS=false;NOTIFY=true''')])
 ])
 
 if (params.REFRESH_PARAMETERS) {
@@ -112,7 +113,7 @@ ansiColor('xterm') {
         stage('[DB and Indices] Restore') {
           folioHelm.withKubeConfig('folio-testing') {
             folioPrint.colored("Restoring psql ecs dump...\nEstimated duration: ~ 1-2 hours", "green")
-            params.RETRY_ENABLE ? null : psqlDumpMethods.restoreHelmData("psql-restore", "psql-dump", "1.0.6", "roles", "ecs-snapshot", Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME, "ecs-snapshot", "ecs-snapshot")
+            params.RETRY_ENABLE ? null : psqlDumpMethods.restoreHelmData("psql-restore", "psql-dump", "1.0.6", "roles", "ecs-snapshot-04", Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME, "ecs-snapshot", "ecs-snapshot")
           }
         }
       }
@@ -127,20 +128,31 @@ ansiColor('xterm') {
 
         folioHelm.withKubeConfig(namespace.getClusterName()) {
           kubectl.patchSecret("mod-consortia-systemuser", "SYSTEM_USER_NAME", "consortia-system-user", "ecs-snapshot")
+          kubectl.patchSecret("mod-search-systemuser", "SYSTEM_USER_NAME", "mod-search", "ecs-snapshot")
+
           def consortia_system_user_pwd = kubectl.getSecretValue(namespace.getNamespaceName(), 'mod-consortia-systemuser', 'SYSTEM_USER_PASSWORD')
+          def search_system_user_pwd = kubectl.getSecretValue(namespace.getNamespaceName(), 'mod-search-systemuser', 'SYSTEM_USER_PASSWORD')
 
           Users users = new Users(this, namespace.generateDomain('okapi'))
           OkapiUser consortia_system_user = new OkapiUser('consortia-system-user', consortia_system_user_pwd)
+          OkapiUser search_system_user = new OkapiUser('mod-search', search_system_user_pwd)
 
           List tenants = ['cs00000int', 'cs00000int_0001', 'cs00000int_0002', 'cs00000int_0003', 'cs00000int_0004', 'cs00000int_0005']
 
           tenants.each { id ->
-            sleep time: 5, unit: 'SECONDS'
+            sleep time: 2, unit: 'SECONDS'
+
             OkapiTenant tenant = new OkapiTenant(id)
               .withAdminUser(new OkapiUser('ecs_admin', 'admin'))
-            def user = users.getUserByName(tenant, consortia_system_user)
-            consortia_system_user.setUuid(user.get('id'))
+            def consortia_user = users.getUserByName(tenant, consortia_system_user)
+            consortia_system_user.setUuid(consortia_user.get('id'))
             users.resetUserPassword(tenant, consortia_system_user)
+
+            sleep time: 2, unit: 'SECONDS'
+
+            def search_user = users.getUserByName(tenant, search_system_user)
+            consortia_system_user.setUuid(search_user.get('id'))
+            users.resetUserPassword(tenant, search_system_user)
           }
         }
       }
@@ -188,7 +200,7 @@ ansiColor('xterm') {
     } catch (e) {
       stage('Notify') {
         println "Caught exception: ${e}"
-        slackSend(color: 'danger', message: "ecs-snapshot env build failed...\nConsole output: " + "${env.BUILD_URL}", channel: '#rancher_tests_notifications')
+        params.NOTIFY ? slackSend(color: 'danger', message: "ecs-snapshot env build failed...\nConsole output: " + "${env.BUILD_URL}", channel: '#rancher_tests_notifications') : null
       }
       error(e.getMessage())
     } finally {
