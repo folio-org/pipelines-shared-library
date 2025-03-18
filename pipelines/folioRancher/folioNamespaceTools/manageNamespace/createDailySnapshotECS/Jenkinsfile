@@ -164,7 +164,7 @@ ansiColor('xterm') {
                        string(name: 'NAMESPACE', value: 'ecs-snapshot'),
                        string(name: 'CONFIG_TYPE', value: 'testing'),
                        string(name: 'DEFAULT_TENANT_ID', value: 'cs00000int'),
-                       text(name: 'INSTALL_JSON', value: newInstallJson.toString()),
+                       text(name: 'INSTALL_JSON', value: writeJSON(json: newInstallJson, returnText: true)),
                        booleanParam(name: 'RTR', value: false),
                        booleanParam(name: 'LOAD_REFERENCE', value: false),
                        booleanParam(name: 'LOAD_SAMPLE', value: false),
