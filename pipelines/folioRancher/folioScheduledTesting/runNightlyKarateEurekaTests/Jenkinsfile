@@ -57,7 +57,7 @@ ansiColor('xterm') {
       .greenmail(false)
       .mockServer(false)
       .pgType('built-in')
-      .pgVersion('16.4')
+      .pgVersion('16.1')
       .kafkaType('built-in')
       .opensearchType('aws')
       .s3Type('built-in')
