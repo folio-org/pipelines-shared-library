@@ -34,9 +34,9 @@ ansiColor('xterm') {
     String defaultTenantId = 'cs00000int'
 
     TerraformConfig tfConfig = new TerraformConfig('terraform/rancher/project')
-      .withWorkspace("${params.CLUSTER}-${params.NAMESPACE}")
+      .withWorkspace("${'folio-testing'}-ecs-snapshot")
 
-    RancherNamespace namespace = new RancherNamespace(params.CLUSTER, params.NAMESPACE)
+    RancherNamespace namespace = new RancherNamespace('folio-testing', 'ecs-snapshot')
       .withDefaultTenant(defaultTenantId)
       .withDeploymentConfigType(params.CONFIG_TYPE)
       .withSuperTenantAdminUser()
@@ -113,11 +113,11 @@ ansiColor('xterm') {
         }
 
         stage('[DB and Indices] Restore') {
-          folioHelm.withKubeConfig(params.CLUSTER) {
+          folioHelm.withKubeConfig('folio-testing') {
             folioPrint.colored("Restoring psql ecs dump...\nEstimated duration: ~ 1-2 hours", "green")
-            params.RETRY_ENABLE ? null : psqlDumpMethods.restoreHelmData("psql-restore", "psql-dump", "1.0.6", "roles", "ecs-snapshot", Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME, "ecs-snapshot", "${params.NAMESPACE}")
-            kubectl.patchSecret("mod-consortia-systemuser", "SYSTEM_USER_NAME", "consortia-system-user", "${params.NAMESPACE}")
-            kubectl.patchSecret("mod-search-systemuser", "SYSTEM_USER_NAME", "mod-search", "${params.NAMESPACE}")
+            params.RETRY_ENABLE ? null : psqlDumpMethods.restoreHelmData("psql-restore", "psql-dump", "1.0.6", "roles", "ecs-snapshot", Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME, "ecs-snapshot", "ecs-snapshot")
+            kubectl.patchSecret("mod-consortia-systemuser", "SYSTEM_USER_NAME", "consortia-system-user", "ecs-snapshot")
+            kubectl.patchSecret("mod-search-systemuser", "SYSTEM_USER_NAME", "mod-search", "ecs-snapshot")
           }
         }
       }
