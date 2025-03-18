@@ -265,7 +265,7 @@ class Constants {
     "$JENKINS_FOLIO_RANCHER_FOLDER/folioNamespaceTools/createNamespaceFromBranch"
 
   static final String JENKINS_DELETE_NAMESPACE_JOB = "$JENKINS_FOLIO_RANCHER_FOLDER/folioNamespaceTools/deleteNamespace"
-  static final String JENKINS_DEPLOY_MODULES_FROM_JSON = "$JENKINS_FOLIO_RANCHER_FOLDER/folioRancher/folioDevTools/moduleDeployment/deployModulesFromJson"
+  static final String JENKINS_DEPLOY_MODULES_FROM_JSON = "$JENKINS_FOLIO_RANCHER_FOLDER/folioDevTools/moduleDeployment/deployModulesFromJson"
 
   static final String JENKINS_CREATE_NAMESPACE_FROM_BRANCH_JOB_EUREKA =
     "$JENKINS_FOLIO_RANCHER_FOLDER/tmpFolderForDraftPipelines/Eureka/createNamespaceFromBranch-Eureka"

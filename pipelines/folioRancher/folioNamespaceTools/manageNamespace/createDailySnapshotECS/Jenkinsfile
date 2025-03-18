@@ -135,7 +135,7 @@ ansiColor('xterm') {
           List tenants = ['cs00000int', 'cs00000int_0001', 'cs00000int_0002', 'cs00000int_0003', 'cs00000int_0004', 'cs00000int_0005']
 
           tenants.each { id ->
-            sleep time: 30, unit: 'SECONDS'
+            sleep time: 5, unit: 'SECONDS'
             OkapiTenant tenant = new OkapiTenant(id)
               .withAdminUser(new OkapiUser('ecs_admin', 'admin'))
             def user = users.getUserByName(tenant, consortia_system_user)
