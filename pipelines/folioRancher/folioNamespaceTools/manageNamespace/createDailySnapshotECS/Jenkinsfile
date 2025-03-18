@@ -124,9 +124,9 @@ ansiColor('xterm') {
 
         stage('[DB and Indices] Restore') {
           folioPrint.colored("Restoring indices...", "green")
-          withCredentials([usernamePassword(credentialsId: 'elastic', passwordVariable: 'es_password', usernameVariable: 'es_username')]) {
-            folioEcsIndices.prepareEcsIndices("${env.es_username}", "${env.es_password}")
-          }
+//          withCredentials([usernamePassword(credentialsId: 'elastic', passwordVariable: 'es_password', usernameVariable: 'es_username')]) {
+//            folioEcsIndices.prepareEcsIndices("${env.es_username}", "${env.es_password}")
+//          }
 
           folioHelm.withKubeConfig(params.CLUSTER) {
             folioPrint.colored("Restoring psql ecs dump...\nEstimated duration: ~ 1-2 hours", "green")
