@@ -305,6 +305,14 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
       case 'mod-consortia-keycloak':
         println('https://folio-org.atlassian.net/browse/RANCHER-2035')
         break
+
+      case 'mgr-tenant-entitlements':
+          moduleConfig['extraEnvVars'] +=  ns.getNamespaceName() == 'karate-eureka' ? [
+            name : 'VALIDATION_INTERFACE_INTEGRITY_ENABLED',
+            value: false
+          ] : []
+        break
+
       case ~/mod-.*-keycloak/:
         moduleConfig['extraEnvVars'] += [
           name: 'MOD_USERS_ID',
