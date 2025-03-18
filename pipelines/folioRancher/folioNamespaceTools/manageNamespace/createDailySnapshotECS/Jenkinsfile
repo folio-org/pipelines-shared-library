@@ -152,7 +152,7 @@ ansiColor('xterm') {
       stage('Update') {
         Modules modules = new Modules()
         //TMP Workaround
-        newInstallJson.add([id: 'okapi-' + folioStringScripts.getOkapiVersions()[0], action: 'enable'])
+        newInstallJson.add([id: 'okapi-6.3.0-SNAPSHOT.915', action: 'enable'])
         newInstallJson.add([id: modules.getModuleVersion('mod-consortia'), action: 'enable'])
         newInstallJson.add([id: modules.getModuleVersion('folio_consortia-settings'), action: 'enable'])
 
