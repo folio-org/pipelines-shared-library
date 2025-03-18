@@ -29,7 +29,7 @@ if (params.REFRESH_PARAMETERS) {
 }
 
 ansiColor('xterm') {
-  node('rancher') {
+  node('jenkins-agent-java17') {
 
     String defaultTenantId = 'cs00000int'
 
