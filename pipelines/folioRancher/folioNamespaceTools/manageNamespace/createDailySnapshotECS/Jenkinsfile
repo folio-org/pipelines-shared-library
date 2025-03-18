@@ -125,6 +125,7 @@ ansiColor('xterm') {
         folioHelm.withK8sClient {
           namespace.getModules().setInstallJsonObject(new Tools(this)
             .jsonParse(awscli.getS3FileContent("${installJsonS3Path}" + "install.json")))
+          namespace.setOkapiVersion(common.getOkapiVersion(namespace.getModules().getInstallJson()))
 
           def consortia_system_user_pwd = kubectl.getSecretValue(namespace.getNamespaceName(), 'mod-consortia-systemuser', 'SYSTEM_USER_PASSWORD')
           def search_system_user_pwd = kubectl.getSecretValue(namespace.getNamespaceName(), 'mod-search-systemuser', 'SYSTEM_USER_PASSWORD')
