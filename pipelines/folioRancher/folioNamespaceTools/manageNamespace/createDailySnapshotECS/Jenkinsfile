@@ -166,7 +166,10 @@ ansiColor('xterm') {
       }
 
       stage('Update') {
+        Modules modules = new Modules()
         newInstallJson.add([id: 'okapi-' + folioStringScripts.getOkapiVersions()[0], action: 'enable']) // TMP workaround
+        newInstallJson.add([id: modules.getModuleVersion('mod-consortia'), action: 'enable']) // TMP workaround
+        newInstallJson.add([id: modules.getModuleVersion('folio_consortia-settings'), action: 'enable']) // TMP workaround
         build job: deployModulesFromJson,
           parameters: [string(name: 'CLUSTER', value: 'folio-testing'),
                        string(name: 'NAMESPACE', value: 'ecs-snapshot'),
