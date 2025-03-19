@@ -161,9 +161,9 @@ ansiColor('xterm') {
         Modules modules = new Modules()
 
 //        newInstallJson.add([id: modules.getModuleVersion('folio_consortia-settings'), action: 'enable'])
+//        newInstallJson.removeAll{ module -> module.id ==~ /mod-search-.*/ } //TMP Workaround
+//        newInstallJson.add([id: 'mod-search-4.1.0-SNAPSHOT.666', action: 'enable']) //TMP Workaround
         newInstallJson.add([id: modules.getModuleVersion('mod-consortia'), action: 'enable'])
-        newInstallJson.removeAll{ module -> module.id ==~ /mod-search-.*/ } //TMP Workaround
-        newInstallJson.add([id: 'mod-search-4.1.0-SNAPSHOT.666', action: 'enable']) //TMP Workaround
 
         build job: deployModulesFromJson,
           parameters: [string(name: 'CLUSTER', value: 'folio-testing'),
