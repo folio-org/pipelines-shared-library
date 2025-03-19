@@ -311,6 +311,10 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
             name : 'VALIDATION_INTERFACE_INTEGRITY_ENABLED',
             value: 'false'
           ] : []
+          moduleConfig['extraEnvVars'] +=  ns.getNamespaceName() == 'dojo' ? [
+            name : 'VALIDATION_INTERFACE_INTEGRITY_ENABLED',
+            value: 'false'
+          ] : []
         break
 
       case ~/mod-.*-keycloak/:
