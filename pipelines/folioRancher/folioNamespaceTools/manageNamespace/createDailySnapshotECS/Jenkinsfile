@@ -151,7 +151,7 @@ ansiColor('xterm') {
             sleep time: 2, unit: 'SECONDS'
 
             def search_user = users.getUserByName(tenant, search_system_user)
-            consortia_system_user.setUuid(search_user.get('id'))
+            search_system_user.setUuid(search_user.get('id'))
             users.resetUserPassword(tenant, search_system_user)
           }
         }
@@ -160,9 +160,9 @@ ansiColor('xterm') {
       stage('Update') {
         Modules modules = new Modules()
 
-        newInstallJson.add([id: 'okapi-6.3.0-SNAPSHOT.915', action: 'enable']) //TMP Workaround
+//        newInstallJson.add([id: 'okapi-6.3.0-SNAPSHOT.915', action: 'enable']) //TMP Workaround
+//        newInstallJson.add([id: modules.getModuleVersion('folio_consortia-settings'), action: 'enable'])
         newInstallJson.add([id: modules.getModuleVersion('mod-consortia'), action: 'enable'])
-        newInstallJson.add([id: modules.getModuleVersion('folio_consortia-settings'), action: 'enable'])
 
         build job: deployModulesFromJson,
           parameters: [string(name: 'CLUSTER', value: 'folio-testing'),
