@@ -309,7 +309,7 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
       case 'mgr-tenant-entitlements':
           moduleConfig['extraEnvVars'] +=  ns.getNamespaceName() == 'karate-eureka' ? [
             name : 'VALIDATION_INTERFACE_INTEGRITY_ENABLED',
-            value: false
+            value: 'false'
           ] : []
         break
 
