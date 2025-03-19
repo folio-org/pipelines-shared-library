@@ -1,13 +1,15 @@
 #!groovy
+import org.folio.jenkins.JenkinsAgentLabel
+import org.folio.jenkins.PodTemplates
 import org.folio.models.OkapiTenant
-
-@Library('pipelines-shared-library') _
-
-
+import org.folio.jenkins.JenkinsAgentLabel
+import org.folio.jenkins.PodTemplates
 import org.folio.models.OkapiUser
 import org.folio.models.RancherNamespace
 import org.folio.rest_v2.Main
 import org.jenkinsci.plugins.workflow.libs.Library
+
+@Library('pipelines-shared-library@RANCHER-650-Jenkins-upgrade') _
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
@@ -51,21 +53,21 @@ OkapiUser user = new OkapiUser(params.NEW_USERNAME, params.NEW_PASSWORD)
   .withType("staff")
 
 ansiColor('xterm') {
-  node(params.AGENT) {
-    try {
-      stage('Ini') {
-        buildName "${namespace.getClusterName()}-${namespace.getNamespaceName()}.${env.BUILD_ID}"
-        buildDescription "Tenant: ${params.TENANT_ID}, User: ${params.NEW_USERNAME}"
-      }
-      stage("Create New User") {
-        main.createOkapiUser(tenant, user)
-      }
-    } catch (exception) {
-      println(exception)
-      error(exception.getMessage())
-    } finally {
-      stage('Cleanup') {
-        cleanWs notFailBuild: true
+  PodTemplates podTemplates = new PodTemplates(this)
+
+  podTemplates.defaultTemplate {
+    node(JenkinsAgentLabel.DEFAULT_AGENT.getLabel()) {
+      try {
+        stage('Ini') {
+          buildName "${namespace.getClusterName()}-${namespace.getNamespaceName()}.${env.BUILD_ID}"
+          buildDescription "Tenant: ${params.TENANT_ID}, User: ${params.NEW_USERNAME}"
+        }
+        stage("Create New User") {
+          main.createOkapiUser(tenant, user)
+        }
+      } catch (exception) {
+        println(exception)
+        error(exception.getMessage())
       }
     }
   }
