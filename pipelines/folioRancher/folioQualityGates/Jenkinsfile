@@ -142,7 +142,7 @@ ansiColor('xterm') {
           karateTestsParams.adminUserName = 'super_admin'
           karateTestsParams.adminPassword = 'admin'
           karateTestsParams.threadsCount = '4'
-//          karateTestsParams.reportPortalProjectName = 'junit5-integration'
+          karateTestsParams.reportPortalProjectName = 'junit5-integration'
           karateTestsParams.sendSlackNotification = false
           karateTestsParams.sendTeamsSlackNotification = true
           karateTestsParams.syncWithJira = true
