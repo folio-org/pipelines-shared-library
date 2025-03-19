@@ -33,7 +33,7 @@ ansiColor('xterm') {
     String defaultTenantId = 'cs00000int'
 
     TerraformConfig tfConfig = new TerraformConfig('terraform/rancher/project')
-      .withWorkspace("${'folio-testing'}-ecs-snapshot")
+      .withWorkspace("folio-testing-ecs-snapshot")
 
     RancherNamespace namespace = new RancherNamespace('folio-testing', 'ecs-snapshot')
       .withDefaultTenant(defaultTenantId)
@@ -160,9 +160,10 @@ ansiColor('xterm') {
       stage('Update') {
         Modules modules = new Modules()
 
-//        newInstallJson.add([id: 'okapi-6.3.0-SNAPSHOT.915', action: 'enable']) //TMP Workaround
 //        newInstallJson.add([id: modules.getModuleVersion('folio_consortia-settings'), action: 'enable'])
         newInstallJson.add([id: modules.getModuleVersion('mod-consortia'), action: 'enable'])
+        newInstallJson.removeAll{ module -> module.id ==~ /mod-search-.*/ } //TMP Workaround
+        newInstallJson.add([id: 'mod-search-4.1.0-SNAPSHOT.666', action: 'enable']) //TMP Workaround
 
         build job: deployModulesFromJson,
           parameters: [string(name: 'CLUSTER', value: 'folio-testing'),
