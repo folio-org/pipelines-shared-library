@@ -98,7 +98,7 @@ ansiColor('xterm') {
     karateTestsParams.sendSlackNotification = false
     karateTestsParams.sendTeamsSlackNotification = false
     karateTestsParams.syncWithJira = false
-    karateTestsParams.timeout = '2'
+    karateTestsParams.timeout = '6'
 
     try {
       stage('Ini') {
