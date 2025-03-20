@@ -132,7 +132,7 @@ void build(String okapiUrl, OkapiTenant tenant, boolean isEureka = false, String
         ssoSessionMaxLifespan   : 7200,
         clientSessionIdleTimeout: 7200,
         clientSessionMaxLifespan: 7200,
-        login: [resetPasswordAllowed: true]
+        resetPasswordAllowed: true
       ]
 
       client.put(updateRealmUrl, writeJSON(json: updateContent, returnText: true), headers)
