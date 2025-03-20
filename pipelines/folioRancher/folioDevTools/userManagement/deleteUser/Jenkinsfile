@@ -60,5 +60,3 @@ ansiColor('xterm') {
         }
       }
     }
-  }
-}
