@@ -1,5 +1,5 @@
 #!groovy
-package folioRancher.folioScheduledTesting.runNightlyKarateTests
+package folioRancher.folioScheduledTesting.runNightlyKarateEurekaTests
 
 import groovy.transform.Field
 import org.folio.Constants
