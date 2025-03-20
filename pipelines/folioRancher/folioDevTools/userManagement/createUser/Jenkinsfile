@@ -24,7 +24,6 @@ properties([
     password(name: 'NEW_PASSWORD', description: "Please input new user's password"),
     string(name: 'PATRON_GROUP', defaultValue: 'staff', description: "New user's patron group"),
     string(name: 'PERMISSIONS', defaultValue: 'perms.users.assign.immutable,perms.users.assign.mutable,perms.users.assign.okapi,perms.all', description: "New user's permissions,comma separated list"),
-//    folioParameters.agent(),
     folioParameters.refreshParameters()])
 ])
 
