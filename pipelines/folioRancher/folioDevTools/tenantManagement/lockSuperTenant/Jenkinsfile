@@ -22,12 +22,6 @@ if (params.REFRESH_PARAMETERS) {
   error('DRY RUN BUILD, PARAMETERS REFRESHED!')
 }
 
-RancherNamespace namespace = new RancherNamespace(params.CLUSTER, params.NAMESPACE)
-  .withSuperTenantAdminUser()
-
-Main main = new Main(this, namespace.getDomains()['okapi'], namespace.getSuperTenant())
-namespace.setSuperTenantLocked(main.isTenantLocked(namespace.getSuperTenant()))
-
 ansiColor('xterm') {
   PodTemplates podTemplates = new PodTemplates(this)
 
@@ -36,6 +30,11 @@ ansiColor('xterm') {
       try {
         stage('Ini') {
           buildName "${namespace.getClusterName()}-${namespace.getNamespaceName()}.${env.BUILD_ID}"
+          RancherNamespace namespace = new RancherNamespace(params.CLUSTER, params.NAMESPACE)
+            .withSuperTenantAdminUser()
+
+          Main main = new Main(this, namespace.getDomains()['okapi'], namespace.getSuperTenant())
+          namespace.setSuperTenantLocked(main.isTenantLocked(namespace.getSuperTenant()))
         }
         stage("Lock Supertenant") {
           if (!namespace.getSuperTenantLocked()) {
