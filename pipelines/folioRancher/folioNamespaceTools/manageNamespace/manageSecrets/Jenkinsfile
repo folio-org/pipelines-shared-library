@@ -18,7 +18,6 @@ properties([
     string(defaultValue: '', description: '''(Key/Value for name field inside secret, example: Username,Rocket
 For JSON value, just paste entire string)''', name: 'key'),
     string(defaultValue: '', description: '(Key/Value for value field inside secret, example: Password,qwerty123)', name: 'value'),
-    jobsParameters.agents(),
     jobsParameters.refreshParameters()
   ])
 ])
