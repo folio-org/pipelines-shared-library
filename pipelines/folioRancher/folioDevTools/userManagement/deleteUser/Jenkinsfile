@@ -21,7 +21,6 @@ properties([
     folioParameters.adminUsername(),
     folioParameters.adminPassword(),
     string(name: 'USERNAME', defaultValue: '', description: "Please input username for deletion"),
-//    folioParameters.agent(),
     folioParameters.refreshParameters()])
 ])
 
