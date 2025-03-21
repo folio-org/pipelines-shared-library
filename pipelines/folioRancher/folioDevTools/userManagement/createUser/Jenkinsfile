@@ -1,6 +1,4 @@
 #!groovy
-import org.folio.jenkins.JenkinsAgentLabel
-import org.folio.jenkins.PodTemplates
 import org.folio.models.OkapiTenant
 import org.folio.jenkins.JenkinsAgentLabel
 import org.folio.jenkins.PodTemplates
