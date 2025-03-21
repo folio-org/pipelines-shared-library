@@ -1,12 +1,12 @@
 #!groovy
 
-@Library('pipelines-shared-library@RANCHER-650-Jenkins-upgrade') _
-
 import org.folio.models.RancherNamespace
 import org.folio.rest_v2.Main
 import org.jenkinsci.plugins.workflow.libs.Library
 import org.folio.jenkins.JenkinsAgentLabel
 import org.folio.jenkins.PodTemplates
+
+@Library('pipelines-shared-library@RANCHER-650-Jenkins-upgrade') _
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
@@ -29,7 +29,7 @@ ansiColor('xterm') {
     node(JenkinsAgentLabel.DEFAULT_AGENT.getLabel()) {
       try {
         stage('Ini') {
-          buildName "${namespace.getClusterName()}-${namespace.getNamespaceName()}.${env.BUILD_ID}"
+          buildName "${params.CLUSTER}-${params.NAMESPACE}.${env.BUILD_ID}"
           RancherNamespace namespace = new RancherNamespace(params.CLUSTER, params.NAMESPACE)
             .withSuperTenantAdminUser()
 
