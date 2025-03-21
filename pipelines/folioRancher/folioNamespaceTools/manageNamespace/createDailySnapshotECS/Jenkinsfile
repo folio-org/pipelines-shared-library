@@ -117,18 +117,20 @@ ansiColor('xterm') {
         }
       }
 
-      stage('Restore') {
+      stage('Prepare for update') {
         folioHelm.withKubeConfig(namespaceBaseParams.getClusterName()) {
           namespace.getModules().setInstallJsonObject(new Tools(this)
             .jsonParse(awscli.getS3FileContent("${installJsonS3Path}" + "install.json")))
           namespace.setOkapiVersion(common.getOkapiVersion(namespace.getModules().getInstallJson()))
+
+          kubectl.patchSecret("mod-consortia-systemuser", "SYSTEM_USER_NAME", "consortia-system-user", "ecs-snapshot")
+          kubectl.patchSecret("mod-search-systemuser", "SYSTEM_USER_NAME", "mod-search", "ecs-snapshot")
+
         }
 
         folioDeployFlow.restore(namespace)
 
         folioHelm.withKubeConfig(namespace.getClusterName()) {
-          kubectl.patchSecret("mod-consortia-systemuser", "SYSTEM_USER_NAME", "consortia-system-user", "ecs-snapshot")
-          kubectl.patchSecret("mod-search-systemuser", "SYSTEM_USER_NAME", "mod-search", "ecs-snapshot")
 
           def consortia_system_user_pwd = kubectl.getSecretValue(namespace.getNamespaceName(), 'mod-consortia-systemuser', 'SYSTEM_USER_PASSWORD')
           def search_system_user_pwd = kubectl.getSecretValue(namespace.getNamespaceName(), 'mod-search-systemuser', 'SYSTEM_USER_PASSWORD')
@@ -160,9 +162,6 @@ ansiColor('xterm') {
       stage('Update') {
         Modules modules = new Modules()
 
-//        newInstallJson.add([id: modules.getModuleVersion('folio_consortia-settings'), action: 'enable'])
-//        newInstallJson.removeAll{ module -> module.id ==~ /mod-search-.*/ } //TMP Workaround
-//        newInstallJson.add([id: 'mod-search-4.1.0-SNAPSHOT.666', action: 'enable']) //TMP Workaround
         newInstallJson.add([id: modules.getModuleVersion('mod-consortia'), action: 'enable'])
 
         build job: deployModulesFromJson,
@@ -202,7 +201,7 @@ ansiColor('xterm') {
       stage('Notify') {
         println "Caught exception: ${e}"
         params.NOTIFY ? slackSend(color: 'danger', message: "ecs-snapshot env build failed...\nConsole output: " + "${env.BUILD_URL}", channel: '#rancher_tests_notifications') : null
-        params.RETRY ? null : folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceBaseParams)
+//        params.RETRY ? null : folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceBaseParams)
       }
       error(e.getMessage())
     } finally {
