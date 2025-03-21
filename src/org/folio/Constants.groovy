@@ -202,6 +202,7 @@ class Constants {
 
   //Tools
   static String MAVEN_TOOL_NAME = 'maven3-jenkins-slave-all'
+  static String JAVA_LATEST_VERSION = '21'
 
   static String OKAPI_SUPERADMIN_CREDENTIALS_ID = 'okapi-superadmin-credentials'
 
@@ -248,11 +249,12 @@ class Constants {
   //Cypress
   static String CYPRESS_REPOSITORY_URL = "${FOLIO_GITHUB_URL}/stripes-testing.git"
   static String CYPRESS_SSH_REPOSITORY_URL = "${FOLIO_SSH_GITHUB_URL}/stripes-testing.git"
-  static String CYPRESS_ALLURE_VERSION = '2.17.2'
+  static String CYPRESS_ALLURE_VERSION = '2.33.0'
   static String CYPRESS_SC_URL = 'https://folio-testing-sc-director.ci.folio.org'
   static String CYPRESS_SC_KEY = 'secretCypressKey'
   static String CYPRESS_PROJECT = 'stripes'
   static String CYPRESS_TESTRAIL_HOST = 'https://foliotest.testrail.io'
+  static String CYPRESS_TESTRAIL_CREDENTIALS_ID = 'cypress-testrail-credentials' // TestRail username and password credentials
 
   static String REPORT_PORTAL_URL = 'https://poc-report-portal.ci.folio.org'
   static String REPORT_PORTAL_API_URL = 'https://poc-report-portal.ci.folio.org/api/v1'
