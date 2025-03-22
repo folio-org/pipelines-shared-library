@@ -126,8 +126,6 @@ ansiColor('xterm') {
           kubectl.patchSecret("mod-consortia-systemuser", "SYSTEM_USER_NAME", "consortia-system-user", "ecs-snapshot")
           kubectl.patchSecret("mod-search-systemuser", "SYSTEM_USER_NAME", "mod-search", "ecs-snapshot")
 
-          kubectl.patchSecret("mod-search-systemuser", "SYSTEM_USER_PASSWORD", "pXFvLM8uROtjZYOW!", "ecs-snapshot")
-
         }
 
         folioDeployFlow.restore(namespace)
@@ -135,20 +133,28 @@ ansiColor('xterm') {
         folioHelm.withKubeConfig(namespace.getClusterName()) {
 
           def consortia_system_user_pwd = kubectl.getSecretValue(namespace.getNamespaceName(), 'mod-consortia-systemuser', 'SYSTEM_USER_PASSWORD')
+          def search_system_user_pwd = kubectl.getSecretValue(namespace.getNamespaceName(), 'mod-search-systemuser', 'SYSTEM_USER_PASSWORD')
 
           Users users = new Users(this, namespace.generateDomain('okapi'))
+
           OkapiUser consortia_system_user = new OkapiUser('consortia-system-user', consortia_system_user_pwd)
+          OkapiUser search_system_user = new OkapiUser('mod-search', search_system_user_pwd)
 
           List tenants = ['cs00000int', 'cs00000int_0001', 'cs00000int_0002', 'cs00000int_0003', 'cs00000int_0004', 'cs00000int_0005']
 
           tenants.each { id ->
-            sleep time: 2, unit: 'SECONDS'
+
+            println('Resetting passwords for ' + id + ' tenant')
 
             OkapiTenant tenant = new OkapiTenant(id)
               .withAdminUser(new OkapiUser('ecs_admin', 'admin'))
             def consortia_user = users.getUserByName(tenant, consortia_system_user)
             consortia_system_user.setUuid(consortia_user.get('id'))
             users.resetUserPassword(tenant, consortia_system_user)
+
+            def search_user = users.getUserByName(tenant, search_system_user)
+            search_system_user.setUuid(search_user.get('id'))
+            users.resetUserPassword(tenant, search_system_user)
 
           }
         }
