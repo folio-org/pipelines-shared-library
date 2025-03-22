@@ -10,16 +10,6 @@ import org.folio.rest_v2.eureka.Kong
 
 class Consortia extends Kong {
 
-  class TenantConsortiaConfiguration {
-    String consortiaTenantUuid
-    String centralTenantId
-
-    TenantConsortiaConfiguration(String consortiaTenantUuid, String centralTenantId) {
-      this.centralTenantId = centralTenantId
-      this.consortiaTenantUuid = consortiaTenantUuid
-    }
-  }
-
   Consortia(def context, String kongUrl, Keycloak keycloak, boolean debug = false) {
     super(context, kongUrl, keycloak, debug)
   }

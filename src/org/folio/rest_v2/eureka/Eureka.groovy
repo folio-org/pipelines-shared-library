@@ -251,7 +251,7 @@ class Eureka extends Base {
   Map<String, EurekaTenant> getExistedTenantsFlow() {
     Map<String, EurekaTenant> tenants = Tenants.get(kong).getTenants().collectEntries {
       tenant ->
-        Consortia.TenantConsortiaConfiguration consortiaConfig = Consortia.get(kong).getTenantConsortiaConfiguration(tenant)
+        TenantConsortiaConfiguration consortiaConfig = Consortia.get(kong).getTenantConsortiaConfiguration(tenant)
 
         if(consortiaConfig){
           EurekaTenantConsortia consortiaTenant = tenant.convertTo(EurekaTenantConsortia.class)
