@@ -1,10 +1,7 @@
 #!groovy
-package folioRancher.folioScheduledTesting.runNightlyKarateTests
+package folioRancher.folioScheduledTesting.runNightlyKarateEurekaTests
 
-import groovy.transform.Field
 import org.folio.Constants
-import org.folio.models.OkapiTenant
-import org.folio.models.OkapiUser
 import org.folio.models.RancherNamespace
 import org.folio.models.parameters.CreateNamespaceParameters
 import org.folio.models.parameters.KarateTestsParameters
@@ -18,12 +15,13 @@ import org.jenkinsci.plugins.workflow.libs.Library
  * Job properties and parameters
  */
 properties([
-//  pipelineTriggers([cron('H 4 * * 1-5')]),
+  pipelineTriggers([cron('H 1 * * 1-5')]),
   buildDiscarder(logRotator(numToKeepStr: '30')),
   disableConcurrentBuilds(),
   parameters([
     string(name: 'TESTS_BRANCH', defaultValue: 'master-eureka', description: "(Required) Karate tests repository branch to checkout"),
     string(name: 'THREADS_COUNT', defaultValue: '4', description: "(Required) Number of parallel threads"),
+    string(name: 'TESTS_TIMEOUT', defaultValue: '6', description: "(Required) Tests execution timeout in hours"),
     booleanParam(name: 'RETRY_FAILED', defaultValue: false, description: "(Optional) Retry failed tests"),
     booleanParam(name: 'DESTROY_AFTER', defaultValue: false, description: '(Optional) Set to false to not destroy namespace after tests execution'),
     folioParameters.refreshParameters()
@@ -56,8 +54,8 @@ ansiColor('xterm') {
       .rwSplit(false)
       .greenmail(false)
       .mockServer(false)
-      .pgType('aws')
-      .pgVersion('16.4')
+      .pgType('built-in')
+      .pgVersion('16.1')
       .kafkaType('built-in')
       .opensearchType('aws')
       .s3Type('built-in')
@@ -74,6 +72,7 @@ ansiColor('xterm') {
       .loadReference(true)
       .loadSample(true)
       .consortia(true)
+      .splitFiles(true)
       .rtr(false)
       .applicationSet('Complete')
       .applications(org.folio.rest_v2.Constants.APPLICATION_BRANCH('Complete'))
@@ -98,7 +97,7 @@ ansiColor('xterm') {
     karateTestsParams.sendSlackNotification = false
     karateTestsParams.sendTeamsSlackNotification = false
     karateTestsParams.syncWithJira = false
-    karateTestsParams.timeout = '2'
+    karateTestsParams.timeout = params.TESTS_TIMEOUT
 
     try {
       stage('Ini') {

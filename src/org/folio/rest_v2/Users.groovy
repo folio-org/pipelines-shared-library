@@ -48,6 +48,22 @@ class Users extends Authorization {
     }
   }
 
+  def activateUser(OkapiTenant tenant, OkapiUser user) {
+    if (user.active) {
+      logger.info("User ${user.username} is already active")
+    } else {
+      user.active = true
+      String url = generateUrl("/users")
+      Map<String, String> headers = getAuthorizedHeaders(tenant)
+      try {
+        restClient.put(url, user, headers)
+        logger.info("User ${user.username} is activated")
+      } catch (RequestException e) {
+        throw new RequestException("Can not activate user: ${user.username}. ${e.getMessage()}", e.statusCode)
+      }
+    }
+  }
+
   /**
    * Creates a new user.
    *
