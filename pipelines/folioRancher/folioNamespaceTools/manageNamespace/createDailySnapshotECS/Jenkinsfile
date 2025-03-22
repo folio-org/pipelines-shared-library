@@ -15,12 +15,12 @@ import org.jenkinsci.plugins.workflow.libs.Library
 
 CONFIG_BRANCH = 'RANCHER-1334'
 
-properties([buildDiscarder(logRotator(numToKeepStr: '30')),
+properties([buildDiscarder(logRotator(numToKeepStr: '10')),
             disableConcurrentBuilds(),
-            parameters([booleanParam(name: 'RETRY_ENABLE', defaultValue: false, description: '(Optional) Set to true to retry install'),
+            parameters([booleanParam(name: 'RETRY', defaultValue: false, description: '(Optional) Set to true to retry install'),
                         booleanParam(name: 'NOTIFY', defaultValue: false, description: '(Optional) Set to true to notify about the build'),
-                        folioParameters.refreshParameters()])
-//            ,pipelineTriggers([parameterizedCron('''40 19 * * 1-5 %RETRY_ENABLE=false;REFRESH_PARAMETERS=false;NOTIFY=true''')])
+                        folioParameters.refreshParameters()]),
+            pipelineTriggers([parameterizedCron('''25 20 * * 3 %RETRY=false;REFRESH_PARAMETERS=false;NOTIFY=true''')])
 ])
 
 if (params.REFRESH_PARAMETERS) {
@@ -96,7 +96,7 @@ ansiColor('xterm') {
       stage('Checkout') {
         checkout scm
       }
-      if (!params.RETRY_ENABLE) {
+      if (!params.RETRY) {
         stage('[TF] Destroy') {
           def nsExists
           folioHelm.withKubeConfig(namespaceBaseParams.getClusterName()) {
@@ -110,13 +110,13 @@ ansiColor('xterm') {
         }
 
         stage('[TF] Provision') {
-          params.RETRY_ENABLE ? null : folioTerraformFlow.manageNamespace('apply', tfConfig)
+          params.RETRY ? null : folioTerraformFlow.manageNamespace('apply', tfConfig)
         }
 
         stage('[DB and Indices] Restore') {
           folioHelm.withKubeConfig('folio-testing') {
             folioPrint.colored("Restoring psql ecs dump...\nEstimated duration: ~ 1-2 hours", "green")
-            params.RETRY_ENABLE ? null : psqlDumpMethods.restoreHelmData("psql-restore", "psql-dump", "1.0.6", "roles", "ecs-snapshot", Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME, "ecs-snapshot", "ecs-snapshot")
+            params.RETRY ? null : psqlDumpMethods.restoreHelmData("psql-restore", "psql-dump", "1.0.6", "roles", "ecs-snapshot", Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME, "ecs-snapshot", "ecs-snapshot")
           }
         }
 
@@ -129,11 +129,11 @@ ansiColor('xterm') {
           namespace.setOkapiVersion(common.getOkapiVersion(namespace.getModules().getInstallJson()))
 
           kubectl.patchSecret("mod-consortia-systemuser", "SYSTEM_USER_NAME", "consortia-system-user", "ecs-snapshot")
-          kubectl.patchSecret("mod-search-systemuser", "SYSTEM_USER_NAME", "mod-search", "ecs-snapshot")
+          kubectl.patchSecret("mod-search-systemuser", "SYSTEM_USER_PASSWORD", "foZGzwBc8KUdUppU", "ecs-snapshot")
 
         }
 
-        params.RETRY_ENABLE ? null : folioDeployFlow.restore(namespace)
+        params.RETRY ? null : folioDeployFlow.restore(namespace)
 
         folioHelm.withKubeConfig(namespace.getClusterName()) {
 
@@ -143,19 +143,16 @@ ansiColor('xterm') {
           Users users = new Users(this, namespace.generateDomain('okapi'))
 
           OkapiUser consortia_system_user = new OkapiUser('consortia-system-user', consortia_system_user_pwd)
-          OkapiUser search_system_user = new OkapiUser('mod-search', search_system_user_pwd)
+          OkapiUser search_system_user = new OkapiUser('mod-search-system', search_system_user_pwd)
 
           List tenants = ['cs00000int', 'cs00000int_0001', 'cs00000int_0002', 'cs00000int_0003', 'cs00000int_0004', 'cs00000int_0005']
 
           tenants.each { id ->
 
-            println('Resetting passwords for ' + id + ' tenant')
+            println('Resetting passwords for ' + id + ' tenant:')
 
             OkapiTenant tenant = new OkapiTenant(id)
               .withAdminUser(new OkapiUser('ecs_admin', 'admin'))
-              .withInstallRequestParams()
-
-            params.RETRY_ENABLE ? namespace.addTenant(tenant.withInstallRequestParams(installRequestParams)) : null
 
             def consortia_user = users.getUserByName(tenant, consortia_system_user)
             consortia_user.active ? null : users.activateUser(id as OkapiTenant, consortia_system_user)
@@ -176,12 +173,12 @@ ansiColor('xterm') {
 
         newInstallJson.add([id: modules.getModuleVersion('mod-consortia'), action: 'enable'])
 
-        writeJSON(file: 'install.json', json: newInstallJson, pretty: 4)
-        archiveArtifacts artifacts: 'install.json', fingerprint: false
+        writeJSON(file: 'install.json', json: newInstallJson, pretty: 2)
+        archiveArtifacts artifacts: 'install.json', fingerprint: true
 
         folioDeployFlow.updatePreparation(namespace, installRequestParams, newInstallJson)
 
-        params.RETRY_ENABLE ? retry(3) {new Main(this, "https://" + namespace.generateDomain('okapi'), namespace.getSuperTenant())} : folioDeployFlow.update(namespace)
+        params.RETRY ? retry(3) {new Main(this, "https://" + namespace.generateDomain('okapi'), namespace.getSuperTenant())} : folioDeployFlow.update(namespace)
 
       }
 
@@ -206,13 +203,9 @@ ansiColor('xterm') {
       stage('Notify') {
         println "Caught exception: ${e}"
         params.NOTIFY ? slackSend(color: 'danger', message: "ecs-snapshot env build failed...\nConsole output: " + "${env.BUILD_URL}", channel: '#rancher_tests_notifications') : null
-//        params.RETRY ? null : folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceBaseParams)
+        params.RETRY ? null : folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceBaseParams)
       }
       error(e.getMessage())
-    } finally {
-      stage('Cleanup') {
-        cleanWs notFailBuild: true
-      }
     }
   }
 }
