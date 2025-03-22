@@ -48,7 +48,6 @@ ansiColor('xterm') {
     List newInstallJson = []
 
     final String deleteNamespaceJobName = Constants.JENKINS_DELETE_NAMESPACE_JOB
-    final String deployModulesFromJson = Constants.JENKINS_DEPLOY_MODULES_FROM_JSON
 
     CreateNamespaceParameters namespaceBaseParams = new CreateNamespaceParameters.Builder()
       .clusterName('folio-testing')
@@ -168,20 +167,13 @@ ansiColor('xterm') {
 
         newInstallJson.add([id: modules.getModuleVersion('mod-consortia'), action: 'enable'])
 
-        build job: deployModulesFromJson,
-          parameters: [string(name: 'CLUSTER', value: 'folio-testing'),
-                       string(name: 'NAMESPACE', value: 'ecs-snapshot'),
-                       string(name: 'CONFIG_TYPE', value: 'testing'),
-                       string(name: 'DEFAULT_TENANT_ID', value: 'cs00000int'),
-                       text(name: 'INSTALL_JSON', value: writeJSON(json: newInstallJson, returnText: true)),
-                       booleanParam(name: 'RTR', value: false),
-                       booleanParam(name: 'LOAD_REFERENCE', value: false),
-                       booleanParam(name: 'LOAD_SAMPLE', value: false),
-                       booleanParam(name: 'SIMULATE', value: true),
-                       booleanParam(name: 'REINSTALL', value: true),
-                       booleanParam(name: 'IGNORE_ERRORS', value: false),
-                       string(name: 'AGENT', value: 'rancher'),
-                       booleanParam(name: 'REFRESH_PARAMETERS', value: false)]
+        InstallRequestParams installRequestParams = new InstallRequestParams()
+          .withTenantParameters("loadReference=false,loadSample=false,centralTenantId=${defaultTenantId}")
+          .withReinstall(true)
+
+        folioDeployFlow.updatePreparation(namespace, installRequestParams, newInstallJson)
+
+        folioDeployFlow.update(namespace)
       }
 
       stage('Build and deploy UI') {
