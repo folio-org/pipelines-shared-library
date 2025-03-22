@@ -196,7 +196,7 @@ ansiColor('xterm') {
                        booleanParam(name: 'REFRESH_PARAMETERS', value: false)]
 
         slackSend(color: 'good', message: 'ecs-snapshot env successfully built\n' + "UI: https://${namespace.clusterName}-${namespace.namespaceName}-${namespace.defaultTenantId}" +
-          ".${Constants.CI_ROOT_DOMAIN}\nCredentials: ecs_admin:admin", channel: '#rancher_tests_notifications')
+          ".${Constants.CI_ROOT_DOMAIN}\nCredentials: ECSAdmin:admin", channel: '#rancher_tests_notifications')
       }
 
     } catch (e) {
