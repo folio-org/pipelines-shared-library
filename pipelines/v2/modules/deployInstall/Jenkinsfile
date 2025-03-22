@@ -53,7 +53,6 @@ ansiColor('xterm') {
 
       FolioInstallJson<? extends FolioModule> beUpdated = new FolioInstallJson<? extends FolioModule>(isEureka ? EurekaModule.class : FolioModule.class)
 
-//      List<Map<String, String>> installJson = readJSON(text: params.INSTALL_JSON) as List<Map<String, String>>
       List<Map<String, String>> installJson = readJSON text: params.INSTALL_JSON
 
       logger.debug(installJson)
@@ -66,6 +65,8 @@ ansiColor('xterm') {
           return
         }
       }
+
+      input message: "Let's wait"
 
       try {
         stage('Init') {
@@ -85,7 +86,7 @@ ansiColor('xterm') {
           logger.debug("Modules to install: ${beUpdated.getInstallJsonObject()}")
         }
 
-        input message: "Let's wait"
+        input message: "Let's wait 2"
 
         stage('Update module deployments') {
 
