@@ -5,6 +5,7 @@ import org.folio.Constants
 import org.folio.models.*
 import org.folio.models.parameters.CreateNamespaceParameters
 import org.folio.rest.GitHubUtility
+import org.folio.rest_v2.Main
 import org.folio.rest_v2.Users
 import org.folio.utilities.Logger
 import org.folio.utilities.Tools
@@ -46,6 +47,10 @@ ansiColor('xterm') {
 
     String installJsonS3Path = "${Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME}/ecs-snapshot/"
     List newInstallJson = []
+
+    InstallRequestParams installRequestParams = new InstallRequestParams()
+      .withTenantParameters("loadReference=false,loadSample=false,centralTenantId=${defaultTenantId}")
+      .withReinstall(true)
 
     final String deleteNamespaceJobName = Constants.JENKINS_DELETE_NAMESPACE_JOB
 
@@ -148,6 +153,10 @@ ansiColor('xterm') {
 
             OkapiTenant tenant = new OkapiTenant(id)
               .withAdminUser(new OkapiUser('ecs_admin', 'admin'))
+              .withInstallRequestParams()
+
+            params.RETRY_ENABLE ? namespace.addTenant(tenant.withInstallRequestParams(installRequestParams)) : null
+
             def consortia_user = users.getUserByName(tenant, consortia_system_user)
             consortia_user.active ? null : users.activateUser(id as OkapiTenant, consortia_system_user)
             consortia_system_user.setUuid(consortia_user.get('id') as String)
@@ -167,13 +176,13 @@ ansiColor('xterm') {
 
         newInstallJson.add([id: modules.getModuleVersion('mod-consortia'), action: 'enable'])
 
-        InstallRequestParams installRequestParams = new InstallRequestParams()
-          .withTenantParameters("loadReference=false,loadSample=false,centralTenantId=${defaultTenantId}")
-          .withReinstall(true)
+        writeJSON(file: 'install.json', json: newInstallJson, pretty: 4)
+        archiveArtifacts artifacts: 'install.json', fingerprint: false
 
-        folioDeployFlow.updatePreparation(namespace, installRequestParams, newInstallJson)
+        params.RETRY_ENABLE ? null : folioDeployFlow.updatePreparation(namespace, installRequestParams, newInstallJson)
 
-        folioDeployFlow.update(namespace)
+        params.RETRY_ENABLE ? retry(3) {new Main(this, "https://" + namespace.generateDomain('okapi'), namespace.getSuperTenant())} :folioDeployFlow.update(namespace)
+
       }
 
       stage('Build and deploy UI') {
