@@ -115,6 +115,9 @@ ansiColor('xterm') {
             params.RETRY_ENABLE ? null : psqlDumpMethods.restoreHelmData("psql-restore", "psql-dump", "1.0.6", "roles", "ecs-snapshot", Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME, "ecs-snapshot", "ecs-snapshot")
           }
         }
+
+        params.RETRY_ENABLE ? null : folioDeployFlow.restore(namespace)
+
       }
 
       stage('Prepare for update') {
@@ -127,8 +130,6 @@ ansiColor('xterm') {
           kubectl.patchSecret("mod-search-systemuser", "SYSTEM_USER_NAME", "mod-search", "ecs-snapshot")
 
         }
-
-        folioDeployFlow.restore(namespace)
 
         folioHelm.withKubeConfig(namespace.getClusterName()) {
 
@@ -150,12 +151,12 @@ ansiColor('xterm') {
               .withAdminUser(new OkapiUser('ecs_admin', 'admin'))
             def consortia_user = users.getUserByName(tenant, consortia_system_user)
             consortia_user.active ? null : users.activateUser(id as OkapiTenant, consortia_system_user)
-            consortia_system_user.setUuid(consortia_user.get('id'))
+            consortia_system_user.setUuid(consortia_user.get('id') as String)
             users.resetUserPassword(tenant, consortia_system_user)
 
             def search_user = users.getUserByName(tenant, search_system_user)
             search_user.active ? null : users.activateUser(id as OkapiTenant, search_system_user)
-            search_system_user.setUuid(search_user.get('id'))
+            search_system_user.setUuid(search_user.get('id') as String)
             users.resetUserPassword(tenant, search_system_user)
 
           }
