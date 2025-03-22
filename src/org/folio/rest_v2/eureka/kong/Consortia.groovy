@@ -95,7 +95,7 @@ class Consortia extends Kong {
    * @return consortia tenant configuration, null otherwise.
    */
   TenantConsortiaConfiguration getTenantConsortiaConfiguration(EurekaTenant tenant){
-    logger.info("Check if tenant ${centralConsortiaTenant.getTenantId()} ${centralConsortiaTenant.getUuid()} is a consortia tenant ...")
+    logger.info("Check if tenant ${tenant.getTenantId()} ${tenant.getUuid()} is a consortia tenant ...")
 
     Map<String, String> headers = getTenantHttpHeaders(tenant, true)
 
