@@ -269,6 +269,7 @@ class Constants {
     "$JENKINS_FOLIO_RANCHER_FOLDER/folioNamespaceTools/createNamespaceFromBranch"
 
   static final String JENKINS_DELETE_NAMESPACE_JOB = "$JENKINS_FOLIO_RANCHER_FOLDER/folioNamespaceTools/deleteNamespace"
+  static final String JENKINS_DEPLOY_MODULES_FROM_JSON = "$JENKINS_FOLIO_RANCHER_FOLDER/folioDevTools/moduleDeployment/deployModulesFromJson"
 
   static final String JENKINS_CREATE_NAMESPACE_FROM_BRANCH_JOB_EUREKA =
     "$JENKINS_FOLIO_RANCHER_FOLDER/tmpFolderForDraftPipelines/Eureka/createNamespaceFromBranch-Eureka"
@@ -343,6 +344,7 @@ class Constants {
   //RDS
   static String BUGFEST_SNAPSHOT_DBNAME = 'folio'
   static String BUGFEST_SNAPSHOT_NAME = 'folio-etesting-sprint-february-2025-all-users-clean-v2'
+  static String DATA_MIGRATION_SNAPSHOT_NAME = 'rbf-db-clean-the-latest-csp-21-01-25'
 
   static Map JMX_METRICS_AVAILABLE = ['mod-bulk-operations': '2.0.0-SNAPSHOT.71']
 

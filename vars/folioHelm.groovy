@@ -305,6 +305,18 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
       case 'mod-consortia-keycloak':
         println('https://folio-org.atlassian.net/browse/RANCHER-2035')
         break
+
+      case 'mgr-tenant-entitlements':
+          moduleConfig['extraEnvVars'] +=  ns.getNamespaceName() == 'karate-eureka' ? [
+            name : 'VALIDATION_INTERFACE_INTEGRITY_ENABLED',
+            value: 'false'
+          ] : []
+          moduleConfig['extraEnvVars'] +=  ns.getNamespaceName() == 'dojo' ? [
+            name : 'VALIDATION_INTERFACE_INTEGRITY_ENABLED',
+            value: 'false'
+          ] : []
+        break
+
       case ~/mod-.*-keycloak/:
         moduleConfig['extraEnvVars'] += [
           name: 'MOD_USERS_ID',
@@ -396,24 +408,10 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
   boolean enableIngress = moduleConfig.containsKey('ingress') ? moduleConfig['ingress']['enabled'] : false
   if (enableIngress) {
     moduleConfig['ingress']['hosts'][0] += [host: domain]
-    if (moduleName == 'ui-bundle' && ns.defaultTenantId == 'diku' && ns.clusterName == 'folio-etesting' && (ns.namespaceName == 'snapshot' || ns.namespaceName == 'snapshot2')) {
+    if (moduleName == 'ui-bundle' && ns.clusterName == 'folio-etesting' && ns.namespaceName ==~ /snapshot.*/ ) {
       moduleConfig['ingress']['hosts'] += [
         [
-          host : "eureka-snapshot-diku.${Constants.CI_ROOT_DOMAIN}",
-          paths: [
-            [
-              path       : "/*",
-              pathType   : "ImplementationSpecific",
-              servicePort: 80
-            ]
-          ]
-        ]
-      ]
-    }
-    if (moduleName == 'ui-bundle' && ns.defaultTenantId == 'consortium' && ns.clusterName == 'folio-etesting' && (ns.namespaceName == 'snapshot' || ns.namespaceName == 'snapshot2')) {
-      moduleConfig['ingress']['hosts'] += [
-        [
-          host : "eureka-snapshot-consortium.${Constants.CI_ROOT_DOMAIN}",
+          host : "eureka-snapshot-${ns.defaultTenantId}.${Constants.CI_ROOT_DOMAIN}",
           paths: [
             [
               path       : "/*",
