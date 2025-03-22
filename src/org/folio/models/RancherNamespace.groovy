@@ -186,7 +186,7 @@ class RancherNamespace {
     boolean isEnvActive = false
 
     context.folioHelm.withKubeConfig(getClusterName()) {
-      isEnvActive = sh(script: "kubectl get pods --namespace ${getNamespaceName()} --no-headers", returnStdout: true).trim()
+      isEnvActive = context.sh(script: "kubectl get pods --namespace ${getNamespaceName()} --no-headers", returnStdout: true).trim()
     }
 
     return isEnvActive
