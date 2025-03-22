@@ -100,7 +100,6 @@ class Consortia extends Kong {
     Map<String, String> headers = getTenantHttpHeaders(tenant, true)
 
     try {
-      logger.info("I'm inside try block")
       def response = restClient.get(generateUrl("/consortia-configuration"), headers).body
       Map content = response.body as Map
 

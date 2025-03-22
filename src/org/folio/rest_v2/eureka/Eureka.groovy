@@ -248,13 +248,12 @@ class Eureka extends Base {
    * Get existed tenants.
    * @return Map of EurekaTenant objects.
    */
-  Map<String, EurekaTenant> getExistedTenantsFlow(def context = null) {
+  Map<String, EurekaTenant> getExistedTenantsFlow() {
     Map<String, EurekaTenant> tenants = Tenants.get(kong).getTenants().collectEntries {
       tenant ->
-        TenantConsortiaConfiguration consortiaConfig = Consortia.get(kong).getTenantConsortiaConfiguration(tenant)
+        tenant.withClientSecret(retrieveTenantClientSecretFromAWSSSM(tenant))
 
-        if(context)
-          context.println("I'm in the Eureka.getExistedTenantsFlow method")
+        TenantConsortiaConfiguration consortiaConfig = Consortia.get(kong).getTenantConsortiaConfiguration(tenant)
 
         if(consortiaConfig){
           EurekaTenantConsortia consortiaTenant = tenant.convertTo(EurekaTenantConsortia.class)
@@ -268,8 +267,6 @@ class Eureka extends Base {
 
     // Get enabled (entitled) applications for configured Tenants
     tenants.each { tenantName, tenant ->
-
-      tenant.withClientSecret(retrieveTenantClientSecretFromAWSSSM(tenant))
 
       // Get applications where the passed module exists
       Map<String, Map> applications = Tenants.get(kong).getEnabledApplications(tenant, "", true)
