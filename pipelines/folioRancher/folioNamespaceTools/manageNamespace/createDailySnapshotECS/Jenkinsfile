@@ -120,8 +120,6 @@ ansiColor('xterm') {
           }
         }
 
-        params.RETRY_ENABLE ? null : folioDeployFlow.restore(namespace)
-
       }
 
       stage('Prepare for update') {
@@ -134,6 +132,8 @@ ansiColor('xterm') {
           kubectl.patchSecret("mod-search-systemuser", "SYSTEM_USER_NAME", "mod-search", "ecs-snapshot")
 
         }
+
+        params.RETRY_ENABLE ? null : folioDeployFlow.restore(namespace)
 
         folioHelm.withKubeConfig(namespace.getClusterName()) {
 
@@ -179,9 +179,9 @@ ansiColor('xterm') {
         writeJSON(file: 'install.json', json: newInstallJson, pretty: 4)
         archiveArtifacts artifacts: 'install.json', fingerprint: false
 
-        params.RETRY_ENABLE ? null : folioDeployFlow.updatePreparation(namespace, installRequestParams, newInstallJson)
+        folioDeployFlow.updatePreparation(namespace, installRequestParams, newInstallJson)
 
-        params.RETRY_ENABLE ? retry(3) {new Main(this, "https://" + namespace.generateDomain('okapi'), namespace.getSuperTenant())} :folioDeployFlow.update(namespace)
+        params.RETRY_ENABLE ? retry(3) {new Main(this, "https://" + namespace.generateDomain('okapi'), namespace.getSuperTenant())} : folioDeployFlow.update(namespace)
 
       }
 
