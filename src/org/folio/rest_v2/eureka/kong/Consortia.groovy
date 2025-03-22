@@ -104,7 +104,7 @@ class Consortia extends Kong {
       Map content = response.body as Map
 
       return new TenantConsortiaConfiguration(content.id as String, content.centralTenantId as String)
-    }catch (ignored){
+    }catch (Exception ignored){
       logger.debug("Tenant is not a consortia tenant")
 
       return null
