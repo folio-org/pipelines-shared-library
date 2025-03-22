@@ -175,8 +175,8 @@ def putModuleDescriptorToRegistry(Logger logger, EurekaModule module) {
 def getTenantsWithModule(Logger logger, Eureka eureka, EurekaModule module, EurekaNamespace namespace) {
   logger.info('Getting Application Tenants with Module')
 
-  eureka.getExistedTenantsForModule(module).values()
-    .each {namespace.addTenant(it)}
+  eureka.getExistedTenantsForModule(module, "${namespace.getClusterName()}-${namespace.getNamespaceName()}")
+    .values().each {namespace.addTenant(it)}
 
   if(!(namespace.tenants))
     throw new RuntimeException("There are no tenants with module ${module.getName()}")

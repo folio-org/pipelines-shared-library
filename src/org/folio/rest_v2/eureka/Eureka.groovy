@@ -248,10 +248,11 @@ class Eureka extends Base {
    * Get existed tenants.
    * @return Map of EurekaTenant objects.
    */
-  Map<String, EurekaTenant> getExistedTenantsFlow() {
+  Map<String, EurekaTenant> getExistedTenantsFlow(String namespace) {
     Map<String, EurekaTenant> tenants = Tenants.get(kong).getTenants().collectEntries {
       tenant ->
-        tenant.withClientSecret(retrieveTenantClientSecretFromAWSSSM(tenant))
+        tenant.withAWSSecretStoragePathName(namespace)
+          .withClientSecret(retrieveTenantClientSecretFromAWSSSM(tenant))
 
         TenantConsortiaConfiguration consortiaConfig = Consortia.get(kong).getTenantConsortiaConfiguration(tenant)
 
@@ -292,8 +293,8 @@ class Eureka extends Base {
    * @param module Module Name to filter.
    * @return Map of EurekaTenant objects.
    */
-  Map<String, EurekaTenant> getExistedTenantsForModule(EurekaModule module) {
-    return getExistedTenantsFlow().findAll {tenantName, tenant ->
+  Map<String, EurekaTenant> getExistedTenantsForModule(EurekaModule module, String namespace) {
+    return getExistedTenantsFlow(namespace).findAll {tenantName, tenant ->
 
       // Get applications where the passed module exists
       Map<String, Map> applications = Tenants.get(kong).getEnabledApplications(tenant, "", true)
