@@ -250,11 +250,23 @@ class Eureka extends Base {
    */
   Map<String, EurekaTenant> getExistedTenantsFlow() {
     Map<String, EurekaTenant> tenants = Tenants.get(kong).getTenants().collectEntries {
-      tenant -> [tenant.tenantName, tenant]
+      tenant ->
+        Consortia.TenantConsortiaConfiguration consortiaConfig = Consortia.get(kong).getTenantConsortiaConfiguration(tenant)
+
+        if(consortiaConfig){
+          EurekaTenantConsortia consortiaTenant = tenant.convertTo(EurekaTenantConsortia.class)
+          consortiaTenant.setIsCentralConsortiaTenant(consortiaConfig.centralTenantId == tenant.getTenantId())
+
+          return [consortiaTenant.tenantName, consortiaTenant]
+        }else {
+          return [tenant.tenantName, tenant]
+        }
     }
 
     // Get enabled (entitled) applications for configured Tenants
     tenants.each { tenantName, tenant ->
+
+      tenant.withClientSecret(retrieveTenantClientSecretFromAWSSSM(tenant))
 
       // Get applications where the passed module exists
       Map<String, Map> applications = Tenants.get(kong).getEnabledApplications(tenant, "", true)
@@ -267,7 +279,7 @@ class Eureka extends Base {
       // Update tenant module list
       applications.each { appId, entitlement ->
         entitlement.modules.each {
-          moduleId -> tenant.getModules().addModule(moduleId as String)
+          moduleId -> tenant.getModules().addModule(moduleId as String, 'enable')
         }
       }
     }

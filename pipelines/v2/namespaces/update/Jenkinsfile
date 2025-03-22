@@ -81,7 +81,7 @@ ansiColor('xterm') {
         if(updateAll)
           modules.setInstallJsonObject(generateInstallJsonFromRepo(PlatformType.valueOf(params.PLATFORM), 'platform-complete', params.FOLIO_BRANCH))
         else if (isGithub)
-          modules.addModule("${moduleName}-${params.CONTAINER_IMAGE_TAG}")
+          modules.addModule("${moduleName}-${params.CONTAINER_IMAGE_TAG}", 'enable')
       }
 
       stage('[GitHub] Build & Push Module') {
@@ -127,55 +127,6 @@ ansiColor('xterm') {
           .withAgent()
           .run()
       }
-
-//      stage('[Env] Scanning') {
-//        eureka.getExistedTenantsFlow().values()
-//                .each {namespace.addTenant(it)}
-//      }
-//
-//      stage("[Env] Retrieve sidecar") {
-//        folioHelm.withKubeConfig(namespace.getClusterName()) {
-//          String sidecarImage = !updateAll ? kubectl.getDeploymentContainerImageName(namespace.getNamespaceName(), moduleName, "sidecar") : ""
-//
-//          // In case updated module doesn't have Sidecar let's seek for it in other modules.
-//          if(!sidecarImage) {
-//            EurekaModule moduleWithSidecar = namespace.modules.getInstallJsonObject().find { fetchedModule ->
-//              kubectl.getDeploymentContainerImageName(namespace.getNamespaceName(), fetchedModule.getName(), "sidecar")
-//                .replace(':', '-')
-//            }
-//
-//            sidecarImage =
-//              kubectl.getDeploymentContainerImageName(namespace.getNamespaceName(), moduleWithSidecar.getName(), "sidecar")
-//          }
-//
-//          if(sidecarImage)
-//            namespace.modules.addModule(sidecarImage.replace(':', '-'))
-//          else
-//            throw new AbortException('There are no modules with sidecar in the namespace')
-//        }
-//
-//        logger.debug("Configured Tenants: ${namespace.tenants}")
-//        logger.debug("Configured Applications: ${namespace.applications}")
-//        logger.debug("Namespace modules: ${namespace.modules.installJsonObject}")
-//      }
-//
-//      stage("[Env] Retrieve core modules") {
-//        folioHelm.withKubeConfig(namespace.getClusterName()) {
-//
-//
-//          String kong = kubectl.getDeploymentContainerImageName(namespace.getNamespaceName(), "kong-${namespace.getNamespaceName()}")
-//          String keycloak = kubectl.getStatefulSetContainerImage(namespace.getNamespaceName(), "keycloak-${namespace.getNamespaceName()}")
-//          String mgrApp = kubectl.getDeploymentContainerImageName(namespace.getNamespaceName(), "mgr-applications")
-//          String mgrTenants = kubectl.getDeploymentContainerImageName(namespace.getNamespaceName(), "mgr-tenants")
-//          String mgrTenantEnt = kubectl.getDeploymentContainerImageName(namespace.getNamespaceName(), "mgr-tenant-entitlements")
-//
-//          logger.debug("Kong: ${kong}")
-//          logger.debug("Keycloak: ${keycloak}")
-//          logger.debug("Mgr Applications: ${mgrApp}")
-//          logger.debug("Mgr Tenants: ${mgrTenants}")
-//          logger.debug("Mgr Tenant Entitlements: ${mgrTenantEnt}")
-//        }
-//      }
 
 //      input message: "Let's wait"
 

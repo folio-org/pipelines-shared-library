@@ -2,6 +2,7 @@ package org.folio.models
 
 import com.cloudbees.groovy.cps.NonCPS
 import org.folio.models.module.EurekaModule
+import org.folio.rest_v2.eureka.Eureka
 
 /**
  * Represents a Rancher Eureka namespace and its configuration.*/
@@ -67,6 +68,34 @@ class EurekaNamespace extends RancherNamespace {
       setDeploymentConfig(mergeMaps(getDeploymentConfig(), getFeatureConfig('ecs-ccl', branch)))
   }
 
+  @Override
+  EurekaNamespace instantiate(def context, boolean debug = false) {
+    Eureka eureka = new Eureka(context, generateDomain('kong'), generateDomain('keycloak'))
+
+    eureka.getExistedTenantsFlow().values().each {addTenant(it)}
+
+    context.folioHelm.withKubeConfig(getClusterName()) {
+      List<String> coreModules = []
+
+      modules.getBackendModules().each { module ->
+        coreModules.add(context.kubectl.getDeploymentContainerImageName(getNamespaceName(), module.getName(), "sidecar"))
+      }
+
+      coreModules.add(context.kubectl.getDeploymentContainerImageName(getNamespaceName(), "kong-${getNamespaceName()}"))
+      coreModules.add(context.kubectl.getStatefulSetContainerImage(getNamespaceName(), "keycloak-${getNamespaceName()}"))
+      coreModules.add(context.kubectl.getDeploymentContainerImageName(getNamespaceName(), "mgr-applications"))
+      coreModules.add(context.kubectl.getDeploymentContainerImageName(getNamespaceName(), "mgr-tenants"))
+      coreModules.add(context.kubectl.getDeploymentContainerImageName(getNamespaceName(), "mgr-tenant-entitlements"))
+
+      coreModules
+        .findAll{it?.trim()}
+        ?.unique()
+        ?.each {modules.addModule(it.replace(':', '-'), 'enabled')}
+    }
+
+    return this
+  }
+
   private EurekaTenantConsortia findCentralConsortiaTenant() {
     return tenants.values().find {
       it instanceof EurekaTenantConsortia && it.isCentralConsortiaTenant
@@ -78,7 +107,10 @@ class EurekaNamespace extends RancherNamespace {
   String toString(){
     return """
       "class_name": "EurekaNamespace",
-      "applications": "$applications"
+      "namespace": "${getNamespaceName()}",
+      "tenants": "$tenants",
+      "applications": "$applications",
+      "modules": $modules,
       "enableECS_CCL": "$enableECS_CCL",
       "hasSecureTenant": "$hasSecureTenant",
       "secureTenant": "$secureTenant",

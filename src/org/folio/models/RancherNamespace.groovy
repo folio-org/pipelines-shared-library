@@ -3,6 +3,7 @@ package org.folio.models
 import com.cloudbees.groovy.cps.NonCPS
 import org.folio.models.module.FolioModule
 import org.folio.rest_v2.Constants
+import org.folio.rest_v2.Main
 import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.error.YAMLException
 
@@ -189,6 +190,26 @@ class RancherNamespace {
     }
 
     return isEnvActive
+  }
+
+  RancherNamespace instantiate(def context, boolean debug = false) {
+    Main main = new Main(context, domains['okapi'] as String, superTenant, debug)
+
+    main.getTenantsList().each { tenantId ->
+      List tenantInstallJson = main.getInstallJson(tenantId as String)
+
+      if (tenantId == 'supertenant') {
+        superTenant.withInstallJson(tenantInstallJson)
+      } else {
+        addTenant(new OkapiTenant(tenantId as String)
+          .withInstallJson(tenantInstallJson)
+//          .withInstallRequestParams(installRequestParams.clone() as InstallRequestParams)
+          .withAdminUser(new OkapiUser('service_admin', 'admin'))
+        )
+      }
+    }
+
+    return this
   }
 
   protected Map getFeatureConfig(String feature, String branch = DEPLOYMENT_CONFIG_BRANCH) {
