@@ -149,10 +149,12 @@ ansiColor('xterm') {
             OkapiTenant tenant = new OkapiTenant(id)
               .withAdminUser(new OkapiUser('ecs_admin', 'admin'))
             def consortia_user = users.getUserByName(tenant, consortia_system_user)
+            consortia_user.active ? null : users.activateUser(id as OkapiTenant, consortia_system_user)
             consortia_system_user.setUuid(consortia_user.get('id'))
             users.resetUserPassword(tenant, consortia_system_user)
 
             def search_user = users.getUserByName(tenant, search_system_user)
+            search_user.active ? null : users.activateUser(id as OkapiTenant, search_system_user)
             search_system_user.setUuid(search_user.get('id'))
             users.resetUserPassword(tenant, search_system_user)
 
