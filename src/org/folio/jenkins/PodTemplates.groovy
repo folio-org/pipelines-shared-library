@@ -47,6 +47,9 @@ class PodTemplates {
   private static final String NAMESPACE = 'jenkins-agents'
   private static final String SERVICE_ACCOUNT = 'jenkins-service-account'
   private static final String WORKING_DIR = '/home/jenkins/agent'
+  private static final String YARN_CACHE_PVC = 'yarn-cache-pvc'
+  private static final String MAVEN_CACHE_PVC = 'maven-cache-pvc'
+
 
   private Object steps
   private boolean debug
@@ -76,6 +79,7 @@ class PodTemplates {
    * @param body A closure containing the pipeline logic to execute within this pod.
    */
   void defaultTemplate(Closure body) {
+    logger.debug("Debug mode: ${debug}")
     steps.podTemplate(cloud: CLOUD_NAME,
       label: JenkinsAgentLabel.DEFAULT_AGENT.getLabel(),
       namespace: NAMESPACE,
@@ -88,7 +92,7 @@ spec:
   securityContext:
     fsGroup: 1000
 """,
-      podRetention: this.podRetention,
+      podRetention: podRetention,
       inheritYamlMergeStrategy: true,
       slaveConnectTimeout: 300,
       hostNetwork: false,
@@ -99,7 +103,7 @@ spec:
         image: '732722833398.dkr.ecr.us-west-2.amazonaws.com/folio-jenkins-agent:latest',
         ttyEnabled: true,
         alwaysPullImage: true,
-        workingDir: '/home/jenkins/agent',
+        workingDir: WORKING_DIR,
         resourceRequestMemory: '1536Mi',
         resourceLimitMemory: '2048Mi',
       )]) {
@@ -187,11 +191,15 @@ spec:
   void cypressTemplate(Closure body) {
     defaultTemplate {
       steps.podTemplate(label: JenkinsAgentLabel.CYPRESS_AGENT.getLabel(),
+        volumes: [steps.persistentVolumeClaim(claimName: YARN_CACHE_PVC, mountPath: "${WORKING_DIR}/.yarn/cache")],
         containers: [steps.containerTemplate(name: 'cypress',
           image: '732722833398.dkr.ecr.us-west-2.amazonaws.com/cypress/browsers:latest',
           command: 'sleep',
-          args: '99d'
-          // TODO: Define resource requests/limits after testing
+          args: '99d',
+          envVars: [new KeyValueEnvVar('YARN_CACHE_FOLDER', "${WORKING_DIR}/.yarn/cache"),
+                    new KeyValueEnvVar('NODE_PATH', "${WORKING_DIR}/.yarn/cache/node_modules"),]
+          resourceRequestMemory: '2Gi',
+          resourceLimitMemory: '3Gi'
         )]) {
         body.call()
       }

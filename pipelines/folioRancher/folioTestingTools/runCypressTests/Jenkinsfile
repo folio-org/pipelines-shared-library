@@ -1,10 +1,12 @@
 #!groovy
 import hudson.util.Secret
+import org.folio.jenkins.JenkinsAgentLabel
+import org.folio.jenkins.PodTemplates
 import org.folio.models.OkapiTenant
 import org.folio.models.OkapiUser
 import org.folio.models.parameters.CypressTestsParameters
 
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-650-Jenkins-upgrade') _
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '50')),
@@ -26,9 +28,7 @@ properties([
     booleanParam(name: 'REPORT_PORTAL_USE', defaultValue: false, description: 'Set to true, to send tests results to Report Portal'),
     choice(name: 'REPORT_PORTAL_RUN_TYPE', choices: ["day", "night", "week", "evrk"], description: 'Parameter for Report portal filtering'),
     folioParameters.runSanityCheck(),
-    folioParameters.cypressAgent(),
-    folioParameters.refreshParameters()
-  ])
+    folioParameters.refreshParameters()])
 ])
 
 if (params.REFRESH_PARAMETERS) {
@@ -55,55 +55,51 @@ cypressParameters.setNumberOfWorkers(params.NUMBER_OF_WORKERS.toInteger())
 cypressParameters.setTimeout(params.TIMEOUT)
 
 ansiColor('xterm') {
-  node('rancher') {
-    stage('Ini') {
-      buildName "#${cypressParameters.getCiBuildId()}.${env.BUILD_ID}"
-      buildDescription "Branch: ${cypressParameters.testsSrcBranch}\nEnv: ${cypressParameters.tenantUrl}"
-      cleanWs notFailBuild: true
-    }
+  PodTemplates podTemplates = new PodTemplates(this)
 
-    stage('[Conditional check]') {
-      // Get current time and date
-      Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
-      Integer dayOfWeek = cal.get(Calendar.DAY_OF_WEEK)
-      Integer hourOfDay = cal.get(Calendar.HOUR_OF_DAY)
-
-      // Check if current time falls within restricted execution times
-      if (isLimitReached(dayOfWeek, hourOfDay, params.NUMBER_OF_WORKERS)) {
-        echo "Pipeline execution has been stopped. Please start the pipeline from 1 AM to 6 AM UTC or from " +
-          "Friday 6 PM UTC to Sunday 6 PM UTC. Otherwise, reduce the number of workers to 4 and try again."
-        echo "Current time: ${hourOfDay}"
-        echo "Number of workers: ${params.NUMBER_OF_WORKERS}"
-
-        currentBuild.result = 'ABORTED'
-        error("Not a proper condition.")
-      }
-    }
-
-    stage('[Flow] Execute tests') {
-      folioCypressFlow.runWrapper(ciBuildId, reportPortalUse, reportPortalRunType) {
-        if (params.RUN_SANITY_CHECK) {
-          CypressTestsParameters cypressSanityParameters = cypressParameters.clone()
-          cypressSanityParameters.setExecParameters('--env grepTags="fse+sanity"')
-          cypressSanityParameters.setNumberOfWorkers(4)
-          cypressSanityParameters.setTimeout('60')
-          folioCypressFlow.singleThreadRun(cypressSanityParameters)
-        }
-
-        switch (cypressParameters.numberOfWorkers) {
-          case 1:
-            folioCypressFlow.singleThreadRun(cypressParameters)
-            break
-          case 2..Integer.MAX_VALUE:
-            folioCypressFlow.multiThreadRun(cypressParameters)
-            break
-          default:
-            error("Incorrect number of workers: ${cypressParameters.numberOfWorkers}")
-        }
+  podTemplates.defaultTemplate {
+    node(JenkinsAgentLabel.DEFAULT_AGENT.getLabel()) {
+      stage('Ini') {
+        buildName "#${cypressParameters.getCiBuildId()}.${env.BUILD_ID}"
+        buildDescription "Branch: ${cypressParameters.testsSrcBranch}\nEnv: ${cypressParameters.tenantUrl}"
       }
     }
   }
+
+//      stage('[Conditional check]') {
+//        // Get current time and date
+//        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
+//        Integer dayOfWeek = cal.get(Calendar.DAY_OF_WEEK)
+//        Integer hourOfDay = cal.get(Calendar.HOUR_OF_DAY)
+//
+//        // Check if current time falls within restricted execution times
+//        if (isLimitReached(dayOfWeek, hourOfDay, params.NUMBER_OF_WORKERS)) {
+//          echo "Pipeline execution has been stopped. Please start the pipeline from 1 AM to 6 AM UTC or from " +
+//            "Friday 6 PM UTC to Sunday 6 PM UTC. Otherwise, reduce the number of workers to 4 and try again."
+//          echo "Current time: ${hourOfDay}"
+//          echo "Number of workers: ${params.NUMBER_OF_WORKERS}"
+//
+//          currentBuild.result = 'ABORTED'
+//          error("Not a proper condition.")
+//        }
+//      }
+
+  stage('[Flow] Execute tests') {
+    List<CypressTestsParameters> testsToRun = [cypressParameters]
+
+    // Add a separate run for the sanity check
+    if (params.RUN_SANITY_CHECK) {
+      CypressTestsParameters cypressSanityParameters = cypressParameters.clone()
+      cypressSanityParameters.setExecParameters('--env grepTags="fse+sanity"')
+      cypressSanityParameters.setNumberOfWorkers(4)
+      cypressSanityParameters.setTimeout('60')
+      testsToRun.add(cypressSanityParameters)
+    }
+    // Execute the Cypress test flow
+    folioCypressFlow.call(ciBuildId, testsToRun, false, reportPortalUse, reportPortalRunType)
+  }
 }
+
 
 /**
  * Determines if the execution limit has been reached based on the current day, time, and number of workers.
@@ -118,11 +114,9 @@ boolean isLimitReached(Integer dayOfWeek, Integer hourOfDay, String numberOfWork
   int workers = numberOfWorkers.toInteger()
 
   boolean isFri18ToSun18 = dayOfWeek == Calendar.SATURDAY ||
-    (dayOfWeek == Calendar.SUNDAY && hourOfDay < 18) ||
-    (dayOfWeek == Calendar.FRIDAY && hourOfDay >= 18)
+    (dayOfWeek == Calendar.SUNDAY && hourOfDay < 18) || (dayOfWeek == Calendar.FRIDAY && hourOfDay >= 18)
 
   boolean isRestOfWeek6To24 = !isFri18ToSun18 && hourOfDay >= 6
 
-  return (isRestOfWeek6To24 && workers > 4) ||
-    (isFri18ToSun18 && workers > 8)
+  return (isRestOfWeek6To24 && workers > 4) || (isFri18ToSun18 && workers > 8)
 }
