@@ -70,6 +70,10 @@ module "eks_cluster" {
       most_recent              = true
       service_account_role_arn = module.ebs_csi_irsa_role.iam_role_arn
     }
+    aws-efs-csi-driver = {
+      most_recent              = true
+      service_account_role_arn = module.efs_csi_irsa_role.iam_role_arn
+    }
   }
 
   # Switch off cloudwatch log group
