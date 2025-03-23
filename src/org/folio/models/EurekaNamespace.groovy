@@ -110,12 +110,12 @@ class EurekaNamespace extends RancherNamespace {
     return """
       "class_name": "EurekaNamespace",
       "namespace": "${getNamespaceName()}",
-      "tenants": "$tenants",
       "applications": "$applications",
-      "modules": $modules,
+      "modules": ${modules.getInstallJsonObject()},
       "enableECS_CCL": "$enableECS_CCL",
       "hasSecureTenant": "$hasSecureTenant",
       "secureTenant": "$secureTenant",
+      "tenants": "$tenants"
     """
   }
 }
