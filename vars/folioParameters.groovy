@@ -95,6 +95,7 @@ def agent() {
   return _paramChoice('AGENT', [], 'Select Jenkins agent for build')
 }
 
+@Deprecated
 def cypressAgent() {
   return _paramChoice('AGENT', CypressConstants.JENKINS_CYPRESS_AGENTS, 'Select Jenkins agent for build')
 }
