@@ -134,6 +134,12 @@ String getStatefulSetContainerImage(String namespace, String setName, String con
   }
 }
 
+String getStatefulSetContainerImageName(String namespace, String setName, String containerName = null) {
+  String fullPath = getStatefulSetContainerImage(namespace, setName, containerName)
+
+  return fullPath.substring(fullPath.lastIndexOf('/') + 1)
+}
+
 def patchConfigMap(String name, String namespace, files) {
   try {
     def fromFileArgs = []

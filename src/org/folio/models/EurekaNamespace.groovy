@@ -84,7 +84,7 @@ class EurekaNamespace extends RancherNamespace {
       }
 
       coreModules.add(context.kubectl.getDeploymentContainerImageName(getNamespaceName(), "kong-${getNamespaceName()}"))
-      coreModules.add(context.kubectl.getStatefulSetContainerImage(getNamespaceName(), "keycloak-${getNamespaceName()}"))
+      coreModules.add(context.kubectl.getStatefulSetContainerImageName(getNamespaceName(), "keycloak-${getNamespaceName()}"))
       coreModules.add(context.kubectl.getDeploymentContainerImageName(getNamespaceName(), "mgr-applications"))
       coreModules.add(context.kubectl.getDeploymentContainerImageName(getNamespaceName(), "mgr-tenants"))
       coreModules.add(context.kubectl.getDeploymentContainerImageName(getNamespaceName(), "mgr-tenant-entitlements"))
