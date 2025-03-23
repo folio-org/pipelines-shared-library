@@ -119,7 +119,7 @@ class EurekaTenantConsortia extends EurekaTenant {
       "consortiaUUID": "$consortiaUuid",
       "tenantCode": "$tenantCode",
       "applications": "$applications",
-      "modules": $modules,
+      "modules": ${modules.getInstallJsonObject()},
       "indexes": $indexes
     """
   }
