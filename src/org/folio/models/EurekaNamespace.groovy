@@ -73,7 +73,7 @@ class EurekaNamespace extends RancherNamespace {
     Eureka eureka = new Eureka(context, generateDomain('kong'), generateDomain('keycloak'))
 
     eureka
-      .getExistedTenantsFlow("${getClusterName()} - ${getNamespaceName()}")
+      .getExistedTenantsFlow("${getClusterName()}-${getNamespaceName()}")
       .values().each {addTenant(it)}
 
     context.folioHelm.withKubeConfig(getClusterName()) {
