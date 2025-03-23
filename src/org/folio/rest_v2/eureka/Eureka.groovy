@@ -254,12 +254,9 @@ class Eureka extends Base {
         tenant.withAWSSecretStoragePathName(namespace)
           .withClientSecret(retrieveTenantClientSecretFromAWSSSM(tenant))
 
-//        TenantConsortiaConfiguration consortiaConfig = Consortia.get(kong).getTenantConsortiaConfiguration(tenant)
-        TenantConsortiaConfiguration consortiaConfig = new Consortia(context, kong.kongUrl, kong.keycloak, true).getTenantConsortiaConfiguration(tenant)
+        TenantConsortiaConfiguration consortiaConfig = Consortia.get(kong).getTenantConsortiaConfiguration(tenant)
 
         if(consortiaConfig){
-          logger.debug("I'm in getExistedTenantsFlow and there is a consortia config for tenant ${tenant.tenantId}")
-
           EurekaTenantConsortia consortiaTenant = tenant.convertTo(EurekaTenantConsortia.class)
           consortiaTenant.setIsCentralConsortiaTenant(consortiaConfig.centralTenantId == tenant.getTenantId())
 
