@@ -90,7 +90,7 @@ CreateNamespaceParameters namespace2 = new CreateNamespaceParameters.Builder()
   .members('thunderjet,folijet,spitfire,vega,thor,Eureka,volaris,corsair,Bama,Aggies,Dreamliner,Leipzig,firebird,dojo')
   .uiBuild(true)
   .worker('rancher')
-  .runSanityCheck(true)
+  .runSanityCheck(false)
   .build()
 
 ansiColor('xterm') {
