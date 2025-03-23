@@ -11,7 +11,7 @@ import java.util.regex.Matcher
  */
 class FolioModule {
   // Regular expression patterns for module name and version extraction
-  private static final String MODULE_NAME_AND_VERSION_PATTERN = /^(.*?)-(\d+\.\d+\.\d+(?:-.+)?|\d+\.\d+\.\d+)$/
+  private static final String MODULE_NAME_AND_VERSION_PATTERN = /^(.*?)-(\d+\.\d+\.\d+(?:-.+)?|latest)$/
   private static final String SNAPSHOT_VERSION_CORE_PATTERN = /\d+\.\d+\.(\d+-SNAPSHOT\.|\d+0{5,6})/
 
   String id          // Unique identifier for the module
