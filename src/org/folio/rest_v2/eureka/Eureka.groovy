@@ -257,6 +257,8 @@ class Eureka extends Base {
         TenantConsortiaConfiguration consortiaConfig = Consortia.get(kong).getTenantConsortiaConfiguration(tenant)
 
         if(consortiaConfig){
+          logger.debug("I'm in getExistedTenantsFlow and there is a consortia config for tenant ${tenant.tenantId}")
+
           EurekaTenantConsortia consortiaTenant = tenant.convertTo(EurekaTenantConsortia.class)
           consortiaTenant.setIsCentralConsortiaTenant(consortiaConfig.centralTenantId == tenant.getTenantId())
 

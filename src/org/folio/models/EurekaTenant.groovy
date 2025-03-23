@@ -134,6 +134,7 @@ class EurekaTenant extends OkapiTenant {
       .withTenantDescription(content.description as String) as EurekaTenant
   }
 
+
   @NonCPS
   @Override
   String toString(){
@@ -145,7 +146,7 @@ class EurekaTenant extends OkapiTenant {
       "tenantDescription": "$tenantDescription",
       "isSecureTenant": "$isSecureTenant",
       "applications": "$applications",
-      "modules": $modules,
+      "modules": ${modules.getInstallJsonObject()},
       "indexes": $indexes
     """
   }
