@@ -46,16 +46,16 @@ ansiColor('xterm') {
     node(params.AGENT) {
       Logger logger = new Logger(this, env.JOB_BASE_NAME)
 
+      List<Map<String, String>> installJson = readJSON text: params.INSTALL_JSON
+      installJson = installJson.unique()
+
       boolean isEureka = PlatformType.valueOf(params.PLATFORM) == PlatformType.EUREKA
 
       RancherNamespace namespace = (isEureka ? new EurekaNamespace(params.CLUSTER, params.NAMESPACE) : new RancherNamespace(params.CLUSTER, params.NAMESPACE))
         .withDeploymentConfigType(params.CONFIG_TYPE, folioTools.getPipelineBranch())
 
       FolioInstallJson<? extends FolioModule> beUpdated = new FolioInstallJson<? extends FolioModule>(isEureka ? EurekaModule.class : FolioModule.class)
-
-      List<Map<String, String>> installJson = readJSON text: params.INSTALL_JSON
-
-      logger.debug(installJson)
+        .setInstallJsonObject(installJson)
 
       stage('Check environment state') {
         if (!namespace.isActive(this)) {
@@ -81,16 +81,10 @@ ansiColor('xterm') {
             , 'enable'
           )
 
-          logger.debug("${namespace.getModules().getInstallJsonObject().findAll{ beUpdated.getModuleByName(it.getName()) }}")
-
           writeJSON file: 'install_rollback.json', json: beRollback.getInstallJson()
           archiveArtifacts allowEmptyArchive: true, artifacts: "install_rollback.json", fingerprint: true, defaultExcludes: false
 
-          input message: "Let's wait artifact"
-
-          namespace.getModules().addModulesWithActions(installJson)
-
-          beUpdated.setInstallJsonObject(installJson.unique())
+          input message: "Let's check artifact"
 
           if(beUpdated.getSidecars()?.findAll { it.getAction() == 'enable' }) {
             beUpdated.addModulesWithSameAction(
@@ -104,6 +98,8 @@ ansiColor('xterm') {
 
             beUpdated.setInstallJsonObject(beUpdated.getInstallJson().unique())
           }
+
+          namespace.getModules().addModulesWithActions(installJson)
 
           logger.debug("Namespace: ${namespace}")
           logger.debug("Modules to install: ${beUpdated.getInstallJsonObject()}")
