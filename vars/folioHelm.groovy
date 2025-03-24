@@ -259,7 +259,10 @@ static String valuesPathOption(String path) {
   return path.trim() ? "-f ${path}" : ''
 }
 
-String generateModuleValues(RancherNamespace ns, String moduleName, String moduleVersion, String domain = "", boolean customModule = false, String filePostfix = '') {
+String generateModuleValues(RancherNamespace ns, String moduleName, String moduleVersion
+                            , String domain = "", boolean customModule = false, String filePostfix = ''
+                            , FolioModule sidecar = ns.getModules().getModuleByName('folio-module-sidecar')) {
+
   String valuesFilePath = filePostfix.trim().isEmpty() ? "./values/${moduleName}.yaml" : "./values/${moduleName}-${filePostfix}.yaml"
   Map moduleConfig = ns.deploymentConfig[moduleName] ? ns.deploymentConfig[moduleName] : new Logger(this, 'folioHelm').error("Values for ${moduleName} not found!")
   String repository = determineModulePlacement(moduleName, moduleVersion, customModule)
@@ -280,11 +283,6 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
 //    }
 
   if (ns instanceof EurekaNamespace) {
-    String sidecarRepository = determineModulePlacement(
-      "folio-module-sidecar"
-      , ns.getModules().getModuleByName('folio-module-sidecar').getVersion()
-    )
-
     moduleConfig << [
       eureka: [
         enabled: true
@@ -296,8 +294,8 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
 
     moduleConfig.sidecarContainers.eureka << [
       image: [
-        repository: "${sidecarRepository}/folio-module-sidecar",
-        tag       : ns.getModules().getModuleByName('folio-module-sidecar').getVersion()
+        repository: "${determineModulePlacement(sidecar.getName(), sidecar.getVersion())}/sidecar.getName()",
+        tag       : sidecar.getVersion()
       ]
     ]
 
