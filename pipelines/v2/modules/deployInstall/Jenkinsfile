@@ -84,6 +84,8 @@ ansiColor('xterm') {
           writeJSON file: 'install_rollback.json', json: beRollback.getInstallJson()
           archiveArtifacts allowEmptyArchive: true, artifacts: "install_rollback.json", fingerprint: true, defaultExcludes: false
 
+          input message: "Let's wait artifact"
+
           namespace.getModules().addModulesWithActions(installJson)
 
           beUpdated.setInstallJsonObject(installJson.unique())
