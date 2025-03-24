@@ -84,8 +84,6 @@ ansiColor('xterm') {
           writeJSON file: 'install_rollback.json', json: beRollback.getInstallJson()
           archiveArtifacts allowEmptyArchive: true, artifacts: "install_rollback.json", fingerprint: true, defaultExcludes: false
 
-          input message: "Let's check artifact"
-
           if(beUpdated.getSidecars()?.findAll { it.getAction() == 'enable' }) {
             beUpdated.addModulesWithSameAction(
               namespace
@@ -105,7 +103,7 @@ ansiColor('xterm') {
           logger.debug("Modules to install: ${beUpdated.getInstallJsonObject()}")
         }
 
-        input message: "Let's wait"
+        input message: "Let's deploy?"
 
         stage('Update module deployments') {
 
@@ -128,6 +126,17 @@ ansiColor('xterm') {
               folioHelm.deployFolioModulesParallel(namespace, beUpdated.getEdgeModules())
               folioHelm.checkDeploymentsRunning(namespace.getNamespaceName(), beUpdated.getEdgeModules())
             }
+          }
+        }
+
+        stage('Update/install modules') {
+
+          if (!params.INSTALL) {
+            logger.info("Skip Update/install modules stage")
+            Utils.markStageSkippedForConditional('Update/install modules')
+          } else {
+
+
           }
         }
       } catch (e) {
