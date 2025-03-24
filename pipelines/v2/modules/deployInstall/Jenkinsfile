@@ -71,6 +71,19 @@ ansiColor('xterm') {
           buildName "${namespace.getWorkspaceName()}.${env.BUILD_ID}"
 
           namespace.instantiate(this)
+
+          FolioInstallJson<? extends FolioModule> beRollback = new FolioInstallJson<? extends FolioModule>(isEureka ? EurekaModule.class : FolioModule.class)
+
+          beRollback.addModulesWithSameAction(
+            namespace.getModules().getInstallJsonObject()
+              .findAll{ beUpdated.getModuleByName(it.getName()) }
+              .collect{ it.getId() }
+            , 'enable'
+          )
+
+          writeJSON file: 'install_rollback.json', json: beRollback.getInstallJson()
+          archiveArtifacts allowEmptyArchive: true, artifacts: "install_rollback.json", fingerprint: true, defaultExcludes: false
+
           namespace.getModules().addModulesWithActions(installJson)
 
           beUpdated.setInstallJsonObject(installJson.unique())
