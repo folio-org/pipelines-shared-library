@@ -76,7 +76,15 @@ ansiColor('xterm') {
           beUpdated.setInstallJsonObject(installJson.unique())
 
           if(beUpdated.getSidecars()?.findAll { it.getAction() == 'enable' }) {
-            beUpdated.addModulesWithSameAction(namespace.getModules().getBackendModules().collect {it.getId()}, 'enable')
+            beUpdated.addModulesWithSameAction(
+              namespace
+                .getModules()
+                .getBackendModules()
+                .findAll{ !(beUpdated.getModuleByName(it.getName())) }
+                .collect { it.getId() }
+              , 'enable'
+            )
+
             beUpdated.setInstallJsonObject(beUpdated.getInstallJson().unique())
           }
 
