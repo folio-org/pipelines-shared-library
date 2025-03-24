@@ -32,9 +32,6 @@ RancherNamespace namespace = new RancherNamespace(params.CLUSTER, params.NAMESPA
 
 Main main = new Main(this, namespace.getDomains()['okapi'], namespace.getSuperTenant())
 
-InstallRequestParams installRequestParams = new InstallRequestParams()
-  .withTenantParameters("purge=true")
-
 OkapiTenant tenant = null
 
 
@@ -49,6 +46,8 @@ ansiColor('xterm') {
             currentBuild.result = 'ABORTED'
             error('Tenant does not exist, stopping the pipeline')
           }
+          InstallRequestParams installRequestParams = new InstallRequestParams()
+            .withTenantParameters("purge=true")
           tenant = new OkapiTenant(params.TENANT_ID)
             .withInstallJson(main.getInstallJson(params.TENANT_ID, 'disable'))
             .withInstallRequestParams(installRequestParams)
