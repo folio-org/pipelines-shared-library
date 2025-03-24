@@ -47,25 +47,27 @@ void upgrade(String release_name, String namespace, String values_path, String c
   }
 }
 
-void deployFolioModule(RancherNamespace ns, String moduleName, String moduleVersion, boolean customModule = false, String tenantId = ns.defaultTenantId) {
+void deployFolioModule(RancherNamespace ns, String moduleName, String moduleVersion
+                       , boolean customModule = false, String tenantId = ns.defaultTenantId
+                       , FolioModule sidecar = ns.getModules().getModuleByName('folio-module-sidecar')) {
   String valuesFilePath = ""
   String releaseName = moduleName
   String chartName = moduleName
   switch (moduleName) {
     case "okapi":
-      valuesFilePath = generateModuleValues(ns, moduleName, moduleVersion, ns.domains['okapi'], customModule)
+      valuesFilePath = generateModuleValues(ns, moduleName, moduleVersion, ns.domains['okapi'], customModule, '', sidecar)
       break
     case ~/mod-.*/:
-      valuesFilePath = generateModuleValues(ns, moduleName, moduleVersion, "", customModule)
+      valuesFilePath = generateModuleValues(ns, moduleName, moduleVersion, "", customModule, '', sidecar)
       break
     case ~/mgr-.*/:
-      valuesFilePath = generateModuleValues(ns, moduleName, moduleVersion, "", customModule)
+      valuesFilePath = generateModuleValues(ns, moduleName, moduleVersion, "", customModule, '', sidecar)
       break
     case ~/edge-.*/:
-      valuesFilePath = generateModuleValues(ns, moduleName, moduleVersion, ns.domains["edge"], customModule)
+      valuesFilePath = generateModuleValues(ns, moduleName, moduleVersion, ns.domains["edge"], customModule, '', sidecar)
       break
     case ~/ui-bundle/:
-      valuesFilePath = generateModuleValues(ns, moduleName, moduleVersion, ns.tenants[tenantId].tenantUi.domain, false, tenantId)
+      valuesFilePath = generateModuleValues(ns, moduleName, moduleVersion, ns.tenants[tenantId].tenantUi.domain, false, tenantId, sidecar)
       releaseName = "${tenantId}-${moduleName}"
       chartName = "platform-complete"
       break
@@ -76,11 +78,15 @@ void deployFolioModule(RancherNamespace ns, String moduleName, String moduleVers
   upgrade(releaseName, ns.namespaceName, valuesFilePath, Constants.FOLIO_HELM_V2_REPO_NAME, chartName)
 }
 
-void deployFolioModules(RancherNamespace ns, List<FolioModule> modules, boolean customModule = false, String tenantId = ns.defaultTenantId) {
-  modules.each { module -> deployFolioModule(ns, module.name, module.version, customModule, tenantId) }
+void deployFolioModules(RancherNamespace ns, List<FolioModule> modules
+                        , boolean customModule = false, String tenantId = ns.defaultTenantId
+                        , FolioModule sidecar = ns.getModules().getModuleByName('folio-module-sidecar')) {
+  modules.each { module -> deployFolioModule(ns, module.name, module.version, customModule, tenantId, sidecar) }
 }
 
-void deployFolioModulesParallel(RancherNamespace ns, List<FolioModule> modules, boolean customModule = false, String tenantId = ns.defaultTenantId) {
+void deployFolioModulesParallel(RancherNamespace ns, List<FolioModule> modules
+                                , boolean customModule = false, String tenantId = ns.defaultTenantId
+                                , FolioModule sidecar = ns.getModules().getModuleByName('folio-module-sidecar')) {
   int limit = 10
   modules.collate(limit).each { moduleGroup ->
     def branches = [:]
@@ -88,7 +94,7 @@ void deployFolioModulesParallel(RancherNamespace ns, List<FolioModule> modules, 
       branches[module.name] = {
 //        String deployedModuleId = kubectl.getDeploymentImageTag(moduleName, ns.getNamespaceName())
 //        if (deployedModuleId != "${moduleName}:${moduleVersion}") {
-        deployFolioModule(ns, module.name, module.version, customModule, tenantId)
+        deployFolioModule(ns, module.name, module.version, customModule, tenantId, sidecar)
 //        }
       }
     }
@@ -294,7 +300,7 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
 
     moduleConfig.sidecarContainers.eureka << [
       image: [
-        repository: "${determineModulePlacement(sidecar.getName(), sidecar.getVersion())}/sidecar.getName()",
+        repository: "${determineModulePlacement(sidecar.getName(), sidecar.getVersion())}/${sidecar.getName()}",
         tag       : sidecar.getVersion()
       ]
     ]

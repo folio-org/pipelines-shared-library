@@ -105,7 +105,11 @@ ansiColor('xterm') {
               folioHelm.deployFolioModulesParallel(namespace, beUpdated.getMgrModules())
               folioHelm.checkDeploymentsRunning(namespace.getNamespaceName(), beUpdated.getMgrModules())
 
-              folioHelm.deployFolioModulesParallel(namespace, beUpdated.getBackendModules())
+              if(beUpdated.getSidecars())
+                folioHelm.deployFolioModulesParallel(namespace, beUpdated.getBackendModules(), false, namespace.getDefaultTenantId(), beUpdated.getSidecars()[0])
+              else
+                folioHelm.deployFolioModulesParallel(namespace, beUpdated.getBackendModules())
+
               folioHelm.checkDeploymentsRunning(namespace.getNamespaceName(), beUpdated.getBackendModules())
 
               folioHelm.deployFolioModulesParallel(namespace, beUpdated.getEdgeModules())
