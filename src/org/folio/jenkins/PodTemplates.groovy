@@ -173,7 +173,7 @@ spec:
       steps.podTemplate(label: JenkinsAgentLabel.KANIKO_AGENT.getLabel(),
         containers: [steps.containerTemplate(name: 'kaniko',
           image: 'gcr.io/kaniko-project/executor:debug',
-          envVars: [new KeyValueEnvVar('KANIKO_DIR', "${WORKING_DIR}/kaniko"),],
+          envVars: [new KeyValueEnvVar('KANIKO_DIR', "${WORKING_DIR}/kaniko")],
           command: 'sleep',
           args: '99d'
           // TODO: Define resource requests/limits after production load testing
@@ -197,7 +197,7 @@ spec:
           command: 'sleep',
           args: '99d',
           envVars: [new KeyValueEnvVar('YARN_CACHE_FOLDER', "${WORKING_DIR}/.yarn/cache"),
-                    new KeyValueEnvVar('NODE_PATH', "${WORKING_DIR}/.yarn/cache/node_modules"),]
+                    new KeyValueEnvVar('NODE_PATH', "${WORKING_DIR}/.yarn/cache/node_modules")],
           resourceRequestMemory: '2Gi',
           resourceLimitMemory: '3Gi'
         )]) {
