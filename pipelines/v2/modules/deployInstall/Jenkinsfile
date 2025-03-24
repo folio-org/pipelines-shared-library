@@ -66,8 +66,6 @@ ansiColor('xterm') {
         }
       }
 
-      input message: "Let's wait"
-
       try {
         stage('Init') {
           buildName "${namespace.getWorkspaceName()}.${env.BUILD_ID}"
@@ -86,7 +84,7 @@ ansiColor('xterm') {
           logger.debug("Modules to install: ${beUpdated.getInstallJsonObject()}")
         }
 
-        input message: "Let's wait 2"
+        input message: "Let's wait"
 
         stage('Update module deployments') {
 
