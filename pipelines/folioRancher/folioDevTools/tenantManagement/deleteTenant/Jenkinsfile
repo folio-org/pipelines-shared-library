@@ -1,13 +1,16 @@
 #!groovy
 import org.folio.models.InstallRequestParams
 import org.folio.models.OkapiTenant
-
-@Library('pipelines-shared-library') _
-
-
 import org.folio.models.RancherNamespace
 import org.folio.rest_v2.Main
 import org.jenkinsci.plugins.workflow.libs.Library
+import org.folio.jenkins.JenkinsAgentLabel
+import org.folio.jenkins.PodTemplates
+
+@Library('pipelines-shared-library@RANCHER-650-Jenkins-upgrade') _
+
+
+
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
@@ -16,7 +19,6 @@ properties([
     folioParameters.cluster(),
     folioParameters.namespace(),
     folioParameters.tenantId(''),
-    folioParameters.agent(),
     folioParameters.refreshParameters()])
 ])
 
@@ -30,39 +32,40 @@ RancherNamespace namespace = new RancherNamespace(params.CLUSTER, params.NAMESPA
 
 Main main = new Main(this, namespace.getDomains()['okapi'], namespace.getSuperTenant())
 
-if (!main.isTenantExist(params.TENANT_ID)) {
-  currentBuild.result = 'ABORTED'
-  error('Tenant does not exist, stopping the pipeline')
-}
-
-InstallRequestParams installRequestParams = new InstallRequestParams()
-  .withTenantParameters("purge=true")
-
-OkapiTenant tenant = new OkapiTenant(params.TENANT_ID)
-  .withInstallJson(main.getInstallJson(params.TENANT_ID, 'disable'))
-  .withInstallRequestParams(installRequestParams)
+OkapiTenant tenant = null
 
 
 ansiColor('xterm') {
-  node(params.AGENT) {
-    try {
-      stage('Ini') {
-        buildName "${namespace.getClusterName()}-${namespace.getNamespaceName()}.${env.BUILD_ID}"
-        buildDescription "Tenant: ${params.TENANT_ID}"
-      }
-      stage("Disable tenant modules") {
-        main.tenantInstall(tenant, tenant.getModules().getInstallJson())
-        println("modules removed")
-      }
-      stage("Delete tenant") {
-        main.deleteTenant(tenant)
-      }
-    } catch (exception) {
-      println(exception)
-      error(exception.getMessage())
-    } finally {
-      stage('Cleanup') {
-        cleanWs notFailBuild: true
+  PodTemplates podTemplates = new PodTemplates(this)
+
+  podTemplates.defaultTemplate {
+    node(JenkinsAgentLabel.DEFAULT_AGENT.getLabel()) {
+      try {
+        stage( name: 'Pre-check') {
+          if (!main.isTenantExist(params.TENANT_ID)) {
+            currentBuild.result = 'ABORTED'
+            error('Tenant does not exist, stopping the pipeline')
+          }
+          InstallRequestParams installRequestParams = new InstallRequestParams()
+            .withTenantParameters("purge=true")
+          tenant = new OkapiTenant(params.TENANT_ID)
+            .withInstallJson(main.getInstallJson(params.TENANT_ID, 'disable'))
+            .withInstallRequestParams(installRequestParams)
+        }
+        stage('Ini') {
+          buildName "${namespace.getClusterName()}-${namespace.getNamespaceName()}.${env.BUILD_ID}"
+          buildDescription "Tenant: ${params.TENANT_ID}"
+        }
+        stage("Disable tenant modules") {
+          main.tenantInstall(tenant, tenant.getModules().getInstallJson())
+          println("modules removed")
+        }
+        stage("Delete tenant") {
+          main.deleteTenant(tenant)
+        }
+      } catch (exception) {
+        println(exception)
+        error(exception.getMessage())
       }
     }
   }
