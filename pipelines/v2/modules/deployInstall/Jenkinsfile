@@ -81,6 +81,8 @@ ansiColor('xterm') {
             , 'enable'
           )
 
+          logger.debug("Modules to rollback: ${beRollback.getInstallJsonObject()}")
+
           writeJSON file: 'install_rollback.json', json: beRollback.getInstallJson()
           archiveArtifacts allowEmptyArchive: true, artifacts: "install_rollback.json", fingerprint: true, defaultExcludes: false
 
