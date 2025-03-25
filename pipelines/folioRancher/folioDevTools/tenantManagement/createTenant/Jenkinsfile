@@ -75,8 +75,6 @@ ansiColor('xterm') {
             .withIndex(new Index('authority', true, false))
             .withInstallRequestParams(installRequestParams.clone())
           main.createTenantFlow(tenant)
-          println(exception)
-          error(exception.getMessage())
         }
       } catch (exception) {
         println(exception)
