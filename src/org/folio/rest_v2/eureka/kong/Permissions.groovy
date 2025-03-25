@@ -4,7 +4,6 @@ import com.cloudbees.groovy.cps.NonCPS
 import org.folio.models.EurekaTenant
 import org.folio.models.Role
 import org.folio.models.User
-import org.folio.models.UserGroup
 import org.folio.rest_v2.eureka.Keycloak
 import org.folio.rest_v2.eureka.Kong
 
@@ -220,12 +219,8 @@ class Permissions extends Kong{
         "capabilityIds": chunk
       ]
 
-      def response
-
-      if(skipExists)
-        response = restClient.post(generateUrl("/roles/capabilities"), body, headers, [201, 400], connectionTimeout)
-      else
-        response = restClient.post(generateUrl("/roles/capabilities"), body, headers, [], connectionTimeout)
+      List validResponseCodes = skipExists ? [201, 400] : []
+      def response = restClient.post(generateUrl("/roles/capabilities"), body, headers, validResponseCodes, connectionTimeout)
 
       String contentStr = response.body.toString()
 

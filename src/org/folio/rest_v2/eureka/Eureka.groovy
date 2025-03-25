@@ -2,10 +2,14 @@ package org.folio.rest_v2.eureka
 
 import hudson.util.Secret
 import org.folio.Constants
-import org.folio.models.*
+import org.folio.models.EurekaTenant
+import org.folio.models.EurekaTenantConsortia
+import org.folio.models.Role
+import org.folio.models.User
 import org.folio.models.module.EurekaModule
+import org.folio.models.module.FolioModule
+import org.folio.models.module.ModuleType
 import org.folio.rest_v2.eureka.kong.*
-import org.folio.utilities.RequestException
 
 class Eureka extends Base {
 
@@ -169,26 +173,28 @@ class Eureka extends Base {
     return registeredApps
   }
 
-  Eureka registerModulesFlow(FolioInstallJson<EurekaModule> modules, Map<String, String> apps) {
+  Eureka registerModulesFlow(List<? extends FolioModule> modules) {
+    List<String> alreadyRegistered = Applications.get(kong).getRegisteredModulesDiscovery().collect { it.id as String }
+
     Applications.get(kong).registerModules(
-      [
-        "discovery": modules.getDiscoveryList(getApplicationModules(apps))
-      ]
+      modules
+        .findAll{ it.getType() == ModuleType.BACKEND || it.getType() == ModuleType.EDGE } // Register only backend and edge modules
+        .findAll{ !alreadyRegistered.contains(it.getId()) } // Exclude already registered modules to avoid error
     )
 
     return this
   }
 
-  List<String> getApplicationModules(Map<String, String> apps) {
+  List<String> getApplicationModuleIds(Map<String, String> apps = null) {
     List<String> modules = []
-    apps.values().each { appId ->
+    apps?.values()?.each { appId ->
       Applications.get(kong).getRegisteredApplication(appId).modules.each { module ->
         if (!modules.contains(module.id))
           modules.add(module.id)
       }
     }
 
-    return modules
+    return modules.unique()
   }
 
   /**
@@ -415,21 +421,6 @@ class Eureka extends Base {
     logger.info("Updated Application Descriptor with new Module Version: ${module.name}-${module.version}\n")
 
     return appDescriptor as Map
-  }
-
-  /**
-   * Run Module Discovery Flow.
-   * @param module EurekaModule object to discover
-   */
-  void runModuleDiscoveryFlow(EurekaModule module) {
-    try {
-      logger.info("Check if ${module.name}-${module.version} module discovery exists...")
-      Applications.get(kong).getModuleDiscovery(module)
-    } catch (RequestException e) {
-      if (e.statusCode == HttpURLConnection.HTTP_NOT_FOUND) {
-        Applications.get(kong).createModuleDiscovery(module)
-      }
-    }
   }
 
   /**

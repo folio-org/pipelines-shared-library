@@ -2,10 +2,10 @@ package org.folio.rest_v2.eureka.kong
 
 import com.cloudbees.groovy.cps.NonCPS
 import org.folio.models.EurekaTenant
+import org.folio.models.module.EurekaModule
 import org.folio.models.module.FolioModule
 import org.folio.rest_v2.eureka.Keycloak
 import org.folio.rest_v2.eureka.Kong
-import org.folio.utilities.RequestException
 
 class Applications extends Kong{
 
@@ -94,73 +94,73 @@ class Applications extends Kong{
     }
   }
 
-  Applications registerModules(def jsonModuleList) {
-    logger.info("Register module list...")
+  Applications registerModules(List<? extends FolioModule> modules, boolean skipExists = false) {
+    logger.info("Register/discovery modules $modules ...")
 
     Map<String, String> headers = getMasterHttpHeaders()
 
-    restClient.post(generateUrl("/modules/discovery"), jsonModuleList, headers)
+    Map requestsBody = [
+      "discovery": modules.collect { it.getDiscovery() }
+    ]
+
+    List validResponseCodes = skipExists ? [201, 409] : []
+    def response = restClient.post(generateUrl("/modules/discovery"), requestsBody, headers, validResponseCodes)
+
+    String contentStr = response.body.toString()
+    Map content = response.body as Map
+
+    if (response.responseCode == 409) {
+      if (contentStr.contains("Module Discovery already exists")) {
+        logger.info("""
+          Given modules already exists
+          Status: ${response.responseCode}
+          Response content:
+          ${contentStr}""")
+
+        return this
+      } else {
+        logger.error("""
+          The module registering result
+          Status: ${response.responseCode}
+          Response content:
+          ${contentStr}""")
+
+        throw new Exception("Build failed: " + contentStr)
+      }
+    }
+
+    logger.info("""
+      Modules successfully registered
+      Status: ${response.responseCode}
+      Response content:
+      ${content.toString()}""")
 
     return this
   }
 
-  /**
-   * Get Existing Module Discovery by its ID
-   * @param module FolioModule object to discover
-   * @return Module Discovery Information as Map
-   */
-  Map getModuleDiscovery(FolioModule module) {
-    Map<String, String> headers = getMasterHttpHeaders()
-
-    // URL for GET request
-    String url = generateUrl("/modules/${module.name}-${module.version}/discovery")
-
-    logger.info("Getting Module Discovery for new module version...")
-
-    def response = restClient.get(url, headers, [200, 404])
-    String contentStr = response['body'].toString()
-
-    if (response['responseCode'] == 404) {
-      if (contentStr.contains("Unable to find discovery of the module with id")) {
-        logger.info("""
-          Module \"${module.name}-${module.version}\" not found in environment
-          Status: ${response['responseCode']}
-          Response content:
-          ${contentStr}
-        """.stripIndent())
-
-        throw new RequestException(contentStr, response['responseCode'] as int)
-      }
-    }
-
-    logger.info("Module Discovery Info is provided for ${module.name}-${module.version}.")
-
-    return response as Map
+  List<EurekaModule> getRegisteredModules(int limit = 500) {
+    return getRegisteredModulesDiscovery("", limit)
+      .collect { new EurekaModule().loadModuleDetails(it.id as String, 'enabled') }
   }
 
-  /**
-   * Create New Module Discovery for Application
-   * @param module FolioModule object to discover
-   */
-  void createModuleDiscovery(FolioModule module) {
+  List<Map> getRegisteredModulesDiscovery(String query = "", int limit = 500) {
+    logger.info("Get registered modules${query ? " with query=${query}" : ""}...")
+
     Map<String, String> headers = getMasterHttpHeaders()
 
-    // URL for POST request
-    String url = generateUrl("/modules/${module.name}-${module.version}/discovery")
+    String url = generateUrl("/modules/discovery?${query ? "query=${query}&limit=${limit}" : "limit=${limit}"}")
 
-    // Request Body for POST request
-    Map requestBody = [
-      'location': "http://${module.name}:8082",
-      'id': "${module.name}-${module.version}",
-      'name': module.name,
-      'version': module.version
-    ]
+    Map response = restClient.get(url, headers).body as Map
 
-    logger.info("Performing Module Discovery for new module version...")
+    if (response.totalRecords > 0) {
+      logger.debug("Found modules: ${response.discovery.collect({ it['id'] })}")
+      return response.discovery as List
+    } else {
+      logger.debug("By the url ${url} registered modules not found")
+      logger.debug("HTTP response is: ${response}")
 
-    def response = restClient.post(url, requestBody, headers).body
-
-    logger.info("New Module Discovery is created for ${module.name}-${module.version}.")
+      return []
+    }
   }
 
   /**

@@ -198,7 +198,7 @@ def updateModuleVersionFlow(Logger logger, Eureka eureka, EurekaModule module, E
     updatedAppInfoMap = eureka.updateAppDescriptorFlow(namespace.applications, module)
 
     logger.info('Performing Module Discovery for New Module Version')
-    eureka.runModuleDiscoveryFlow(module)
+    eureka.registerModulesFlow([ module ])
 
     // Deploy Application Module with Helm
     deployAppModuleHelm(logger, eureka, module, namespace, updatedAppInfoMap)

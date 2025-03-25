@@ -255,7 +255,7 @@ ansiColor('xterm') {
       // 2. Enable New Module Version (Discovery) for Application
       stage('[Rest] Module Discovery') {
         try {
-          eureka.runModuleDiscoveryFlow(module)
+          eureka.registerModulesFlow([module])
         } catch (e) {
           logger.warning("Failed to perform new module discovery: ${e}")
           eureka.removeResourcesOnFailFlow(updatedAppInfoMap, module)

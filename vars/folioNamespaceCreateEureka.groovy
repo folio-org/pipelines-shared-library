@@ -251,10 +251,7 @@ void call(CreateNamespaceParameters args) {
           )
         )
 
-        eureka.registerModulesFlow(
-          namespace.getModules()
-          , namespace.getApplications()
-        )
+        eureka.registerModulesFlow(namespace.getModules().getInstallJsonObject())
       }
     }
 

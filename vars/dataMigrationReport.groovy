@@ -1,5 +1,6 @@
 import org.folio.Constants
 import org.folio.models.*
+import org.folio.models.module.EurekaModule
 import org.folio.models.parameters.CreateNamespaceParameters
 import org.folio.rest.GitHubUtility
 import org.folio.rest_v2.PlatformType
@@ -243,10 +244,7 @@ void call(CreateNamespaceParameters args) {
           )
         )
 
-        eureka.registerModulesFlow(
-          namespace.getModules()
-          , namespace.getApplications()
-        )
+        eureka.registerModulesFlow(namespace.getModules().getInstallJsonObject())
       }
     }
 
