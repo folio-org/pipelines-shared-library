@@ -1,6 +1,8 @@
 #!groovy
 
 import org.folio.Constants
+import org.folio.jenkins.JenkinsAgentLabel
+import org.folio.jenkins.PodTemplates
 import org.folio.models.*
 import org.folio.rest_v2.Main
 import org.jenkinsci.plugins.workflow.libs.Library
@@ -62,13 +64,24 @@ OkapiTenant newTenant = new OkapiTenant(params.TENANT_ID)
   .withInstallRequestParams(installRequestParams.clone())
 
 ansiColor('xterm') {
-  node(params.AGENT) {
-    stage('Ini') {
-      buildName ""
-      buildDescription ""
-    }
-    stage("Create Tenant") {
-      main.createTenantFlow(newTenant)
+  PodTemplates podTemplates = new PodTemplates(this)
+
+  podTemplates.defaultTemplate {
+    node(JenkinsAgentLabel.DEFAULT_AGENT.getLabel()) {
+      try {
+        stage('Ini') {
+          buildName ""
+          buildDescription ""
+        }
+        stage("Create Tenant") {
+          main.createTenantFlow(newTenant)
+          println(exception)
+          error(exception.getMessage())
+        }
+      } catch (exception) {
+        println(exception)
+        error(exception.getMessage())
+      }
     }
   }
 }
