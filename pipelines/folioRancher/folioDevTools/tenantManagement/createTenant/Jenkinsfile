@@ -23,7 +23,6 @@ properties([
     string(name: 'TENANT_DESCRIPTION', defaultValue: '', description: "New tenant Description"),
     folioParameters.loadReference(),
     folioParameters.loadSample(),
-    folioParameters.agent(),
     folioParameters.refreshParameters()
   ])
 ])
