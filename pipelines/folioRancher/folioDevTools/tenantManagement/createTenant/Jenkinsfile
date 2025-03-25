@@ -52,15 +52,7 @@ withCredentials([[$class           : 'AmazonWebServicesCredentialsBinding',
 
 Main main = new Main(this, namespace.getDomains()['okapi'], namespace.getSuperTenant())
 
-OkapiTenant newTenant = new OkapiTenant(params.TENANT_ID)
-  .withTenantName(params.TENANT_NAME)
-  .withTenantDescription(params.TENANT_DESCRIPTION)
-  .withAdminUser(folioDefault.adminOkapiUser("${params.TENANT_ID.toLowerCase()}_admin", 'admin'))
-  .withConfiguration(new OkapiConfig().withSmtp(smtp).withKbApiKey(kbApiKey))
-  .withInstallJson(main.getInstallJson(params.REFERENCE_TENANT_ID))
-  .withIndex(new Index('instance', true, true))
-  .withIndex(new Index('authority', true, false))
-  .withInstallRequestParams(installRequestParams.clone())
+OkapiTenant tenant = null
 
 ansiColor('xterm') {
   PodTemplates podTemplates = new PodTemplates(this)
@@ -69,11 +61,20 @@ ansiColor('xterm') {
     node(JenkinsAgentLabel.DEFAULT_AGENT.getLabel()) {
       try {
         stage('Ini') {
-          buildName ""
-          buildDescription ""
+          buildName "${namespace.getClusterName()}-${namespace.getNamespaceName()}.${env.TENANT_ID}"
+          buildDescription "Create Tenant: ${params.REFERENCE_TENANT_ID}-${params.TENANT_ID}"
         }
         stage("Create Tenant") {
-          main.createTenantFlow(newTenant)
+          tenant = new OkapiTenant(params.TENANT_ID)
+            .withTenantName(params.TENANT_NAME)
+            .withTenantDescription(params.TENANT_DESCRIPTION)
+            .withAdminUser(folioDefault.adminOkapiUser("${params.TENANT_ID.toLowerCase()}_admin", 'admin'))
+            .withConfiguration(new OkapiConfig().withSmtp(smtp).withKbApiKey(kbApiKey))
+            .withInstallJson(main.getInstallJson(params.REFERENCE_TENANT_ID))
+            .withIndex(new Index('instance', true, true))
+            .withIndex(new Index('authority', true, false))
+            .withInstallRequestParams(installRequestParams.clone())
+          main.createTenantFlow(tenant)
           println(exception)
           error(exception.getMessage())
         }
