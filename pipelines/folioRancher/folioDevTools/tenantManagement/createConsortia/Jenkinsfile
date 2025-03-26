@@ -5,8 +5,12 @@ import org.folio.models.RancherNamespace
 import org.folio.models.TenantUi
 import org.folio.rest_v2.Main
 import org.jenkinsci.plugins.workflow.libs.Library
+import org.folio.jenkins.JenkinsAgentLabel
+import org.folio.jenkins.PodTemplates
 
-@Library('pipelines-shared-library') _
+
+
+@Library('pipelines-shared-library@RANCHER-650-Jenkins-upgrade') _
 
 CONFIG_BRANCH = 'master'
 
@@ -27,6 +31,11 @@ properties([
   ])
 ])
 
+if (params.REFRESH_PARAMETERS) {
+  currentBuild.result = 'ABORTED'
+  error('DRY RUN BUILD, PARAMETERS REFRESHED!')
+}
+
 //Set namespace configuration
 String commitHash = common.getLastCommitHash('platform-complete', params.FOLIO_BRANCH)
 
@@ -44,11 +53,7 @@ namespace.addDeploymentConfig(CONFIG_BRANCH)
 Main main = new Main(this, namespace.getDomains()['okapi'], namespace.getSuperTenant())
 
 ansiColor('xterm') {
-  if (params.REFRESH_PARAMETERS) {
-    currentBuild.result = 'ABORTED'
-    error('DRY RUN BUILD, PARAMETERS REFRESHED!')
-  }
-  node(params.AGENT) {
+    node(params.AGENT) {
     stage('Ini') {
       buildName "${namespace.getClusterName()}-${namespace.getNamespaceName()}.${env.BUILD_ID}"
       buildDescription ""
@@ -113,10 +118,6 @@ ansiColor('xterm') {
     } catch (e) {
       println "Caught exception: ${e}"
       error(e.getMessage())
-    } finally {
-      stage('Cleanup') {
-        cleanWs notFailBuild: true
-      }
     }
   }
 }
