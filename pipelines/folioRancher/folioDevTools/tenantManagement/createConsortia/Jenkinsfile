@@ -26,7 +26,6 @@ properties([
     folioParameters.loadSample(),
     booleanParam(name: 'RW_SPLIT', defaultValue: false, description: '(Optional) Set true to Enable Read/Write split'),
     folioParameters.branch(),
-    folioParameters.agent(),
     folioParameters.refreshParameters()
   ])
 ])
