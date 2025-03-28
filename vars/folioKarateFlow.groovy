@@ -1,5 +1,6 @@
 import groovy.text.StreamingTemplateEngine
 import org.folio.Constants
+import org.folio.jenkins.PodTemplates
 import org.folio.models.parameters.KarateTestsParameters
 import org.folio.testing.TestType
 import org.folio.testing.karate.results.KarateRunExecutionSummary
@@ -12,6 +13,12 @@ import java.time.Instant
 KarateRunExecutionSummary call(KarateTestsParameters args) {
   Logger logger = new Logger(this, 'Karate flow')
   KarateRunExecutionSummary karateTestsExecutionSummary
+
+  PodTemplates podTemplates = new PodTemplates(this)
+
+  podTemplates.javaTemplate(args.javaVerson){
+
+  }
 
   dir('folio-integration-tests') {
     stage('[Git] Checkout folio-integration-tests repo') {
@@ -43,7 +50,7 @@ KarateRunExecutionSummary call(KarateTestsParameters args) {
 
     stage('[Maven] Execute karate tests') {
       timeout(time: args.timeout, unit: 'HOURS') {
-        withMaven(jdk: args.javaVerson, maven: args.mavenVersion, mavenSettingsConfig: args.mavenSettings, mavenOpts: '-XX:MaxRAMPercentage=75') {
+        withMaven(jdk: args.javaToolName, maven: args.mavenToolName, mavenSettingsConfig: args.mavenSettings, mavenOpts: '-XX:MaxRAMPercentage=75') {
           String modules = args.modulesToTest ? "-pl common,testrail-integration," + args.modulesToTest : args.modulesToTest
           logger.debug(sh(returnStdout: true, script: 'echo $JAVA_HOME').trim())
           catchError(stageResult: 'FAILURE') {

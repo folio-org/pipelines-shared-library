@@ -37,7 +37,7 @@ void call(KarateTestsParameters args) {
   stage('[Maven] Gatling tests') {
     dir(gatlingBaseDir) {
       timeout(time: args.timeout, unit: 'HOURS') {
-        withMaven(jdk: args.javaVerson, maven: args.mavenVersion, mavenSettingsConfig: args.mavenSettings) {
+        withMaven(jdk: args.javaVerson, maven: args.mavenToolName, mavenSettingsConfig: args.mavenSettings) {
 
           /**
            * The modules to test are passed as a comma separated list of modules.
