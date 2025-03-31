@@ -40,10 +40,6 @@ roles:
 extraEnvs:
   - name: DISABLE_SECURITY_PLUGIN
     value: "true"
-  - name: OPENSEARCH_YML
-    value: |
-      action:
-        auto_create_index: false
 resources:
   requests:
     memory: 1536Mi
@@ -55,6 +51,10 @@ plugins:
   enabled: true
   installList: [analysis-icu, analysis-kuromoji, analysis-smartcn, analysis-nori, analysis-phonetic, https://github.com/aiven/prometheus-exporter-plugin-for-opensearch/releases/download/2.11.0.0/prometheus-exporter-2.11.0.0.zip]
 ${local.schedule_value}
+extraInitContainers:
+  - name: block-index-creation-by-default
+    image: curlimages/curl:latest
+    command: ["curl", "-X", "PUT", "localhost:9200/_cluster/settings", "-H", "Content-Type: application/json", "-d", '{"persistent": {"action": {"auto_create_index": false}}}']
 EOF
   ]
 }
@@ -81,10 +81,6 @@ roles:
 extraEnvs:
   - name: DISABLE_SECURITY_PLUGIN
     value: "true"
-  - name: OPENSEARCH_YML
-    value: |
-      action:
-        auto_create_index: false
 resources:
   requests:
     memory: 1536Mi
@@ -120,10 +116,6 @@ roles:
 extraEnvs:
   - name: DISABLE_SECURITY_PLUGIN
     value: "true"
-  - name: OPENSEARCH_YML
-    value: |
-      action:
-        auto_create_index: false
 resources:
   requests:
     memory: 1536Mi
@@ -165,10 +157,6 @@ persistence:
 extraEnvs:
   - name: DISABLE_SECURITY_PLUGIN
     value: "true"
-  - name: OPENSEARCH_YML
-    value: |
-      action:
-        auto_create_index: false
 resources:
   requests:
     memory: 1536Mi
