@@ -50,6 +50,9 @@ persistence:
 plugins:
   enabled: true
   installList: [analysis-icu, analysis-kuromoji, analysis-smartcn, analysis-nori, analysis-phonetic, https://github.com/aiven/prometheus-exporter-plugin-for-opensearch/releases/download/2.11.0.0/prometheus-exporter-2.11.0.0.zip]
+opensearchConfig:
+  opensearch.yml: |
+    action.auto_create_index: false
 ${local.schedule_value}
 EOF
   ]
@@ -85,6 +88,9 @@ resources:
 plugins:
   enabled: true
   installList: [analysis-icu, analysis-kuromoji, analysis-smartcn, analysis-nori, analysis-phonetic, https://github.com/aiven/prometheus-exporter-plugin-for-opensearch/releases/download/2.11.0.0/prometheus-exporter-2.11.0.0.zip]
+opensearchConfig:
+  opensearch.yml: |
+    action.auto_create_index: false
 ${local.schedule_value}
 EOF
   ]
@@ -122,6 +128,9 @@ persistence:
 plugins:
   enabled: true
   installList: [analysis-icu, analysis-kuromoji, analysis-smartcn, analysis-nori, analysis-phonetic, https://github.com/aiven/prometheus-exporter-plugin-for-opensearch/releases/download/2.11.0.0/prometheus-exporter-2.11.0.0.zip]
+opensearchConfig:
+  opensearch.yml: |
+    action.auto_create_index: false
 ${local.schedule_value}
 EOF
   ]
@@ -172,6 +181,9 @@ ingress:
     alb.ingress.kubernetes.io/group.name: ${local.group_name}
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
     alb.ingress.kubernetes.io/success-codes: 200-399
+opensearchConfig:
+  opensearch.yml: |
+    action.auto_create_index: false
 ${local.schedule_value}
 EOF
   ]
