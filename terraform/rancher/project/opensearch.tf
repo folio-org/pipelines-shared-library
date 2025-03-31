@@ -51,10 +51,17 @@ plugins:
   enabled: true
   installList: [analysis-icu, analysis-kuromoji, analysis-smartcn, analysis-nori, analysis-phonetic, https://github.com/aiven/prometheus-exporter-plugin-for-opensearch/releases/download/2.11.0.0/prometheus-exporter-2.11.0.0.zip]
 ${local.schedule_value}
+opensearchConfig:
+  opensearch.yml: |
+    action:
+      auto_create_index: false
 extraInitContainers:
   - name: block-index-creation-by-default
-    image: curlimages/curl:latest
-    command: ["curl", "-X", "PUT", "localhost:9200/_cluster/settings", "-H", "Content-Type: application/json", "-d", '{"persistent": {"action": {"auto_create_index": false}}}']
+    image: busybox
+    command:
+      - "sh"
+      - "-c"
+      - "chown -R opensearch:opensearch /usr/share/opensearch/config"
 EOF
   ]
 }
