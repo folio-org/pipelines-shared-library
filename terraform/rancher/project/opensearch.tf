@@ -61,7 +61,7 @@ extraInitContainers:
     command:
       - "sh"
       - "-c"
-      - "chown -R opensearch:opensearch /usr/share/opensearch/config"
+      - "chown -R 1000:1000 /usr/share/opensearch/config"
 EOF
   ]
 }
