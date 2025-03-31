@@ -53,7 +53,9 @@ plugins:
 opensearchLifecycle:
    postStart:
      exec:
-       command: ["/bin/sh", "-c", "curl -X PUT "localhost:9200/_cluster/settings" -H "Content-Type: application/json" -d '{"persistent": {"action": {"auto_create_index": false}}}'"]
+       - "/bin/sh"
+       - "-c"
+       - "curl -X PUT \"localhost:9200/_cluster/settings\" -H \"Content-Type: application/json\" -d '{\"persistent\": {\"action\": {\"auto_create_index\": false}}}'"
 ${local.schedule_value}
 EOF
   ]
