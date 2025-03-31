@@ -172,7 +172,7 @@ class Constants {
 
   //Jenkins
   static List JENKINS_KITFOX_USER_IDS = ['ohaimanov', 'eldiiar-duishenaliev', 'dmytrmoroz', 'aatoyan', 'epam-avramenko', 'yaroslavishchenko', 'sergii-msn']
-  static String JENKINS_MASTER_NODE = 'master'
+  static String JENKINS_MASTER_NODE = 'controller'
   static String JENKINS_JOB_PROJECT = '/Rancher/Project'
   static String JENKINS_JOB_RESTORE_PG_BACKUP = 'Rancher/Create-Restore-PosgreSQL-DB-backup'
   static String JENKINS_JOB_CREATE_TENANT = 'Rancher/Update/create-tenant'

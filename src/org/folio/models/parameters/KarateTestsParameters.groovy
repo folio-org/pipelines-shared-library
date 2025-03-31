@@ -23,9 +23,11 @@ class KarateTestsParameters {
 
   String karateConfig = 'folio-testing-karate'
 
-  String javaVerson = 'openjdk-21-jenkins-slave-all'
+  String javaVerson = '21'
 
-  String mavenVersion = 'maven3-jenkins-slave-all'
+  String javaToolName = 'amazoncorretto-jdk'
+
+  String mavenToolName = 'maven-3.9.9'
 
   String mavenSettings = 'folioci-maven-settings'
 
@@ -39,7 +41,7 @@ class KarateTestsParameters {
 
   boolean sendSlackNotification = false
 
-  boolean sendTeamsSlackNotification = true
+  boolean sendTeamsSlackNotification = false
 
   String timeout
 }

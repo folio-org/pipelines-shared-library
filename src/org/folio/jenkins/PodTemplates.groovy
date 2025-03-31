@@ -46,7 +46,7 @@ class PodTemplates {
   private static final String CLOUD_NAME = 'folio-jenkins-agents'
   private static final String NAMESPACE = 'jenkins-agents'
   private static final String SERVICE_ACCOUNT = 'jenkins-service-account'
-  private static final String WORKING_DIR = '/home/jenkins/agent'
+  public static final String WORKING_DIR = '/home/jenkins/agent'
   private static final String YARN_CACHE_PVC = 'yarn-cache-pvc'
   private static final String MAVEN_CACHE_PVC = 'maven-cache-pvc'
 
@@ -122,12 +122,13 @@ spec:
   void javaTemplate(String javaVersion, Closure body) {
     defaultTemplate {
       steps.podTemplate(label: JenkinsAgentLabel.JAVA_AGENT.getLabel(),
+        volumes: [steps.persistentVolumeClaim(claimName: MAVEN_CACHE_PVC, mountPath: "${WORKING_DIR}/.m2/repository")],
         containers: [steps.containerTemplate(name: 'java',
           image: "amazoncorretto:${javaVersion}-alpine-jdk",
           command: 'sleep',
-          args: '99d'
-          // TODO: Define resource requests/limits after production load testing
-        )]) {
+          args: '99d',
+          resourceRequestMemory: '4Gi',
+          resourceLimitMemory: '5Gi')]) {
         logger.info("Using Java version: ${javaVersion}")
         body.call()
       }
