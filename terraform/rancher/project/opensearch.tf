@@ -50,7 +50,7 @@ persistence:
 plugins:
   enabled: true
   installList: [analysis-icu, analysis-kuromoji, analysis-smartcn, analysis-nori, analysis-phonetic, https://github.com/aiven/prometheus-exporter-plugin-for-opensearch/releases/download/2.11.0.0/prometheus-exporter-2.11.0.0.zip]
-opensearchLifecycle:
+lifecycle:
    postStart:
       exec:
         command:
