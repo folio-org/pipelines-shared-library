@@ -8,7 +8,7 @@ import org.jenkinsci.plugins.workflow.libs.Library
 // Define a global variable for the library branch
 String DEPLOYMENT_CONFIG_BRANCH = 'master'
 
-@Library('pipelines-shared-libraryRANCHER-650-Jenkins-upgrade') _
+@Library('pipelines-shared-library@RANCHER-650-Jenkins-upgrade') _
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
