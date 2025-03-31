@@ -56,7 +56,7 @@ EOF
 }
 
 resource "kubernetes_job" "configure_os_indices" {
-  count      = !var.opensearch_shared && var.opensearch_single_node ? 1 : 0
+  count = !var.opensearch_shared && var.opensearch_single_node ? 1 : 0
   depends_on = [
     helm_release.opensearch-single-node,
     helm_release.opensearch-master,
@@ -71,8 +71,7 @@ resource "kubernetes_job" "configure_os_indices" {
   spec {
     template {
       metadata {
-        name      = "configure-os-indices"
-        namespace = rancher2_namespace.this.name
+        name = "configure-os-indices"
       }
       spec {
         restart_policy = "Never"
