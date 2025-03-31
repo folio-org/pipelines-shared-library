@@ -185,9 +185,9 @@ class Constants {
   static final String JENKINS_FOLIO_RANCHER_FOLDER = '/folioRancher'
 
   static final String JENKINS_CREATE_NAMESPACE_FROM_BRANCH_JOB =
-    "$JENKINS_FOLIO_RANCHER_FOLDER/folioNamespaceTools/createNamespaceFromBranch"
+    "$JENKINS_FOLIO_RANCHER_FOLDER/manageNamespace/createNamespaceFromBranch"
 
-  static final String JENKINS_DELETE_NAMESPACE_JOB = "$JENKINS_FOLIO_RANCHER_FOLDER/folioNamespaceTools/deleteNamespace"
+  static final String JENKINS_DELETE_NAMESPACE_JOB = "$JENKINS_FOLIO_RANCHER_FOLDER/manageNamespace/deleteNamespace"
 
   static final String JENKINS_CREATE_NAMESPACE_FROM_BRANCH_JOB_EUREKA =
     "$JENKINS_FOLIO_RANCHER_FOLDER/tmpFolderForDraftPipelines/Eureka/createNamespaceFromBranch-Eureka"
