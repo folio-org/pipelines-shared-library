@@ -50,16 +50,46 @@ persistence:
 plugins:
   enabled: true
   installList: [analysis-icu, analysis-kuromoji, analysis-smartcn, analysis-nori, analysis-phonetic, https://github.com/aiven/prometheus-exporter-plugin-for-opensearch/releases/download/2.11.0.0/prometheus-exporter-2.11.0.0.zip]
-lifecycle:
-   postStart:
-      exec:
-        command:
-          - "/bin/sh"
-          - "-c"
-          - "curl -X PUT 'localhost:9200/_cluster/settings' -H 'Content-Type: application/json' -d '{'persistent': {'action': {'auto_create_index': false}}}'"
 ${local.schedule_value}
 EOF
   ]
+}
+
+resource "kubernetes_job" "configure_os_indices" {
+  count      = !var.opensearch_shared && var.opensearch_single_node ? 1 : 0
+  depends_on = [
+    helm_release.opensearch-single-node,
+    helm_release.opensearch-master,
+    helm_release.opensearch-data,
+    helm_release.opensearch-client,
+    helm_release.opensearch-dashboards
+  ]
+  metadata {
+    name      = "configure-os-indices"
+    namespace = rancher2_namespace.this.name
+  }
+  spec {
+    template {
+      metadata {
+        name      = "configure-os-indices"
+        namespace = rancher2_namespace.this.name
+      }
+      spec {
+        restart_policy = "Never"
+        container {
+          name  = "configure-os-indices"
+          image = "curlimages/curl:latest"
+          command = [
+            "/bin/sh",
+            "-c",
+            <<-EOF
+              curl -X PUT "http://opensearch-${var.rancher_project_name}:9200/_cluster/settings" -H "Content-Type: application/json" -d '{"persistent": {"action.auto_create_index": "false"}}'
+            EOF
+          ]
+        }
+      }
+    }
+  }
 }
 
 # Opensearch master deployment
