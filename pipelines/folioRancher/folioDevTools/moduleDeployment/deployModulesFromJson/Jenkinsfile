@@ -90,11 +90,11 @@ ansiColor('xterm') {
       }
     }
   }
-
+}
 // Function to validate input parameters
   void validateInputs(params) {
     if (params.DEFAULT_TENANT_ID.trim().isEmpty()) {
       error "DEFAULT_TENANT_ID parameter is required."
     }
   }
-}
+
