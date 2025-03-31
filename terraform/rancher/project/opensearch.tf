@@ -40,6 +40,10 @@ roles:
 extraEnvs:
   - name: DISABLE_SECURITY_PLUGIN
     value: "true"
+  - name: OPENSEARCH_YML
+    value: |
+      action:
+        auto_create_index: false
 resources:
   requests:
     memory: 1536Mi
@@ -50,10 +54,6 @@ persistence:
 plugins:
   enabled: true
   installList: [analysis-icu, analysis-kuromoji, analysis-smartcn, analysis-nori, analysis-phonetic, https://github.com/aiven/prometheus-exporter-plugin-for-opensearch/releases/download/2.11.0.0/prometheus-exporter-2.11.0.0.zip]
-opensearchConfig:
-  opensearch.yml: |
-    action:
-      auto_create_index: false
 ${local.schedule_value}
 EOF
   ]
@@ -81,6 +81,10 @@ roles:
 extraEnvs:
   - name: DISABLE_SECURITY_PLUGIN
     value: "true"
+  - name: OPENSEARCH_YML
+    value: |
+      action:
+        auto_create_index: false
 resources:
   requests:
     memory: 1536Mi
@@ -89,10 +93,6 @@ resources:
 plugins:
   enabled: true
   installList: [analysis-icu, analysis-kuromoji, analysis-smartcn, analysis-nori, analysis-phonetic, https://github.com/aiven/prometheus-exporter-plugin-for-opensearch/releases/download/2.11.0.0/prometheus-exporter-2.11.0.0.zip]
-opensearchConfig:
-  opensearch.yml: |
-    action:
-      auto_create_index: false
 ${local.schedule_value}
 EOF
   ]
@@ -120,6 +120,10 @@ roles:
 extraEnvs:
   - name: DISABLE_SECURITY_PLUGIN
     value: "true"
+  - name: OPENSEARCH_YML
+    value: |
+      action:
+        auto_create_index: false
 resources:
   requests:
     memory: 1536Mi
@@ -130,10 +134,6 @@ persistence:
 plugins:
   enabled: true
   installList: [analysis-icu, analysis-kuromoji, analysis-smartcn, analysis-nori, analysis-phonetic, https://github.com/aiven/prometheus-exporter-plugin-for-opensearch/releases/download/2.11.0.0/prometheus-exporter-2.11.0.0.zip]
-opensearchConfig:
-  opensearch.yml: |
-    action:
-      auto_create_index: false
 ${local.schedule_value}
 EOF
   ]
@@ -165,6 +165,10 @@ persistence:
 extraEnvs:
   - name: DISABLE_SECURITY_PLUGIN
     value: "true"
+  - name: OPENSEARCH_YML
+    value: |
+      action:
+        auto_create_index: false
 resources:
   requests:
     memory: 1536Mi
@@ -184,10 +188,6 @@ ingress:
     alb.ingress.kubernetes.io/group.name: ${local.group_name}
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
     alb.ingress.kubernetes.io/success-codes: 200-399
-opensearchConfig:
-  opensearch.yml: |
-    action:
-      auto_create_index: false
 ${local.schedule_value}
 EOF
   ]
