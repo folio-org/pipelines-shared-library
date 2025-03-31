@@ -1,23 +1,3 @@
-resource "null_resource" "config-executor" {
-  count = var.opensearch_shared ? 0 : 1
-  depends_on = [
-    rancher2_namespace.this,
-    rancher2_project.this,
-    helm_release.opensearch-single-node,
-    helm_release.opensearch-master,
-    helm_release.opensearch-data,
-    helm_release.opensearch-client,
-  ]
-  provisioner "local-exec" {
-    command = <<-EOT
-      echo "Configuring OpenSearch based on RANCHER-2189"
-      kubectl port-forward -n ${rancher2_namespace.this.name} svc/opensearch-${var.rancher_project_name} 9200:9200 &
-      curl -X PUT "localhost:9200/_cluster/settings" -H 'Content-Type: application/json' -d '{"persistent": {"action": {"auto_create_index": false}}}'
-    EOT
-  }
-}
-
-
 resource "rancher2_secret" "opensearch-credentials" {
   name         = "opensearch-credentials"
   project_id   = rancher2_project.this.id
@@ -70,6 +50,10 @@ persistence:
 plugins:
   enabled: true
   installList: [analysis-icu, analysis-kuromoji, analysis-smartcn, analysis-nori, analysis-phonetic, https://github.com/aiven/prometheus-exporter-plugin-for-opensearch/releases/download/2.11.0.0/prometheus-exporter-2.11.0.0.zip]
+opensearchLifecycle:
+   postStart:
+     exec:
+       command: ["/bin/sh", "-c", "curl -X PUT "localhost:9200/_cluster/settings" -H "Content-Type: application/json" -d '{"persistent": {"action": {"auto_create_index": false}}}'"]
 ${local.schedule_value}
 EOF
   ]
