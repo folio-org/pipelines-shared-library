@@ -65,8 +65,8 @@ resource "kubernetes_job" "configure_os_indices" {
     helm_release.opensearch-dashboards
   ]
   metadata {
-    name      = "configure-os-indices"
-    namespace = rancher2_namespace.this.name
+    generate_name = "configure-os-indices-creation"
+    namespace     = rancher2_namespace.this.name
   }
   spec {
     template {
