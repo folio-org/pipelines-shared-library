@@ -56,7 +56,7 @@ lifecycle:
         command:
           - "/bin/sh"
           - "-c"
-          - "curl -X PUT \"localhost:9200/_cluster/settings\" -H \"Content-Type: application/json\" -d '{\"persistent\": {\"action\": {\"auto_create_index\": false}}}'"
+          - "curl -X PUT 'localhost:9200/_cluster/settings' -H 'Content-Type: application/json' -d '{'persistent': {'action': {'auto_create_index': false}}}'"
 ${local.schedule_value}
 EOF
   ]
