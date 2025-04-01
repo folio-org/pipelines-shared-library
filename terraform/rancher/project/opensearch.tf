@@ -55,6 +55,42 @@ EOF
   ]
 }
 
+resource "kubernetes_job" "configure_os_indices" {
+  count = !var.opensearch_shared && var.opensearch_single_node ? 1 : 0
+  depends_on = [
+    helm_release.opensearch-single-node,
+    helm_release.opensearch-master,
+    helm_release.opensearch-data,
+    helm_release.opensearch-client,
+    helm_release.opensearch-dashboards
+  ]
+  metadata {
+    generate_name = "configure-os-indices-creation"
+    namespace     = rancher2_namespace.this.name
+  }
+  spec {
+    template {
+      metadata {
+        name = "configure-os-indices"
+      }
+      spec {
+        restart_policy = "Never"
+        container {
+          name  = "configure-os-indices"
+          image = "curlimages/curl:latest"
+          command = [
+            "/bin/sh",
+            "-c",
+            <<-EOF
+              curl -X PUT "http://opensearch-${var.rancher_project_name}:9200/_cluster/settings" -H "Content-Type: application/json" -d '{"persistent": {"action.auto_create_index": "false"}}'
+            EOF
+          ]
+        }
+      }
+    }
+  }
+}
+
 # Opensearch master deployment
 resource "helm_release" "opensearch-master" {
   count      = !var.opensearch_shared && !var.opensearch_single_node ? 1 : 0
