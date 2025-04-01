@@ -2471,9 +2471,9 @@ mod-pubsub:
   replicaCount: 1
   resources:
     limits:
-      memory: 391Mi
+      memory: 1200Mi
     requests:
-      memory: 340Mi
+      memory: 1024Mi
   extraJavaOpts:
   - -XX:MaxRAMPercentage=85.0
   startupProbe:
