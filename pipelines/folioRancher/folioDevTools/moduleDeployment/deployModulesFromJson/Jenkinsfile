@@ -83,10 +83,6 @@ ansiColor('xterm') {
       } catch (Exception e) {
         println "Caught exception: ${e}"
         error "Pipeline failed due to error: ${e.getMessage()}"
-      } finally {
-        stage('Cleanup') {
-          cleanWs notFailBuild: true
-        }
       }
     }
   }
