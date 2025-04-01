@@ -89,19 +89,8 @@ void renderEphemeralPropertiesEureka(RancherNamespace namespace) {
     String institutionalUsers = ''
     if (edgeConfig[(module.name)]['tenants']) {
       edgeConfig[(module.name)]['tenants'].each { institutional ->
-        if (institutional.tenant == 'default') {
-          namespace.tenants.each { tenantName, tenant_info ->
-            institutionalUsers += "${tenantName}=${institutional.username},${institutional.password}\n"
-          }
-        } else {
-          tenants.add(institutional.tenant)
-          institutionalUsers += "${institutional.tenant}=${institutional.username},${institutional.password}\n"
-        }
-      }
-      if (module.name == 'edge-oai-pmh') {
-        namespace.getTenants().each { tenant_id, tenant ->
-          users += tenant_id.toString() + '=' + edgeConfig['edge-oai-pmh']['tenants'][0]['username'] + ',' + edgeConfig['edge-oai-pmh']['tenants'][0]['password'] + '\n'
-        }
+        tenants.add(institutional.tenant)
+        institutionalUsers += "${institutional.tenant}=${institutional.username},${institutional.password}\n"
       }
       LinkedHashMap config_data = [edge_tenants: "${tenants.join(",")}", edge_mappings: "${mappings.getAt(0)}", edge_users: users + institutionalUsers, institutional_users: '']
       tools.steps.writeFile file: "${module.name}-ephemeral-properties", text: (new StreamingTemplateEngine().createTemplate(config_template).make(config_data)).toString()
