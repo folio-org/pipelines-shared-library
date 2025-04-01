@@ -71,7 +71,7 @@ resource "kubernetes_job" "configure_os_indices" {
   spec {
     template {
       metadata {
-        name = "configure-os-indices"
+        generate_name = "configure-os-indices"
       }
       spec {
         restart_policy = "Never"
