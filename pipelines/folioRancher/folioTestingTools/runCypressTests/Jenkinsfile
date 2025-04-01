@@ -50,7 +50,6 @@ cypressParameters.setTenant(new OkapiTenant(params.TENANT_ID)
 cypressParameters.setExecParameters(params.EXEC_PARAMETERS)
 cypressParameters.setTestrailProjectID(params.TESTRAIL_PROJECTID)
 cypressParameters.setTestrailRunID(params.TESTRAIL_RUN_ID)
-cypressParameters.setWorkerLabel(params.AGENT)
 cypressParameters.setNumberOfWorkers(params.NUMBER_OF_WORKERS.toInteger())
 cypressParameters.setTimeout(params.TIMEOUT)
 
