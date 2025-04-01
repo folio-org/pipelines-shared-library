@@ -77,6 +77,7 @@ class CreateNamespaceParameters implements Cloneable {
 
   boolean namespaceOnly = false
 
+  @Deprecated
   String worker
 
   String keycloakVersion = 'latest'
@@ -429,6 +430,7 @@ class CreateNamespaceParameters implements Cloneable {
       return this
     }
 
+    @Deprecated
     /**
      * Specifies the Jenkins worker node that should execute the deployment tasks for this namespace.
      * This allows for specifying targeted resources or environments.
