@@ -210,62 +210,62 @@ void call(CreateNamespaceParameters args) {
       }
     }
 
-//    stage('[Helm] Deploy mgr-*') {
-//      folioHelm.withKubeConfig(namespace.getClusterName()) {
-//        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getMgrModules())
-//
-//        //Check availability of the mgr-applications /applications endpoint to ensure the module up and running
-//        int counter = 0
-//        retry(10) {
-//          sleep time: (counter == 0 ? 0 : 30), unit: 'SECONDS'
-//          counter++
-//
-//          Applications.get(eureka.kong).getRegisteredApplications()
-//        }
-//        if (args.type == 'update') {
-//          List sql_cmd = ['DELETE FROM public.module', 'DELETE FROM public.entitlement',
-//                          'DELETE FROM public.entitlement_module', 'DELETE FROM public.application',
-//                          'DELETE FROM public.application_flow']
-//          String pod = sh(script: "kubectl get pod -l 'app.kubernetes.io/name=pgadmin4' -o=name -n ${namespace.getNamespaceName()}", returnStdout: true).trim()
-//          sql_cmd.each {sh(script: "kubectl exec ${pod} --namespace ${namespace.getNamespaceName()} -- /usr/local/pgsql-16/psql -c '${it}'", returnStdout: true)}
-//        }
-//      }
-//    }
+    stage('[Helm] Deploy mgr-*') {
+      folioHelm.withKubeConfig(namespace.getClusterName()) {
+        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getMgrModules())
 
-//    stage('[Rest] Preinstall') {
-//      int counter = 0
-//      retry(5) {
-//        sleep time: (counter == 0 ? 0 : 30), unit: 'SECONDS'
-//        counter++
-//        namespace.withApplications(
-//          eureka.registerApplicationsFlow(
-//            //TODO: Refactoring is needed!!! Utilization of extension should be applied.
-//            // Remove this shit with consortia and linkedData. Apps have to be taken as it is.
-//            args.applications -
-//              (args.consortia ? [:] : ["app-consortia": "snapshot", "app-consortia-manager": "snapshot"]) -
-//              (args.consortia ? [:] : ["app-consortia": "master", "app-consortia-manager": "master"]) -
-//              (args.linkedData ? [:] : ["app-linked-data": "snapshot"]) -
-//              (args.linkedData ? [:] : ["app-linked-data": "master"])
-//            , namespace.getModules().getModuleVersionMap()
-//            , namespace.getTenants().values() as List<EurekaTenant>
-//          )
-//        )
-//
-//        eureka.registerModulesFlow(
-//          namespace.getModules()
-//          , namespace.getApplications()
-//        )
-//      }
-//    }
+        //Check availability of the mgr-applications /applications endpoint to ensure the module up and running
+        int counter = 0
+        retry(10) {
+          sleep time: (counter == 0 ? 0 : 30), unit: 'SECONDS'
+          counter++
 
-//    stage('[Helm] Deploy modules') {
-//      folioHelm.withKubeConfig(namespace.getClusterName()) {
-//        logger.info(namespace.getModules().getBackendModules())
-//
-//        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getBackendModules())
-//        folioHelm.checkDeploymentsRunning(namespace.getNamespaceName(), namespace.getModules().getBackendModules())
-//      }
-//    }
+          Applications.get(eureka.kong).getRegisteredApplications()
+        }
+        if (args.type == 'update') {
+          List sql_cmd = ['DELETE FROM public.module', 'DELETE FROM public.entitlement',
+                          'DELETE FROM public.entitlement_module', 'DELETE FROM public.application',
+                          'DELETE FROM public.application_flow']
+          String pod = sh(script: "kubectl get pod -l 'app.kubernetes.io/name=pgadmin4' -o=name -n ${namespace.getNamespaceName()}", returnStdout: true).trim()
+          sql_cmd.each {sh(script: "kubectl exec ${pod} --namespace ${namespace.getNamespaceName()} -- /usr/local/pgsql-16/psql -c '${it}'", returnStdout: true)}
+        }
+      }
+    }
+
+    stage('[Rest] Preinstall') {
+      int counter = 0
+      retry(5) {
+        sleep time: (counter == 0 ? 0 : 30), unit: 'SECONDS'
+        counter++
+        namespace.withApplications(
+          eureka.registerApplicationsFlow(
+            //TODO: Refactoring is needed!!! Utilization of extension should be applied.
+            // Remove this shit with consortia and linkedData. Apps have to be taken as it is.
+            args.applications -
+              (args.consortia ? [:] : ["app-consortia": "snapshot", "app-consortia-manager": "snapshot"]) -
+              (args.consortia ? [:] : ["app-consortia": "master", "app-consortia-manager": "master"]) -
+              (args.linkedData ? [:] : ["app-linked-data": "snapshot"]) -
+              (args.linkedData ? [:] : ["app-linked-data": "master"])
+            , namespace.getModules().getModuleVersionMap()
+            , namespace.getTenants().values() as List<EurekaTenant>
+          )
+        )
+
+        eureka.registerModulesFlow(
+          namespace.getModules()
+          , namespace.getApplications()
+        )
+      }
+    }
+
+    stage('[Helm] Deploy modules') {
+      folioHelm.withKubeConfig(namespace.getClusterName()) {
+        logger.info(namespace.getModules().getBackendModules())
+
+        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getBackendModules())
+        folioHelm.checkDeploymentsRunning(namespace.getNamespaceName(), namespace.getModules().getBackendModules())
+      }
+    }
 
     stage('[Helm] Deploy edge') {
       folioHelm.withKubeConfig(namespace.getClusterName()) {
@@ -280,39 +280,39 @@ void call(CreateNamespaceParameters args) {
       }
     }
 
-//    stage('[Rest] Initialize') {
-//      if (args.dataset) { // Prepare for large dataset reindex
-//        folioHelm.withKubeConfig(namespace.getClusterName()) {
-//
-//          kubectl.setKubernetesResourceCount('deployment', 'mod-inventory-storage', namespace.getNamespaceName(), '4')
-//          sleep(time: 10, unit: 'SECONDS')
-//          kubectl.setKubernetesResourceCount('deployment', 'mod-search', namespace.getNamespaceName(), '4')
-//
-//          folioHelm.checkDeploymentsRunning(namespace.getNamespaceName(), namespace.getModules().getBackendModules())
-//
-//        }
-//      }
-//      int counter = 0
-//      retry(20) {
-//        // The first wait time should be at least 10 minutes due to module's long time instantiation
-//        sleep time: (counter == 0 ? 10 : 2), unit: 'MINUTES'
-//        counter++
-//
-//        eureka.initializeFromScratch(
-//          namespace.getTenants()
-//          , namespace.getClusterName()
-//          , namespace.getNamespaceName()
-//          , namespace.getEnableConsortia()
-//          , args.dataset // Set this option true, when users & groups migration is required.
-//        )
-//      }
-//    }
+    stage('[Rest] Initialize') {
+      if (args.dataset) { // Prepare for large dataset reindex
+        folioHelm.withKubeConfig(namespace.getClusterName()) {
 
-//    stage('[Rest] Configure edge') {
-//      retry(5) {
-//        args.type  == 'full' ? new Edge(this, "${namespace.generateDomain('kong')}", "${namespace.generateDomain('keycloak')}").createEurekaUsers(namespace) : null
-//      }
-//    }
+          kubectl.setKubernetesResourceCount('deployment', 'mod-inventory-storage', namespace.getNamespaceName(), '4')
+          sleep(time: 10, unit: 'SECONDS')
+          kubectl.setKubernetesResourceCount('deployment', 'mod-search', namespace.getNamespaceName(), '4')
+
+          folioHelm.checkDeploymentsRunning(namespace.getNamespaceName(), namespace.getModules().getBackendModules())
+
+        }
+      }
+      int counter = 0
+      retry(20) {
+        // The first wait time should be at least 10 minutes due to module's long time instantiation
+        sleep time: (counter == 0 ? 10 : 2), unit: 'MINUTES'
+        counter++
+
+        eureka.initializeFromScratch(
+          namespace.getTenants()
+          , namespace.getClusterName()
+          , namespace.getNamespaceName()
+          , namespace.getEnableConsortia()
+          , args.dataset // Set this option true, when users & groups migration is required.
+        )
+      }
+    }
+
+    stage('[Rest] Configure edge') {
+      retry(5) {
+        args.type  == 'full' ? new Edge(this, "${namespace.generateDomain('kong')}", "${namespace.generateDomain('keycloak')}").createEurekaUsers(namespace) : null
+      }
+    }
 
     if (args.uiBuild) {
       stage('Build and deploy UI') {

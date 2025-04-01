@@ -87,7 +87,7 @@ void renderEphemeralPropertiesEureka(RancherNamespace namespace) {
 
   namespace.getModules().getEdgeModules().each { module ->
     String institutionalUsers = ''
-    if (edgeConfig[(module.name)]['tenants'] && edgeConfig[(module.name)] == module.name) {
+    if (edgeConfig[(module.name)]['tenants']) {
       edgeConfig[(module.name)]['tenants'].each { institutional ->
         tenants.contains(institutional.tenant) ? null : tenants.add(institutional.tenant)
         institutionalUsers += "${institutional.tenant}=${institutional.username},${institutional.password}\n"

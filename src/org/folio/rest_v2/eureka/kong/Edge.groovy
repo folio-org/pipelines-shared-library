@@ -90,7 +90,7 @@ class Edge extends Users {
             logger.info("tenantId: ${tenant.tenantId} edge_admin user has assigned capabilities...")
             break
           case 201:
-            logger.info("tenantId: ${tenant.tenantId} edge_admin user has assigned capabilities...")
+            logger.info("tenantId: ${tenant.tenantId} edge_admin user capabilities assignment created...")
             break
           case 400:
             logger.warning("tenantId: ${tenant.tenantId} edge_admin user has assigned capabilities failed...")
@@ -115,7 +115,7 @@ class Edge extends Users {
             logger.info("tenantId: ${tenant.tenantId} edge_admin user has assigned capability sets...")
             break
           case 201:
-            logger.info("tenantId: ${tenant.tenantId} edge_admin user has assigned capability sets...")
+            logger.info("tenantId: ${tenant.tenantId} edge_admin user assignment created...")
             break
           case 400:
             logger.warning("tenantId: ${tenant.tenantId} edge_admin user has assigned capability sets failed...")
