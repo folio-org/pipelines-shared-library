@@ -82,7 +82,7 @@ resource "kubernetes_job" "configure_os_indices" {
             "/bin/sh",
             "-c",
             <<-EOF
-              curl -X PUT "http://opensearch-${var.rancher_project_name}:9200/_cluster/settings" -H "Content-Type: application/json" -d '{"persistent": {"action.auto_create_index": "false"}}'
+              curl -X PUT "http://opensearch-${var.rancher_project_name}:9200/_cluster/settings" -H "Content-Type: application/json" -d '{ "persistent": { "action.auto_create_index": "false", "cluster.max_shards_per_node": "1500" }}'
             EOF
           ]
         }
