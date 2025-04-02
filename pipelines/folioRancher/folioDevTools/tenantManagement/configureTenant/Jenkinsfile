@@ -1,10 +1,11 @@
 #!groovy
+import org.folio.jenkins.JenkinsAgentLabel
+import org.folio.jenkins.PodTemplates
 import org.folio.models.OkapiTenant
 import org.folio.rest_v2.Configurations
 import org.folio.rest_v2.Constants
-import org.folio.utilities.Logger
 
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-650-Jenkins-upgrade') _
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
@@ -12,7 +13,6 @@ properties([
   parameters([
     folioParameters.cluster(),
     folioParameters.namespace(),
-    folioParameters.agent(),
     booleanParam(name: 'ResetPasswordLink', defaultValue: false, description: 'ResetPasswordLink for tenant'),
     string(name: 'TENANT_ID', defaultValue: '', description: 'Tenant ID'),
     folioParameters.refreshParameters()
@@ -33,11 +33,11 @@ if (params.CLUSTER == 'folio-testing') {
   folioCommon.kitfoxApproval()
 }
 
-Logger logger = new Logger(this, env.JOB_BASE_NAME)
+PodTemplates podTemplates = new PodTemplates(this)
 
 ansiColor('xterm') {
-  node(params.AGENT) {
-    try {
+  podTemplates.defaultTemplate {
+    node(JenkinsAgentLabel.DEFAULT_AGENT.getLabel()) {
       stage('Ini') {
         buildName "${params.CLUSTER}-${params.NAMESPACE}.${env.BUILD_ID}"
         buildDescription "CONFIGURE: ${params.TENANT_ID}"
@@ -54,16 +54,6 @@ ansiColor('xterm') {
         /**
          * The rest configuration activities placeholder: Reindex, SMTP, etc.
          */
-
-      }
-
-    } catch (e) {
-      logger.warning("Caught exception: ${e}")
-      error(e.getMessage())
-    } finally {
-      stage('Cleanup') {
-        logger.debug("Workspace size: ${sh(returnStdout: true, script: 'du -sh .').trim()}")
-        cleanWs notFailBuild: true
       }
     }
   }
