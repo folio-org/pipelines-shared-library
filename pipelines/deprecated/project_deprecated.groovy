@@ -8,7 +8,7 @@ Please avoid any significant logic changes. Only fixes allowed.
 Instead use new approach for pipelines creation/modification
  */
 #!groovy
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@okapi') _
 
 
 import org.folio.rest.Deployment

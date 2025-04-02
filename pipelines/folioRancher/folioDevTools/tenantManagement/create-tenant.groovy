@@ -1,6 +1,6 @@
 #!groovy
 
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@okapi') _
 
 import org.folio.Constants
 import org.folio.rest.Deployment

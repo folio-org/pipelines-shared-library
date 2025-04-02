@@ -1,6 +1,6 @@
 package deprecated
 
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@okapi') _
 
 import org.folio.utilities.Tools
 import org.jenkinsci.plugins.workflow.libs.Library

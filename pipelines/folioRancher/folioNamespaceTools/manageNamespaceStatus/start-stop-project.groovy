@@ -3,7 +3,7 @@ import groovy.json.JsonBuilder
 import groovy.json.JsonSlurperClassic
 import org.folio.Constants
 
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@okapi') _
 
 
 import org.folio.utilities.Tools

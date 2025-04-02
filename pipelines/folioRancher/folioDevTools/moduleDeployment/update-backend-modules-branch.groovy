@@ -11,7 +11,7 @@ import org.folio.rest.model.OkapiUser
 import org.folio.utilities.model.Project
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@okapi') _
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '20')),

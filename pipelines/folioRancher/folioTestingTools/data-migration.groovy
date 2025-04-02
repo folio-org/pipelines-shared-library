@@ -7,7 +7,7 @@ import org.jenkinsci.plugins.workflow.libs.Library
 
 import java.time.LocalDateTime
 
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@okapi') _
 
 String getOkapiVersion(folio_repository, folio_branch) {
   def installJson = new URL('https://raw.githubusercontent.com/folio-org/' + folio_repository + '/' + folio_branch + '/install.json').openConnection()

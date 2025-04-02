@@ -1,7 +1,7 @@
 #!groovy
 import org.folio.Constants
 
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@okapi') _
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '20')),

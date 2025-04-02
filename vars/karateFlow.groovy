@@ -9,7 +9,7 @@ import org.jenkinsci.plugins.workflow.libs.Library
 
 import java.time.Instant
 
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@okapi') _
 
 @Deprecated
 def call(params) {

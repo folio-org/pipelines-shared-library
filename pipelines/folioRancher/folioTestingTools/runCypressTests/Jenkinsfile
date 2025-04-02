@@ -4,7 +4,7 @@ import org.folio.models.OkapiTenant
 import org.folio.models.OkapiUser
 import org.folio.models.parameters.CypressTestsParameters
 
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@okapi') _
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '50')),
