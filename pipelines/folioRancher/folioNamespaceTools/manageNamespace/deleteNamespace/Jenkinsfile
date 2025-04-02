@@ -63,7 +63,7 @@ ansiColor('xterm') {
       }
 
       if (nsExists) {
-        folioNamespaceDelete(namespaceParams)
+        folioNamespaceDelete.call(namespaceParams)
       }
     }
   }

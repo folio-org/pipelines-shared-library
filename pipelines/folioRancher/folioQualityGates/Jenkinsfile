@@ -1,7 +1,7 @@
 #!groovy
-package folioRancher.folioQualityGates
-
 import org.folio.Constants as CommonConstants
+import org.folio.jenkins.JenkinsAgentLabel
+import org.folio.jenkins.PodTemplates
 import org.folio.models.ChangelogEntry
 import org.folio.models.OkapiTenant
 import org.folio.models.OkapiUser
@@ -17,16 +17,15 @@ import org.folio.testing.karate.results.KarateRunExecutionSummary
 import org.folio.utilities.Logger
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-650-Jenkins-upgrade') _
 
 properties([
-  pipelineTriggers([cron('H 6,9,12,15,18,21 * * 1-5')]),
+//  pipelineTriggers([cron('H 6,9,12,15,18,21 * * 1-5')]),
   buildDiscarder(logRotator(numToKeepStr: '40')),
   disableConcurrentBuilds(),
   parameters([
     string(name: 'FOLIO_BRANCH', defaultValue: 'snapshot', description: 'platform-complete branch where will be run quality CI job'),
     booleanParam(name: 'SKIP_CHECK', defaultValue: false, description: 'Skip check of changes since last build.'),
-    folioParameters.agent(),
     folioParameters.refreshParameters()])
 ])
 
@@ -65,7 +64,6 @@ CreateNamespaceParameters namespaceBaseParams = new CreateNamespaceParameters.Bu
   .s3Type('built-in')
   .runSanityCheck(false)
   .members('')
-  .worker(params.AGENT)
   .build()
 
 CreateNamespaceParameters namespaceFromBranchParams = namespaceBaseParams.toBuilder()
@@ -87,120 +85,118 @@ CreateNamespaceParameters namespaceFromBranchParams = namespaceBaseParams.toBuil
   .build()
 
 ansiColor('xterm') {
-  node(params.AGENT) {
-    try {
-      stage('Ini') {
-        buildName "#${env.BUILD_ID}"
-      }
-
-      stage('Check Changes') {
-        if (params.SKIP_CHECK) {
-          logger.info("Skip check of changes since last build.")
-        } else {
-          currentBuildSha = folioHashCommitCheck.getCurrentBuildSha(params.FOLIO_BRANCH)
-          previousBuildSha = folioHashCommitCheck.getPreviousBuildSha()
-          boolean diffFound = folioHashCommitCheck.isInstallJsonChanged(previousBuildSha, currentBuildSha)
-
-          if (diffFound) {
-            logger.info('Incoming changes found. Proceed with build stages.')
+  PodTemplates podTemplates = new PodTemplates(this)
+  try {
+    podTemplates.defaultTemplate {
+      node(JenkinsAgentLabel.DEFAULT_AGENT.getLabel()) {
+        stage('Check Changes') {
+          if (params.SKIP_CHECK) {
+            logger.info("Skip check of changes since last build.")
           } else {
-            buildDescription 'Skipped'
-            logger.warning('Incoming changes not found. Skip build...')
-            currentBuild.result = 'ABORTED'
-            autoCanceled = true
-            slackSend(attachments: folioSlackNotificationUtils.renderAbortedBuildResultMessage(), channel: globalSlackChannel)
+            currentBuildSha = folioHashCommitCheck.getCurrentBuildSha(params.FOLIO_BRANCH)
+            previousBuildSha = folioHashCommitCheck.getPreviousBuildSha()
+            boolean diffFound = folioHashCommitCheck.isInstallJsonChanged(previousBuildSha, currentBuildSha)
+
+            if (diffFound) {
+              logger.info('Incoming changes found. Proceed with build stages.')
+            } else {
+              buildDescription 'Skipped'
+              logger.warning('Incoming changes not found. Skip build...')
+              currentBuild.result = 'ABORTED'
+              autoCanceled = true
+              slackSend(attachments: folioSlackNotificationUtils.renderAbortedBuildResultMessage(), channel: globalSlackChannel)
+            }
           }
         }
       }
+    }
 
-      if (autoCanceled) {
-        return
-      }
+    if (autoCanceled) {
+      return
+    }
 
-      destroyParallelStage(deleteNamespaceJob, envsMap, namespaceBaseParams, globalSlackChannel)
+    destroyParallelStage(deleteNamespaceJob, envsMap, namespaceBaseParams, globalSlackChannel)
 
-      provisionFromBranchParallelStage(createNamespaceFromBranchJob, envsMap, namespaceFromBranchParams, globalSlackChannel)
+    provisionFromBranchParallelStage(createNamespaceFromBranchJob, envsMap, namespaceFromBranchParams, globalSlackChannel)
 
-      stage('Execute quality gates') {
-        Map branches = [failFast: false]
-        branches['Cypress'] = { ->
-          CypressTestsParameters cypressParameters = new CypressTestsParameters()
-          cypressParameters.setCiBuildId(env.JOB_BASE_NAME)
-          cypressParameters.setTestsSrcBranch('master')
-          cypressParameters.setTenantUrl("https://${envsMap['cypress']['cluster']}-${envsMap['cypress']['namespace']}-diku.${Constants.CI_ROOT_DOMAIN}")
+    stage('Execute quality gates') {
+      Map branches = [failFast: false]
+      branches['Cypress'] = { ->
+        CypressTestsParameters cypressParameters = new CypressTestsParameters()
+        cypressParameters.setCiBuildId(env.JOB_BASE_NAME)
+        cypressParameters.setTestsSrcBranch('master')
+        cypressParameters.setTenantUrl("https://${envsMap['cypress']['cluster']}-${envsMap['cypress']['namespace']}-diku.${Constants.CI_ROOT_DOMAIN}")
           cypressParameters.setOkapiUrl("https://${envsMap['cypress']['cluster']}-${envsMap['cypress']['namespace']}-kong.${Constants.CI_ROOT_DOMAIN}")
-          cypressParameters.setTenant(new OkapiTenant('diku')
-            .withAdminUser(new OkapiUser('diku_admin', 'admin')))
-          cypressParameters.setExecParameters('--env grepTags="shiftLeft"')
-          cypressParameters.setWorkerLabel('cypress-ci')
-          cypressParameters.setNumberOfWorkers(4)
-          cypressParameters.setTimeout('120')
+        cypressParameters.setTenant(new OkapiTenant('diku')
+          .withAdminUser(new OkapiUser('diku_admin', 'admin')))
+        cypressParameters.setExecParameters('--env grepTags="shiftLeft"')
+        cypressParameters.setNumberOfWorkers(4)
+        cypressParameters.setTimeout('180')
 
-          cypressTestsExecutionSummary = folioCypressFlow.runWrapper(cypressParameters.getCiBuildId(), true, 'ci', false) {
-            folioCypressFlow.multiThreadRun(cypressParameters)
+        folioCypressFlow.call(cypressParameters.getCiBuildId(), [cypressParameters], false, 'ci', true)
+      }
+      branches['Karate'] = { ->
+        KarateTestsParameters karateTestsParams = new KarateTestsParameters()
+        karateTestsParams.okapiUrl = "https://${envsMap['karate']['cluster']}-${envsMap['karate']['namespace']}-okapi.${Constants.CI_ROOT_DOMAIN}"
+        karateTestsParams.edgeUrl = "https://${envsMap['karate']['cluster']}-${envsMap['karate']['namespace']}-edge.${Constants.CI_ROOT_DOMAIN}"
+        karateTestsParams.tenant = 'supertenant'
+        karateTestsParams.prototypeTenant = 'consortium'
+        karateTestsParams.adminUserName = 'super_admin'
+        karateTestsParams.adminPassword = 'admin'
+        karateTestsParams.threadsCount = '4'
+          karateTestsParams.reportPortalProjectName = 'junit5-integration'
+        karateTestsParams.sendSlackNotification = false
+        karateTestsParams.sendTeamsSlackNotification = false
+        karateTestsParams.sendTeamsSlackNotification = true
+        karateTestsParams.syncWithJira = false
+        karateTestsParams.syncWithJira = true
+        karateTestsParams.timeout = '3'
+        karateTestsExecutionSummary = folioKarateFlow.call(karateTestsParams)
+      }
+      parallel(branches)
+    }
+
+    podTemplates.defaultTemplate {
+      node(JenkinsAgentLabel.DEFAULT_AGENT.getLabel()) {
+        stage('[AWS] Update ssm') {
+          if (currentBuildSha) {
+            folioHashCommitCheck.updateBuildSha(currentBuildSha)
           }
         }
-        branches['Karate'] = { ->
-          KarateTestsParameters karateTestsParams = new KarateTestsParameters()
-          karateTestsParams.okapiUrl = "https://${envsMap['karate']['cluster']}-${envsMap['karate']['namespace']}-okapi.${Constants.CI_ROOT_DOMAIN}"
-          karateTestsParams.edgeUrl = "https://${envsMap['karate']['cluster']}-${envsMap['karate']['namespace']}-edge.${Constants.CI_ROOT_DOMAIN}"
-          karateTestsParams.tenant = 'supertenant'
-          karateTestsParams.prototypeTenant = 'consortium'
-          karateTestsParams.adminUserName = 'super_admin'
-          karateTestsParams.adminPassword = 'admin'
-          karateTestsParams.threadsCount = '4'
-          karateTestsParams.reportPortalProjectName = 'junit5-integration'
-          karateTestsParams.sendSlackNotification = false
-          karateTestsParams.sendTeamsSlackNotification = true
-          karateTestsParams.syncWithJira = true
-          karateTestsParams.timeout = '3'
-          karateTestsExecutionSummary = folioKarateFlow.call(karateTestsParams)
+
+        stage('[Slack] Send notification') {
+          String karateTestsResultMessage = folioSlackNotificationUtils.renderTestResultSection(TestType.KARATE,
+            karateTestsExecutionSummary, "", true,
+            "${env.BUILD_URL}cucumber-html-reports/overview-features.html"
+          )
+
+          String cypressTestsResultMessage = folioSlackNotificationUtils.renderTestResultSection(TestType.CYPRESS,
+            cypressTestsExecutionSummary, "", true, "${env.BUILD_URL}allure/"
+          )
+
+          String changelog = ''
+          if (previousBuildSha && currentBuildSha) {
+            List<ChangelogEntry> changelogEntriesList = folioChangeLog.call(previousBuildSha, currentBuildSha)
+            changelog = folioChangeLog.renderChangelogSection(changelogEntriesList)
+            buildDescription "Changelog:\n${folioChangeLog.getPlainText(changelogEntriesList)}"
+          }
+
+          String attachments = SlackHelper.renderMessage([
+            folioSlackNotificationUtils.renderBuildResultSection(),
+            cypressTestsResultMessage,
+            karateTestsResultMessage,
+            changelog
+          ])
+
+          slackSend(attachments: attachments, channel: "#rancher_tests_notifications")
         }
-        parallel(branches)
       }
-
-      stage('[AWS] Update ssm') {
-        if (currentBuildSha) {
-          folioHashCommitCheck.updateBuildSha(currentBuildSha)
-        }
-      }
-
-      stage('[Slack] Send notification') {
-        String karateTestsResultMessage = folioSlackNotificationUtils.renderTestResultSection(TestType.KARATE,
-          karateTestsExecutionSummary, "", true,
-          "${env.BUILD_URL}cucumber-html-reports/overview-features.html"
-        )
-
-        String cypressTestsResultMessage = folioSlackNotificationUtils.renderTestResultSection(TestType.CYPRESS,
-          cypressTestsExecutionSummary, "", true, "${env.BUILD_URL}allure/"
-        )
-
-        String changelog = ''
-        if (previousBuildSha && currentBuildSha) {
-          List<ChangelogEntry> changelogEntriesList = folioChangeLog.call(previousBuildSha, currentBuildSha)
-          changelog = folioChangeLog.renderChangelogSection(changelogEntriesList)
-          buildDescription "Changelog:\n${folioChangeLog.getPlainText(changelogEntriesList)}"
-        }
-
-        String attachments = SlackHelper.renderMessage([
-          folioSlackNotificationUtils.renderBuildResultSection(),
-          cypressTestsResultMessage,
-          karateTestsResultMessage,
-          changelog
-        ])
-
-        slackSend(attachments: attachments, channel: "#rancher_tests_notifications")
-      }
-    } catch (e) {
-      logger.error("Caught exception: ${e}")
-    } finally {
-      if (!autoCanceled) {
-        destroyParallelStage(deleteNamespaceJob, envsMap, namespaceBaseParams, globalSlackChannel)
-      }
-      stage('Cleanup') {
-        println("Workspace size: ${sh(returnStdout: true, script: 'du -sh . || true').trim()}")
-        cleanWs notFailBuild: true
-      }
+    }
+  } catch (e) {
+    logger.error("Caught exception: ${e}")
+  } finally {
+    if (!autoCanceled) {
+      destroyParallelStage(deleteNamespaceJob, envsMap, namespaceBaseParams, globalSlackChannel)
     }
   }
 }
