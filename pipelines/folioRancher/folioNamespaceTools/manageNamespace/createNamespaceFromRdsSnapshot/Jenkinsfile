@@ -57,7 +57,7 @@ if(params.CLUSTER ==~ /folio-testing|folio-etesting/ && params.NAMESPACE == 'spr
 /**
  * Set namespace configuration
  */
-
+PodTemplates podTemplates = new PodTemplates(this)
 String snapshotS3Path = "${Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME}/rds/${params.RDS_SNAPSHOT_NAME}"
 List uiTenantsList = params.UI_TENANTS_IDS.replaceAll("\\s+", "").isEmpty() ? [] : params.UI_TENANTS_IDS.replaceAll("\\s+", "").split(',')
 
@@ -71,7 +71,6 @@ namespace.setEnableSplitFiles(params.SPLIT_FILES)
 namespace.setEnableRwSplit(params.RW_SPLIT)
 
 ansiColor('xterm') {
-  PodTemplates podTemplates = new PodTemplates(this)
 
   podTemplates.defaultTemplate {
     node(JenkinsAgentLabel.DEFAULT_AGENT.getLabel()) {
