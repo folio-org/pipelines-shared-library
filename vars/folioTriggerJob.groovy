@@ -9,8 +9,7 @@ def deleteNamespace(String jobName, CreateNamespaceParameters namespaceParams) {
       string(name: 'POSTGRESQL', value: namespaceParams.getPgType()),
       string(name: 'KAFKA', value: namespaceParams.getKafkaType()),
       string(name: 'OPENSEARCH', value: namespaceParams.getOpensearchType()),
-      string(name: 'S3_BUCKET', value: namespaceParams.getS3Type()),
-      string(name: 'AGENT', value: namespaceParams.getWorker())]
+      string(name: 'S3_BUCKET', value: namespaceParams.getS3Type())]
   return jobResult
 }
 
@@ -37,7 +36,6 @@ def createNamespaceFromBranch(String jobName, CreateNamespaceParameters namespac
       string(name: 'OPENSEARCH', value: namespaceParams.getOpensearchType()),
       string(name: 'S3_BUCKET', value: namespaceParams.getS3Type()),
       booleanParam(name: 'RUN_SANITY_CHECK', value: namespaceParams.getRunSanityCheck()),
-      string(name: 'MEMBERS', value: namespaceParams.getMembers()),
-      string(name: 'AGENT', value: namespaceParams.getWorker())]
+      string(name: 'MEMBERS', value: namespaceParams.getMembers())]
   return jobResult
 }
