@@ -1,5 +1,7 @@
 #!groovy
 import org.folio.Constants
+import org.folio.jenkins.JenkinsAgentLabel
+import org.folio.jenkins.PodTemplates
 import org.folio.models.OkapiUser
 import org.folio.models.RancherNamespace
 import org.folio.rest_v2.Main
@@ -7,7 +9,7 @@ import org.folio.rest_v2.Users
 import org.folio.utilities.Logger
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-650-Jenkins-upgrade') _
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
@@ -16,7 +18,6 @@ properties([
     folioParameters.cluster(),
     folioParameters.namespace(),
     choice(name: 'SYSTEM_USER_MODULE', choices: ['all'] + Constants.SYSTEM_USER_MODULES, description: 'The list of modules that has system users'),
-    folioParameters.agent(),
     folioParameters.refreshParameters()
   ])
 ])
@@ -26,6 +27,7 @@ if (params.REFRESH_PARAMETERS) {
   return
 }
 
+PodTemplates podTemplates = new PodTemplates(this)
 Logger logger = new Logger(this, env.JOB_BASE_NAME)
 
 List systemUserModulesList = params.SYSTEM_USER_MODULE == 'all' ? Constants.SYSTEM_USER_MODULES : [params.SYSTEM_USER_MODULE]
@@ -37,7 +39,8 @@ Main main = new Main(this, namespace.getDomains()['okapi'], namespace.getSuperTe
 Users users = new Users(this, namespace.getDomains()['okapi'])
 
 ansiColor('xterm') {
-  node(params.AGENT) {
+  podTemplates.defaultTemplate {
+    node(JenkinsAgentLabel.DEFAULT_AGENT.getLabel()) {
     stage('Ini') {
       buildName "${namespace.getWorkspaceName()}.${env.BUILD_ID}"
     }
@@ -65,5 +68,6 @@ ansiColor('xterm') {
         }
       }
     }
+  }
   }
 }
