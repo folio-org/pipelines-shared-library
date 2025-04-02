@@ -75,113 +75,109 @@ ansiColor('xterm') {
 
   podTemplates.defaultTemplate {
     node(JenkinsAgentLabel.DEFAULT_AGENT.getLabel()) {
+      stage('Ini') {
+        buildName "${tfConfig.getWorkspace()}.${env.BUILD_ID}"
+        buildDescription "Snapshot: ${params.RDS_SNAPSHOT_NAME}"
+      }
+      stage('[TF] Set variables') {
+        tfConfig.addVar('rancher_cluster_name', params.CLUSTER)
+        tfConfig.addVar('rancher_project_name', params.NAMESPACE)
+        tfConfig.addVar('tenant_id', defaultTenantId)
+        tfConfig.addVar('pg_password', Constants.PG_ROOT_DEFAULT_PASSWORD)
+        tfConfig.addVar('pgadmin_password', Constants.PGADMIN_DEFAULT_PASSWORD)
+        tfConfig.addVar('pg_embedded', 'false')
+        tfConfig.addVar('kafka_shared', params.KAFKA != 'built-in')
+        tfConfig.addVar('opensearch_shared', params.OPENSEARCH != 'built-in')
+        tfConfig.addVar('s3_embedded', params.S3_BUCKET == 'built-in')
+        tfConfig.addVar('pgadmin4', 'true')
+        tfConfig.addVar('enable_rw_split', params.RW_SPLIT)
+        tfConfig.addVar('pg_ldp_user_password', Constants.PG_LDP_DEFAULT_PASSWORD)
+        tfConfig.addVar('github_team_ids', folioTools.getGitHubTeamsIds("${Constants.ENVS_MEMBERS_LIST[params.NAMESPACE]},${params.MEMBERS}").collect { "\"${it}\"" })
+        tfConfig.addVar('pg_rds_snapshot_name', params.RDS_SNAPSHOT_NAME)
+        tfConfig.addVar('pg_dbname', Constants.BUGFEST_SNAPSHOT_DBNAME)
+      }
       try {
-        stage('Ini') {
-          buildName "${tfConfig.getWorkspace()}.${env.BUILD_ID}"
-          buildDescription "Snapshot: ${params.RDS_SNAPSHOT_NAME}"
+        stage('Checkout') {
+          checkout scm
         }
-        stage('[TF] Set variables') {
-          tfConfig.addVar('rancher_cluster_name', params.CLUSTER)
-          tfConfig.addVar('rancher_project_name', params.NAMESPACE)
-          tfConfig.addVar('tenant_id', defaultTenantId)
-          tfConfig.addVar('pg_password', Constants.PG_ROOT_DEFAULT_PASSWORD)
-          tfConfig.addVar('pgadmin_password', Constants.PGADMIN_DEFAULT_PASSWORD)
-          tfConfig.addVar('pg_embedded', 'false')
-          tfConfig.addVar('kafka_shared', params.KAFKA != 'built-in')
-          tfConfig.addVar('opensearch_shared', params.OPENSEARCH != 'built-in')
-          tfConfig.addVar('s3_embedded', params.S3_BUCKET == 'built-in')
-          tfConfig.addVar('pgadmin4', 'true')
-          tfConfig.addVar('enable_rw_split', params.RW_SPLIT)
-          tfConfig.addVar('pg_ldp_user_password', Constants.PG_LDP_DEFAULT_PASSWORD)
-          tfConfig.addVar('github_team_ids', folioTools.getGitHubTeamsIds("${Constants.ENVS_MEMBERS_LIST[params.NAMESPACE]},${params.MEMBERS}").collect { "\"${it}\"" })
-          tfConfig.addVar('pg_rds_snapshot_name', params.RDS_SNAPSHOT_NAME)
-          tfConfig.addVar('pg_dbname', Constants.BUGFEST_SNAPSHOT_DBNAME)
+
+        stage('[Terraform] Restore') {
+          folioHelm.withK8sClient {
+            tfConfig.addVar('pg_version',
+              awscli.getRdsClusterSnapshotEngineVersion("us-west-2", params.RDS_SNAPSHOT_NAME))
+            tfConfig.addVar('pg_username',
+              awscli.getRdsClusterSnapshotMasterUsername("us-west-2", params.RDS_SNAPSHOT_NAME))
+          }
+
+          folioTerraformFlow.manageNamespace('apply', tfConfig)
         }
-        try {
-          stage('Checkout') {
-            checkout scm
+
+        if (params.NAMESPACE_ONLY) {
+          return
+        }
+
+        stage('Preparation') {
+          String commitHash = ''
+          String folioBranch = ''
+
+          folioHelm.withK8sClient {
+            namespace.getModules().setInstallJsonObject(new Tools(this)
+              .jsonParse(awscli.getS3FileContent("${snapshotS3Path}/${params.RDS_SNAPSHOT_NAME}-install.json")))
+            Map uiJson = new Tools(this)
+              .jsonParse(awscli.getS3FileContent("${snapshotS3Path}/${params.RDS_SNAPSHOT_NAME}-ui.json"))
+            folioBranch = uiJson['branch']
+            commitHash = uiJson['hash']
           }
 
-          stage('[Terraform] Restore') {
-            folioHelm.withK8sClient {
-              tfConfig.addVar('pg_version',
-                awscli.getRdsClusterSnapshotEngineVersion("us-west-2", params.RDS_SNAPSHOT_NAME))
-              tfConfig.addVar('pg_username',
-                awscli.getRdsClusterSnapshotMasterUsername("us-west-2", params.RDS_SNAPSHOT_NAME))
-            }
+          namespace.setOkapiVersion(common.getOkapiVersion(namespace.getModules().getInstallJson()))
+          namespace.setEnableConsortia(params.CONSORTIA)
 
-            folioTerraformFlow.manageNamespace('apply', tfConfig)
-          }
-
-          if (params.NAMESPACE_ONLY) {
-            return
-          }
-
-          stage('Preparation') {
-            String commitHash = ''
-            String folioBranch = ''
-
-            folioHelm.withK8sClient {
-              namespace.getModules().setInstallJsonObject(new Tools(this)
-                .jsonParse(awscli.getS3FileContent("${snapshotS3Path}/${params.RDS_SNAPSHOT_NAME}-install.json")))
-              Map uiJson = new Tools(this)
-                .jsonParse(awscli.getS3FileContent("${snapshotS3Path}/${params.RDS_SNAPSHOT_NAME}-ui.json"))
-              folioBranch = uiJson['branch']
-              commitHash = uiJson['hash']
-            }
-
-            namespace.setOkapiVersion(common.getOkapiVersion(namespace.getModules().getInstallJson()))
-            namespace.setEnableConsortia(params.CONSORTIA)
-
-            if (uiTenantsList) {
-              TenantUi tenantUi = new TenantUi("${params.CLUSTER}-${params.NAMESPACE}", commitHash, folioBranch)
-              uiTenantsList.each { tenantId ->
-                namespace.addTenant(new OkapiTenant(tenantId)
-                  .withConfiguration(new OkapiConfig())
-                  .withTenantUi(tenantUi.clone()))
-              }
+          if (uiTenantsList) {
+            TenantUi tenantUi = new TenantUi("${params.CLUSTER}-${params.NAMESPACE}", commitHash, folioBranch)
+            uiTenantsList.each { tenantId ->
+              namespace.addTenant(new OkapiTenant(tenantId)
+                .withConfiguration(new OkapiConfig())
+                .withTenantUi(tenantUi.clone()))
             }
           }
+        }
 
-          stage('[Helm] Restore') {
-            folioDeployFlow.restore(namespace)
-          }
+        stage('[Helm] Restore') {
+          folioDeployFlow.restore(namespace)
+        }
 
-          stage('Build and deploy UI') {
-            Map branches = [:]
-            namespace.getTenants().each { tenantId, tenant ->
-              if (tenant.getTenantUi()) {
-                TenantUi ui = tenant.getTenantUi()
-                branches[tenantId] = {
-                  def jobParameters = [
-                    tenant_id  : ui.getTenantId(),
-                    custom_hash: ui.getHash(),
-                    custom_url : "https://${namespace.getDomains()['okapi']}",
-                    custom_tag : ui.getTag(),
-                    consortia  : tenant instanceof OkapiTenantConsortia
-                  ]
+        stage('Build and deploy UI') {
+          Map branches = [:]
+          namespace.getTenants().each { tenantId, tenant ->
+            if (tenant.getTenantUi()) {
+              TenantUi ui = tenant.getTenantUi()
+              branches[tenantId] = {
+                def jobParameters = [
+                  tenant_id  : ui.getTenantId(),
+                  custom_hash: ui.getHash(),
+                  custom_url : "https://${namespace.getDomains()['okapi']}",
+                  custom_tag : ui.getTag(),
+                  consortia  : tenant instanceof OkapiTenantConsortia
+                ]
 
-                  uiBuild(jobParameters)
+                uiBuild(jobParameters)
 
-                  folioHelm.withKubeConfig(namespace.getClusterName()) {
-                    folioHelm.deployFolioModule(namespace, 'ui-bundle', ui.getTag(), false, ui.getTenantId())
-                  }
+                folioHelm.withKubeConfig(namespace.getClusterName()) {
+                  folioHelm.deployFolioModule(namespace, 'ui-bundle', ui.getTag(), false, ui.getTenantId())
                 }
               }
             }
-            parallel branches
           }
-
-          stage('Deploy ldp') {
-            println('LDP deployment')
-          }
-        } catch (e) {
-          println "Caught exception: ${e}"
-          error(e.getMessage())
+          parallel branches
         }
+
+        stage('Deploy ldp') {
+          println('LDP deployment')
+        }
+      } catch (e) {
+        println "Caught exception: ${e}"
+        error(e.getMessage())
       }
     }
   }
 }
-
-
