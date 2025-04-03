@@ -57,7 +57,7 @@ if(params.CLUSTER ==~ /folio-testing|folio-etesting/ && params.NAMESPACE == 'spr
 /**
  * Set namespace configuration
  */
-PodTemplates podTemplates = new PodTemplates(this)
+
 String snapshotS3Path = "${Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME}/rds/${params.RDS_SNAPSHOT_NAME}"
 List uiTenantsList = params.UI_TENANTS_IDS.replaceAll("\\s+", "").isEmpty() ? [] : params.UI_TENANTS_IDS.replaceAll("\\s+", "").split(',')
 
@@ -71,9 +71,11 @@ namespace.setEnableSplitFiles(params.SPLIT_FILES)
 namespace.setEnableRwSplit(params.RW_SPLIT)
 
 ansiColor('xterm') {
+  PodTemplates podTemplates = new PodTemplates(this)
 
   podTemplates.defaultTemplate {
     node(JenkinsAgentLabel.DEFAULT_AGENT.getLabel()) {
+
       stage('Ini') {
         buildName "${tfConfig.getWorkspace()}.${env.BUILD_ID}"
         buildDescription "Snapshot: ${params.RDS_SNAPSHOT_NAME}"
@@ -129,7 +131,7 @@ ansiColor('xterm') {
           }
 
           namespace.setOkapiVersion(common.getOkapiVersion(namespace.getModules().getInstallJson()))
-          namespace.setEnableConsortia(params.CONSORTIA)
+         // namespace.setEnableConsortia(params.CONSORTIA)
 
           if (uiTenantsList) {
             TenantUi tenantUi = new TenantUi("${params.CLUSTER}-${params.NAMESPACE}", commitHash, folioBranch)
@@ -145,31 +147,34 @@ ansiColor('xterm') {
           folioDeployFlow.restore(namespace)
         }
 
-        stage('Build and deploy UI') {
-          Map branches = [:]
-          namespace.getTenants().each { tenantId, tenant ->
-            if (tenant.getTenantUi()) {
-              TenantUi ui = tenant.getTenantUi()
-              branches[tenantId] = {
-                def jobParameters = [
-                  tenant_id  : ui.getTenantId(),
-                  custom_hash: ui.getHash(),
-                  custom_url : "https://${namespace.getDomains()['okapi']}",
-                  custom_tag : ui.getTag(),
-                  consortia  : tenant instanceof OkapiTenantConsortia
-                ]
+        podTemplates.stripesTemplate {
+          node(JenkinsAgentLabel.STRIPES_AGENT.getLabel()) {
+            stage('Build and deploy UI') {
+              Map branches = [:]
+              namespace.getTenants().each { tenantId, tenant ->
+                if (tenant.getTenantUi()) {
+                  TenantUi ui = tenant.getTenantUi()
+                  branches[tenantId] = {
+                    def jobParameters = [
+                      tenant_id  : ui.getTenantId(),
+                      custom_hash: ui.getHash(),
+                      custom_url : "https://${namespace.getDomains()['okapi']}",
+                      custom_tag : ui.getTag(),
+                      consortia  : tenant instanceof OkapiTenantConsortia
+                    ]
 
-                uiBuild(jobParameters)
+                    uiBuild(jobParameters)
 
-                folioHelm.withKubeConfig(namespace.getClusterName()) {
-                  folioHelm.deployFolioModule(namespace, 'ui-bundle', ui.getTag(), false, ui.getTenantId())
+                    folioHelm.withKubeConfig(namespace.getClusterName()) {
+                      folioHelm.deployFolioModule(namespace, 'ui-bundle', ui.getTag(), false, ui.getTenantId())
+                    }
+                  }
                 }
               }
+              parallel branches
             }
           }
-          parallel branches
         }
-
         stage('Deploy ldp') {
           println('LDP deployment')
         }
