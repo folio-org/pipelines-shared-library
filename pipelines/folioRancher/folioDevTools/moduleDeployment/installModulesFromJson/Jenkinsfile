@@ -1,6 +1,6 @@
 #!groovy
-package folioRancher.folioDevTools.moduleDeployment.installModulesFromJson
-
+import org.folio.jenkins.JenkinsAgentLabel
+import org.folio.jenkins.PodTemplates
 import org.folio.models.FolioInstallJson
 import org.folio.models.InstallRequestParams
 import org.folio.models.OkapiTenant
@@ -34,7 +34,6 @@ properties([
     folioParameters.loadSample(),
     folioParameters.simulate(),
     folioParameters.reinstall(),
-    folioParameters.agent(),
     folioParameters.refreshParameters()
   ])
 ])
@@ -56,6 +55,7 @@ validateInputs(params)
 /**
  * Job variables
  */
+PodTemplates podTemplates = new PodTemplates(this)
 Logger logger = new Logger(this, env.JOB_BASE_NAME)
 
 List tenants = params.TENANTS_LIST.split(',').collect { it.trim() }
@@ -77,8 +77,8 @@ namespace.addDeploymentConfig(folioTools.getPipelineBranch())
  * Pipeline
  */
 ansiColor('xterm') {
-  node(params.AGENT) {
-    try {
+  podTemplates.defaultTemplate {
+    node(JenkinsAgentLabel.DEFAULT_AGENT.getLabel()) {
       stage('Ini') {
         buildName("#${namespace.getClusterName()}-${namespace.getNamespaceName()}.${env.BUILD_ID}")
         buildDescription("Config: ${namespace.getDeploymentConfigType()}")
@@ -140,16 +140,7 @@ ansiColor('xterm') {
 
       stage('Install') {
         logger.info("Modules to install:\n${writeJSON(json: installJsonObject.getInstallJson(), returnText: true, pretty: 2)}")
-
         folioDeployFlow.update(namespace)
-      }
-    } catch (e) {
-      logger.warning("Caught exception: ${e}")
-      error(e.getMessage())
-    } finally {
-      stage('Cleanup') {
-        logger.debug("Workspace size: ${sh(returnStdout: true, script: 'du -sh .').trim()}")
-        cleanWs notFailBuild: true
       }
     }
   }
