@@ -7,6 +7,9 @@ import org.jenkinsci.plugins.workflow.libs.Library
 import org.folio.jenkins.JenkinsAgentLabel
 import org.folio.jenkins.PodTemplates
 
+import static groovy.json.JsonOutput.prettyPrint
+import static groovy.json.JsonOutput.toJson
+
 @Library('pipelines-shared-library@RANCHER-650-Jenkins-upgrade') _
 
 properties([
@@ -153,21 +156,9 @@ ansiColor('xterm') {
               Map branches = [:]
               namespace.getTenants().each { tenantId, tenant ->
                 if (tenant.getTenantUi()) {
-                  TenantUi ui = tenant.getTenantUi()
                   branches[tenantId] = {
-                    def jobParameters = [
-                      tenant_id  : ui.getTenantId(),
-                      custom_hash: ui.getHash(),
-                      custom_url : "https://${namespace.getDomains()['okapi']}",
-                      custom_tag : ui.getTag(),
-                      consortia  : tenant instanceof OkapiTenantConsortia
-                    ]
-
-                    uiBuild(jobParameters)
-
-                    folioHelm.withKubeConfig(namespace.getClusterName()) {
-                      folioHelm.deployFolioModule(namespace, 'ui-bundle', ui.getTag(), false, ui.getTenantId())
-                    }
+                    logger.debug(prettyPrint(toJson(tenant.getTenantUi())))
+                    folioUI.buildAndDeploy(namespace, tenant)
                   }
                 }
               }
@@ -175,6 +166,35 @@ ansiColor('xterm') {
             }
           }
         }
+
+//        podTemplates.stripesTemplate {
+//          node(JenkinsAgentLabel.STRIPES_AGENT.getLabel()) {
+//            stage('Build and deploy UI') {
+//              Map branches = [:]
+//              namespace.getTenants().each { tenantId, tenant ->
+//                if (tenant.getTenantUi()) {
+//                  TenantUi ui = tenant.getTenantUi()
+//                  branches[tenantId] = {
+//                    def jobParameters = [
+//                      tenant_id  : ui.getTenantId(),
+//                      custom_hash: ui.getHash(),
+//                      custom_url : "https://${namespace.getDomains()['okapi']}",
+//                      custom_tag : ui.getTag(),
+//                      consortia  : tenant instanceof OkapiTenantConsortia
+//                    ]
+//
+//                    uiBuild(jobParameters)
+//
+//                    folioHelm.withKubeConfig(namespace.getClusterName()) {
+//                      folioHelm.deployFolioModule(namespace, 'ui-bundle', ui.getTag(), false, ui.getTenantId())
+//                    }
+//                  }
+//                }
+//              }
+//              parallel branches
+//            }
+//          }
+//        }
         stage('Deploy ldp') {
           println('LDP deployment')
         }
