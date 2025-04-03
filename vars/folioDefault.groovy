@@ -55,7 +55,7 @@ Map<String, OkapiTenantConsortia> consortiaTenants(
       .withInstallRequestParams(installQueryParameters.clone())
       .withConfiguration(new OkapiConfig().withSmtp(smtp)) as OkapiTenantConsortia,
 
-    college   : new OkapiTenantConsortia('college')
+    college: new OkapiTenantConsortia('college')
       .withTenantCode('COL')
       .withConsortiaName('Mobius')
       .withTenantName('College')
@@ -63,7 +63,17 @@ Map<String, OkapiTenantConsortia> consortiaTenants(
       .withAdminUser(adminOkapiUser('college_admin', 'admin'))
       .withInstallJson(installJson.collect())
       .withInstallRequestParams(installQueryParameters.clone())
-      .withConfiguration(new OkapiConfig().withSmtp(smtp)) as OkapiTenantConsortia
+      .withConfiguration(new OkapiConfig().withSmtp(smtp)) as OkapiTenantConsortia,
+
+    cs00000int_0001: new OkapiTenantConsortia('cs00000int_0001', false)
+      .withTenantCode('COL')
+      .withConsortiaName('CONSORTIA')
+      .withTenantName('Colleague tenant')
+      .withTenantDescription('cs00000int_0001, Colleague tenant created via Jenkins')
+      .withAdminUser(adminOkapiUser('ECS0001Admin', 'admin'))
+      .withConfiguration(new OkapiConfig().withSmtp(smtp))
+      .withInstallJson(installJson.collect())
+      .withInstallRequestParams(installQueryParameters.clone())
   ]
 }
 
@@ -86,42 +96,43 @@ Map<String, OkapiTenant> tenants(
   installQueryParameters.addTenantParameter('centralTenantId', 'cs00000int')
 
   return [
-    diku           : new OkapiTenant('diku')
+    diku: new OkapiTenant('diku')
       .withTenantName('Datalogisk Institut')
       .withTenantDescription('Danish Library Technology Institute')
       .withAdminUser(adminOkapiUser('diku_admin', 'admin'))
       .withConfiguration(new OkapiConfig().withSmtp(smtp).withKbApiKey(kbApiKey)),
 
-    aqa            : new OkapiTenant('aqa')
+    aqa: new OkapiTenant('aqa')
       .withTenantName('AQA')
       .withTenantDescription('AQA (created via Jenkins)')
       .withAdminUser(adminOkapiUser('aqa_admin', 'admin'))
       .withConfiguration(new OkapiConfig().withSmtp(smtp).withKbApiKey(kbApiKey)),
 
-    qa             : new OkapiTenant('qa')
+    qa: new OkapiTenant('qa')
       .withTenantName('QA')
       .withTenantDescription('QA (created via Jenkins)')
       .withAdminUser(adminOkapiUser('aqa_admin', 'admin'))
       .withConfiguration(new OkapiConfig().withSmtp(smtp).withKbApiKey(kbApiKey)),
 
-    fs09000000     : new OkapiTenant('fs09000000')
+    fs09000000: new OkapiTenant('fs09000000')
       .withTenantName('Bug Fest')
       .withTenantDescription('fs09000000 bug-fest created via Jenkins')
       .withAdminUser(adminOkapiUser('folio', 'folio'))
       .withConfiguration(new OkapiConfig().withSmtp(smtp).withKbApiKey(kbApiKey)),
 
-    fs09000002     : new OkapiTenant('fs09000002')
+    fs09000002: new OkapiTenant('fs09000002')
       .withTenantName('Plus')
       .withTenantDescription('fs09000002 bug-fest created via Jenkins')
       .withAdminUser(adminOkapiUser('folio-plus', 'Folio-plus1'))
       .withConfiguration(new OkapiConfig().withSmtp(smtp).withKbApiKey(kbApiKey)),
 
-    fs09000003     : new OkapiTenant('fs09000003')
+    fs09000003: new OkapiTenant('fs09000003')
       .withTenantName('AQA')
       .withTenantDescription('fs09000003 bug-fest created via Jenkins')
       .withAdminUser(adminOkapiUser('folio-aqa', 'Folio-aqa1'))
       .withConfiguration(new OkapiConfig().withSmtp(smtp).withKbApiKey(kbApiKey)),
-    cs00000int     : new OkapiTenantConsortia('cs00000int', true)
+
+    cs00000int: new OkapiTenantConsortia('cs00000int', true)
       .withTenantCode('CEN')
       .withConsortiaName('CONSORTIA')
       .withTenantName('Central tenant')
