@@ -1,13 +1,13 @@
 #!groovy
 import org.folio.models.InstallRequestParams
-import org.folio.models.OkapiTenantConsortia
 import org.folio.models.RancherNamespace
 import org.folio.models.TenantUi
 import org.folio.rest_v2.Main
 import org.jenkinsci.plugins.workflow.libs.Library
 import org.folio.jenkins.JenkinsAgentLabel
 import org.folio.jenkins.PodTemplates
-
+import static groovy.json.JsonOutput.prettyPrint
+import static groovy.json.JsonOutput.toJson
 
 
 @Library('pipelines-shared-library@RANCHER-650-Jenkins-upgrade') _
@@ -100,17 +100,8 @@ ansiColor('xterm') {
             if (tenant.getTenantUi()) {
               TenantUi ui = tenant.getTenantUi()
               branches[tenantId] = {
-                def jobParameters = [
-                  tenant_id  : ui.getTenantId(),
-                  custom_hash: ui.getHash(),
-                  custom_url : "https://${namespace.getDomains()['okapi']}",
-                  custom_tag : ui.getTag(),
-                  consortia  : tenant instanceof OkapiTenantConsortia
-                ]
-                uiBuild(jobParameters)
-                folioHelm.withKubeConfig(namespace.getClusterName()) {
-                  folioHelm.deployFolioModule(namespace, 'ui-bundle', ui.getTag(), false, ui.getTenantId())
-                }
+                logger.debug(prettyPrint(toJson(tenant.getTenantUi())))
+                folioUI.buildAndDeploy(namespace, tenant)
               }
             }
           }
