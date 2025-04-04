@@ -1,14 +1,11 @@
 #!groovy
+import org.folio.jenkins.JenkinsAgentLabel
+import org.folio.jenkins.PodTemplates
 import org.folio.models.InstallRequestParams
 import org.folio.models.RancherNamespace
 import org.folio.models.TenantUi
 import org.folio.rest_v2.Main
 import org.jenkinsci.plugins.workflow.libs.Library
-import org.folio.jenkins.JenkinsAgentLabel
-import org.folio.jenkins.PodTemplates
-import static groovy.json.JsonOutput.prettyPrint
-import static groovy.json.JsonOutput.toJson
-
 
 @Library('pipelines-shared-library@RANCHER-650-Jenkins-upgrade') _
 
@@ -35,6 +32,8 @@ if (params.REFRESH_PARAMETERS) {
   error('DRY RUN BUILD, PARAMETERS REFRESHED!')
 }
 
+PodTemplates podTemplates = new PodTemplates(this)
+
 //Set namespace configuration
 String commitHash = common.getLastCommitHash('platform-complete', params.FOLIO_BRANCH)
 
@@ -52,8 +51,6 @@ namespace.addDeploymentConfig(CONFIG_BRANCH)
 Main main = new Main(this, namespace.getDomains()['okapi'], namespace.getSuperTenant())
 
 ansiColor('xterm') {
-  PodTemplates podTemplates = new PodTemplates(this)
-
   podTemplates.defaultTemplate {
     node(JenkinsAgentLabel.DEFAULT_AGENT.getLabel()) {
       try {
@@ -99,9 +96,7 @@ ansiColor('xterm') {
           Map branches = [:]
           namespace.getTenants().each { tenantId, tenant ->
             if (tenant.getTenantUi()) {
-              TenantUi ui = tenant.getTenantUi()
               branches[tenantId] = {
-                logger.debug(prettyPrint(toJson(tenant.getTenantUi())))
                 folioUI.buildAndDeploy(namespace, tenant)
               }
             }
