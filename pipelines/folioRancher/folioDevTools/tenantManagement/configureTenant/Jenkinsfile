@@ -3,6 +3,7 @@ import org.folio.models.OkapiTenant
 import org.folio.rest_v2.Configurations
 import org.folio.rest_v2.Constants
 import org.folio.utilities.Logger
+import org.jenkinsci.plugins.workflow.libs.Library
 
 @Library('pipelines-shared-library@okapi') _
 
@@ -19,11 +20,6 @@ properties([
   ])
 ])
 
-OkapiTenant tenant = folioDefault.tenants()[params.TENANT_ID as String]
-tenant.okapiConfig.withResetPasswordLink("https://${params.CLUSTER}-${params.NAMESPACE}-${params.TENANT_ID}.${Constants.CI_ROOT_DOMAIN}")
-Configurations config = new Configurations(this, "${params.CLUSTER}-${params.NAMESPACE}-okapi.${Constants.CI_ROOT_DOMAIN}")
-
-
 if (params.REFRESH_PARAMETERS) {
   currentBuild.result = 'ABORTED'
   return
@@ -34,6 +30,10 @@ if (params.CLUSTER == 'folio-testing') {
 }
 
 Logger logger = new Logger(this, env.JOB_BASE_NAME)
+
+OkapiTenant tenant = folioDefault.tenants()[params.TENANT_ID as String]
+tenant.okapiConfig.withResetPasswordLink("https://${params.CLUSTER}-${params.NAMESPACE}-${params.TENANT_ID}.${Constants.CI_ROOT_DOMAIN}")
+Configurations config = new Configurations(this, "${params.CLUSTER}-${params.NAMESPACE}-okapi.${Constants.CI_ROOT_DOMAIN}")
 
 ansiColor('xterm') {
   node(params.AGENT) {
