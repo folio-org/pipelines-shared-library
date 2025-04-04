@@ -114,9 +114,7 @@ ansiColor('xterm') {
 
         stage('[Cypress] Run sanity check') {
           if (params.RUN_SANITY_CHECK) {
-            folioCypressFlow.runWrapper(cypressSanityParameters.getCiBuildId(), false, '', false) {
-              folioCypressFlow.multiThreadRun(cypressSanityParameters)
-            }
+            folioCypressFlow.call(cypressSanityParameters.getCiBuildId(), [cypressSanityParameters])
           }
         }
 

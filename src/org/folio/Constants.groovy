@@ -201,7 +201,8 @@ class Constants {
   static String PSQL_DUMP_BACKUPS_BUCKET_NAME = 'folio-postgresql-backups'
 
   //Tools
-  static String MAVEN_TOOL_NAME = 'maven3-jenkins-slave-all'
+  static String MAVEN_TOOL_NAME = 'maven-3.9.9'
+  static String JAVA_TOOL_NAME = 'amazoncorretto-jdk'
   static String JAVA_LATEST_VERSION = '21'
 
   static String OKAPI_SUPERADMIN_CREDENTIALS_ID = 'okapi-superadmin-credentials'
