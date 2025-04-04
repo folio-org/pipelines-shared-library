@@ -1,12 +1,13 @@
 #!groovy
+import org.folio.jenkins.JenkinsAgentLabel
+import org.folio.jenkins.PodTemplates
 import org.folio.models.InstallRequestParams
-import org.folio.models.OkapiTenantConsortia
 import org.folio.models.RancherNamespace
 import org.folio.models.TenantUi
 import org.folio.rest_v2.Main
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-650-Jenkins-upgrade') _
 
 CONFIG_BRANCH = 'master'
 
@@ -22,10 +23,16 @@ properties([
     folioParameters.loadSample(),
     booleanParam(name: 'RW_SPLIT', defaultValue: false, description: '(Optional) Set true to Enable Read/Write split'),
     folioParameters.branch(),
-    folioParameters.agent(),
     folioParameters.refreshParameters()
   ])
 ])
+
+if (params.REFRESH_PARAMETERS) {
+  currentBuild.result = 'ABORTED'
+  error('DRY RUN BUILD, PARAMETERS REFRESHED!')
+}
+
+PodTemplates podTemplates = new PodTemplates(this)
 
 //Set namespace configuration
 String commitHash = common.getLastCommitHash('platform-complete', params.FOLIO_BRANCH)
@@ -44,78 +51,61 @@ namespace.addDeploymentConfig(CONFIG_BRANCH)
 Main main = new Main(this, namespace.getDomains()['okapi'], namespace.getSuperTenant())
 
 ansiColor('xterm') {
-  if (params.REFRESH_PARAMETERS) {
-    currentBuild.result = 'ABORTED'
-    error('DRY RUN BUILD, PARAMETERS REFRESHED!')
-  }
-  node(params.AGENT) {
-    stage('Ini') {
-      buildName "${namespace.getClusterName()}-${namespace.getNamespaceName()}.${env.BUILD_ID}"
-      buildDescription ""
-    }
+  podTemplates.defaultTemplate {
+    node(JenkinsAgentLabel.DEFAULT_AGENT.getLabel()) {
+      try {
+        stage('Ini') {
+          buildName "${namespace.getClusterName()}-${namespace.getNamespaceName()}.${env.BUILD_ID}"
+          buildDescription ""
+        }
+        stage('Set properties') {
+          namespace.getModules().setInstallJsonObject(main.getInstallJson(params.BASE_TENANT_ID))
+          namespace.setEnableConsortia(true)
 
-    try {
-      stage('Set properties') {
-        namespace.getModules().setInstallJsonObject(main.getInstallJson(params.BASE_TENANT_ID))
-        namespace.setEnableConsortia(true)
-
-        folioDefault.consortiaTenants(namespace.getModules().getInstallJson(), installRequestParams).values().each { tenant ->
-          if (tenant.getIsCentralConsortiaTenant()) {
-            tenant.withTenantUi(tenantUi.clone())
+          folioDefault.consortiaTenants(namespace.getModules().getInstallJson(), installRequestParams).values().each { tenant ->
+            if (tenant.getIsCentralConsortiaTenant()) {
+              tenant.withTenantUi(tenantUi.clone())
+            }
+            tenant.enableFolioExtensions(this, ['consortia'])
+            namespace.addTenant(tenant)
           }
-          namespace.addTenant(tenant)
         }
-      }
 
-      stage('[Helm] Deploy backend') {
-        folioHelm.withKubeConfig(namespace.getClusterName()) {
-          folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getBackendModules())
-          folioHelm.checkDeploymentsRunning(namespace.getNamespaceName(), namespace.getModules().getBackendModules())
+        stage('[Helm] Deploy backend') {
+          folioHelm.withKubeConfig(namespace.getClusterName()) {
+            folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getBackendModules())
+            folioHelm.checkDeploymentsRunning(namespace.getNamespaceName(), namespace.getModules().getBackendModules())
+          }
         }
-      }
 
-      stage('[Rest] Create tenants') {
-        List consortiaInstallJson = namespace.getModules().getInstallJson().findAll { it['id'].contains("consortia") }
-        List consortiaDiscovery = namespace.getModules().getDiscoveryList().findAll { it['srvcId'].contains("consortia") }
-        main.publishDescriptors(consortiaInstallJson)
-        main.publishServiceDiscovery(consortiaDiscovery)
-        namespace.getTenants().each { tenantId, tenant ->
-          main.createTenantFlow(tenant)
+        stage('[Rest] Create tenants') {
+          List consortiaInstallJson = namespace.getModules().getInstallJson().findAll { it['id'].contains("consortia") }
+          List consortiaDiscovery = namespace.getModules().getDiscoveryList().findAll { it['srvcId'].contains("consortia") }
+          main.publishDescriptors(consortiaInstallJson)
+          main.publishServiceDiscovery(consortiaDiscovery)
+          namespace.getTenants().each { tenantId, tenant ->
+            main.createTenantFlow(tenant)
+          }
         }
-      }
 
-      stage('[Rest] Create consortia') {
-        main.setUpConsortia(namespace.getTenants().values().toList())
-      }
+        stage('[Rest] Create consortia') {
+          main.setUpConsortia(namespace.getTenants().values().toList())
+        }
 
-      stage('Build and deploy UI') {
-        Map branches = [:]
-        namespace.getTenants().each { tenantId, tenant ->
-          if (tenant.getTenantUi()) {
-            TenantUi ui = tenant.getTenantUi()
-            branches[tenantId] = {
-              def jobParameters = [
-                tenant_id  : ui.getTenantId(),
-                custom_hash: ui.getHash(),
-                custom_url : "https://${namespace.getDomains()['okapi']}",
-                custom_tag : ui.getTag(),
-                consortia  : tenant instanceof OkapiTenantConsortia
-              ]
-              uiBuild(jobParameters)
-              folioHelm.withKubeConfig(namespace.getClusterName()) {
-                folioHelm.deployFolioModule(namespace, 'ui-bundle', ui.getTag(), false, ui.getTenantId())
+        stage('Build and deploy UI') {
+          Map branches = [:]
+          namespace.getTenants().each { tenantId, tenant ->
+            if (tenant.getTenantUi()) {
+              branches[tenantId] = {
+                folioUI.buildAndDeploy(namespace, tenant)
               }
             }
           }
+          parallel branches
         }
-        parallel branches
-      }
-    } catch (e) {
-      println "Caught exception: ${e}"
-      error(e.getMessage())
-    } finally {
-      stage('Cleanup') {
-        cleanWs notFailBuild: true
+      } catch (e) {
+        println "Caught exception: ${e}"
+        error(e.getMessage())
       }
     }
   }
