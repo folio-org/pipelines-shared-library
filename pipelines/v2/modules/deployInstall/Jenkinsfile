@@ -1,12 +1,14 @@
 package v2.modules.deployInstall
 
 import org.folio.models.EurekaNamespace
+import org.folio.models.EurekaTenant
 import org.folio.models.FolioInstallJson
 import org.folio.models.RancherNamespace
 import org.folio.models.module.EurekaModule
 import org.folio.models.module.FolioModule
 import org.folio.rest_v2.PlatformType
 import org.folio.rest_v2.eureka.Eureka
+import org.folio.rest_v2.eureka.kong.Tenants
 import org.folio.utilities.Logger
 import org.jenkinsci.plugins.pipeline.modeldefinition.Utils
 import org.jenkinsci.plugins.workflow.libs.Library
@@ -136,10 +138,16 @@ ansiColor('xterm') {
             logger.info("Skip Update/install modules stage")
             Utils.markStageSkippedForConditional('Update/install modules')
           } else {
-
             Eureka eureka = new Eureka(this, namespace.generateDomain('kong'), namespace.generateDomain('keycloak')) //TODO: Move to the Namespace
+
+            Map<String, String> updatedAppInfoMap = eureka.updateAppDescriptorFlow((namespace as EurekaNamespace).getApplications(), beUpdated.getInstallJsonObject()[0] as EurekaModule)
+
             eureka.registerModulesFlow(beUpdated.getInstallJsonObject())
 
+            logger.info('Enabling Application Descriptor with Updated Module Version for Tenants in Namespace')
+            namespace.getTenants().values().each {tenant ->
+              Tenants.get(eureka.getKong()).updateApplications(tenant as EurekaTenant, updatedAppInfoMap.values().toList())
+            }
           }
         }
       } catch (e) {

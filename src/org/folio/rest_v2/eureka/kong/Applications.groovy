@@ -1,7 +1,6 @@
 package org.folio.rest_v2.eureka.kong
 
 import com.cloudbees.groovy.cps.NonCPS
-import org.folio.models.EurekaTenant
 import org.folio.models.module.EurekaModule
 import org.folio.models.module.FolioModule
 import org.folio.rest_v2.eureka.Keycloak
@@ -21,7 +20,7 @@ class Applications extends Kong{
     this(kong.context, kong.kongUrl, kong.keycloak, kong.getDebug())
   }
 
-  String registerApplication(def jsonAppDefinition) {
+  String registerApplication(Map jsonAppDefinition) {
     logger.info("Register application \"${jsonAppDefinition.id}\"")
 
     Map<String, String> headers = getMasterHttpHeaders()
@@ -39,7 +38,7 @@ class Applications extends Kong{
           ${contentStr}""")
 
         // Check twice
-        def app = getRegisteredApplication(jsonAppDefinition.id as String)
+        def app = getRegisteredApplicationDescriptors(jsonAppDefinition.id as String)
         return app.id
       } else {
         logger.error("""
@@ -61,7 +60,7 @@ class Applications extends Kong{
     return content.id
   }
 
-  def getRegisteredApplication(String appId, boolean fullInfo = false){
+  def getRegisteredApplicationDescriptors(String appId, boolean fullInfo = false){
     List apps = getRegisteredApplications("id==$appId", fullInfo)
 
     if (apps.size() == 0)
@@ -94,6 +93,29 @@ class Applications extends Kong{
     }
   }
 
+  /**
+   * Delete registered application
+   * @param appId
+   * @return this instance of Applications
+   */
+  Applications deleteRegisteredApplication(String appId) {
+    logger.info("Delete registered application ${appId} ...")
+
+    Map<String, String> headers = getMasterHttpHeaders()
+
+    restClient.delete(generateUrl("/applications/${appId}"), headers)
+
+    logger.info("Registered Application ${appId} is deleted.")
+
+    return this
+  }
+
+  /**
+   * Register modules (discovery information)
+   * @param modules list of modules to register
+   * @param skipExists if true, skip already registered (409 response code) error
+   * @return this instance of Applications
+   */
   Applications registerModules(List<? extends FolioModule> modules, boolean skipExists = false) {
     logger.info("Register/discovery modules $modules ...")
 
@@ -138,11 +160,26 @@ class Applications extends Kong{
     return this
   }
 
+  /**
+   * Check if module is registered
+   * @param module
+   * @return true if module is registered, false otherwise
+   */
+  boolean isModuleRegistered(EurekaModule module) {
+    return getRegisteredModulesDiscovery("name==${module.name}").size() > 0
+  }
+
   List<EurekaModule> getRegisteredModules(int limit = 500) {
     return getRegisteredModulesDiscovery("", limit)
       .collect { new EurekaModule().loadModuleDetails(it.id as String, 'enabled') }
   }
 
+  /**
+   * Get registered modules
+   * @param query search query (leave empty for all)
+   * @param limit limit of search results (default 500)
+   * @return json with registered modules discovery information
+   */
   List<Map> getRegisteredModulesDiscovery(String query = "", int limit = 500) {
     logger.info("Get registered modules${query ? " with query=${query}" : ""}...")
 
@@ -164,79 +201,22 @@ class Applications extends Kong{
   }
 
   /**
-   * Upgrade Applications (switch to new version) on Tenant
-   * @param tenant EurekaTenant object to upgrade application for
-   * @param appsToEnableMap Map<AppName, AppID> of Applications to enable on Tenant
+   * Delete module registration (discovery information)
+   * @param module
+   * @return this instance of Applications
    */
-  void upgradeTenantApplication(EurekaTenant tenant, Map<String, String> appsToEnableMap) {
-    // Get Authorization Headers for Master Tenant from Keycloak
+  Applications deleteRegisteredModule(EurekaModule module) {
+    logger.info("Deleting module registration (discovery information) for module ${module.getId()} ...")
+
     Map<String, String> headers = getMasterHttpHeaders()
 
-    // URL for PUT request
-    String url = generateUrl("/entitlements")
-
-    // Request Body for PUT request
-    Map requestBody = [
-      'tenantId': tenant.uuid,
-      'applications': appsToEnableMap.values()
-    ]
-
-    logger.info("Performing Application Upgrade for \"${tenant.tenantName}\" Tenant...")
-
-    restClient.put(url, requestBody, headers)
-
-    logger.info("We've successfully upgraded Application for \"${tenant.tenantName}\" Tenant.")
-  }
-
-  /**
-   * Delete Module Discovery for Registered Application
-   * @param moduleId
-   */
-  void deleteModuleDiscovery(String moduleId) {
-    Map<String, String> headers = getMasterHttpHeaders()
-
-    // URL for DELETE request
-    String url = generateUrl("/modules/${moduleId}/discovery")
-
-    logger.info("Deleting Module Discovery for ${moduleId} module version...")
+    String url = generateUrl("/modules/${module.getId()}/discovery")
 
     restClient.delete(url, headers)
 
-    logger.info("Module Discovery is deleted for ${moduleId}.")
-  }
+    logger.info("Module registration has been deleted for ${module.getId()}.")
 
-  /**
-   * Delete Registered Application
-   * @param appId
-   */
-  void deleteRegisteredApplication(String appId) {
-    logger.info("Delete registered application ${appId} ...")
-
-    Map<String, String> headers = getMasterHttpHeaders()
-
-    restClient.delete(generateUrl("/applications/${appId}"), headers)
-
-    logger.info("Registered Application ${appId} is deleted.")
-  }
-
-  /**
-   * Search Module Discovery by query
-   * @param query search query (leave empty for all)
-   * @param limit limit of search results (default 300)
-   * @return Map of Module Discoveries
-   */
-  Map searchModuleDiscovery(String query = '', int limit = 300) {
-    logger.info("Get Module Discoveries${query ? " with query=${query}" : ""}...")
-
-    Map<String, String> headers = getMasterHttpHeaders()
-
-    String url = generateUrl("/modules/discovery?${query ? "query=$query" : ""}&limit=$limit")
-
-    Map response = restClient.get(url, headers).body as Map
-
-    logger.info("Got Module Discoveries successfully.")
-
-    return response
+    return this
   }
 
   @NonCPS

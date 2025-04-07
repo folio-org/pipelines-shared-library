@@ -1,6 +1,7 @@
 package org.folio.models
 
 import com.cloudbees.groovy.cps.NonCPS
+import org.folio.models.application.ApplicationList
 import org.folio.models.module.EurekaModule
 
 /**
@@ -103,6 +104,23 @@ class EurekaTenantConsortia extends EurekaTenant {
     }
 
     return this
+  }
+
+  /**
+   * Assigns applications to the tenant based on specific conditions.
+   * This method filters the provided applications and assigns them to the tenant.
+   *
+   * @param apps The list of applications to be assigned.
+   * @return The EurekaTenantConsortia object for method chaining.
+   */
+  @Override
+  EurekaTenantConsortia assignApplications(ApplicationList apps){
+    ApplicationList appsToAssign = new ApplicationList()
+    appsToAssign.addAll(apps)
+
+    appsToAssign.removeIf {app -> (app.name == "app-consortia-manager" || app.name == "app-linked-data") && !isCentralConsortiaTenant  }
+
+    return super.assignApplications(appsToAssign) as EurekaTenantConsortia
   }
 
   @NonCPS

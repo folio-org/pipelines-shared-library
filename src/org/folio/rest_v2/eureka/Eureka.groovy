@@ -4,8 +4,11 @@ import hudson.util.Secret
 import org.folio.Constants
 import org.folio.models.EurekaTenant
 import org.folio.models.EurekaTenantConsortia
+import org.folio.models.FolioInstallJson
 import org.folio.models.Role
 import org.folio.models.User
+import org.folio.models.application.Application
+import org.folio.models.application.ApplicationList
 import org.folio.models.module.EurekaModule
 import org.folio.models.module.FolioModule
 import org.folio.models.module.ModuleType
@@ -39,13 +42,11 @@ class Eureka extends Base {
 
     kong.keycloak.defineTTL(tenant.tenantId, 3600)
 
-    List<String> entitledApps = Tenants.get(kong).getEnabledApplications(tenant).keySet().toList().collect { appId ->
-      appId.split("-\\d+\\.\\d+\\.\\d+")[0]
-    }
+    ApplicationList entitledApps = Tenants.get(kong).getEnabledApplications(tenant)
 
-    Tenants.get(kong).enableApplicationsOnTenant(
+    Tenants.get(kong).enableApplications(
       tenant
-      , tenant.applications.values().toList().findAll{app -> !(entitledApps.contains(app.split("-\\d+\\.\\d+\\.\\d+")[0]))}
+      , (tenant.applications.findAll{app -> entitledApps.contains(app) } as ApplicationList).ids()
     )
 
     context.folioTools.stsKafkaLag(cluster, namespace, tenant.tenantId)
@@ -130,51 +131,22 @@ class Eureka extends Base {
     return this
   }
 
-  Map<String, String> registerApplications(Map<String, String> appNames, Map<String, String> modules) {
-    Map<String, String> apps = [:]
+  ApplicationList generateApplications(Map<String, String> appNames, FolioInstallJson modules) {
+    ApplicationList apps = []
 
     appNames.each { appName, appBranch ->
-      def jsonAppDescriptor = context.folioEurekaAppGenerator.generateApplicationDescriptor(appName, modules, appBranch, getDebug())
-
-      apps.put(appName, Applications.get(kong).registerApplication(jsonAppDescriptor))
+      apps.add(new Application(context.folioEurekaAppGenerator.generateApplicationDescriptor(appName, modules, appBranch, getDebug()) as Map))
     }
 
     return apps
   }
 
-  Eureka assignAppToTenants(List<EurekaTenant> tenants, Map<String, String> registeredApps) {
-    tenants.each { tenant ->
-      tenant.applications = registeredApps.clone() as Map
-
-      //TODO: Refactoring is needed!!! Utilization of extension should be applied.
-      if (!(tenant instanceof EurekaTenantConsortia)) {
-        tenant.applications.remove("app-consortia")
-        tenant.applications.remove("app-consortia-manager")
-      } else if (!tenant.isCentralConsortiaTenant) {
-        tenant.applications.remove("app-consortia-manager")
-        tenant.applications.remove("app-linked-data")
-      }
-
-      if (!tenant.isSecureTenant)
-        tenant.applications.remove("app-requests-mediated-ui")
-    }
-
-    return this
-  }
-
-  Map<String, String> registerApplicationsFlow(Map<String, String> appNames
-                                               , Map<String, String> modules
-                                               , List<EurekaTenant> tenants) {
-
-    Map<String, String> registeredApps = registerApplications(appNames, modules)
-
-    assignAppToTenants(tenants, registeredApps)
-
-    return registeredApps
+  ApplicationList registerApplicationsFromScratch(Map<String, String> apps, FolioInstallJson modules) {
+    return generateApplications(apps, modules).each {app -> Applications.get(kong).registerApplication(app.descriptor) }
   }
 
   Eureka registerModulesFlow(List<? extends FolioModule> modules) {
-    List<String> alreadyRegistered = Applications.get(kong).getRegisteredModulesDiscovery().collect { it.id as String }
+    List<EurekaModule> alreadyRegistered = Applications.get(kong).getRegisteredModules()
 
     Applications.get(kong).registerModules(
       modules
@@ -188,7 +160,7 @@ class Eureka extends Base {
   List<String> getApplicationModuleIds(Map<String, String> apps = null) {
     List<String> modules = []
     apps?.values()?.each { appId ->
-      Applications.get(kong).getRegisteredApplication(appId).modules.each { module ->
+      Applications.get(kong).getRegisteredApplicationDescriptors(appId).modules.each { module ->
         if (!modules.contains(module.id))
           modules.add(module.id)
       }
@@ -255,10 +227,12 @@ class Eureka extends Base {
    * @return Map of EurekaTenant objects.
    */
   Map<String, EurekaTenant> getExistedTenantsFlow(String namespace) {
-    Map<String, EurekaTenant> tenants = Tenants.get(kong).getTenants().collectEntries {
+    return Tenants.get(kong).getTenants().collectEntries {
       tenant ->
         tenant.withAWSSecretStoragePathName(namespace)
           .withClientSecret(retrieveTenantClientSecretFromAWSSSM(tenant))
+
+        tenant.withApplications(Tenants.get(kong).getEnabledApplicationOnTenant(tenant))
 
         TenantConsortiaConfiguration consortiaConfig = Consortia.get(kong).getTenantConsortiaConfiguration(tenant)
 
@@ -271,66 +245,18 @@ class Eureka extends Base {
           return [tenant.tenantName, tenant]
         }
     }
-
-    // Get enabled (entitled) applications for configured Tenants
-    tenants.each { tenantName, tenant ->
-
-      // Get applications where the passed module exists
-      Map<String, Map> applications = Tenants.get(kong).getEnabledApplications(tenant, "", true)
-
-      // Update tenant application list
-      tenant.applications = applications.collectEntries { appId, entitlement ->
-        [appId.split("-\\d+\\.\\d+\\.\\d+")[0], appId]
-      } as Map<String, String>
-
-      // Update tenant module list
-      applications.each { appId, entitlement ->
-        entitlement.modules.each {
-          moduleId -> tenant.getModules().addModule(moduleId as String, 'enable')
-        }
-      }
-    }
-
-    return tenants
   }
 
   /**
-   * Get existed tenants where specific module is resides.
-   * @param module Module Name to filter.
+   * Get existed tenants for a specific module.
+   * @param namespace Namespace of the module.
+   * @param moduleName Name of the module.
    * @return Map of EurekaTenant objects.
    */
-  Map<String, EurekaTenant> getExistedTenantsForModule(EurekaModule module, String namespace) {
+  Map<String, EurekaTenant> getExistedTenantsForModule(String namespace, String moduleName) {
     return getExistedTenantsFlow(namespace).findAll {tenantName, tenant ->
-
-      // Get applications where the passed module exists
-      Map<String, Map> applications = Tenants.get(kong).getEnabledApplications(tenant, "", true)
-        .findAll{appId, entitlement ->
-          entitlement.modules.findAll{ moduleId -> moduleId =~ /${module.getName()}-\d+\..*/ }.size() > 0
-        }
-
-      tenant.applications = tenant.applications.findAll {appName, appId -> applications.containsKey(appId)}
-      tenant.getModules().addModule(module.getId())
-
-      return tenant.applications.size() > 0
+      tenant.applications.byModuleName(moduleName)
     }
-  }
-
-  /**
-   * Get Existed Applications on Environment Namespace.
-   * @return Map of Application Name and Application ID.
-   */
-  static Map<String, String> getEnabledApplications(Map<String, EurekaTenant> tenants) {
-    /** Enabled Applications in Environment */
-    Map<String, String> enabledAppsMap = [:]
-
-    // Get enabled applications from EurekaTenant List
-    tenants.values().each { tenant ->
-      tenant.applications.each { appName, appId ->
-        enabledAppsMap.put(appName, appId)
-      }
-    }
-
-    return enabledAppsMap
   }
 
   /**
@@ -340,36 +266,24 @@ class Eureka extends Base {
    * @param module EurekaModule object.
    * @return Map<AppName, AppID> of updated applications.
    */
-  Map<String, String> updateAppDescriptorFlow(Map<String, String> applications, EurekaModule module) {
-    /** Enabled Application Descriptors Map */
-    Map<String, Object> appDescriptorsMap = [:]
+  //TODO: Switch to the ApplicationList return type
+  Map<String, String> updateAppDescriptorFlow(ApplicationList applications, EurekaModule module) {
+    ApplicationList appWithDescriptors = new ApplicationList()
 
-    //Get application descriptors for enabled applications in namespace
-    applications.each { appName, appId ->
-      def appDescriptor = Applications.get(kong).getRegisteredApplication(appId, true)
-      if (appDescriptor['modules'].any { it['name'] == module.name }) {
-        appDescriptorsMap.put(appId, appDescriptor)
-      }
+    applications.each { app ->
+      appWithDescriptors.add(new Application(Applications.get(kong).getRegisteredApplicationDescriptors(app.id, true) as Map))
     }
 
-    /** Updated Application Info, Map<AppName, AppID> */
     Map<String, String> updatedAppInfoMap = [:]
 
-    // Get Application Descriptor Updated with New Module Version
-    appDescriptorsMap.each { appId, descriptor ->
-      // Get Incremental Number for New Application Version
-      String incrementalNumber = descriptor['version'].toString().tokenize('.').last().toInteger() + 2
+    appWithDescriptors.each { app ->
 
-      // Update existing Application Descriptor with New Module Version
-      Map updatedAppDescriptor = getUpdatedApplicationDescriptor(descriptor as Map, module, incrementalNumber)
+      String incrementalNumber = app.build + 1
 
-      // Print Updated Application Descriptor for Debugging
-      //logger.info("Updated Application Descriptor to register:\n${prettyPrint(toJson(updatedAppDescriptor))}")
+      Map updatedAppDescriptor = getUpdatedApplicationDescriptor(app.descriptor, module, incrementalNumber)
 
-      // Register Updated Application Descriptor to Environment
       Applications.get(kong).registerApplication(updatedAppDescriptor)
 
-      // Collect Updated Application information to Map<AppName, AppID>
       updatedAppInfoMap.put(updatedAppDescriptor['name'] as String, updatedAppDescriptor['id'] as String)
     }
 
@@ -383,6 +297,7 @@ class Eureka extends Base {
    * @param buildNumber Build Number for new Application Version
    * @return Updated Application Descriptor as a Map
    */
+  //TODO: Refactoring needed
   Map getUpdatedApplicationDescriptor(Map appDescriptor, EurekaModule module, String buildNumber) {
     // Update Application Descriptor with incremented Application Version
     String currentAppVersion = appDescriptor.version
@@ -424,38 +339,20 @@ class Eureka extends Base {
   }
 
   /**
-   * Enable Applications on Tenants Flow.
-   * @param tenants Map of EurekaTenant objects.
-   * @param appsToEnableMap Map<AppName, AppID> of registered application information.
-   */
-  void enableApplicationsOnTenantsFlow(Map<String, EurekaTenant> tenants, Map<String, String> appsToEnableMap) {
-    tenants.each { tenantName, tenant ->
-      // Upgrade Applications on Tenant
-      Applications.get(kong).upgradeTenantApplication(tenant, appsToEnableMap)
-    }
-  }
-
-  /**
    * Remove Stale Resources Flow.
    * @param applications Map of enabled applications in namespace.
    * @param updatedApplications Map of updated applications in namespace.
    * @param module EurekaModule object.
    */
-  void removeStaleResourcesFlow(Map<String, String> configuredApps, Map<String, String> updatedApplications, EurekaModule module) {
-    // Remove Previous Application Descriptor with Stale Module Version
-    configuredApps.each { appName, appId ->
-      if (updatedApplications.containsKey(appName)) {
+  //TODO: Remove this method
+  void removeStaleResourcesFlow(ApplicationList configuredApps, Map<String, String> updatedApplications, EurekaModule module) {
+    configuredApps.each { app ->
+      if (updatedApplications.containsKey(app.name)) {
 
-        // Get Previous Module Version Discovery removed
-        Applications.get(kong).searchModuleDiscovery("name==${module.name}")['discovery']?.each { moduleDiscovery ->
-          if (moduleDiscovery['id'] != module.id) { // Remove only for the previous module versions
-            Applications.get(kong).deleteModuleDiscovery(moduleDiscovery['id'] as String)
-          }
-        }
+        if(Applications.get(kong).isModuleRegistered(module))
+          Applications.get(kong).deleteRegisteredModule(module)
 
-        // Delete Application Descriptor
-        Applications.get(kong).deleteRegisteredApplication(appId)
-
+        Applications.get(kong).deleteRegisteredApplication(app.id)
       }
     }
   }
@@ -465,22 +362,17 @@ class Eureka extends Base {
    * @param updatedApplications Map of updated applications in namespace.
    * @param module EurekaModule object.
    */
+  //TODO: Remove this method
   void removeResourcesOnFailFlow(Map<String, String> updatedApplications, EurekaModule module) {
     if (updatedApplications.isEmpty()) {
       logger.info("No updated applications found to remove resources.")
     } else {
       logger.info("Removing resources for failed module update...")
 
-      // Remove Updated Application Descriptor with New Module Version
       updatedApplications.each { appName, appId ->
-        // Get Updated Module Discovery removed
-        Applications.get(kong).searchModuleDiscovery("name==${module.name}")['discovery']?.each { moduleDiscovery ->
-          if (moduleDiscovery['id'] == module.id) { // Remove only for the updated module versions
-            Applications.get(kong).deleteModuleDiscovery(moduleDiscovery['id'] as String)
-          }
-        }
+        if(Applications.get(kong).isModuleRegistered(module))
+          Applications.get(kong).deleteRegisteredModule(module)
 
-        // Delete Application Descriptor
         Applications.get(kong).deleteRegisteredApplication(appId)
 
         logger.info("Removed resources for failed module update: ${appName}")

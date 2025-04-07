@@ -1,6 +1,7 @@
 import org.folio.Constants
 import org.folio.models.EurekaNamespace
 import org.folio.rest_v2.eureka.Eureka
+import org.folio.rest_v2.eureka.kong.Tenants
 import org.folio.utilities.Logger
 import org.folio.models.module.EurekaModule
 
@@ -175,8 +176,10 @@ def putModuleDescriptorToRegistry(Logger logger, EurekaModule module) {
 def getTenantsWithModule(Logger logger, Eureka eureka, EurekaModule module, EurekaNamespace namespace) {
   logger.info('Getting Application Tenants with Module')
 
-  eureka.getExistedTenantsForModule(module, "${namespace.getClusterName()}-${namespace.getNamespaceName()}")
-    .values().each {namespace.addTenant(it)}
+  eureka.getExistedTenantsForModule("${namespace.getClusterName()}-${namespace.getNamespaceName()}", module.getName())
+          .values().each {namespace.addTenant(it)}
+
+  namespace.tenants.values().each {it.getModules().addModule(module)}
 
   if(!(namespace.tenants))
     throw new RuntimeException("There are no tenants with module ${module.getName()}")
@@ -204,7 +207,9 @@ def updateModuleVersionFlow(Logger logger, Eureka eureka, EurekaModule module, E
     deployAppModuleHelm(logger, eureka, module, namespace, updatedAppInfoMap)
 
     logger.info('Enabling Application Descriptor with Updated Module Version for Tenants in Namespace')
-    eureka.enableApplicationsOnTenantsFlow(namespace.tenants, updatedAppInfoMap)
+    namespace.getTenants().values().each {tenant ->
+      Tenants.get(eureka.getKong()).updateApplications(tenant, updatedAppInfoMap.values().toList())
+    }
 
     logger.info('Removing Stale Application Descriptor after Module Update')
     eureka.removeStaleResourcesFlow(namespace.applications, updatedAppInfoMap, module)
