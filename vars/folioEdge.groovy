@@ -73,7 +73,7 @@ void renderEphemeralPropertiesEureka(RancherNamespace namespace) {
     if (tenant_id) {
       common.logger.info("Binding tenant: " + tenant_id)
       def tenant = folioDefault.tenants()[tenant_id]
-      users += tenant_id.toString() + '=' + tenant_info.getAdminUser().getUsername() + ',' + tenant_info.getAdminUser().getPasswordPlainText() + '\n'
+      users += tenant_id.toString() + '=' + 'edge_admin' + ',' + 'admin' + '\n'
       tenants.add(tenant_id)
       common.logger.info("Tenant: " + tenant_id + " bind complete.")
     }
@@ -89,19 +89,8 @@ void renderEphemeralPropertiesEureka(RancherNamespace namespace) {
     String institutionalUsers = ''
     if (edgeConfig[(module.name)]['tenants']) {
       edgeConfig[(module.name)]['tenants'].each { institutional ->
-        if (institutional.tenant == 'default') {
-          namespace.tenants.each { tenantName, tenant_info ->
-            institutionalUsers += "${tenantName}=${institutional.username},${institutional.password}\n"
-          }
-        } else {
-          tenants.add(institutional.tenant)
-          institutionalUsers += "${institutional.tenant}=${institutional.username},${institutional.password}\n"
-        }
-      }
-      if (module.name == 'edge-oai-pmh') {
-        namespace.getTenants().each { tenant_id, tenant ->
-          users += tenant_id.toString() + '=' + edgeConfig['edge-oai-pmh']['tenants'][0]['username'] + ',' + edgeConfig['edge-oai-pmh']['tenants'][0]['password'] + '\n'
-        }
+        tenants.contains(institutional.tenant) ? null : tenants.add(institutional.tenant)
+        institutionalUsers += "${institutional.tenant}=${institutional.username},${institutional.password}\n"
       }
       LinkedHashMap config_data = [edge_tenants: "${tenants.join(",")}", edge_mappings: "${mappings.getAt(0)}", edge_users: users + institutionalUsers, institutional_users: '']
       tools.steps.writeFile file: "${module.name}-ephemeral-properties", text: (new StreamingTemplateEngine().createTemplate(config_template).make(config_data)).toString()
