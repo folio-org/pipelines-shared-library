@@ -303,7 +303,7 @@ void call(CreateNamespaceParameters args) {
           , namespace.getClusterName()
           , namespace.getNamespaceName()
           , namespace.getEnableConsortia()
-          , args.dataset // Set this option true, when users & groups migration is required.
+          , false // Set this option true, when users & groups migration is required.
         )
       }
     }
