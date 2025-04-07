@@ -14,7 +14,7 @@ properties([
     folioParameters.cluster(),
     folioParameters.namespace(),
     folioParameters.configType(),
-    string(name: 'RDS_SNAPSHOT_NAME', defaultValue: 'sunflower-clean-24-03-2025', description: 'RDS snapshot name'),
+    string(name: 'RDS_SNAPSHOT_NAME', defaultValue: 'folio-general-dataset-april-2025-all-users-clean', description: 'RDS snapshot name'),
     booleanParam(name: 'CONSORTIA', defaultValue: false, description: '(Optional) Set to true to enable consortium'),
     booleanParam(name: 'SPLIT_FILES', defaultValue: true, description: '(Optional) Set true to enable split-files functionality'),
     booleanParam(name: 'RW_SPLIT', defaultValue: false, description: '(Optional) Set to true to enable Read/Write split'),
