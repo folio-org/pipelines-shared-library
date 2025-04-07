@@ -1,12 +1,15 @@
 package org.folio.models.parameters
 
 import com.cloudbees.groovy.cps.NonCPS
+import org.folio.rest_v2.PlatformType
 
 /**
  * Represents parameters for creating a namespace in a Kubernetes cluster with options for configuring
  * various services and features within the FOLIO ecosystem.
  */
 class CreateNamespaceParameters implements Cloneable {
+
+  PlatformType platform = PlatformType.OKAPI
 
   String clusterName
 
@@ -28,6 +31,8 @@ class CreateNamespaceParameters implements Cloneable {
 
   boolean splitFiles
 
+  boolean ecsCCL
+
   boolean rwSplit
 
   boolean greenmail
@@ -35,6 +40,24 @@ class CreateNamespaceParameters implements Cloneable {
   boolean mockServer
 
   boolean rtr
+
+  boolean hasSecureTenant
+
+  String secureTenantId
+
+  boolean uiBuild
+
+  boolean dataset = false
+
+  String dmSnapshot
+
+  //TODO: remove after pipeline refactoring. Just utilize it. Use this only in the main pipeline for developers
+  // as a select-simplicity approach. Don't use it, and do not include it in the underlying
+  // base pipeline or step-separated pipelines.
+  @Deprecated
+  String applicationSet = 'Complete'
+
+  Map<String,String> applications = [:]
 
   List<String> folioExtensions = []
 
@@ -55,6 +78,12 @@ class CreateNamespaceParameters implements Cloneable {
   boolean namespaceOnly = false
 
   String worker
+
+  String keycloakVersion = 'latest'
+
+  String kongVersion = 'latest'
+
+  String type = 'full'
 
   private CreateNamespaceParameters() {}
 
@@ -91,6 +120,16 @@ class CreateNamespaceParameters implements Cloneable {
      */
     Builder(CreateNamespaceParameters existingParameters) {
       this.parameters = existingParameters.clone()
+    }
+
+    /**
+     * Define platform type within the namespace.
+     * @param platformType. The type of platform to use, e.g., OKAPI or EUREKA.
+     * @return Builder instance for method chaining.
+     */
+    Builder platform(PlatformType platformType) {
+      parameters.platform = platformType
+      return this
     }
 
     /**
@@ -204,6 +243,16 @@ class CreateNamespaceParameters implements Cloneable {
     }
 
     /**
+     * Enables or disables ECS_CCL feature within the namespace.
+     * @param ecsCCL `true` to enable ECS_CCL features; `false` to disable.
+     * @return Builder instance for method chaining.
+     */
+    Builder ecsCCL(boolean ecsCCL) {
+      parameters.ecsCCL = ecsCCL
+      return this
+    }
+
+    /**
      * Enables or disables read-write splitting for database access.
      * This can improve performance in read-heavy environments.
      * @param rwSplit `true` to enable read-write splitting; `false` to disable.
@@ -243,6 +292,59 @@ class CreateNamespaceParameters implements Cloneable {
      */
     Builder rtr(boolean rtr) {
       parameters.rtr = rtr
+      return this
+    }
+
+    /**
+     * Activate or not secure tenant
+     * @param has `true` to activate security on tenant secureTenantId
+     * @return Builder instance for method chaining.
+     */
+    Builder hasSecureTenant(boolean has) {
+      parameters.hasSecureTenant = has
+      return this
+    }
+
+    /**
+     * Defines the id of the tenant to secure
+     * @param id The id of the tenant to secure
+     * @return Builder instance for method chaining.
+     */
+    Builder secureTenantId(String id) {
+      parameters.secureTenantId = id
+      return this
+    }
+
+    /**
+     * Defines the type of environment to be used.
+     * @param dataset `true` to enable BF like dataset; `false` to disable.
+     * @return
+     */
+
+    Builder dataset(boolean dataset) {
+      parameters.dataset = dataset
+      return this
+    }
+
+
+    /**
+     * Specifies the application list for Eureka platform
+     * @param list The list of application-branch map to entitle.
+     * @return Builder instance for method chaining.
+     */
+    Builder applications(Map map) {
+      parameters.applications = map
+      return this
+    }
+
+    /**
+     * Specifies the application set for Eureka platform
+     * @param set The name of application set.
+     * @return Builder instance for method chaining.
+     */
+    @Deprecated
+    Builder applicationSet(String set) {
+      parameters.applicationSet = set
       return this
     }
 
@@ -335,6 +437,41 @@ class CreateNamespaceParameters implements Cloneable {
      */
     Builder worker(String worker) {
       parameters.worker = worker
+      return this
+    }
+
+    /**
+     * Specifies whether UI  bundle should be build.
+     * This allows to exclude\include UI-bundle
+     * @param uiBuild default true.
+     * @return decision for UI.
+     */
+    Builder uiBuild(boolean uiBuild) {
+      parameters.uiBuild = uiBuild
+      return this
+    }
+
+    Builder kongVersion(String kongVersion) {
+      parameters.kongVersion = kongVersion
+      return this
+    }
+
+    Builder keycloakVersion(String keycloakVersion) {
+      parameters.keycloakVersion = keycloakVersion
+      return this
+    }
+
+    Builder type(String type) {
+      parameters.type = type
+      return this
+    }
+    /**
+     * Specifies the snapshot of data migration to be used.
+     * @param dmSnapshot The snapshot of data migration to use.
+     * @return Builder instance for method chaining.
+     */
+    Builder dmSnapshot(String dmSnapshot) {
+      parameters.dmSnapshot = dmSnapshot
       return this
     }
 

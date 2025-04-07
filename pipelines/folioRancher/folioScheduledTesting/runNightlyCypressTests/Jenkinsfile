@@ -66,6 +66,7 @@ CreateNamespaceParameters namespaceFromBranchParams = namespaceBaseParams.toBuil
   .consortia(true)
   .linkedData(true)
   .splitFiles(true)
+  .ecsCCL(false)
   .rtr(false)
   .build()
 

@@ -3,6 +3,10 @@ package org.folio.rest
 import org.folio.utilities.HttpClient
 import org.folio.utilities.Tools
 
+@Deprecated
+/**
+ * Functions from this class should be or already moved to other places
+ */
 class GitHubUtility implements Serializable {
 
   private Object steps
@@ -56,6 +60,16 @@ class GitHubUtility implements Serializable {
   }
 
   /**
+   * List of additional Eureka modules
+   * @param repository
+   * @param branch
+   * @return
+   */
+  List getEurekaList(String repository, String branch) {
+    return getJsonModulesList(repository, branch, 'eureka-platform.json')
+  }
+
+  /**
    *  Parsing the install.json file and creating a map of module names and versions.
    * @param install_json
    * @return
@@ -75,5 +89,9 @@ class GitHubUtility implements Serializable {
 
   static Map getEdgeModulesMap(Map install_map) {
     return install_map.findAll { it.key.startsWith("edge-") }
+  }
+
+  static Map getMgrModulesMap(Map install_map) {
+    return install_map.findAll { it.key.startsWith("mgr-*") }
   }
 }

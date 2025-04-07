@@ -45,7 +45,7 @@ variable "os_instance_type" {
 
 variable "os_ebs_volume_size" {
   type    = number
-  default = 200
+  default = 400
 }
 
 variable "os_username" {

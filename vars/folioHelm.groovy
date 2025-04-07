@@ -1,4 +1,5 @@
 import org.folio.Constants
+import org.folio.models.EurekaNamespace
 import org.folio.models.RancherNamespace
 import org.folio.models.module.FolioModule
 import org.folio.utilities.Logger
@@ -39,7 +40,11 @@ void install(String release_name, String namespace, String values_path, String c
 }
 
 void upgrade(String release_name, String namespace, String values_path, String chart_repo, String chart_name) {
-  sh "helm upgrade --install ${release_name} --namespace=${namespace} ${valuesPathOption(values_path)} ${chart_repo}/${chart_name}"
+  if (release_name.startsWith("mgr-")) {
+    sh "helm upgrade --install ${release_name} --namespace=${namespace} ${valuesPathOption(values_path)} ${chart_repo}/${chart_name} --wait"
+  } else {
+    sh "helm upgrade --install ${release_name} --namespace=${namespace} ${valuesPathOption(values_path)} ${chart_repo}/${chart_name}"
+  }
 }
 
 void deployFolioModule(RancherNamespace ns, String moduleName, String moduleVersion, boolean customModule = false, String tenantId = ns.defaultTenantId) {
@@ -51,6 +56,9 @@ void deployFolioModule(RancherNamespace ns, String moduleName, String moduleVers
       valuesFilePath = generateModuleValues(ns, moduleName, moduleVersion, ns.domains['okapi'], customModule)
       break
     case ~/mod-.*/:
+      valuesFilePath = generateModuleValues(ns, moduleName, moduleVersion, "", customModule)
+      break
+    case ~/mgr-.*/:
       valuesFilePath = generateModuleValues(ns, moduleName, moduleVersion, "", customModule)
       break
     case ~/edge-.*/:
@@ -172,7 +180,7 @@ void checkDeploymentsRunning(String ns, List<FolioModule> deploymentsList) {
 
   boolean allDeploymentsUpdated = false
   int timer = 0
-  int maxTime = 20 * 60 // 20 minutes in seconds
+  int maxTime = 30 * 60 // 30 minutes in seconds
 
   try {
     while (!allDeploymentsUpdated) {
@@ -223,6 +231,9 @@ void checkDeploymentsRunning(String ns, List<FolioModule> deploymentsList) {
         println("Unfinished deployments: ${unfinishedDeployments}")
         println("Rechecking in 30 seconds...")
         sleep(time: 30, unit: 'SECONDS')
+          unfinishedDeployments.contains('mod-agreements') ? kubectl.cleanUpAgreementsFedLocks(ns, timer) : println("-=No mod-agreements fed locks to clean up=-") //Would say that it's a workaround, but it's not)))
+          unfinishedDeployments.contains('mod-service-interaction') ? kubectl.cleanUpAgreementsFedLocks(ns, timer, 'mod-service-interaction') : println("-=No mod-service-interaction fed locks to clean up=-")
+          unfinishedDeployments.contains('mod-serials-management') ? kubectl.cleanUpAgreementsFedLocks(ns, timer, 'mod-serials-management') : println("-=No mod-serials-management fed locks to clean up=-")
         timer += 30
       } else {
         println("All deployments are successfully updated!")
@@ -251,26 +262,7 @@ static String valuesPathOption(String path) {
 String generateModuleValues(RancherNamespace ns, String moduleName, String moduleVersion, String domain = "", boolean customModule = false, String filePostfix = '') {
   String valuesFilePath = filePostfix.trim().isEmpty() ? "./values/${moduleName}.yaml" : "./values/${moduleName}-${filePostfix}.yaml"
   Map moduleConfig = ns.deploymentConfig[moduleName] ? ns.deploymentConfig[moduleName] : new Logger(this, 'folioHelm').error("Values for ${moduleName} not found!")
-  String repository = ""
-
-  if (customModule || moduleName == 'ui-bundle') {
-    repository = Constants.ECR_FOLIO_REPOSITORY
-  } else {
-    switch (moduleVersion) {
-      case ~/^\d{1,3}\.\d{1,3}\.\d{1,3}$/:
-        repository = "folioorg"
-        break
-      case ~/^\d{1,3}\.\d{1,3}\.\d{1,3}-SNAPSHOT\.\d{1,3}$/:
-        repository = "folioci"
-        break
-      case ~/^\d{1,3}\.\d{1,3}\.\d{1,3}-SNAPSHOT\.[\d\w]{7}$/:
-        repository = Constants.ECR_FOLIO_REPOSITORY
-        break
-      default:
-        repository = "folioci"
-        break
-    }
-  }
+  String repository = determineModulePlacement(moduleName, moduleVersion, customModule)
 
   moduleConfig << [image         : [repository: "${repository}/${moduleName}",
                                     tag       : moduleVersion],
@@ -286,6 +278,93 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
 //            moduleConfig['javaOptions'] += " -javaagent:./jmx_exporter/jmx_prometheus_javaagent-0.17.2.jar=9991:./jmx_exporter/prometheus-jmx-config.yaml"
 //        }
 //    }
+
+  if (ns instanceof EurekaNamespace) {
+    String sidecarRepository = determineModulePlacement(
+      "folio-module-sidecar"
+      , ns.getModules().getModuleByName('folio-module-sidecar').getVersion()
+    )
+
+    moduleConfig << [
+      eureka: [
+        enabled: true
+      ]
+    ]
+
+    moduleConfig += (moduleConfig.sidecarContainers ? [] : [sidecarContainers: [eureka: [:]]])
+    moduleConfig.sidecarContainers += (moduleConfig.sidecarContainers?.eureka ? [] : [eureka: [:]])
+
+    moduleConfig.sidecarContainers.eureka << [
+      image: [
+        repository: "${sidecarRepository}/folio-module-sidecar",
+        tag       : ns.getModules().getModuleByName('folio-module-sidecar').getVersion()
+      ]
+    ]
+
+    switch (moduleName) { // let it still be switch in case we need to add an additional module
+      case 'mod-consortia-keycloak':
+        println('https://folio-org.atlassian.net/browse/RANCHER-2035')
+        break
+
+      case 'mgr-tenant-entitlements':
+          moduleConfig['extraEnvVars'] +=  ns.getNamespaceName() == 'karate-eureka' ? [
+            name : 'VALIDATION_INTERFACE_INTEGRITY_ENABLED',
+            value: 'false'
+          ] : []
+          moduleConfig['extraEnvVars'] +=  ns.getNamespaceName() == 'dojo' ? [
+            name : 'VALIDATION_INTERFACE_INTEGRITY_ENABLED',
+            value: 'false'
+          ] : []
+        break
+
+      case ~/mod-.*-keycloak/:
+        moduleConfig['extraEnvVars'] += [
+          name: 'MOD_USERS_ID',
+          value: 'mod-users-' + ns.getModules().getModuleByName('mod-users').getVersion()
+        ]
+
+        break
+      case 'mod-circulation-bff':
+        moduleConfig['extraEnvVars'] += ns.hasSecureTenant ? [
+          name: 'SECURE_TENANT_ID',
+          value: ns.getSecureTenant().tenantId
+        ] : []
+
+        break
+      case 'mod-requests-mediated':
+        moduleConfig['extraEnvVars'] += ns.hasSecureTenant ? [
+          name: 'SECURE_TENANT_ID',
+          value: ns.getSecureTenant().tenantId
+        ] : []
+
+        break
+      case 'mod-patron':
+        moduleConfig['extraEnvVars'] += ns.hasSecureTenant ? [
+          name: 'SECURE_TENANT_ID',
+          value: ns.getSecureTenant().tenantId
+        ] : []
+
+        break
+      case 'edge-patron':
+        moduleConfig['integrations']['okapi'] = [enabled: false]
+
+        moduleConfig['extraEnvVars'] += ns.hasSecureTenant ? [
+          name: 'SECURE_TENANT_ID',
+          value: ns.getSecureTenant().tenantId
+        ] : []
+
+        moduleConfig['extraEnvVars'] += ns.hasSecureTenant ? [
+          name: 'SECURE_REQUESTS_FEATURE_ENABLED',
+          value: ns.hasSecureTenant.toString()
+        ] : []
+
+        break
+      case ~/edge-.*$/:
+        moduleConfig['integrations']['okapi'] = [enabled: false]
+        break
+    }
+  }
+
   //Enable RTR functionality
 
 
@@ -329,6 +408,20 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
   boolean enableIngress = moduleConfig.containsKey('ingress') ? moduleConfig['ingress']['enabled'] : false
   if (enableIngress) {
     moduleConfig['ingress']['hosts'][0] += [host: domain]
+    if (moduleName == 'ui-bundle' && ns.clusterName == 'folio-etesting' && ns.namespaceName ==~ /snapshot.*/ ) {
+      moduleConfig['ingress']['hosts'] += [
+        [
+          host : "eureka-snapshot-${ns.defaultTenantId}.${Constants.CI_ROOT_DOMAIN}",
+          paths: [
+            [
+              path       : "/*",
+              pathType   : "ImplementationSpecific",
+              servicePort: 80
+            ]
+          ]
+        ]
+      ]
+    }
     moduleConfig['ingress']['annotations'] += ['alb.ingress.kubernetes.io/group.name': "${ns.clusterName}.${ns.namespaceName}"]
     moduleConfig['ingress']['annotations'] += ['alb.ingress.kubernetes.io/target-type': 'ip']
     moduleConfig['ingress']['annotations'] += ['alb.ingress.kubernetes.io/target-group-attributes': 'deregistration_delay.timeout_seconds=30']
@@ -366,4 +459,32 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
 
   writeYaml file: valuesFilePath, data: moduleConfig, overwrite: true
   return valuesFilePath
+}
+
+static String determineModulePlacement(String moduleName, String moduleVersion, boolean customModule = false){
+  String repository = ""
+
+  if (customModule || moduleName == 'ui-bundle') {
+    repository = Constants.ECR_FOLIO_REPOSITORY
+  } else {
+    switch (moduleVersion) {
+      case ~/^\d{1,3}\.\d{1,3}\.\d{1,3}$/:
+        repository = "folioorg"
+        break
+      case ~/^\d{1,3}\.\d{1,3}\.\d{1,3}-SNAPSHOT\.\d{1,3}$/:
+        repository = "folioci"
+        break
+      case ~/^\d{1,3}\.\d{1,3}\.\d{1,3}-SNAPSHOT\.[\d\w]{5,}$/:
+        repository = Constants.ECR_FOLIO_REPOSITORY
+        break
+      case ~/^\d{1,3}\.\d{1,3}\.\d{1,3}-SNAPSHOT\$/:
+        repository = Constants.ECR_FOLIO_REPOSITORY
+        break
+      default:
+        repository = "folioci"
+        break
+    }
+  }
+
+  return repository
 }

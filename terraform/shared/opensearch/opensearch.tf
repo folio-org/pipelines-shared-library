@@ -68,6 +68,7 @@ module "aws_opensearch" {
     // Or need "number_of_replicas" = "1"? During recreating opensearch need to test it
     // https://wiki.folio.org/display/FOLIJET/DevOps+notes#DevOpsnotes-ChangeOpenSearchnumberofreplica
     "index.number_of_replicas" = "1"
+    "action.auto_create_index" = "false"
   }
 
   cluster_config = {

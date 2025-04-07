@@ -1,7 +1,9 @@
 import groovy.json.JsonSlurperClassic
 import org.folio.Constants
+import org.folio.models.RancherNamespace
 import org.folio.utilities.HttpClient
 import org.folio.utilities.Logger
+import org.folio.utilities.RestClient
 import org.folio.utilities.Tools
 
 // A function that returns the last commit hash of a given repository and branch.

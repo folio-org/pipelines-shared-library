@@ -21,8 +21,8 @@ resource "rancher2_secret" "db-credentials" {
     DB_PORT         = base64encode("5432")
     DB_USERNAME     = base64encode(var.pg_embedded ? var.pg_username : module.rds[0].cluster_master_username)
     DB_PASSWORD     = base64encode(local.pg_password)
-    DB_DATABASE     = base64encode(var.pg_dbname)
-    DB_MAXPOOLSIZE  = base64encode("5")
+    DB_DATABASE     = base64encode(var.eureka ? local.pg_eureka_db_name : var.pg_dbname)
+    DB_MAXPOOLSIZE  = base64encode("50")
     DB_CHARSET      = base64encode("UTF-8")
     DB_QUERYTIMEOUT = base64encode("60000")
     },
@@ -38,6 +38,7 @@ locals {
   pg_service_reader = var.enable_rw_split ? "postgresql-${var.rancher_project_name}-read" : ""
   pg_service_writer = var.enable_rw_split ? "postgresql-${var.rancher_project_name}-primary" : "postgresql-${var.rancher_project_name}"
   pg_auth           = local.pg_architecture == "replication" ? "false" : "true"
+  pg_eureka_db_name = var.eureka ? "folio" : var.pg_dbname
 }
 
 resource "kubectl_manifest" "postgresql-pdb" {
@@ -60,6 +61,7 @@ YAML
 
 # PostgreSQL database deployment
 resource "helm_release" "postgresql" {
+  depends_on = [rancher2_secret.s3-postgres-backups-credentials, rancher2_secret.db-credentials]
   count      = var.pg_embedded ? 1 : 0
   namespace  = rancher2_namespace.this.name
   name       = "postgresql-${var.rancher_project_name}"
@@ -101,7 +103,7 @@ image:
   tag: ${join(".", [var.pg_version, "0"])}
   pullPolicy: IfNotPresent
 auth:
-  database: ${var.pg_dbname}
+  database: ${local.pg_eureka_db_name}
   postgresPassword: ${var.pg_password}
   replicationPassword: ${var.pg_password}
   replicationUsername: ${var.pg_username}
@@ -110,6 +112,7 @@ primary:
   initdb:
     scripts:
       init.sql: |
+        ${indent(8, var.eureka ? templatefile("${path.module}/resources/eureka.db.tpl", { dbs = ["kong", "keycloak"], pg_password = var.pg_password }) : "--fail safe")}
         CREATE DATABASE ldp;
         CREATE USER ldpadmin PASSWORD '${var.pg_ldp_user_password}';
         CREATE USER ldpconfig PASSWORD '${var.pg_ldp_user_password}';
@@ -248,7 +251,7 @@ module "rds" {
   vpc_id                          = data.aws_eks_cluster.this.vpc_config[0].vpc_id
   subnets                         = data.aws_subnets.database.ids
   db_subnet_group_name            = "folio-rancher-vpc"
-  database_name                   = var.pg_dbname
+  database_name                   = local.pg_eureka_db_name
   master_username                 = var.pg_username
   master_password                 = local.pg_password
   manage_master_user_password     = false
@@ -274,6 +277,60 @@ module "rds" {
   })
 }
 
+resource "postgresql_role" "kong" {
+  count      = var.eureka && !var.pg_embedded ? 1 : 0
+  name       = "kong"
+  login      = true
+  password   = local.pg_password
+  depends_on = [module.rds]
+  connection {
+    host     = module.rds[0].cluster_endpoint
+    port     = 5432
+    username = module.rds[0].cluster_master_username
+    password = local.pg_password
+  }
+}
+
+resource "postgresql_role" "keycloak" {
+  count      = var.eureka && !var.pg_embedded ? 1 : 0
+  name       = "keycloak"
+  login      = true
+  password   = local.pg_password
+  depends_on = [module.rds]
+  connection {
+    host     = module.rds[0].cluster_endpoint
+    port     = 5432
+    username = module.rds[0].cluster_master_username
+    password = local.pg_password
+  }
+}
+
+resource "postgresql_database" "eureka_kong" {
+  depends_on = [postgresql_role.kong]
+  count      = var.eureka && !var.pg_embedded ? 1 : 0
+  name       = "kong"
+  owner      = "kong"
+  connection {
+    host     = module.rds[0].cluster_endpoint
+    port     = 5432
+    username = module.rds[0].cluster_master_username
+    password = local.pg_password
+  }
+}
+
+resource "postgresql_database" "eureka_keycloak" {
+  depends_on = [postgresql_role.keycloak]
+  count      = var.eureka && !var.pg_embedded ? 1 : 0
+  name       = "keycloak"
+  owner      = "keycloak"
+  connection {
+    host     = module.rds[0].cluster_endpoint
+    port     = 5432
+    username = module.rds[0].cluster_master_username
+    password = local.pg_password
+  }
+}
+
 # pgAdmin service deployment
 resource "helm_release" "pgadmin" {
   count      = var.pgadmin4 ? 1 : 0
@@ -296,6 +353,17 @@ resources:
 env:
   email: ${var.pgadmin_username}
   password: ${var.pgadmin_password}
+  variables:
+    - name: PGPASSWORD
+      value: ${var.pg_password}
+    - name: PGUSER
+      value: ${var.pg_embedded ? var.pg_username : module.rds[0].cluster_master_username}
+    - name: PGHOST
+      value: ${var.pg_embedded ? local.pg_service_writer : module.rds[0].cluster_endpoint}
+    - name: PGDATABASE
+      value: ${local.pg_eureka_db_name}
+    - name: PGPORT
+      value: '5432'
 service:
   type: NodePort
 ingress:
@@ -323,7 +391,7 @@ serverDefinitions:
       Username: ${var.pg_embedded ? var.pg_username : module.rds[0].cluster_master_username}
       Host: ${var.pg_embedded ? local.pg_service_writer : module.rds[0].cluster_endpoint}
       SSLMode: prefer
-      MaintenanceDB: ${var.pg_dbname}
+      MaintenanceDB: ${local.pg_eureka_db_name}
 ${local.schedule_value}
 EOF
   ]

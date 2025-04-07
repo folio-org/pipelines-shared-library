@@ -59,3 +59,46 @@ void renderEphemeralProperties(RancherNamespace namespace) {
     }
   }
 }
+
+void renderEphemeralPropertiesEureka(RancherNamespace namespace) {
+  Tools tools = new Tools(this)
+  Common common = new Common(this, "https://${namespace.generateDomain('kong')}")
+  Map edgeConfig = tools.steps.readYaml file: tools.copyResourceFileToCurrentDirectory("edge/config_eureka.yaml")
+  String config_template = tools.steps.readFile file: tools.copyResourceFileToCurrentDirectory("edge/ephemeral-properties.tpl")
+  List mappings = []
+  String users = ''
+  List tenants = []
+
+  namespace.tenants.each { tenant_id, tenant_info ->
+    if (tenant_id) {
+      common.logger.info("Binding tenant: " + tenant_id)
+      def tenant = folioDefault.tenants()[tenant_id]
+      users += tenant_id.toString() + '=' + 'edge_admin' + ',' + 'admin' + '\n'
+      tenants.add(tenant_id)
+      common.logger.info("Tenant: " + tenant_id + " bind complete.")
+    }
+  }
+
+  if ('fs09000000' == namespace.getDefaultTenantId()) {
+    mappings.add('fs09000000')
+  } else {
+    mappings.add('diku')
+  }
+
+  namespace.getModules().getEdgeModules().each { module ->
+    String institutionalUsers = ''
+    if (edgeConfig[(module.name)]['tenants']) {
+      edgeConfig[(module.name)]['tenants'].each { institutional ->
+        tenants.contains(institutional.tenant) ? null : tenants.add(institutional.tenant)
+        institutionalUsers += "${institutional.tenant}=${institutional.username},${institutional.password}\n"
+      }
+      LinkedHashMap config_data = [edge_tenants: "${tenants.join(",")}", edge_mappings: "${mappings.getAt(0)}", edge_users: users + institutionalUsers, institutional_users: '']
+      tools.steps.writeFile file: "${module.name}-ephemeral-properties", text: (new StreamingTemplateEngine().createTemplate(config_template).make(config_data)).toString()
+      common.logger.info("ephemeralProperties file for module ${module.name} created.")
+    } else {
+      LinkedHashMap config_data = [edge_tenants: "${tenants.join(",")}", edge_mappings: "${mappings.getAt(0)}", edge_users: users, institutional_users: '']
+      tools.steps.writeFile file: "${module.name}-ephemeral-properties", text: (new StreamingTemplateEngine().createTemplate(config_template).make(config_data)).toString()
+      common.logger.info("ephemeralProperties file for module ${module.name} created.")
+    }
+  }
+}

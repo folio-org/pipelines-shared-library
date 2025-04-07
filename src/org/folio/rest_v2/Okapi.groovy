@@ -239,7 +239,7 @@ class Okapi extends Authorization {
     Instant start = Instant.now()
     def response
     if (installJson) {
-      response = restClient.post(url, installJson, headers, [200, 201, 202], connectionTimeout).body
+      response = restClient.post(url, installJson, headers, [], connectionTimeout).body
     } else {
       logger.warning('installJson list is empty! Nothing to install. Skipping...')
       return

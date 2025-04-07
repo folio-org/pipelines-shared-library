@@ -68,7 +68,7 @@ variable "ssh_key_name" {
 
 variable "instance_type" {
   type        = string
-  default     = "m4.xlarge"
+  default     = "m5.xlarge"
   description = "Instance type for Jenkins master"
 }
 

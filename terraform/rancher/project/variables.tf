@@ -231,3 +231,32 @@ variable "pg_ldp_user_password" {
   type        = string
   description = "Postgresql password for ldp user"
 }
+variable "eureka" {
+  type        = bool
+  default     = false
+  description = "Eureka base env setup feature enable"
+}
+
+variable "okapi_integration_enabled" {
+  type        = bool
+  default     = false
+  description = "okapi integration Eureka"
+}
+
+variable "secure_store_type" {
+  type        = string
+  default     = "AWS_SSM"
+  description = "Secure store type"
+}
+
+variable "keycloak_version" {
+  type        = string
+  default     = "25.1.0-SNAPSHOT.34"
+  description = "Keycloak version"
+}
+
+variable "kong_version" {
+  type        = string
+  default     = "latest"
+  description = "Kong version"
+}

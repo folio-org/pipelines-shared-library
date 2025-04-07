@@ -36,6 +36,17 @@ provider "helm" {
   }
 }
 
+provider "postgresql" {
+  host            = var.pg_embedded ? local.pg_service_writer : module.rds[0].cluster_endpoint
+  username        = var.pg_embedded ? var.pg_username : module.rds[0].cluster_master_username
+  password        = var.pg_password == "" ? random_password.pg_password.result : var.pg_password
+  port            = 5432
+  database        = local.pg_eureka_db_name
+  sslmode         = "disable"
+  connect_timeout = 30
+  superuser       = false
+}
+
 provider "kubernetes" {
   host                   = data.aws_eks_cluster.this.endpoint
   cluster_ca_certificate = base64decode(data.aws_eks_cluster.this.certificate_authority.0.data)

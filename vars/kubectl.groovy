@@ -1,3 +1,6 @@
+import org.folio.Constants
+import org.folio.utilities.Logger
+
 def createConfigMap(String name, String namespace, files) {
   try {
     def fromFileArgs = []
@@ -105,6 +108,21 @@ String patchSecret(String secret_name, String value_name, String secret_value, S
   sh(script: "set +x && kubectl patch secret ${secret_name} --patch='{\"stringData\": { \"${value_name}\": \"${secret_value}\" }}' --namespace=${namespace}")
 }
 
+String getDeploymentContainerImage(String namespace, String deploymentName, String containerName) {
+  try {
+    return sh(script: "kubectl get deployment ${deploymentName} --namespace=${namespace} -o jsonpath='{.spec.template.spec.containers[?(@.name==\"${containerName}\")].image}'", returnStdout: true).trim()
+  } catch (Exception e) {
+    println("Error retrieving container image: ${e.getMessage()}")
+    throw e
+  }
+}
+
+String getDeploymentContainerImageName(String namespace, String deploymentName, String containerName) {
+  String fullPath = getDeploymentContainerImage(namespace, deploymentName, containerName)
+
+  return fullPath.substring(fullPath.lastIndexOf('/') + 1)
+}
+
 def patchConfigMap(String name, String namespace, files) {
   try {
     def fromFileArgs = []
@@ -144,9 +162,47 @@ void execCommand(String namespace = 'default', String pod_name, String command) 
   }
 }
 
-void deletePod(String namespace = 'default', String pod_name) {
+void cleanUpAgreementsFedLocks(String namespace = 'default', int timer = 0, String moduleId = 'mod-agreements', String tenantId = 'default') {
+  if (tenantId != 'default') { // condition for future use. DO NOT REMOVE!!!
+    println("Trying to cleanup ${tenantId}_${moduleId}.tenant_changelog_lock.")
+    String pod = sh(script: "kubectl get pod -l 'app.kubernetes.io/name=pgadmin4' -o=name  --ignore-not-found=true --namespace ${namespace}", returnStdout: true).trim()
+    def check = sh(script: "kubectl logs -l 'app.kubernetes.io/name=$moduleId' -c $moduleId --namespace ${namespace}", returnStdout: true)
+    check.contains(tenantId) ?
+      sh(script: "kubectl exec --request-timeout=10s --namespace=${namespace} ${pod} -- /usr/local/pgsql-16/psql -c 'TRUNCATE ${tenantId}_${moduleId.replace('-', '_')}.tenant_changelog_lock'", returnStatus: false) :
+      println("Entitling for tenant: ${tenantId} is not yet completed.")
+  } else {
+    try {
+      switch (timer) {
+        case 0:
+          println("First check skipped.")
+          break
+        case 300:
+          println("5 minutes passed. Trying to cleanup federation_lock table.")
+          String pod = sh(script: "kubectl get pod -l 'app.kubernetes.io/name=pgadmin4' -o=name  --ignore-not-found=true --namespace ${namespace}", returnStdout: true).trim()
+          sh(script: "kubectl exec --request-timeout=10s --namespace=${namespace} ${pod} -- /usr/local/pgsql-16/psql -c 'TRUNCATE ${moduleId.replace('-', '_')}__system.federation_lock'", returnStatus: false)
+          break
+        case 600:
+          println("10 minutes passed. Trying to delete $moduleId pod(s).")
+          sh(script: "kubectl delete pod -l 'app.kubernetes.io/name=${moduleId}' --force --namespace ${namespace}", returnStatus: false)
+          break
+        case 900:
+          println("15 minutes passed. Trying to delete $moduleId pod(s) and cleanup federation_lock table.")
+          sh(script: "kubectl delete pod -l 'app.kubernetes.io/name=$moduleId' --force --namespace ${namespace}", returnStatus: false)
+          String pod = sh(script: "kubectl get pod -l 'app.kubernetes.io/name=pgadmin4' -o=name  --ignore-not-found=true --namespace ${namespace}", returnStdout: true).trim()
+          sh(script: "kubectl exec --request-timeout=10s --namespace=${namespace} ${pod} -- /usr/local/pgsql-16/psql -c '${moduleId.replace('-', '_')}__system.federation_lock'", returnStatus: false)
+          break
+        default:
+          println("Did not reach the expected time yet.")
+      }
+    } catch (Exception e) {
+      println(e.getMessage())
+    }
+  }
+}
+
+void deletePod(String namespace = 'default', String pod_name, Boolean wait = true) {
   try {
-    sh "kubectl delete pod --namespace=${namespace} ${pod_name} --force --grace-period=0"
+    sh "kubectl delete pod --namespace=${namespace} ${pod_name} --ignore-not-found=true --wait=${wait} --force --grace-period=0"
   } catch (Exception e) {
     println(e.getMessage())
   }
@@ -154,11 +210,13 @@ void deletePod(String namespace = 'default', String pod_name) {
 
 void deleteEvictedPods(String namespace = 'default') {
   try {
-    def pods = sh(script: "kubectl get pod --no-headers --namespace ${namespace}", returnStdout: true).trim()
-    pods.toString().eachLine { pod ->
-      if (pod.contains('Evicted')) {
-      deletePod(namespace, pod.split()[0].toString().trim())
+    def pods = sh(script: "kubectl get pods --field-selector=status.phase=Failed --no-headers --namespace ${namespace} | grep Evicted | awk '{print \$1}'", returnStdout: true).trim()
+    if (pods) {
+      pods.tokenize().each { pod ->
+        sh(script: "kubectl delete pod ${pod} --force --namespace=${namespace}", returnStatus: false)
       }
+    } else {
+      println("No evicted pods found. Nothing to delete.")
     }
   } catch (Exception e) {
     println("Unable to delete evicted pods!\nError: " + e.getMessage())
@@ -200,9 +258,9 @@ boolean checkKubernetesResourceExist(String resource_type, String resource_name,
   return sh(script: "kubectl get ${resource_type} ${resource_name} -n ${namespace}", returnStatus: true)
 }
 
-def getLabelsFromNamespace(String namespace) {
+def getLabelsFromNamespace(String namespace, String labelKey = null) {
   try {
-    return sh(script: "kubectl get namespace ${namespace} -o jsonpath='{.metadata.labels}'", returnStdout: true).trim()
+    return sh(script: "kubectl get namespace ${namespace} -o jsonpath='{.metadata.labels${labelKey ? '.' + labelKey : ''}}'", returnStdout: true).trim()
   } catch (Exception e) {
     println(e.getMessage())
   }
@@ -260,5 +318,24 @@ boolean checkNamespaceExistence(String namespace) {
   catch (Exception e) {
     println(e.getMessage())
     return false
+  }
+}
+
+void portForwardPSQL(String namespace, Map ports = [5432: 5432]) {
+  try {
+    sh(script: "kubectl pod/port-forward postgresql-${namespace}-0 ${ports} -n ${namespace}")
+  } catch (Exception e) {
+    new Logger(this, 'kubectl').error("Unable to forward port,\nError: ${e.getMessage()}")
+  }
+}
+
+void patchDefaultServiceAccount(String namespace) {
+  try {
+    withCredentials([usernamePassword(credentialsId: 'DockerHubIDJenkins', passwordVariable: 'dockerPassword', usernameVariable: 'dockerUser')]) {
+      sh(script: """kubectl create secret docker-registry docker-hub --docker-server=https://index.docker.io/v1/ --docker-username=${env.dockerUser} --docker-password=${env.dockerPassword} --docker-email=${Constants.EMAIL_FROM} ---namespace ${namespace}""")
+      sh(script: """kubectl patch sa default -p '{"imagePullSecrets":[{"name": "docker-hub"}]} --namespace ${namespace}""")
+    }
+  } catch (Exception e) {
+    new Logger(this, 'kubectl').error("Unable to patch default service account,\nError: ${e.getMessage()}")
   }
 }

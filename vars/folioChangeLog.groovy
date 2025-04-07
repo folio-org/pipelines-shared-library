@@ -1,3 +1,4 @@
+import com.cloudbees.groovy.cps.NonCPS
 import hudson.model.Action
 import hudson.model.Job
 import hudson.model.Run
