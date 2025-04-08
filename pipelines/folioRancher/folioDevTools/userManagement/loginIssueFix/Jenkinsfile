@@ -4,7 +4,7 @@ package folioRancher.folioDevTools.userManagement.loginIssueFix
 import org.folio.utilities.Logger
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library@RANCHER-1334') _
+@Library('pipelines-shared-library') _
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
