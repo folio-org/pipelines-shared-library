@@ -51,6 +51,10 @@ void apply(TerraformConfig config, boolean approveRequired = false, Closure preA
   folioTerraform.selectWorkspace(config.getWorkDir(), config.getWorkspace())
   folioTerraform.statePull(config.getWorkDir())
 
+  if (config.getVars()['pg_embedded'] != 'true') {
+    folioTerraform.cleanUpPostgresResources(config.getWorkDir())
+  }
+
   preAction.call()
 
   def attempts = 0
