@@ -14,7 +14,7 @@ import org.jenkinsci.plugins.pipeline.modeldefinition.Utils
 import org.jenkinsci.plugins.workflow.libs.Library
 import org.jenkinsci.plugins.workflow.support.steps.build.RunWrapper
 
-@Library('pipelines-shared-library@RANCHER-2057-test') _
+@Library('pipelines-shared-library@RANCHER-2138-test') _
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
