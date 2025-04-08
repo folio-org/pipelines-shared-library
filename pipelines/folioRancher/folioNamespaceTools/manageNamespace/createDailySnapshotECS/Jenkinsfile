@@ -13,7 +13,7 @@ import org.jenkinsci.plugins.workflow.libs.Library
 
 @Library('pipelines-shared-library') _
 
-CONFIG_BRANCH = 'RANCHER-1334'
+CONFIG_BRANCH = 'master'
 
 properties([buildDiscarder(logRotator(numToKeepStr: '10')),
             disableConcurrentBuilds(),
