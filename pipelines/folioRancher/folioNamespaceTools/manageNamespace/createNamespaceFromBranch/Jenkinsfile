@@ -46,8 +46,9 @@ properties([
     booleanParam(name: 'RTR', defaultValue: false, description: '(Optional) Set true to enable RTR'),
     booleanParam(name: 'DATASET', defaultValue: false, description: '(Optional) Set true to build BF like environment'),
     choice(name: 'TYPE', choices: ['full', 'terraform', 'update'], description: '(Required) Set action TYPE to perform'),
+    string(name: 'DB_BACKUP_NAME', defaultValue: org.folio.Constants.BUGFEST_SNAPSHOT_NAME, description: '(Optional) Set name of the DB backup to restore'),
     folioParameters.groupParameters("Integrations"
-      , [ "POSTGRESQL", "DB_VERSION", "KAFKA", "OPENSEARCH", "S3_BUCKET" ]),
+      , [ "POSTGRESQL", "DB_VERSION", "KAFKA", "OPENSEARCH", "S3_BUCKET", "DB_BACKUP_NAME"]),
     folioParameters.pgType(),
     folioParameters.pgVersion(),
     folioParameters.kafkaType(),
@@ -57,18 +58,18 @@ properties([
     string(name: 'MEMBERS', defaultValue: '', description: '(Optional) Coma separated list of GitHub teams who need an access to the namespace'),
     folioParameters.agent(),
     folioParameters.refreshParameters()
-    ,folioParameters.hideParameters(
+    , folioParameters.hideParameters(
     [
       'EUREKA':['OKAPI_VERSION'],
       'OKAPI': ['APPLICATION_SET', 'APPLICATIONS' ]
     ]
     , "PLATFORM")
-    ,folioParameters.hideParameters(
+    , folioParameters.hideParameters(
     [
       '' :['HAS_SECURE_TENANT', 'SECURE_TENANT']
     ]
     , "CONSORTIA")
-    ,folioParameters.hideParameters(
+    , folioParameters.hideParameters(
     [
       '' :['SECURE_TENANT']
     ]

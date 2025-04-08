@@ -71,6 +71,7 @@ ansiColor('xterm') {
       .configType('testing')
       .loadReference(true)
       .loadSample(true)
+      .linkedData(true)
       .consortia(true)
       .splitFiles(true)
       .rtr(false)
