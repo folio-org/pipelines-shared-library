@@ -84,7 +84,7 @@ def removeFromState(String path, String resource) {
 def cleanUpPostgresResources(String path) {
   stage('[TF] Clean up postgres resources') {
     dir(path) {
-      def postgresql_resources = sh(script: "terraform state list | grep postgresql_", returnStdout: true).trim()
+      def postgresql_resources = sh(script: "terraform state list | grep postgresql_ || true", returnStdout: true).trim()
       if (postgresql_resources.contains('postgresql_')) {
         postgresql_resources.tokenize().each { sh "terraform state rm ${it}" }
       }
