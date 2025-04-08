@@ -1,0 +1,167 @@
+package v2.namespaces.update
+
+import org.folio.Constants
+import org.folio.models.FolioInstallJson
+import org.folio.models.TenantUi
+import org.folio.models.module.EurekaModule
+import org.folio.models.module.FolioModule
+import org.folio.pipelines.modules.buildPush.ModuleBuildPushPipeline
+import org.folio.pipelines.modules.deployInstall.ModuleDeployInstallPipeline
+import org.folio.rest.GitHubUtility
+import org.folio.rest_v2.PlatformType
+import org.folio.utilities.Logger
+import org.jenkinsci.plugins.pipeline.modeldefinition.Utils
+import org.jenkinsci.plugins.workflow.libs.Library
+import org.jenkinsci.plugins.workflow.support.steps.build.RunWrapper
+
+@Library('pipelines-shared-library@RANCHER-2057-test') _
+
+properties([
+  buildDiscarder(logRotator(numToKeepStr: '30')),
+  parameters([
+    folioParameters.platform(PlatformType.EUREKA),
+    folioParameters.cluster('PLATFORM'),
+    folioParameters.namespace(),
+    booleanParam(name: 'UPDATE_ALL', defaultValue: true, description: 'Update all namespace modules with latest versions'),
+    folioParameters.branch(),
+    folioParameters.moduleName(), // MODULE_NAME, Folio Module name
+    folioParameters.moduleSource(), // MODULE_SOURCE, Eureka Module source (Github, DockerHub, AWS ECR)
+    folioParameters.branchWithRef('MODULE_BRANCH', 'MODULE_NAME'), // MODULE_BRANCH, Eureka Module Github branch
+    folioParameters.containerImageTag('CONTAINER_IMAGE_TAG', 'MODULE_NAME, MODULE_SOURCE'), // CONTAINER_IMAGE_TAG, Container image tag
+    string(name: 'MAVEN_ARGS', defaultValue: '-DskipTests', description: 'Maven build arguments'),
+    folioParameters.configType(),
+    folioParameters.agent(Constants.JENKINS_AGENTS_BUILD_MODULE),
+    folioParameters.refreshParameters()
+    , folioParameters.hideParameters(
+      [
+        'GitHub/folio-org': ['CONTAINER_IMAGE_TAG'],
+        'DockerHub/folioci': ['MODULE_BRANCH', 'MAVEN_ARGS'],
+        'DockerHub/folioorg': ['MODULE_BRANCH', 'MAVEN_ARGS'],
+        'ECR': ['MODULE_BRANCH', 'MAVEN_ARGS']
+      ]
+      , "MODULE_SOURCE"
+    )
+    , folioParameters.hideParameters(
+      [
+        'on': ['MODULE_NAME', 'MODULE_SOURCE', 'MODULE_BRANCH', 'CONTAINER_IMAGE_TAG', 'MAVEN_ARGS'],
+        '': ['FOLIO_BRANCH']
+      ]
+      , "UPDATE_ALL"
+    )
+  ])
+])
+
+if (params.REFRESH_PARAMETERS) {
+  currentBuild.result = 'ABORTED'
+  return
+}
+
+ansiColor('xterm') {
+  node(params.AGENT) {
+    Logger logger = new Logger(this, env.JOB_BASE_NAME)
+
+    boolean updateAll = params.UPDATE_ALL
+    boolean isGithub = !updateAll && params.MODULE_SOURCE.contains('GitHub')
+
+    String moduleName = !updateAll ? params.MODULE_NAME : null
+    String branch = isGithub ? params.MODULE_BRANCH : null
+
+    FolioInstallJson<? extends FolioModule> modules =
+            new FolioInstallJson(PlatformType.valueOf(params.PLATFORM) == PlatformType.EUREKA ? EurekaModule.class : FolioModule.class)
+
+    try {
+      stage('Init') {
+        String src = updateAll ? "\nFull update" : "\nSource: ${params.MODULE_SOURCE}"
+        String tagOrBranch = !updateAll ? (isGithub ? "\nBranch: $branch" : "\nTag: ${params.CONTAINER_IMAGE_TAG}") : ""
+        String namespace = "${params.CLUSTER}-${params.NAMESPACE}"
+
+        buildName "${updateAll ? namespace : moduleName}.${env.BUILD_ID}"
+        buildDescription "Env: ${namespace}${src}${tagOrBranch}"
+
+        if(updateAll)
+          modules.setInstallJsonObject(generateInstallJsonFromRepo(PlatformType.valueOf(params.PLATFORM), 'platform-complete', params.FOLIO_BRANCH))
+        else if (isGithub)
+          modules.addModule("${moduleName}-${params.CONTAINER_IMAGE_TAG}", 'enable')
+      }
+
+      stage('[GitHub] Build & Push Module') {
+        if (!isGithub) {
+          logger.info("Skip [Maven/Gradle] Build artifact stage")
+          Utils.markStageSkippedForConditional('[GitHub] Build & Push Module')
+        } else {
+
+          RunWrapper buildResult = new ModuleBuildPushPipeline(this)
+            .withPlatformType(PlatformType.valueOf(params.PLATFORM))
+            .withModuleName(moduleName)
+            .withModuleBranch(branch)
+            .withMavenArgs(params.MAVEN_ARGS.trim())
+            .doPushImage(true)
+            .doPushDescriptor(true)
+            .withAgent(params.AGENT)
+            .run()
+
+          if (!buildResult.rawBuild.getArtifacts().any { it.getFileName() == 'execution_results.json' })
+            error "No execution_results.json artifact found"
+
+          copyArtifacts(
+            projectName: ModuleBuildPushPipeline.JOB_NAME,
+            selector: specific(buildResult.getNumber().toString()),
+            filter: 'execution_results.json'
+          )
+
+          logger.info("moduleId: ${readJSON(file: 'execution_results.json').moduleId}")
+
+          modules.add(new EurekaModule().loadModuleDetails(readJSON(file: 'execution_results.json').moduleId as String))
+        }
+      }
+
+      stage('Deploy and update') {
+        RunWrapper buildResult = new ModuleDeployInstallPipeline(this)
+          .withPlatformType(PlatformType.valueOf(params.PLATFORM))
+          .withCluster(params.CLUSTER)
+          .withNamespace(params.NAMESPACE)
+          .withInstallJson(modules.getInstallJson().toString())
+          .withConfigType(params.CONFIG_TYPE)
+          .doDeploy(true)
+          .doInstall(true)
+          .withAgent()
+          .run()
+      }
+
+//      input message: "Let's wait"
+
+//      stage('[REST] Get Tenants with Module') {
+//        deployAppModule.getTenantsWithModule(logger, eureka, module, namespace)
+//      }
+//
+//      stage('Update Module Version') {
+//        deployAppModule.updateModuleVersionFlow(logger, eureka, module, namespace)
+//      }
+
+    } catch (e) {
+      logger.warning("Caught exception: ${e}")
+      error(e.getMessage())
+    } finally {
+      stage('Cleanup') {
+        logger.debug("Workspace size: ${sh(returnStdout: true, script: 'du -sh .').trim()}")
+        cleanWs notFailBuild: true
+      }
+    }
+  }
+}
+
+List<Map<String, String>> generateInstallJsonFromRepo(PlatformType platformType, String repo, String branch) {
+  List<Map<String, String>> installJson = new GitHubUtility(this).getEnableList(repo, branch)
+
+  if(platformType == PlatformType.EUREKA) {
+    List<Map<String, String>> eurekaPlatform = new GitHubUtility(this).getEurekaList(repo, branch)
+    installJson.addAll(eurekaPlatform)
+  }
+
+  installJson.removeAll { module -> module.id == 'okapi' }
+
+  if(platformType == PlatformType.EUREKA)
+    installJson.removeAll { module -> module.id =~ /(mod-login|mod-authtoken|mod-login-saml)-\d+\..*/ }
+
+  return installJson.collect { moduleId -> [id: moduleId, action: "enable"] } as List<Map<String, String>>
+}

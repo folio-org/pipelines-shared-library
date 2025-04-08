@@ -1,7 +1,10 @@
 package org.folio.models
 
 import com.cloudbees.groovy.cps.NonCPS
+import org.folio.models.application.Application
+import org.folio.models.application.ApplicationList
 import org.folio.models.module.EurekaModule
+import org.folio.rest_v2.eureka.Eureka
 
 /**
  * Represents a Rancher Eureka namespace and its configuration.*/
@@ -11,7 +14,7 @@ class EurekaNamespace extends RancherNamespace {
 
   Map<String, EurekaTenant> tenants = [:]
 
-  Map<String, String> applications = [:]
+  ApplicationList applications = new ApplicationList()
 
   boolean enableECS_CCL = false
 
@@ -23,7 +26,7 @@ class EurekaNamespace extends RancherNamespace {
     super(clusterName, namespaceName)
   }
 
-  EurekaNamespace withApplications(Map<String, String> apps){
+  EurekaNamespace withApplications(ApplicationList apps){
     applications = apps
     return this
   }
@@ -42,7 +45,7 @@ class EurekaNamespace extends RancherNamespace {
       hasSecureTenant = (tenant as EurekaTenant).isSecureTenant
     }
 
-    applications.putAll((tenant as EurekaTenant).applications)
+    applications.addAll((tenant as EurekaTenant).applications)
   }
 
   /**
@@ -67,6 +70,36 @@ class EurekaNamespace extends RancherNamespace {
       setDeploymentConfig(mergeMaps(getDeploymentConfig(), getFeatureConfig('ecs-ccl', branch)))
   }
 
+  @Override
+  EurekaNamespace instantiate(def context, boolean debug = false) {
+    Eureka eureka = new Eureka(context, generateDomain('kong'), generateDomain('keycloak'))
+
+    eureka
+      .getExistedTenantsFlow("${getClusterName()}-${getNamespaceName()}")
+      .values().each {addTenant(it)}
+
+    context.folioHelm.withKubeConfig(getClusterName()) {
+      List<String> coreModules = []
+
+      modules.getBackendModules().each { module ->
+        coreModules.add(context.kubectl.getDeploymentContainerImageName(getNamespaceName(), module.getName(), "sidecar"))
+      }
+
+      coreModules.add(context.kubectl.getDeploymentContainerImageName(getNamespaceName(), "kong-${getNamespaceName()}"))
+      coreModules.add(context.kubectl.getStatefulSetContainerImageName(getNamespaceName(), "keycloak-${getNamespaceName()}"))
+      coreModules.add(context.kubectl.getDeploymentContainerImageName(getNamespaceName(), "mgr-applications"))
+      coreModules.add(context.kubectl.getDeploymentContainerImageName(getNamespaceName(), "mgr-tenants"))
+      coreModules.add(context.kubectl.getDeploymentContainerImageName(getNamespaceName(), "mgr-tenant-entitlements"))
+
+      coreModules
+        .findAll{it?.trim()}
+        ?.unique()
+        ?.each {modules.addModule(it.replace(':', '-'), 'enabled')}
+    }
+
+    return this
+  }
+
   private EurekaTenantConsortia findCentralConsortiaTenant() {
     return tenants.values().find {
       it instanceof EurekaTenantConsortia && it.isCentralConsortiaTenant
@@ -78,10 +111,13 @@ class EurekaNamespace extends RancherNamespace {
   String toString(){
     return """
       "class_name": "EurekaNamespace",
-      "applications": "$applications"
+      "namespace": "${getNamespaceName()}",
+      "applications": "$applications",
+      "modules": ${modules.getInstallJsonObject()},
       "enableECS_CCL": "$enableECS_CCL",
       "hasSecureTenant": "$hasSecureTenant",
       "secureTenant": "$secureTenant",
+      "tenants": "$tenants"
     """
   }
 }

@@ -3,6 +3,7 @@ package org.folio.models
 import com.cloudbees.groovy.cps.NonCPS
 import org.folio.models.module.FolioModule
 import org.folio.models.module.ModuleType
+import org.folio.rest.GitHubUtility
 
 /**
  * OkapiTenant class representing a tenant configuration for Okapi.
@@ -150,17 +151,13 @@ class OkapiTenant extends DTO{
     return this
   }
 
-  @NonCPS
-  @Override
-  String toString() {
-    return """
-      "class_name": "OkapiTenant",
-      "tenantId": "$tenantId",
-      "tenantName": "$tenantName",
-      "tenantDescription": "$tenantDescription",
-      "modules": $modules,
-      "indexes": $indexes
-    """
+  OkapiTenant initializeFromRepo(def context, String repo, String branch) {
+    List installJson = new GitHubUtility(context).getEnableList(repo, branch)
+
+    installJson.removeAll { module -> module.id == 'okapi' }
+    this.withInstallJson(installJson)
+
+    return this
   }
 
   /**
@@ -204,5 +201,18 @@ class OkapiTenant extends DTO{
   List getExtensionModulesList(Object steps, String extensionName) {
     final String EXTENSIONS_PATH = 'folio-extensions'
     return steps.readJSON(text: steps.libraryResource("${EXTENSIONS_PATH}/${extensionName}.json"))
+  }
+
+  @NonCPS
+  @Override
+  String toString() {
+    return """
+      "class_name": "OkapiTenant",
+      "tenantId": "$tenantId",
+      "tenantName": "$tenantName",
+      "tenantDescription": "$tenantDescription",
+      "modules": $modules,
+      "indexes": $indexes
+    """
   }
 }

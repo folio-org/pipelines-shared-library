@@ -1,0 +1,164 @@
+package v2.modules.deployInstall
+
+import org.folio.models.EurekaNamespace
+import org.folio.models.EurekaTenant
+import org.folio.models.FolioInstallJson
+import org.folio.models.RancherNamespace
+import org.folio.models.module.EurekaModule
+import org.folio.models.module.FolioModule
+import org.folio.rest_v2.PlatformType
+import org.folio.rest_v2.eureka.Eureka
+import org.folio.rest_v2.eureka.kong.Tenants
+import org.folio.utilities.Logger
+import org.jenkinsci.plugins.pipeline.modeldefinition.Utils
+import org.jenkinsci.plugins.workflow.libs.Library
+
+//TODO: Switch to the RANCHER-1334
+@Library('pipelines-shared-library@RANCHER-2057-test') _
+
+
+properties([
+  buildDiscarder(logRotator(numToKeepStr: '10')),
+  parameters([
+    folioParameters.platform(),
+    folioParameters.cluster('PLATFORM'),
+    folioParameters.namespace(),
+    text(name: 'INSTALL_JSON', description: '(Required) Install json list with modules to install.',
+      defaultValue: '''[ {
+    "id" : "folio_users-x.x.x",
+    "action" : "enable"
+}, {
+    "id" : "mod-users-x.x.x",
+    "action" : "enable"
+} ]'''),
+    booleanParam(name: 'DEPLOY', defaultValue: true, description: 'Set true to update HELM deployments'),
+    booleanParam(name: 'INSTALL', defaultValue: true, description: 'Set true to install modules with OKAPI or upgrade with EUREKA'),
+    folioParameters.configType(),
+    folioParameters.agent(),
+    folioParameters.refreshParameters()
+  ])
+])
+
+if (params.REFRESH_PARAMETERS) {
+  currentBuild.result = 'ABORTED'
+  return
+}
+
+ansiColor('xterm') {
+  lock("${params.CLUSTER}-${params.NAMESPACE}") {
+    node(params.AGENT) {
+      Logger logger = new Logger(this, env.JOB_BASE_NAME)
+
+      List<Map<String, String>> installJson = readJSON text: params.INSTALL_JSON
+      installJson = installJson.unique()
+
+      boolean isEureka = PlatformType.valueOf(params.PLATFORM) == PlatformType.EUREKA
+
+      RancherNamespace namespace = (isEureka ? new EurekaNamespace(params.CLUSTER, params.NAMESPACE) : new RancherNamespace(params.CLUSTER, params.NAMESPACE))
+        .withDeploymentConfigType(params.CONFIG_TYPE, folioTools.getPipelineBranch())
+
+      FolioInstallJson<? extends FolioModule> beUpdated = new FolioInstallJson<? extends FolioModule>(isEureka ? EurekaModule.class : FolioModule.class)
+        .setInstallJsonObject(installJson)
+
+      stage('Check environment state') {
+        if (!namespace.isActive(this)) {
+          logger.warning("Target environment is not running. Please start the environment and try again.")
+
+          currentBuild.result = 'ABORTED'
+          return
+        }
+      }
+
+      try {
+        stage('Init') {
+          buildName "${namespace.getWorkspaceName()}.${env.BUILD_ID}"
+
+          namespace.instantiate(this)
+
+          FolioInstallJson<? extends FolioModule> beRollback = new FolioInstallJson<? extends FolioModule>(isEureka ? EurekaModule.class : FolioModule.class)
+
+          beRollback.addModulesWithSameAction(
+            namespace.getModules().getInstallJsonObject()
+              .findAll{ beUpdated.getModuleByName(it.getName()) }
+              .collect{ it.getId() }
+            , 'enable'
+          )
+
+          writeJSON file: 'install_rollback.json', json: beRollback.getInstallJson()
+          archiveArtifacts allowEmptyArchive: true, artifacts: "install_rollback.json", fingerprint: true, defaultExcludes: false
+
+          if(beUpdated.getSidecars()?.findAll { it.getAction() == 'enable' }) {
+            beUpdated.addModulesWithSameAction(
+              namespace
+                .getModules()
+                .getBackendModules()
+                .findAll{ !(beUpdated.getModuleByName(it.getName())) }
+                .collect { it.getId() }
+              , 'enable'
+            )
+
+            beUpdated.setInstallJsonObject(beUpdated.getInstallJson().unique())
+          }
+
+          namespace.getModules().addModulesWithActions(installJson)
+
+          logger.debug("Namespace: ${namespace}")
+          logger.debug("Modules to install: ${beUpdated.getInstallJsonObject()}")
+        }
+
+        input message: "Let's deploy?"
+
+        stage('Update module deployments') {
+
+          if (!params.DEPLOY) {
+            logger.info("Skip Update module deployments stage")
+            Utils.markStageSkippedForConditional('Update module deployments')
+          } else {
+
+            folioHelm.withKubeConfig(namespace.getClusterName()) {
+              folioHelm.deployFolioModulesParallel(namespace, beUpdated.getMgrModules())
+              folioHelm.checkDeploymentsRunning(namespace.getNamespaceName(), beUpdated.getMgrModules())
+
+              if(beUpdated.getSidecars())
+                folioHelm.deployFolioModulesParallel(namespace, beUpdated.getBackendModules(), false, namespace.getDefaultTenantId(), beUpdated.getSidecars()[0])
+              else
+                folioHelm.deployFolioModulesParallel(namespace, beUpdated.getBackendModules())
+
+              folioHelm.checkDeploymentsRunning(namespace.getNamespaceName(), beUpdated.getBackendModules())
+
+              folioHelm.deployFolioModulesParallel(namespace, beUpdated.getEdgeModules())
+              folioHelm.checkDeploymentsRunning(namespace.getNamespaceName(), beUpdated.getEdgeModules())
+            }
+          }
+        }
+
+        stage('Update/install modules') {
+
+          if (!params.INSTALL) {
+            logger.info("Skip Update/install modules stage")
+            Utils.markStageSkippedForConditional('Update/install modules')
+          } else {
+            Eureka eureka = new Eureka(this, namespace.generateDomain('kong'), namespace.generateDomain('keycloak')) //TODO: Move to the Namespace
+
+            Map<String, String> updatedAppInfoMap = eureka.updateAppDescriptorFlow((namespace as EurekaNamespace).getApplications(), beUpdated.getInstallJsonObject()[0] as EurekaModule)
+
+            eureka.registerModulesFlow(beUpdated.getInstallJsonObject())
+
+            logger.info('Enabling Application Descriptor with Updated Module Version for Tenants in Namespace')
+            namespace.getTenants().values().each {tenant ->
+              Tenants.get(eureka.getKong()).updateApplications(tenant as EurekaTenant, updatedAppInfoMap.values().toList())
+            }
+          }
+        }
+      } catch (e) {
+        logger.warning("Caught exception: ${e}")
+        error(e.getMessage())
+      } finally {
+        stage('Cleanup') {
+          logger.debug("Workspace size: ${sh(returnStdout: true, script: 'du -sh .').trim()}")
+          cleanWs notFailBuild: true
+        }
+      }
+    }
+  }
+}

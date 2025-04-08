@@ -2,7 +2,9 @@ package org.folio.models
 
 import com.cloudbees.groovy.cps.NonCPS
 import hudson.util.Secret
+import org.folio.models.application.ApplicationList
 import org.folio.models.module.EurekaModule
+import org.folio.rest.GitHubUtility
 
 /**
  * EurekaTenant class representing a tenant configuration for Eureka.
@@ -31,7 +33,7 @@ class EurekaTenant extends OkapiTenant {
   /** Modules that are installed for the tenant. */
   FolioInstallJson<EurekaModule> modules = new FolioInstallJson(EurekaModule.class)
 
-  Map<String, String> applications = [:]
+  ApplicationList applications = new ApplicationList()
 
   boolean isSecureTenant = false
 
@@ -81,6 +83,68 @@ class EurekaTenant extends OkapiTenant {
   }
 
   /**
+   * Chainable setter for applications.
+   * This method sets the applications for the tenant and adds their modules to the tenant's module list.
+   *
+   * @param apps The list of applications to be added.
+   * @return The EurekaTenant object for method chaining.
+   */
+  EurekaTenant withApplications(ApplicationList apps){
+    applications = apps
+
+    apps.each { app ->
+      app.modules.each {modules.addModule(it) }
+    }
+
+    return this
+  }
+
+  /**
+   * Chainable setter for applications.
+   * This method adds the provided applications to the tenant's application list and updates the modules accordingly.
+   *
+   * @param apps The list of applications to be added.
+   * @return The EurekaTenant object for method chaining.
+   */
+  EurekaTenant addApplications(ApplicationList apps){
+    applications.addAll(apps)
+
+    apps.each { app ->
+      app.modules.each {modules.addModule(it) }
+    }
+
+    return this
+  }
+
+  /**
+   * Assigns applications to the tenant based on specific conditions.
+   * This method filters the provided applications and assigns them to the tenant.
+   *
+   * @param apps The list of applications to be assigned.
+   * @return The EurekaTenant object for method chaining.
+   */
+  EurekaTenant assignApplications(ApplicationList apps){
+    ApplicationList appsToAssign = new ApplicationList()
+    appsToAssign.addAll(apps)
+
+    appsToAssign.removeIf {app ->
+      switch (app.name) {
+        case "app-requests-mediated-ui":
+          return !isSecureTenant
+          break
+        case ["app-consortia", "app-consortia-ui"]:
+          return !(this instanceof EurekaTenantConsortia)
+          break
+        default:
+          return true
+          break
+      }
+    }
+
+    return addApplications(appsToAssign)
+  }
+
+  /**
    * Chainable setter for install JSON.
    * This method sets the installation JSON object while ensuring that specific
    * modules ('mod-consortia' and 'folio_consortia-settings') are removed.
@@ -88,6 +152,7 @@ class EurekaTenant extends OkapiTenant {
    * @param installJson The install JSON object.
    * @return The OkapiTenant object for method chaining.
    */
+  @Override
   EurekaTenant withInstallJson(List<Map<String, String>> installJson) {
     //TODO: Fix DTO convert issue with transformation from FolioInstallJson<FolioModule> to FolioInstallJson<EurekaModule>
     modules = new FolioInstallJson(EurekaModule.class)
@@ -95,6 +160,21 @@ class EurekaTenant extends OkapiTenant {
     super.withInstallJson(installJson)
 
     this.modules.removeModulesByName(['mod-consortia-keycloak', 'folio_consortia-settings'])
+    return this
+  }
+
+  @Override
+  OkapiTenant initializeFromRepo(def context, String repo, String branch) {
+    List installJson = new GitHubUtility(context).getEnableList(repo, branch)
+    List eurekaPlatform = new GitHubUtility(this).getEurekaList(repo, branch)
+    installJson.addAll(eurekaPlatform)
+
+    //TODO: Temporary solution. Unused by Eureka modules have been removed.
+    installJson.removeAll { module -> module.id =~ /(mod-login|mod-authtoken|mod-login-saml)-\d+\..*/ }
+    installJson.removeAll { module -> module.id == 'okapi' }
+
+    super.withInstallJson(installJson)
+
     return this
   }
 
@@ -117,6 +197,7 @@ class EurekaTenant extends OkapiTenant {
       .withTenantDescription(content.description as String) as EurekaTenant
   }
 
+
   @NonCPS
   @Override
   String toString(){
@@ -128,7 +209,7 @@ class EurekaTenant extends OkapiTenant {
       "tenantDescription": "$tenantDescription",
       "isSecureTenant": "$isSecureTenant",
       "applications": "$applications",
-      "modules": $modules,
+      "modules": ${modules.getInstallJsonObject()},
       "indexes": $indexes
     """
   }

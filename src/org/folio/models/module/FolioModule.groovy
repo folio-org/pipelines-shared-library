@@ -11,7 +11,7 @@ import java.util.regex.Matcher
  */
 class FolioModule {
   // Regular expression patterns for module name and version extraction
-  private static final String MODULE_NAME_AND_VERSION_PATTERN = /^(.*?)-(\d+\.\d+\.\d+(?:-.+)?|\d+\.\d+\.\d+)$/
+  private static final String MODULE_NAME_AND_VERSION_PATTERN = /^(.*?)-(\d+\.\d+\.\d+(?:-.+)?|latest)$/
   private static final String SNAPSHOT_VERSION_CORE_PATTERN = /\d+\.\d+\.(\d+-SNAPSHOT\.|\d+0{5,6})/
 
   String id          // Unique identifier for the module
@@ -23,7 +23,7 @@ class FolioModule {
   List descriptor    // Descriptor for the module (optional)
   Map discovery      // Discovery information for the module (e.g., URL)
   VersionType versionType // Type of version (e.g., SNAPSHOT, RELEASE)
-  String buildTool   // Build Tool Name (Maven or Gradle)
+  ModuleBuildTool buildTool   // Build Tool Name (Maven or Gradle)
   String buildDir    // Build Folder Path
   String modDescriptorPath // Module Descriptor File Path
 
@@ -60,7 +60,7 @@ class FolioModule {
     }
 
     // Determine module type and version type
-    this.type = _determineModuleType(this.name)
+    this.type = ModuleType.determineModuleType(this.name)
     this.versionType = _determineVersionType(this.version)
 
     // If the version is a snapshot, extract the build ID
@@ -128,6 +128,19 @@ class FolioModule {
     return response[0].id
   }
 
+  @Override
+  public boolean equals(Object obj) {
+    if (this.is(obj)) {
+      return true
+    }
+
+    if (!(obj instanceof FolioModule)) {
+      return false
+    }
+
+    return this.id == ((FolioModule) obj).id && this.action == ((FolioModule) obj).action
+  }
+
   /**
    * Creates a matcher for the given module ID based on the defined pattern.
    *
@@ -136,32 +149,6 @@ class FolioModule {
    */
   private static Matcher _getMatcher(String id) {
     return id =~ MODULE_NAME_AND_VERSION_PATTERN
-  }
-
-  /**
-   * Determines the module type based on its name.
-   *
-   * @param name The name of the module.
-   * @return The ModuleType corresponding to the given name.
-   * @throws Exception if the module type is unknown.
-   */
-  private static ModuleType _determineModuleType(String name) {
-    switch (name) {
-      case ~/^mod-.*/:
-        return ModuleType.BACKEND
-      case ~/^edge-.*/:
-        return ModuleType.EDGE
-      case ~/^folio_.*/:
-        return ModuleType.FRONTEND
-      case ~/^mgr-.*/:
-        return ModuleType.MGR
-      case ~/.*sidecar.*/:
-        return ModuleType.SIDECAR
-      case 'okapi':
-        return ModuleType.OKAPI
-      default:
-        throw new Exception("Type of ${name} module is unknown")
-    }
   }
 
   /**
