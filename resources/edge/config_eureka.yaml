@@ -1,11 +1,11 @@
 edge-users:
   tenants:
-    - tenant: default
-      username: edgeUser
-      firstName: edge
-      lastName: SYSTEM
-      password: edgeUser123!
-      create: true
+  - tenant: default
+    username: edgeUser
+    firstName: edge
+    lastName: SYSTEM
+    password: edgeUser123!
+    create: true
   capabilities:
     - users_collection.view
     - users_item.create
