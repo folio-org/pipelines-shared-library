@@ -3,7 +3,7 @@
 import org.folio.Constants
 import org.folio.utilities.Logger
 
-@Library('pipelines-shared-library@RANCHER-650-Jenkins-upgrade') _ //TODO update before merge to master
+@Library('pipelines-shared-library@RANCHER-2236') _ //TODO update before merge to master
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),

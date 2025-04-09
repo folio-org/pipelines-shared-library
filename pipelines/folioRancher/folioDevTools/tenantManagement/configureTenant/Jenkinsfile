@@ -5,7 +5,7 @@ import org.folio.models.OkapiTenant
 import org.folio.rest_v2.Configurations
 import org.folio.rest_v2.Constants
 
-@Library('pipelines-shared-library@RANCHER-650-Jenkins-upgrade') _
+@Library('pipelines-shared-library@RANCHER-2236') _
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),

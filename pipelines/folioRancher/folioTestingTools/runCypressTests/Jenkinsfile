@@ -6,7 +6,7 @@ import org.folio.models.OkapiTenant
 import org.folio.models.OkapiUser
 import org.folio.models.parameters.CypressTestsParameters
 
-@Library('pipelines-shared-library@RANCHER-650-Jenkins-upgrade') _
+@Library('pipelines-shared-library@RANCHER-2236') _
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '50')),

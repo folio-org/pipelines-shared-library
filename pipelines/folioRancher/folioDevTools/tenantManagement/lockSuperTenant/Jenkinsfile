@@ -6,7 +6,7 @@ import org.jenkinsci.plugins.workflow.libs.Library
 import org.folio.jenkins.JenkinsAgentLabel
 import org.folio.jenkins.PodTemplates
 
-@Library('pipelines-shared-library@RANCHER-650-Jenkins-upgrade') _
+@Library('pipelines-shared-library@RANCHER-2236') _
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),

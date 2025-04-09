@@ -4,7 +4,7 @@ import org.folio.jenkins.JenkinsAgentLabel
 import org.folio.jenkins.PodTemplates
 import org.folio.models.parameters.KarateTestsParameters
 
-@Library('pipelines-shared-library@RANCHER-650-Jenkins-upgrade') _
+@Library('pipelines-shared-library@RANCHER-2236') _
 
 /**
  * Job properties and parameters

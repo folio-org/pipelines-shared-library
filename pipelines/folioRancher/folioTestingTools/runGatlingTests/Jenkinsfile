@@ -4,7 +4,7 @@ import hudson.util.Secret
 import org.folio.models.parameters.KarateTestsParameters
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library@RANCHER-650-Jenkins-upgrade') _
+@Library('pipelines-shared-library@RANCHER-2236') _
 
 /**
  * Job properties and parameters
