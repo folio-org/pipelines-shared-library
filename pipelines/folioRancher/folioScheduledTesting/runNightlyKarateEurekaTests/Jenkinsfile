@@ -72,6 +72,7 @@ ansiColor('xterm') {
       .loadReference(true)
       .loadSample(true)
       .linkedData(true)
+      .mockServer(true)
       .consortia(true)
       .splitFiles(true)
       .rtr(false)
