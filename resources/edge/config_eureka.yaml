@@ -1,34 +1,34 @@
 edge-users:
   tenants:
-    - tenant: default
-      username: edgeUser
-      firstName: edge
-      lastName: SYSTEM
-      password: edgeUser123!
-      create: true
+  - tenant: default
+    username: edgeUser
+    firstName: edge
+    lastName: SYSTEM
+    password: edgeUser123!
+    create: true
   capabilities:
     - users_collection.view
     - users_item.create
 edge-inventory:
   tenants:
-    - tenant: default
-      username: edgeInventory
-      firstName: edge
-      lastName: SYSTEM
-      password: edgeInventory123!
-      create: true
+  - tenant: testinventory
+    username: test-user
+    password: test
+    create: true
   capabilities:
     - inventory_instances_item.view
 edge-rtac:
+  tenants:
+  - tenant: testrtac
+    username: test-user
+    password: test
   capabilitiesSet:
   - rtac.manage
 edge-oai-pmh:
   tenants:
   - tenant: testoaipmh
-    firstName: edgeOaiPmh
-    lastName: edgeOaiPmh
-    username: oaiClient
-    password: oai12345
+    username: test-user
+    password: test
     create: true
   capabilitiesSet:
   - oai-pmh.manage
