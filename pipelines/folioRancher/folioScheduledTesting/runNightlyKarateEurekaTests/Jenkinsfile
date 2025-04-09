@@ -84,7 +84,8 @@ ansiColor('xterm') {
       .build()
 
     RancherNamespace namespace = new RancherNamespace(namespaceBaseParams.getClusterName(), namespaceBaseParams.getNamespaceName())
-    namespace.withSuperTenantAdminUser()
+    namespace.withDefaultTenant('diku')
+    namespace.withSuperTenantAdminUser('diku_admin', 'admin')
 
     KarateTestsParameters karateTestsParams = new KarateTestsParameters()
     karateTestsParams.gitBranch = params.TESTS_BRANCH
@@ -95,7 +96,7 @@ ansiColor('xterm') {
     karateTestsParams.adminUserName = namespace.getSuperTenant().getAdminUser().getUsername()
     karateTestsParams.adminPassword = namespace.getSuperTenant().getAdminUser().getPassword()
     karateTestsParams.threadsCount = params.THREADS_COUNT
-    karateTestsParams.reportPortalProjectName = 'karate-eureka'
+    karateTestsParams.reportPortalProjectName = namespace.getNamespaceName()
     karateTestsParams.sendSlackNotification = false
     karateTestsParams.sendTeamsSlackNotification = false
     karateTestsParams.syncWithJira = false
