@@ -362,6 +362,13 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
       case ~/edge-.*$/:
         moduleConfig['integrations']['okapi'] = [enabled: false]
         break
+
+      case 'mod-fqm-manager':
+        ns.namespaceName == 'karate-eureka' ? moduleConfig['extraEnvVars'] += [
+          name: 'mod-fqm-manager.entity-type-cache-timeout-seconds',
+          value: '0'
+        ] : []
+        break
     }
   }
 
