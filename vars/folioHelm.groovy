@@ -288,6 +288,10 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
 //    }
   //Enable RTR functionality
 
+  //okapi part of RANCHER-2227
+  if (ns.namespaceName == 'cikarate' && moduleName == 'mod-fqm-manager') {
+    moduleConfig['extraEnvVars'] += [name: 'mod-fqm-manager.entity-type-cache-timeout-seconds', value: '0']
+  }
 
   //mod-authtoken jwt.signing.key
   if (moduleName == 'mod-authtoken') {
