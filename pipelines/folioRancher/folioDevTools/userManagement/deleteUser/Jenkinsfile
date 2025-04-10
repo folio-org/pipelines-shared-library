@@ -6,8 +6,6 @@ import org.folio.models.OkapiUser
 import org.folio.models.RancherNamespace
 import org.folio.rest_v2.Users
 import org.jenkinsci.plugins.workflow.libs.Library
-import org.folio.jenkins.JenkinsAgentLabel
-import org.folio.jenkins.PodTemplates
 
 @Library('pipelines-shared-library@RANCHER-2236') _
 
@@ -56,6 +54,6 @@ ansiColor('xterm') {
         println(exception)
         error(exception.getMessage())
       }
-        }
-      }
     }
+  }
+}

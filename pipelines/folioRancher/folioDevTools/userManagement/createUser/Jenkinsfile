@@ -1,7 +1,7 @@
 #!groovy
-import org.folio.models.OkapiTenant
 import org.folio.jenkins.JenkinsAgentLabel
 import org.folio.jenkins.PodTemplates
+import org.folio.models.OkapiTenant
 import org.folio.models.OkapiUser
 import org.folio.models.RancherNamespace
 import org.folio.rest_v2.Main
