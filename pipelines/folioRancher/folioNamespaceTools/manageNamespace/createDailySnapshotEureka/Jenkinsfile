@@ -1,5 +1,5 @@
 #!groovy
-package folioRancher.folioNamespaceTools.manageNamespace.createDailySnapshotEureka
+
 
 import groovy.transform.Field
 import org.folio.Constants

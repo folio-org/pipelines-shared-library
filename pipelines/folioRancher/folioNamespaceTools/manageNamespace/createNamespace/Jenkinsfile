@@ -64,7 +64,7 @@ ansiColor('xterm') {
           poll: false)
       }
 
-      folioNamespaceCreate(namespaceParams)
+      folioNamespaceCreate.call(namespaceParams)
     }
   }
 }

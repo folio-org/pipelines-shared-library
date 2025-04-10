@@ -163,42 +163,37 @@ if (namespaceParams.platform == PlatformType.EUREKA) {
 ansiColor('xterm') {
   PodTemplates podTemplates = new PodTemplates(this)
 
-  podTemplates.defaultTemplate {
-    node(JenkinsAgentLabel.DEFAULT_AGENT.getLabel()) {
-      try {
-        stage('Ini') {
-          buildName "${params.CLUSTER}-${params.NAMESPACE}.${env.BUILD_ID}"
-          buildDescription "Branch: ${params.FOLIO_BRANCH}\nConfig: ${params.CONFIG_TYPE}\n" +
-            "DB version: ${params.DB_VERSION}\nRW split: ${params.RW_SPLIT}\nGreenmail: ${params.POSTGRESQL}\n" +
-            "Mock server: ${params.MOCK_SERVER}\nConsortia: ${params.CONSORTIA}"
-        }
+//  podTemplates.defaultTemplate {
+//    node(JenkinsAgentLabel.DEFAULT_AGENT.getLabel()) {
+////      try {
+//      stage('Ini') {
+//        buildName "${params.CLUSTER}-${params.NAMESPACE}.${env.BUILD_ID}"
+//        buildDescription "Branch: ${params.FOLIO_BRANCH}\nConfig: ${params.CONFIG_TYPE}\n" +
+//          "DB version: ${params.DB_VERSION}\nRW split: ${params.RW_SPLIT}\nGreenmail: ${params.POSTGRESQL}\n" +
+//          "Mock server: ${params.MOCK_SERVER}\nConsortia: ${params.CONSORTIA}"
+//      }
+//    }
+//  }
 
-        stage('Checkout') {
-          git(url: "${GlobalConst.FOLIO_GITHUB_URL}/pipelines-shared-library.git",
-            branch: folioTools.getPipelineBranch(),
-            credentialsId: GlobalConst.PRIVATE_GITHUB_CREDENTIALS_ID,
-            poll: false)
-        }
+  if (namespaceParams.platform == PlatformType.EUREKA) {
+    folioNamespaceCreateEureka.call(namespaceParams)
+  } else {
+    folioNamespaceCreate.call(namespaceParams)
+  }
 
-        if (namespaceParams.platform == PlatformType.EUREKA) {
-          folioNamespaceCreateEureka(namespaceParams)
-        } else {
-          folioNamespaceCreate(namespaceParams)
-        }
-
-        stage('[Cypress] Run sanity check') {
-          if (params.RUN_SANITY_CHECK) {
-            folioCypressFlow.call(cypressSanityParameters.getCiBuildId(), [cypressSanityParameters])
-          }
-        }
-      } catch (e) {
-        /** Put error message to the Job Run description */
-        currentBuild.description = e.getMessage()
-        currentBuild.result = 'FAILURE'
-
-        println "Caught exception: ${e}"
-        error(e.getMessage())
-      }
+  stage('[Cypress] Run sanity check') {
+    if (params.RUN_SANITY_CHECK) {
+      folioCypressFlow.call(cypressSanityParameters.getCiBuildId(), [cypressSanityParameters])
     }
   }
+//      } catch (e) {
+//        /** Put error message to the Job Run description */
+//        currentBuild.description = e.getMessage()
+//        currentBuild.result = 'FAILURE'
+//
+//        echo("Caught exception: ${e}")
+//        error(e.getMessage())
+//      }
+//    }
+//  }
 }
