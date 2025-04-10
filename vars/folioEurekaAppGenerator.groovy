@@ -14,7 +14,21 @@ def generateApplicationDescriptor(String appName, Map<String, String> moduleList
     writeJSON file: appName + ".template.json", json: updatedTemplate
 
     awscli.withAwsClient() {
-      sh(script: "mvn clean install -U -e -DbuildNumber=${BUILD_NUMBER} -DawsRegion=us-west-2")
+      withMaven(
+        jdk: "${common.selectJavaBasedOnAgent(params.AGENT)}".toString(),
+        maven: Constants.MAVEN_TOOL_NAME,
+        traceability: false,
+        options: [artifactsPublisher(disabled: true)]
+      ) {
+        sh """
+              mvn clean compile -U -e \
+              -DbuildNumber=${BUILD_NUMBER} \
+              -Dregistries='${org.folio.rest_v2.Constants.OKAPI_REGISTRY},s3::eureka-application-registry::descriptors' \
+              -DawsRegion=us-west-2
+            """.stripIndent()
+      }
+
+//      sh(script: "mvn clean compile -U -e -DbuildNumber=${BUILD_NUMBER} -Dregistries='${org.folio.rest_v2.Constants.OKAPI_REGISTRY}' -DawsRegion=us-west-2")
 
       logger.info("Application $appName successfuly generated")
     }
