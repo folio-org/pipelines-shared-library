@@ -1,8 +1,9 @@
 #!groovy
-package folioRancher.folioScheduledTesting.runNightlyCypressEurekaTests
 
 import groovy.transform.Field
 import org.folio.Constants
+import org.folio.jenkins.JenkinsAgentLabel
+import org.folio.jenkins.PodTemplates
 import org.folio.models.OkapiTenant
 import org.folio.models.OkapiUser
 import org.folio.models.RancherNamespace
@@ -12,20 +13,19 @@ import org.folio.rest_v2.PlatformType
 import org.folio.utilities.Logger
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-2236') _
 
 /**
  * Job properties and parameters
  */
 properties([
-  pipelineTriggers([cron('H 21 * * 1-5')]),
-  buildDiscarder(logRotator(numToKeepStr: '30')),
-  disableConcurrentBuilds(),
-  parameters([
-    string(name: 'CYPRESS_BRANCH', defaultValue: 'master', description: "(Required) Insert what 'stripes-testing' branch use for build"),
-    folioParameters.agent(),
-    folioParameters.refreshParameters()
-  ])
+//  pipelineTriggers([cron('H 21 * * 1-5')]),
+buildDiscarder(logRotator(numToKeepStr: '30')),
+disableConcurrentBuilds(),
+parameters([
+  string(name: 'CYPRESS_BRANCH', defaultValue: 'master', description: "(Required) Insert what 'stripes-testing' branch use for build"),
+  folioParameters.refreshParameters()
+])
 ])
 
 if (params.REFRESH_PARAMETERS) {
@@ -36,6 +36,7 @@ if (params.REFRESH_PARAMETERS) {
 /**
  * Job variables
  */
+PodTemplates podTemplates = new PodTemplates(this)
 Logger logger = new Logger(this, env.JOB_BASE_NAME)
 
 @Field final String deleteNamespaceJobName = Constants.JENKINS_DELETE_NAMESPACE_JOB_EUREKA
@@ -56,7 +57,6 @@ CreateNamespaceParameters namespaceBaseParams = new CreateNamespaceParameters.Bu
   .opensearchType('aws')
   .s3Type('built-in')
   .members('')
-  .worker('rancher')
   .build()
 
 CreateNamespaceParameters namespaceFromBranchParams = namespaceBaseParams.toBuilder()
@@ -86,7 +86,6 @@ cypressParameters.setTenant(new OkapiTenant('diku')
 cypressParameters.setExecParameters('--env grepTags="smoke criticalPath"')
 cypressParameters.setTestrailProjectID('14')
 cypressParameters.setTestrailRunID('2723')
-cypressParameters.setWorkerLabel('cypress')
 cypressParameters.setNumberOfWorkers(12)
 cypressParameters.setTimeout('480')
 
@@ -97,15 +96,10 @@ String reportPortalRunType = 'evrk'
  * Pipeline
  */
 ansiColor('xterm') {
-  node(params.AGENT) {
-    try {
+  podTemplates.defaultTemplate {
+    node(JenkinsAgentLabel.DEFAULT_AGENT.getLabel()) {
       stage('Ini') {
         buildDescription "Branch: ${params.CYPRESS_BRANCH}\nConfig: ${namespaceFromBranchParams.getConfigType()}\nEnv: ${cypressParameters.tenantUrl}"
-        cleanWs()
-      }
-
-      stage('Checkout') {
-        checkout scm
       }
 
       stage('[Job] Destroy environment') {
@@ -118,7 +112,7 @@ ansiColor('xterm') {
             folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceBaseParams)
           }
         } else {
-          logger.warning("${namespaceBaseParams.getNamespaceName()} namespace does not exists!")
+          logger.info("${namespaceBaseParams.getNamespaceName()} namespace does not exists!")
         }
       }
 
@@ -132,19 +126,7 @@ ansiColor('xterm') {
         }
       }
 
-      stage('[Flow] Execute tests') {
-        cypressTestsExecutionSummary = folioCypressFlow.runWrapper(cypressParameters.getCiBuildId(), reportPortalUse, reportPortalRunType) {
-          folioCypressFlow.multiThreadRun(cypressParameters)
-        }
-      }
-    } catch (e) {
-      logger.warning("Caught exception: ${e}")
-      error(e.getMessage())
-    } finally {
-      stage('Cleanup') {
-        logger.debug("Workspace size: ${sh(returnStdout: true, script: 'du -sh .').trim()}")
-        cleanWs notFailBuild: true
-      }
+      folioCypressFlow.call(cypressParameters.getCiBuildId(), [cypressParameters], false, reportPortalUse, reportPortalRunType)
     }
   }
 }

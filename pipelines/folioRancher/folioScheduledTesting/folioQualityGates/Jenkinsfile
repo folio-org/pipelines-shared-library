@@ -1,4 +1,5 @@
 #!groovy
+
 import org.folio.Constants as CommonConstants
 import org.folio.jenkins.JenkinsAgentLabel
 import org.folio.jenkins.PodTemplates
@@ -34,6 +35,7 @@ if (params.REFRESH_PARAMETERS) {
   return
 }
 
+PodTemplates podTemplates = new PodTemplates(this)
 Logger logger = new Logger(this, env.JOB_BASE_NAME)
 
 boolean autoCanceled = false
@@ -85,7 +87,6 @@ CreateNamespaceParameters namespaceFromBranchParams = namespaceBaseParams.toBuil
   .build()
 
 ansiColor('xterm') {
-  PodTemplates podTemplates = new PodTemplates(this)
   try {
     podTemplates.defaultTemplate {
       node(JenkinsAgentLabel.DEFAULT_AGENT.getLabel()) {

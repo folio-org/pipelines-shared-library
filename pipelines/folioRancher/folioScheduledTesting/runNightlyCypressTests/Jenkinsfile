@@ -52,9 +52,7 @@ CreateNamespaceParameters namespaceBaseParams = new CreateNamespaceParameters.Bu
   .kafkaType('aws')
   .opensearchType('aws')
   .s3Type('built-in')
-  .runSanityCheck(false)
   .members('')
-  .worker('rancher')
   .build()
 
 CreateNamespaceParameters namespaceFromBranchParams = namespaceBaseParams.toBuilder()
