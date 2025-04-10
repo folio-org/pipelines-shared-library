@@ -54,6 +54,7 @@ class Constants {
                                         'dreamliner',
                                         'eureka',
                                         'eureka-2nd',
+                                        'erm',
                                         'falcon',
                                         'firebird',
                                         'folijet',
@@ -299,6 +300,7 @@ class Constants {
                                   'ebsco-core'    : 'ebsco-core',
                                   'eureka'        : 'Eureka',
                                   'eureka-2nd'    : 'Eureka',
+                                  'erm'           : 'erm',
                                   'falcon'        : 'falcon',
                                   'firebird'      : 'firebird',
                                   'folijet'       : 'folijet',
@@ -343,7 +345,7 @@ class Constants {
 
   //RDS
   static String BUGFEST_SNAPSHOT_DBNAME = 'folio'
-  static String BUGFEST_SNAPSHOT_NAME = 'folio-etesting-sprint-february-2025-all-users-clean-v2'
+  static String BUGFEST_SNAPSHOT_NAME = 'folio-general-dataset-april-2025-all-users-clean-v2'
   static String DATA_MIGRATION_SNAPSHOT_NAME = 'rbf-db-clean-the-latest-csp-21-01-25'
 
   static Map JMX_METRICS_AVAILABLE = ['mod-bulk-operations': '2.0.0-SNAPSHOT.71']

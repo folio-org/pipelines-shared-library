@@ -8,10 +8,18 @@ plugins {
   id 'groovy'
 }
 
+repositories {
+  gradlePluginPortal()
+}
+
 tasks {
   wrapper {
     gradleVersion = '8.12'
   }
+}
+
+repositories {
+  gradlePluginPortal()
 }
 
 java {
