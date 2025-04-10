@@ -175,6 +175,7 @@ class Constants {
 
   //Monitoring/Prometheus
   static String SLACK_WEBHOOK_URL = 'slack-webhook-url'
+  static String SLACK_CHANNEL = '#folio-rancher-debug-notifications' //TODO remove before merge to master
 
   //Helm
   static String HELM_MODULES_CONFIG_PATH = 'resources/helm'
@@ -261,10 +262,10 @@ class Constants {
   static final String JENKINS_DELETE_NAMESPACE_JOB = "$JENKINS_FOLIO_RANCHER_FOLDER/manageNamespace/deleteNamespace"
   static final String JENKINS_DEPLOY_MODULES_FROM_JSON = "$JENKINS_FOLIO_RANCHER_FOLDER/folioDevTools/moduleDeployment/deployModulesFromJson"
   static final String JENKINS_CREATE_NAMESPACE_FROM_BRANCH_JOB_EUREKA =
-    "$JENKINS_FOLIO_RANCHER_FOLDER/tmpFolderForDraftPipelines/Eureka/createNamespaceFromBranch-Eureka"
+    "$JENKINS_FOLIO_RANCHER_FOLDER/manageNamespace/createNamespaceFromBranch"
 
   static final String JENKINS_DELETE_NAMESPACE_JOB_EUREKA =
-    "$JENKINS_FOLIO_RANCHER_FOLDER/tmpFolderForDraftPipelines/Eureka/deleteNamespace-Eureka"
+    "$JENKINS_FOLIO_RANCHER_FOLDER/manageNamespace/deleteNamespace"
 
   //PostgreSQL
   static String PSQL_DUMP_HELM_CHART_NAME = 'psql-dump'
