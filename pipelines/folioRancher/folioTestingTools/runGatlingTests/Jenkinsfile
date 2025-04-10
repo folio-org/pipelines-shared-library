@@ -1,5 +1,4 @@
 #!groovy
-
 import hudson.util.Secret
 import org.folio.models.parameters.KarateTestsParameters
 import org.jenkinsci.plugins.workflow.libs.Library

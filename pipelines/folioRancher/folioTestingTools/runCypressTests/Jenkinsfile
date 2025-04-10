@@ -5,6 +5,7 @@ import org.folio.jenkins.PodTemplates
 import org.folio.models.OkapiTenant
 import org.folio.models.OkapiUser
 import org.folio.models.parameters.CypressTestsParameters
+import org.jenkinsci.plugins.workflow.libs.Library
 
 @Library('pipelines-shared-library@RANCHER-2236') _
 
