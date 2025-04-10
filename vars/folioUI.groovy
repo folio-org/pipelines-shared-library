@@ -24,7 +24,7 @@ void build(String okapiUrl, OkapiTenant tenant, boolean isEureka = false, String
                   branches         : [[name: tenantUi.getHash()]],
                   extensions       : [[$class: 'CleanBeforeCheckout', deleteUntrackedNestedRepositories: true]],
                   userRemoteConfigs: [[credentialsId: Constants.PRIVATE_GITHUB_CREDENTIALS_ID,
-                                       url: "${Constants.FOLIO_GITHUB_URL}/platform-complete.git"]]])
+                                       url          : "${Constants.FOLIO_GITHUB_URL}/platform-complete.git"]]])
       }
 
       stage('[UI] Add folio extensions') {
@@ -82,63 +82,64 @@ void build(String okapiUrl, OkapiTenant tenant, boolean isEureka = false, String
           _updateStripesConfigJsFile(uiModulesToAdd)
         }
       }
-    }
 
-    stage('[UI] Build and Push') {
-      container('kaniko') {
-        withAWS(credentials: Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID, region: Constants.AWS_REGION) {
-          ecrLogin()
-          folioKaniko.dockerHubLogin()
-          // Add YARN_CACHE_FOLDER to the Dockerfile
-          sh "sed -i '/^FROM /a ENV YARN_CACHE_FOLDER=${WORKSPACE}/.cache/yarn' docker/Dockerfile"
-          // Build and push the image
-          sh """/kaniko/executor --destination ${tenantUi.getImageName()} \
+
+      stage('[UI] Build and Push') {
+        container('kaniko') {
+          withAWS(credentials: Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID, region: Constants.AWS_REGION) {
+            ecrLogin()
+            folioKaniko.dockerHubLogin()
+            // Add YARN_CACHE_FOLDER to the Dockerfile
+            sh "sed -i '/^FROM /a ENV YARN_CACHE_FOLDER=${WORKSPACE}/.cache/yarn' docker/Dockerfile"
+            // Build and push the image
+            sh """/kaniko/executor --destination ${tenantUi.getImageName()} \
 --build-arg OKAPI_URL=${okapiUrl} \
 --build-arg TENANT_ID=${tenant.getTenantId()} \
 --dockerfile docker/Dockerfile --context ."""
+          }
         }
       }
-    }
 
-    //TODO Refactoring required
-    stage('Update keycloak redirect') {
-      if (isEureka) {
-        String tenantId = tenant.getTenantId()
-        RestClient client = new RestClient(this, true)
-        Map headers = ['Content-Type': 'application/x-www-form-urlencoded']
-        String tokenUrl = "https://${keycloakDomain}/realms/master/protocol/openid-connect/token"
-        String tokenBody = "grant_type=password&username=admin&password=SecretPassword&client_id=admin-cli"
+      //TODO Refactoring required
+      stage('Update keycloak redirect') {
+        if (isEureka) {
+          String tenantId = tenant.getTenantId()
+          RestClient client = new RestClient(this, true)
+          Map headers = ['Content-Type': 'application/x-www-form-urlencoded']
+          String tokenUrl = "https://${keycloakDomain}/realms/master/protocol/openid-connect/token"
+          String tokenBody = "grant_type=password&username=admin&password=SecretPassword&client_id=admin-cli"
 
-        def response = client.post(tokenUrl, tokenBody, headers).body
-        String token = response['access_token']
-        headers.put("Authorization", "Bearer ${token}")
+          def response = client.post(tokenUrl, tokenBody, headers).body
+          String token = response['access_token']
+          headers.put("Authorization", "Bearer ${token}")
 
-        String getRealmUrl = "https://${keycloakDomain}/admin/realms/${tenantId}/clients?clientId=${tenantId}-application"
-        def realm = client.get(getRealmUrl, headers).body
+          String getRealmUrl = "https://${keycloakDomain}/admin/realms/${tenantId}/clients?clientId=${tenantId}-application"
+          def realm = client.get(getRealmUrl, headers).body
 
-        String updateRealmUrl = "https://${keycloakDomain}/admin/realms/${tenantId}/clients/${realm['id'].get(0)}"
-        headers['Content-Type'] = 'application/json'
-        String tenantUrl = "https://${tenantUi.getDomain()}"
-        def updateContent = [
-          rootUrl                     : tenantUrl,
-          baseUrl                     : tenantUrl,
-          adminUrl                    : tenantUrl,
-          redirectUris                : ["${tenantUrl}/*", "http://localhost:3000/*", "https://eureka-snapshot-${tenantId}.${Constants.CI_ROOT_DOMAIN}/*"], //Requested by AQA Team
-          webOrigins                  : ["/*"],
-          authorizationServicesEnabled: true,
-          serviceAccountsEnabled      : true,
-          attributes                  : ['post.logout.redirect.uris': "/*##${tenantUrl}/*", login_theme: 'custom-theme']
-        ]
-        def ssoUpdates = [
-          ssoSessionIdleTimeout   : 7200,
-          ssoSessionMaxLifespan   : 7200,
-          clientSessionIdleTimeout: 7200,
-          clientSessionMaxLifespan: 7200,
-          resetPasswordAllowed    : true
-        ]
+          String updateRealmUrl = "https://${keycloakDomain}/admin/realms/${tenantId}/clients/${realm['id'].get(0)}"
+          headers['Content-Type'] = 'application/json'
+          String tenantUrl = "https://${tenantUi.getDomain()}"
+          def updateContent = [
+            rootUrl                     : tenantUrl,
+            baseUrl                     : tenantUrl,
+            adminUrl                    : tenantUrl,
+            redirectUris                : ["${tenantUrl}/*", "http://localhost:3000/*", "https://eureka-snapshot-${tenantId}.${Constants.CI_ROOT_DOMAIN}/*"], //Requested by AQA Team
+            webOrigins                  : ["/*"],
+            authorizationServicesEnabled: true,
+            serviceAccountsEnabled      : true,
+            attributes                  : ['post.logout.redirect.uris': "/*##${tenantUrl}/*", login_theme: 'custom-theme']
+          ]
+          def ssoUpdates = [
+            ssoSessionIdleTimeout   : 7200,
+            ssoSessionMaxLifespan   : 7200,
+            clientSessionIdleTimeout: 7200,
+            clientSessionMaxLifespan: 7200,
+            resetPasswordAllowed    : true
+          ]
 
-        client.put(updateRealmUrl, writeJSON(json: updateContent, returnText: true), headers)
-        client.put("https://${keycloakDomain}/admin/realms/${tenantId}", writeJSON(json: ssoUpdates, returnText: true), headers)
+          client.put(updateRealmUrl, writeJSON(json: updateContent, returnText: true), headers)
+          client.put("https://${keycloakDomain}/admin/realms/${tenantId}", writeJSON(json: ssoUpdates, returnText: true), headers)
+        }
       }
     }
   }

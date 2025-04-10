@@ -1,5 +1,6 @@
 import groovy.transform.Field
 import org.folio.Constants
+import org.folio.jenkins.PodTemplates
 import org.folio.utilities.Logger
 
 @Field
@@ -7,14 +8,21 @@ Logger logger = new Logger(this, 'folioEurekaAppGenerator')
 
 
 def generateApplicationDescriptor(String appName, Map<String, String> moduleList, String branch = "master", boolean debug = false) {
-  sh(script: "rm -rf ${appName} || true && git clone --branch ${branch} --single-branch ${Constants.FOLIO_GITHUB_URL}/${appName}.git")
-
   dir(appName) {
+    checkout(scmGit(
+      branches: [[name: "*/${branch}"]],
+      extensions: [cloneOption(depth: 10, noTags: true, reference: '', shallow: true)],
+      userRemoteConfigs: [[credentialsId: Constants.PRIVATE_GITHUB_CREDENTIALS_ID,
+                           url          : "${Constants.FOLIO_GITHUB_URL}/${appName}.git"]]))
+
     def updatedTemplate = setTemplateModuleLatestVersion(readJSON(file: appName + ".template.json"), moduleList)
     writeJSON file: appName + ".template.json", json: updatedTemplate
 
     awscli.withAwsClient() {
-      sh(script: "mvn clean install -U -e -DbuildNumber=${BUILD_NUMBER} -DawsRegion=us-west-2")
+      withMaven(jdk: Constants.JAVA_TOOL_NAME, maven: Constants.MAVEN_TOOL_NAME, mavenOpts: '-XX:MaxRAMPercentage=85',
+        mavenLocalRepo: "${new PodTemplates(this).WORKING_DIR}/.m2/repository", traceability: true) { //TODO Replace class with Constants
+        sh(script: "mvn clean install -U -e -DbuildNumber=${env.BUILD_NUMBER} -DawsRegion=us-west-2")
+      }
 
       logger.info("Application $appName successfuly generated")
     }
