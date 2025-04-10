@@ -4,6 +4,7 @@ import org.folio.jenkins.PodTemplates
 import org.folio.models.OkapiTenant
 import org.folio.rest_v2.Configurations
 import org.folio.rest_v2.Constants
+import org.jenkinsci.plugins.workflow.libs.Library
 
 @Library('pipelines-shared-library@RANCHER-2236') _
 
@@ -19,11 +20,6 @@ properties([
   ])
 ])
 
-OkapiTenant tenant = folioDefault.tenants()[params.TENANT_ID as String]
-tenant.okapiConfig.withResetPasswordLink("https://${params.CLUSTER}-${params.NAMESPACE}-${params.TENANT_ID}.${Constants.CI_ROOT_DOMAIN}")
-Configurations config = new Configurations(this, "${params.CLUSTER}-${params.NAMESPACE}-okapi.${Constants.CI_ROOT_DOMAIN}")
-
-
 if (params.REFRESH_PARAMETERS) {
   currentBuild.result = 'ABORTED'
   return
@@ -34,6 +30,10 @@ if (params.CLUSTER == 'folio-testing') {
 }
 
 PodTemplates podTemplates = new PodTemplates(this)
+
+OkapiTenant tenant = folioDefault.tenants()[params.TENANT_ID as String]
+tenant.okapiConfig.withResetPasswordLink("https://${params.CLUSTER}-${params.NAMESPACE}-${params.TENANT_ID}.${Constants.CI_ROOT_DOMAIN}")
+Configurations config = new Configurations(this, "${params.CLUSTER}-${params.NAMESPACE}-okapi.${Constants.CI_ROOT_DOMAIN}")
 
 ansiColor('xterm') {
   podTemplates.defaultTemplate {

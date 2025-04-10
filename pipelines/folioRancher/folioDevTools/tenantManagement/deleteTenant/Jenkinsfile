@@ -9,9 +9,6 @@ import org.folio.jenkins.PodTemplates
 
 @Library('pipelines-shared-library@RANCHER-2236') _
 
-
-
-
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
   disableConcurrentBuilds(),
@@ -33,7 +30,6 @@ RancherNamespace namespace = new RancherNamespace(params.CLUSTER, params.NAMESPA
 Main main = new Main(this, namespace.getDomains()['okapi'], namespace.getSuperTenant())
 
 OkapiTenant tenant = null
-
 
 ansiColor('xterm') {
   PodTemplates podTemplates = new PodTemplates(this)

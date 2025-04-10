@@ -1,5 +1,4 @@
 #!groovy
-
 import org.folio.Constants
 import org.folio.jenkins.JenkinsAgentLabel
 import org.folio.jenkins.PodTemplates
@@ -8,8 +7,6 @@ import org.folio.rest_v2.Main
 import org.jenkinsci.plugins.workflow.libs.Library
 
 @Library('pipelines-shared-library@RANCHER-2236') _
-
-CONFIG_BRANCH = 'master'
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
@@ -31,6 +28,7 @@ if (params.REFRESH_PARAMETERS) {
   currentBuild.result = 'ABORTED'
   return
 }
+
 RancherNamespace namespace = new RancherNamespace(params.CLUSTER, params.NAMESPACE)
   .withSuperTenantAdminUser()
 
@@ -48,7 +46,6 @@ withCredentials([[$class           : 'AmazonWebServicesCredentialsBinding',
   smtp = new SmtpConfig(Constants.EMAIL_SMTP_SERVER, Constants.EMAIL_SMTP_PORT, EMAIL_USERNAME, EMAIL_PASSWORD, Constants.EMAIL_FROM)
   kbApiKey = KB_API_KEY
 }
-
 
 Main main = new Main(this, namespace.getDomains()['okapi'], namespace.getSuperTenant())
 

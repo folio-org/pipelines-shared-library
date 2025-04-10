@@ -26,7 +26,6 @@ RancherNamespace namespace = new RancherNamespace(params.CLUSTER, params.NAMESPA
 
 Main main = new Main(this, namespace.getDomains()['okapi'], namespace.getSuperTenant())
 
-
 ansiColor('xterm') {
   PodTemplates podTemplates = new PodTemplates(this)
 
