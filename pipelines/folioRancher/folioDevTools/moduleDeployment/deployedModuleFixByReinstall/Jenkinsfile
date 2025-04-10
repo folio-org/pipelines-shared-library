@@ -1,12 +1,11 @@
 #!groovy
-package folioRancher.folioDevTools.moduleDeployment.deployedModuleFixByReinstall
-
-
 import org.folio.Constants
+import org.folio.jenkins.PodTemplates
+import org.folio.jenkins.JenkinsAgentLabel
 import org.folio.utilities.Logger
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-2236') _
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
@@ -14,7 +13,6 @@ properties([
   parameters([
     folioParameters.cluster(),
     folioParameters.namespace(),
-    folioParameters.agent(),
     string(name: 'MODULE', defaultValue: 'mod-oai-pmh', description: '(Required) Full module name to be reinstalled'),
     string(name: 'TENANT', defaultValue: 'diku', description: '(Required) Tenant name module to be reinstalled on'),
     folioParameters.refreshParameters()
@@ -26,11 +24,12 @@ if (params.REFRESH_PARAMETERS) {
   return
 }
 
+PodTemplates podTemplates = new PodTemplates(this)
 Logger logger = new Logger(this, env.JOB_BASE_NAME)
 
 ansiColor('xterm') {
-  node(params.AGENT) {
-    try {
+  podTemplates.defaultTemplate {
+    node(JenkinsAgentLabel.DEFAULT_AGENT.getLabel()) {
       stage('Ini') {
         buildName "Reinstall ${params.MODULE} on ${params.TENANT}"
         buildDescription "${params.CLUSTER}-${params.NAMESPACE}"
@@ -43,7 +42,7 @@ ansiColor('xterm') {
       stage('[FIX] module DB schema by reinstall') {
         logger.info("Fixing module: ${params.MODULE} DB schema on tenant: ${params.TENANT}")
         folioHelm.withKubeConfig(params.CLUSTER) {
-          def imageId= sh(script: "kubectl get deploy $params.MODULE -n $params.NAMESPACE -o=jsonpath='{\$.spec.template.spec.containers[:1].image}'", returnStdout: true).trim()
+          def imageId = sh(script: "kubectl get deploy $params.MODULE -n $params.NAMESPACE -o=jsonpath='{\$.spec.template.spec.containers[:1].image}'", returnStdout: true).trim()
           def id = imageId.split('/')[1].replace(':', '-')
           String cmd = "curl -X POST -H 'x-okapi-tenant:${params.TENANT}' -H 'Content-Type: application/json' -d '{\"id\": \"$id\"},\"parameters\":[{\"key\":\"reinstall\",\"value\":\"true\"}]}' 'http://${params.MODULE}/_/tenant'"
           kubectl.runPodWithCommand("${params.NAMESPACE}", 'curl-reinstall', Constants.ECR_FOLIO_REPOSITORY + '/curl:7.88.1')
@@ -51,15 +50,6 @@ ansiColor('xterm') {
           kubectl.execCommand("${params.NAMESPACE}", 'curl-reinstall', cmd)
           kubectl.deletePod("${params.NAMESPACE}", 'curl-reinstall')
         }
-      }
-
-    } catch (e) {
-      logger.warning("Caught exception: ${e}")
-      error(e.getMessage())
-    } finally {
-      stage('Cleanup') {
-        logger.debug("Workspace size: ${sh(returnStdout: true, script: 'du -sh .').trim()}")
-        cleanWs notFailBuild: true
       }
     }
   }

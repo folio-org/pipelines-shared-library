@@ -1,6 +1,4 @@
 #!groovy
-package folioRancher.folioEureka.buildUI
-
 import org.folio.models.*
 import org.folio.rest.GitHubUtility
 import org.folio.utilities.Logger

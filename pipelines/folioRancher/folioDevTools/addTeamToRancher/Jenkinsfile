@@ -25,8 +25,8 @@ ansiColor('xterm') {
   podTemplates.defaultTemplate {
     node(JenkinsAgentLabel.DEFAULT_AGENT.getLabel()) {
       stage('Ini') {
-        buildName "Add GitHub team ${params.TEAM_NAME} to ${params.NAMESPACE}"
-        buildDescription "${LocalDateTime.now().toString()}"
+        buildDescription "Add GitHub team ${params.TEAM_NAME} to ${params.NAMESPACE}\n" +
+          "${LocalDateTime.now().toString()}"
       }
 
       stage('Checkout') {

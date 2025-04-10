@@ -46,8 +46,9 @@ if (params.LINKED_DATA) {
 /**
  * Job variables
  **/
-Logger logger = new Logger(this, env.JOB_BASE_NAME)
 PodTemplates podTemplates = new PodTemplates(this)
+Logger logger = new Logger(this, env.JOB_BASE_NAME)
+
 final String deploymentConfigType = 'testing'
 boolean isRelease = params.FOLIO_BRANCH ==~ /^R\d-\d{4}.*/
 String commitHash = params.CUSTOM_HASH?.trim() ? params.CUSTOM_HASH : common.getLastCommitHash(params.FOLIO_REPOSITORY, params.FOLIO_BRANCH)
@@ -62,7 +63,6 @@ OkapiTenant tenant = new OkapiTenant(params.TENANT_ID)
   .withConfiguration(new OkapiConfig())
 
 ansiColor('xterm') {
-
   podTemplates.defaultTemplate {
     node(JenkinsAgentLabel.DEFAULT_AGENT.getLabel()) {
       stage('Ini') {

@@ -1,12 +1,13 @@
-package folioRancher.folioDevTools.moduleDeployment.deploySidecarFromFeatureBranch
-
+#!groovy
 import org.folio.Constants
+import org.folio.jenkins.JenkinsAgentLabel
+import org.folio.jenkins.PodTemplates
 import org.folio.models.EurekaNamespace
-import org.folio.utilities.Logger
 import org.folio.utilities.GitHubClient
+import org.folio.utilities.Logger
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-2236') _
 
 
 /** Sidecar module name (repository name) */
@@ -22,7 +23,6 @@ properties([
     folioParameters.cluster(),
     folioParameters.namespace(),
     folioParameters.configType(),
-    folioParameters.agent(),
     folioParameters.refreshParameters(),
   ])
 ])
@@ -34,6 +34,7 @@ if (params.REFRESH_PARAMETERS) {
 }
 
 /** Job variables */
+PodTemplates podTemplates = new PodTemplates(this)
 Logger logger = new Logger(this, env.JOB_BASE_NAME)
 
 /** Collect Rancher Namespace Configuration */
@@ -53,81 +54,77 @@ def sidecarVersion = ""
 
 /** Pipeline */
 ansiColor('xterm') {
-  node(params.AGENT) {
-    /** Directory to build Sidecar within */
-    def sidecarWorkDir = "${env.WORKSPACE}/${sidecarModuleName}"
+  podTemplates.kanikoTemplate {
+    podTemplates.javaTemplate('21') {
+      node(JenkinsAgentLabel.JAVA_AGENT.getLabel()) {
+        /** Directory to build Sidecar within */
+        def sidecarWorkDir = "${env.WORKSPACE}/${sidecarModuleName}"
+        stage('Ini') {
+          featureHash = new GitHubClient(this).getBranchInfo(sidecarModuleName, featureBranch).commit.sha.take(7)
 
-    try {
-      stage('Ini') {
-        featureHash = new GitHubClient(this).getBranchInfo(sidecarModuleName, featureBranch).commit.sha.take(7)
+          buildName "#${sidecarModuleName}.${env.BUILD_ID}"
+          buildDescription "Env: ${namespace.getWorkspaceName()}\nBranch: ${params.MODULE_BRANCH}\n" + "Config: ${params.CONFIG_TYPE}\n${currentBuild.getBuildCauses()[0].shortDescription}"
+        }
 
-        buildName "#${sidecarModuleName}.${env.BUILD_ID}"
-        buildDescription "Env: ${namespace.getWorkspaceName()}\nBranch: ${params.MODULE_BRANCH}\n" + "Config: ${params.CONFIG_TYPE}\n${currentBuild.getBuildCauses()[0].shortDescription}"
-      }
+        stage('[Git] Checkout') {
+          checkout([
+            $class           : 'GitSCM',
+            branches         : [[name: "*/${featureBranch}"]],
+            extensions       : [[$class: 'RelativeTargetDirectory', relativeTargetDir: sidecarModuleName],
+                                [$class: 'CleanBeforeCheckout', deleteUntrackedNestedRepositories: true],
+                                [$class: 'AuthorInChangelog'],
+                                [$class: 'SubmoduleOption', recursiveSubmodules: true]],
+            userRemoteConfigs: [[url: "https://github.com/folio-org/${sidecarModuleName}.git"]]
+          ])
+        }
 
-      stage('[Git] Checkout') {
-        checkout([
-          $class           : 'GitSCM',
-          branches         : [[name: "*/${featureBranch}"]],
-          extensions       : [[$class: 'RelativeTargetDirectory', relativeTargetDir: sidecarModuleName],
-                              [$class: 'CleanBeforeCheckout', deleteUntrackedNestedRepositories: true],
-                              [$class: 'AuthorInChangelog'],
-                              [$class: 'SubmoduleOption', recursiveSubmodules: true]],
-          userRemoteConfigs: [[url: "https://github.com/folio-org/${sidecarModuleName}.git"]]
-        ])
-      }
+        stage('[Maven] Compile') {
+          container('java') {
+            dir(sidecarWorkDir) {
+              /** Read Sidecar version from its pom.xml file PLUS the latest commit hash on branch*/
+              sidecarVersion = readMavenPom(file: 'pom.xml').version + ".${featureHash}"
 
-      stage('[Maven] Compile') {
-        dir(sidecarWorkDir) {
-          /** Read Sidecar version from its pom.xml file PLUS the latest commit hash on branch*/
-          sidecarVersion = readMavenPom(file: 'pom.xml').version + ".${featureHash}"
-
-          /** Build Sidecar as Maven Project */
-          withMaven(
-            jdk: "${common.selectJavaBasedOnAgent(params.AGENT)}".toString(),
-            maven: Constants.MAVEN_TOOL_NAME,
-            traceability: false,
-            options: [artifactsPublisher(disabled: true)]
-          ) {
-            sh """
-              mvn versions:set -DnewVersion=${sidecarVersion}
-              mvn package ${mavenArguments}
-            """.stripIndent()
+              /** Build Sidecar as Maven Project */
+              withMaven(jdk: Constants.JAVA_TOOL_NAME,
+                maven: Constants.MAVEN_TOOL_NAME,
+                traceability: false,
+                options: [artifactsPublisher(disabled: true)]) {
+                sh """
+                  mvn versions:set -DnewVersion=${sidecarVersion}
+                  mvn package ${mavenArguments}
+                """.stripIndent()
+              }
+            }
           }
         }
-      }
 
-      stage('[Docker] Build and Push') {
-        /** Put Docker Image to Amazon ECR repository */
-        docker.withRegistry(
-          "https://${Constants.ECR_FOLIO_REPOSITORY}",
-          "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}"
-        ) {
-          /** Check if ECR Repository exists. If it does not exist, create it */
+        stage('[Docker] Build and Push') {
           common.checkEcrRepoExistence(sidecarModuleName)
-
-          dir(sidecarWorkDir) {
-            /** Build Docker Image */
-            def dockerImage = docker.build("${sidecarModuleName}:${sidecarVersion}", '--no-cache=true --pull=true .')
-
-            /** Push Docker Image to ECR */
-            dockerImage.push()
+          container('kaniko') {
+            withAWS(credentials: Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID, region: Constants.AWS_REGION) {
+              ecrLogin()
+              folioKaniko.dockerHubLogin()
+              // Build and push the image
+              dir(sidecarWorkDir) {
+                sh """/kaniko/executor --destination \
+                  ${Constants.ECR_FOLIO_REPOSITORY}/${sidecarModuleName}:${sidecarVersion} --context .""".stripIndent()
+              }
+            }
           }
         }
-      }
 
-      stage('[Kubectl] Deploy') {
-        try {
-          folioHelm.withKubeConfig(namespace.clusterName) {
-            def getHelmReleasesCmd = "helm list --short --namespace ${params.NAMESPACE} --filter mod-*" as String
-            def releases = sh(script: getHelmReleasesCmd, returnStdout: true).trim()
+        stage('[Kubectl] Deploy') {
+          try {
+            folioHelm.withKubeConfig(namespace.clusterName) {
+              def getHelmReleasesCmd = "helm list --short --namespace ${params.NAMESPACE} --filter mod-*" as String
+              def releases = sh(script: getHelmReleasesCmd, returnStdout: true).trim()
 
-            int limit = 10
-            releases.tokenize().collate(limit).each { setOfReleases ->
-              def branches = [:]
-              setOfReleases.each { release ->
-                branches[release.toString()] = {
-                  def upgradeHelmReleaseCmd = """
+              int limit = 10
+              releases.tokenize().collate(limit).each { setOfReleases ->
+                def branches = [:]
+                setOfReleases.each { release ->
+                  branches[release.toString()] = {
+                    def upgradeHelmReleaseCmd = """
                     helm upgrade ${release} ${Constants.FOLIO_HELM_V2_REPO_NAME}/${release} \
                     --namespace ${params.NAMESPACE} \
                     --reuse-values \
@@ -136,26 +133,18 @@ ansiColor('xterm') {
                     --atomic
                   """.stripIndent() as String
 
-                  /** Deploy Sidecar to Kubernetes namespace */
-                  sh(script: upgradeHelmReleaseCmd, returnStdout: true)
+                    /** Deploy Sidecar to Kubernetes namespace */
+                    sh(script: upgradeHelmReleaseCmd, returnStdout: true)
+                  }
                 }
+                parallel branches
               }
-              parallel branches
             }
+          } catch (e) {
+            logger.warning("Failed to deploy new Sidecar version from feature branch: ${e.getMessage()}")
+            throw e
           }
-        } catch (e) {
-          logger.warning("Failed to deploy new Sidecar version from feature branch: ${e.getMessage()}")
-          throw e
         }
-      }
-
-    } catch (e) {
-      logger.warning("Caught exception: ${e}")
-      error(e.getMessage())
-    } finally {
-      stage('Cleanup') {
-        logger.debug("Workspace size: ${sh(returnStdout: true, script: 'du -sh .').trim()}")
-        cleanWs notFailBuild: true
       }
     }
   }
