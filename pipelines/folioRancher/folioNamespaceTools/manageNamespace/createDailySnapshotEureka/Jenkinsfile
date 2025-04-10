@@ -1,14 +1,14 @@
 #!groovy
-
-
 import groovy.transform.Field
 import org.folio.Constants
+import org.folio.jenkins.JenkinsAgentLabel
+import org.folio.jenkins.PodTemplates
+import org.folio.models.parameters.CreateNamespaceParameters
 import org.folio.rest_v2.PlatformType
 import org.jenkinsci.plugins.workflow.libs.Library
-import org.folio.models.parameters.CreateNamespaceParameters
 
 //TODO remove branch before merge to master
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-2236') _
 
 @Field final String deleteNamespaceJobName = Constants.JENKINS_DELETE_NAMESPACE_JOB_EUREKA
 @Field final String createNamespaceJobName = Constants.JENKINS_CREATE_NAMESPACE_FROM_BRANCH_JOB_EUREKA
@@ -26,6 +26,8 @@ if (params.REFRESH_PARAMETERS) {
   currentBuild.result = 'ABORTED'
   return
 }
+
+PodTemplates podTemplates = new PodTemplates(this)
 
 CreateNamespaceParameters namespace1 = new CreateNamespaceParameters.Builder()
   .platform(PlatformType.EUREKA)
@@ -89,13 +91,12 @@ CreateNamespaceParameters namespace2 = new CreateNamespaceParameters.Builder()
   .s3Type('built-in')
   .members('thunderjet,folijet,spitfire,vega,thor,Eureka,volaris,corsair,Bama,Aggies,Dreamliner,Leipzig,firebird,dojo,erm')
   .uiBuild(true)
-  .worker('rancher')
   .runSanityCheck(false)
   .build()
 
 ansiColor('xterm') {
-  node(params.AGENT) {
-    try {
+  podTemplates.defaultTemplate {
+    node(JenkinsAgentLabel.DEFAULT_AGENT.getLabel()) {
       stage('Checkout') {
         checkout scm
       }
@@ -157,23 +158,15 @@ ansiColor('xterm') {
       spinUpNamespaces(createdEnv, eliminatedEnv)
 
       //TODO: Decision needs to be made
-      if(eliminatedEnv.getNamespaceName() == namespace1.getNamespaceName())
+      if (eliminatedEnv.getNamespaceName() == namespace1.getNamespaceName())
         stage('Spinning up N1 del N2') {
           spinUpNamespaces(eliminatedEnv, createdEnv)
         }
-
-    } catch (e) {
-      println "Caught exception: ${e}"
-      error(e.getMessage())
-    } finally {
-      stage('Cleanup') {
-        cleanWs notFailBuild: true
-      }
     }
   }
 }
 
-void spinUpNamespaces(CreateNamespaceParameters createdEnv, CreateNamespaceParameters eliminatedEnv){
+void spinUpNamespaces(CreateNamespaceParameters createdEnv, CreateNamespaceParameters eliminatedEnv) {
   stage('Cleaning new env') {
     folioTriggerJob.deleteNamespace(deleteNamespaceJobName, createdEnv)
   }
