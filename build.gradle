@@ -14,6 +14,10 @@ tasks {
   }
 }
 
+repositories {
+  gradlePluginPortal()
+}
+
 java {
   sourceCompatibility = JavaVersion.VERSION_17
 }
