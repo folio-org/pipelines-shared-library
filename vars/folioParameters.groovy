@@ -100,8 +100,11 @@ def cypressAgent() {
   return _paramChoice('AGENT', CypressConstants.JENKINS_CYPRESS_AGENTS, 'Select Jenkins agent for build')
 }
 
-def platform() {
-  return _paramChoice('PLATFORM', PlatformType.values().collect{it.name() }, 'Select FOLIO platform')
+def platform(PlatformType defaultValue = null, String paramName = 'PLATFORM') {
+  List values = PlatformType.values().collect{it.name() } - [defaultValue?.name()]
+  values = defaultValue ? [defaultValue.name()] + values : values
+
+  return _paramChoice(paramName, values, 'Select FOLIO platform')
 }
 
 def applicationSet() {
@@ -200,8 +203,8 @@ def referenceTenantId(String tenant_id = 'diku') {
   return _paramString('REFERENCE_TENANT_ID', tenant_id, 'Reference Id used for tenant creation')
 }
 
-def moduleName() {
-  return _paramExtendedSingleSelect('MODULE_NAME', '', folioStringScripts.getBackendModulesList(), 'Select module name to install')
+def moduleName(String reference = 'PLATFORM', String paramName = 'MODULE_NAME') {
+  return _paramExtendedSingleSelect(paramName, reference, folioStringScripts.getModulesList(reference), 'Select module name to install')
 }
 
 def moduleType() {
@@ -230,6 +233,10 @@ def runSanityCheck(boolean value = true) {
 
 def hideParameters(Map valueParams, String reference) {
   return _paramHiddenHTML(folioStringScripts.getHideHTMLScript(valueParams, reference), reference)
+}
+
+def hideParameters(List params) {
+  return _paramHiddenHTML(folioStringScripts.getHideHTMLScript(['hide': params], '"hide"'), '')
 }
 
 def groupParameters(String title, List groupedParams, String reference = "") {

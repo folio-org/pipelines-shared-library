@@ -87,19 +87,29 @@ static String getModuleId(String moduleName) {
   }
 }
 
-static String getBackendModulesList() {
-  return '''import groovy.json.JsonSlurperClassic
+static String getModulesList(String reference){
+  return """import groovy.json.JsonSlurperClassic
+
 def apiUrl = "https://api.github.com/orgs/folio-org/repos"
 def perPage = 100
+
 def fetchModules(String url) {
+  String platform = ${reference}
+
   def credentialId = "github-jenkins-service-user-token"
-  def credential = com.cloudbees.plugins.credentials.SystemCredentialsProvider.getInstance().getStore().getCredentials(com.cloudbees.plugins.credentials.domains.Domain.global()).find { it.getId().equals(credentialId) }
+  def credential = com.cloudbees.plugins.credentials.SystemCredentialsProvider
+                      .getInstance()
+                      .getStore()
+                      .getCredentials(com.cloudbees.plugins.credentials.domains.Domain.global())
+                      .find { it.getId().equals(credentialId) }
+
   def secret_value = credential.getSecret().getPlainText()
   def modules = []
   def jsonSlurper = new JsonSlurperClassic()
   def getNextPage
+
   def processResponse = { connection ->
-    connection.setRequestProperty("Authorization", "Bearer ${secret_value}")
+    connection.setRequestProperty("Authorization", "Bearer \${secret_value}")
     if (connection.responseCode == 200) {
       def responseText = connection.getInputStream().getText()
       def json = jsonSlurper.parseText(responseText)
@@ -112,17 +122,28 @@ def fetchModules(String url) {
         }
       }
     } else {
-      println("Error fetching data: HTTP ${connection.responseCode}")
+      println("Error fetching data: HTTP \${connection.responseCode}")
     }
   }
+
   getNextPage = { nextPageUrl ->
     def nextConn = new URL(nextPageUrl).openConnection()
     processResponse(nextConn)
   }
+
   processResponse(new URL(url).openConnection())
-  return modules.findAll { it == 'okapi' || it.startsWith('mod-') || it.startsWith('edge-') }.sort()
+
+  return modules.findAll {
+    boolean isOKAPISpecific = it == 'okapi'
+    boolean isEUREKASpecific = it == 'folio-kong' || it == 'folio-keycloak' || it == 'folio-module-sidecar' || it.startsWith('mgr-')
+
+    boolean result = it.startsWith('mod-') || it.startsWith('edge-')
+    result = (!platform || platform == 'OKAPI' ? result || isOKAPISpecific : result)
+    return (!platform || platform == 'EUREKA' ? result || isEUREKASpecific : result)
+  }.sort()
 }
-fetchModules("${apiUrl}?per_page=${perPage}")'''
+
+fetchModules("\${apiUrl}?per_page=\${perPage}")"""
 }
 
 static String getModuleVersion() {
@@ -285,7 +306,7 @@ return \"\"\"
 
 static String getContainerImageTags(String numOfTagsToShow = '100') {
   return """
-    if (MODULE_SOURCE.contains('dockerhub/')) {
+    if (MODULE_SOURCE.contains('DockerHub/')) {
       def getContainerImageTags = "curl -s -X GET '${Constants.DOCKERHUB_URL}/repositories/\${MODULE_SOURCE.split('/')[1]}/\${MODULE_NAME}/tags?page_size=${numOfTagsToShow}' | jq -r '.results[].name'"
       def process = ['sh', '-c', getContainerImageTags].execute()
       return process.text.readLines().sort().reverse()

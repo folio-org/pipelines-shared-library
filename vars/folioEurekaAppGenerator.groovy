@@ -19,10 +19,19 @@ def generateApplicationDescriptor(String appName, Map<String, String> moduleList
     writeJSON file: appName + ".template.json", json: updatedTemplate
 
     awscli.withAwsClient() {
-      withMaven(jdk: Constants.JAVA_TOOL_NAME, maven: Constants.MAVEN_TOOL_NAME, mavenOpts: '-XX:MaxRAMPercentage=85',
-        mavenLocalRepo: "${new PodTemplates(this).WORKING_DIR}/.m2/repository", traceability: true) { //TODO Replace class with Constants
-        sh(script: "mvn clean install -U -e -DbuildNumber=${env.BUILD_NUMBER} -DawsRegion=us-west-2")
+      withMaven(jdk: Constants.JAVA_TOOL_NAME,
+        maven: Constants.MAVEN_TOOL_NAME, mavenOpts: '-XX:MaxRAMPercentage=85',
+        mavenLocalRepo: "${new PodTemplates(this).WORKING_DIR}/.m2/repository",
+        traceability: true,
+        options: [artifactsPublisher(disabled: true)]) { //TODO Replace class with Constants
+        sh """
+          mvn clean compile -U -e \
+          -DbuildNumber=${BUILD_NUMBER} \
+          -Dregistries='okapi::${org.folio.rest_v2.Constants.OKAPI_REGISTRY},s3::eureka-application-registry::descriptors' \
+          -DawsRegion=us-west-2
+        """.stripIndent()
       }
+//      sh(script: "mvn clean compile -U -e -DbuildNumber=${BUILD_NUMBER} -Dregistries='${org.folio.rest_v2.Constants.OKAPI_REGISTRY}' -DawsRegion=us-west-2")
 
       logger.info("Application $appName successfuly generated")
     }
