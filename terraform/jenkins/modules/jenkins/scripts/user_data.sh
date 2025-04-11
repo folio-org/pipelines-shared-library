@@ -8,8 +8,8 @@ yum update -y
 # - wget & curl: Download files from the web
 # - awscli: AWS command-line tool for S3 backups
 # - xfsprogs: Tools for working with XFS filesystems (for EBS volume)
-# - java-17-amazon-corretto: Java runtime required for Jenkins
-yum install -y wget curl awscli xfsprogs java-17-amazon-corretto fontconfig htop --allowerasing
+# - java-21-amazon-corretto: Java runtime required for Jenkins
+yum install -y wget curl awscli xfsprogs java-21-amazon-corretto fontconfig htop git --allowerasing
 
 # Add the Jenkins repository to the system
 wget -O /etc/yum.repos.d/jenkins.repo https://pkg.jenkins.io/redhat-stable/jenkins.repo

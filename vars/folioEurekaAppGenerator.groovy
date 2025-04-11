@@ -1,5 +1,6 @@
 import groovy.transform.Field
 import org.folio.Constants
+import org.folio.jenkins.PodTemplates
 import org.folio.utilities.Logger
 
 @Field
@@ -7,27 +8,29 @@ Logger logger = new Logger(this, 'folioEurekaAppGenerator')
 
 
 def generateApplicationDescriptor(String appName, Map<String, String> moduleList, String branch = "master", boolean debug = false) {
-  sh(script: "rm -rf ${appName} || true && git clone --branch ${branch} --single-branch ${Constants.FOLIO_GITHUB_URL}/${appName}.git")
-
   dir(appName) {
+    checkout(scmGit(
+      branches: [[name: "*/${branch}"]],
+      extensions: [cloneOption(depth: 10, noTags: true, reference: '', shallow: true)],
+      userRemoteConfigs: [[credentialsId: Constants.PRIVATE_GITHUB_CREDENTIALS_ID,
+                           url          : "${Constants.FOLIO_GITHUB_URL}/${appName}.git"]]))
+
     def updatedTemplate = setTemplateModuleLatestVersion(readJSON(file: appName + ".template.json"), moduleList)
     writeJSON file: appName + ".template.json", json: updatedTemplate
 
     awscli.withAwsClient() {
-      withMaven(
-        jdk: "${common.selectJavaBasedOnAgent(params.AGENT)}".toString(),
-        maven: Constants.MAVEN_TOOL_NAME,
-        traceability: false,
-        options: [artifactsPublisher(disabled: true)]
-      ) {
+      withMaven(jdk: Constants.JAVA_TOOL_NAME,
+        maven: Constants.MAVEN_TOOL_NAME, mavenOpts: '-XX:MaxRAMPercentage=85',
+        mavenLocalRepo: "${new PodTemplates(this).WORKING_DIR}/.m2/repository",
+        traceability: true,
+        options: [artifactsPublisher(disabled: true)]) { //TODO Replace class with Constants
         sh """
-              mvn clean compile -U -e \
-              -DbuildNumber=${BUILD_NUMBER} \
-              -Dregistries='okapi::${org.folio.rest_v2.Constants.OKAPI_REGISTRY},s3::eureka-application-registry::descriptors' \
-              -DawsRegion=us-west-2
-            """.stripIndent()
+          mvn clean compile -U -e \
+          -DbuildNumber=${BUILD_NUMBER} \
+          -Dregistries='okapi::${org.folio.rest_v2.Constants.OKAPI_REGISTRY},s3::eureka-application-registry::descriptors' \
+          -DawsRegion=us-west-2
+        """.stripIndent()
       }
-
 //      sh(script: "mvn clean compile -U -e -DbuildNumber=${BUILD_NUMBER} -Dregistries='${org.folio.rest_v2.Constants.OKAPI_REGISTRY}' -DawsRegion=us-west-2")
 
       logger.info("Application $appName successfuly generated")

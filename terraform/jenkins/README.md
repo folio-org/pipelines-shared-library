@@ -20,6 +20,7 @@ This Terraform module provisions the **entire Jenkins infrastructure**, includin
 - [Outputs](#outputs)
 - [Upgrade Jenkins Version](#upgrade-jenkins-version)
 - [Graph](#graph)
+- [Post-Deployment Steps](#post-deployment-steps)
 
 ## **Features**
 
@@ -168,3 +169,7 @@ sudo rm /usr/share/java/jenkins.war.bak
 ## **Graph**
 
 ![Infrastructure Graph](./images/graph.svg)
+
+## **Post-Deployment Steps**
+
+[Configure Jenkins Kubernetes Cloud](./jenkins-agents.md)
