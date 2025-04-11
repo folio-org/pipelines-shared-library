@@ -91,6 +91,13 @@ edge-connexion:
 edge-sip2: {}
 edge-courses: {}
 edge-fqm:
+  tenants:
+  - tenant: testfqmtenant
+    username: testFqmUser
+    firstName: testFqmUser
+    lastName: SYSTEM
+    password: test
+    create: true
   capabilitiesSet:
   - fqm_query.manage
 edge-dcb:
