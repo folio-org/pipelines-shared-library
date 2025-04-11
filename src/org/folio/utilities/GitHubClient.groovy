@@ -21,11 +21,11 @@ class GitHubClient {
       .getCredentials(Domain.global()).find { it.getId().equals(GITHUB_TOKEN_CREDENTIAL_ID) }.getSecret()
   }
 
-  String getBranchInfo(String repository, String branch) {
+  Map getBranchInfo(String repository, String branch) {
     String url = "${Constants.FOLIO_GITHUB_REPOS_URL}/${repository}/branches/${branch}"
     Map<String, String> headers = authorizedHeaders()
 
-    return restClient.get(url, headers).body
+    return restClient.get(url, headers).body as Map
   }
 
   Map getCommitInfo(String sha, String repository) {
