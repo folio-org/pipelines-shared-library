@@ -51,6 +51,8 @@ withCredentials([[$class           : 'AmazonWebServicesCredentialsBinding',
 
 Main main = new Main(this, namespace.getDomains()['okapi'], namespace.getSuperTenant())
 
+OkapiTenant tenant = null
+
 ansiColor('xterm') {
   node(params.AGENT) {
     stage('Ini') {
