@@ -83,6 +83,9 @@ String selectJavaBasedOnAgent(String agent_name) {
     case ~/^.*21.*$/:
       return 'openjdk-21-jenkins-slave-all'
       break
+    case ~/^rancher.*$/:
+      return 'openjdk-21-jenkins-slave-all'
+      break
     default:
       new Logger(this, 'common').error('Can not detect required Java version')
   }
