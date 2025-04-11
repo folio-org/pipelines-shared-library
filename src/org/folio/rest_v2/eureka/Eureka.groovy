@@ -135,7 +135,7 @@ class Eureka extends Base {
     ApplicationList apps = []
 
     appNames.each { appName, appBranch ->
-      apps.add(new Application(context.folioEurekaAppGenerator.generateDescriptor(appName, modules, appBranch, getDebug()) as Map))
+      apps.add(new Application(context.folioEurekaAppGenerator.generateFromRepository(appName, modules, appBranch, getDebug()) as Map))
     }
 
     return apps
