@@ -18,10 +18,6 @@ tasks {
   }
 }
 
-repositories {
-  gradlePluginPortal()
-}
-
 java {
   sourceCompatibility = JavaVersion.VERSION_17
 }
@@ -73,7 +69,7 @@ if (coreVersionFile.exists()) {
   }
 }
 
-def dependenciesFile = file("${jenkinsResourcesFolder}/dependecies.json")
+def dependenciesFile = file("${jenkinsResourcesFolder}/dependencies.json")
 if (dependenciesFile.exists()) {
   def contents = new JsonSlurper().parse(dependenciesFile)
   contents.dependencies.each { dep ->
