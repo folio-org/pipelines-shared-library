@@ -23,7 +23,7 @@ def generateApplicationDescriptor(String appName, Map<String, String> moduleList
         sh """
               mvn clean compile -U -e \
               -DbuildNumber=${BUILD_NUMBER} \
-              -Dregistries='${org.folio.rest_v2.Constants.OKAPI_REGISTRY},s3::eureka-application-registry::descriptors' \
+              -Dregistries='okapi::${org.folio.rest_v2.Constants.OKAPI_REGISTRY},s3::eureka-application-registry::descriptors' \
               -DawsRegion=us-west-2
             """.stripIndent()
       }
