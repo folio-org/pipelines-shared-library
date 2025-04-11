@@ -44,10 +44,16 @@ void stsKafkaLag(String cluster, String namespace, String tenantId) {
     if (check.contains("0\n0")) {
       check = check.tokenize()[0]
     }
-    while (check.toInteger() != 0) {
-      logger.debug("Waiting for capabilities to be propagated on tenant: ${tenantId}")
-      sleep time: 30, unit: 'SECONDS'
-      check = kubectl.execCommand("${namespace}", 'kafka-sh', "${lag}")
+    if (check.isInteger()){
+      while (check.toInteger() != 0) {
+        logger.debug("Waiting for capabilities to be propagated on tenant: ${tenantId}")
+        sleep time: 30, unit: 'SECONDS'
+        check = kubectl.execCommand("${namespace}", 'kafka-sh', "${lag}")
+      }
+    } else {
+      logger.debug("Kafka lag value is wrong: ${check}")
+      kubectl.deletePod("${namespace}", 'kafka-sh', false)
+      stsKafkaLag(cluster, namespace, tenantId)
     }
     kubectl.deletePod("${namespace}", 'kafka-sh', false)
   }
