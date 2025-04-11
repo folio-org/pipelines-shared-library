@@ -3,6 +3,7 @@ package folioRancher.folioDevTools.moduleDeployment.deployModuleFromFeatureBranc
 import hudson.AbortException
 import org.folio.Constants
 import org.folio.models.module.EurekaModule
+import org.folio.models.module.ModuleBuildTool
 import org.folio.utilities.Logger
 import org.folio.utilities.GitHubClient
 import org.folio.models.EurekaNamespace
@@ -102,10 +103,10 @@ ansiColor('xterm') {
 
       stage('[Maven/Gradle] Compile') {
         // Check if Maven or Gradle build tool is used
-        module.buildTool = fileExists("${module.name}/pom.xml") ? 'maven' : 'gradle'
+        module.buildTool = fileExists("${module.name}/pom.xml") ? ModuleBuildTool.MAVEN : ModuleBuildTool.GRADLE
 
         switch (module.buildTool) {
-          case 'maven':
+          case ModuleBuildTool.MAVEN:
             logger.info("Maven build tool is used")
             module.buildDir = "${env.WORKSPACE}/${module.name}"
 
@@ -131,7 +132,7 @@ ansiColor('xterm') {
             }
             break
 
-          case 'gradle':
+          case ModuleBuildTool.GRADLE:
             logger.info("Gradle build tool is used")
             module.buildDir = "${env.WORKSPACE}/${module.name}/service"
 
@@ -160,14 +161,14 @@ ansiColor('xterm') {
 
           dir(module.buildDir) {
             switch (module.buildTool) {
-              case 'maven':
+              case ModuleBuildTool.MAVEN:
                 module.modDescriptorPath = "${module.buildDir}/target/ModuleDescriptor.json"
 
                 // Build and Push Docker Image
                 docker.build("${module.name}:${module.version}", '--no-cache=true --pull=true .').push()
                 break
 
-              case 'gradle':
+              case ModuleBuildTool.GRADLE:
                 module.modDescriptorPath = "${module.buildDir}/build/resources/main/okapi/ModuleDescriptor.json"
 
                 // Build Docker Image
