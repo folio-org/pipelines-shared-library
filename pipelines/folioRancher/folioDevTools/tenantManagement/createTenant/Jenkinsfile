@@ -51,7 +51,7 @@ withCredentials([[$class           : 'AmazonWebServicesCredentialsBinding',
 
 Main main = new Main(this, namespace.getDomains()['okapi'], namespace.getSuperTenant())
 
-OkapiTenant tenant = null
+OkapiTenant newTenant = null
 
 ansiColor('xterm') {
   node(params.AGENT) {
@@ -60,7 +60,7 @@ ansiColor('xterm') {
       buildDescription ""
     }
     stage("Create Tenant") {
-      OkapiTenant newTenant = new OkapiTenant(params.TENANT_ID)
+      newTenant = new OkapiTenant(params.TENANT_ID)
         .withTenantName(params.TENANT_NAME)
         .withTenantDescription(params.TENANT_DESCRIPTION)
         .withAdminUser(folioDefault.adminOkapiUser("${params.TENANT_ID.toLowerCase()}_admin", 'admin'))
