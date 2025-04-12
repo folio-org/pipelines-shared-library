@@ -72,7 +72,7 @@ properties([
 ]'''),
 
     booleanParam(name: 'FROM_TEMPLATE', defaultValue: false, description: 'Check for building from template'),
-    text(name: 'TEMPLATE', description: 'Install json list with modules to install.',
+    text(name: 'TEMPLATE', description: 'Application template to use for building application descriptor.',
       defaultValue: '''[
   "name": "${project.name}",
   "version": "${project.version}",
@@ -113,10 +113,29 @@ properties([
   }
 ]'''),
 
-    booleanParam(name: 'PUSH_DESCRIPTOR_TO_ECR', defaultValue: true, description: 'Set true to push module descriptor to the ECR repository'),
+    booleanParam(name: 'PUSH_DESCRIPTOR_TO_ECR', defaultValue: true, description: 'Set true to push application descriptor to the ECR repository'),
     folioParameters.agent(),
-    folioParameters.refreshParameters(),
-    folioParameters.groupCheckboxes([ 'FROM_REPOSITORY', 'FROM_DESCRIPTOR', 'FROM_TEMPLATE' ])
+    folioParameters.refreshParameters()
+
+    , folioParameters.groupCheckboxes([ 'FROM_REPOSITORY', 'FROM_DESCRIPTOR', 'FROM_TEMPLATE' ])
+
+    , folioParameters.hideParameters(
+    [
+      '' :[ 'APPLICATION_SET', 'APPLICATION', 'APPLICATION_BRANCH' ]
+    ]
+    , "FROM_REPOSITORY")
+
+    , folioParameters.hideParameters(
+    [
+      '' :[ 'APPLICATION_DESCRIPTOR' ]
+    ]
+    , "FROM_DESCRIPTOR")
+
+    , folioParameters.hideParameters(
+    [
+      '' :[ 'TEMPLATE' ]
+    ]
+    , "FROM_TEMPLATE")
   ])
 ])
 
