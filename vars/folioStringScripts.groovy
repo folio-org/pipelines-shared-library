@@ -237,9 +237,9 @@ return \"\"\"
     document.addEventListener("DOMContentLoaded", function() {
       var checkbox_divs = document.querySelectorAll("${selectors}");
 
-      var checkboxes = checkbox_divs.forEach(function(checkbox_div){
+      var checkboxes = [...checkbox_divs].map(function(checkbox_div) {
           return checkbox_div.querySelector('input[name=value]');
-        });
+      });
 
       console.debug(checkboxes);
 
