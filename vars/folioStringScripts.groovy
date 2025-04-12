@@ -235,22 +235,26 @@ static String groupCheckBoxes(List checkboxes){
 return \"\"\"
   <script>
     document.addEventListener("DOMContentLoaded", function() {
-        var checkboxes = document.querySelectorAll("${selectors}");
+      var checkbox_divs = document.querySelectorAll("${selectors}");
 
-        console.debug(checkboxes);
-
-        // For each checkbox, attach a change listener.
-        checkboxes.forEach(function(checkbox) {
-            checkbox.addEventListener("change", function() {
-                if (checkbox.checked) {
-                    checkboxes.forEach(function(other) {
-                        if (other !== checkbox) {
-                            other.checked = false;
-                        }
-                    });
-                }
-            });
+      var checkboxes = checkbox_divs.forEach(function(checkbox_div){
+          return checkbox_div.querySelector('input[name=value]');
         });
+
+      console.debug(checkboxes);
+
+      // For each checkbox, attach a change listener.
+      checkboxes.forEach(function(checkbox) {
+        checkbox.addEventListener("change", function() {
+          if (checkbox.checked) {
+            checkboxes.forEach(function(other) {
+              if (other !== checkbox) {
+                other.checked = false;
+              }
+            });
+          }
+        });
+      });
     });
   </script>
 \"\"\"
