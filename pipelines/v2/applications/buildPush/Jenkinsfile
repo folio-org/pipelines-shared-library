@@ -22,34 +22,101 @@ properties([
 
     booleanParam(name: 'FROM_DESCRIPTOR', defaultValue: false, description: 'Check for building from descriptor'),
     text(name: 'APPLICATION_DESCRIPTOR', description: 'Previously generated application descriptor.',
-      defaultValue: '''[ {
-    "id" : "folio_users-x.x.x",
-    "action" : "enable"
-}, {
-    "id" : "mod-users-x.x.x",
-    "action" : "enable"
-} ]'''),
+      defaultValue: '''
+[
+  "id": "app-platform-minimal-x.x.x",
+  "name": "app-platform-minimal",
+  "version": "x.x.x",
+  "description": "Minimal FOLIO platform installation",
+  "platform": "base",
+  "dependencies": [],
+  "modules": [
+    {
+      "id": "mod-users-bl-x.x.x",
+      "name": "mod-users-bl",
+      "version": "x.x.x"
+    }
+    ],
+    "uiModules": [
+    {
+      "id": "folio_developer-x.x.x",
+      "name": "folio_developer",
+      "version": "x.x.x"
+    }
+    ],
+  "moduleDescriptors": [
+    {
+      "id": "mod-users-bl-7.10.0",
+      "name": "users business logic",
+      "requires": [
+        {
+          "id": "users",
+          "version": "x.x"
+        }
+        ...............
+        ]
+    }
+  ],
+  "uiModuleDescriptors": [
+    {
+      "id": "folio_developer-10.0.0",
+      "name": "Developer settings",
+      "requires": [
+        {
+          "id": "okapi",
+          "version": "1.9"
+        }
+      ]
+      .......................
+    }
+  ]
+]'''),
 
     booleanParam(name: 'FROM_TEMPLATE', defaultValue: false, description: 'Check for building from template'),
     text(name: 'TEMPLATE', description: 'Install json list with modules to install.',
-      defaultValue: '''[ {
-    "id" : "folio_users-x.x.x",
-    "action" : "enable"
-}, {
-    "id" : "mod-users-x.x.x",
-    "action" : "enable"
-} ]'''),
+      defaultValue: '''
+[
+  "name": "${project.name}",
+  "version": "${project.version}",
+  "description": "${project.description}",
+  "platform": "base",
+  "dependencies": [],
+  "modules": [
+    {
+      "name": "mod-configuration",
+      "version": "x.x.x"
+    },
+    {
+      "name": "mod-permissions",
+      "version": "latest"
+    }
+  ],
+  "uiModules": [
+    {
+      "name": "folio_developer",
+      "version": "x.x.x"
+    },
+    {
+      "name": "folio_tags",
+      "version": "latest"
+    }
+  ]
+]'''),
 
     text(name: 'INSTALL_JSON', description: '(Required) Install json list with modules to install.',
-      defaultValue: '''[ {
+      defaultValue: '''
+[ {
     "id" : "folio_users-x.x.x",
     "action" : "enable"
-}, {
+  },
+  {
     "id" : "mod-users-x.x.x",
     "action" : "enable"
-} ]'''),
+  }
+]'''),
+
     booleanParam(name: 'PUSH_DESCRIPTOR_TO_ECR', defaultValue: true, description: 'Set true to push module descriptor to the ECR repository'),
-    folioParameters.agent(Constants.JENKINS_AGENTS_BUILD_MODULE),
+    folioParameters.agent(),
     folioParameters.refreshParameters(),
     folioParameters.groupCheckboxes([ 'FROM_REPOSITORY', 'FROM_DESCRIPTOR', 'FROM_TEMPLATE' ])
   ])
