@@ -113,6 +113,10 @@ def applications(String paramName = 'APPLICATIONS', String reference = 'APPLICAT
   return _paramExtendedCheckboxSelect(paramName, reference, folioStringScripts.getApplications(reference), 'Select env applications', false)
 }
 
+def application(String paramName = 'APPLICATION', String reference = 'APPLICATION_SET') {
+  return _paramExtendedSingleSelect(paramName, reference, folioStringScripts.getApplications(reference), 'Select application')
+}
+
 def refreshParameters() {
   return _paramBoolean('REFRESH_PARAMETERS', false, 'Set to true for update pipeline parameters, it will not run a pipeline')
 }
@@ -235,6 +239,10 @@ def hideParameters(Map valueParams, String reference) {
 
 def hideParameters(List params) {
   return _paramHiddenHTML(folioStringScripts.getHideHTMLScript(['hide': params], '"hide"'), '')
+}
+
+def groupCheckboxes(List checkboxes, String reference = "") {
+  return _paramFormattedHTML(folioStringScripts.groupCheckBoxes(checkboxes), reference)
 }
 
 def groupParameters(String title, List groupedParams, String reference = "") {

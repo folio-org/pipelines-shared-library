@@ -12,18 +12,46 @@ import org.jenkinsci.plugins.workflow.libs.Library
 //TODO: Switch to the master
 @Library('pipelines-shared-library@RANCHER-2138-test') _
 
-
 properties([
   buildDiscarder(logRotator(numToKeepStr: '10')),
   parameters([
-    folioParameters.platform(),
-    folioParameters.moduleName(), // MODULE_NAME, Folio Module moduleName
-    folioParameters.branchWithRef('MODULE_BRANCH', 'MODULE_NAME'), // MODULE_BRANCH, Module Github branch
-    string(name: 'MAVEN_ARGS', defaultValue: '-DskipTests', description: 'Maven build arguments'),
-    booleanParam(name: 'PUSH_IMAGE_TO_ECR', defaultValue: true, description: 'Set true to push built image to the ECR repository'),
+    booleanParam(name: 'FROM_REPOSITORY', defaultValue: true, description: 'Check for building from application repository'),
+    folioParameters.applicationSet(),
+    folioParameters.application(),
+    folioParameters.branchWithRef('APPLICATION_BRANCH', 'APPLICATION'),
+
+    booleanParam(name: 'FROM_DESCRIPTOR', defaultValue: false, description: 'Check for building from descriptor'),
+    text(name: 'APPLICATION_DESCRIPTOR', description: 'Previously generated application descriptor.',
+      defaultValue: '''[ {
+    "id" : "folio_users-x.x.x",
+    "action" : "enable"
+}, {
+    "id" : "mod-users-x.x.x",
+    "action" : "enable"
+} ]'''),
+
+    booleanParam(name: 'FROM_TEMPLATE', defaultValue: false, description: 'Check for building from template'),
+    text(name: 'TEMPLATE', description: 'Install json list with modules to install.',
+      defaultValue: '''[ {
+    "id" : "folio_users-x.x.x",
+    "action" : "enable"
+}, {
+    "id" : "mod-users-x.x.x",
+    "action" : "enable"
+} ]'''),
+
+    text(name: 'INSTALL_JSON', description: '(Required) Install json list with modules to install.',
+      defaultValue: '''[ {
+    "id" : "folio_users-x.x.x",
+    "action" : "enable"
+}, {
+    "id" : "mod-users-x.x.x",
+    "action" : "enable"
+} ]'''),
     booleanParam(name: 'PUSH_DESCRIPTOR_TO_ECR', defaultValue: true, description: 'Set true to push module descriptor to the ECR repository'),
     folioParameters.agent(Constants.JENKINS_AGENTS_BUILD_MODULE),
-    folioParameters.refreshParameters()
+    folioParameters.refreshParameters(),
+    folioParameters.groupCheckboxes([ 'FROM_REPOSITORY', 'FROM_DESCRIPTOR', 'FROM_TEMPLATE' ])
   ])
 ])
 
