@@ -233,8 +233,8 @@ def runSanityCheck(boolean value = true) {
   return _paramBoolean('RUN_SANITY_CHECK', value, 'Set to false, to disable cypress sanity check')
 }
 
-def hideParameters(Map valueParams, String reference) {
-  return _paramHiddenHTML(folioStringScripts.getHideHTMLScript(valueParams, reference), reference)
+def hideParameters(Map valueParams, String keyParameter, String reference = keyParameter) {
+  return _paramHiddenHTML(folioStringScripts.getHideHTMLScript(valueParams, keyParameter), reference)
 }
 
 def hideParameters(List params) {

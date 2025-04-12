@@ -123,19 +123,19 @@ properties([
     [
       '' :[ 'APPLICATION_SET', 'APPLICATION', 'APPLICATION_BRANCH' ]
     ]
-    , "FROM_REPOSITORY")
+    , "FROM_REPOSITORY", "FROM_REPOSITORY,FROM_DESCRIPTOR,FROM_TEMPLATE")
 
     , folioParameters.hideParameters(
     [
       '' :[ 'APPLICATION_DESCRIPTOR' ]
     ]
-    , "FROM_DESCRIPTOR")
+    , "FROM_DESCRIPTOR", "FROM_REPOSITORY,FROM_DESCRIPTOR,FROM_TEMPLATE")
 
     , folioParameters.hideParameters(
     [
       '' :[ 'TEMPLATE' ]
     ]
-    , "FROM_TEMPLATE")
+    , "FROM_TEMPLATE", "FROM_REPOSITORY,FROM_DESCRIPTOR,FROM_TEMPLATE")
   ])
 ])
 
