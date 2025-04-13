@@ -7,6 +7,16 @@ import org.folio.utilities.Tools
 @Field
 Logger logger = new Logger(this, 'folioEurekaAppGenerator')
 
+/**
+ * Update the application descriptor by leveraging the folio-application-generator.
+ * https://github.com/folio-org/folio-application-generator/tree/master?tab=readme-ov-file#update-application-descriptor.
+ *
+ * @param appName The name of the application.
+ * @param descriptor The application descriptor in JSON format.
+ * @param moduleList A list of modules to be included in the descriptor.
+ * @param version The version of the application (optional).
+ * @param debug Flag to enable debug logging (default: false).
+ */
 Map updateDescriptor(Map descriptor, FolioInstallJson moduleList, boolean debug = false) {
   logger.info("Updating application descriptor...")
 
@@ -25,6 +35,14 @@ Map updateDescriptor(Map descriptor, FolioInstallJson moduleList, boolean debug 
   }
 }
 
+/**
+ * Generate an application descriptor from a given descriptor.
+ *
+ * @param descriptor The application descriptor in JSON format.
+ * @param moduleList A list of modules to be included in the descriptor.
+ * @param version The version of the application (optional).
+ * @param debug Flag to enable debug logging (default: false).
+ */
 Map generateFromDescriptor(Map descriptor, FolioInstallJson moduleList, String version = null, boolean debug = false){
   logger.info("Generating application descriptor from descriptor...")
 
@@ -33,7 +51,7 @@ Map generateFromDescriptor(Map descriptor, FolioInstallJson moduleList, String v
 
   dir(appName) {
     if(moduleList) {
-      template = updateTemplate(template, moduleList, debug, true)
+      template = updateTemplate(template, moduleList, debug, false)
     }
 
     writeJSON file: appName + '.template.json', json: template
@@ -43,6 +61,13 @@ Map generateFromDescriptor(Map descriptor, FolioInstallJson moduleList, String v
   }
 }
 
+/**
+ * Extract a template from the given descriptor.
+ *
+ * @param descriptor The application descriptor in JSON format.
+ * @param version The version of the application (optional).
+ * @param debug Flag to enable debug logging (default: false).
+ */
 Map createTemplateFromDescriptor(Map descriptor, String version = null, boolean debug = false) {
   Map template = descriptor
 
@@ -66,6 +91,14 @@ Map createTemplateFromDescriptor(Map descriptor, String version = null, boolean 
   return template
 }
 
+/**
+ * Generate an application descriptor from a given application repository.
+ *
+ * @param repoName The name of the repository.
+ * @param moduleList A list of modules to be included in the descriptor.
+ * @param branch The branch to be used (default: "master").
+ * @param debug Flag to enable debug logging (default: false).
+ */
 Map generateFromRepository(String repoName, FolioInstallJson moduleList, String branch = "master", boolean debug = false) {
   logger.info("Generating application descriptor from repository...")
 
@@ -88,6 +121,35 @@ Map generateFromRepository(String repoName, FolioInstallJson moduleList, String 
     }
 
     return _generate(repoName, debug)
+  }
+}
+
+/**
+ * Generate an application descriptor from a given template.
+ *
+ * @param appName The name of the application.
+ * @param template The template in JSON format.
+ * @param moduleList A list of modules to be included in the descriptor.
+ * @param appDescription The description of the application (optional).
+ * @param version The version of the application (optional).
+ * @param debug Flag to enable debug logging (default: false).
+ */
+Map generateFromTemplate(String appName, Map template, FolioInstallJson moduleList
+                         , String appDescription = null, String version = null, boolean debug = false){
+  logger.info("Generating application descriptor from template...")
+
+  dir(appName) {
+    if(moduleList) {
+      template = updateTemplate(template, moduleList, debug, false)
+    }
+
+    writeJSON file: appName + '.template.json', json: template
+    new Tools(this).copyResourceFileToCurrentDirectory("applications/generator/pom.xml")
+
+    return _generate(appName, debug, "org.folio:folio-application-generator:generateFromJson"
+      , "-Dproject.name=${appName} -DtemplatePath=${appName}.template.json" +
+        "${version ? "-Dproject.version=${version}" : ""}" +
+        "${appDescription ? "-Dproject.description='${appDescription}'" : ""}")
   }
 }
 

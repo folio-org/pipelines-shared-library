@@ -1,10 +1,13 @@
 package v2.applications.buildPush
 
 import org.folio.Constants
+import org.folio.models.FolioInstallJson
+import org.folio.models.application.Application
+import org.folio.models.module.EurekaModule
 import org.folio.models.module.FolioModule
 import org.folio.models.module.ModuleBuildTool
 import org.folio.models.module.ModuleType
-import org.folio.utilities.GitHubClient
+import org.folio.pipelines.applications.buildPush.ApplicationsBuildPushPipeline
 import org.folio.utilities.Logger
 import org.jenkinsci.plugins.pipeline.modeldefinition.Utils
 import org.jenkinsci.plugins.workflow.libs.Library
@@ -20,7 +23,9 @@ properties([
     folioParameters.application(),
     folioParameters.branchWithRef('APPLICATION_BRANCH', 'APPLICATION'),
 
-    booleanParam(name: 'FROM_DESCRIPTOR', defaultValue: false, description: 'Check for building from descriptor'),
+    booleanParam(name: 'FROM_DESCRIPTOR', defaultValue: false, description: 'Check to upgrade previously built descriptor'),
+    booleanParam(name: 'RECREATE', defaultValue: true, description: 'Check to recreate application descriptor from scratch with new module versions'),
+    booleanParam(name: 'UPGRADE', defaultValue: false, description: 'Check to upgrade previously built descriptor with new module versions'),
     text(name: 'APPLICATION_DESCRIPTOR', description: 'Previously generated application descriptor.',
       defaultValue: '''[
   "id": "app-platform-minimal-x.x.x",
@@ -72,6 +77,8 @@ properties([
 ]'''),
 
     booleanParam(name: 'FROM_TEMPLATE', defaultValue: false, description: 'Check for building from template'),
+    string(name: 'APP_NAME', defaultValue: '', description: '(Mandatory) Name of the application to be built'),
+    string(name: 'APP_DESCRIPTION', defaultValue: '', description: '(Optional) Description of the application to be built'),
     text(name: 'TEMPLATE', description: 'Application template to use for building application descriptor.',
       defaultValue: '''[
   "name": "${project.name}",
@@ -113,11 +120,13 @@ properties([
   }
 ]'''),
 
+    string(name: 'VERSION', defaultValue: '', description: '(Optional) A version to be explicitly set for new application descriptor.'),
     booleanParam(name: 'PUSH_DESCRIPTOR_TO_ECR', defaultValue: true, description: 'Set true to push application descriptor to the ECR repository'),
     folioParameters.agent(),
     folioParameters.refreshParameters()
 
     , folioParameters.groupCheckboxes([ 'FROM_REPOSITORY', 'FROM_DESCRIPTOR', 'FROM_TEMPLATE' ])
+    , folioParameters.groupCheckboxes([ 'RECREATE', 'UPGRADE' ])
 
     , folioParameters.hideParameters(
     [
@@ -127,115 +136,124 @@ properties([
 
     , folioParameters.hideParameters(
     [
-      '' :[ 'APPLICATION_DESCRIPTOR' ]
+      '' :[ 'APPLICATION_DESCRIPTOR', 'RECREATE', 'UPGRADE', 'VERSION' ]
     ]
     , "FROM_DESCRIPTOR", "FROM_REPOSITORY,FROM_DESCRIPTOR,FROM_TEMPLATE")
 
     , folioParameters.hideParameters(
     [
-      '' :[ 'TEMPLATE' ]
+      '' :[ 'TEMPLATE', 'APP_NAME', 'APP_DESCRIPTION', 'VERSION' ]
     ]
     , "FROM_TEMPLATE", "FROM_REPOSITORY,FROM_DESCRIPTOR,FROM_TEMPLATE")
   ])
 ])
 
-if (params.REFRESH_PARAMETERS) {
+// Abort if refresh parameters is set or if no source type is selected
+// or if template source type is selected without any approach type
+if (params.REFRESH_PARAMETERS || !(params.FROM_REPOSITORY || params.FROM_DESCRIPTOR || params.FROM_TEMPLATE) ||
+      (params.FROM_TEMPLATE && !(params.RECREATE || params.UPGRADE))) {
   currentBuild.result = 'ABORTED'
   return
 }
 
 ansiColor('xterm') {
   node(params.AGENT) {
-    String moduleName = params.MODULE_NAME
-    String branch = params.MODULE_BRANCH
-    String mavenArgs = params.MAVEN_ARGS.trim()
-    String gradleOpts = '--quiet --console plain --no-daemon'
-
     Logger logger = new Logger(this, env.JOB_BASE_NAME)
-    FolioModule module = new FolioModule()
-    String commitHash = ""
-    String args = ""
+
+    List<Map<String, String>> installJson = readJSON text: params.INSTALL_JSON
+    installJson = installJson.unique()
+
+    FolioInstallJson<EurekaModule> beUpdated = new FolioInstallJson<EurekaModule>(EurekaModule.class)
+      .setInstallJsonObject(installJson)
+
+    Map initialDescriptor = readJSON text: params.APPLICATION_DESCRIPTOR
+    Map template = readJSON text: params.TEMPLATE
+
+    ApplicationsBuildPushPipeline.SourceType sourceType =
+      params.FROM_REPOSITORY ? ApplicationsBuildPushPipeline.SourceType.REPOSITORY :
+      (params.FROM_DESCRIPTOR ? ApplicationsBuildPushPipeline.SourceType.DESCRIPTOR :
+        ApplicationsBuildPushPipeline.SourceType.TEMPLATE)
+
+    String appName = ""
+    Application application
 
     try {
-      stage('[Git] Checkout module source') {
-        checkout([
-          $class           : 'GitSCM',
-          branches         : [[name: "*/${branch}"]],
-          extensions       : [[$class: 'RelativeTargetDirectory', relativeTargetDir: moduleName],
-                              [$class: 'CleanBeforeCheckout', deleteUntrackedNestedRepositories: true],
-                              [$class: 'AuthorInChangelog'],
-                              [$class: 'SubmoduleOption', recursiveSubmodules: true]],
-          userRemoteConfigs: [[url: "https://github.com/folio-org/${moduleName}.git"]]
-        ])
-      }
-
       stage('Init'){
-        commitHash = new GitHubClient(this).getBranchInfo(moduleName, branch).commit.sha.take(7)
+        String additionalInfo = null
 
-        module.buildTool = getBuildTool(moduleName)
-        module.buildDir = getBuildDir(moduleName, module.buildTool)
-        module.modDescriptorPath = getDescriptorPath(module.buildTool, module.buildDir)
+        switch (sourceType) {
+          case ApplicationsBuildPushPipeline.SourceType.REPOSITORY:
+            appName = params.APPLICATION
+            additionalInfo = "Branch: ${params.APPLICATION_BRANCH}"
+            break
 
-        String version = getModuleVersion(module.buildTool, module.buildDir)
-        module.loadModuleDetails("${moduleName}-${version}.${commitHash}")
+          case ApplicationsBuildPushPipeline.SourceType.DESCRIPTOR:
+            appName = initialDescriptor.name
+            additionalInfo = "Approach: ${params.RECREATE ? 'Recreate' : 'Upgrade'}"
+            break
 
-        args = module.buildTool == ModuleBuildTool.MAVEN ? mavenArgs : args
-        args = module.buildTool == ModuleBuildTool.GRADLE ? gradleOpts : args
+          case ApplicationsBuildPushPipeline.SourceType.TEMPLATE:
+            appName = params.APP_NAME
+            break
+        }
 
-        buildName "${moduleName}.${env.BUILD_ID}"
-        buildDescription """Module: ${module.id}
-Branch: ${branch}
-Build tool: ${module.buildTool.toString()}"""
-
-        writeJSON file: 'execution_results.json', json: [
-          moduleId: module.id
-        ] // Export module ID to be used in the upstream jobs. DO NOT REMOVE!!!
-        archiveArtifacts allowEmptyArchive: true, artifacts: "execution_results.json", fingerprint: true, defaultExcludes: false
+        buildName "${appName}${params.VERSION ? ".${params.VERSION}" : ""}.${env.BUILD_ID}"
+        buildDescription additionalInfo ?: ""
       }
 
-      stage('[Maven/Gradle] Build artifact') {
-        if (!params.PUSH_DESCRIPTOR_TO_ECR || module.buildTool == ModuleBuildTool.NONE){
-          logger.info("Skip [Maven/Gradle] Build artifact stage")
-          Utils.markStageSkippedForConditional('[Maven/Gradle] Build artifact')
-        }else{
-          compile(module, args)
+      stage('[Maven] Build descriptor') {
+        switch (sourceType) {
+          case ApplicationsBuildPushPipeline.SourceType.REPOSITORY:
+            application = new Application(folioEurekaAppGenerator.generateFromRepository(
+              appName,
+              beUpdated,
+              params.APPLICATION_BRANCH as String
+            ) as Map)
+            break
 
-          zip zipFile: "${module.name}.jar.zip", glob: "**/${module.name}*.jar"
-          archiveArtifacts allowEmptyArchive: true, artifacts: "${module.name}.jar.zip", fingerprint: true, defaultExcludes: false
+          case ApplicationsBuildPushPipeline.SourceType.DESCRIPTOR:
+            if(params.RECREATE) {
+              application = new Application(folioEurekaAppGenerator.generateFromDescriptor(
+                initialDescriptor,
+                beUpdated,
+                params.VERSION.trim() ?: null
+              ) as Map)
+            } else {
+              application = new Application(folioEurekaAppGenerator.updateDescriptor(
+                initialDescriptor,
+                beUpdated
+              ) as Map)
+            }
+            break
+
+          case ApplicationsBuildPushPipeline.SourceType.TEMPLATE:
+            application = new Application(folioEurekaAppGenerator.generateFromTemplate(
+              appName,
+              template,
+              beUpdated,
+              params.APPLICATION_DESCRIPTOR.trim() ?: null,
+              params.VERSION.trim() ?: null
+            ) as Map)
+            break
         }
       }
 
-
-      stage('[Docker] Build image and push') {
-        if (!params.PUSH_IMAGE_TO_ECR) {
-          logger.info("Skip [Docker] Build image and push stage")
-          Utils.markStageSkippedForConditional('[Docker] Build image and push')
+      stage('[ECR] Upload descriptor') {
+        if (!params.PUSH_DESCRIPTOR_TO_ECR) {
+          logger.info("Skip [ECR] Upload descriptor stage")
+          Utils.markStageSkippedForConditional('[ECR] Upload descriptor')
         }else{
+          writeJSON file: application.getId() + '.json', json: application.getDescriptor()
 
-          buildAndPushImage(module, args)
-
-          archiveArtifacts allowEmptyArchive: true, artifacts: "**/${module.name}-${module.version}.tar.gz", fingerprint: true, defaultExcludes: false
-        }
-      }
-
-      stage('[CURL] Upload module descriptor') {
-        boolean isBackendOrEdge = module.type == ModuleType.BACKEND || module.type == ModuleType.EDGE
-
-        if (!params.PUSH_DESCRIPTOR_TO_ECR || !isBackendOrEdge) {
-          logger.info("Skip [CURL] Upload module descriptor stage")
-          Utils.markStageSkippedForConditional('[CURL] Upload module descriptor')
-        }else{
-
-          module.descriptor = [readJSON(file: module.modDescriptorPath)]
-
+          //noinspection GroovyAssignabilityCheck
           sh(
-            label: "Upload Module Descriptor to Module Registry",
+            label: "Upload an application descriptor to ECR",
             returnStdout: false,
-            script: "[ -e ${module.modDescriptorPath} ] && curl -sS -X PUT ${Constants.EUREKA_REGISTRY_URL}${module.name}-${module.version} --upload-file ${module.modDescriptorPath}"
+            script: "[ -e ${application.getId()}.json ] && curl -sS -X PUT ${Constants.EUREKA_REGISTRY_URL}${application.getId()} --upload-file ${application.getId()}.json"
           )
 
-          zip zipFile: "ModuleDescriptor.json.zip", glob: "**/ModuleDescriptor.json"
-          archiveArtifacts allowEmptyArchive: true, artifacts: "ModuleDescriptor.json.zip", fingerprint: true, defaultExcludes: false
+          zip zipFile: application.getId() + '.json', glob: '**/' + application.getId() + '.json'
+          archiveArtifacts allowEmptyArchive: true, artifacts: "${application.getId()}.json", fingerprint: true, defaultExcludes: false
         }
       }
     } catch (e) {
@@ -248,163 +266,4 @@ Build tool: ${module.buildTool.toString()}"""
       }
     }
   }
-}
-
-void compile(FolioModule module, String args) {
-  dir(module.buildDir) {
-    switch (module.buildTool) {
-      case ModuleBuildTool.MAVEN:
-        withMaven(
-          jdk: "${common.selectJavaBasedOnAgent(params.AGENT)}".toString(),
-          maven: Constants.MAVEN_TOOL_NAME,
-          traceability: false,
-          options: [artifactsPublisher(disabled: true)])
-          {
-            sh(
-              label: 'Build with Maven', script: """
-            mvn versions:set -DnewVersion=${module.version}
-            mvn package ${args}
-          """.stripIndent().trim()
-            )
-          }
-        break
-
-      case ModuleBuildTool.GRADLE:
-        sh(label: 'Build with Gradle', script: "./gradlew ${args} -PappVersion=${module.version} assemble")
-        break
-
-      default:
-        throw new RuntimeException("Unsupported build tool for module: ${module.name}")
-    }
-  }
-}
-
-def buildAndPushImage(FolioModule module, String args) {
-  docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
-    common.checkEcrRepoExistence(module.name)
-
-    dir(module.buildDir) {
-      switch (module.buildTool) {
-        case [ModuleBuildTool.MAVEN, ModuleBuildTool.NONE]:
-          String buildArgs = module.type == ModuleType.KONG ? '--build-arg TARGETARCH=amd64' : ''
-
-          docker.build("${module.name}:${module.version}", "--no-cache=true $buildArgs --pull=true .")
-          break
-
-        case ModuleBuildTool.GRADLE:
-          String shellCmd = """
-            echo '[INFO] Build Container Image'
-            ./gradlew ${args} -PdockerRepo=folioci -PappVersion=${module.version} buildImage
-
-            echo '[INFO] Rename Local Container Image'
-            docker tag folioci/${module.name}:${module.version}.${env.BUILD_NUMBER} ${module.name}:${module.version}
-
-            echo '[INFO] Get rid of BUILD_NUMBER in Module Descriptor'
-            [ -e ${module.modDescriptorPath} ] && sed -i 's#${module.version}.${env.BUILD_NUMBER}#${module.version}#g' ${module.modDescriptorPath}
-          """.stripIndent().trim()
-
-          sh(label: 'Build Container Image', script: shellCmd)
-          break
-
-        default:
-          throw new RuntimeException("Unsupported build tool for Eureka module: ${module.buildTool}")
-      }
-
-      sh "docker save ${module.name}:${module.version} | gzip > ${module.name}-${module.version}.tar.gz"
-
-      docker.image("${module.name}:${module.version}").push()
-    }
-  }
-}
-
-@SuppressWarnings('GrMethodMayBeStatic')
-String getDescriptorPath(ModuleBuildTool buildTool, String buildDir){
-  switch (buildTool) {
-    case ModuleBuildTool.MAVEN:
-      return "${buildDir}/target/ModuleDescriptor.json"
-      break
-
-    case ModuleBuildTool.GRADLE:
-      return "${buildDir}/build/resources/main/okapi/ModuleDescriptor.json"
-      break
-
-    case ModuleBuildTool.NONE:
-      return ""
-      break
-
-    default:
-      throw new RuntimeException("Unsupported build tool for module")
-  }
-}
-
-String getModuleVersion(ModuleBuildTool buildTool, String buildDir){
-  dir(buildDir) {
-    switch (buildTool) {
-      case ModuleBuildTool.MAVEN:
-        return readMavenPom(file: 'pom.xml').version
-        break
-
-      case ModuleBuildTool.GRADLE:
-        String moduleVersion = readProperties(file: "gradle.properties")['appVersion']
-        moduleVersion = !moduleVersion.contains("-SNAPSHOT") ? "${moduleVersion}-SNAPSHOT" : moduleVersion
-
-        return moduleVersion
-        break
-
-      case ModuleBuildTool.NONE:
-        return sh(
-          script: '''
-              cur_ver=$(git describe --tags --match "v[0-9]*" --abbrev=0 $(git rev-list --tags --max-count=1) | sed 's/^v\\([0-9]\\)/\\1/')
-if [ "${cur_ver}" == "" ]; then
-  cur_ver="0.0.0"
-fi
-maj_ver=$(echo $cur_ver | awk -F '.' '{ print $1 }')
-min_ver=$(echo $cur_ver | awk -F '.' '{ print $2 }')
-patch_ver=$(echo $cur_ver | awk -F '.' '{ print $3 }')
-new_min_ver=$((min_ver+1))
-new_cur_ver=${maj_ver}.${new_min_ver}.0
-version="${new_cur_ver}-SNAPSHOT"
-echo "${version}"
-            ''',
-          returnStdout: true
-        ).trim()
-
-        break
-
-      default:
-        throw new RuntimeException("Unsupported build tool for module")
-    }
-  }
-}
-
-String getBuildDir(String moduleName, ModuleBuildTool buildTool){
-  switch (buildTool) {
-    case ModuleBuildTool.MAVEN:
-      return "${env.WORKSPACE}/${moduleName}"
-      break
-
-    case ModuleBuildTool.GRADLE:
-      return "${env.WORKSPACE}/${moduleName}/service"
-      break
-
-    case ModuleBuildTool.NONE:
-      return "${env.WORKSPACE}/${moduleName}"
-      break
-
-    default:
-      throw new RuntimeException("Unsupported build tool for module")
-  }
-}
-
-ModuleBuildTool getBuildTool(String moduleName){
-  ModuleType type = ModuleType.determineModuleType(moduleName)
-
-  if(type == ModuleType.KONG || type == ModuleType.KEYCLOAK){
-    return ModuleBuildTool.NONE
-  }
-
-  boolean hasPom = fileExists("${moduleName}/pom.xml")
-  boolean hasGradle = fileExists("${moduleName}/build.gradle") || fileExists("${moduleName}/service/build.gradle")
-
-  return hasPom ? ModuleBuildTool.MAVEN : (hasGradle ? ModuleBuildTool.GRADLE : null)
 }
