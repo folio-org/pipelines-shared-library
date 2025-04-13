@@ -136,13 +136,13 @@ properties([
 
     , folioParameters.hideParameters(
     [
-      '' :[ 'APPLICATION_DESCRIPTOR', 'RECREATE', 'UPGRADE', 'VERSION' ]
+      '' :[ 'APPLICATION_DESCRIPTOR', 'RECREATE', 'UPGRADE' ]
     ]
     , "FROM_DESCRIPTOR", "FROM_REPOSITORY,FROM_DESCRIPTOR,FROM_TEMPLATE")
 
     , folioParameters.hideParameters(
     [
-      '' :[ 'TEMPLATE', 'APP_NAME', 'APP_DESCRIPTION', 'VERSION' ]
+      '' :[ 'TEMPLATE', 'APP_NAME', 'APP_DESCRIPTION' ]
     ]
     , "FROM_TEMPLATE", "FROM_REPOSITORY,FROM_DESCRIPTOR,FROM_TEMPLATE")
   ])
