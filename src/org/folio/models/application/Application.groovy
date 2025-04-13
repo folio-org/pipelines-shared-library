@@ -1,5 +1,6 @@
 package org.folio.models.application
 
+import com.cloudbees.groovy.cps.NonCPS
 import org.folio.models.module.EurekaModule
 
 import java.util.regex.Matcher
@@ -66,6 +67,7 @@ class Application {
     return this.id == ((Application) obj).id
   }
 
+  @NonCPS
   static String extractBuild(String version){
     return version ==~ /^\d+\.\d+\.\d+-SNAPSHOT\.\d+$/ ? version.replaceFirst(/^\d+\.\d+\.\d+-SNAPSHOT\./, "") : ""
   }
