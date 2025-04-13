@@ -130,7 +130,8 @@ properties([
 
     , folioParameters.hideParameters(
     [
-      '' :[ 'APPLICATION_SET', 'APPLICATION', 'APPLICATION_BRANCH' ]
+      '' :[ 'APPLICATION_SET', 'APPLICATION', 'APPLICATION_BRANCH' ],
+      'on': [ 'VERSION' ]
     ]
     , "FROM_REPOSITORY", "FROM_REPOSITORY,FROM_DESCRIPTOR,FROM_TEMPLATE")
 
