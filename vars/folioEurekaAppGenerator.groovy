@@ -107,11 +107,11 @@ Map generateFromRepository(String repoName, FolioInstallJson moduleList, String 
   checkout([
     $class           : 'GitSCM',
     branches         : [[name: "*/${branch}"]],
-    extensions       : [[$class: 'RelativeTargetDirectory', relativeTargetDir: appName],
+    extensions       : [[$class: 'RelativeTargetDirectory', relativeTargetDir: repoName],
                         [$class: 'CleanBeforeCheckout', deleteUntrackedNestedRepositories: true],
                         [$class: 'AuthorInChangelog'],
                         [$class: 'SubmoduleOption', recursiveSubmodules: true]],
-    userRemoteConfigs: [[url: "${Constants.FOLIO_GITHUB_URL}/${appName}.git"]]
+    userRemoteConfigs: [[url: "${Constants.FOLIO_GITHUB_URL}/${repoName}.git"]]
   ])
 
   dir(repoName) {
