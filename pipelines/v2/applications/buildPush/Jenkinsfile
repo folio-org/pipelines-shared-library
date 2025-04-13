@@ -161,7 +161,7 @@ ansiColor('xterm') {
   node(params.AGENT) {
     Logger logger = new Logger(this, env.JOB_BASE_NAME)
 
-    List<Map<String, String>> installJson = params.INSTALL_JSON.trim() ? readJSON(text: params.INSTALL_JSON) : [:]
+    List<Map<String, String>> installJson = params.INSTALL_JSON.trim() ? readJSON(text: params.INSTALL_JSON) : []
     installJson = installJson.unique()
 
     FolioInstallJson<EurekaModule> beUpdated = new FolioInstallJson<EurekaModule>(EurekaModule.class)
