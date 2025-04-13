@@ -185,16 +185,17 @@ ansiColor('xterm') {
         switch (sourceType) {
           case ApplicationsBuildPushPipeline.SourceType.REPOSITORY:
             appName = params.APPLICATION
-            additionalInfo = "Branch: ${params.APPLICATION_BRANCH}"
+            additionalInfo = "Source: Repository\nBranch: ${params.APPLICATION_BRANCH}"
             break
 
           case ApplicationsBuildPushPipeline.SourceType.DESCRIPTOR:
             appName = initialDescriptor.name
-            additionalInfo = "Approach: ${params.RECREATE ? 'Recreate' : 'Upgrade'}"
+            additionalInfo = "Source: Descriptor\nApproach: ${params.RECREATE ? 'Recreate' : 'Upgrade'}"
             break
 
           case ApplicationsBuildPushPipeline.SourceType.TEMPLATE:
             appName = params.APP_NAME
+            additionalInfo = "Source: Template"
             break
         }
 
