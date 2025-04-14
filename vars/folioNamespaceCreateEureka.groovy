@@ -50,40 +50,40 @@ void call(CreateNamespaceParameters args) {
       }
     }
 
-    stage('[Terraform] Provision') {
-      switch (args.type) {
-        case 'full':
-          folioTerraformFlow.manageNamespace('apply', tfConfig)
-          break
-        case 'terraform':
-          folioTerraformFlow.manageNamespace('apply', tfConfig)
-
-          currentBuild.result = 'ABORTED'
-          currentBuild.description = 'Terraform refresh complete'
-          return
-
-          break
-        case 'update':
-          logger.info("Skip [Terraform] Provision stage")
-          break
-      }
-    }
-
-    if (args.greenmail) {
-      stage('[Helm] Deploy greenmail') {
-        folioHelm.withKubeConfig(namespace.getClusterName()) {
-          folioHelmFlow.deployGreenmail(namespace.getNamespaceName())
-        }
-      }
-    }
-
-    if (args.mockServer) {
-      stage('[Helm] Deploy mock-server') {
-        folioHelm.withKubeConfig(namespace.getClusterName()) {
-          folioHelmFlow.deployMockServer(namespace)
-        }
-      }
-    }
+//    stage('[Terraform] Provision') {
+//      switch (args.type) {
+//        case 'full':
+//          folioTerraformFlow.manageNamespace('apply', tfConfig)
+//          break
+//        case 'terraform':
+//          folioTerraformFlow.manageNamespace('apply', tfConfig)
+//
+//          currentBuild.result = 'ABORTED'
+//          currentBuild.description = 'Terraform refresh complete'
+//          return
+//
+//          break
+//        case 'update':
+//          logger.info("Skip [Terraform] Provision stage")
+//          break
+//      }
+//    }
+//
+//    if (args.greenmail) {
+//      stage('[Helm] Deploy greenmail') {
+//        folioHelm.withKubeConfig(namespace.getClusterName()) {
+//          folioHelmFlow.deployGreenmail(namespace.getNamespaceName())
+//        }
+//      }
+//    }
+//
+//    if (args.mockServer) {
+//      stage('[Helm] Deploy mock-server') {
+//        folioHelm.withKubeConfig(namespace.getClusterName()) {
+//          folioHelmFlow.deployMockServer(namespace)
+//        }
+//      }
+//    }
 
     if (args.namespaceOnly) {
       return
@@ -121,6 +121,8 @@ void call(CreateNamespaceParameters args) {
     namespace.setEnableECS_CCL(args.ecsCCL)
     namespace.addDeploymentConfig(folioTools.getPipelineBranch())
 
+    input message: "Let's go?"
+
     namespace.addTenant(
       folioDefault.tenants()[namespace.getDefaultTenantId()]
         .convertTo(EurekaTenant.class)
@@ -133,6 +135,8 @@ void call(CreateNamespaceParameters args) {
         .withTenantUi(tenantUi.clone())
         .enableFolioExtensions(this, args.folioExtensions - 'consortia-eureka' - 'consortia')
     )
+
+    input message: "Let's go again?"
 
     if (args.dataset) {
       List nonECS = ['fs09000002', 'fs09000003']
@@ -174,6 +178,8 @@ void call(CreateNamespaceParameters args) {
           namespace.addTenant(tenant)
         }
     }
+
+    input message: "Let's go once again?"
 
     //In case update environment the reindex is not needed
     if(args.type == 'update')
