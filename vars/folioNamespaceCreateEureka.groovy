@@ -127,13 +127,13 @@ void call(CreateNamespaceParameters args) {
       folioDefault.tenants()[namespace.getDefaultTenantId()]
         .convertTo(EurekaTenant.class)
         .withAWSSecretStoragePathName("${namespace.getClusterName()}-${namespace.getNamespaceName()}")
-        .withInstallJson(installJson)
-        .withIndex(new Index('instance', true, true))
-        .withIndex(new Index('authority', true, false))
-        .withIndex(new Index('location', true, false))
-        .withInstallRequestParams(installRequestParams.clone())
-        .withTenantUi(tenantUi.clone())
-        .enableFolioExtensions(this, args.folioExtensions - 'consortia-eureka' - 'consortia')
+//        .withInstallJson(installJson)
+//        .withIndex(new Index('instance', true, true))
+//        .withIndex(new Index('authority', true, false))
+//        .withIndex(new Index('location', true, false))
+//        .withInstallRequestParams(installRequestParams.clone())
+//        .withTenantUi(tenantUi.clone())
+//        .enableFolioExtensions(this, args.folioExtensions - 'consortia-eureka' - 'consortia')
     )
 
     input message: "Let's go again?"
