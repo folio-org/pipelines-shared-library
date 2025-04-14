@@ -1,5 +1,6 @@
 package org.folio.models.module
 
+import com.cloudbees.groovy.cps.NonCPS
 import org.folio.rest_v2.Constants
 import org.folio.utilities.RestClient
 
@@ -128,6 +129,7 @@ class FolioModule {
     return response[0].id
   }
 
+  @NonCPS
   @Override
   public boolean equals(Object obj) {
     if (this.is(obj)) {
