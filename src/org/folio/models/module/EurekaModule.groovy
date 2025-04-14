@@ -23,6 +23,7 @@ class EurekaModule extends FolioModule {
    * @return This instance of EurekaModule for method chaining.
    */
   @Override
+  @NonCPS
   EurekaModule loadModuleDetails(String id, String action = null) {
 //    super.loadModuleDetails(id, action)
 //

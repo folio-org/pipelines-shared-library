@@ -41,7 +41,7 @@ class Application {
 
     this.modules = descriptor.modules.collect { module ->
       EurekaModule mod = new EurekaModule()
-//      mod.loadModuleDetails(module.id as String, 'enabled')
+      mod.loadModuleDetails(module.id as String, 'enabled')
       return mod
     }
   }

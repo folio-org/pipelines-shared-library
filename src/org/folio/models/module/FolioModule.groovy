@@ -42,6 +42,7 @@ class FolioModule {
    * @throws InputMismatchException if the module ID format is incorrect.
    * @return This instance of FolioModule for method chaining.
    */
+  @NonCPS
   FolioModule loadModuleDetails(String id, String action = null) {
     // Validate the module ID
     if (id == null || id.trim().isEmpty()) {
