@@ -128,18 +128,18 @@ class FolioModule {
     return response[0].id
   }
 
-  @Override
-  public boolean equals(Object obj) {
-    if (this.is(obj)) {
-      return true
-    }
-
-    if (!(obj instanceof FolioModule)) {
-      return false
-    }
-
-    return this.id == ((FolioModule) obj).id && this.action == ((FolioModule) obj).action
-  }
+//  @Override
+//  public boolean equals(Object obj) {
+//    if (this.is(obj)) {
+//      return true
+//    }
+//
+//    if (!(obj instanceof FolioModule)) {
+//      return false
+//    }
+//
+//    return this.id == ((FolioModule) obj).id && this.action == ((FolioModule) obj).action
+//  }
 
   /**
    * Creates a matcher for the given module ID based on the defined pattern.
