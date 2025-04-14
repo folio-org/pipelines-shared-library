@@ -102,11 +102,7 @@ Map createTemplateFromDescriptor(Map descriptor, String version = null, boolean 
 Map generateFromRepository(String repoName, FolioInstallJson moduleList, String branch = "master", boolean debug = false) {
   logger.info("Generating application descriptor from repository...")
 
-  //  sh(script: "rm -rf ${appName} || true && git clone --branch ${branch} --single-branch ${Constants.FOLIO_GITHUB_URL}/${appName}.git")
-
-  dir(repoName) {
-    deleteDir()
-  }
+  sh(script: "rm -rf ${repoName}")
 
   checkout([
     $class           : 'GitSCM',
