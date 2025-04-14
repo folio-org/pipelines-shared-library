@@ -121,6 +121,8 @@ void call(CreateNamespaceParameters args) {
     namespace.setEnableECS_CCL(args.ecsCCL)
     namespace.addDeploymentConfig(folioTools.getPipelineBranch())
 
+    input message: "Let's wait"
+
     namespace.addTenant(
       folioDefault.tenants()[namespace.getDefaultTenantId()]
         .convertTo(EurekaTenant.class)
