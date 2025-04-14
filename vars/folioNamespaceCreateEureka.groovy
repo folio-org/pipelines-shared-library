@@ -131,7 +131,7 @@ void call(CreateNamespaceParameters args) {
         .withIndex(new Index('location', true, false))
         .withInstallRequestParams(installRequestParams.clone())
         .withTenantUi(tenantUi.clone())
-//        .enableFolioExtensions(this, args.folioExtensions - 'consortia-eureka' - 'consortia')
+        .enableFolioExtensions(this, args.folioExtensions - 'consortia-eureka' - 'consortia')
     )
 
     input message: "Let's wait"
