@@ -25,14 +25,14 @@ class EurekaModule extends FolioModule {
   @Override
   @NonCPS
   EurekaModule loadModuleDetails(String id, String action = null) {
-//    super.loadModuleDetails(id, action)
-//
-//    // Set discovery information for backend modules
-//    if (getType() == ModuleType.BACKEND || getType() == ModuleType.EDGE) {
-//      String location = "http://${getName()}${getType() == ModuleType.BACKEND ? ':8082' : ''}"
-//
-//      setDiscovery([id: "${getName()}-${getVersion()}", name: getName(), version: getVersion(), location: location])
-//    }
+    super.loadModuleDetails(id, action)
+
+    // Set discovery information for backend modules
+    if (getType() == ModuleType.BACKEND || getType() == ModuleType.EDGE) {
+      String location = "http://${getName()}${getType() == ModuleType.BACKEND ? ':8082' : ''}"
+
+      setDiscovery([id: "${getName()}-${getVersion()}", name: getName(), version: getVersion(), location: location])
+    }
 
     return this
   }
