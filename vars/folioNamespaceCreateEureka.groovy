@@ -121,8 +121,6 @@ void call(CreateNamespaceParameters args) {
     namespace.setEnableECS_CCL(args.ecsCCL)
     namespace.addDeploymentConfig(folioTools.getPipelineBranch())
 
-    input message: "Let's go?"
-
     namespace.addTenant(
       folioDefault.tenants()[namespace.getDefaultTenantId()]
         .convertTo(EurekaTenant.class)
@@ -135,8 +133,6 @@ void call(CreateNamespaceParameters args) {
         .withTenantUi(tenantUi.clone())
         .enableFolioExtensions(this, args.folioExtensions - 'consortia-eureka' - 'consortia')
     )
-
-    input message: "Let's go again?"
 
     if (args.dataset) {
       List nonECS = ['fs09000002', 'fs09000003']
@@ -178,8 +174,6 @@ void call(CreateNamespaceParameters args) {
           namespace.addTenant(tenant)
         }
     }
-
-    input message: "Let's go once again?"
 
     //In case update environment the reindex is not needed
     if(args.type == 'update')
