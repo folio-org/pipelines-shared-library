@@ -39,7 +39,7 @@ class Application {
     this.version = descriptor.version
     this.build = extractBuild(version)
 
-    this.modules = descriptor.modules.collect { module ->  new EurekaModule(module.id) }
+    List<EurekaModule> lst = descriptor.modules.collect { module ->  new EurekaModule(module.id) }
   }
 
   Application withModules(List<EurekaModule> modules) {
