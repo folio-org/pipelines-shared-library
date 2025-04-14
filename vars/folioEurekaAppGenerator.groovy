@@ -105,7 +105,7 @@ Map generateFromRepository(String repoName, FolioInstallJson moduleList, String 
   //  sh(script: "rm -rf ${appName} || true && git clone --branch ${branch} --single-branch ${Constants.FOLIO_GITHUB_URL}/${appName}.git")
 
   dir(repoName) {
-    deleteDir
+    deleteDir()
   }
 
   checkout([
