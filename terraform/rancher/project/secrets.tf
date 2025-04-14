@@ -95,7 +95,7 @@ resource "rancher2_secret" "eureka_common" {
     TE_URL                                       = base64encode("http://mgr-tenant-entitlements")
     MOD_USERS_BL                                 = base64encode("http://mod-users-bl:8082")
     MOD_USERS_KEYCLOAK_URL                       = base64encode("http://mod-users-keycloak:8082")
-    SIDECAR_FORWARD_UNKNOWN_REQUESTS_DESTINATION = base64encode("http://kong-${rancher2_namespace.this.id}:8000")
+    SIDECAR_FORWARD_UNKNOWN_REQUESTS_DESTINATION = base64encode("http://${local.kong_url}")
   }
 }
 #Must have SSM Eureka parameters
