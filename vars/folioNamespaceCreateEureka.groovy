@@ -130,7 +130,7 @@ void call(CreateNamespaceParameters args) {
         .withIndex(new Index('authority', true, false))
         .withIndex(new Index('location', true, false))
         .withInstallRequestParams(installRequestParams.clone())
-//        .withTenantUi(tenantUi.clone())
+        .withTenantUi(tenantUi.clone())
 //        .enableFolioExtensions(this, args.folioExtensions - 'consortia-eureka' - 'consortia')
     )
 
