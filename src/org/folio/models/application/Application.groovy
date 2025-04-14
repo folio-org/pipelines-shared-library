@@ -40,7 +40,9 @@ class Application {
     this.build = extractBuild(version)
 
     this.modules = descriptor.modules.collect { module ->
-      new EurekaModule().loadModuleDetails(module.id as String, 'enabled')
+      EurekaModule mod = new EurekaModule()
+      mod.loadModuleDetails(module.id as String, 'enabled')
+      return mod
     }
   }
 
