@@ -99,7 +99,7 @@ ansiColor('xterm') {
     karateTestsParams.reportPortalProjectName = namespace.getNamespaceName()
     karateTestsParams.sendSlackNotification = false
     karateTestsParams.sendTeamsSlackNotification = false
-    karateTestsParams.syncWithJira = false
+    karateTestsParams.syncWithJira = currentBuild.rawBuild.getCauses().any { it.toString().contains("TimerTriggerCause") } ? true : false
     karateTestsParams.timeout = params.TESTS_TIMEOUT
 
     try {
