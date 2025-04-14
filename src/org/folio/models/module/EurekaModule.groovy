@@ -22,17 +22,16 @@ class EurekaModule extends FolioModule {
    * @throws InputMismatchException if the module ID format is incorrect.
    * @return This instance of EurekaModule for method chaining.
    */
-  @NonCPS
   @Override
   EurekaModule loadModuleDetails(String id, String action = null) {
-    super.loadModuleDetails(id, action)
-
-    // Set discovery information for backend modules
-    if (getType() == ModuleType.BACKEND || getType() == ModuleType.EDGE) {
-      String location = "http://${getName()}${getType() == ModuleType.BACKEND ? ':8082' : ''}"
-
-      setDiscovery([id: "${getName()}-${getVersion()}", name: getName(), version: getVersion(), location: location])
-    }
+//    super.loadModuleDetails(id, action)
+//
+//    // Set discovery information for backend modules
+//    if (getType() == ModuleType.BACKEND || getType() == ModuleType.EDGE) {
+//      String location = "http://${getName()}${getType() == ModuleType.BACKEND ? ':8082' : ''}"
+//
+//      setDiscovery([id: "${getName()}-${getVersion()}", name: getName(), version: getVersion(), location: location])
+//    }
 
     return this
   }
