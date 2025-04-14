@@ -11,6 +11,10 @@ class EurekaModule extends FolioModule {
   // Default constructor
   EurekaModule() {}
 
+  EurekaModule(String id, String action = 'enabled') {
+    this.loadModuleDetails(id as String, action)
+  }
+
   /**
    * Loads module details based on the provided module ID and optional action.
    * This method extracts the name and version from the ID, determines the
@@ -23,7 +27,6 @@ class EurekaModule extends FolioModule {
    * @return This instance of EurekaModule for method chaining.
    */
   @Override
-  @NonCPS
   EurekaModule loadModuleDetails(String id, String action = null) {
     super.loadModuleDetails(id, action)
 
