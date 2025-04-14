@@ -360,7 +360,7 @@ void call(CreateNamespaceParameters args) {
   } catch (Exception e) {
     println(e)
     //TODO: Add adequate slack notification https://folio-org.atlassian.net/browse/RANCHER-1892
-    slackSend(color: 'danger', message: args.clusterName + "-" + args.namespaceName + " env build failed...\n" + "Console output: ${env.BUILD_URL}", channel: args.dataset ? '#eureka-sprint-testing' : '#rancher_tests_notifications')
+//    slackSend(color: 'danger', message: args.clusterName + "-" + args.namespaceName + " env build failed...\n" + "Console output: ${env.BUILD_URL}", channel: args.dataset ? '#eureka-sprint-testing' : '#rancher_tests_notifications')
     throw new Exception(e)
   }
 }
