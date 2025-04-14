@@ -127,7 +127,7 @@ void call(CreateNamespaceParameters args) {
       folioDefault.tenants()[namespace.getDefaultTenantId()]
         .convertTo(EurekaTenant.class)
         .withAWSSecretStoragePathName("${namespace.getClusterName()}-${namespace.getNamespaceName()}")
-//        .withInstallJson(installJson)
+        .withInstallJson(installJson)
 //        .withIndex(new Index('instance', true, true))
 //        .withIndex(new Index('authority', true, false))
 //        .withIndex(new Index('location', true, false))
