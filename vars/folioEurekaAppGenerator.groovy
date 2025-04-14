@@ -224,7 +224,8 @@ def replaceModuleVersions(def templateModules, FolioInstallJson moduleList, bool
     if(!moduleList.getModuleByName(module.name))
       logger.info("Install JSON doesn't contain $module.name")
     else
-      updatedModules[index].version = module.version.trim() != "latest" && onlyLatest ? module.version : moduleList.getModuleByName(module.name)
+      updatedModules[index].version = module.version.trim() != "latest" && onlyLatest ?
+        module.version : moduleList.getModuleByName(module.name).getVersion()
   }
 
   return updatedModules
