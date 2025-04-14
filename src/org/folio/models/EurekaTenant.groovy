@@ -161,6 +161,9 @@ class EurekaTenant extends OkapiTenant {
 
     super.withInstallJson(installJson)
 
+    if(context)
+      context.println("EurekaTenant.withInstallJson after super.withInstallJson")
+
     this.modules.removeModulesByName(['mod-consortia-keycloak', 'folio_consortia-settings'])
     return this
   }
