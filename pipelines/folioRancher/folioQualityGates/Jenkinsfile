@@ -26,7 +26,7 @@ properties([
   parameters([
     string(name: 'FOLIO_BRANCH', defaultValue: 'snapshot', description: 'platform-complete branch where will be run quality CI job'),
     booleanParam(name: 'SKIP_CHECK', defaultValue: false, description: 'Skip check of changes since last build.'),
-    booleanParam(name: 'INCLUDE_KARATE', defaultValue: false, description: 'Exclude Karate tests from execution.'), //Set to true, if karate tests needed.
+    booleanParam(name: 'INCLUDE_KARATE', defaultValue: false, description: 'Exclude Karate tests from execution, if unchecked.'), //Set to true, if karate tests needed.
     folioParameters.agent(),
     folioParameters.refreshParameters()])
 ])
