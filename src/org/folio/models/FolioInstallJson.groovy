@@ -62,7 +62,6 @@ class FolioInstallJson<T extends FolioModule> {
    */
   void addModule(String id, String action = null) {
     addModule(moduleType.getDeclaredConstructor().newInstance().loadModuleDetails(id, action) as T)
-//    this.installJsonObject.add(modulgeType.getDeclaredConstructor().newInstance().loadModuleDetails(id, action) as T)
   }
 
   /**

@@ -60,6 +60,7 @@ class EurekaTenantConsortia extends EurekaTenant {
    * @param installJson The install JSON object.
    * @return The OkapiTenantConsortia object.
    */
+  @Override
   EurekaTenantConsortia withInstallJson(List<Map<String, String>> installJson) {
     //TODO: Fix DTO convert issue with transformation from FolioInstallJson<FolioModule> to FolioInstallJson<EurekaModule>
     setModules(new FolioInstallJson(EurekaModule.class))
