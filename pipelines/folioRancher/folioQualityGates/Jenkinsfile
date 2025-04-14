@@ -17,7 +17,7 @@ import org.folio.testing.karate.results.KarateRunExecutionSummary
 import org.folio.utilities.Logger
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-2264') _
 
 properties([
   pipelineTriggers([cron('H 6,9,12,15,18,21 * * 1-5')]),
@@ -26,6 +26,7 @@ properties([
   parameters([
     string(name: 'FOLIO_BRANCH', defaultValue: 'snapshot', description: 'platform-complete branch where will be run quality CI job'),
     booleanParam(name: 'SKIP_CHECK', defaultValue: false, description: 'Skip check of changes since last build.'),
+    booleanParam(name: 'INCLUDE_KARATE', defaultValue: false, description: 'Exclude Karate tests from execution.'), //Set to true, if karate tests needed.
     folioParameters.agent(),
     folioParameters.refreshParameters()])
 ])
@@ -49,7 +50,7 @@ String globalSlackChannel = '#rancher_tests_notifications'
 String okapiVersion = folioTools.eval(folioStringScripts.getOkapiVersions(), ['FOLIO_BRANCH': params.FOLIO_BRANCH])[0]
 
 Map envsMap = [
-  karate : [cluster: 'folio-testing', namespace: 'cikarate'],
+  params.INCLUDE_KARATE ? karate : [cluster: 'folio-testing', namespace: 'cikarate'] : null,
   cypress: [cluster: 'folio-etesting', namespace: 'cicypress', platform: 'eureka'],
 //  schema : [cluster: 'folio-tmp', namespace: 'cischema']
 ]
@@ -140,21 +141,23 @@ ansiColor('xterm') {
             folioCypressFlow.multiThreadRun(cypressParameters)
           }
         }
-        branches['Karate'] = { ->
-          KarateTestsParameters karateTestsParams = new KarateTestsParameters()
-          karateTestsParams.okapiUrl = "https://${envsMap['karate']['cluster']}-${envsMap['karate']['namespace']}-okapi.${Constants.CI_ROOT_DOMAIN}"
-          karateTestsParams.edgeUrl = "https://${envsMap['karate']['cluster']}-${envsMap['karate']['namespace']}-edge.${Constants.CI_ROOT_DOMAIN}"
-          karateTestsParams.tenant = 'supertenant'
-          karateTestsParams.prototypeTenant = 'consortium'
-          karateTestsParams.adminUserName = 'super_admin'
-          karateTestsParams.adminPassword = 'admin'
-          karateTestsParams.threadsCount = '4'
-          karateTestsParams.reportPortalProjectName = 'junit5-integration'
-          karateTestsParams.sendSlackNotification = false
-          karateTestsParams.sendTeamsSlackNotification = true
-          karateTestsParams.syncWithJira = true
-          karateTestsParams.timeout = '3'
-          karateTestsExecutionSummary = folioKarateFlow(karateTestsParams)
+        if (params.INCLUDE_KARATE) {
+          branches['Karate'] = { ->
+            KarateTestsParameters karateTestsParams = new KarateTestsParameters()
+            karateTestsParams.okapiUrl = "https://${envsMap['karate']['cluster']}-${envsMap['karate']['namespace']}-okapi.${Constants.CI_ROOT_DOMAIN}"
+            karateTestsParams.edgeUrl = "https://${envsMap['karate']['cluster']}-${envsMap['karate']['namespace']}-edge.${Constants.CI_ROOT_DOMAIN}"
+            karateTestsParams.tenant = 'supertenant'
+            karateTestsParams.prototypeTenant = 'consortium'
+            karateTestsParams.adminUserName = 'super_admin'
+            karateTestsParams.adminPassword = 'admin'
+            karateTestsParams.threadsCount = '4'
+            karateTestsParams.reportPortalProjectName = 'junit5-integration'
+            karateTestsParams.sendSlackNotification = false
+            karateTestsParams.sendTeamsSlackNotification = true
+            karateTestsParams.syncWithJira = true
+            karateTestsParams.timeout = '3'
+            karateTestsExecutionSummary = folioKarateFlow(karateTestsParams)
+          }
         }
         parallel(branches)
       }
@@ -166,10 +169,14 @@ ansiColor('xterm') {
       }
 
       stage('[Slack] Send notification') {
-        String karateTestsResultMessage = folioSlackNotificationUtils.renderTestResultSection(TestType.KARATE,
-          karateTestsExecutionSummary, "", true,
-          "${env.BUILD_URL}cucumber-html-reports/overview-features.html"
-        )
+        String karateTestsResultMessage = ''
+        if (params.INCLUDE_KARATE) {
+          karateTestsResultMessage = folioSlackNotificationUtils.renderTestResultSection(TestType.KARATE,
+            karateTestsExecutionSummary, "", true,
+            "${env.BUILD_URL}cucumber-html-reports/overview-features.html"
+          )
+          return karateTestsResultMessage
+        }
 
         String cypressTestsResultMessage = folioSlackNotificationUtils.renderTestResultSection(TestType.CYPRESS,
           cypressTestsExecutionSummary, "", true, "${env.BUILD_URL}allure/"
@@ -185,7 +192,7 @@ ansiColor('xterm') {
         String attachments = SlackHelper.renderMessage([
           folioSlackNotificationUtils.renderBuildResultSection(),
           cypressTestsResultMessage,
-          karateTestsResultMessage,
+          params.INCLUDE_KARATE ? karateTestsResultMessage : null,
           changelog
         ])
 
