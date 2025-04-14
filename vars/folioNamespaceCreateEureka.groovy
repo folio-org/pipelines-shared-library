@@ -50,40 +50,40 @@ void call(CreateNamespaceParameters args) {
       }
     }
 
-    stage('[Terraform] Provision') {
-      switch (args.type) {
-        case 'full':
-          folioTerraformFlow.manageNamespace('apply', tfConfig)
-          break
-        case 'terraform':
-          folioTerraformFlow.manageNamespace('apply', tfConfig)
-
-          currentBuild.result = 'ABORTED'
-          currentBuild.description = 'Terraform refresh complete'
-          return
-
-          break
-        case 'update':
-          logger.info("Skip [Terraform] Provision stage")
-          break
-      }
-    }
-
-    if (args.greenmail) {
-      stage('[Helm] Deploy greenmail') {
-        folioHelm.withKubeConfig(namespace.getClusterName()) {
-          folioHelmFlow.deployGreenmail(namespace.getNamespaceName())
-        }
-      }
-    }
-
-    if (args.mockServer) {
-      stage('[Helm] Deploy mock-server') {
-        folioHelm.withKubeConfig(namespace.getClusterName()) {
-          folioHelmFlow.deployMockServer(namespace)
-        }
-      }
-    }
+//    stage('[Terraform] Provision') {
+//      switch (args.type) {
+//        case 'full':
+//          folioTerraformFlow.manageNamespace('apply', tfConfig)
+//          break
+//        case 'terraform':
+//          folioTerraformFlow.manageNamespace('apply', tfConfig)
+//
+//          currentBuild.result = 'ABORTED'
+//          currentBuild.description = 'Terraform refresh complete'
+//          return
+//
+//          break
+//        case 'update':
+//          logger.info("Skip [Terraform] Provision stage")
+//          break
+//      }
+//    }
+//
+//    if (args.greenmail) {
+//      stage('[Helm] Deploy greenmail') {
+//        folioHelm.withKubeConfig(namespace.getClusterName()) {
+//          folioHelmFlow.deployGreenmail(namespace.getNamespaceName())
+//        }
+//      }
+//    }
+//
+//    if (args.mockServer) {
+//      stage('[Helm] Deploy mock-server') {
+//        folioHelm.withKubeConfig(namespace.getClusterName()) {
+//          folioHelmFlow.deployMockServer(namespace)
+//        }
+//      }
+//    }
 
     if (args.namespaceOnly) {
       return
@@ -101,6 +101,8 @@ void call(CreateNamespaceParameters args) {
     //TODO: Temporary solution. Unused by Eureka modules have been removed.
     installJson.removeAll { module -> module.id =~ /(mod-login|mod-authtoken|mod-login-saml)-\d+\..*/ }
     installJson.removeAll { module -> module.id == 'okapi' }
+
+    input message: "Let's go?"
 
     TenantUi tenantUi = new TenantUi("${namespace.getClusterName()}-${namespace.getNamespaceName()}",
       commitHash, args.folioBranch)
