@@ -128,8 +128,8 @@ class FolioModule {
     return response[0].id
   }
 
-//  @Override
-//  public boolean equals(Object obj) {
+  @Override
+  public boolean equals(Object obj) {
 //    if (this.is(obj)) {
 //      return true
 //    }
@@ -139,7 +139,8 @@ class FolioModule {
 //    }
 //
 //    return this.id == ((FolioModule) obj).id && this.action == ((FolioModule) obj).action
-//  }
+    return super.equals(obj)
+  }
 
   /**
    * Creates a matcher for the given module ID based on the defined pattern.
