@@ -130,16 +130,15 @@ class FolioModule {
 
   @Override
   public boolean equals(Object obj) {
-//    if (this.is(obj)) {
-//      return true
-//    }
-//
-//    if (!(obj instanceof FolioModule)) {
-//      return false
-//    }
-//
-//    return this.id == ((FolioModule) obj).id && this.action == ((FolioModule) obj).action
-    return super.equals(obj)
+    if (this.is(obj)) {
+      return true
+    }
+
+    if (!(obj instanceof FolioModule)) {
+      return false
+    }
+
+    return this.id == ((FolioModule) obj).id && this.action == ((FolioModule) obj).action
   }
 
   /**
