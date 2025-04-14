@@ -50,10 +50,12 @@ String globalSlackChannel = '#rancher_tests_notifications'
 String okapiVersion = folioTools.eval(folioStringScripts.getOkapiVersions(), ['FOLIO_BRANCH': params.FOLIO_BRANCH])[0]
 
 Map envsMap = [
-  params.INCLUDE_KARATE ? karate : [cluster: 'folio-testing', namespace: 'cikarate'] : null,
   cypress: [cluster: 'folio-etesting', namespace: 'cicypress', platform: 'eureka'],
-//  schema : [cluster: 'folio-tmp', namespace: 'cischema']
 ]
+
+if (params.INCLUDE_KARATE) {
+  envsMap.put('karate', [cluster: 'folio-etesting', namespace: 'cikarate', platform: 'eureka'])
+}
 
 CreateNamespaceParameters namespaceBaseParams = new CreateNamespaceParameters.Builder()
   .rwSplit(false)
