@@ -22,6 +22,7 @@ class EurekaModule extends FolioModule {
    * @throws InputMismatchException if the module ID format is incorrect.
    * @return This instance of EurekaModule for method chaining.
    */
+  @NonCPS
   @Override
   EurekaModule loadModuleDetails(String id, String action = null) {
     super.loadModuleDetails(id, action)
