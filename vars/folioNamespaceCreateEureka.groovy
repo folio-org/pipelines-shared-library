@@ -239,18 +239,17 @@ void call(CreateNamespaceParameters args) {
         sleep time: (counter == 0 ? 0 : 30), unit: 'SECONDS'
         counter++
 
-        ApplicationList apps = eureka.registerApplications(
-          eureka.generateApplications(
-            //TODO: Refactoring is needed!!! Utilization of extension should be applied.
-            // Remove this shit with consortia and linkedData. Apps have to be taken as it is.
-            args.applications -
-              (args.consortia ? [:] : ["app-consortia": "snapshot", "app-consortia-manager": "snapshot"]) -
-              (args.consortia ? [:] : ["app-consortia": "master", "app-consortia-manager": "master"]) -
-              (args.linkedData ? [:] : ["app-linked-data": "snapshot"]) -
-              (args.linkedData ? [:] : ["app-linked-data": "master"])
-            , namespace.getModules()
-          )
+        ApplicationList apps = eureka.generateApplications(
+          //TODO: Refactoring is needed!!! Utilization of extension should be applied.
+          // Remove this shit with consortia and linkedData. Apps have to be taken as it is.
+          args.applications -
+            (args.consortia ? [:] : ["app-consortia": "snapshot", "app-consortia-manager": "snapshot"]) -
+            (args.consortia ? [:] : ["app-consortia": "master", "app-consortia-manager": "master"]) -
+            (args.linkedData ? [:] : ["app-linked-data": "snapshot"]) -
+            (args.linkedData ? [:] : ["app-linked-data": "master"])
+          , namespace.getModules()
         )
+        eureka.registerApplications(apps)
 
         namespace.tenants.values().each {tenant -> tenant.assignApplications(apps)}
 
