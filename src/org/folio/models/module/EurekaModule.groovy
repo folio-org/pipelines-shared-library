@@ -11,10 +11,6 @@ class EurekaModule extends FolioModule {
   // Default constructor
   EurekaModule() {}
 
-  EurekaModule(String id, String action = 'enabled') {
-    this.loadModuleDetails(id as String, action)
-  }
-
   /**
    * Loads module details based on the provided module ID and optional action.
    * This method extracts the name and version from the ID, determines the
