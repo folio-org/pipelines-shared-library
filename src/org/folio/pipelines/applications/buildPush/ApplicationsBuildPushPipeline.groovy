@@ -89,7 +89,7 @@ class ApplicationsBuildPushPipeline {
   }
 
   ApplicationsBuildPushPipeline doPushDescriptor(boolean isPush) {
-    parameters.add(context.booleanParam(name: 'PUSH_DESCRIPTOR_TO_ECR', value: isPush))
+    parameters.add(context.booleanParam(name: 'PUSH_DESCRIPTOR_TO_REGISTRY', value: isPush))
     return this
   }
 

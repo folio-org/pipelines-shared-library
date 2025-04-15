@@ -121,7 +121,7 @@ properties([
 ]'''),
 
     string(name: 'VERSION', defaultValue: '', description: '(Optional) A version to be explicitly set for new application descriptor.'),
-    booleanParam(name: 'PUSH_DESCRIPTOR_TO_ECR', defaultValue: true, description: 'Set true to push application descriptor to the ECR repository'),
+    booleanParam(name: 'PUSH_DESCRIPTOR_TO_REGISTRY', defaultValue: true, description: 'Set true to push application descriptor to the registry'),
     folioParameters.agent(),
     folioParameters.refreshParameters()
 
@@ -240,10 +240,10 @@ ansiColor('xterm') {
         }
       }
 
-      stage('[S3] Upload descriptor') {
-        if (!params.PUSH_DESCRIPTOR_TO_ECR) {
-          logger.info("Skip [ECR] Upload descriptor stage")
-          Utils.markStageSkippedForConditional('[ECR] Upload descriptor')
+      stage('[Registry] Upload descriptor') {
+        if (!params.PUSH_DESCRIPTOR_TO_REGISTRY) {
+          logger.info("Skip [Registry] Upload descriptor stage")
+          Utils.markStageSkippedForConditional('[Registry] Upload descriptor')
         }else{
           writeJSON file: application.getId() + '.json', json: application.getDescriptor()
 
