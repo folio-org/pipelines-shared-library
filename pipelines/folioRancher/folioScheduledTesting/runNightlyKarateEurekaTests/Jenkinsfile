@@ -16,16 +16,16 @@ import org.jenkinsci.plugins.workflow.libs.Library
  */
 properties([
 //  pipelineTriggers([cron('H 16 * * 1-5')]),
-  buildDiscarder(logRotator(numToKeepStr: '30')),
-  disableConcurrentBuilds(),
-  parameters([
-    string(name: 'TESTS_BRANCH', defaultValue: 'master-eureka', description: "(Required) Karate tests repository branch to checkout"),
-    string(name: 'THREADS_COUNT', defaultValue: '1', description: "(Required) Number of parallel threads"),
-    string(name: 'TESTS_TIMEOUT', defaultValue: '10', description: "(Required) Tests execution timeout in hours"),
-    booleanParam(name: 'RETRY_FAILED', defaultValue: false, description: "(Optional) Retry failed tests"),
-    booleanParam(name: 'DESTROY_AFTER', defaultValue: false, description: '(Optional) Set to false to not destroy namespace after tests execution'),
-    folioParameters.refreshParameters()
-  ])
+buildDiscarder(logRotator(numToKeepStr: '30')),
+disableConcurrentBuilds(),
+parameters([
+  string(name: 'TESTS_BRANCH', defaultValue: 'master-eureka', description: "(Required) Karate tests repository branch to checkout"),
+  string(name: 'THREADS_COUNT', defaultValue: '1', description: "(Required) Number of parallel threads"),
+  string(name: 'TESTS_TIMEOUT', defaultValue: '10', description: "(Required) Tests execution timeout in hours"),
+  booleanParam(name: 'RETRY_FAILED', defaultValue: false, description: "(Optional) Retry failed tests"),
+  booleanParam(name: 'DESTROY_AFTER', defaultValue: false, description: '(Optional) Set to false to not destroy namespace after tests execution'),
+  folioParameters.refreshParameters()
+])
 ])
 
 if (params.REFRESH_PARAMETERS) {
@@ -100,9 +100,9 @@ ansiColor('xterm') {
       karateTestsParams.adminPassword = namespace.getSuperTenant().getAdminUser().getPassword()
       karateTestsParams.threadsCount = params.THREADS_COUNT
       karateTestsParams.reportPortalProjectName = namespace.getNamespaceName()
-      karateTestsParams.sendSlackNotification = false
-      karateTestsParams.sendTeamsSlackNotification = false
-      karateTestsParams.syncWithJira = false
+      karateTestsParams.sendSlackNotification = currentBuild.rawBuild.getCauses().any { it.toString().contains("TimerTriggerCause") } ? true : false
+      karateTestsParams.sendTeamsSlackNotification = currentBuild.rawBuild.getCauses().any { it.toString().contains("TimerTriggerCause") } ? true : false
+      karateTestsParams.syncWithJira = currentBuild.rawBuild.getCauses().any { it.toString().contains("TimerTriggerCause") } ? true : false
       karateTestsParams.timeout = params.TESTS_TIMEOUT
 
       try {
