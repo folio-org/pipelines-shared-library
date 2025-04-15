@@ -79,6 +79,11 @@ Map createTemplateFromDescriptor(Map descriptor, String version = null, boolean 
   template.remove('moduleDescriptors')
   template.remove('uiModuleDescriptors')
   template.version = version ?: template.version
+
+  logger.debug("${template.name}-${template.version}")
+
+  input message: "Let's check id"
+
   template.id = "${template.name}-${template.version}"
 
   template.modules.each { module ->
