@@ -92,7 +92,8 @@ properties([
 
     , folioParameters.hideParameters(
     [
-      '' :[ 'fff/test.json', 'DESCRIPTOR_URL', 'RECREATE', 'UPGRADE' ]
+      '' :[ //'in_params/descriptor.json',
+            'DESCRIPTOR_URL', 'RECREATE', 'UPGRADE' ]
     ]
     , "FROM_DESCRIPTOR", "FROM_REPOSITORY,FROM_DESCRIPTOR,FROM_TEMPLATE")
 
