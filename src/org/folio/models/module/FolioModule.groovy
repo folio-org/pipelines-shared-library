@@ -56,6 +56,9 @@ class FolioModule {
       this.name = matcher.group(1)
       this.version = matcher.group(2)
       matcher.reset()
+    } else if(id == 'okapi'){
+      this.name = id
+      this.version = 'latest'
     } else {
       throw new InputMismatchException("Not able to extract module name. Module id '${this.id}' has wrong format")
     }
