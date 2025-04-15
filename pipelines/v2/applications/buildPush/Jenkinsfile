@@ -246,6 +246,7 @@ ansiColor('xterm') {
     } finally {
       stage('Cleanup') {
         logger.debug("Workspace size: ${sh(returnStdout: true, script: 'du -sh .').trim()}")
+        input message: "Let's check workspace"
         cleanWs notFailBuild: true
       }
     }
