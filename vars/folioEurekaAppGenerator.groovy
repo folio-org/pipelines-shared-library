@@ -57,7 +57,11 @@ Map generateFromDescriptor(Map descriptor, FolioInstallJson moduleList, String v
     writeJSON file: appName + '.template.json', json: template
     new Tools(this).copyResourceFileToCurrentDirectory("applications/generator/pom.xml")
 
-    return _generate(appName, debug)
+    input message: "Let's check template"
+
+    return _generate(appName, debug, "org.folio:folio-application-generator:generateFromJson"
+      , "-Dproject.name=${appName} -DtemplatePath=${appName}.template.json" +
+      "${version ? "-Dproject.version=${version}" : ""}")
   }
 }
 
