@@ -125,20 +125,20 @@ ansiColor('xterm') {
     FolioInstallJson<EurekaModule> beUpdated = new FolioInstallJson<EurekaModule>(EurekaModule.class)
       .setInstallJsonObject(installJson)
 
-    Map initialDescriptor = [:]
-
-    if(sourceType == ApplicationsBuildPushPipeline.SourceType.DESCRIPTOR){
-      input message: "Let's check workspace"
-
-      logger.debug("I'm check descriptor file ${params.DESCRIPTOR_FILE}")
-      logger.debug("Descriptor file: ${readFile(file: params.DESCRIPTOR_FILE)}")
-
-      String descFile = params.DESCRIPTOR_FILE?.trim() ?
-              readFile(file: params.DESCRIPTOR_FILE) :
-              sh(script: "curl -sS ${params.DESCRIPTOR_URL}", returnStdout: true).trim()
-
-      initialDescriptor = readJSON(text: descFile) as Map
-    }
+//    Map initialDescriptor = [:]
+//
+//    if(sourceType == ApplicationsBuildPushPipeline.SourceType.DESCRIPTOR){
+//      input message: "Let's check workspace"
+//
+//      logger.debug("I'm check descriptor file ${params.DESCRIPTOR_FILE}")
+//      logger.debug("Descriptor file: ${readFile(file: params.DESCRIPTOR_FILE)}")
+//
+//      String descFile = params.DESCRIPTOR_FILE?.trim() ?
+//              readFile(file: params.DESCRIPTOR_FILE) :
+//              sh(script: "curl -sS ${params.DESCRIPTOR_URL}", returnStdout: true).trim()
+//
+//      initialDescriptor = readJSON(text: descFile) as Map
+//    }
 
     Map template = sourceType == ApplicationsBuildPushPipeline.SourceType.TEMPLATE ? readJSON(text: params.TEMPLATE) as Map : [:]
 
@@ -147,6 +147,22 @@ ansiColor('xterm') {
 
     try {
       stage('Init'){
+        Map initialDescriptor = [:]
+
+        if(sourceType == ApplicationsBuildPushPipeline.SourceType.DESCRIPTOR){
+          input message: "Let's check workspace"
+
+          logger.debug("I'm check descriptor file ${params.DESCRIPTOR_FILE}")
+          logger.debug("Descriptor file: ${readFile(file: params.DESCRIPTOR_FILE)}")
+
+          String descFile = params.DESCRIPTOR_FILE?.trim() ?
+                  readFile(file: params.DESCRIPTOR_FILE) :
+                  sh(script: "curl -sS ${params.DESCRIPTOR_URL}", returnStdout: true).trim()
+
+          initialDescriptor = readJSON(text: descFile) as Map
+        }
+
+
         String additionalInfo = null
 
         switch (sourceType) {
