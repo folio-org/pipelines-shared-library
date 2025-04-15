@@ -4,9 +4,6 @@ import org.folio.Constants
 import org.folio.models.FolioInstallJson
 import org.folio.models.application.Application
 import org.folio.models.module.EurekaModule
-import org.folio.models.module.FolioModule
-import org.folio.models.module.ModuleBuildTool
-import org.folio.models.module.ModuleType
 import org.folio.pipelines.applications.buildPush.ApplicationsBuildPushPipeline
 import org.folio.rest.GitHubUtility
 import org.folio.utilities.Logger
@@ -70,7 +67,7 @@ properties([
 ]'''),
 
     text(name: 'INSTALL_JSON', description: '(Required) Install json list with modules to install.',
-      defaultValue: "${defaultInstallJson.join(',')}"),
+      defaultValue: "${JsonOutput.prettyPrint(JsonOutput.toJson(defaultInstallJson))}"),
 
     string(name: 'VERSION', defaultValue: '', description: '(Optional) A version to be explicitly set for new application descriptor.'),
     booleanParam(name: 'PUSH_DESCRIPTOR_TO_REGISTRY', defaultValue: true, description: 'Set true to push application descriptor to the registry'),
