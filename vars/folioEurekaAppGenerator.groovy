@@ -61,7 +61,7 @@ Map generateFromDescriptor(Map descriptor, FolioInstallJson moduleList, String v
 
     return _generate(appName, debug, "org.folio:folio-application-generator:generateFromJson"
       , "-Dproject.name=${appName} -DtemplatePath=${appName}.template.json" +
-      "${version ? "-Dproject.version=${version}" : ""}")
+      "${version ? " -Dproject.version=${version}" : ""}")
   }
 }
 
@@ -142,8 +142,8 @@ Map generateFromTemplate(String appName, Map template, FolioInstallJson moduleLi
 
     return _generate(appName, debug, "org.folio:folio-application-generator:generateFromJson"
       , "-Dproject.name=${appName} -DtemplatePath=${appName}.template.json" +
-        "${version ? "-Dproject.version=${version}" : ""}" +
-        "${appDescription ? "-Dproject.description='${appDescription}'" : ""}")
+        "${version ? " -Dproject.version=${version}" : ""}" +
+        "${appDescription ? " -Dproject.description='${appDescription}'" : ""}")
   }
 }
 
