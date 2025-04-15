@@ -254,7 +254,7 @@ ansiColor('xterm') {
             script: "[ -e ${application.getId()}.json ] && curl -sS -X PUT ${Constants.EUREKA_REGISTRY_URL}${application.getId()} --upload-file ${application.getId()}.json"
           )
 
-          zip zipFile: application.getId() + '.json.zip', glob: '**/' + application.getId() + '.json'
+          zip zipFile: application.getId() + '.json.zip', glob: application.getId() + '.json'
           archiveArtifacts allowEmptyArchive: true, artifacts: "${application.getId()}.json.zip", fingerprint: true, defaultExcludes: false
         }
       }
