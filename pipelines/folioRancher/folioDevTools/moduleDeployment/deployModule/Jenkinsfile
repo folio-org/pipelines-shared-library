@@ -96,7 +96,7 @@ ansiColor('xterm') {
           // Upload Module Descriptor to Eureka Descriptor Registry
           sh(label: "Put Module Descriptor to Eureka Descriptor Registry",
             returnStdout: false,
-            script: "curl -sS -X PUT ${Constants.EUREKA_REGISTRY_URL}${module.name}-${module.version} --data @- <<EOF\n${moduleDescriptor}\nEOF"
+            script: "curl -sS -X PUT ${Constants.EUREKA_REGISTRY_DESCRIPTORS_URL}${module.name}-${module.version} --data @- <<EOF\n${moduleDescriptor}\nEOF"
           )
         }
       }

@@ -162,7 +162,7 @@ def putModuleDescriptorToRegistry(Logger logger, EurekaModule module) {
   sh(
     label: "Upload Module Descriptor to Module Registry",
     returnStdout: false,
-    script: "[ -e ${module.modDescriptorPath} ] && curl -sS -X PUT ${Constants.EUREKA_REGISTRY_URL}${module.name}-${module.version} --upload-file ${module.modDescriptorPath}"
+    script: "[ -e ${module.modDescriptorPath} ] && curl -sS -X PUT ${Constants.EUREKA_REGISTRY_DESCRIPTORS_URL}${module.name}-${module.version} --upload-file ${module.modDescriptorPath}"
   )
 }
 

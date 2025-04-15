@@ -319,7 +319,7 @@ class Eureka extends Base {
         String staleModuleId = item['id'] // save stale module id for descriptor removal
 
         // Update Module properties
-        item['url'] = "${Constants.EUREKA_REGISTRY_URL}${module.name}-${module.version}"
+        item['url'] = "${Constants.EUREKA_REGISTRY_DESCRIPTORS_URL}${module.name}-${module.version}"
         item['id'] = "${module.name}-${module.version}"
         item['version'] = module.version
         logger.info("Updated Module info:\n${item}")

@@ -240,18 +240,17 @@ ansiColor('xterm') {
         }
       }
 
-      stage('[ECR] Upload descriptor') {
+      stage('[S3] Upload descriptor') {
         if (!params.PUSH_DESCRIPTOR_TO_ECR) {
           logger.info("Skip [ECR] Upload descriptor stage")
           Utils.markStageSkippedForConditional('[ECR] Upload descriptor')
         }else{
           writeJSON file: application.getId() + '.json', json: application.getDescriptor()
 
-          //noinspection GroovyAssignabilityCheck
           sh(
             label: "Upload an application descriptor to ECR",
             returnStdout: false,
-            script: "[ -e ${application.getId()}.json ] && curl -sS -X PUT ${Constants.EUREKA_REGISTRY_URL}${application.getId()} --upload-file ${application.getId()}.json"
+            script: "[ -e ${application.getId()}.json ] && curl -sS -X PUT ${Constants.EUREKA_REGISTRY_APP_DESCRIPTORS_URL}${application.getId()} --upload-file ${application.getId()}.json"
           )
 
           zip zipFile: application.getId() + '.json.zip', glob: application.getId() + '.json'
