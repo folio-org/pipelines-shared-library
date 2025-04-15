@@ -55,14 +55,18 @@ ansiColor('xterm') {
               "${moduleName}-systemuser", 'SYSTEM_USER_PASSWORD')
             OkapiUser systemUser = new OkapiUser(systemUserName, systemUserPassword)
             tenants.each { tenantId ->
-              def tenant = defaultTenants[tenantId]
-              logger.info("[${tenant.getTenantId()}] Change password for user: ${systemUser.getUsername()}.")
-              users.getUserByName(tenant, systemUser)
-              if (systemUser.getUuid()) {
-                users.resetUserPassword(tenant, systemUser)
-                logger.info("[${tenant.getTenantId()}] Password for user ${systemUser.getUsername()} changed.")
-              } else {
-                logger.warning("[${tenant.getTenantId()}] Password for user ${systemUser.getUsername()} not changed.")
+              try {
+                def tenant = defaultTenants[tenantId]
+                logger.info("[${tenant.getTenantId()}] Change password for user: ${systemUser.getUsername()}.")
+                users.getUserByName(tenant, systemUser)
+                if (systemUser.getUuid()) {
+                  users.resetUserPassword(tenant, systemUser)
+                  logger.info("[${tenant.getTenantId()}] Password for user ${systemUser.getUsername()} changed.")
+                } else {
+                  logger.warning("[${tenant.getTenantId()}] Password for user ${systemUser.getUsername()} not changed.")
+                }
+              } catch (Exception e) {
+                logger.warning("Issue with tenant ${tenantId} and system user ${systemUser.getUsername()}: ${e.message}")
               }
             }
           }

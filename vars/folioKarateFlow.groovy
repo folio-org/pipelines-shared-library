@@ -46,8 +46,11 @@ KarateRunExecutionSummary call(KarateTestsParameters args) {
         stage('[Maven] Execute karate tests') {
           timeout(time: args.timeout, unit: 'HOURS') {
             container('java') {
-              withMaven(jdk: args.javaToolName, maven: args.mavenToolName, mavenOpts: '-XX:MaxRAMPercentage=85',
-                mavenLocalRepo: "${podTemplates.WORKING_DIR}/.m2/repository", traceability: true) {
+              withMaven(jdk: args.javaToolName, maven: args.mavenToolName,
+                mavenOpts: '-XX:MaxRAMPercentage=85',
+                mavenLocalRepo: "${podTemplates.WORKING_DIR}/.m2/repository",
+                traceability: true,
+                options: [artifactsPublisher(disabled: true)]) {
                 logger.debug(sh(returnStdout: true, script: 'echo $JAVA_HOME').trim())
                 String modules = args.modulesToTest ? "-pl common,testrail-integration," + args.modulesToTest : args.modulesToTest
                 catchError(stageResult: 'FAILURE') {
@@ -132,45 +135,46 @@ KarateRunExecutionSummary call(KarateTestsParameters args) {
       }
     }
   }
+}
 
-  String startReportPortalRun(String projectName) {
-    try {
-      String url = "${Constants.REPORT_PORTAL_API_URL}/${projectName}/launch"
-      Map headers = ['Content-Type': 'application/json']
-      String reportPortalPropertiesPath = './testrail-integration/src/main/resources/reportportal.properties'
-      String reportPortalPropertiesTpl = readFile file: reportPortalPropertiesPath
-      withCredentials([string(credentialsId: Constants.REPORT_PORTAL_API_KEY_ID, variable: 'API_KEY')]) {
-        headers['Authorization'] = 'Bearer ' + API_KEY
-        Map reportPortalPropertiesData = [rp_key    : API_KEY,
-                                          rp_url    : Constants.REPORT_PORTAL_URL,
-                                          rp_project: projectName]
-        writeFile encoding: 'utf-8',
-          file: reportPortalPropertiesPath,
-          text: (new StreamingTemplateEngine().createTemplate(reportPortalPropertiesTpl).make(reportPortalPropertiesData)).toString()
-      }
-      Map body = [name       : "${env.JOB_BASE_NAME}: ${env.BUILD_NUMBER}",
-                  description: "'${env.JOB_NAME}' Jenkins job. Build URL: ${env.BUILD_URL}",
-                  startTime  : "${Instant.now()}",
-                  mode       : "DEFAULT",
-                  attributes : [[key: "build", value: "${env.BUILD_NUMBER}"]]
-      ]
-
-      return new RestClient(this).post(url, body, headers).body['id']
-    } catch (Exception e) {
-      println("Not able to start Report Portal run. Error: " + e.getMessage())
+String startReportPortalRun(String projectName) {
+  try {
+    String url = "${Constants.REPORT_PORTAL_API_URL}/${projectName}/launch"
+    Map headers = ['Content-Type': 'application/json']
+    String reportPortalPropertiesPath = './testrail-integration/src/main/resources/reportportal.properties'
+    String reportPortalPropertiesTpl = readFile file: reportPortalPropertiesPath
+    withCredentials([string(credentialsId: Constants.REPORT_PORTAL_API_KEY_ID, variable: 'API_KEY')]) {
+      headers['Authorization'] = 'Bearer ' + API_KEY
+      Map reportPortalPropertiesData = [rp_key    : API_KEY,
+                                        rp_url    : Constants.REPORT_PORTAL_URL,
+                                        rp_project: projectName]
+      writeFile encoding: 'utf-8',
+        file: reportPortalPropertiesPath,
+        text: (new StreamingTemplateEngine().createTemplate(reportPortalPropertiesTpl).make(reportPortalPropertiesData)).toString()
     }
-  }
+    Map body = [name       : "${env.JOB_BASE_NAME}: ${env.BUILD_NUMBER}",
+                description: "'${env.JOB_NAME}' Jenkins job. Build URL: ${env.BUILD_URL}",
+                startTime  : "${Instant.now()}",
+                mode       : "DEFAULT",
+                attributes : [[key: "build", value: "${env.BUILD_NUMBER}"]]
+    ]
 
-  void stopReportPortalRun(String projectName, String runId) {
-    try {
-      String url = "${Constants.REPORT_PORTAL_API_URL}/${projectName}/launch/${runId}/finish"
-      Map headers = ['Content-Type': 'application/json']
-      withCredentials([string(credentialsId: Constants.REPORT_PORTAL_API_KEY_ID, variable: 'API_KEY')]) {
-        headers['Authorization'] = 'Bearer ' + API_KEY
-      }
-      Map body = [endTime: "${Instant.now()}"]
-      println(new RestClient(this).put(url, body, headers).body)
-    } catch (Exception e) {
-      println("Not able to stop Report Portal run. Error: " + e.getMessage())
-    }
+    return new RestClient(this).post(url, body, headers).body['id']
+  } catch (Exception e) {
+    println("Not able to start Report Portal run. Error: " + e.getMessage())
   }
+}
+
+void stopReportPortalRun(String projectName, String runId) {
+  try {
+    String url = "${Constants.REPORT_PORTAL_API_URL}/${projectName}/launch/${runId}/finish"
+    Map headers = ['Content-Type': 'application/json']
+    withCredentials([string(credentialsId: Constants.REPORT_PORTAL_API_KEY_ID, variable: 'API_KEY')]) {
+      headers['Authorization'] = 'Bearer ' + API_KEY
+    }
+    Map body = [endTime: "${Instant.now()}"]
+    println(new RestClient(this).put(url, body, headers).body)
+  } catch (Exception e) {
+    println("Not able to stop Report Portal run. Error: " + e.getMessage())
+  }
+}

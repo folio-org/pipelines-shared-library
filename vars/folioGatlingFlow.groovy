@@ -11,7 +11,10 @@ void call(KarateTestsParameters args) {
   podTemplates.javaTemplate(args.javaVerson) {
     node(JenkinsAgentLabel.JAVA_AGENT.getLabel()) {
       stage('Ini') {
-        currentBuild.description += currentBuild.getBuildCauses()[0].shortDescription
+        def existing = currentBuild.description?.trim()
+        def causeDescription = currentBuild.getBuildCauses()[0]?.shortDescription ?: "Unknown cause"
+
+        currentBuild.description = (existing ? "$existing\n" : "") + causeDescription
       }
 
       stage('[Git] Checkout Module repo') {
@@ -37,8 +40,11 @@ void call(KarateTestsParameters args) {
         container('java') {
           dir(gatlingBaseDir) {
             timeout(time: args.timeout, unit: 'HOURS') {
-              withMaven(jdk: args.javaToolName, maven: args.mavenToolName, mavenOpts: '-XX:MaxRAMPercentage=85',
-                mavenLocalRepo: "${podTemplates.WORKING_DIR}/.m2/repository", traceability: true) {
+              withMaven(jdk: args.javaToolName, maven: args.mavenToolName,
+                mavenOpts: '-XX:MaxRAMPercentage=85',
+                mavenLocalRepo: "${podTemplates.WORKING_DIR}/.m2/repository",
+                traceability: true,
+                options: [artifactsPublisher(disabled: true)]) {
                 /**
                  * The modules to test are passed as a comma separated list of modules.
                  * The modules are passed as a parameter to the Jenkins job.
