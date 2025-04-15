@@ -26,7 +26,9 @@ properties([
     booleanParam(name: 'FROM_DESCRIPTOR', defaultValue: false, description: 'Check to upgrade previously built descriptor'),
     booleanParam(name: 'RECREATE', defaultValue: true, description: 'Check to recreate application descriptor from scratch with new module versions'),
     booleanParam(name: 'UPGRADE', defaultValue: false, description: 'Check to upgrade previously built descriptor with the new module versions'),
-    base64File(name: 'fff/test.json', description: 'Previously generated application descriptor file.'),
+
+    //TODO: Uncomment the following line on new Jenkins with this plugin https://plugins.jenkins.io/file-parameters/
+//    base64File(name: 'in_params/descriptor.json', description: 'Previously generated application descriptor file.'),
     string(name: 'DESCRIPTOR_URL', defaultValue: "${Constants.EUREKA_REGISTRY_APP_DESCRIPTORS_URL}", description: '(Optional) Registry URL of the previously generated application descriptor file.'),
 
     booleanParam(name: 'FROM_TEMPLATE', defaultValue: false, description: 'Check for building from template'),
@@ -125,19 +127,14 @@ ansiColor('xterm') {
     FolioInstallJson<EurekaModule> beUpdated = new FolioInstallJson<EurekaModule>(EurekaModule.class)
       .setInstallJsonObject(installJson)
 
-//    Map initialDescriptor = [:]
-//
+    Map initialDescriptor = [:]
+
     if(sourceType == ApplicationsBuildPushPipeline.SourceType.DESCRIPTOR){
-      input message: "Let's check workspace"
-//
-//      logger.debug("I'm check descriptor file ${params.DESCRIPTOR_FILE}")
-      logger.debug("Descriptor file: ${readFile(file: 'fff/test.json')}")
-//
-//      String descFile = params.DESCRIPTOR_FILE?.trim() ?
-//              readFile(file: params.DESCRIPTOR_FILE) :
-//              sh(script: "curl -sS ${params.DESCRIPTOR_URL}", returnStdout: true).trim()
-//
-//      initialDescriptor = readJSON(text: descFile) as Map
+      String descFile = fileExists('in_params/descriptor.json') ?
+              readFile(file: 'in_params/descriptor.json') :
+              sh(script: "curl -sS ${params.DESCRIPTOR_URL}", returnStdout: true).trim()
+
+      initialDescriptor = readJSON(text: descFile) as Map
     }
 
     Map template = sourceType == ApplicationsBuildPushPipeline.SourceType.TEMPLATE ? readJSON(text: params.TEMPLATE) as Map : [:]
@@ -147,22 +144,6 @@ ansiColor('xterm') {
 
     try {
       stage('Init'){
-        Map initialDescriptor = [:]
-
-        if(sourceType == ApplicationsBuildPushPipeline.SourceType.DESCRIPTOR){
-          input message: "Let's check workspace"
-
-//          logger.debug("I'm check descriptor file ${params.DESCRIPTOR_FILE}")
-          logger.debug("Descriptor file: ${readFile(file: 'fff/test.json')}")
-
-          String descFile = params.DESCRIPTOR_FILE?.trim() ?
-                  readFile(file: params.DESCRIPTOR_FILE) :
-                  sh(script: "curl -sS ${params.DESCRIPTOR_URL}", returnStdout: true).trim()
-
-          initialDescriptor = readJSON(text: descFile) as Map
-        }
-
-
         String additionalInfo = null
 
         switch (sourceType) {
