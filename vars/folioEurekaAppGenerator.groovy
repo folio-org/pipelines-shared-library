@@ -102,7 +102,11 @@ Map createTemplateFromDescriptor(Map descriptor, String version = null, boolean 
 Map generateFromRepository(String repoName, FolioInstallJson moduleList, String branch = "master", boolean debug = false) {
   logger.info("Generating application descriptor from repository...")
 
+  input("Let's check workspace")
+
   sh(script: "rm -rf ${repoName}")
+
+  input(message: "Let's check if deleted")
 
   checkout([
     $class           : 'GitSCM',
