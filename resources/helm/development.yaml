@@ -2036,6 +2036,32 @@ mod-marccat:
   pdb:
     enabled: true
     maxUnavailable: 1
+mod-mosaic:
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 520Mi
+    requests:
+      memory: 480Mi
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=75.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
 mod-ncip:
   extraEnvVars: []
   integrations: {}
