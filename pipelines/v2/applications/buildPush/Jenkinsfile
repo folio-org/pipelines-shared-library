@@ -128,9 +128,12 @@ ansiColor('xterm') {
     Map initialDescriptor = [:]
 
     if(sourceType == ApplicationsBuildPushPipeline.SourceType.DESCRIPTOR){
+      logger.debug("I'm check descriptor file ${params.DESCRIPTOR_FILE?.trim() ? "true" : "false"}")
+      logger.debug("Descriptor file: ${readFile(file: params.DESCRIPTOR_FILE)}")
+
       String descFile = params.DESCRIPTOR_FILE?.trim() ?
               readFile(file: params.DESCRIPTOR_FILE) :
-              sh(script: "curl -sS ${params.DESCRIPTION_URL}", returnStdout: true).trim()
+              sh(script: "curl -sS ${params.DESCRIPTOR_URL}", returnStdout: true).trim()
 
       initialDescriptor = readJSON(text: descFile) as Map
     }
