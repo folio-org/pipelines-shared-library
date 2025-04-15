@@ -158,8 +158,6 @@ Map generateFromTemplate(String appName, Map template, FolioInstallJson moduleLi
 }
 
 private Map _generate(String appName, boolean debug = false, String command = "org.folio:folio-application-generator:generateFromJson", String args = "") {
-  input message: "Let's check workspace"
-
   awscli.withAwsClient() {
     withMaven(
       jdk: "${common.selectJavaBasedOnAgent(params.AGENT)}".toString(),
