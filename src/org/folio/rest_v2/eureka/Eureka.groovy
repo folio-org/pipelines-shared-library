@@ -144,8 +144,8 @@ class Eureka extends Base {
     return apps
   }
 
-  ApplicationList registerApplicationsFromScratch(Map<String, String> apps, FolioInstallJson modules) {
-    return generateApplications(apps, modules).each {app -> Applications.get(kong).registerApplication(app.descriptor) }
+  ApplicationList registerApplications(ApplicationList apps) {
+    return apps.each {app -> Applications.get(kong).registerApplication(app.descriptor) }
   }
 
   Eureka registerModulesFlow(List<? extends FolioModule> modules) {
