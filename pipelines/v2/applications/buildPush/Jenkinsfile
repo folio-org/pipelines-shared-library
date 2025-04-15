@@ -128,6 +128,8 @@ ansiColor('xterm') {
     Map initialDescriptor = [:]
 
     if(sourceType == ApplicationsBuildPushPipeline.SourceType.DESCRIPTOR){
+      input message: "Let's check workspace"
+
       logger.debug("I'm check descriptor file ${params.DESCRIPTOR_FILE?.trim() ? "true" : "false"}")
       logger.debug("Descriptor file: ${readFile(file: params.DESCRIPTOR_FILE)}")
 
