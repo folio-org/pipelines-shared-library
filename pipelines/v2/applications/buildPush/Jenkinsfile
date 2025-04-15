@@ -206,7 +206,7 @@ ansiColor('xterm') {
       stage('[Maven] Build descriptor') {
         switch (sourceType) {
           case ApplicationsBuildPushPipeline.SourceType.REPOSITORY:
-            application = new Application(folioEurekaAppGenerator.generateFromRepository(
+            application = new Application().withDescriptor(folioEurekaAppGenerator.generateFromRepository(
               appName,
               beUpdated,
               params.APPLICATION_BRANCH as String
@@ -215,13 +215,13 @@ ansiColor('xterm') {
 
           case ApplicationsBuildPushPipeline.SourceType.DESCRIPTOR:
             if(params.RECREATE) {
-              application = new Application(folioEurekaAppGenerator.generateFromDescriptor(
+              application = new Application().withDescriptor(folioEurekaAppGenerator.generateFromDescriptor(
                 initialDescriptor,
                 beUpdated,
                 params.VERSION.trim() ?: null
               ) as Map)
             } else {
-              application = new Application(folioEurekaAppGenerator.updateDescriptor(
+              application = new Application().withDescriptor(folioEurekaAppGenerator.updateDescriptor(
                 initialDescriptor,
                 beUpdated
               ) as Map)
@@ -229,7 +229,7 @@ ansiColor('xterm') {
             break
 
           case ApplicationsBuildPushPipeline.SourceType.TEMPLATE:
-            application = new Application(folioEurekaAppGenerator.generateFromTemplate(
+            application = new Application().withDescriptor(folioEurekaAppGenerator.generateFromTemplate(
               appName,
               template,
               beUpdated,

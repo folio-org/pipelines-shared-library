@@ -16,6 +16,8 @@ class Application {
   Map descriptor = [:]
   List<EurekaModule> modules = []
 
+  Application(){}
+
   Application(String id){
     this.id = id
 
@@ -32,20 +34,15 @@ class Application {
     this.build = extractBuild(version)
   }
 
-  Application(Map descriptor){
+  Application withDescriptor(Map descriptor) {
     this.descriptor = descriptor
     this.name = descriptor.name
     this.id = descriptor.id
     this.version = descriptor.version
     this.build = extractBuild(version)
 
-    List<EurekaModule> lst = descriptor.modules.collect { module ->
-      EurekaModule mod = new EurekaModule()
-      mod.setId(module.id)
-      return mod
-    }
-
-    lst.each {it.loadModuleDetails(it.getId(), "enabled")}
+    withModules(descriptor.modules.collect { module -> new EurekaModule().loadModuleDetails(module.id as String, "enabled") })
+    return this
   }
 
   Application withModules(List<EurekaModule> modules) {
