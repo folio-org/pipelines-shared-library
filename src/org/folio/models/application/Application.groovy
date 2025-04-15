@@ -34,6 +34,20 @@ class Application {
     this.build = extractBuild(version)
   }
 
+  /**
+   * Loads application details based on the provided descriptor.
+   * This method extracts the name, version, and build from the descriptor,
+   * and sets the modules list.
+   *
+   * This approach was taken intentionally due to Jenkins issue
+   * "expected to call org.folio.models.application.Application.<init> but wound up catching
+   * org.folio.models.module.EurekaModule.loadModuleDetails; see:
+   * https://www.jenkins.io/doc/book/pipeline/cps-method-mismatches/"
+   * Please utilize the following approach <b>new Application().withDescriptor(descriptor)</b>
+   *
+   * @param descriptor The application descriptor in JSON format.
+   * @return This instance of Application for method chaining.
+   */
   Application withDescriptor(Map descriptor) {
     this.descriptor = descriptor
     this.name = descriptor.name
