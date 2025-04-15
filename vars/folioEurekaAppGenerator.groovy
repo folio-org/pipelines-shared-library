@@ -75,13 +75,18 @@ Map generateFromDescriptor(Map descriptor, FolioInstallJson moduleList, String v
 Map createTemplateFromDescriptor(Map descriptor, String version = null, boolean debug = false) {
   Map template = descriptor
 
+  logger.debug("Before delete id ${template.id}")
+
   template.remove('id')
+
+  logger.debug("After delete id ${template.id}")
+
   template.remove('moduleDescriptors')
   template.remove('uiModuleDescriptors')
   template.put('version', version = version ?: template.version)
   template.put('id', "${template.name}-${template.version}")
 
-  logger.debug("${template.id}")
+  logger.debug("After put id ${template.id}")
 
   input message: "Let's check id"
 
