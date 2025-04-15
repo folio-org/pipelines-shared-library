@@ -26,7 +26,7 @@ properties([
     booleanParam(name: 'FROM_DESCRIPTOR', defaultValue: false, description: 'Check to upgrade previously built descriptor'),
     booleanParam(name: 'RECREATE', defaultValue: true, description: 'Check to recreate application descriptor from scratch with new module versions'),
     booleanParam(name: 'UPGRADE', defaultValue: false, description: 'Check to upgrade previously built descriptor with the new module versions'),
-    file(name: 'fff/test.json', description: 'Previously generated application descriptor file.'),
+    base64File(name: 'fff/test.json', description: 'Previously generated application descriptor file.'),
     string(name: 'DESCRIPTOR_URL', defaultValue: "${Constants.EUREKA_REGISTRY_APP_DESCRIPTORS_URL}", description: '(Optional) Registry URL of the previously generated application descriptor file.'),
 
     booleanParam(name: 'FROM_TEMPLATE', defaultValue: false, description: 'Check for building from template'),
