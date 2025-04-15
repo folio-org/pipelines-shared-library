@@ -8,12 +8,18 @@ import org.folio.models.module.FolioModule
 import org.folio.models.module.ModuleBuildTool
 import org.folio.models.module.ModuleType
 import org.folio.pipelines.applications.buildPush.ApplicationsBuildPushPipeline
+import org.folio.rest.GitHubUtility
 import org.folio.utilities.Logger
 import org.jenkinsci.plugins.pipeline.modeldefinition.Utils
 import org.jenkinsci.plugins.workflow.libs.Library
 
 //TODO: Switch to the master
 @Library('pipelines-shared-library@RANCHER-2138-test') _
+
+List defaultInstallJson = new GitHubUtility(this).getEnableList('platform-complete', 'snapshot')
+defaultInstallJson.addAll(new GitHubUtility(this).getEurekaList('platform-complete', 'snapshot'))
+defaultInstallJson.removeAll { module -> module.id =~ /(mod-login|mod-authtoken|mod-login-saml)-\d+\..*/ }
+defaultInstallJson.removeAll { module -> module.id == 'okapi' }
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
@@ -64,16 +70,7 @@ properties([
 ]'''),
 
     text(name: 'INSTALL_JSON', description: '(Required) Install json list with modules to install.',
-      defaultValue: '''[
- {
-    "id" : "folio_users-x.x.x",
-    "action" : "enable"
-  },
-  {
-    "id" : "mod-users-x.x.x",
-    "action" : "enable"
-  }
-]'''),
+      defaultValue: "${defaultInstallJson.join(',')}"),
 
     string(name: 'VERSION', defaultValue: '', description: '(Optional) A version to be explicitly set for new application descriptor.'),
     booleanParam(name: 'PUSH_DESCRIPTOR_TO_REGISTRY', defaultValue: true, description: 'Set true to push application descriptor to the registry'),
