@@ -51,15 +51,7 @@ withCredentials([[$class           : 'AmazonWebServicesCredentialsBinding',
 
 Main main = new Main(this, namespace.getDomains()['okapi'], namespace.getSuperTenant())
 
-OkapiTenant newTenant = new OkapiTenant(params.TENANT_ID)
-  .withTenantName(params.TENANT_NAME)
-  .withTenantDescription(params.TENANT_DESCRIPTION)
-  .withAdminUser(folioDefault.adminOkapiUser("${params.TENANT_ID.toLowerCase()}_admin", 'admin'))
-  .withConfiguration(new OkapiConfig().withSmtp(smtp).withKbApiKey(kbApiKey))
-  .withInstallJson(main.getInstallJson(params.REFERENCE_TENANT_ID))
-  .withIndex(new Index('instance', true, true))
-  .withIndex(new Index('authority', true, false))
-  .withInstallRequestParams(installRequestParams.clone())
+OkapiTenant newTenant = null
 
 ansiColor('xterm') {
   node(params.AGENT) {
@@ -68,6 +60,15 @@ ansiColor('xterm') {
       buildDescription ""
     }
     stage("Create Tenant") {
+      newTenant = new OkapiTenant(params.TENANT_ID)
+        .withTenantName(params.TENANT_NAME)
+        .withTenantDescription(params.TENANT_DESCRIPTION)
+        .withAdminUser(folioDefault.adminOkapiUser("${params.TENANT_ID.toLowerCase()}_admin", 'admin'))
+        .withConfiguration(new OkapiConfig().withSmtp(smtp).withKbApiKey(kbApiKey))
+        .withInstallJson(main.getInstallJson(params.REFERENCE_TENANT_ID))
+        .withIndex(new Index('instance', true, true))
+        .withIndex(new Index('authority', true, false))
+        .withInstallRequestParams(installRequestParams.clone())
       main.createTenantFlow(newTenant)
     }
   }

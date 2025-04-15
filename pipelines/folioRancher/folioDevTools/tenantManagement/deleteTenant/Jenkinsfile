@@ -30,22 +30,23 @@ RancherNamespace namespace = new RancherNamespace(params.CLUSTER, params.NAMESPA
 
 Main main = new Main(this, namespace.getDomains()['okapi'], namespace.getSuperTenant())
 
-if (!main.isTenantExist(params.TENANT_ID)) {
-  currentBuild.result = 'ABORTED'
-  error('Tenant does not exist, stopping the pipeline')
-}
-
-InstallRequestParams installRequestParams = new InstallRequestParams()
-  .withTenantParameters("purge=true")
-
-OkapiTenant tenant = new OkapiTenant(params.TENANT_ID)
-  .withInstallJson(main.getInstallJson(params.TENANT_ID, 'disable'))
-  .withInstallRequestParams(installRequestParams)
+OkapiTenant tenant = null
 
 
 ansiColor('xterm') {
   node(params.AGENT) {
     try {
+      stage( name: 'Pre-check') {
+        if (!main.isTenantExist(params.TENANT_ID)) {
+          currentBuild.result = 'ABORTED'
+          error('Tenant does not exist, stopping the pipeline')
+        }
+        InstallRequestParams installRequestParams = new InstallRequestParams()
+          .withTenantParameters("purge=true")
+        tenant = new OkapiTenant(params.TENANT_ID)
+          .withInstallJson(main.getInstallJson(params.TENANT_ID, 'disable'))
+          .withInstallRequestParams(installRequestParams)
+      }
       stage('Ini') {
         buildName "${namespace.getClusterName()}-${namespace.getNamespaceName()}.${env.BUILD_ID}"
         buildDescription "Tenant: ${params.TENANT_ID}"
