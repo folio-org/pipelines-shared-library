@@ -44,6 +44,8 @@ class Application {
       mod.setId(module.id)
       return mod
     }
+
+    lst.each {it.loadModuleDetails(it.getId(), "enabled")}
   }
 
   Application withModules(List<EurekaModule> modules) {
