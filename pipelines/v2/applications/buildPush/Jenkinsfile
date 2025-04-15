@@ -78,6 +78,7 @@ properties([
 
     booleanParam(name: 'FROM_TEMPLATE', defaultValue: false, description: 'Check for building from template'),
     string(name: 'APP_NAME', defaultValue: 'app-platform-minimal', description: '(Mandatory) Name of the application to be built'),
+    file(name: 'APP_DESCRIPTION_FILE', description: '(Optional) Description file of the application to be built.'),
     string(name: 'APP_DESCRIPTION', defaultValue: '', description: '(Optional) Description of the application to be built'),
     text(name: 'TEMPLATE', description: 'Application template to use for building application descriptor.',
       defaultValue: '''[
