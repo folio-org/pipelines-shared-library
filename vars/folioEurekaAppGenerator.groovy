@@ -87,7 +87,7 @@ Map createTemplateFromDescriptor(Map descriptor, String version = null, boolean 
   logger.debug("Version: ${template.version}")
   logger.debug("version = version ?: template.version ${version ?: template.version}")
 
-  template.put('version', version = version ?: template.version)
+  template.put('version', version ?: template.version)
 
   logger.debug("Before put id ${template.id}")
 
