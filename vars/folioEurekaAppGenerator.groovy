@@ -104,19 +104,20 @@ Map generateFromRepository(String repoName, FolioInstallJson moduleList, String 
 
   input("Let's check workspace")
 
-  sh(script: "rm -rf ${repoName}")
+//  sh(script: "rm -rf ${repoName}")
+  sh(script: "rm -rf ${repoName} || true && git clone --branch ${branch} --single-branch ${Constants.FOLIO_GITHUB_URL}/${repoName}.git")
 
   input(message: "Let's check if deleted")
 
-  checkout([
-    $class           : 'GitSCM',
-    branches         : [[name: "*/${branch}"]],
-    extensions       : [[$class: 'RelativeTargetDirectory', relativeTargetDir: repoName],
-                        [$class: 'CleanBeforeCheckout', deleteUntrackedNestedRepositories: true],
-                        [$class: 'AuthorInChangelog'],
-                        [$class: 'SubmoduleOption', recursiveSubmodules: true]],
-    userRemoteConfigs: [[url: "${Constants.FOLIO_GITHUB_URL}/${repoName}.git"]]
-  ])
+//  checkout([
+//    $class           : 'GitSCM',
+//    branches         : [[name: "*/${branch}"]],
+//    extensions       : [[$class: 'RelativeTargetDirectory', relativeTargetDir: repoName],
+//                        [$class: 'CleanBeforeCheckout', deleteUntrackedNestedRepositories: true],
+//                        [$class: 'AuthorInChangelog'],
+//                        [$class: 'SubmoduleOption', recursiveSubmodules: true]],
+//    userRemoteConfigs: [[url: "${Constants.FOLIO_GITHUB_URL}/${repoName}.git"]]
+//  ])
 
   dir(repoName) {
     if(moduleList) {
