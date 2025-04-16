@@ -206,7 +206,9 @@ class Constants {
   static String ECS_EDGE_GENERAL_PASSWORD = 'edge'
 
   //Eureka base constants
-  static String EUREKA_REGISTRY_URL = 'https://eureka-registry.ci.folio.org/descriptors/'
+  static String EUREKA_REGISTRY_URL = 'https://eureka-registry.ci.folio.org/'
+  static String EUREKA_REGISTRY_DESCRIPTORS_URL = EUREKA_REGISTRY_URL + 'descriptors/'
+  static String EUREKA_REGISTRY_APP_DESCRIPTORS_URL = EUREKA_REGISTRY_URL + 'apps/'
   static List<String> EUREKA_MODULE_SOURCES = ['GitHub/folio-org', 'DockerHub/folioci', 'DockerHub/folioorg', 'ECR']
 
   static String RANCHER_API_URL = 'https://rancher.ci.folio.org/v3'
