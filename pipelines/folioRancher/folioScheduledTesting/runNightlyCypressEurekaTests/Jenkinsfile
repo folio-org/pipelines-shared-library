@@ -19,13 +19,13 @@ import org.jenkinsci.plugins.workflow.libs.Library
  * Job properties and parameters
  */
 properties([
-//  pipelineTriggers([cron('H 21 * * 1-5')]),
-buildDiscarder(logRotator(numToKeepStr: '30')),
-disableConcurrentBuilds(),
-parameters([
-  string(name: 'CYPRESS_BRANCH', defaultValue: 'master', description: "(Required) Insert what 'stripes-testing' branch use for build"),
-  folioParameters.refreshParameters()
-])
+  pipelineTriggers([cron('H 21 * * 1-5')]),
+  buildDiscarder(logRotator(numToKeepStr: '30')),
+  disableConcurrentBuilds(),
+  parameters([
+    string(name: 'CYPRESS_BRANCH', defaultValue: 'master', description: "(Required) Insert what 'stripes-testing' branch use for build"),
+    folioParameters.refreshParameters()
+  ])
 ])
 
 if (params.REFRESH_PARAMETERS) {
@@ -39,8 +39,8 @@ if (params.REFRESH_PARAMETERS) {
 PodTemplates podTemplates = new PodTemplates(this)
 Logger logger = new Logger(this, env.JOB_BASE_NAME)
 
-@Field final String deleteNamespaceJobName = Constants.JENKINS_DELETE_NAMESPACE_JOB_EUREKA
-@Field final String createNamespaceJobName = Constants.JENKINS_CREATE_NAMESPACE_FROM_BRANCH_JOB_EUREKA
+@Field final String deleteNamespaceJobName = Constants.JENKINS_DELETE_NAMESPACE_JOB
+@Field final String createNamespaceJobName = Constants.JENKINS_CREATE_NAMESPACE_FROM_BRANCH_JOB
 
 final String platformCompleteBranch = 'snapshot'
 
@@ -125,8 +125,8 @@ ansiColor('xterm') {
           throw new Exception("Provision of the environment is failed: " + new_ex)
         }
       }
-
-      folioCypressFlow.call(cypressParameters.getCiBuildId(), [cypressParameters], false, reportPortalUse, reportPortalRunType)
     }
+
+    folioCypressFlow.call(cypressParameters.getCiBuildId(), [cypressParameters], false, reportPortalUse, reportPortalRunType)
   }
 }

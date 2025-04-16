@@ -1,17 +1,14 @@
 #!groovy
-
-
 import groovy.transform.Field
 import org.folio.Constants
+import org.folio.jenkins.JenkinsAgentLabel
+import org.folio.jenkins.PodTemplates
+import org.folio.models.parameters.CreateNamespaceParameters
 import org.folio.rest_v2.PlatformType
 import org.jenkinsci.plugins.workflow.libs.Library
-import org.folio.models.parameters.CreateNamespaceParameters
 
 //TODO remove branch before merge to master
-@Library('pipelines-shared-library') _
-
-@Field final String deleteNamespaceJobNameEureka = Constants.JENKINS_DELETE_NAMESPACE_JOB_EUREKA
-@Field final String createNamespaceJobNameEureka = Constants.JENKINS_CREATE_NAMESPACE_FROM_BRANCH_JOB_EUREKA
+@Library('pipelines-shared-library@RANCHER-2236') _
 
 @Field final String deleteNamespaceJobName = Constants.JENKINS_DELETE_NAMESPACE_JOB
 @Field final String createNamespaceJobName = Constants.JENKINS_CREATE_NAMESPACE_FROM_BRANCH_JOB
@@ -22,11 +19,11 @@ properties([buildDiscarder(logRotator(numToKeepStr: '30')),
                         folioParameters.cluster('PLATFORM'),
                         folioParameters.namespace(),
                         folioParameters.configType(),
-                        folioParameters.agent(),
                         folioParameters.refreshParameters()]),
-            pipelineTriggers([parameterizedCron('''
-              H 20 * * * %PLATFORM=EUREKA;CLUSTER=folio-edev;NAMESPACE=eureka;CONFIG_TYPE=development;AGENT=jenkins-agent-java21
-            ''')])])
+//            pipelineTriggers([parameterizedCron('''
+//              H 20 * * * %PLATFORM=EUREKA;CLUSTER=folio-edev;NAMESPACE=eureka;CONFIG_TYPE=development;AGENT=jenkins-agent-java21
+//            ''')])
+])
 // Get back when the ticket is resolved https://folio-org.atlassian.net/browse/RANCHER-1546
 //            pipelineTriggers([parameterizedCron('''
 //              H 20 * * * %CLUSTER=folio-edev;NAMESPACE=eureka;EUREKA=true;CONFIG_TYPE=development;AGENT=rancher
@@ -37,6 +34,8 @@ if (params.REFRESH_PARAMETERS) {
   currentBuild.result = 'ABORTED'
   return
 }
+
+PodTemplates podTemplates = new PodTemplates(this)
 
 CreateNamespaceParameters namespace = new CreateNamespaceParameters.Builder()
   .platform(PlatformType.EUREKA)
@@ -66,13 +65,12 @@ CreateNamespaceParameters namespace = new CreateNamespaceParameters.Builder()
   .opensearchType('aws')
   .s3Type('built-in')
   .uiBuild(true)
-  .worker('rancher')
   .runSanityCheck(true)
   .build()
 
 ansiColor('xterm') {
-  node(params.AGENT) {
-    try {
+  podTemplates.defaultTemplate {
+    node(JenkinsAgentLabel.DEFAULT_AGENT.getLabel()) {
       stage('Checkout') {
         checkout scm
       }
@@ -83,19 +81,11 @@ ansiColor('xterm') {
       }
 
       stage('Cleaning env') {
-        folioTriggerJob.deleteNamespace(namespace.platform == PlatformType.EUREKA ? deleteNamespaceJobNameEureka : deleteNamespaceJobName, namespace)
+        folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespace)
       }
 
       stage('Spinning up env') {
-        folioTriggerJob.createNamespaceFromBranch(namespace.platform == PlatformType.EUREKA ? createNamespaceJobNameEureka : createNamespaceJobName, namespace)
-      }
-
-    } catch (e) {
-      println "Caught exception: ${e}"
-      error(e.getMessage())
-    } finally {
-      stage('Cleanup') {
-        cleanWs notFailBuild: true
+        folioTriggerJob.createNamespaceFromBranch(createNamespaceJobName, namespace)
       }
     }
   }

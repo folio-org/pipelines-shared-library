@@ -29,7 +29,6 @@ ansiColor('xterm') {
   podTemplates.defaultTemplate {
     node(JenkinsAgentLabel.DEFAULT_AGENT.getLabel()) {
       stage('Ini') {
-        buildName "Login Issue Fix"
         buildDescription "${params.CLUSTER}-${params.NAMESPACE}"
       }
 

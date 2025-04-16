@@ -107,6 +107,7 @@ def fetchModules(String url) {
   def getNextPage
 
   def processResponse = { connection ->
+    connection.setRequestProperty("User-Agent", "Jenkins-Groovy-Script")
     connection.setRequestProperty("Authorization", "Bearer \${secret_value}")
     if (connection.responseCode == 200) {
       def responseText = connection.getInputStream().getText()

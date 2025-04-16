@@ -1,6 +1,6 @@
 #!groovy
 
-import org.folio.Constants as CommonConstants
+import org.folio.Constants as GlobalConstants
 import org.folio.jenkins.JenkinsAgentLabel
 import org.folio.jenkins.PodTemplates
 import org.folio.models.ChangelogEntry
@@ -9,7 +9,7 @@ import org.folio.models.OkapiUser
 import org.folio.models.parameters.CreateNamespaceParameters
 import org.folio.models.parameters.CypressTestsParameters
 import org.folio.models.parameters.KarateTestsParameters
-import org.folio.rest_v2.Constants
+import org.folio.rest_v2.Constants as RestConstants
 import org.folio.rest_v2.PlatformType
 import org.folio.slack.SlackHelper
 import org.folio.testing.TestType
@@ -21,14 +21,14 @@ import org.jenkinsci.plugins.workflow.libs.Library
 @Library('pipelines-shared-library@RANCHER-2236') _
 
 properties([
-//  pipelineTriggers([cron('H 6,9,12,15,18,21 * * 1-5')]),
-buildDiscarder(logRotator(numToKeepStr: '40')),
-disableConcurrentBuilds(),
-parameters([
-  string(name: 'FOLIO_BRANCH', defaultValue: 'snapshot', description: 'platform-complete branch where will be run quality CI job'),
-  booleanParam(name: 'SKIP_CHECK', defaultValue: false, description: 'Skip check of changes since last build.'),
-  booleanParam(name: 'INCLUDE_KARATE', defaultValue: false, description: 'Exclude Karate tests from execution, if unchecked.'), //Set to true, if karate tests needed.
-  folioParameters.refreshParameters()])
+  pipelineTriggers([cron('H 6,9,12,15,18,21 * * 1-5')]),
+  buildDiscarder(logRotator(numToKeepStr: '40')),
+  disableConcurrentBuilds(),
+  parameters([
+    string(name: 'FOLIO_BRANCH', defaultValue: 'snapshot', description: 'platform-complete branch where will be run quality CI job'),
+    booleanParam(name: 'SKIP_CHECK', defaultValue: false, description: 'Skip check of changes since last build.'),
+    booleanParam(name: 'INCLUDE_KARATE', defaultValue: false, description: 'Exclude Karate tests from execution, if unchecked.'), //Set to true, if karate tests needed.
+    folioParameters.refreshParameters()])
 ])
 
 if (params.REFRESH_PARAMETERS) {
@@ -45,8 +45,8 @@ String previousBuildSha
 CypressRunExecutionSummary cypressTestsExecutionSummary
 KarateRunExecutionSummary karateTestsExecutionSummary
 
-String createNamespaceFromBranchJob = CommonConstants.JENKINS_CREATE_NAMESPACE_FROM_BRANCH_JOB
-String deleteNamespaceJob = CommonConstants.JENKINS_DELETE_NAMESPACE_JOB
+String createNamespaceFromBranchJob = GlobalConstants.JENKINS_CREATE_NAMESPACE_FROM_BRANCH_JOB
+String deleteNamespaceJob = GlobalConstants.JENKINS_DELETE_NAMESPACE_JOB
 String globalSlackChannel = '#rancher_tests_notifications'
 String okapiVersion = folioTools.eval(folioStringScripts.getOkapiVersions(), ['FOLIO_BRANCH': params.FOLIO_BRANCH])[0]
 
@@ -85,7 +85,7 @@ CreateNamespaceParameters namespaceFromBranchParams = namespaceBaseParams.toBuil
   .ecsCCL(false)
   .rtr(false)
   .applicationSet('Complete')
-  .applications(org.folio.rest_v2.Constants.APPLICATION_BRANCH('Complete'))
+  .applications(RestConstants.APPLICATION_BRANCH('Complete'))
   .hasSecureTenant(true)
   .secureTenantId(folioDefault.consortiaTenants().get('university').getTenantId())
   .build()
@@ -130,21 +130,21 @@ ansiColor('xterm') {
         CypressTestsParameters cypressParameters = new CypressTestsParameters()
         cypressParameters.setCiBuildId(env.JOB_BASE_NAME)
         cypressParameters.setTestsSrcBranch('master')
-        cypressParameters.setTenantUrl("https://${envsMap['cypress']['cluster']}-${envsMap['cypress']['namespace']}-diku.${Constants.CI_ROOT_DOMAIN}")
-        cypressParameters.setOkapiUrl("https://${envsMap['cypress']['cluster']}-${envsMap['cypress']['namespace']}-kong.${Constants.CI_ROOT_DOMAIN}")
+        cypressParameters.setTenantUrl("https://${envsMap['cypress']['cluster']}-${envsMap['cypress']['namespace']}-diku.${GlobalConstants.CI_ROOT_DOMAIN}")
+        cypressParameters.setOkapiUrl("https://${envsMap['cypress']['cluster']}-${envsMap['cypress']['namespace']}-kong.${GlobalConstants.CI_ROOT_DOMAIN}")
         cypressParameters.setTenant(new OkapiTenant('diku')
           .withAdminUser(new OkapiUser('diku_admin', 'admin')))
         cypressParameters.setExecParameters('--env grepTags="shiftLeft"')
         cypressParameters.setNumberOfWorkers(4)
         cypressParameters.setTimeout('180')
 
-        folioCypressFlow.call(cypressParameters.getCiBuildId(), [cypressParameters], false, 'ci', true)
+        cypressTestsExecutionSummary = folioCypressFlow.call(cypressParameters.getCiBuildId(), [cypressParameters], false, true, 'ci')
       }
       if (params.INCLUDE_KARATE) {
         branches['Karate'] = { ->
           KarateTestsParameters karateTestsParams = new KarateTestsParameters()
-          karateTestsParams.okapiUrl = "https://${envsMap['karate']['cluster']}-${envsMap['karate']['namespace']}-okapi.${Constants.CI_ROOT_DOMAIN}"
-          karateTestsParams.edgeUrl = "https://${envsMap['karate']['cluster']}-${envsMap['karate']['namespace']}-edge.${Constants.CI_ROOT_DOMAIN}"
+          karateTestsParams.okapiUrl = "https://${envsMap['karate']['cluster']}-${envsMap['karate']['namespace']}-okapi.${GlobalConstants.CI_ROOT_DOMAIN}"
+          karateTestsParams.edgeUrl = "https://${envsMap['karate']['cluster']}-${envsMap['karate']['namespace']}-edge.${GlobalConstants.CI_ROOT_DOMAIN}"
           karateTestsParams.tenant = 'supertenant'
           karateTestsParams.prototypeTenant = 'consortium'
           karateTestsParams.adminUserName = 'super_admin'
@@ -235,7 +235,7 @@ void provisionFromBranchParallelStage(String jobName, Map envsMap, CreateNamespa
 
         branches[envName] = { ->
           subJobsMap[id] = folioTriggerJob.createNamespaceFromBranch(metadata['platform'] == 'eureka' ?
-            CommonConstants.JENKINS_CREATE_NAMESPACE_FROM_BRANCH_JOB_EUREKA : jobName, namespaceCreateParams, false, true)
+            GlobalConstants.JENKINS_CREATE_NAMESPACE_FROM_BRANCH_JOB : jobName, namespaceCreateParams, false, true)
 
           if (subJobsMap[id]?.getResult() == 'FAILURE') {
             throw new Exception(subJobsMap[id]?.getDescription() as String)
@@ -281,8 +281,7 @@ void destroyParallelStage(String jobName, Map namespacesMap, CreateNamespacePara
           .namespaceName(metadata['namespace'])
           .build()
         branches["${namespaceDeleteParams.getClusterName()}-${namespaceDeleteParams.getNamespaceName()}"] = { ->
-          folioTriggerJob.deleteNamespace(metadata['platform'] == 'eureka' ?
-            CommonConstants.JENKINS_DELETE_NAMESPACE_JOB_EUREKA : jobName, namespaceDeleteParams)
+          folioTriggerJob.deleteNamespace(jobName, namespaceDeleteParams)
         }
       }
       parallel(branches)

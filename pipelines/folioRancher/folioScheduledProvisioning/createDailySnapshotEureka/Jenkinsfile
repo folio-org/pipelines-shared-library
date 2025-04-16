@@ -1,4 +1,5 @@
 #!groovy
+
 import groovy.transform.Field
 import org.folio.Constants
 import org.folio.jenkins.JenkinsAgentLabel
@@ -10,16 +11,17 @@ import org.jenkinsci.plugins.workflow.libs.Library
 //TODO remove branch before merge to master
 @Library('pipelines-shared-library@RANCHER-2236') _
 
-@Field final String deleteNamespaceJobName = Constants.JENKINS_DELETE_NAMESPACE_JOB_EUREKA
-@Field final String createNamespaceJobName = Constants.JENKINS_CREATE_NAMESPACE_FROM_BRANCH_JOB_EUREKA
+@Field final String deleteNamespaceJobName = Constants.JENKINS_DELETE_NAMESPACE_JOB
+@Field final String createNamespaceJobName = Constants.JENKINS_CREATE_NAMESPACE_FROM_BRANCH_JOB
 
-properties([buildDiscarder(logRotator(numToKeepStr: '30')),
-            disableConcurrentBuilds(),
-            parameters([folioParameters.agent(),
-                        folioParameters.refreshParameters()]),
-            pipelineTriggers([parameterizedCron('''H 23 * * * %AGENT=jenkins-agent-java17''')])])
+properties([
+  buildDiscarder(logRotator(numToKeepStr: '30')),
+  disableConcurrentBuilds(),
+  parameters([folioParameters.refreshParameters()]),
+  pipelineTriggers([parameterizedCron('''H 23 * * *''')])
 // Get back when the ticket is resolved https://folio-org.atlassian.net/browse/RANCHER-1546
 //            pipelineTriggers([parameterizedCron('''H 23 * * * %AGENT=rancher''')])])
+])
 
 
 if (params.REFRESH_PARAMETERS) {
@@ -58,7 +60,6 @@ CreateNamespaceParameters namespace1 = new CreateNamespaceParameters.Builder()
   .s3Type('built-in')
   .members('thunderjet,folijet,spitfire,vega,thor,Eureka,volaris,corsair,Bama,Aggies,Dreamliner,Leipzig,firebird,dojo,erm')
   .uiBuild(true)
-  .worker('rancher')
   .runSanityCheck(false)
   .build()
 
