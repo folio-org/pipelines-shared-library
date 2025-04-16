@@ -3,6 +3,8 @@ package org.folio.rest_v2.eureka
 import hudson.util.Secret
 import org.folio.Constants
 import org.folio.models.*
+import org.folio.models.application.Application
+import org.folio.models.application.ApplicationList
 import org.folio.models.module.EurekaModule
 import org.folio.rest_v2.eureka.kong.*
 import org.folio.utilities.RequestException
@@ -126,16 +128,21 @@ class Eureka extends Base {
     return this
   }
 
-  Map<String, String> registerApplications(Map<String, String> appNames, Map<String, String> modules) {
-    Map<String, String> apps = [:]
+  ApplicationList generateApplications(Map<String, String> appNames, FolioInstallJson modules) {
+    ApplicationList apps = []
 
     appNames.each { appName, appBranch ->
-      def jsonAppDescriptor = context.folioEurekaAppGenerator.generateApplicationDescriptor(appName, modules, appBranch, getDebug())
-
-      apps.put(appName, Applications.get(kong).registerApplication(jsonAppDescriptor))
+      apps.add(
+        new Application()
+          .withDescriptor(context.folioEurekaAppGenerator.generateFromRepository(appName, modules, appBranch, getDebug()) as Map)
+      )
     }
 
     return apps
+  }
+
+  ApplicationList registerApplications(ApplicationList apps) {
+    return apps.each {app -> Applications.get(kong).registerApplication(app.descriptor) }
   }
 
   Eureka assignAppToTenants(List<EurekaTenant> tenants, Map<String, String> registeredApps) {
@@ -158,18 +165,7 @@ class Eureka extends Base {
     return this
   }
 
-  Map<String, String> registerApplicationsFlow(Map<String, String> appNames
-                                               , Map<String, String> modules
-                                               , List<EurekaTenant> tenants) {
-
-    Map<String, String> registeredApps = registerApplications(appNames, modules)
-
-    assignAppToTenants(tenants, registeredApps)
-
-    return registeredApps
-  }
-
-  Eureka registerModulesFlow(FolioInstallJson<EurekaModule> modules, Map<String, String> apps) {
+  Eureka registerModulesFlow(FolioInstallJson<EurekaModule> modules, ApplicationList apps) {
     Applications.get(kong).registerModules(
       [
         "discovery": modules.getDiscoveryList(getApplicationModules(apps))
@@ -179,10 +175,10 @@ class Eureka extends Base {
     return this
   }
 
-  List<String> getApplicationModules(Map<String, String> apps) {
+  List<String> getApplicationModules(ApplicationList apps) {
     List<String> modules = []
-    apps.values().each { appId ->
-      Applications.get(kong).getRegisteredApplication(appId).modules.each { module ->
+    apps.each { app ->
+      Applications.get(kong).getRegisteredApplication(app.getId()).modules.each { module ->
         if (!modules.contains(module.id))
           modules.add(module.id)
       }
@@ -382,7 +378,7 @@ class Eureka extends Base {
         String staleModuleId = item['id'] // save stale module id for descriptor removal
 
         // Update Module properties
-        item['url'] = "${Constants.EUREKA_REGISTRY_URL}${module.name}-${module.version}"
+        item['url'] = "${Constants.EUREKA_REGISTRY_DESCRIPTORS_URL}${module.name}-${module.version}"
         item['id'] = "${module.name}-${module.version}"
         item['version'] = module.version
         logger.info("Updated Module info:\n${item}")

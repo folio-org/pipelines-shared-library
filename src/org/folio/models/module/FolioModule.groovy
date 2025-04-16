@@ -1,5 +1,6 @@
 package org.folio.models.module
 
+import com.cloudbees.groovy.cps.NonCPS
 import org.folio.rest_v2.Constants
 import org.folio.utilities.RestClient
 
@@ -55,6 +56,9 @@ class FolioModule {
       this.name = matcher.group(1)
       this.version = matcher.group(2)
       matcher.reset()
+    } else if(id == 'okapi'){
+      this.name = id
+      this.version = 'latest'
     } else {
       throw new InputMismatchException("Not able to extract module name. Module id '${this.id}' has wrong format")
     }
@@ -128,6 +132,7 @@ class FolioModule {
     return response[0].id
   }
 
+  @NonCPS
   @Override
   public boolean equals(Object obj) {
     if (this.is(obj)) {
