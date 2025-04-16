@@ -63,7 +63,7 @@ Map<String, OkapiTenantConsortia> consortiaTenants(
       .withAdminUser(adminOkapiUser('college_admin', 'admin'))
       .withInstallJson(installJson.collect())
       .withInstallRequestParams(installQueryParameters.clone())
-      .withConfiguration(new OkapiConfig().withSmtp(smtp)) as OkapiTenantConsortia
+      .withConfiguration(new OkapiConfig().withSmtp(smtp)) as OkapiTenantConsortia,
 
     cs00000int_0001: new OkapiTenantConsortia('cs00000int_0001', false)
       .withTenantCode('COL')
