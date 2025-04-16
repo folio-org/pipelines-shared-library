@@ -267,11 +267,6 @@ class Constants {
 
   static final String JENKINS_DELETE_NAMESPACE_JOB = "$JENKINS_FOLIO_RANCHER_FOLDER/manageNamespace/deleteNamespace"
   static final String JENKINS_DEPLOY_MODULES_FROM_JSON = "$JENKINS_FOLIO_RANCHER_FOLDER/folioDevTools/moduleDeployment/deployModulesFromJson"
-  static final String JENKINS_CREATE_NAMESPACE_FROM_BRANCH_JOB_EUREKA =
-    "$JENKINS_FOLIO_RANCHER_FOLDER/manageNamespace/createNamespaceFromBranch"
-
-  static final String JENKINS_DELETE_NAMESPACE_JOB_EUREKA =
-    "$JENKINS_FOLIO_RANCHER_FOLDER/manageNamespace/deleteNamespace"
 
   //PostgreSQL
   static String PSQL_DUMP_HELM_CHART_NAME = 'psql-dump'

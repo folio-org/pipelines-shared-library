@@ -247,33 +247,34 @@ void call(CreateNamespaceParameters args) {
         }
 
         stage('[Rest] Preinstall') {
+          ApplicationList apps = []
           container('java') {
-            int counter = 0
-            retry(5) {
-              sleep time: (counter == 0 ? 0 : 30), unit: 'SECONDS'
-              counter++
+            apps = eureka.generateApplications(
+              //TODO: Refactoring is needed!!! Utilization of extension should be applied.
+              // Remove this shit with consortia and linkedData. Apps have to be taken as it is.
+              args.applications -
+                (args.consortia ? [:] : ["app-consortia": "snapshot", "app-consortia-manager": "snapshot"]) -
+                (args.consortia ? [:] : ["app-consortia": "master", "app-consortia-manager": "master"]) -
+                (args.linkedData ? [:] : ["app-linked-data": "snapshot"]) -
+                (args.linkedData ? [:] : ["app-linked-data": "master"])
+              , namespace.getModules()
+            )
+          }
 
-              ApplicationList apps = eureka.generateApplications(
-                //TODO: Refactoring is needed!!! Utilization of extension should be applied.
-                // Remove this shit with consortia and linkedData. Apps have to be taken as it is.
-                args.applications -
-                  (args.consortia ? [:] : ["app-consortia": "snapshot", "app-consortia-manager": "snapshot"]) -
-                  (args.consortia ? [:] : ["app-consortia": "master", "app-consortia-manager": "master"]) -
-                  (args.linkedData ? [:] : ["app-linked-data": "snapshot"]) -
-                  (args.linkedData ? [:] : ["app-linked-data": "master"])
-                , namespace.getModules()
-              )
-              eureka.registerApplications(apps)
+          int counter = 0
+          retry(5) {
+            sleep time: (counter == 0 ? 0 : 30), unit: 'SECONDS'
+            counter++
+            eureka.registerApplications(apps)
 
-              //TODO: The following three lines will be changed in the upcoming PR
-              eureka.assignAppToTenants(namespace.getTenants().values().toList(), apps.collectEntries { [it.getName(), it.getId()] })
-              namespace.withApplications(apps.collectEntries { [it.getName(), it.getId()] })
+            //TODO: The following three lines will be changed in the upcoming PR
+            eureka.assignAppToTenants(namespace.getTenants().values().toList(), apps.collectEntries { [it.getName(), it.getId()] })
+            namespace.withApplications(apps.collectEntries { [it.getName(), it.getId()] })
 
-              eureka.registerModulesFlow(
-                namespace.getModules()
-                , apps
-              )
-            }
+            eureka.registerModulesFlow(
+              namespace.getModules()
+              , apps
+            )
           }
         }
 
