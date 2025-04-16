@@ -228,6 +228,39 @@ return selectors ? \"\"\"
 """
 }
 
+static String groupCheckBoxes(List checkboxes){
+  def selectors = checkboxes.collect { "div.jenkins-form-item:has(input[value='$it']):not(:has([id^=hiddenPanel]))" }.join(", ")
+
+  return """
+return \"\"\"
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      var checkbox_divs = document.querySelectorAll("${selectors}");
+
+      var checkboxes = [...checkbox_divs].map(function(checkbox_div) {
+          return checkbox_div.querySelector('input[name=value]');
+      });
+
+      console.debug(checkboxes);
+
+      // For each checkbox, attach a change listener.
+      checkboxes.forEach(function(checkbox) {
+        checkbox.addEventListener("change", function() {
+          if (checkbox.checked) {
+            checkboxes.forEach(function(other) {
+              if (other !== checkbox) {
+                other.checked = false;
+              }
+            });
+          }
+        });
+      });
+    });
+  </script>
+\"\"\"
+  """
+}
+
 static String getGroupHTMLScript(String title, List params) {
   int id = Math.abs(title.hashCode())
 
