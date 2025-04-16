@@ -193,7 +193,7 @@ ansiColor('xterm') {
               appName,
               template,
               beUpdated,
-              params.APPLICATION_DESCRIPTOR.trim() ?: null,
+              params.APP_DESCRIPTION.trim() ?: null,
               params.VERSION.trim() ?: null
             ) as Map)
             break
