@@ -1,100 +1,232 @@
 import groovy.transform.Field
 import org.folio.Constants
 import org.folio.jenkins.PodTemplates
+import org.folio.models.FolioInstallJson
 import org.folio.utilities.Logger
+import org.folio.utilities.Tools
 
 @Field
 Logger logger = new Logger(this, 'folioEurekaAppGenerator')
 
+/**
+ * Update the application descriptor by leveraging the folio-application-generator.
+ * https://github.com/folio-org/folio-application-generator/tree/master?tab=readme-ov-file#update-application-descriptor.
+ *
+ * @param appName The name of the application.
+ * @param descriptor The application descriptor in JSON format.
+ * @param moduleList A list of modules to be included in the descriptor.
+ * @param version The version of the application (optional).
+ * @param debug Flag to enable debug logging (default: false).
+ */
+Map updateDescriptor(Map descriptor, FolioInstallJson moduleList, boolean debug = false) {
+  logger.info("Updating application descriptor...")
 
-def generateApplicationDescriptor(String appName, Map<String, String> moduleList, String branch = "master", boolean debug = false) {
+  String appName = descriptor.name
+  String oldVersion = descriptor.version
+
   dir(appName) {
-    checkout(scmGit(
-      branches: [[name: "*/${branch}"]],
-      extensions: [cloneOption(depth: 10, noTags: true, reference: '', shallow: true)],
-      userRemoteConfigs: [[credentialsId: Constants.PRIVATE_GITHUB_CREDENTIALS_ID,
-                           url          : "${Constants.FOLIO_GITHUB_URL}/${appName}.git"]]))
+    writeJSON file: appName + "-" + oldVersion + '.json', json: descriptor
+    new Tools(this).copyResourceFileToCurrentDirectory("applications/generator/pom.xml")
 
-    def updatedTemplate = setTemplateModuleLatestVersion(readJSON(file: appName + ".template.json"), moduleList)
-    writeJSON file: appName + ".template.json", json: updatedTemplate
+    String beModulesString = (moduleList.getBackendModules() + moduleList.getEdgeModules()).collect { "${it.getId()}" }.join(",")
+    String uiModulesString = moduleList.getUiModules().collect { "${it.getId()}" }.join(",")
 
-    awscli.withAwsClient() {
-      withMaven(jdk: Constants.JAVA_TOOL_NAME,
-        maven: Constants.MAVEN_TOOL_NAME, mavenOpts: '-XX:MaxRAMPercentage=85',
-        mavenLocalRepo: "${new PodTemplates(this).WORKING_DIR}/.m2/repository",
-        traceability: true,
-        options: [artifactsPublisher(disabled: true)]) { //TODO Replace class with Constants
-        sh """
-          mvn clean compile -U -e \
-          -DbuildNumber=${BUILD_NUMBER} \
-          -Dregistries='okapi::${org.folio.rest_v2.Constants.OKAPI_REGISTRY},s3::eureka-application-registry::descriptors' \
-          -DawsRegion=us-west-2
-        """.stripIndent()
-      }
-//      sh(script: "mvn clean compile -U -e -DbuildNumber=${BUILD_NUMBER} -Dregistries='${org.folio.rest_v2.Constants.OKAPI_REGISTRY}' -DawsRegion=us-west-2")
-
-      logger.info("Application $appName successfuly generated")
-    }
-
-    dir('target') {
-      sh(script: "ls -la")
-
-      if(debug)
-        logger.debug(""""Generated application:
-          ${readJSON(file: sh(script: "find . -name '${appName}*.json' | head -1", returnStdout: true).trim())}
-          """
-        )
-
-      return readJSON(file: sh(script: "find . -name '${appName}*.json' | head -1", returnStdout: true).trim())
-    }
+    return _generate(appName, debug, "org.folio:folio-application-generator:updateFromJson"
+      , "-DappDescriptorPath=${appName}-${oldVersion}.json -Dmodules='${beModulesString}' -DuiModules='${uiModulesString}'")
   }
 }
 
-def setTemplateModuleLatestVersion(def template, Map<String, String> moduleList){
-  logger.info("Updated template latest module version with exact value...")
+/**
+ * Generate an application descriptor from a given descriptor.
+ *
+ * @param descriptor The application descriptor in JSON format.
+ * @param moduleList A list of modules to be included in the descriptor.
+ * @param version The version of the application (optional).
+ * @param debug Flag to enable debug logging (default: false).
+ */
+Map generateFromDescriptor(Map descriptor, FolioInstallJson moduleList, String version = null, boolean debug = false){
+  logger.info("Generating application descriptor from descriptor...")
 
-  logger.info("""
-  Module Map with all modules and exact version:
-  $moduleList
-  """)
+  Map template = createTemplateFromDescriptor(descriptor, version, debug)
+  String appName = template.name
 
-  logger.info("""
-  Default template backend module list:
-  $template.modules
-  """)
+  dir(appName) {
+    if(moduleList) {
+      template = updateTemplate(template, moduleList, debug, false)
+    }
 
-  template.modules = setModuleLatestVersion(template.modules, moduleList)
+    writeJSON file: appName + '.template.json', json: template
+    new Tools(this).copyResourceFileToCurrentDirectory("applications/generator/pom.xml")
 
-  logger.info("""
-  Updated backend module list with latest version:
-  $template.modules
-  """)
+    return _generate(appName, debug, "org.folio:folio-application-generator:generateFromJson"
+      , "-Dproject.name=${appName} -DtemplatePath=${appName}.template.json" +
+      "${version ? " -Dproject.version=${version}" : ""}")
+  }
+}
 
-  logger.info("""
-  Default template UI module list:
-  $template.uiModules
-  """)
+/**
+ * Extract a template from the given descriptor.
+ *
+ * @param descriptor The application descriptor in JSON format.
+ * @param version The version of the application (optional).
+ * @param debug Flag to enable debug logging (default: false).
+ */
+Map createTemplateFromDescriptor(Map descriptor, String version = null, boolean debug = false) {
+  Map template = descriptor
 
-  template.uiModules = setModuleLatestVersion(template.uiModules, moduleList)
+  template.remove('id')
+  template.remove('moduleDescriptors')
+  template.remove('uiModuleDescriptors')
+  template.put('version', version ?: template.version)
+  template.put('id', "${template.name}-${template.version}".toString())
 
-  logger.info("""
-  Updated UI module list with latest version:
-  $template.uiModules
-  """)
+  template.modules.each { module ->
+    (module as Map).remove('id')
+  }
+
+  template.uiModules.each { module ->
+    (module as Map).remove('id')
+  }
+
+  if(debug)
+    logger.debug("Generated template from descriptor:\n $template")
 
   return template
 }
 
-def setModuleLatestVersion(def templateModules, Map<String, String> moduleList){
+/**
+ * Generate an application descriptor from a given application repository.
+ *
+ * @param repoName The name of the repository.
+ * @param moduleList A list of modules to be included in the descriptor.
+ * @param branch The branch to be used (default: "master").
+ * @param debug Flag to enable debug logging (default: false).
+ */
+Map generateFromRepository(String repoName, FolioInstallJson moduleList, String branch = "master", boolean debug = false) {
+  logger.info("Generating application descriptor from repository...")
+
+  checkout(scmGit(
+    branches: [[name: "*/${branch}"]],
+    extensions: [cloneOption(depth: 10, noTags: true, reference: '', shallow: true),
+                 [$class: 'RelativeTargetDirectory', relativeTargetDir: repoName]],
+    userRemoteConfigs: [[credentialsId: Constants.PRIVATE_GITHUB_CREDENTIALS_ID,
+                         url          : "${Constants.FOLIO_GITHUB_URL}/${repoName}.git"]])
+  )
+
+  dir(repoName) {
+    if(moduleList) {
+      Map updatedTemplate = updateTemplate(readJSON(file: repoName + ".template.json"), moduleList, debug)
+      writeJSON file: repoName + ".template.json", json: updatedTemplate
+    }
+
+    return _generate(repoName, debug)
+  }
+}
+
+/**
+ * Generate an application descriptor from a given template.
+ *
+ * @param appName The name of the application.
+ * @param template The template in JSON format.
+ * @param moduleList A list of modules to be included in the descriptor.
+ * @param appDescription The description of the application (optional).
+ * @param version The version of the application (optional).
+ * @param debug Flag to enable debug logging (default: false).
+ */
+Map generateFromTemplate(String appName, Map template, FolioInstallJson moduleList
+                         , String appDescription = null, String version = null, boolean debug = false){
+  logger.info("Generating application descriptor from template...")
+
+  dir(appName) {
+    if(moduleList) {
+      template = updateTemplate(template, moduleList, debug, false)
+    }
+
+    writeJSON file: appName + '.template.json', json: template
+    new Tools(this).copyResourceFileToCurrentDirectory("applications/generator/pom.xml")
+
+    return _generate(appName, debug, "org.folio:folio-application-generator:generateFromJson"
+      , "-Dproject.name=${appName} -DtemplatePath=${appName}.template.json" +
+        "${version ? " -Dproject.version=${version}" : ""}" +
+        "${appDescription ? " -Dproject.description='${appDescription}'" : ""}")
+  }
+}
+
+private Map _generate(String appName, boolean debug = false, String command = "org.folio:folio-application-generator:generateFromJson", String args = "") {
+  String supressLogs = !debug ? "-Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn" : ""
+
+  awscli.withAwsClient() {
+      withMaven(
+        jdk: Constants.JAVA_TOOL_NAME,
+        maven: Constants.MAVEN_TOOL_NAME,
+        mavenOpts: '-XX:MaxRAMPercentage=85',
+        mavenLocalRepo: "${new PodTemplates(this).WORKING_DIR}/.m2/repository",
+        traceability: false,
+        options: [artifactsPublisher(disabled: true)]
+      ) {
+      sh """
+            mvn ${supressLogs} clean ${command} -U -e \
+            -DbuildNumber=${BUILD_NUMBER} \
+            -Dregistries='okapi::${org.folio.rest_v2.Constants.OKAPI_REGISTRY},s3::eureka-application-registry::descriptors' \
+            ${args} -DawsRegion=us-west-2
+          """.stripIndent()
+    }
+  }
+
+  dir('target') {
+    if(debug) {
+      sh(script: "ls -la")
+
+      logger.debug(""""Generated application:
+        ${readJSON(file: sh(script: "find . -name '${appName}*.json' | head -1", returnStdout: true).trim())}
+        """
+      )
+    }
+
+    return readJSON(file: sh(script: "find . -name '${appName}*.json' | head -1", returnStdout: true).trim())
+  }
+}
+
+Map updateTemplate(def template, FolioInstallJson moduleList, boolean debug = false, boolean onlyLatest = true) {
+  if (debug) {
+    logger.info("Module Map with all modules and exact version:\n$moduleList")
+    logger.info("Default template backend module list:\n$template.modules")
+  }
+
+  template.modules = replaceModuleVersions(template.modules, moduleList, onlyLatest)
+
+  if (debug) {
+    logger.info("Updated backend module list with latest version:\n$template.modules")
+
+    logger.info("""
+      Default template UI module list:
+      $template.uiModules
+      """)
+  }
+
+  template.uiModules = replaceModuleVersions(template.uiModules, moduleList, onlyLatest)
+
+  if (debug) {
+    logger.info("""
+      Updated UI module list with latest version:
+      $template.uiModules
+      """)
+  }
+
+  return template
+}
+
+def replaceModuleVersions(def templateModules, FolioInstallJson moduleList, boolean onlyLatest = true) {
   logger.info("Updated latest module version with exact value...")
 
   def updatedModules = templateModules
 
   templateModules.eachWithIndex{module, index ->
-    if(!moduleList[module.name])
-      logger.info("Module Map with all modules and exact version doesn't contain $module.name")
+    if(!moduleList.getModuleByName(module.name))
+      logger.info("Install JSON doesn't contain $module.name")
     else
-      updatedModules[index].version = module.version.trim() == "latest" ? moduleList[module.name] : module.version
+      updatedModules[index].version = module.version.trim() != "latest" && onlyLatest ?
+        module.version : moduleList.getModuleByName(module.name).getVersion()
   }
 
   return updatedModules

@@ -115,6 +115,10 @@ def applications(String paramName = 'APPLICATIONS', String reference = 'APPLICAT
   return _paramExtendedCheckboxSelect(paramName, reference, folioStringScripts.getApplications(reference), 'Select env applications', false)
 }
 
+def application(String paramName = 'APPLICATION', String reference = 'APPLICATION_SET') {
+  return _paramExtendedSingleSelect(paramName, reference, folioStringScripts.getApplications(reference), 'Select application')
+}
+
 def refreshParameters() {
   return _paramBoolean('REFRESH_PARAMETERS', false, 'Set to true for update pipeline parameters, it will not run a pipeline')
 }
@@ -231,12 +235,16 @@ def runSanityCheck(boolean value = true) {
   return _paramBoolean('RUN_SANITY_CHECK', value, 'Set to false, to disable cypress sanity check')
 }
 
-def hideParameters(Map valueParams, String reference) {
-  return _paramHiddenHTML(folioStringScripts.getHideHTMLScript(valueParams, reference), reference)
+def hideParameters(Map valueParams, String keyParameter, String reference = keyParameter) {
+  return _paramHiddenHTML(folioStringScripts.getHideHTMLScript(valueParams, keyParameter), reference)
 }
 
 def hideParameters(List params) {
   return _paramHiddenHTML(folioStringScripts.getHideHTMLScript(['hide': params], '"hide"'), '')
+}
+
+def groupCheckboxes(List checkboxes, String reference = "") {
+  return _paramFormattedHTML(folioStringScripts.groupCheckBoxes(checkboxes), reference)
 }
 
 def groupParameters(String title, List groupedParams, String reference = "") {

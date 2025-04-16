@@ -1,5 +1,6 @@
 import org.folio.Constants
 import org.folio.models.*
+import org.folio.models.application.ApplicationList
 import org.folio.models.parameters.CreateNamespaceParameters
 import org.folio.rest.GitHubUtility
 import org.folio.rest_v2.PlatformType
@@ -229,23 +230,26 @@ void call(CreateNamespaceParameters args) {
       retry(5) {
         sleep time: (counter == 0 ? 0 : 30), unit: 'SECONDS'
         counter++
-        namespace.withApplications(
-          eureka.registerApplicationsFlow(
-            //TODO: Refactoring is needed!!! Utilization of extension should be applied.
-            // Remove this shit with consortia and linkedData. Apps have to be taken as it is.
-            args.applications -
-              (args.consortia ? [:] : ["app-consortia": "snapshot", "app-consortia-manager": "snapshot"]) -
-              (args.consortia ? [:] : ["app-consortia": "master", "app-consortia-manager": "master"]) -
-              (args.linkedData ? [:] : ["app-linked-data": "snapshot"]) -
-              (args.linkedData ? [:] : ["app-linked-data": "master"])
-            , namespace.getModules().getModuleVersionMap()
-            , namespace.getTenants().values() as List<EurekaTenant>
-          )
+
+        ApplicationList apps = eureka.generateApplications(
+          //TODO: Refactoring is needed!!! Utilization of extension should be applied.
+          // Remove this shit with consortia and linkedData. Apps have to be taken as it is.
+          args.applications -
+            (args.consortia ? [:] : ["app-consortia": "snapshot", "app-consortia-manager": "snapshot"]) -
+            (args.consortia ? [:] : ["app-consortia": "master", "app-consortia-manager": "master"]) -
+            (args.linkedData ? [:] : ["app-linked-data": "snapshot"]) -
+            (args.linkedData ? [:] : ["app-linked-data": "master"])
+          , namespace.getModules()
         )
+        eureka.registerApplications(apps)
+
+        //TODO: The following three lines will be changed in the upcoming PR
+        eureka.assignAppToTenants(namespace.getTenants().values().toList(), apps.collectEntries {[it.getName(), it.getId() ] })
+        namespace.withApplications(apps.collectEntries {[it.getName(), it.getId() ] })
 
         eureka.registerModulesFlow(
           namespace.getModules()
-          , namespace.getApplications()
+          , apps
         )
       }
     }
