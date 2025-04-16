@@ -55,7 +55,7 @@ Map<String, OkapiTenantConsortia> consortiaTenants(
       .withInstallRequestParams(installQueryParameters.clone())
       .withConfiguration(new OkapiConfig().withSmtp(smtp)) as OkapiTenantConsortia,
 
-    college   : new OkapiTenantConsortia('college')
+    college : new OkapiTenantConsortia('college')
       .withTenantCode('COL')
       .withConsortiaName('Mobius')
       .withTenantName('College')
@@ -64,6 +64,16 @@ Map<String, OkapiTenantConsortia> consortiaTenants(
       .withInstallJson(installJson.collect())
       .withInstallRequestParams(installQueryParameters.clone())
       .withConfiguration(new OkapiConfig().withSmtp(smtp)) as OkapiTenantConsortia
+
+    cs00000int_0001: new OkapiTenantConsortia('cs00000int_0001', false)
+      .withTenantCode('COL')
+      .withConsortiaName('CONSORTIA')
+      .withTenantName('Colleague tenant')
+      .withTenantDescription('cs00000int_0001, Colleague tenant created via Jenkins')
+      .withAdminUser(adminOkapiUser('ECS0001Admin', 'admin'))
+      .withConfiguration(new OkapiConfig().withSmtp(smtp))
+      .withInstallJson(installJson.collect())
+      .withInstallRequestParams(installQueryParameters.clone())
   ]
 }
 

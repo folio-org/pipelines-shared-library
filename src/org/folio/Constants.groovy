@@ -16,6 +16,7 @@ class Constants {
                                           'snapshot',
                                           'snapshot2',
                                           'sprint',
+                                          'sprint-2nd',
                                           'default',
                                           'ecs-snapshot',
                                           'kube-node-lease',
@@ -38,7 +39,7 @@ class Constants {
   static String AWS_EKS_ADMIN_USERS = 'rancher-port-forward,jenkins-service-user,oleksandrhaimanov,eldiiarduishenaliev,tarasspashchenko,stanislav,arsenatoyan,dmytromoroz,vasylavramenko,yaroslavishchenko,sergiimasiuk'
 
   static List AWS_EKS_TMP_NAMESPACES = ['test', 'test-1', 'test-2', 'tdspora']
-  static List AWS_EKS_TESTING_NAMESPACES = ['cypress', 'data-migration', 'ecs-snapshot', 'karate', 'snapshot', 'snapshot2', 'sprint', 'pre-bugfest', 'orchid-migration', 'lsdi']
+  static List AWS_EKS_TESTING_NAMESPACES = ['cypress', 'data-migration', 'ecs-snapshot', 'karate', 'snapshot', 'snapshot2', 'sprint', 'sprint-2nd', 'pre-bugfest', 'orchid-migration', 'lsdi']
   static List AWS_EKS_RELEASE_NAMESPACES = ['poppy', 'quesnelia']
   static List AWS_EKS_DEV_NAMESPACES = ['aggies',
                                         'bama',
@@ -317,6 +318,7 @@ class Constants {
                                   'spitfire-2nd'  : 'spitfire',
                                   'nest-es'       : 'spitfire',
                                   'sprint'        : '',
+                                  'sprint-2nd'    : '',
                                   'stripes-force' : 'stripes-force',
                                   'tamu'          : '',
                                   'task-force'    : 'ebsco-core',
