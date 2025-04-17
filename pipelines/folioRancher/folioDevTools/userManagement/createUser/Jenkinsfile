@@ -1,7 +1,7 @@
 #!groovy
 import org.folio.models.OkapiTenant
 
-@Library('pipelines-shared-library@RANCHER-2271') _
+@Library('pipelines-shared-library') _
 
 
 import org.folio.models.OkapiUser
