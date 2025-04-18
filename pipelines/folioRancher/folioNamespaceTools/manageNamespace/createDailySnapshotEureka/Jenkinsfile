@@ -31,7 +31,7 @@ PodTemplates podTemplates = new PodTemplates(this)
 
 CreateNamespaceParameters namespace1 = new CreateNamespaceParameters.Builder()
   .platform(PlatformType.EUREKA)
-  .clusterName('folio-etesting')
+  .clusterName('folio-tmp') //TODO revert after tests to folio-etsesting
   .namespaceName('snapshot')
   .folioBranch('snapshot')
   .okapiVersion('latest')
@@ -63,7 +63,7 @@ CreateNamespaceParameters namespace1 = new CreateNamespaceParameters.Builder()
 
 CreateNamespaceParameters namespace2 = new CreateNamespaceParameters.Builder()
   .platform(PlatformType.EUREKA)
-  .clusterName('folio-etesting')
+  .clusterName('folio-tmp')//TODO revert after tests to folio-etsesting
   .namespaceName('snapshot2')
   .folioBranch('snapshot')
   .okapiVersion('latest')
