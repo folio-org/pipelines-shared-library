@@ -63,6 +63,7 @@ ansiColor('xterm') {
           if (tenant.getIsCentralConsortiaTenant()) {
             tenant.withTenantUi(tenantUi.clone())
           }
+          tenant.enableFolioExtensions(this, ['consortia'])
           namespace.addTenant(tenant)
         }
       }
