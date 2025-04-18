@@ -37,6 +37,7 @@ class CypressTestsParameters implements Cloneable {
   // TestRail run ID for reporting, defaults to an empty string
   String testrailRunID = ''
 
+  @Deprecated
   // Label to identify the worker executing the tests, defaults to 'cypress'
   String workerLabel = 'cypress'
 

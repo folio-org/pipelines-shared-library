@@ -4,18 +4,16 @@ import org.folio.rest_v2.PlatformType
 import org.folio.rest_v2.Constants as RestConstants
 
 static String getClusters(String platform) {
-  return """
-return ${platform} && ${PlatformType.values().collect{it.name() }.inspect()}.contains(${platform}.trim()) ?
+  return """return ${platform} && ${PlatformType.values().collect{it.name() }.inspect()}.contains(${platform}.trim()) ?
 ${Constants.AWS_EKS_PLATFORM_CLUSTERS().inspect()}[${platform}.trim()] :
 ${Constants.AWS_EKS_CLUSTERS_LIST.inspect()}
-"""
+""".stripIndent()
 }
 
 static String getNamespaces() {
-  return """
-def namespacesList = ${Constants.AWS_EKS_NAMESPACE_MAPPING.inspect()}
+  return """def namespacesList = ${Constants.AWS_EKS_NAMESPACE_MAPPING.inspect()}
 return namespacesList[CLUSTER]
-"""
+""".stripIndent()
 }
 
 static String getApplications(String applicationSet) {
@@ -27,7 +25,7 @@ static String getRepositoryBranches(String repository) {
 def apiUrl = "${Constants.FOLIO_GITHUB_REPOS_URL}/${repository}/branches"
 def perPage = 100
 def fetchBranches(String url) {
-def credentialId = "id-jenkins-github-personal-token"
+def credentialId = "github-jenkins-service-user-token"
 def credential = com.cloudbees.plugins.credentials.SystemCredentialsProvider.getInstance().getStore().getCredentials(com.cloudbees.plugins.credentials.domains.Domain.global()).find { it.getId().equals(credentialId) }
 def secret_value = credential.getSecret().getPlainText()
     def branches = []
@@ -75,7 +73,7 @@ if (installJson.getResponseCode().equals(200)) {
         }
     }
 }
-"""
+""".stripIndent()
 }
 
 static String getModuleId(String moduleName) {
@@ -96,7 +94,7 @@ def perPage = 100
 def fetchModules(String url) {
   String platform = ${reference}
 
-  def credentialId = "id-jenkins-github-personal-token"
+  def credentialId = "github-jenkins-service-user-token"
   def credential = com.cloudbees.plugins.credentials.SystemCredentialsProvider
                       .getInstance()
                       .getStore()
@@ -143,7 +141,8 @@ def fetchModules(String url) {
   }.sort()
 }
 
-fetchModules("\${apiUrl}?per_page=\${perPage}")"""
+fetchModules("\${apiUrl}?per_page=\${perPage}")
+""".stripIndent()
 }
 
 static String getModuleVersion() {
@@ -176,8 +175,7 @@ return pgVersions'''
 }
 
 static String getUIImagesList() {
-  return """
-import com.amazonaws.services.ecr.AmazonECR
+  return """import com.amazonaws.services.ecr.AmazonECR
 import com.amazonaws.services.ecr.AmazonECRClientBuilder
 import com.amazonaws.services.ecr.model.ListImagesRequest
 
@@ -209,7 +207,7 @@ result = final_result.findAll { it.startsWith(CLUSTER + '-' + NAMESPACE + '.') }
         .reverse()
 
 return result
-"""
+""".stripIndent()
 }
 
 static String getHideHTMLScript(Map hideMap, String reference) {

@@ -6,18 +6,7 @@ void client(Closure closure) {
                     accessKeyVariable: 'AWS_ACCESS_KEY_ID',
                     secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'],
                    string(credentialsId: Constants.RANCHER_TOKEN_ID, variable: 'TF_VAR_rancher_token_key')]) {
-    docker.image(Constants.TERRAFORM_DOCKER_CLIENT).inside("-u 0:0 --entrypoint=") {
-      /*Temporary solution*/
-      sh '''
-                apk add --no-cache python3 py3-pip
-                pip3 install --upgrade pip
-                pip3 install --no-cache-dir awscli
-                rm -rf /var/cache/apk/*
-                aws --version
-                export TF_REGISTRY_CLIENT_TIMEOUT=20
-            '''
-      closure.call()
-    }
+    closure.call()
   }
 }
 
