@@ -24,46 +24,70 @@ static String getRepositoryBranches(String repository) {
   return """import groovy.json.JsonSlurperClassic
 import com.cloudbees.plugins.credentials.CredentialsProvider
 import org.jenkinsci.plugins.plaincredentials.StringCredentials
+import jenkins.model.Jenkins
+
+def getGithubToken(String credentialId) {
+  def credential = CredentialsProvider.lookupCredentials(
+    StringCredentials.class,
+    Jenkins.instance,
+    null,
+    null
+  ).find { it.id == credentialId }
+
+  if (!credential) {
+    throw new IllegalStateException("Credential with ID '\${credentialId}' not found!")
+  }
+
+  return credential.secret.plainText
+}
+
+def fetchAllBranches(String initialUrl, String token) {
+  def branches = []
+  def jsonSlurper = new JsonSlurperClassic()
+
+  def fetchPage
+  fetchPage = { url ->
+    def connection = new URL(url).openConnection()
+    connection.setRequestProperty("User-Agent", "Jenkins-Groovy-Script")
+    connection.setRequestProperty("Authorization", "Bearer \${token}")
+    connection.setConnectTimeout(5000)
+    connection.setReadTimeout(10000)
+
+    if (connection.responseCode == 200) {
+      def responseText = connection.inputStream.getText('UTF-8')
+      def json = jsonSlurper.parseText(responseText)
+      branches.addAll(json.collect { it.name })
+
+      def linkHeader = connection.getHeaderField('Link')
+      def nextPageUrl = (linkHeader =~ /<([^>]+)>; rel="next"/)?.with { matcher -> matcher.find() ? matcher.group(1) : null }
+
+      if (nextPageUrl) {
+        fetchPage(nextPageUrl)
+      }
+    } else {
+      throw new IOException("Failed to fetch branches: HTTP \${connection.responseCode}")
+    }
+  }
+
+  fetchPage(initialUrl)
+
+  return branches
+}
 
 def apiUrl = "${Constants.FOLIO_GITHUB_REPOS_URL}/${repository}/branches"
 def perPage = 100
-def fetchBranches(String url) {
 def credentialId = "github-jenkins-service-user-token"
-def credential = CredentialsProvider.lookupCredentials(
-  StringCredentials.class,
-  jenkins.model.Jenkins.instance,
-  null,
-  null
-).find { it.id == credentialId }
-def secret_value = credential.getSecret().getPlainText()
-    def branches = []
-  def jsonSlurper = new JsonSlurperClassic()
-  def getNextPage
-  def processResponse = { connection ->
-    connection.setRequestProperty("Authorization", "Bearer \${secret_value}")
-    if (connection.responseCode == 200) {
-      def responseText = connection.getInputStream().getText()
-      branches += jsonSlurper.parseText(responseText).collect { it.name }
-      def linkHeader = connection.getHeaderField('Link')
-      if (linkHeader?.find('rel="next"')) {
-        def nextUrlMatcher = linkHeader =~ /<(http[^>]+)>; rel="next"/
-        if (nextUrlMatcher.find()) {
-          getNextPage(nextUrlMatcher[0][1])
-        }
-      }
-    } else {
-      println("Error fetching data: HTTP \${connection.responseCode}")
-    }
-  }
-  getNextPage = { nextPageUrl ->
-        def nextConn = new URL(nextPageUrl).openConnection()
-    processResponse(nextConn)
-            }
-  processResponse(new URL(url).openConnection())
-    return branches
+
+try {
+  def token = getGithubToken(credentialId)
+  def branches = fetchAllBranches("\${apiUrl}?per_page=\${perPage}", token)
+
+  return branches
+} catch (Exception e) {
+  println "Error: \${e.message}"
+  throw e
 }
-fetchBranches("\${apiUrl}?per_page=\${perPage}")
-"""
+""".stripIndent()
 }
 
 static String getOkapiVersions() {
