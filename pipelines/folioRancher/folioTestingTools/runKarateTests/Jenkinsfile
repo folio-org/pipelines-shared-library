@@ -21,7 +21,7 @@ properties([
     string(name: 'SUPER_ADMIN_USERNAME', defaultValue: 'diku_admin', description: 'Super admin username'),
     password(name: 'SUPER_ADMIN_PASSWORD', defaultValueAsSecret: Secret.fromString('admin'), description: 'Super admin user password'),
     string(name: 'PROTOTYPE_TENANT', defaultValue: 'consortium', description: 'Tenant name that will be used by tests as a prototype during test tenants creation'),
-    string(name: 'THREADS_COUNT', defaultValue: '2', description: 'Number of parallel threads'),
+    string(name: 'THREADS_COUNT', defaultValue: '1', description: 'Number of parallel threads'),
     choice(name: 'JAVA_VERSION', choices: ['21', '17'], description: 'Java version to use for tests'),
 //    booleanParam(name: 'CREATE_CUSTOM_EDGE_TENANT', defaultValue: false, description: 'Do you need to create tenant for edge modules from edge-configuration.json file?'),
     folioParameters.refreshParameters()
