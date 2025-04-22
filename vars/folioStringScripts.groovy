@@ -97,64 +97,88 @@ static String getModulesList(String reference){
   return """import groovy.json.JsonSlurperClassic
 import com.cloudbees.plugins.credentials.CredentialsProvider
 import org.jenkinsci.plugins.plaincredentials.StringCredentials
+import jenkins.model.Jenkins
 
-def apiUrl = "https://api.github.com/orgs/folio-org/repos"
-def perPage = 100
-
-def fetchModules(String url) {
-  String platform = ${reference}
-
-  def credentialId = "github-jenkins-service-user-token"
+def getGithubToken(String credentialId) {
   def credential = CredentialsProvider.lookupCredentials(
     StringCredentials.class,
-    jenkins.model.Jenkins.instance,
+    Jenkins.instance,
     null,
     null
   ).find { it.id == credentialId }
 
+  if (!credential) {
+    throw new IllegalStateException("Credential with ID '\${credentialId}' not found!")
+  }
+  
+  return credential.secret.plainText
+}
 
-  def secret_value = credential.getSecret().getPlainText()
+def fetchAllModules(String initialUrl, String token) {
   def modules = []
   def jsonSlurper = new JsonSlurperClassic()
-  def getNextPage
+  
+  def fetchPage
+  fetchPage = { url ->
+  def connection = new URL(url).openConnection()
+  connection.setRequestProperty("User-Agent", "Jenkins-Groovy-Script")
+  connection.setRequestProperty("Authorization", "Bearer \${token}")
+  connection.setConnectTimeout(5000)
+  connection.setReadTimeout(10000)
 
-  def processResponse = { connection ->
-    connection.setRequestProperty("User-Agent", "Jenkins-Groovy-Script")
-    connection.setRequestProperty("Authorization", "Bearer \${secret_value}")
-    if (connection.responseCode == 200) {
-      def responseText = connection.getInputStream().getText()
-      def json = jsonSlurper.parseText(responseText)
-      modules.addAll(json*.name)
-      def linkHeader = connection.getHeaderField('Link')
-      if (linkHeader) {
-        def nextPageUrl = (linkHeader =~ /<([^>]+)>; rel="next"/)?.with { matcher -> matcher.find() ? matcher.group(1) : null }
-        if (nextPageUrl) {
-          getNextPage(nextPageUrl)
-        }
-      }
-    } else {
-      println("Error fetching data: HTTP \${connection.responseCode}")
+  if (connection.responseCode == 200) {
+    def responseText = connection.inputStream.getText('UTF-8')
+    def json = jsonSlurper.parseText(responseText)
+    modules.addAll(json*.name)
+
+    def linkHeader = connection.getHeaderField('Link')
+    def nextPageUrl = (linkHeader =~ /<([^>]+)>; rel="next"/)?.with { matcher -> matcher.find() ? matcher.group(1) : null }
+
+    if (nextPageUrl) {
+      fetchPage(nextPageUrl)
     }
+  } else {
+    throw new IOException("Failed to fetch modules: HTTP \${connection.responseCode}")
   }
+}
 
-  getNextPage = { nextPageUrl ->
-    def nextConn = new URL(nextPageUrl).openConnection()
-    processResponse(nextConn)
-  }
+  fetchPage(initialUrl)
+  
+  return modules
+}
 
-  processResponse(new URL(url).openConnection())
+def filterModules(List<String> modules, String platform) {
+  modules.findAll { name ->
+    def isStandardModule = name.startsWith('mod-') || name.startsWith('edge-')
+    def isOkapiSpecific = name == 'okapi'
+    def isEurekaSpecific = ['folio-kong', 'folio-keycloak', 'folio-module-sidecar'].contains(name) || name.startsWith('mgr-')
 
-  return modules.findAll {
-    boolean isOKAPISpecific = it == 'okapi'
-    boolean isEUREKASpecific = it == 'folio-kong' || it == 'folio-keycloak' || it == 'folio-module-sidecar' || it.startsWith('mgr-')
-
-    boolean result = it.startsWith('mod-') || it.startsWith('edge-')
-    result = (!platform || platform == 'OKAPI' ? result || isOKAPISpecific : result)
-    return (!platform || platform == 'EUREKA' ? result || isEUREKASpecific : result)
+    def result = isStandardModule
+    if (platform?.toUpperCase() == 'OKAPI') {
+      result = result || isOkapiSpecific
+    }
+    if (platform?.toUpperCase() == 'EUREKA') {
+      result = result || isEurekaSpecific
+    }
+    return result
   }.sort()
 }
 
-fetchModules("\${apiUrl}?per_page=\${perPage}")
+def apiUrl = "https://api.github.com/orgs/folio-org/repos"
+def perPage = 100
+def credentialId = "github-jenkins-service-user-token"
+def platform = "${reference}" // Provided at runtime
+
+try {
+  def token = getGithubToken(credentialId)
+  def modules = fetchAllModules("\${apiUrl}?per_page=\${perPage}", token)
+  def filteredModules = filterModules(modules, platform)
+
+  return filteredModules
+} catch (Exception e) {
+  println "Error: \${e.message}"
+  throw e
+}
 """.stripIndent()
 }
 
