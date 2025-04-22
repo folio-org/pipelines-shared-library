@@ -22,11 +22,19 @@ static String getApplications(String applicationSet) {
 
 static String getRepositoryBranches(String repository) {
   return """import groovy.json.JsonSlurperClassic
+import com.cloudbees.plugins.credentials.CredentialsProvider
+import org.jenkinsci.plugins.plaincredentials.StringCredentials
+
 def apiUrl = "${Constants.FOLIO_GITHUB_REPOS_URL}/${repository}/branches"
 def perPage = 100
 def fetchBranches(String url) {
 def credentialId = "github-jenkins-service-user-token"
-def credential = com.cloudbees.plugins.credentials.SystemCredentialsProvider.getInstance().getStore().getCredentials(com.cloudbees.plugins.credentials.domains.Domain.global()).find { it.getId().equals(credentialId) }
+def credential = CredentialsProvider.lookupCredentials(
+  StringCredentials.class,
+  jenkins.model.Jenkins.instance,
+  null,
+  null
+).find { it.id == credentialId }
 def secret_value = credential.getSecret().getPlainText()
     def branches = []
   def jsonSlurper = new JsonSlurperClassic()
@@ -87,6 +95,8 @@ static String getModuleId(String moduleName) {
 
 static String getModulesList(String reference){
   return """import groovy.json.JsonSlurperClassic
+import com.cloudbees.plugins.credentials.CredentialsProvider
+import org.jenkinsci.plugins.plaincredentials.StringCredentials
 
 def apiUrl = "https://api.github.com/orgs/folio-org/repos"
 def perPage = 100
@@ -95,11 +105,13 @@ def fetchModules(String url) {
   String platform = ${reference}
 
   def credentialId = "github-jenkins-service-user-token"
-  def credential = com.cloudbees.plugins.credentials.SystemCredentialsProvider
-                      .getInstance()
-                      .getStore()
-                      .getCredentials(com.cloudbees.plugins.credentials.domains.Domain.global())
-                      .find { it.getId().equals(credentialId) }
+  def credential = CredentialsProvider.lookupCredentials(
+    StringCredentials.class,
+    jenkins.model.Jenkins.instance,
+    null,
+    null
+  ).find { it.id == credentialId }
+
 
   def secret_value = credential.getSecret().getPlainText()
   def modules = []
