@@ -123,7 +123,7 @@ ansiColor('xterm') {
 
                   // Build Module as Maven Project
                   withMaven(
-                    jdk: "${common.selectJavaBasedOnAgent(params.AGENT)}".toString(),
+                    jdk: Constants.JAVA_TOOL_NAME,
                     maven: Constants.MAVEN_TOOL_NAME,
                     traceability: false,
                     options: [artifactsPublisher(disabled: true)])
