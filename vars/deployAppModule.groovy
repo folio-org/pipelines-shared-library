@@ -1,5 +1,7 @@
 import org.folio.Constants
 import org.folio.models.EurekaNamespace
+import org.folio.models.FolioInstallJson
+import org.folio.models.module.FolioModule
 import org.folio.rest_v2.eureka.Eureka
 import org.folio.rest_v2.eureka.kong.Tenants
 import org.folio.utilities.Logger
@@ -201,7 +203,7 @@ def updateModuleVersionFlow(Logger logger, Eureka eureka, EurekaModule module, E
     updatedAppInfoMap = eureka.updateAppDescriptorFlow(namespace.applications, module)
 
     logger.info('Performing Module Discovery for New Module Version')
-    eureka.registerModulesFlow([ module ])
+    eureka.registerModulesFlow(new FolioInstallJson<FolioModule>(EurekaModule.class).addModule(module))
 
     // Deploy Application Module with Helm
     deployAppModuleHelm(logger, eureka, module, namespace, updatedAppInfoMap)

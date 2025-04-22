@@ -142,7 +142,7 @@ ansiColor('xterm') {
 
             Map<String, String> updatedAppInfoMap = eureka.updateAppDescriptorFlow((namespace as EurekaNamespace).getApplications(), beUpdated.getInstallJsonObject()[0] as EurekaModule)
 
-            eureka.registerModulesFlow(beUpdated.getInstallJsonObject())
+            eureka.registerModulesFlow(beUpdated)
 
             logger.info('Enabling Application Descriptor with Updated Module Version for Tenants in Namespace')
             namespace.getTenants().values().each {tenant ->

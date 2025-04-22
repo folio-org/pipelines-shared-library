@@ -2,16 +2,11 @@ package org.folio.rest_v2.eureka
 
 import hudson.util.Secret
 import org.folio.Constants
-import org.folio.models.EurekaTenant
-import org.folio.models.EurekaTenantConsortia
-import org.folio.models.FolioInstallJson
-import org.folio.models.Role
-import org.folio.models.User
+import org.folio.models.*
 import org.folio.models.application.Application
 import org.folio.models.application.ApplicationList
 import org.folio.models.module.EurekaModule
 import org.folio.models.module.FolioModule
-import org.folio.models.module.ModuleType
 import org.folio.rest_v2.eureka.kong.*
 
 class Eureka extends Base {
@@ -148,12 +143,31 @@ class Eureka extends Base {
     return apps.each {app -> Applications.get(kong).registerApplication(app.descriptor) }
   }
 
-  Eureka registerModulesFlow(List<? extends FolioModule> modules) {
+  Eureka assignAppToTenants(List<EurekaTenant> tenants, Map<String, String> registeredApps) {
+    tenants.each { tenant ->
+      tenant.applications = registeredApps.clone() as Map
+
+      //TODO: Refactoring is needed!!! Utilization of extension should be applied.
+      if (!(tenant instanceof EurekaTenantConsortia)) {
+        tenant.applications.remove("app-consortia")
+        tenant.applications.remove("app-consortia-manager")
+      } else if (!tenant.isCentralConsortiaTenant) {
+        tenant.applications.remove("app-consortia-manager")
+        tenant.applications.remove("app-linked-data")
+      }
+
+      if (!tenant.isSecureTenant)
+        tenant.applications.remove("app-requests-mediated-ui")
+    }
+
+    return this
+  }
+
+  Eureka registerModulesFlow(FolioInstallJson<? extends FolioModule> modules) {
     List<EurekaModule> alreadyRegistered = Applications.get(kong).getRegisteredModules()
 
     Applications.get(kong).registerModules(
-      modules
-        .findAll{ it.getType() == ModuleType.BACKEND || it.getType() == ModuleType.EDGE } // Register only backend and edge modules
+      ((modules.getBackendModules() + modules.getEdgeModules()) as List<EurekaModule>)
         .findAll{ !alreadyRegistered.contains(it.getId()) } // Exclude already registered modules to avoid error
     )
 

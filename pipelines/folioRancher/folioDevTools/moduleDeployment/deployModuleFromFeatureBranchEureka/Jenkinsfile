@@ -2,7 +2,9 @@ package folioRancher.folioDevTools.moduleDeployment.deployModuleFromFeatureBranc
 
 import hudson.AbortException
 import org.folio.Constants
+import org.folio.models.FolioInstallJson
 import org.folio.models.module.EurekaModule
+import org.folio.models.module.FolioModule
 import org.folio.rest_v2.eureka.kong.Tenants
 import org.folio.models.module.ModuleBuildTool
 import org.folio.utilities.Logger
@@ -259,7 +261,7 @@ ansiColor('xterm') {
       // 2. Enable New Module Version (Discovery) for Application
       stage('[Rest] Module Discovery') {
         try {
-          eureka.registerModulesFlow([module])
+          eureka.registerModulesFlow(new FolioInstallJson<FolioModule>(EurekaModule.class).addModule(module))
         } catch (e) {
           logger.warning("Failed to perform new module discovery: ${e}")
           eureka.removeResourcesOnFailFlow(updatedAppInfoMap, module)

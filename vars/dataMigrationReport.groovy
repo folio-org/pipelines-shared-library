@@ -231,7 +231,6 @@ void call(CreateNamespaceParameters args) {
         sleep time: (counter == 0 ? 0 : 30), unit: 'SECONDS'
         counter++
 
-
         ApplicationList apps = eureka.generateApplications(
           //TODO: Refactoring is needed!!! Utilization of extension should be applied.
           // Remove this shit with consortia and linkedData. Apps have to be taken as it is.
@@ -244,9 +243,11 @@ void call(CreateNamespaceParameters args) {
         )
         eureka.registerApplications(apps)
 
-        namespace.tenants.values().each {tenant -> tenant.assignApplications(apps)}
+        //TODO: The following three lines will be changed in the upcoming PR
+        eureka.assignAppToTenants(namespace.getTenants().values().toList(), apps.collectEntries {[it.getName(), it.getId() ] })
+        namespace.withApplications(apps)
 
-        eureka.registerModulesFlow(namespace.getModules().getInstallJsonObject())
+        eureka.registerModulesFlow(namespace.getModules())
       }
     }
 

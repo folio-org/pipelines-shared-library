@@ -73,8 +73,8 @@ class ApplicationsBuildPushPipeline {
     return this
   }
 
-  ApplicationsBuildPushPipeline withAppDescriptor(String json) {
-    parameters.add(context.text(name: 'APP_DESCRIPTION', value: json))
+  ApplicationsBuildPushPipeline withDescriptorURL(String url) {
+    parameters.add(context.string(name: 'DESCRIPTOR_URL', value: url))
     return this
   }
 
