@@ -15,12 +15,12 @@ properties([
   parameters([
     folioParameters.branch('TESTS_BRANCH', 'folio-integration-tests'),
     string(name: 'TESTS', defaultValue: '', description: 'Comma separated modules list to test (no spaces).\nLeave empty to launch all.'),
-    string(name: 'OKAPI_URL', defaultValue: 'https://folio-testing-karate-okapi.ci.folio.org', description: 'Target environment OKAPI URL'),
-    string(name: 'EDGE_URL', defaultValue: 'https://folio-testing-karate-edge.ci.folio.org', description: 'Target environment EDGE URL'),
-    string(name: 'SUPER_TENANT', defaultValue: 'supertenant', description: 'Supertenant for test tenants creation flow'),
-    string(name: 'SUPER_ADMIN_USERNAME', defaultValue: 'super_admin', description: 'Super admin username'),
+    string(name: 'OKAPI_URL', defaultValue: 'https://folio-etesting-karate-eureka-kong.ci.folio.org', description: 'Target environment OKAPI URL'),
+    string(name: 'EDGE_URL', defaultValue: 'https://folio-etesting-karate-eureka-edge.ci.folio.org', description: 'Target environment EDGE URL'),
+    string(name: 'SUPER_TENANT', defaultValue: 'diku', description: 'Supertenant for test tenants creation flow'),
+    string(name: 'SUPER_ADMIN_USERNAME', defaultValue: 'diku_admin', description: 'Super admin username'),
     password(name: 'SUPER_ADMIN_PASSWORD', defaultValueAsSecret: Secret.fromString('admin'), description: 'Super admin user password'),
-    string(name: 'PROTOTYPE_TENANT', defaultValue: 'diku', description: 'Tenant name that will be used by tests as a prototype during test tenants creation'),
+    string(name: 'PROTOTYPE_TENANT', defaultValue: 'consortium', description: 'Tenant name that will be used by tests as a prototype during test tenants creation'),
     string(name: 'THREADS_COUNT', defaultValue: '4', description: 'Number of parallel threads'),
     choice(name: 'JAVA_VERSION', choices: ['21', '17'], description: 'Java version to use for tests'),
 //    booleanParam(name: 'CREATE_CUSTOM_EDGE_TENANT', defaultValue: false, description: 'Do you need to create tenant for edge modules from edge-configuration.json file?'),
@@ -47,7 +47,7 @@ karateTestsParams.adminPassword = params.SUPER_ADMIN_PASSWORD.getPlainText()
 karateTestsParams.prototypeTenant = params.PROTOTYPE_TENANT
 karateTestsParams.threadsCount = params.THREADS_COUNT
 karateTestsParams.javaVerson = params.JAVA_VERSION
-karateTestsParams.timeout = '3'
+karateTestsParams.timeout = '6'
 
 /**
  * Pipeline
