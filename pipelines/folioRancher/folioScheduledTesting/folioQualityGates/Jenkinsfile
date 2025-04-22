@@ -157,6 +157,7 @@ ansiColor('xterm') {
           karateTestsParams.syncWithJira = false
           karateTestsParams.syncWithJira = true
           karateTestsParams.timeout = '3'
+
           karateTestsExecutionSummary = folioKarateFlow.call(karateTestsParams)
         }
       }
