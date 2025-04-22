@@ -5,6 +5,7 @@ import org.csanchez.jenkins.plugins.kubernetes.pod.retention.Never
 import org.csanchez.jenkins.plugins.kubernetes.pod.retention.OnFailure
 import org.csanchez.jenkins.plugins.kubernetes.pod.retention.PodRetention
 import org.csanchez.jenkins.plugins.kubernetes.pod.yaml.Merge
+import org.folio.Constants
 import org.folio.utilities.Logger
 
 /**
@@ -100,7 +101,7 @@ spec:
         requestsSize: '5Gi',
         storageClassName: 'gp3'),
       containers: [steps.containerTemplate(name: 'jnlp',
-        image: '732722833398.dkr.ecr.us-west-2.amazonaws.com/folio-jenkins-agent:latest',
+        image: "${Constants.ECR_FOLIO_REPOSITORY}/folio-jenkins-agent:latest",
         ttyEnabled: true,
         alwaysPullImage: true,
         workingDir: WORKING_DIR,
@@ -119,16 +120,27 @@ spec:
    * @param javaVersion The Java version (e.g., "11", "17", "21").
    * @param body A closure containing the pipeline logic to execute within this pod.
    */
-  void javaTemplate(String javaVersion, Closure body) {
+  void javaTemplate(String javaVersion, String podUuid = '', Closure body) {
     defaultTemplate {
-      steps.podTemplate(label: JenkinsAgentLabel.JAVA_AGENT.getLabel(),
+      steps.podTemplate(label: "${JenkinsAgentLabel.JAVA_AGENT.getLabel()}${podUuid}",
         volumes: [steps.persistentVolumeClaim(claimName: MAVEN_CACHE_PVC, mountPath: "${WORKING_DIR}/.m2/repository")],
         containers: [steps.containerTemplate(name: 'java',
-          image: "amazoncorretto:${javaVersion}-alpine-jdk",
+          image: "${Constants.ECR_FOLIO_REPOSITORY}/amazoncorretto:${javaVersion}-alpine-jdk",
+          alwaysPullImage: true,
+          envVars: [new KeyValueEnvVar('DOCKER_HOST', 'tcp://localhost:2375'),
+                    new KeyValueEnvVar('HOME', WORKING_DIR)],
           command: 'sleep',
           args: '99d',
+          runAsGroup: '1000',
+          runAsUser: '1000',
           resourceRequestMemory: '4Gi',
-          resourceLimitMemory: '5Gi')]) {
+          resourceLimitMemory: '5Gi'),
+        steps.containerTemplate(name: 'dind',
+          image: 'docker:dind',
+          envVars: [new KeyValueEnvVar('DOCKER_TLS_CERTDIR', '')],
+          privileged: true,
+          args: '--host=tcp://0.0.0.0:2375 --host=unix:///var/run/docker.sock'
+        )]) {
         logger.info("Using Java version: ${javaVersion}")
         body.call()
       }
@@ -194,7 +206,7 @@ spec:
       steps.podTemplate(label: JenkinsAgentLabel.CYPRESS_AGENT.getLabel(),
         volumes: [steps.persistentVolumeClaim(claimName: YARN_CACHE_PVC, mountPath: "${WORKING_DIR}/.yarn/cache")],
         containers: [steps.containerTemplate(name: 'cypress',
-          image: '732722833398.dkr.ecr.us-west-2.amazonaws.com/cypress/browsers:latest',
+          image: "${Constants.ECR_FOLIO_REPOSITORY}/cypress/browsers:latest",
           command: 'sleep',
           args: '99d',
           envVars: [new KeyValueEnvVar('YARN_CACHE_FOLDER', "${WORKING_DIR}/.yarn/cache"),

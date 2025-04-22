@@ -71,10 +71,11 @@ Eureka eureka = new Eureka(this, namespace.generateDomain('kong'), namespace.gen
 ansiColor('xterm') {
   // Common Gradle Options
   String commonGradleOpts = '--quiet --console plain --no-daemon'
+  String podUuid = UUID.randomUUID().toString().replaceAll("-", "").take(6)
 
   podTemplates.kanikoTemplate() {
-    podTemplates.javaTemplate(params.JAVA_VERSION) {
-      node(JenkinsAgentLabel.JAVA_AGENT.getLabel()) {
+    podTemplates.javaTemplate(params.JAVA_VERSION, podUuid) {
+      node("${JenkinsAgentLabel.JAVA_AGENT.getLabel()}${podUuid}") {
         stage('Ini') {
           featureHash = new GitHubClient(this).getBranchInfo(module.getName(), featureBranch).commit.sha.take(7)
 
@@ -124,13 +125,14 @@ ansiColor('xterm') {
                   withMaven(
                     jdk: Constants.JAVA_TOOL_NAME,
                     maven: Constants.MAVEN_TOOL_NAME,
+                    mavenOpts: '-XX:MaxRAMPercentage=85',
+                    mavenLocalRepo: "${podTemplates.WORKING_DIR}/.m2/repository",
                     traceability: false,
-                    options: [artifactsPublisher(disabled: true)])
-                    {
+                    options: [artifactsPublisher(disabled: true)]) {
                       sh """
-                    mvn versions:set -DnewVersion=${module.getVersion()}
-                    mvn package ${mavenArguments}
-                  """.stripIndent()
+                        mvn versions:set -DnewVersion=${module.getVersion()}
+                        mvn package ${mavenArguments}
+                      """.stripIndent()
                     }
                 }
                 break

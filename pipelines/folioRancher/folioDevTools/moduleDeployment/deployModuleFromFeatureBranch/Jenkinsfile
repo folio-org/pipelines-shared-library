@@ -66,9 +66,11 @@ namespace.addDeploymentConfig(folioTools.getPipelineBranch())
 Main main = new Main(this, namespace.getDomains()['okapi'], namespace.getSuperTenant())
 
 ansiColor('xterm') {
+  String podUuid = UUID.randomUUID().toString().replaceAll("-", "").take(6)
+
   podTemplates.kanikoTemplate() {
-    podTemplates.javaTemplate(params.JAVA_VERSION) {
-      node(JenkinsAgentLabel.JAVA_AGENT.getLabel()) {
+    podTemplates.javaTemplate(params.JAVA_VERSION, podUuid) {
+      node("${JenkinsAgentLabel.JAVA_AGENT.getLabel()}${podUuid}") {
         stage('Ini') {
           buildName "#${params.MODULE_NAME}.${env.BUILD_ID}"
           buildDescription "Env: ${namespace.getWorkspaceName()}\nBranch: ${params.MODULE_BRANCH}\n" + "Config: ${params.CONFIG_TYPE}\n${currentBuild.getBuildCauses()[0].shortDescription}"
@@ -94,6 +96,8 @@ ansiColor('xterm') {
 
               withMaven(jdk: Constants.JAVA_TOOL_NAME,
                 maven: Constants.MAVEN_TOOL_NAME,
+                mavenOpts: '-XX:MaxRAMPercentage=85',
+                mavenLocalRepo: "${podTemplates.WORKING_DIR}/.m2/repository",
                 traceability: false,
                 options: [artifactsPublisher(disabled: true)]) {
                 sh """

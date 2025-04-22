@@ -65,7 +65,6 @@ ansiColor('xterm') {
         .runSanityCheck(false)
         .members('dojo')
         .uiBuild(true)
-        .worker('rancher')
         .build()
 
       CreateNamespaceParameters namespaceFromBranchParams = namespaceBaseParams.toBuilder()
