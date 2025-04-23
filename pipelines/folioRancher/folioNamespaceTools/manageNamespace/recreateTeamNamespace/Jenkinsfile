@@ -13,16 +13,18 @@ import org.jenkinsci.plugins.workflow.libs.Library
 @Field final String deleteNamespaceJobName = Constants.JENKINS_DELETE_NAMESPACE_JOB
 @Field final String createNamespaceJobName = Constants.JENKINS_CREATE_NAMESPACE_FROM_BRANCH_JOB
 
-properties([buildDiscarder(logRotator(numToKeepStr: '30')),
-            disableConcurrentBuilds(),
-            parameters([folioParameters.platform(),
-                        folioParameters.cluster('PLATFORM'),
-                        folioParameters.namespace(),
-                        folioParameters.configType(),
-                        folioParameters.refreshParameters()]),
-//            pipelineTriggers([parameterizedCron('''
-//              H 20 * * * %PLATFORM=EUREKA;CLUSTER=folio-edev;NAMESPACE=eureka;CONFIG_TYPE=development;AGENT=jenkins-agent-java21
-//            ''')])
+properties([
+  buildDiscarder(logRotator(numToKeepStr: '30')),
+  disableConcurrentBuilds(),
+  parameters([folioParameters.platform(),
+              folioParameters.cluster('PLATFORM'),
+              folioParameters.namespace(),
+              folioParameters.configType(),
+              folioParameters.refreshParameters()]),
+  pipelineTriggers([
+    parameterizedCron('''
+      H 20 * * * %PLATFORM=EUREKA;CLUSTER=folio-edev;NAMESPACE=eureka;CONFIG_TYPE=development;AGENT=jenkins-agent-java21
+    ''')])
 ])
 // Get back when the ticket is resolved https://folio-org.atlassian.net/browse/RANCHER-1546
 //            pipelineTriggers([parameterizedCron('''
