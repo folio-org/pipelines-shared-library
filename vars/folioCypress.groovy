@@ -101,7 +101,6 @@ void prepareTenantForCypressTests(CypressTestsParameters prepare) {
       sh "set +x; export EHOLDINGS_KB_URL=${prepare.kbUrl}; export EHOLDINGS_KB_ID=${prepare.kbId}; export EHOLDINGS_KB_KEY=${prepare.kbKey}; export OKAPI_HOST=${prepare.okapiUrl}; " +
         "export OKAPI_TENANT=${prepare.tenant.tenantId}; export DIKU_LOGIN=${prepare.tenant.adminUser.username}; export DIKU_PASSWORD=${prepare.tenant.adminUser.getPasswordPlainText()}"
       sh "set -x; node ./scripts/prepare.js"
-      input("Please check the tenant and press 'Continue' to proceed with the tests.")
     } catch (Exception e) {
       echo("Failed to prepare tenant for Cypress tests: ${e.getMessage()}")
       throw e
