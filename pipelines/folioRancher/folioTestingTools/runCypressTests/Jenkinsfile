@@ -15,8 +15,8 @@ properties([
     maxConcurrentTotal: 3, paramsToUseForLimit: '', throttleEnabled: true, throttleOption: 'project'),
   parameters([
     folioParameters.branch('CYPRESS_BRANCH', 'stripes-testing'),
-    string(name: 'TENANT_URL', defaultValue: "https://folio-testing-cypress-diku.ci.folio.org", description: 'Target environment tenant UI URL', trim: true),
-    string(name: 'OKAPI_URL', defaultValue: "https://folio-testing-cypress-okapi.ci.folio.org", description: 'Target environment OKAPI URL', trim: true),
+    string(name: 'TENANT_URL', defaultValue: "https://folio-etesting-cypress-diku.ci.folio.org", description: 'Target environment tenant UI URL', trim: true),
+    string(name: 'KONG_URL', defaultValue: "https://folio-etesting-cypress-kong.ci.folio.org", description: 'Target environment KONG URL', trim: true),
     string(name: 'TENANT_ID', defaultValue: "diku", description: 'Tenant ID', trim: true),
     string(name: 'ADMIN_USERNAME', defaultValue: "diku_admin", description: 'Tenant admin username', trim: true),
     password(name: 'ADMIN_PASSWORD', defaultValueAsSecret: Secret.fromString('admin'), description: 'Tenant admin password'),
@@ -49,7 +49,7 @@ CypressTestsParameters cypressParameters = new CypressTestsParameters()
 cypressParameters.setCiBuildId(ciBuildId)
 cypressParameters.setTestsSrcBranch(params.CYPRESS_BRANCH)
 cypressParameters.setTenantUrl(params.TENANT_URL)
-cypressParameters.setOkapiUrl(params.OKAPI_URL)
+cypressParameters.setOkapiUrl(params.KONG_URL)
 cypressParameters.setTenant(new OkapiTenant(params.TENANT_ID)
   .withAdminUser(new OkapiUser(params.ADMIN_USERNAME, params.ADMIN_PASSWORD)))
 cypressParameters.setExecParameters(params.EXEC_PARAMETERS)
