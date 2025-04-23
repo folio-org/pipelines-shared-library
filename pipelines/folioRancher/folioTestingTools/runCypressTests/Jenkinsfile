@@ -23,7 +23,7 @@ properties([
     string(name: 'EXEC_PARAMETERS', defaultValue: "", description: 'Cypress execution parameters.\nExample --env grepTags="extendedPath --nonParallel"', trim: true),
     string(name: 'KB_URL', defaultValue: "", description: 'Tenant KB endpoint', trim: true),
     string(name: 'KB_ID', defaultValue: "apidvcorp", description: 'Tenant KB ID', trim: true),
-    password(name: 'KB_KEY', defaultValue: Secret.fromString('changeMe!'), description: 'Tenant KB key', trim: true),
+    password(name: 'KB_KEY', defaultValueAsSecret: Secret.fromString('changeMe!'), description: 'Tenant KB key'),
     choice(name: 'NUMBER_OF_WORKERS', description: "Numbers of parallel cypress workers, if single thread run leave 1", choices: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]),
     string(name: 'TIMEOUT', defaultValue: "240", description: '(MINUTES) Timeout for tests execution', trim: true),
     string(name: 'CUSTOM_BUILD_NAME', defaultValue: "", description: 'Custom name for build', trim: true),
