@@ -23,7 +23,7 @@ properties([
               folioParameters.refreshParameters()]),
   pipelineTriggers([
     parameterizedCron('''
-      H 20 * * * %PLATFORM=EUREKA;CLUSTER=folio-edev;NAMESPACE=eureka;CONFIG_TYPE=development;AGENT=jenkins-agent-java21
+      H 20 * * * %PLATFORM=EUREKA;CLUSTER=folio-edev;NAMESPACE=eureka;CONFIG_TYPE=development
     ''')])
 ])
 // Get back when the ticket is resolved https://folio-org.atlassian.net/browse/RANCHER-1546
