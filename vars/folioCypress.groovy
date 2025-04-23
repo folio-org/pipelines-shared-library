@@ -103,7 +103,7 @@ void prepareTenantForCypressTests(CypressTestsParameters prepare) {
         "export OKAPI_TENANT=${prepare.tenant.tenantId}; export DIKU_LOGIN=${prepare.tenant.adminUser.username}; export DIKU_PASSWORD=${prepare.tenant.adminUser.getPasswordPlainText()}"
       sh "set -x; node ./scripts/prepare.js"
     } catch (Exception e) {
-      currentBuild = 'ABORTED' as RunWrapperBinder
+      currentBuild.result = 'ABORTED'
       throw new Exception("Failed to prepare tenant for Cypress tests: ${e.getMessage()}")
     }
   }
