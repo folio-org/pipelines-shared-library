@@ -7,7 +7,7 @@ import org.folio.models.OkapiUser
 import org.folio.models.parameters.CypressTestsParameters
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library@RANCHER-2236') _
+@Library('pipelines-shared-library@RANCHER-2109-v2') _
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '50')),
@@ -21,11 +21,15 @@ properties([
     string(name: 'ADMIN_USERNAME', defaultValue: "diku_admin", description: 'Tenant admin username', trim: true),
     password(name: 'ADMIN_PASSWORD', defaultValueAsSecret: Secret.fromString('admin'), description: 'Tenant admin password'),
     string(name: 'EXEC_PARAMETERS', defaultValue: "", description: 'Cypress execution parameters.\nExample --env grepTags="extendedPath --nonParallel"', trim: true),
+    string(name: 'KB_URL', defaultValue: "", description: 'Tenant KB endpoint', trim: true),
+    string(name: 'KB_ID', defaultValue: "", description: 'Tenant KB ID', trim: true),
+    string(name: 'KB_KEY', defaultValue: "", description: 'Tenant KB key', trim: true),
     choice(name: 'NUMBER_OF_WORKERS', description: "Numbers of parallel cypress workers, if single thread run leave 1", choices: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]),
     string(name: 'TIMEOUT', defaultValue: "240", description: '(MINUTES) Timeout for tests execution', trim: true),
     string(name: 'CUSTOM_BUILD_NAME', defaultValue: "", description: 'Custom name for build', trim: true),
     string(name: 'TESTRAIL_PROJECTID', defaultValue: "", description: 'To enable TestRail integration, enter ProjectID from TestRail, ex. 22', trim: true),
     string(name: 'TESTRAIL_RUN_ID', defaultValue: "", description: 'To enable TestRail integration, enter RunID from TestRail, ex. 2048', trim: true),
+    booleanParam(name: 'PREPARE', defaultValue: false, description: 'Set to true, to run prepare stage'),
     booleanParam(name: 'REPORT_PORTAL_USE', defaultValue: false, description: 'Set to true, to send tests results to Report Portal'),
     choice(name: 'REPORT_PORTAL_RUN_TYPE', choices: ["day", "night", "week", "evrk"], description: 'Parameter for Report portal filtering'),
     folioParameters.runSanityCheck(),
@@ -53,6 +57,10 @@ cypressParameters.setTestrailProjectID(params.TESTRAIL_PROJECTID)
 cypressParameters.setTestrailRunID(params.TESTRAIL_RUN_ID)
 cypressParameters.setNumberOfWorkers(params.NUMBER_OF_WORKERS.toInteger())
 cypressParameters.setTimeout(params.TIMEOUT)
+cypressParameters.setPrepare(params.PREPARE)
+cypressParameters.setKbUrl(params.KB_URL)
+cypressParameters.setKbId(params.KB_ID)
+cypressParameters.setKbKey(params.KB_KEY)
 
 ansiColor('xterm') {
   PodTemplates podTemplates = new PodTemplates(this)

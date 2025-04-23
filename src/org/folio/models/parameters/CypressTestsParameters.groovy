@@ -47,6 +47,18 @@ class CypressTestsParameters implements Cloneable {
   // Timeout duration for tests in minutes, defaults to 480 (8 hours)
   String timeout = '480'
 
+  // Run prepare cleanup script
+  boolean prepare = false
+
+  // Tenant's KB Endpoint
+  String kbUrl = ''
+
+  // Tenant's KB's keyId
+  String kbId = ''
+
+  // Tenant's KB's key
+  String kbKey = ''
+
   /**
    * Sets the CI build ID after sanitizing the input.
    *
