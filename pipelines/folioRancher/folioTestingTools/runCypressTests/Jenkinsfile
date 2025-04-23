@@ -60,7 +60,7 @@ cypressParameters.setTimeout(params.TIMEOUT)
 cypressParameters.setPrepare(params.PREPARE)
 cypressParameters.setKbUrl(params.KB_URL)
 cypressParameters.setKbId(params.KB_ID)
-cypressParameters.setKbKey(params.KB_KEY)
+cypressParameters.setKbKey(params.KB_KEY.getPlainText())
 
 ansiColor('xterm') {
   PodTemplates podTemplates = new PodTemplates(this)
