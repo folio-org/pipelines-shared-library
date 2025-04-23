@@ -1,6 +1,7 @@
 import groovy.json.JsonException
 import org.folio.Constants
 import org.folio.client.reportportal.ReportPortalClient
+import org.folio.models.parameters.CypressTestsParameters
 import org.folio.testing.IRunExecutionSummary
 import org.folio.testing.TestType
 import org.folio.testing.cypress.results.CypressRunExecutionSummary
@@ -93,6 +94,20 @@ void setupCommonEnvironmentVariables(String tenantUrl, String okapiUrl, String t
   }
 }
 
+void prepareTenantForCypressTests(CypressTestsParameters prepare) {
+  stage('[Prepare] Tenant') {
+    echo "Preparing tenant for Cypress tests..."
+    try {
+      sh "set +x; export EHOLDINGS_KB_URL=${prepare.kbUrl}; export EHOLDINGS_KB_ID=${prepare.kbId}; export EHOLDINGS_KB_KEY=${prepare.kbKey}; export OKAPI_HOST=${prepare.okapiUrl}; " +
+        "export OKAPI_TENANT=${prepare.tenant.tenantId}; export DIKU_LOGIN=${prepare.tenant.adminUser.username}; export DIKU_PASSWORD=${prepare.tenant.adminUser.getPasswordPlainText()}"
+      sh "set -x; node ./scripts/prepare.js"
+    } catch (Exception e) {
+      echo("Failed to prepare tenant for Cypress tests: ${e.getMessage()}")
+      throw e
+    }
+  }
+}
+
 /**
  * Compiles the Cypress tests.
  *
@@ -102,7 +117,7 @@ void compileCypressTests() {
   stage('[Yarn] Compile Cypress tests') {
     sh """export HOME=\$(pwd)
       export CYPRESS_CACHE_FOLDER=\$(pwd)/cache
-      
+
       node -v
       yarn -v
 

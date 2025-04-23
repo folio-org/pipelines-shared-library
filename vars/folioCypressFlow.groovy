@@ -104,6 +104,10 @@ IRunExecutionSummary call(String ciBuildId, List<CypressTestsParameters> testsTo
         // Compile tests
         folioCypress.compileCypressTests()
 
+        if (testParams.prepare) {
+          folioCypress.prepareTenantForCypressTests(testParams)
+        }
+
         stage('[Stash] Archive tests') {
           // Archive tests for parallel
           sh """

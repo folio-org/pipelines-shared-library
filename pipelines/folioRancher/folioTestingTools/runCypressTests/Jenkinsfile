@@ -15,17 +15,21 @@ properties([
     maxConcurrentTotal: 3, paramsToUseForLimit: '', throttleEnabled: true, throttleOption: 'project'),
   parameters([
     folioParameters.branch('CYPRESS_BRANCH', 'stripes-testing'),
-    string(name: 'TENANT_URL', defaultValue: "https://folio-testing-cypress-diku.ci.folio.org", description: 'Target environment tenant UI URL', trim: true),
-    string(name: 'OKAPI_URL', defaultValue: "https://folio-testing-cypress-okapi.ci.folio.org", description: 'Target environment OKAPI URL', trim: true),
+    string(name: 'TENANT_URL', defaultValue: "https://folio-etesting-cypress-diku.ci.folio.org", description: 'Target environment tenant UI URL', trim: true),
+    string(name: 'KONG_URL', defaultValue: "https://folio-etesting-cypress-kong.ci.folio.org", description: 'Target environment KONG URL', trim: true),
     string(name: 'TENANT_ID', defaultValue: "diku", description: 'Tenant ID', trim: true),
     string(name: 'ADMIN_USERNAME', defaultValue: "diku_admin", description: 'Tenant admin username', trim: true),
     password(name: 'ADMIN_PASSWORD', defaultValueAsSecret: Secret.fromString('admin'), description: 'Tenant admin password'),
     string(name: 'EXEC_PARAMETERS', defaultValue: "", description: 'Cypress execution parameters.\nExample --env grepTags="extendedPath --nonParallel"', trim: true),
+    string(name: 'KB_URL', defaultValue: "", description: 'Tenant KB endpoint', trim: true),
+    string(name: 'KB_ID', defaultValue: "apidvcorp", description: 'Tenant KB ID', trim: true),
+    password(name: 'KB_KEY', defaultValue: Secret.fromString('changeMe!'), description: 'Tenant KB key', trim: true),
     choice(name: 'NUMBER_OF_WORKERS', description: "Numbers of parallel cypress workers, if single thread run leave 1", choices: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]),
     string(name: 'TIMEOUT', defaultValue: "240", description: '(MINUTES) Timeout for tests execution', trim: true),
     string(name: 'CUSTOM_BUILD_NAME', defaultValue: "", description: 'Custom name for build', trim: true),
     string(name: 'TESTRAIL_PROJECTID', defaultValue: "", description: 'To enable TestRail integration, enter ProjectID from TestRail, ex. 22', trim: true),
     string(name: 'TESTRAIL_RUN_ID', defaultValue: "", description: 'To enable TestRail integration, enter RunID from TestRail, ex. 2048', trim: true),
+    booleanParam(name: 'PREPARE', defaultValue: false, description: 'Set to true, to run prepare stage'),
     booleanParam(name: 'REPORT_PORTAL_USE', defaultValue: false, description: 'Set to true, to send tests results to Report Portal'),
     choice(name: 'REPORT_PORTAL_RUN_TYPE', choices: ["day", "night", "week", "evrk"], description: 'Parameter for Report portal filtering'),
     folioParameters.runSanityCheck(),
@@ -45,7 +49,7 @@ CypressTestsParameters cypressParameters = new CypressTestsParameters()
 cypressParameters.setCiBuildId(ciBuildId)
 cypressParameters.setTestsSrcBranch(params.CYPRESS_BRANCH)
 cypressParameters.setTenantUrl(params.TENANT_URL)
-cypressParameters.setOkapiUrl(params.OKAPI_URL)
+cypressParameters.setOkapiUrl(params.KONG_URL)
 cypressParameters.setTenant(new OkapiTenant(params.TENANT_ID)
   .withAdminUser(new OkapiUser(params.ADMIN_USERNAME, params.ADMIN_PASSWORD)))
 cypressParameters.setExecParameters(params.EXEC_PARAMETERS)
@@ -53,6 +57,10 @@ cypressParameters.setTestrailProjectID(params.TESTRAIL_PROJECTID)
 cypressParameters.setTestrailRunID(params.TESTRAIL_RUN_ID)
 cypressParameters.setNumberOfWorkers(params.NUMBER_OF_WORKERS.toInteger())
 cypressParameters.setTimeout(params.TIMEOUT)
+cypressParameters.setPrepare(params.PREPARE)
+cypressParameters.setKbUrl(params.KB_URL)
+cypressParameters.setKbId(params.KB_ID)
+cypressParameters.setKbKey(params.KB_KEY)
 
 ansiColor('xterm') {
   PodTemplates podTemplates = new PodTemplates(this)
