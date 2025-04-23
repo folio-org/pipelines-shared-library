@@ -5,6 +5,7 @@ import org.folio.models.parameters.CypressTestsParameters
 import org.folio.testing.IRunExecutionSummary
 import org.folio.testing.TestType
 import org.folio.testing.cypress.results.CypressRunExecutionSummary
+import org.jenkinsci.plugins.workflow.cps.RunWrapperBinder
 
 /**
  * Validates the specified parameter.
@@ -102,8 +103,8 @@ void prepareTenantForCypressTests(CypressTestsParameters prepare) {
         "export OKAPI_TENANT=${prepare.tenant.tenantId}; export DIKU_LOGIN=${prepare.tenant.adminUser.username}; export DIKU_PASSWORD=${prepare.tenant.adminUser.getPasswordPlainText()}"
       sh "set -x; node ./scripts/prepare.js"
     } catch (Exception e) {
-      echo("Failed to prepare tenant for Cypress tests: ${e.getMessage()}")
-      throw e
+      currentBuild = 'ABORTED' as RunWrapperBinder
+      throw new Exception("Failed to prepare tenant for Cypress tests: ${e.getMessage()}")
     }
   }
 }
