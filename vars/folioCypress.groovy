@@ -94,12 +94,12 @@ void setupCommonEnvironmentVariables(String tenantUrl, String okapiUrl, String t
   }
 }
 
-void prepareTenantForCypressTests(CypressTestsParameters params) {
+void prepareTenantForCypressTests(CypressTestsParameters prepare) {
   stage('[Prepare] Tenant') {
     echo "Preparing tenant for Cypress tests..."
     try {
-      sh "ls -la"
-      sh "node ./scripts/prepare.js --EHOLDINGS_KB_URL ${params.kbUrl} --EHOLDINGS_KB_ID ${params.kbId} --EHOLDINGS_KB_KEY ${params.kbKey}"
+      sh "export EHOLDINGS_KB_URL=${prepare.kbUrl}; export EHOLDINGS_KB_ID=${prepare.kbId}; export EHOLDINGS_KB_KEY=${prepare.kbKey}"
+      sh "node ./scripts/prepare.js"
       input("Please check the tenant and press 'Continue' to proceed with the tests.")
     } catch (Exception e) {
       echo("Failed to prepare tenant for Cypress tests: ${e.getMessage()}")
