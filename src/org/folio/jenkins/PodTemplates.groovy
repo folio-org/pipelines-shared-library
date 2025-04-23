@@ -211,6 +211,8 @@ spec:
           args: '99d',
           envVars: [new KeyValueEnvVar('YARN_CACHE_FOLDER', "${WORKING_DIR}/.yarn/cache"),
                     new KeyValueEnvVar('NODE_PATH', "${WORKING_DIR}/.yarn/cache/node_modules")],
+          runAsGroup: '1000',
+          runAsUser: '1000',
           resourceRequestMemory: '2Gi',
           resourceLimitMemory: '3Gi'
         )]) {
