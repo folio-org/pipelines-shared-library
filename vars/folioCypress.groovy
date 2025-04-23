@@ -1,6 +1,7 @@
 import groovy.json.JsonException
 import org.folio.Constants
 import org.folio.client.reportportal.ReportPortalClient
+import org.folio.models.parameters.CypressTestsParameters
 import org.folio.testing.IRunExecutionSummary
 import org.folio.testing.TestType
 import org.folio.testing.cypress.results.CypressRunExecutionSummary
@@ -93,12 +94,12 @@ void setupCommonEnvironmentVariables(String tenantUrl, String okapiUrl, String t
   }
 }
 
-void prepareTenantForCypressTests(Map params) {
+void prepareTenantForCypressTests(CypressTestsParameters params) {
   stage('[Prepare] Tenant') {
     echo "Preparing tenant for Cypress tests..."
     try {
       sh "ls -la"
-      sh "node ./scripts/prepare.js --EHOLDINGS_KB_URL ${params.KB_URL} --EHOLDINGS_KB_ID ${params.KB_ID} --EHOLDINGS_KB_KEY ${params.KB_KEY}"
+      sh "node ./scripts/prepare.js --EHOLDINGS_KB_URL ${params.kbUrl} --EHOLDINGS_KB_ID ${params.kbId} --EHOLDINGS_KB_KEY ${params.kbKey}"
       input("Please check the tenant and press 'Continue' to proceed with the tests.")
     } catch (Exception e) {
       echo("Failed to prepare tenant for Cypress tests: ${e.getMessage()}")
