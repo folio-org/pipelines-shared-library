@@ -191,6 +191,11 @@
             "version": "2.1217.v43d8b_b_d8b_2c7"
         },
         {
+            "group": "com.sonyericsson.jenkins.plugins.bfa",
+            "name": "build-failure-analyzer",
+            "version": "2.5.4"
+        },
+        {
             "group": "org.jenkins-ci.plugins",
             "name": "build-monitor-plugin",
             "version": "1.14-979.v7d4d43828605"
@@ -269,6 +274,11 @@
             "group": "org.jenkins-ci.plugins",
             "name": "credentials",
             "version": "1415.v831096eb_5534"
+        },
+        {
+            "group": "net.masterthought.jenkins",
+            "name": "cucumber-reports",
+            "version": "5.8.5"
         },
         {
             "group": "io.jenkins.plugins",
@@ -377,6 +387,21 @@
         },
         {
             "group": "org.jenkins-ci.plugins",
+            "name": "github-branch-source",
+            "version": "1815.v9152b_2ff7a_1b_"
+        },
+        {
+            "group": "org.jenkins-ci.plugins",
+            "name": "github-oauth",
+            "version": "651.v135e939e8b_60"
+        },
+        {
+            "group": "com.coravy.hudson.plugins.github",
+            "name": "github",
+            "version": "1.43.0"
+        },
+        {
+            "group": "org.jenkins-ci.plugins",
             "name": "gradle",
             "version": "2.14.1"
         },
@@ -451,6 +476,11 @@
             "version": "2.45-154.v4ded3dc34f81"
         },
         {
+            "group": "org.jenkins-ci.plugins",
+            "name": "jira",
+            "version": "3.14"
+        },
+        {
             "group": "io.jenkins.plugins",
             "name": "jjwt-api",
             "version": "0.11.5-120.v0268cf544b_89"
@@ -464,6 +494,11 @@
             "group": "io.jenkins.plugins",
             "name": "jquery3-api",
             "version": "3.7.1-3"
+        },
+        {
+            "group": "org.jenkins-ci.plugins",
+            "name": "jsch",
+            "version": "0.2.16-95.v3eecb_55fa_b_78"
         },
         {
             "group": "io.jenkins.plugins",
@@ -496,6 +531,11 @@
             "version": "192.v4d5b_1c429d17"
         },
         {
+            "group": "org.csanchez.jenkins.plugins",
+            "name": "kubernetes",
+            "version": "4324.vfec199a_33512"
+        },
+        {
             "group": "io.jenkins.plugins",
             "name": "locale",
             "version": "566.v3323643741cc"
@@ -514,6 +554,11 @@
             "group": "org.jenkins-ci.plugins",
             "name": "matrix-project",
             "version": "847.v88a_f90ff9f20"
+        },
+        {
+            "group": "org.jenkins-ci.main",
+            "name": "maven-plugin",
+            "version": "3.25"
         },
         {
             "group": "org.jenkins-ci.plugins",
@@ -559,6 +604,11 @@
             "group": "org.jenkins-ci.plugins",
             "name": "parameterized-scheduler",
             "version": "285.ve611986d4c48"
+        },
+        {
+            "group": "de.taimos",
+            "name": "pipeline-aws",
+            "version": "1.45"
         },
         {
             "group": "org.jenkins-ci.plugins",
@@ -666,6 +716,11 @@
             "version": "88.v23b_97b_f2c7a_d"
         },
         {
+            "group": "com.sonyericsson.hudson.plugins.rebuild",
+            "name": "rebuild",
+            "version": "338.va_0a_b_50e29397"
+        },
+        {
             "group": "org.jenkins-ci.plugins",
             "name": "resource-disposer",
             "version": "0.25"
@@ -711,6 +766,11 @@
             "version": "355.v9b_e5b_cde5003"
         },
         {
+            "group": "org.jenkins-ci.plugins",
+            "name": "ssh-slaves",
+            "version": "3.1031.v72c6b_883b_869"
+        },
+        {
             "group": "org.jenkins-ci.modules",
             "name": "sshd",
             "version": "3.353.v2b_d33c46e970"
@@ -744,6 +804,11 @@
             "group": "org.jenkins-ci.plugins",
             "name": "trilead-api",
             "version": "2.209.v0e69b_c43c245"
+        },
+        {
+            "group": "org.biouno",
+            "name": "uno-choice",
+            "version": "2.8.7"
         },
         {
             "group": "org.jenkins-ci.plugins",
