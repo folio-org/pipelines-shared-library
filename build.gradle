@@ -8,15 +8,18 @@ plugins {
   id 'groovy'
 }
 
+tasks {
+  wrapper {
+    gradleVersion = '8.12'
+  }
+}
 
-
-//pluginManager.withPlugin("com.mkobit.jenkins.pipelines.shared-library") {
-//  project.repositories.addAll(
-//    [project.repositories.mavenCentral()]
-//  )
-//}
+java {
+  sourceCompatibility = JavaVersion.VERSION_17
+}
 
 repositories.removeIf { it.name == "JenkinsPublic" }
+
 repositories {
   mavenCentral()
   google()
@@ -28,95 +31,15 @@ repositories {
   maven { url = uri("https://repo.jenkins-ci.org/incrementals/") }
 }
 
-//repositories {
-//  mavenCentral()
-//  google()
-//  gradlePluginPortal()
-//
-//  maven {
-//    url "https://repo.jenkins-ci.org/public/"
-//    content {
-//      includeGroupByRegex "org\\.jenkins-ci.*"
-//      includeGroupByRegex "org\\.kohsuke.*"
-//      includeGroupByRegex "com\\.infradna.*"
-//      includeGroupByRegex "org\\.jvnet.*"
-//      includeGroupByRegex "io\\.jenkins.*"
-//      includeGroupByRegex "com\\.jcraft.*"
-//      includeGroupByRegex "org\\.jenkinsci\\.plugins.*"
-//      includeGroupByRegex "ru\\.yandex.*"
-//      includeGroupByRegex "com\\.tsystems.*"
-//      includeGroupByRegex "org\\.6wind.*"
-//      includeGroupByRegex "biz\\.neustar.*"
-//      includeGroupByRegex "org\\.netbeans.*"
-//      includeGroupByRegex "com\\.cloudbees.*"
-//    }
-//  }
-//
-//  maven {
-//    url "https://repo.jenkins-ci.org/releases/"
-//    content {
-//      includeGroupByRegex "org\\.jenkins-ci.*"
-//      includeGroupByRegex "org\\.kohsuke.*"
-//      includeGroupByRegex "com\\.infradna.*"
-//      includeGroupByRegex "org\\.jvnet.*"
-//      includeGroupByRegex "io\\.jenkins.*"
-//      includeGroupByRegex "com\\.jcraft.*"
-//      includeGroupByRegex "org\\.jenkinsci\\.plugins.*"
-//      includeGroupByRegex "ru\\.yandex.*"
-//      includeGroupByRegex "com\\.tsystems.*"
-//      includeGroupByRegex "org\\.6wind.*"
-//      includeGroupByRegex "biz\\.neustar.*"
-//      includeGroupByRegex "org\\.netbeans.*"
-//      includeGroupByRegex "com\\.cloudbees.*"
-//    }
-//  }
-//
-//  maven {
-//    url = uri("https://repo.jenkins-ci.org/netbeans/")
-//    content {
-//      includeGroupByRegex "org\\.netbeans.*"
-//    }
-//  }
-//
-//  maven {
-//    url 'https://jitpack.io'
-//  }
-//}
-
-tasks {
-  wrapper {
-    gradleVersion = '8.12'
-  }
-}
-
-java {
-  sourceCompatibility = JavaVersion.VERSION_17
-}
-
-//configurations {
-//  preResolvedJenkinsCore
-//}
-
 dependencies {
-//  preResolvedJenkinsCore("org.jenkins-ci.main:jenkins-core:2.492.3") {
-//    // Optional: exclude transitive edge-case problems
-//    exclude group: "org.springframework.security", module: "spring-security-web"
-//  }
-//
-//  // Add explicitly so Maven Central is hit
-//  implementation("org.springframework.security:spring-security-web:6.4.2")
+  implementation platform("org.jenkins-ci.plugins:plugin:4.66")
   compileOnly "com.github.ben-manes.caffeine:caffeine:3.2.0"
   compileOnly "org.springframework.security:spring-security-web:6.4.2"
-  implementation platform("org.jenkins-ci.plugins:plugin:4.66")
   compileOnly "org.jenkins-ci.plugins:gradle:2.14.1"
   testImplementation(platform("org.junit:junit-bom:${junitVersion}"))
   testImplementation('org.junit.jupiter:junit-jupiter')
   testImplementation("org.mockito:mockito-junit-jupiter:${mockitoVersion}")
 }
-
-//gradle.projectsEvaluated {
-//  configurations.preResolvedJenkinsCore.resolve()
-//}
 
 test {
   useJUnitPlatform()
