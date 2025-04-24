@@ -35,7 +35,7 @@ class Eureka extends Base {
     tenant.withUUID(createdTenant.getUuid())
       .withClientSecret(retrieveTenantClientSecretFromAWSSSM(tenant))
 
-    kong.keycloak.defineTTL(tenant.tenantId, 3600)
+    kong.keycloak.defineTTL(tenant.tenantId, 600)
 
     List<String> entitledApps = Tenants.get(kong).getEnabledApplications(tenant).keySet().toList().collect { appId ->
       appId.split("-\\d+\\.\\d+\\.\\d+")[0]
