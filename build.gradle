@@ -1,44 +1,66 @@
+import com.mkobit.jenkins.pipelines.http.ApiTokenAuthentication
 import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
 
-plugins {
-  id 'groovy'
-  id 'java'
+buildscript {
+  repositories {
+    mavenCentral() // must be first to resolve eddsa!
+    maven {
+      url "https://repo.jenkins-ci.org/public/"
+    }
+    maven {
+      url "https://repo.jenkins-ci.org/releases/"
+    }
+    maven {
+      url "https://maven.google.com"
+    }
+    gradlePluginPortal()
+  }
+  dependencies {
+    classpath("org.antlr:antlr4-runtime:4.13.2")
+    classpath("com.squareup.okhttp3:okhttp:4.9.3")
+    classpath("com.google:google:5")
+    classpath("com.google.inject:guice:6.0.0")
+    classpath("org.eclipse.ee4j:project:1.0.6")
+    classpath("jakarta.servlet.jsp.jstl:jakarta.servlet.jsp.jstl-api:2.0.0")
+    classpath("com.google.guava:failureaccess:1.0.2")
+  }
 }
 
-group = 'org.folio'
-version = '1.0-SNAPSHOT'
-
-java {
-  sourceCompatibility = JavaVersion.VERSION_17
-  targetCompatibility = JavaVersion.VERSION_17
+plugins {
+  id 'com.mkobit.jenkins.pipelines.shared-library' version '0.10.1'
+  id 'java'
+  id 'groovy'
 }
 
 repositories {
-  mavenCentral()
-  maven { url "https://repo.jenkins-ci.org/public/" }
-  maven { url "https://repo.jenkins-ci.org/releases/" }
+  mavenCentral() // must be first to resolve eddsa!
+  maven {
+    url "https://repo.jenkins-ci.org/public/"
+  }
+  maven {
+    url "https://repo.jenkins-ci.org/releases/"
+  }
+  maven {
+    url "https://maven.google.com"
+  }
   gradlePluginPortal()
 }
 
-ext {
-  junitVersion = '5.10.0'
-  mockitoVersion = '5.10.0'
-  pipelineUnitVersion = '1.15' // Update as needed
+tasks {
+  wrapper {
+    gradleVersion = '8.12'
+  }
+}
+
+java {
+  sourceCompatibility = JavaVersion.VERSION_17
 }
 
 dependencies {
-  implementation 'org.kohsuke:pom:21'
-  implementation 'args4j:args4j:2.37'
-
-  testImplementation platform("org.junit:junit-bom:${junitVersion}")
-  testImplementation 'org.junit.jupiter:junit-jupiter'
-  testImplementation "org.mockito:mockito-junit-jupiter:${mockitoVersion}"
-  testImplementation "com.lesfurets:jenkins-pipeline-unit:${pipelineUnitVersion}"
-}
-
-configurations {
-  jenkinsPlugins
+  testImplementation(platform("org.junit:junit-bom:${junitVersion}"))
+  testImplementation('org.junit.jupiter:junit-jupiter')
+  testImplementation("org.mockito:mockito-junit-jupiter:${mockitoVersion}")
 }
 
 test {
@@ -47,50 +69,54 @@ test {
 
 def jenkinsResourcesFolder = 'jenkinsResources'
 def pipelinesFolder = 'pipelines'
-def allSrcDirs = [pipelinesFolder, jenkinsResourcesFolder, 'vars', 'src', 'scripts']
-def jenkinsPluginGroups = [
-  "io.jenkins.plugins",
-  "org.jenkinsci.plugins",
-  "org.jenkins-ci",
-  "org.jenkins-ci.main",
-  "org.jenkins-ci.lib",
-  "org.jenkins-ci.modules",
-  "org.jenkins-ci.plugins",
-  "org.jenkins-ci.plugins.workflow",
-  "org.jenkins-ci.plugins.aws-java-sdk",
-  "org.jenkins-ci.plugins.pipeline-stage-view",
-  "jp.ikedam.jenkins.plugins",
-  "io.jenkins.blueocean",
-  "org.csanchez.jenkins.plugins"
-]
+def allSrcDirs = [pipelinesFolder, jenkinsResourcesFolder, 'vars', 'src']
 
 sourceSets {
   main {
-    groovy {
-      srcDirs = allSrcDirs
-      exclude 'resources'
-    }
     java {
-      srcDirs = allSrcDirs
+      srcDirs = [allSrcDirs]
       exclude 'resources'
     }
   }
-  test {
-    groovy {
-      srcDirs = ['test']
+  integrationTest {
+    java {
+      srcDirs = [allSrcDirs]
+      exclude 'resources'
     }
-    resources {
-      srcDirs = ['test/resources']
-    }
-    compileClasspath += configurations.jenkinsPlugins
-    runtimeClasspath += configurations.jenkinsPlugins
   }
 }
 
+if (project.hasProperty("jenkinsUrl") && project.hasProperty("jenkinsUser") && project.hasProperty("jenkinsApiToken")) {
+  jenkinsIntegration {
+    baseUrl.set(uri(project.property("jenkinsUrl")).toURL())
+    authentication.set(providers.provider { new ApiTokenAuthentication(project.property("jenkinsUser").toString(), project.property("jenkinsApiToken").toString()) })
+    downloadDirectory.set(layout.projectDirectory.dir(jenkinsResourcesFolder))
+  }
+}
 
-// Optional plugin resolution logic from plugins.json remains if needed
+def coreVersionFile = project.file("${jenkinsResourcesFolder}/core-version.txt")
+if (coreVersionFile.exists()) {
+  def jenkinsVersion = coreVersionFile.text.trim()
+  sharedLibrary {
+    coreVersion = jenkinsVersion
+  }
+}
+
+def dependenciesFile = file("${jenkinsResourcesFolder}/dependencies.json")
+if (dependenciesFile.exists()) {
+  def contents = new JsonSlurper().parse(dependenciesFile)
+  contents.dependencies.each { dep ->
+    sharedLibrary {
+      pluginDependencies {
+        dependency(dep.group, dep.name, dep.version)
+      }
+    }
+  }
+}
+
+tasks.register('syncJenkinsConfig') {}
+
 tasks.register('collectPluginDependencies') {
-  outputs.file("${jenkinsResourcesFolder}/dependencies.json")
   doLast {
     def excludedPlugins = [] as Set
     def pluginsFile = file("${jenkinsResourcesFolder}/plugins.json")
@@ -104,56 +130,62 @@ tasks.register('collectPluginDependencies') {
         if (excludedPlugins.contains(plugin.shortName)) {
           logger.lifecycle("Plugin '${plugin.shortName}' is skipped")
         } else if (plugin.active && plugin.enabled) {
-          def resolved = jenkinsPluginGroups.find { group ->
-            if (resolvePluginDependency(group, plugin.shortName, plugin.version)) {
-              dependencies.add([group: group, name: plugin.shortName, version: plugin.version])
-              return true
-            }
-            return false
-          }
+          try {
+            def pluginInfoUrl = new URL("https://plugins.jenkins.io/api/plugin/${plugin.shortName}")
+            def connection = pluginInfoUrl.openConnection()
+            connection.setRequestProperty("User-Agent", "Gradle")
 
-          if (!resolved) {
+            def pluginInfo = new JsonSlurper().parse(connection.inputStream)
+            def groupId = pluginInfo?.gav?.split(":")?.getAt(0)
+
+            if (groupId) {
+              def dependency = resolveDependency(groupId, plugin.shortName, plugin.version)
+              if (dependency) {
+                dependencies.add([group: groupId, name: plugin.shortName, version: plugin.version])
+                logger.lifecycle("Dependency '${dependency}' resolved")
+              } else {
+                notResolvedPlugins.add(plugin.shortName)
+                logger.warn("Failed to resolve dependency for '${plugin.shortName}'")
+              }
+            } else {
+              notResolvedPlugins.add(plugin.shortName)
+              logger.warn("GroupId not found for plugin '${plugin.shortName}'")
+            }
+          } catch (Exception e) {
             notResolvedPlugins.add(plugin.shortName)
+            logger.warn("Failed to fetch metadata for plugin '${plugin.shortName}': ${e.message}")
           }
+        } else {
+          logger.lifecycle("Plugin '${plugin.shortName}' is disabled")
         }
       }
 
       logger.lifecycle("Not resolved plugins: ${notResolvedPlugins.join(', ')}")
+
       def output = file("${jenkinsResourcesFolder}/dependencies.json")
-      output.text = JsonOutput.prettyPrint(JsonOutput.toJson([dependencies: dependencies]))
+      if (output.exists()) output.delete()
+      output.createNewFile()
+
+      output << JsonOutput.prettyPrint(JsonOutput.toJson([dependencies: dependencies]))
     } else {
-      logger.warn("plugins.json not found at ${pluginsFile}")
+      logger.warn("Plugins file '${pluginsFile}' does not exist.")
     }
   }
 }
 
-def depsFile = file("${jenkinsResourcesFolder}/dependencies.json")
-if (depsFile.exists()) {
-  def resolved = new JsonSlurper().parse(depsFile)
-  resolved.dependencies.each { dep ->
-    println(dep)
-    dependencies.add("jenkinsPlugins", "${dep.group}:${dep.name}:${dep.version}")
-  }
+tasks.named('syncJenkinsConfig') {
+  dependsOn retrieveJenkinsVersion, retrieveJenkinsGdsl, collectPluginDependencies
 }
 
-def resolvePluginDependency(String group, String name, String version) {
-  def uniqueConfigName = "resolvePluginTmp-${UUID.randomUUID().toString().replace('-', '')}"
-  def config = project.configurations.create(uniqueConfigName)
-  config.setCanBeResolved(true)
-  config.setVisible(false)
-  config.setTransitive(false)
-
-  def dep = "$group:$name:$version"
-  config.dependencies.add(project.dependencies.create(dep))
-
+def resolveDependency(String group, String shortName, String version) {
   try {
-    config.resolve()
-    println "Resolved plugin dependency: $dep"
-    return true
-  } catch (Exception e) {
-    println "Failed to resolve plugin dependency: $dep – ${e.message}"
-    return false
-  } finally {
-    project.configurations.remove(config)
+    def dependency = "${group}:${shortName}:${version}"
+    def testConfig = project.configurations.create("testConfig-${UUID.randomUUID()}")
+    testConfig.setCanBeResolved(true)
+    project.dependencies."${testConfig.name}" dependency
+    testConfig.resolve()
+    return dependency
+  } catch (ignored) {
+    return null
   }
 }
