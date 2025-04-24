@@ -1,759 +1,259 @@
 {
-    "dependencies": [
-        {
-            "group": "org.jenkins-ci.plugins",
-            "name": "ansicolor",
-            "version": "1.0.6"
-        },
-        {
-            "group": "org.jenkins-ci.plugins",
-            "name": "antisamy-markup-formatter",
-            "version": "173.v680e3a_b_69ff3"
-        },
-        {
-            "group": "org.jenkins-ci.plugins",
-            "name": "apache-httpcomponents-client-4-api",
-            "version": "4.5.14-269.vfa_2321039a_83"
-        },
-        {
-            "group": "io.jenkins.plugins",
-            "name": "apache-httpcomponents-client-5-api",
-            "version": "5.4-136.v5a_21779c63f8"
-        },
-        {
-            "group": "io.jenkins.plugins",
-            "name": "asm-api",
-            "version": "9.7.1-97.v4cc844130d97"
-        },
-        {
-            "group": "org.jenkins-ci.plugins",
-            "name": "authentication-tokens",
-            "version": "1.131.v7199556c3004"
-        },
-        {
-            "group": "org.jenkins-ci.plugins",
-            "name": "aws-credentials",
-            "version": "243.v41c19a_fb_5dcf"
-        },
-        {
-            "group": "org.jenkins-ci.plugins.aws-java-sdk",
-            "name": "aws-java-sdk-api-gateway",
-            "version": "1.12.772-477.v650d756dcf6d"
-        },
-        {
-            "group": "org.jenkins-ci.plugins.aws-java-sdk",
-            "name": "aws-java-sdk-autoscaling",
-            "version": "1.12.772-477.v650d756dcf6d"
-        },
-        {
-            "group": "org.jenkins-ci.plugins.aws-java-sdk",
-            "name": "aws-java-sdk-cloudformation",
-            "version": "1.12.772-477.v650d756dcf6d"
-        },
-        {
-            "group": "org.jenkins-ci.plugins.aws-java-sdk",
-            "name": "aws-java-sdk-cloudfront",
-            "version": "1.12.772-477.v650d756dcf6d"
-        },
-        {
-            "group": "org.jenkins-ci.plugins.aws-java-sdk",
-            "name": "aws-java-sdk-cloudwatch",
-            "version": "1.12.772-477.v650d756dcf6d"
-        },
-        {
-            "group": "org.jenkins-ci.plugins.aws-java-sdk",
-            "name": "aws-java-sdk-codebuild",
-            "version": "1.12.772-477.v650d756dcf6d"
-        },
-        {
-            "group": "org.jenkins-ci.plugins.aws-java-sdk",
-            "name": "aws-java-sdk-codedeploy",
-            "version": "1.12.772-477.v650d756dcf6d"
-        },
-        {
-            "group": "org.jenkins-ci.plugins.aws-java-sdk",
-            "name": "aws-java-sdk-ec2",
-            "version": "1.12.772-477.v650d756dcf6d"
-        },
-        {
-            "group": "org.jenkins-ci.plugins.aws-java-sdk",
-            "name": "aws-java-sdk-ecr",
-            "version": "1.12.772-477.v650d756dcf6d"
-        },
-        {
-            "group": "org.jenkins-ci.plugins.aws-java-sdk",
-            "name": "aws-java-sdk-ecs",
-            "version": "1.12.772-477.v650d756dcf6d"
-        },
-        {
-            "group": "org.jenkins-ci.plugins.aws-java-sdk",
-            "name": "aws-java-sdk-efs",
-            "version": "1.12.772-477.v650d756dcf6d"
-        },
-        {
-            "group": "org.jenkins-ci.plugins.aws-java-sdk",
-            "name": "aws-java-sdk-elasticbeanstalk",
-            "version": "1.12.772-477.v650d756dcf6d"
-        },
-        {
-            "group": "org.jenkins-ci.plugins.aws-java-sdk",
-            "name": "aws-java-sdk-elasticloadbalancingv2",
-            "version": "1.12.772-477.v650d756dcf6d"
-        },
-        {
-            "group": "org.jenkins-ci.plugins.aws-java-sdk",
-            "name": "aws-java-sdk-iam",
-            "version": "1.12.772-477.v650d756dcf6d"
-        },
-        {
-            "group": "org.jenkins-ci.plugins.aws-java-sdk",
-            "name": "aws-java-sdk-kinesis",
-            "version": "1.12.772-477.v650d756dcf6d"
-        },
-        {
-            "group": "org.jenkins-ci.plugins.aws-java-sdk",
-            "name": "aws-java-sdk-lambda",
-            "version": "1.12.772-477.v650d756dcf6d"
-        },
-        {
-            "group": "org.jenkins-ci.plugins.aws-java-sdk",
-            "name": "aws-java-sdk-logs",
-            "version": "1.12.772-477.v650d756dcf6d"
-        },
-        {
-            "group": "org.jenkins-ci.plugins.aws-java-sdk",
-            "name": "aws-java-sdk-minimal",
-            "version": "1.12.772-477.v650d756dcf6d"
-        },
-        {
-            "group": "org.jenkins-ci.plugins.aws-java-sdk",
-            "name": "aws-java-sdk-organizations",
-            "version": "1.12.772-477.v650d756dcf6d"
-        },
-        {
-            "group": "org.jenkins-ci.plugins.aws-java-sdk",
-            "name": "aws-java-sdk-secretsmanager",
-            "version": "1.12.772-477.v650d756dcf6d"
-        },
-        {
-            "group": "org.jenkins-ci.plugins.aws-java-sdk",
-            "name": "aws-java-sdk-sns",
-            "version": "1.12.772-477.v650d756dcf6d"
-        },
-        {
-            "group": "org.jenkins-ci.plugins.aws-java-sdk",
-            "name": "aws-java-sdk-sqs",
-            "version": "1.12.772-477.v650d756dcf6d"
-        },
-        {
-            "group": "org.jenkins-ci.plugins.aws-java-sdk",
-            "name": "aws-java-sdk-ssm",
-            "version": "1.12.772-477.v650d756dcf6d"
-        },
-        {
-            "group": "org.jenkins-ci.plugins",
-            "name": "aws-java-sdk",
-            "version": "1.12.772-477.v650d756dcf6d"
-        },
-        {
-            "group": "io.jenkins.plugins",
-            "name": "bootstrap5-api",
-            "version": "5.3.3-2"
-        },
-        {
-            "group": "org.jenkins-ci.plugins",
-            "name": "bouncycastle-api",
-            "version": "2.30.1.80-256.vf98926042a_9b_"
-        },
-        {
-            "group": "org.jenkins-ci.plugins",
-            "name": "branch-api",
-            "version": "2.1214.v3f652804588d"
-        },
-        {
-            "group": "org.jenkins-ci.plugins",
-            "name": "build-name-setter",
-            "version": "2.5.0"
-        },
-        {
-            "group": "org.jenkins-ci.plugins",
-            "name": "build-timeout",
-            "version": "1.36"
-        },
-        {
-            "group": "io.jenkins.plugins",
-            "name": "caffeine-api",
-            "version": "3.2.0-161.v691ef352cee1"
-        },
-        {
-            "group": "io.jenkins.plugins",
-            "name": "checks-api",
-            "version": "367.v18b_7f530e54a_"
-        },
-        {
-            "group": "org.jenkins-ci.plugins",
-            "name": "cloudbees-folder",
-            "version": "6.985.va_f1635030cc5"
-        },
-        {
-            "group": "org.jenkins-ci.plugins",
-            "name": "command-launcher",
-            "version": "118.v72741845c17a_"
-        },
-        {
-            "group": "io.jenkins.plugins",
-            "name": "commons-compress-api",
-            "version": "1.27.1-2"
-        },
-        {
-            "group": "io.jenkins.plugins",
-            "name": "commons-lang3-api",
-            "version": "3.17.0-84.vb_b_938040b_078"
-        },
-        {
-            "group": "io.jenkins.plugins",
-            "name": "commons-text-api",
-            "version": "1.13.0-153.v91dcd89e2a_22"
-        },
-        {
-            "group": "org.jenkins-ci.plugins",
-            "name": "config-file-provider",
-            "version": "982.vb_a_e458a_37021"
-        },
-        {
-            "group": "io.jenkins.plugins",
-            "name": "coverage",
-            "version": "2.2.0"
-        },
-        {
-            "group": "org.jenkins-ci.plugins",
-            "name": "credentials-binding",
-            "version": "687.v619cb_15e923f"
-        },
-        {
-            "group": "org.jenkins-ci.plugins",
-            "name": "credentials",
-            "version": "1408.va_622a_b_f5b_1b_1"
-        },
-        {
-            "group": "io.jenkins.plugins",
-            "name": "dark-theme",
-            "version": "524.vd675b_22b_30cb_"
-        },
-        {
-            "group": "org.jenkins-ci.plugins",
-            "name": "dashboard-view",
-            "version": "2.528.v3470c02b_d7c9"
-        },
-        {
-            "group": "io.jenkins.plugins",
-            "name": "data-tables-api",
-            "version": "2.2.2-1"
-        },
-        {
-            "group": "org.jenkins-ci.plugins",
-            "name": "display-url-api",
-            "version": "2.209.v582ed814ff2f"
-        },
-        {
-            "group": "org.jenkins-ci.plugins",
-            "name": "docker-commons",
-            "version": "445.v6b_646c962a_94"
-        },
-        {
-            "group": "org.jenkins-ci.plugins",
-            "name": "docker-workflow",
-            "version": "611.v16e84da_6d3ff"
-        },
-        {
-            "group": "org.jenkins-ci.plugins",
-            "name": "dtkit-api",
-            "version": "3.0.3"
-        },
-        {
-            "group": "org.jenkins-ci.plugins",
-            "name": "durable-task",
-            "version": "587.v84b_877235b_45"
-        },
-        {
-            "group": "io.jenkins.plugins",
-            "name": "echarts-api",
-            "version": "5.6.0-2"
-        },
-        {
-            "group": "io.jenkins.plugins",
-            "name": "eddsa-api",
-            "version": "0.3.0-13.v7cb_69ed68f00"
-        },
-        {
-            "group": "org.jenkins-ci.plugins",
-            "name": "email-ext",
-            "version": "1876.v28d8d38315b_d"
-        },
-        {
-            "group": "org.jenkins-ci.plugins",
-            "name": "embeddable-build-status",
-            "version": "548.v5653c6e28c41"
-        },
-        {
-            "group": "io.jenkins.plugins",
-            "name": "font-awesome-api",
-            "version": "6.7.2-1"
-        },
-        {
-            "group": "io.jenkins.plugins",
-            "name": "forensics-api",
-            "version": "3.0.0"
-        },
-        {
-            "group": "org.jenkins-ci.plugins",
-            "name": "gatling-check",
-            "version": "1.0.0"
-        },
-        {
-            "group": "org.jenkins-ci.plugins",
-            "name": "gatling",
-            "version": "1.3.0"
-        },
-        {
-            "group": "org.jenkins-ci.plugins",
-            "name": "git-client",
-            "version": "6.1.2"
-        },
-        {
-            "group": "org.jenkins-ci.plugins",
-            "name": "git",
-            "version": "5.7.0"
-        },
-        {
-            "group": "org.jenkins-ci.plugins",
-            "name": "github-api",
-            "version": "1.321-478.vc9ce627ce001"
-        },
-        {
-            "group": "org.jenkins-ci.plugins",
-            "name": "github-branch-source",
-            "version": "1810.v913311241fa_9"
-        },
-        {
-            "group": "org.jenkins-ci.plugins",
-            "name": "github-oauth",
-            "version": "647.v44f5236c308d"
-        },
-        {
-            "group": "org.jenkins-ci.plugins",
-            "name": "gradle",
-            "version": "2.14.1"
-        },
-        {
-            "group": "io.jenkins.plugins",
-            "name": "gson-api",
-            "version": "2.12.1-113.v347686d6729f"
-        },
-        {
-            "group": "org.jenkins-ci.plugins",
-            "name": "htmlpublisher",
-            "version": "424.va_e57f1253461"
-        },
-        {
-            "group": "org.jenkins-ci.plugins",
-            "name": "http_request",
-            "version": "1.20"
-        },
-        {
-            "group": "org.jenkins-ci.modules",
-            "name": "instance-identity",
-            "version": "203.v15e81a_1b_7a_38"
-        },
-        {
-            "group": "io.jenkins.plugins",
-            "name": "ionicons-api",
-            "version": "82.v0597178874e1"
-        },
-        {
-            "group": "org.jenkins-ci.plugins",
-            "name": "jackson2-api",
-            "version": "2.17.0-389.va_5c7e45cd806"
-        },
-        {
-            "group": "io.jenkins.plugins",
-            "name": "jakarta-activation-api",
-            "version": "2.1.3-2"
-        },
-        {
-            "group": "io.jenkins.plugins",
-            "name": "jakarta-mail-api",
-            "version": "2.1.3-2"
-        },
-        {
-            "group": "org.jenkins-ci.plugins",
-            "name": "javadoc",
-            "version": "310.v032f3f16b_0f8"
-        },
-        {
-            "group": "io.jenkins.plugins",
-            "name": "javax-activation-api",
-            "version": "1.2.0-8"
-        },
-        {
-            "group": "io.jenkins.plugins",
-            "name": "javax-mail-api",
-            "version": "1.6.2-11"
-        },
-        {
-            "group": "io.jenkins.plugins",
-            "name": "jaxb",
-            "version": "2.3.9-133.vb_ec76a_73f706"
-        },
-        {
-            "group": "org.jenkins-ci.plugins",
-            "name": "jdk-tool",
-            "version": "83.v417146707a_3d"
-        },
-        {
-            "group": "io.jenkins.plugins",
-            "name": "jjwt-api",
-            "version": "0.11.5-120.v0268cf544b_89"
-        },
-        {
-            "group": "io.jenkins.plugins",
-            "name": "joda-time-api",
-            "version": "2.13.1-115.va_6b_5f8efb_1d8"
-        },
-        {
-            "group": "io.jenkins.plugins",
-            "name": "jquery3-api",
-            "version": "3.7.1-3"
-        },
-        {
-            "group": "org.jenkins-ci.plugins",
-            "name": "jsch",
-            "version": "0.2.16-95.v3eecb_55fa_b_78"
-        },
-        {
-            "group": "io.jenkins.plugins",
-            "name": "json-api",
-            "version": "20250107-125.v28b_a_ffa_eb_f01"
-        },
-        {
-            "group": "io.jenkins.plugins",
-            "name": "json-path-api",
-            "version": "2.9.0-148.v22a_7ffe323ce"
-        },
-        {
-            "group": "org.jenkins-ci.plugins",
-            "name": "jsoup",
-            "version": "1.18.3-30.v952e9442d416"
-        },
-        {
-            "group": "org.jenkins-ci.plugins",
-            "name": "junit",
-            "version": "1317.v5b_35d792b_06a_"
-        },
-        {
-            "group": "org.jenkins-ci.plugins",
-            "name": "kubernetes-client-api",
-            "version": "6.10.0-251.v556f5f100500"
-        },
-        {
-            "group": "org.jenkinsci.plugins",
-            "name": "kubernetes-credentials",
-            "version": "192.v4d5b_1c429d17"
-        },
-        {
-            "group": "org.csanchez.jenkins.plugins",
-            "name": "kubernetes",
-            "version": "4324.vfec199a_33512"
-        },
-        {
-            "group": "io.jenkins.plugins",
-            "name": "locale",
-            "version": "566.v3323643741cc"
-        },
-        {
-            "group": "org.jenkins-ci.plugins",
-            "name": "mailer",
-            "version": "489.vd4b_25144138f"
-        },
-        {
-            "group": "org.jenkins-ci.plugins",
-            "name": "mask-passwords",
-            "version": "188.v66e477dcb_24a_"
-        },
-        {
-            "group": "org.jenkins-ci.plugins",
-            "name": "matrix-project",
-            "version": "845.vffd7fa_f27555"
-        },
-        {
-            "group": "org.jenkins-ci.main",
-            "name": "maven-plugin",
-            "version": "3.25"
-        },
-        {
-            "group": "org.jenkins-ci.plugins",
-            "name": "metrics",
-            "version": "4.2.21-464.vc9fa_a_0d6265d"
-        },
-        {
-            "group": "org.jenkins-ci.plugins",
-            "name": "next-build-number",
-            "version": "66.v4b_4762172d53"
-        },
-        {
-            "group": "org.jenkins-ci.plugins",
-            "name": "next-executions",
-            "version": "424.v631378313e29"
-        },
-        {
-            "group": "org.jenkins-ci.plugins",
-            "name": "nodelabelparameter",
-            "version": "759.vb_b_e95db_f3251"
-        },
-        {
-            "group": "io.jenkins.plugins",
-            "name": "okhttp-api",
-            "version": "4.11.0-183.va_87fc7a_89810"
-        },
-        {
-            "group": "io.jenkins.plugins",
-            "name": "oss-symbols-api",
-            "version": "308.v0c48656b_15c1"
-        },
-        {
-            "group": "org.jenkins-ci.plugins",
-            "name": "pipeline-build-step",
-            "version": "557.v95d96f77b_2b_8"
-        },
-        {
-            "group": "org.jenkins-ci.plugins",
-            "name": "pipeline-github-lib",
-            "version": "65.v203688e7727e"
-        },
-        {
-            "group": "org.jenkins-ci.plugins",
-            "name": "pipeline-graph-analysis",
-            "version": "231.v56354571a_da_0"
-        },
-        {
-            "group": "io.jenkins.plugins",
-            "name": "pipeline-graph-view",
-            "version": "423.v765c49ca_da_3f"
-        },
-        {
-            "group": "io.jenkins.plugins",
-            "name": "pipeline-groovy-lib",
-            "version": "752.vdddedf804e72"
-        },
-        {
-            "group": "org.jenkins-ci.plugins",
-            "name": "pipeline-input-step",
-            "version": "517.vf8e782ee645c"
-        },
-        {
-            "group": "org.jenkins-ci.plugins",
-            "name": "pipeline-milestone-step",
-            "version": "127.vb_52887ca_3b_6d"
-        },
-        {
-            "group": "org.jenkinsci.plugins",
-            "name": "pipeline-model-api",
-            "version": "2.2247.va_423189a_7dff"
-        },
-        {
-            "group": "org.jenkinsci.plugins",
-            "name": "pipeline-model-definition",
-            "version": "2.2247.va_423189a_7dff"
-        },
-        {
-            "group": "org.jenkinsci.plugins",
-            "name": "pipeline-model-extensions",
-            "version": "2.2247.va_423189a_7dff"
-        },
-        {
-            "group": "org.jenkins-ci.plugins",
-            "name": "pipeline-stage-step",
-            "version": "322.vecffa_99f371c"
-        },
-        {
-            "group": "org.jenkinsci.plugins",
-            "name": "pipeline-stage-tags-metadata",
-            "version": "2.2247.va_423189a_7dff"
-        },
-        {
-            "group": "org.jenkins-ci.plugins",
-            "name": "pipeline-utility-steps",
-            "version": "2.19.0"
-        },
-        {
-            "group": "org.jenkins-ci.plugins",
-            "name": "plain-credentials",
-            "version": "183.va_de8f1dd5a_2b_"
-        },
-        {
-            "group": "io.jenkins.plugins",
-            "name": "plugin-util-api",
-            "version": "6.0.0"
-        },
-        {
-            "group": "io.jenkins.plugins",
-            "name": "prism-api",
-            "version": "1.29.0-19"
-        },
-        {
-            "group": "org.jenkins-ci.plugins",
-            "name": "purge-build-queue-plugin",
-            "version": "88.v23b_97b_f2c7a_d"
-        },
-        {
-            "group": "org.jenkins-ci.plugins",
-            "name": "resource-disposer",
-            "version": "0.25"
-        },
-        {
-            "group": "org.jenkins-ci.plugins",
-            "name": "role-strategy",
-            "version": "756.v978cb_392eb_d3"
-        },
-        {
-            "group": "org.jenkins-ci.plugins",
-            "name": "scm-api",
-            "version": "704.v3ce5c542825a_"
-        },
-        {
-            "group": "org.jenkins-ci.plugins",
-            "name": "script-security",
-            "version": "1373.vb_b_4a_a_c26fa_00"
-        },
-        {
-            "group": "org.jenkins-ci.plugins",
-            "name": "slack",
-            "version": "761.v2a_8770f0d169"
-        },
-        {
-            "group": "io.jenkins.plugins",
-            "name": "snakeyaml-api",
-            "version": "2.3-123.v13484c65210a_"
-        },
-        {
-            "group": "org.jenkins-ci.plugins",
-            "name": "ssh-agent",
-            "version": "384.ve275343791a_6"
-        },
-        {
-            "group": "org.jenkins-ci.plugins",
-            "name": "ssh-credentials",
-            "version": "355.v9b_e5b_cde5003"
-        },
-        {
-            "group": "org.jenkins-ci.plugins",
-            "name": "ssh-slaves",
-            "version": "3.1031.v72c6b_883b_869"
-        },
-        {
-            "group": "org.jenkins-ci.modules",
-            "name": "sshd",
-            "version": "3.353.v2b_d33c46e970"
-        },
-        {
-            "group": "org.jenkins-ci.plugins",
-            "name": "structs",
-            "version": "343.vdcf37b_a_c81d5"
-        },
-        {
-            "group": "io.jenkins.plugins",
-            "name": "theme-manager",
-            "version": "278.v2e3c063e42cc"
-        },
-        {
-            "group": "org.jenkins-ci.plugins",
-            "name": "throttle-concurrents",
-            "version": "2.16"
-        },
-        {
-            "group": "org.jenkins-ci.plugins",
-            "name": "timestamper",
-            "version": "1.28"
-        },
-        {
-            "group": "org.jenkins-ci.plugins",
-            "name": "token-macro",
-            "version": "444.v52de7e9c573d"
-        },
-        {
-            "group": "org.jenkins-ci.plugins",
-            "name": "trilead-api",
-            "version": "2.192.vc50a_d147e369"
-        },
-        {
-            "group": "org.jenkins-ci.plugins",
-            "name": "variant",
-            "version": "70.va_d9f17f859e0"
-        },
-        {
-            "group": "org.jenkins-ci.plugins.workflow",
-            "name": "workflow-aggregator",
-            "version": "600.vb_57cdd26fdd7"
-        },
-        {
-            "group": "org.jenkins-ci.plugins.workflow",
-            "name": "workflow-api",
-            "version": "1363.v03f731255494"
-        },
-        {
-            "group": "org.jenkins-ci.plugins.workflow",
-            "name": "workflow-basic-steps",
-            "version": "1079.vce64b_a_929c5a_"
-        },
-        {
-            "group": "org.jenkins-ci.plugins.workflow",
-            "name": "workflow-cps",
-            "version": "4043.va_fb_de6a_a_8b_f5"
-        },
-        {
-            "group": "org.jenkins-ci.plugins.workflow",
-            "name": "workflow-durable-task-step",
-            "version": "1405.v1fcd4a_d00096"
-        },
-        {
-            "group": "org.jenkins-ci.plugins.workflow",
-            "name": "workflow-job",
-            "version": "1505.vea_4b_20a_4a_495"
-        },
-        {
-            "group": "org.jenkins-ci.plugins.workflow",
-            "name": "workflow-multibranch",
-            "version": "803.v08103b_87c280"
-        },
-        {
-            "group": "org.jenkins-ci.plugins.workflow",
-            "name": "workflow-scm-step",
-            "version": "437.v05a_f66b_e5ef8"
-        },
-        {
-            "group": "org.jenkins-ci.plugins.workflow",
-            "name": "workflow-step-api",
-            "version": "700.v6e45cb_a_5a_a_21"
-        },
-        {
-            "group": "org.jenkins-ci.plugins.workflow",
-            "name": "workflow-support",
-            "version": "961.v51869f7b_d409"
-        },
-        {
-            "group": "org.jenkins-ci.plugins",
-            "name": "ws-cleanup",
-            "version": "0.48"
-        },
-        {
-            "group": "org.jenkins-ci.plugins",
-            "name": "xunit",
-            "version": "3.1.5"
-        },
-        {
-            "group": "io.jenkins.plugins",
-            "name": "calendar-view",
-            "version": "0.3.6"
-        }
-    ]
+  "dependencies": [
+    {
+      "group": "org.jenkins-ci.ui",
+      "name": "jquery-detached",
+      "version": "1.2.1"
+    },
+    {
+      "group": "org.jenkins-ci.plugins",
+      "name": "plain-credentials",
+      "version": "1.8"
+    },
+    {
+      "group": "io.jenkins.blueocean",
+      "name": "blueocean-core-js",
+      "version": "1.25.5"
+    },
+    {
+      "group": "io.jenkins.plugins",
+      "name": "bootstrap5-api",
+      "version": "5.1.3-7"
+    },
+    {
+      "group": "io.jenkins.blueocean",
+      "name": "jenkins-design-language",
+      "version": "1.25.5"
+    },
+    {
+      "group": "org.jenkins-ci.plugins",
+      "name": "matrix-auth",
+      "version": "3.1.3"
+    },
+    {
+      "group": "org.jenkins-ci.plugins",
+      "name": "oauth-credentials",
+      "version": "0.5"
+    },
+    {
+      "group": "org.jvnet.hudson.plugins",
+      "name": "extended-read-permission",
+      "version": "3.2"
+    },
+    {
+      "group": "org.jenkins-ci.plugins",
+      "name": "jquery",
+      "version": "1.12.4-1"
+    },
+    {
+      "group": "org.jenkins-ci.plugins.workflow",
+      "name": "workflow-api",
+      "version": "1164.v760c223ddb_32"
+    },
+    {
+      "group": "org.jenkins-ci.plugins",
+      "name": "durable-task",
+      "version": "496.va67c6f9eefa7"
+    },
+    {
+      "group": "org.jenkins-ci.plugins",
+      "name": "next-build-number",
+      "version": "1.8"
+    },
+    {
+      "group": "com.tsystems.sbs",
+      "name": "log-file-filter",
+      "version": "76.v43e83b7e1163"
+    },
+    {
+      "group": "org.jenkins-ci.plugins.workflow",
+      "name": "workflow-scm-step",
+      "version": "400.v6b_89a_1317c9a_"
+    },
+    {
+      "group": "org.jenkins-ci.plugins",
+      "name": "node-iterator-api",
+      "version": "1.5.1"
+    },
+    {
+      "group": "org.jenkins-ci.plugins",
+      "name": "branch-api",
+      "version": "2.1046.v0ca_37783ecc5"
+    },
+    {
+      "group": "org.jenkins-ci.plugins",
+      "name": "cloudbees-folder",
+      "version": "6.729.v2b_9d1a_74d673"
+    },
+    {
+      "group": "org.jenkins-ci.plugins.workflow",
+      "name": "workflow-step-api",
+      "version": "625.vd896b_f445a_f8"
+    },
+    {
+      "group": "org.jenkins-ci.plugins",
+      "name": "variant",
+      "version": "1.4"
+    },
+    {
+      "group": "org.jenkins-ci.plugins",
+      "name": "vagrant",
+      "version": "1.0.2"
+    },
+    {
+      "group": "org.jenkins-ci.plugins",
+      "name": "jquery-ui",
+      "version": "1.0.2"
+    },
+    {
+      "group": "org.jenkins-ci.plugins",
+      "name": "pubsub-light",
+      "version": "1.16"
+    },
+    {
+      "group": "io.jenkins.plugins",
+      "name": "popper-api",
+      "version": "1.16.1-3"
+    },
+    {
+      "group": "org.jenkins-ci.plugins",
+      "name": "structs",
+      "version": "318.va_f3ccb_729b_71"
+    },
+    {
+      "group": "io.jenkins.plugins",
+      "name": "font-awesome-api",
+      "version": "6.1.1-1"
+    },
+    {
+      "group": "org.jenkins-ci.plugins",
+      "name": "parameterized-scheduler",
+      "version": "1.0"
+    },
+    {
+      "group": "org.6wind.jenkins",
+      "name": "lockable-resources",
+      "version": "2.15"
+    },
+    {
+      "group": "biz.neustar.jenkins.plugins",
+      "name": "packer",
+      "version": "1.5"
+    },
+    {
+      "group": "org.jenkins-ci.plugins",
+      "name": "display-url-api",
+      "version": "2.3.6"
+    },
+    {
+      "group": "org.jenkinsci.plugins",
+      "name": "pipeline-stage-tags-metadata",
+      "version": "2.2097.v33db_b_de764b_e"
+    },
+    {
+      "group": "org.jenkins-ci.plugins",
+      "name": "jdk-tool",
+      "version": "1.5"
+    },
+    {
+      "group": "org.jenkins-ci.plugins",
+      "name": "external-monitor-job",
+      "version": "191.v363d0d1efdf8"
+    },
+    {
+      "group": "io.jenkins.plugins",
+      "name": "popper2-api",
+      "version": "2.11.5-2"
+    },
+    {
+      "group": "org.jenkins-ci.plugins",
+      "name": "docker-commons",
+      "version": "1.19"
+    },
+    {
+      "group": "org.jenkins-ci.plugins",
+      "name": "basic-branch-build-strategies",
+      "version": "1.3.2"
+    },
+    {
+      "group": "org.jenkins-ci.plugins",
+      "name": "ant",
+      "version": "475.vf34069fef73c"
+    },
+    {
+      "group": "io.jenkins.plugins",
+      "name": "plugin-util-api",
+      "version": "2.17.0"
+    },
+    {
+      "group": "org.jenkins-ci.plugins",
+      "name": "resource-disposer",
+      "version": "0.19"
+    },
+    {
+      "group": "ru.yandex.qatools.allure",
+      "name": "allure-jenkins-plugin",
+      "version": "2.30.2"
+    },
+    {
+      "group": "org.jenkins-ci.plugins",
+      "name": "pipeline-milestone-step",
+      "version": "101.vd572fef9d926"
+    },
+    {
+      "group": "org.jenkins-ci.plugins",
+      "name": "script-security",
+      "version": "1175.v4b_d517d6db_f0"
+    },
+    {
+      "group": "org.jenkins-ci.plugins",
+      "name": "javadoc",
+      "version": "217.v905b_86277a_2a_"
+    },
+    {
+      "group": "io.jenkins.blueocean",
+      "name": "blueocean-executor-info",
+      "version": "1.25.5"
+    },
+    {
+      "group": "io.jenkins.plugins",
+      "name": "bootstrap4-api",
+      "version": "4.6.0-5"
+    },
+    {
+      "group": "org.jenkins-ci.plugins",
+      "name": "translation",
+      "version": "1.16"
+    },
+    {
+      "group": "org.jenkins-ci.plugins",
+      "name": "command-launcher",
+      "version": "84.v4a_97f2027398"
+    },
+    {
+      "group": "io.jenkins.plugins",
+      "name": "jquery3-api",
+      "version": "3.6.0-4"
+    },
+    {
+      "group": "org.jenkins-ci.plugins",
+      "name": "ansicolor",
+      "version": "1.0.1"
+    },
+    {
+      "group": "org.jenkins-ci.plugins",
+      "name": "build-token-root",
+      "version": "1.9"
+    },
+    {
+      "group": "org.jenkins-ci.plugins",
+      "name": "scm-api",
+      "version": "608.vfa_f971c5a_a_e9"
+    },
+    {
+      "group": "org.jenkins-ci.plugins",
+      "name": "pipeline-stage-step",
+      "version": "293.v200037eefcd5"
+    }
+  ]
 }
