@@ -23,7 +23,7 @@ class Eureka extends Base {
     this.kong = kong
   }
 
-  Eureka defineKeycloakTTL(int ttl = 3600) {
+  Eureka defineKeycloakTTL(int ttl = 600) {
     kong.keycloak.defineTTL("master", ttl)
 
     return this
