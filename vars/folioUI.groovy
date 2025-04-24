@@ -130,10 +130,6 @@ void build(String okapiUrl, OkapiTenant tenant, boolean isEureka = false, String
             attributes                  : ['post.logout.redirect.uris': "/*##${tenantUrl}/*", login_theme: 'custom-theme']
           ]
           def ssoUpdates = [
-            ssoSessionIdleTimeout   : 7200,
-            ssoSessionMaxLifespan   : 7200,
-            clientSessionIdleTimeout: 7200,
-            clientSessionMaxLifespan: 7200,
             resetPasswordAllowed    : true
           ]
 
