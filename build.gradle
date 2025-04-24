@@ -1,110 +1,98 @@
-import com.mkobit.jenkins.pipelines.http.ApiTokenAuthentication
 import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
 
 plugins {
-  id 'com.mkobit.jenkins.pipelines.shared-library' version '0.10.1'
-  id 'java'
   id 'groovy'
+  id 'java'
 }
 
-dependencies {
-  implementation('org.kohsuke:pom:21')
-  testImplementation(platform("org.junit:junit-bom:${junitVersion}"))
-  testImplementation('org.junit.jupiter:junit-jupiter')
-  testImplementation("org.mockito:mockito-junit-jupiter:${mockitoVersion}")
-}
-
-repositories {
-  gradlePluginPortal()
-  mavenCentral()
-
-  // Jenkins-specific artifacts
-  maven {
-    url "https://repo.jenkins-ci.org/public/"
-  }
-
-  // Old Kohsuke/Jenkins artifacts (like args4j)
-  maven {
-    url "https://repo.jenkins-ci.org/releases/"
-  }
-
-  // Backup (often helps with transitive dependencies)
-  maven {
-    url "https://repo1.maven.org/maven2/"
-  }
-}
-
-tasks {
-  wrapper {
-    gradleVersion = '8.12'
-  }
-}
+group = 'org.folio'
+version = '1.0-SNAPSHOT'
 
 java {
   sourceCompatibility = JavaVersion.VERSION_17
+  targetCompatibility = JavaVersion.VERSION_17
+}
+
+repositories {
+  mavenCentral()
+  maven { url "https://repo.jenkins-ci.org/public/" }
+  maven { url "https://repo.jenkins-ci.org/releases/" }
+  gradlePluginPortal()
+}
+
+ext {
+  junitVersion = '5.10.0'
+  mockitoVersion = '5.10.0'
+  pipelineUnitVersion = '1.15' // Update as needed
+}
+
+dependencies {
+  implementation 'org.kohsuke:pom:21'
+  implementation 'args4j:args4j:2.37'
+
+  testImplementation platform("org.junit:junit-bom:${junitVersion}")
+  testImplementation 'org.junit.jupiter:junit-jupiter'
+  testImplementation "org.mockito:mockito-junit-jupiter:${mockitoVersion}"
+  testImplementation "com.lesfurets:jenkins-pipeline-unit:${pipelineUnitVersion}"
+}
+
+configurations {
+  jenkinsPlugins
 }
 
 test {
   useJUnitPlatform()
 }
 
-// add jenkinsResources as resources folder as it contains idea.gdsl
 def jenkinsResourcesFolder = 'jenkinsResources'
 def pipelinesFolder = 'pipelines'
 def allSrcDirs = [pipelinesFolder, jenkinsResourcesFolder, 'vars', 'src', 'scripts']
+def jenkinsPluginGroups = [
+  "io.jenkins.plugins",
+  "org.jenkinsci.plugins",
+  "org.jenkins-ci",
+  "org.jenkins-ci.main",
+  "org.jenkins-ci.lib",
+  "org.jenkins-ci.modules",
+  "org.jenkins-ci.plugins",
+  "org.jenkins-ci.plugins.workflow",
+  "org.jenkins-ci.plugins.aws-java-sdk",
+  "org.jenkins-ci.plugins.pipeline-stage-view",
+  "jp.ikedam.jenkins.plugins",
+  "io.jenkins.blueocean",
+  "org.csanchez.jenkins.plugins"
+]
 
 sourceSets {
   main {
+    groovy {
+      srcDirs = allSrcDirs
+      exclude 'resources'
+    }
     java {
-      srcDirs = [allSrcDirs]
+      srcDirs = allSrcDirs
       exclude 'resources'
     }
   }
-  integrationTest {
-    java {
-      srcDirs = [allSrcDirs]
-      exclude 'resources'
+  test {
+    groovy {
+      srcDirs = ['test']
     }
-  }
-}
-
-if (project.hasProperty("jenkinsUrl") && project.hasProperty("jenkinsUser") && project.hasProperty("jenkinsApiToken")) {
-  jenkinsIntegration {
-    baseUrl.set(uri(project.property("jenkinsUrl")).toURL())
-    authentication.set(providers.provider { new ApiTokenAuthentication(project.property("jenkinsUser").toString(), project.property("jenkinsApiToken").toString()) })
-    downloadDirectory.set(layout.projectDirectory.dir(jenkinsResourcesFolder))
-  }
-}
-
-
-def coreVersionFile = project.file("${jenkinsResourcesFolder}/core-version.txt")
-if (coreVersionFile.exists()) {
-  def jenkinsVersion = coreVersionFile.text.trim()
-  sharedLibrary {
-    coreVersion = jenkinsVersion
-  }
-}
-
-def dependenciesFile = file("${jenkinsResourcesFolder}/dependencies.json")
-if (dependenciesFile.exists()) {
-  def contents = new JsonSlurper().parse(dependenciesFile)
-  contents.dependencies.each { dep ->
-    sharedLibrary {
-      pluginDependencies {
-        dependency(dep.group, dep.name, dep.version)
-      }
+    resources {
+      srcDirs = ['test/resources']
     }
+    compileClasspath += configurations.jenkinsPlugins
+    runtimeClasspath += configurations.jenkinsPlugins
   }
 }
 
-tasks.register('syncJenkinsConfig') {}
+
+// Optional plugin resolution logic from plugins.json remains if needed
 tasks.register('collectPluginDependencies') {
+  outputs.file("${jenkinsResourcesFolder}/dependencies.json")
   doLast {
-    // Excluded plugins (empty by default)
-    //def exludes = ["jobConfigHistory", "metrics", "ec2"] as Set
     def excludedPlugins = [] as Set
-
     def pluginsFile = file("${jenkinsResourcesFolder}/plugins.json")
     def dependencies = []
     def notResolvedPlugins = []
@@ -116,72 +104,56 @@ tasks.register('collectPluginDependencies') {
         if (excludedPlugins.contains(plugin.shortName)) {
           logger.lifecycle("Plugin '${plugin.shortName}' is skipped")
         } else if (plugin.active && plugin.enabled) {
-          def groups = [
-            "io.jenkins.plugins",
-            "org.jenkinsci.plugins",
-            "org.jenkins-ci",
-            "org.jenkins-ci.main",
-            "org.jenkins-ci.lib",
-            "org.jenkins-ci.modules",
-            "org.jenkins-ci.plugins",
-            "org.jenkins-ci.plugins.workflow",
-            "org.jenkins-ci.plugins.aws-java-sdk",
-            "org.jenkins-ci.plugins.pipeline-stage-view",
-            "jp.ikedam.jenkins.plugins",
-            "io.jenkins.blueocean",
-            "org.csanchez.jenkins.plugins"
-          ]
-
-          // Find the first group where the dependency resolves
-          def resolved = groups.find { group ->
-            def dependency = resolveDependency(group, plugin.shortName, plugin.version)
-            if (dependency) {
+          def resolved = jenkinsPluginGroups.find { group ->
+            if (resolvePluginDependency(group, plugin.shortName, plugin.version)) {
               dependencies.add([group: group, name: plugin.shortName, version: plugin.version])
-              logger.lifecycle("Dependency '${dependency}' found")
               return true
             }
             return false
           }
 
-          // If no resolution was found, add to skipped plugins
           if (!resolved) {
             notResolvedPlugins.add(plugin.shortName)
           }
-        } else {
-          logger.lifecycle("Plugin '${plugin.shortName}' is disabled")
         }
       }
 
       logger.lifecycle("Not resolved plugins: ${notResolvedPlugins.join(', ')}")
-
-      // Create or overwrite the output file
       def output = file("${jenkinsResourcesFolder}/dependencies.json")
-      if (output.exists()) {
-        output.delete()
-      }
-      output.createNewFile()
-
-      output << JsonOutput.prettyPrint(JsonOutput.toJson([dependencies: dependencies]))
+      output.text = JsonOutput.prettyPrint(JsonOutput.toJson([dependencies: dependencies]))
     } else {
-      logger.warn("Plugins file '${pluginsFile}' does not exist.")
+      logger.warn("plugins.json not found at ${pluginsFile}")
     }
   }
 }
 
-tasks.named('syncJenkinsConfig'){
-  dependsOn retrieveJenkinsVersion, retrieveJenkinsGdsl, collectPluginDependencies
+def depsFile = file("${jenkinsResourcesFolder}/dependencies.json")
+if (depsFile.exists()) {
+  def resolved = new JsonSlurper().parse(depsFile)
+  resolved.dependencies.each { dep ->
+    println(dep)
+    dependencies.add("jenkinsPlugins", "${dep.group}:${dep.name}:${dep.version}")
+  }
 }
 
+def resolvePluginDependency(String group, String name, String version) {
+  def uniqueConfigName = "resolvePluginTmp-${UUID.randomUUID().toString().replace('-', '')}"
+  def config = project.configurations.create(uniqueConfigName)
+  config.setCanBeResolved(true)
+  config.setVisible(false)
+  config.setTransitive(false)
 
-def resolveDependency(String group, String shortName, String version) {
+  def dep = "$group:$name:$version"
+  config.dependencies.add(project.dependencies.create(dep))
+
   try {
-    def dependency = "${group}:${shortName}:${version}"
-    def testConfig = project.configurations.create("testConfig-${UUID.randomUUID()}")
-    testConfig.setCanBeResolved(true)
-    project.dependencies."${testConfig.name}" dependency
-    testConfig.resolve()
-    return dependency
-  } catch (ignored) {
-    return null
+    config.resolve()
+    println "Resolved plugin dependency: $dep"
+    return true
+  } catch (Exception e) {
+    println "Failed to resolve plugin dependency: $dep – ${e.message}"
+    return false
+  } finally {
+    project.configurations.remove(config)
   }
 }
