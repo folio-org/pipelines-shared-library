@@ -5,7 +5,6 @@ import org.csanchez.jenkins.plugins.kubernetes.pod.retention.Never
 import org.csanchez.jenkins.plugins.kubernetes.pod.retention.OnFailure
 import org.csanchez.jenkins.plugins.kubernetes.pod.retention.PodRetention
 import org.csanchez.jenkins.plugins.kubernetes.pod.yaml.Merge
-import org.folio.Constants
 import org.folio.utilities.Logger
 
 /**
@@ -50,6 +49,7 @@ class PodTemplates {
   public static final String WORKING_DIR = '/home/jenkins/agent'
   private static final String YARN_CACHE_PVC = 'yarn-cache-pvc'
   private static final String MAVEN_CACHE_PVC = 'maven-cache-pvc'
+  private static final String ECR_REPOSITORY = '732722833398.dkr.ecr.us-west-2.amazonaws.com'
 
 
   private Object steps
@@ -81,6 +81,7 @@ class PodTemplates {
    */
   void defaultTemplate(Closure body) {
     logger.debug("Debug mode: ${debug}")
+
     steps.podTemplate(cloud: CLOUD_NAME,
       label: JenkinsAgentLabel.DEFAULT_AGENT.getLabel(),
       namespace: NAMESPACE,
@@ -100,14 +101,15 @@ spec:
       workspaceVolume: steps.genericEphemeralVolume(accessModes: 'ReadWriteOnce',
         requestsSize: '5Gi',
         storageClassName: 'gp3'),
-      containers: [steps.containerTemplate(name: 'jnlp',
-        image: "${Constants.ECR_FOLIO_REPOSITORY}/folio-jenkins-agent:latest",
-        ttyEnabled: true,
-        alwaysPullImage: true,
-        workingDir: WORKING_DIR,
-        resourceRequestMemory: '1536Mi',
-        resourceLimitMemory: '2048Mi',
-      )]) {
+      containers: [
+        steps.containerTemplate(name: 'jnlp',
+          image: "${ECR_REPOSITORY}/folio-jenkins-agent:latest",
+          alwaysPullImage: true,
+          ttyEnabled: true,
+          workingDir: WORKING_DIR,
+          resourceRequestMemory: '1536Mi',
+          resourceLimitMemory: '2048Mi',
+        )]) {
       body.call()
     }
   }
@@ -120,28 +122,58 @@ spec:
    * @param javaVersion The Java version (e.g., "11", "17", "21").
    * @param body A closure containing the pipeline logic to execute within this pod.
    */
-  void javaTemplate(String javaVersion, String podUuid = '', Closure body) {
+  void javaBaseTemplate(String javaVersion, String podUuid = '', Closure body) {
+    logger.info("Using Java version: ${javaVersion}")
+    String podLabel = podUuid?.isEmpty() ? JenkinsAgentLabel.JAVA_AGENT.getLabel()
+      : "${JenkinsAgentLabel.JAVA_AGENT.getLabel()}-${podUuid}"
+
     defaultTemplate {
-      steps.podTemplate(label: "${JenkinsAgentLabel.JAVA_AGENT.getLabel()}${podUuid}",
+      steps.podTemplate(label: podLabel,
         volumes: [steps.persistentVolumeClaim(claimName: MAVEN_CACHE_PVC, mountPath: "${WORKING_DIR}/.m2/repository")],
-        containers: [steps.containerTemplate(name: 'java',
-          image: "${Constants.ECR_FOLIO_REPOSITORY}/amazoncorretto:${javaVersion}-alpine-jdk",
-          alwaysPullImage: true,
-          envVars: [new KeyValueEnvVar('DOCKER_HOST', 'tcp://localhost:2375'),
-                    new KeyValueEnvVar('HOME', WORKING_DIR)],
-          command: 'sleep',
-          args: '99d',
-          runAsGroup: '1000',
-          runAsUser: '1000',
-          resourceRequestMemory: '4Gi',
-          resourceLimitMemory: '5Gi'),
-        steps.containerTemplate(name: 'dind',
-          image: 'docker:dind',
-          envVars: [new KeyValueEnvVar('DOCKER_TLS_CERTDIR', '')],
-          privileged: true,
-          args: '--host=tcp://0.0.0.0:2375 --host=unix:///var/run/docker.sock'
-        )]) {
-        logger.info("Using Java version: ${javaVersion}")
+        containers: [
+          steps.containerTemplate(name: 'java',
+            image: "${ECR_REPOSITORY}/amazoncorretto:${javaVersion}-alpine-jdk",
+            alwaysPullImage: true,
+            envVars: [new KeyValueEnvVar('HOME', WORKING_DIR)],
+            command: 'sleep',
+            args: '99d',
+            runAsGroup: '1000',
+            runAsUser: '1000',
+            resourceRequestMemory: '2Gi',
+            resourceLimitMemory: '4Gi')]) {
+
+        body.call()
+      }
+    }
+  }
+
+  /**
+   * Defines a pod template for Java-based builds.
+   *
+   * <p>Provisions a pod with a Java container for the specified Java version.</p>
+   *
+   * @param javaVersion The Java version (e.g., "11", "17", "21").
+   * @param body A closure containing the pipeline logic to execute within this pod.
+   */
+  void javaDindTemplate(String javaVersion, String podUuid = '', Closure body) {
+    String podLabel = podUuid?.isEmpty() ? JenkinsAgentLabel.JAVA_AGENT.getLabel()
+      : "${JenkinsAgentLabel.JAVA_AGENT.getLabel()}-${podUuid}"
+
+    javaBaseTemplate(javaVersion, podUuid) {
+      steps.podTemplate(label: podLabel,
+        containers: [
+          steps.containerTemplate(name: 'java',
+            image: "${ECR_REPOSITORY}/amazoncorretto:${javaVersion}-alpine-jdk",
+            envVars: [new KeyValueEnvVar('DOCKER_HOST', 'tcp://localhost:2375'),
+                      new KeyValueEnvVar('HOME', WORKING_DIR)],
+            resourceRequestMemory: '4Gi',
+            resourceLimitMemory: '5Gi'),
+          steps.containerTemplate(name: 'dind',
+            image: 'docker:dind',
+            envVars: [new KeyValueEnvVar('DOCKER_TLS_CERTDIR', '')],
+            privileged: true,
+            args: '--host=tcp://0.0.0.0:2375 --host=unix:///var/run/docker.sock'
+          )]) {
         body.call()
       }
     }
@@ -169,6 +201,9 @@ spec:
 """,
         containers: [steps.containerTemplate(name: 'kaniko',
           image: 'gcr.io/kaniko-project/executor:debug',
+          alwaysPullImage: true,
+          runAsGroup: '1000',
+          runAsUser: '1000',
           resourceRequestMemory: '8Gi',
           resourceLimitMemory: '10Gi')]) {
         body.call()
@@ -181,16 +216,21 @@ spec:
    *
    * @param body A closure containing the pipeline logic to execute within this pod.
    */
-  void kanikoTemplate(Closure body) {
+  void kanikoTemplate(String podUuid = '', Closure body) {
+    String podLabel = podUuid?.isEmpty() ? JenkinsAgentLabel.KANIKO_AGENT.getLabel()
+      : "${JenkinsAgentLabel.KANIKO_AGENT.getLabel()}-${podUuid}"
+
     defaultTemplate {
-      steps.podTemplate(label: JenkinsAgentLabel.KANIKO_AGENT.getLabel(),
-        containers: [steps.containerTemplate(name: 'kaniko',
-          image: 'gcr.io/kaniko-project/executor:debug',
-          envVars: [new KeyValueEnvVar('KANIKO_DIR', "${WORKING_DIR}/kaniko")],
-          command: 'sleep',
-          args: '99d'
-          // TODO: Define resource requests/limits after production load testing
-        )]) {
+      steps.podTemplate(label: podLabel,
+        containers: [
+          steps.containerTemplate(name: 'kaniko',
+            image: 'gcr.io/kaniko-project/executor:debug',
+            alwaysPullImage: true,
+            envVars: [new KeyValueEnvVar('KANIKO_DIR', "${WORKING_DIR}/kaniko")],
+            command: 'sleep',
+            args: '99d'
+            // TODO: Define resource requests/limits after production load testing
+          )]) {
         body.call()
       }
     }
@@ -202,20 +242,65 @@ spec:
    * @param body A closure containing the pipeline logic to execute within this pod.
    */
   void cypressTemplate(String podUuid = '', Closure body) {
+    String podLabel = podUuid?.isEmpty() ? JenkinsAgentLabel.CYPRESS_AGENT.getLabel()
+      : "${JenkinsAgentLabel.CYPRESS_AGENT.getLabel()}-${podUuid}"
+
     defaultTemplate {
-      steps.podTemplate(label: "${JenkinsAgentLabel.CYPRESS_AGENT.getLabel()}${podUuid}",
+      steps.podTemplate(label: podLabel,
         volumes: [steps.persistentVolumeClaim(claimName: YARN_CACHE_PVC, mountPath: "${WORKING_DIR}/.yarn/cache")],
-        containers: [steps.containerTemplate(name: 'cypress',
-          image: "${Constants.ECR_FOLIO_REPOSITORY}/cypress/browsers:latest",
-          command: 'sleep',
-          args: '99d',
-          envVars: [new KeyValueEnvVar('YARN_CACHE_FOLDER', "${WORKING_DIR}/.yarn/cache"),
-                    new KeyValueEnvVar('NODE_PATH', "${WORKING_DIR}/.yarn/cache/node_modules")],
-          runAsGroup: '1000',
-          runAsUser: '1000',
-          resourceRequestMemory: '2Gi',
-          resourceLimitMemory: '3Gi'
-        )]) {
+        containers: [
+          steps.containerTemplate(name: 'cypress',
+            image: "${ECR_REPOSITORY}/cypress/browsers:latest",
+            alwaysPullImage: true,
+            command: 'sleep',
+            args: '99d',
+            envVars: [new KeyValueEnvVar('YARN_CACHE_FOLDER', "${WORKING_DIR}/.yarn/cache"),
+                      new KeyValueEnvVar('NODE_PATH', "${WORKING_DIR}/.yarn/cache/node_modules")],
+            runAsGroup: '1000',
+            runAsUser: '1000',
+            resourceRequestMemory: '2Gi',
+            resourceLimitMemory: '3Gi'
+          )]) {
+        body.call()
+      }
+    }
+  }
+
+  void cypressTestsAgent(Closure body) {
+    String podUuid = UUID.randomUUID().toString().replaceAll("-", "").take(6)
+    String podLabel = podUuid?.isEmpty() ? JenkinsAgentLabel.CYPRESS_AGENT.getLabel()
+      : "${JenkinsAgentLabel.CYPRESS_AGENT.getLabel()}-${podUuid}"
+
+    cypressTemplate(podUuid) {
+      steps.node(podLabel) {
+        body.call()
+      }
+    }
+  }
+
+  void javaPlainAgent(String javaVersion, Closure body) {
+    String podUuid = UUID.randomUUID().toString().replaceAll("-", "").take(6)
+    String podLabel = podUuid?.isEmpty() ? JenkinsAgentLabel.JAVA_AGENT.getLabel()
+      : "${JenkinsAgentLabel.JAVA_AGENT.getLabel()}-${podUuid}"
+
+    javaBaseTemplate(javaVersion, podUuid) {
+      steps.node(podLabel) {
+        body.call()
+      }
+    }
+  }
+
+  void javaTestsAgent() {}
+
+  void javaBuildAgent() {}
+
+  void stripesAgent() {}
+
+  void rancherAgent(Closure body) {
+    String podLabel = JenkinsAgentLabel.DEFAULT_AGENT.getLabel()
+
+    defaultTemplate {
+      steps.node(podLabel) {
         body.call()
       }
     }

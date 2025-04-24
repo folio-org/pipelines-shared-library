@@ -48,18 +48,12 @@ void cloneCypressRepo(String branch) {
   validateParameter(branch, "Branch name")
 
   stage('[Git] Checkout Cypress repo') {
-    try {
       echo("Checking out branch: ${branch}")
-      checkout([$class           : 'GitSCM',
-                branches         : [[name: "*/${branch}"]],
-                extensions       : [[$class: 'CloneOption', depth: 1, noTags: true, reference: '', shallow: true],
-                                    [$class: 'CleanBeforeCheckout', deleteUntrackedNestedRepositories: true]],
-                userRemoteConfigs: [[credentialsId: Constants.PRIVATE_GITHUB_CREDENTIALS_ID,
-                                     url          : Constants.CYPRESS_REPOSITORY_URL]]])
-    } catch (Exception e) {
-      echo("Failed to checkout branch '${branch}': ${e.getMessage()}")
-      throw e
-    }
+      checkout(scmGit(
+        branches: [[name: "*/${branch}"]],
+        extensions: [cloneOption(depth: 50, noTags: true, reference: '', shallow: true)],
+        userRemoteConfigs: [[credentialsId: Constants.PRIVATE_GITHUB_CREDENTIALS_ID,
+                             url: Constants.CYPRESS_REPOSITORY_URL]]))
   }
 }
 

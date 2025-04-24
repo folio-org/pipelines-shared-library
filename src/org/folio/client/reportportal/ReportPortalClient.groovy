@@ -45,7 +45,7 @@ class ReportPortalClient {
         attributes : [[key: "build", value: "${buildNumber}"], [key: "runType", value: "${runType}"]]
       ])
 
-      def res = new RestClient(this).post(url, body, headers)
+      def res = new RestClient(pipeline).post(url, body, headers)
       launchID = res.body['id']
       return launchID
     }
@@ -83,7 +83,7 @@ class ReportPortalClient {
       String body = JsonOutput.toJson([
         endTime: "${Instant.now()}"
       ])
-      def res_end = new RestClient(this).put(url, body, headers)
+      def res_end = new RestClient(pipeline).put(url, body, headers)
 
       launchID = null
 
