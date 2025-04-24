@@ -2,51 +2,69 @@ import com.mkobit.jenkins.pipelines.http.ApiTokenAuthentication
 import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
 
-buildscript {
-  repositories {
-    mavenCentral() // must be first to resolve eddsa!
-    maven {
-      url "https://repo.jenkins-ci.org/public/"
-    }
-    maven {
-      url "https://repo.jenkins-ci.org/releases/"
-    }
-    maven {
-      url "https://maven.google.com"
-    }
-    gradlePluginPortal()
-  }
-  dependencies {
-    classpath("org.antlr:antlr4-runtime:4.13.2")
-    classpath("com.squareup.okhttp3:okhttp:4.9.3")
-    classpath("com.google:google:5")
-    classpath("com.google.inject:guice:6.0.0")
-    classpath("org.eclipse.ee4j:project:1.0.6")
-    classpath("jakarta.servlet.jsp.jstl:jakarta.servlet.jsp.jstl-api:2.0.0")
-    classpath("com.google.guava:failureaccess:1.0.2")
-    classpath("org.springframework.security:spring-security-web:6.4.2")
-  }
-}
-
 plugins {
   id 'com.mkobit.jenkins.pipelines.shared-library' version '0.10.1'
   id 'java'
   id 'groovy'
 }
 
+pluginManager.withPlugin("com.mkobit.jenkins.pipelines.shared-library") {
+  project.repositories.addAll(
+    [project.repositories.mavenCentral()]
+  )
+}
+
 repositories.removeIf { it.name == "JenkinsPublic" }
 
 repositories {
   mavenCentral()
+
   maven {
     url "https://repo.jenkins-ci.org/public/"
+    content {
+      includeGroupByRegex "org\\.jenkins-ci.*"
+      includeGroupByRegex "org\\.kohsuke.*"
+      includeGroupByRegex "com\\.infradna.*"
+      includeGroupByRegex "org\\.jvnet.*"
+      includeGroupByRegex "io\\.jenkins.*"
+      includeGroupByRegex "com\\.jcraft.*"
+      includeGroupByRegex "org\\.jenkinsci\\.plugins.*"
+      includeGroupByRegex "ru\\.yandex.*"
+      includeGroupByRegex "com\\.tsystems.*"
+      includeGroupByRegex "org\\.6wind.*"
+      includeGroupByRegex "biz\\.neustar.*"
+      includeGroupByRegex "org\\.netbeans.*"
+      includeGroupByRegex "com\\.cloudbees.*"
+    }
   }
+
   maven {
     url "https://repo.jenkins-ci.org/releases/"
+    content {
+      includeGroupByRegex "org\\.jenkins-ci.*"
+      includeGroupByRegex "org\\.kohsuke.*"
+      includeGroupByRegex "com\\.infradna.*"
+      includeGroupByRegex "org\\.jvnet.*"
+      includeGroupByRegex "io\\.jenkins.*"
+      includeGroupByRegex "com\\.jcraft.*"
+      includeGroupByRegex "org\\.jenkinsci\\.plugins.*"
+      includeGroupByRegex "ru\\.yandex.*"
+      includeGroupByRegex "com\\.tsystems.*"
+      includeGroupByRegex "org\\.6wind.*"
+      includeGroupByRegex "biz\\.neustar.*"
+      includeGroupByRegex "org\\.netbeans.*"
+      includeGroupByRegex "com\\.cloudbees.*"
+    }
   }
+
   maven {
-    url "https://maven.google.com"
+    url = uri("https://repo.jenkins-ci.org/netbeans/")
+    content {
+      includeGroupByRegex "org\\.netbeans.*"
+    }
   }
+
+  google()
   gradlePluginPortal()
 }
 
@@ -60,10 +78,25 @@ java {
   sourceCompatibility = JavaVersion.VERSION_17
 }
 
+configurations {
+  preResolvedJenkinsCore
+}
+
 dependencies {
+  preResolvedJenkinsCore("org.jenkins-ci.main:jenkins-core:2.492.3") {
+    // Optional: exclude transitive edge-case problems
+    exclude group: "org.springframework.security", module: "spring-security-web"
+  }
+
+  // Add explicitly so Maven Central is hit
+  implementation("org.springframework.security:spring-security-web:6.4.2")
   testImplementation(platform("org.junit:junit-bom:${junitVersion}"))
   testImplementation('org.junit.jupiter:junit-jupiter')
   testImplementation("org.mockito:mockito-junit-jupiter:${mockitoVersion}")
+}
+
+gradle.projectsEvaluated {
+  configurations.preResolvedJenkinsCore.resolve()
 }
 
 test {
@@ -108,9 +141,9 @@ if (coreVersionFile.exists()) {
 def dependenciesFile = file("${jenkinsResourcesFolder}/dependencies.json")
 if (dependenciesFile.exists()) {
   def contents = new JsonSlurper().parse(dependenciesFile)
-  sharedLibrary {
-    pluginDependencies {
-      contents.dependencies.each { dep ->
+  contents.dependencies.each { dep ->
+    sharedLibrary {
+      pluginDependencies {
         dependency(dep.group, dep.name, dep.version)
       }
     }
