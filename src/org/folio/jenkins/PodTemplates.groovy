@@ -201,9 +201,9 @@ spec:
    *
    * @param body A closure containing the pipeline logic to execute within this pod.
    */
-  void cypressTemplate(Closure body) {
+  void cypressTemplate(String podUuid = '', Closure body) {
     defaultTemplate {
-      steps.podTemplate(label: JenkinsAgentLabel.CYPRESS_AGENT.getLabel(),
+      steps.podTemplate(label: "${JenkinsAgentLabel.CYPRESS_AGENT.getLabel()}${podUuid}",
         volumes: [steps.persistentVolumeClaim(claimName: YARN_CACHE_PVC, mountPath: "${WORKING_DIR}/.yarn/cache")],
         containers: [steps.containerTemplate(name: 'cypress',
           image: "${Constants.ECR_FOLIO_REPOSITORY}/cypress/browsers:latest",

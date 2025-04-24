@@ -170,10 +170,11 @@ IRunExecutionSummary call(String ciBuildId, List<CypressTestsParameters> testsTo
     throw e // Rethrow the exception for further handling if necessary
   } finally {
     PodTemplates podTemplates = new PodTemplates(this, true)
+    String podUuid = UUID.randomUUID().toString().replaceAll("-", "").take(6)
 
     podTemplates.javaTemplate(Constants.JAVA_LATEST_VERSION) {
-      podTemplates.cypressTemplate {
-        node(JenkinsAgentLabel.CYPRESS_AGENT.getLabel()) {
+      podTemplates.cypressTemplate(podUuid) {
+        node("${JenkinsAgentLabel.CYPRESS_AGENT.getLabel()}${podUuid}") {
           if (reportPortalUse && reportPortalClient != null) {
             folioCypress.finalizeReportPortal(reportPortalClient)
           }
