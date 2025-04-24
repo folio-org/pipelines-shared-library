@@ -23,7 +23,7 @@ class Eureka extends Base {
     this.kong = kong
   }
 
-  Eureka defineKeycloakTTL(int ttl = 3600) {
+  Eureka defineKeycloakTTL(int ttl = 600) {
     kong.keycloak.defineTTL("master", ttl)
 
     return this
@@ -35,7 +35,7 @@ class Eureka extends Base {
     tenant.withUUID(createdTenant.getUuid())
       .withClientSecret(retrieveTenantClientSecretFromAWSSSM(tenant))
 
-    kong.keycloak.defineTTL(tenant.tenantId, 3600)
+    kong.keycloak.defineTTL(tenant.tenantId, 600)
 
     List<String> entitledApps = Tenants.get(kong).getEnabledApplications(tenant).keySet().toList().collect { appId ->
       appId.split("-\\d+\\.\\d+\\.\\d+")[0]
