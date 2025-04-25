@@ -1613,7 +1613,7 @@ mod-inventory:
     requests:
       memory: 1609Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+  - "-XX:MaxRAMPercentage=85.0 -DSYSTEM_USER_ENABLED=false"
   startupProbe:
     httpGet:
       path: /admin/health
@@ -1702,7 +1702,7 @@ mod-invoice:
     requests:
       memory: 551Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+  - "-XX:MaxRAMPercentage=85.0 -DSYSTEM_USER_ENABLED=false"
   startupProbe:
     httpGet:
       path: /admin/health
@@ -2214,7 +2214,7 @@ mod-orders:
     requests:
       memory: 1315Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+  - "-XX:MaxRAMPercentage=85.0 -DSYSTEM_USER_ENABLED=false"
   startupProbe:
     httpGet:
       path: /admin/health
@@ -2899,7 +2899,7 @@ mod-source-record-manager:
     requests:
       memory: 604Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+  - "-XX:MaxRAMPercentage=85.0 -DSYSTEM_USER_ENABLED=false"
   startupProbe:
     httpGet:
       path: /admin/health
@@ -2928,7 +2928,7 @@ mod-source-record-storage:
     requests:
       memory: 684Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+  - "-XX:MaxRAMPercentage=85.0 -DSYSTEM_USER_ENABLED=false"
   startupProbe:
     httpGet:
       path: /admin/health
