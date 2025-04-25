@@ -1,7 +1,5 @@
 #!groovy
-
 import org.folio.Constants as GlobalConstants
-import org.folio.jenkins.JenkinsAgentLabel
 import org.folio.jenkins.PodTemplates
 import org.folio.models.ChangelogEntry
 import org.folio.models.OkapiTenant
@@ -92,25 +90,23 @@ CreateNamespaceParameters namespaceFromBranchParams = namespaceBaseParams.toBuil
 
 ansiColor('xterm') {
   try {
-    podTemplates.defaultTemplate {
-      node(JenkinsAgentLabel.DEFAULT_AGENT.getLabel()) {
-        stage('Check Changes') {
-          if (params.SKIP_CHECK) {
-            logger.info("Skip check of changes since last build.")
-          } else {
-            currentBuildSha = folioHashCommitCheck.getCurrentBuildSha(params.FOLIO_BRANCH)
-            previousBuildSha = folioHashCommitCheck.getPreviousBuildSha()
-            boolean diffFound = folioHashCommitCheck.isInstallJsonChanged(previousBuildSha, currentBuildSha)
+    podTemplates.rancherAgent {
+      stage('Check Changes') {
+        if (params.SKIP_CHECK) {
+          logger.info("Skip check of changes since last build.")
+        } else {
+          currentBuildSha = folioHashCommitCheck.getCurrentBuildSha(params.FOLIO_BRANCH)
+          previousBuildSha = folioHashCommitCheck.getPreviousBuildSha()
+          boolean diffFound = folioHashCommitCheck.isInstallJsonChanged(previousBuildSha, currentBuildSha)
 
-            if (diffFound) {
-              logger.info('Incoming changes found. Proceed with build stages.')
-            } else {
-              buildDescription 'Skipped'
-              logger.warning('Incoming changes not found. Skip build...')
-              currentBuild.result = 'ABORTED'
-              autoCanceled = true
-              slackSend(attachments: folioSlackNotificationUtils.renderAbortedBuildResultMessage(), channel: globalSlackChannel)
-            }
+          if (diffFound) {
+            logger.info('Incoming changes found. Proceed with build stages.')
+          } else {
+            buildDescription 'Skipped'
+            logger.warning('Incoming changes not found. Skip build...')
+            currentBuild.result = 'ABORTED'
+            autoCanceled = true
+            slackSend(attachments: folioSlackNotificationUtils.renderAbortedBuildResultMessage(), channel: globalSlackChannel)
           }
         }
       }
@@ -164,44 +160,42 @@ ansiColor('xterm') {
       parallel(branches)
     }
 
-    podTemplates.defaultTemplate {
-      node(JenkinsAgentLabel.DEFAULT_AGENT.getLabel()) {
-        stage('[AWS] Update ssm') {
-          if (currentBuildSha) {
-            folioHashCommitCheck.updateBuildSha(currentBuildSha)
-          }
+    podTemplates.rancherAgent {
+      stage('[AWS] Update ssm') {
+        if (currentBuildSha) {
+          folioHashCommitCheck.updateBuildSha(currentBuildSha)
         }
+      }
 
-        stage('[Slack] Send notification') {
-          String karateTestsResultMessage = ''
-          if (params.INCLUDE_KARATE) {
-            karateTestsResultMessage = folioSlackNotificationUtils.renderTestResultSection(TestType.KARATE,
-              karateTestsExecutionSummary, "", true,
-              "${env.BUILD_URL}cucumber-html-reports/overview-features.html"
-            )
-            return karateTestsResultMessage
-          }
-
-          String cypressTestsResultMessage = folioSlackNotificationUtils.renderTestResultSection(TestType.CYPRESS,
-            cypressTestsExecutionSummary, "", true, "${env.BUILD_URL}allure/"
+      stage('[Slack] Send notification') {
+        String karateTestsResultMessage = ''
+        if (params.INCLUDE_KARATE) {
+          karateTestsResultMessage = folioSlackNotificationUtils.renderTestResultSection(TestType.KARATE,
+            karateTestsExecutionSummary, "", true,
+            "${env.BUILD_URL}cucumber-html-reports/overview-features.html"
           )
-
-          String changelog = ''
-          if (previousBuildSha && currentBuildSha) {
-            List<ChangelogEntry> changelogEntriesList = folioChangeLog.call(previousBuildSha, currentBuildSha)
-            changelog = folioChangeLog.renderChangelogSection(changelogEntriesList)
-            buildDescription "Changelog:\n${folioChangeLog.getPlainText(changelogEntriesList)}"
-          }
-
-          String attachments = SlackHelper.renderMessage([
-            folioSlackNotificationUtils.renderBuildResultSection(),
-            cypressTestsResultMessage,
-            params.INCLUDE_KARATE ? karateTestsResultMessage : null,
-            changelog
-          ])
-
-          slackSend(attachments: attachments, channel: "#rancher_tests_notifications")
+          return karateTestsResultMessage
         }
+
+        String cypressTestsResultMessage = folioSlackNotificationUtils.renderTestResultSection(TestType.CYPRESS,
+          cypressTestsExecutionSummary, "", true, "${env.BUILD_URL}allure/"
+        )
+
+        String changelog = ''
+        if (previousBuildSha && currentBuildSha) {
+          List<ChangelogEntry> changelogEntriesList = folioChangeLog.call(previousBuildSha, currentBuildSha)
+          changelog = folioChangeLog.renderChangelogSection(changelogEntriesList)
+          buildDescription "Changelog:\n${folioChangeLog.getPlainText(changelogEntriesList)}"
+        }
+
+        String attachments = SlackHelper.renderMessage([
+          folioSlackNotificationUtils.renderBuildResultSection(),
+          cypressTestsResultMessage,
+          params.INCLUDE_KARATE ? karateTestsResultMessage : null,
+          changelog
+        ])
+
+        slackSend(attachments: attachments, channel: "#rancher_tests_notifications")
       }
     }
   } catch (e) {

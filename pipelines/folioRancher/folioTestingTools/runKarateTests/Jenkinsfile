@@ -1,8 +1,8 @@
 #!groovy
 import hudson.util.Secret
-import org.folio.jenkins.JenkinsAgentLabel
 import org.folio.jenkins.PodTemplates
 import org.folio.models.parameters.KarateTestsParameters
+import org.jenkinsci.plugins.workflow.libs.Library
 
 @Library('pipelines-shared-library@RANCHER-2236') _
 
@@ -36,6 +36,8 @@ if (params.REFRESH_PARAMETERS) {
 /**
  * Job variables
  */
+PodTemplates podTemplates = new PodTemplates(this)
+
 KarateTestsParameters karateTestsParams = new KarateTestsParameters()
 karateTestsParams.gitBranch = params.TESTS_BRANCH
 karateTestsParams.modulesToTest = params.TESTS
@@ -53,13 +55,9 @@ karateTestsParams.timeout = '6'
  * Pipeline
  */
 ansiColor('xterm') {
-  PodTemplates podTemplates = new PodTemplates(this)
-
-  podTemplates.defaultTemplate {
-    node(JenkinsAgentLabel.DEFAULT_AGENT.getLabel()) {
-      stage('Ini') {
-        buildDescription currentBuild.getBuildCauses()[0].shortDescription
-      }
+  podTemplates.rancherAgent {
+    stage('Ini') {
+      buildDescription currentBuild.getBuildCauses()[0].shortDescription
     }
   }
 

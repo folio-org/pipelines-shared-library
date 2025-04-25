@@ -1,11 +1,10 @@
 #!groovy
+import org.folio.jenkins.PodTemplates
 import org.folio.models.InstallRequestParams
 import org.folio.models.OkapiTenant
 import org.folio.models.RancherNamespace
 import org.folio.rest_v2.Main
 import org.jenkinsci.plugins.workflow.libs.Library
-import org.folio.jenkins.JenkinsAgentLabel
-import org.folio.jenkins.PodTemplates
 
 @Library('pipelines-shared-library@RANCHER-2236') _
 
@@ -24,6 +23,8 @@ if (params.REFRESH_PARAMETERS) {
   error('DRY RUN BUILD, PARAMETERS REFRESHED!')
 }
 
+PodTemplates podTemplates = new PodTemplates(this)
+
 RancherNamespace namespace = new RancherNamespace(params.CLUSTER, params.NAMESPACE)
   .withSuperTenantAdminUser()
 
@@ -32,37 +33,33 @@ Main main = new Main(this, namespace.getDomains()['okapi'], namespace.getSuperTe
 OkapiTenant tenant = null
 
 ansiColor('xterm') {
-  PodTemplates podTemplates = new PodTemplates(this)
-
-  podTemplates.defaultTemplate {
-    node(JenkinsAgentLabel.DEFAULT_AGENT.getLabel()) {
-      try {
-        stage( name: 'Pre-check') {
-          if (!main.isTenantExist(params.TENANT_ID)) {
-            currentBuild.result = 'ABORTED'
-            error('Tenant does not exist, stopping the pipeline')
-          }
-          InstallRequestParams installRequestParams = new InstallRequestParams()
-            .withTenantParameters("purge=true")
-          tenant = new OkapiTenant(params.TENANT_ID)
-            .withInstallJson(main.getInstallJson(params.TENANT_ID, 'disable'))
-            .withInstallRequestParams(installRequestParams)
+  podTemplates.rancherAgent {
+    try {
+      stage(name: 'Pre-check') {
+        if (!main.isTenantExist(params.TENANT_ID)) {
+          currentBuild.result = 'ABORTED'
+          error('Tenant does not exist, stopping the pipeline')
         }
-        stage('Ini') {
-          buildName "${namespace.getClusterName()}-${namespace.getNamespaceName()}.${env.BUILD_ID}"
-          buildDescription "Tenant: ${params.TENANT_ID}"
-        }
-        stage("Disable tenant modules") {
-          main.tenantInstall(tenant, tenant.getModules().getInstallJson())
-          println("modules removed")
-        }
-        stage("Delete tenant") {
-          main.deleteTenant(tenant)
-        }
-      } catch (exception) {
-        println(exception)
-        error(exception.getMessage())
+        InstallRequestParams installRequestParams = new InstallRequestParams()
+          .withTenantParameters("purge=true")
+        tenant = new OkapiTenant(params.TENANT_ID)
+          .withInstallJson(main.getInstallJson(params.TENANT_ID, 'disable'))
+          .withInstallRequestParams(installRequestParams)
       }
+      stage('Ini') {
+        buildName "${namespace.getClusterName()}-${namespace.getNamespaceName()}.${env.BUILD_ID}"
+        buildDescription "Tenant: ${params.TENANT_ID}"
+      }
+      stage("Disable tenant modules") {
+        main.tenantInstall(tenant, tenant.getModules().getInstallJson())
+        println("modules removed")
+      }
+      stage("Delete tenant") {
+        main.deleteTenant(tenant)
+      }
+    } catch (exception) {
+      println(exception)
+      error(exception.getMessage())
     }
   }
 }

@@ -1,5 +1,5 @@
 #!groovy
-import org.folio.jenkins.JenkinsAgentLabel
+
 import org.folio.jenkins.PodTemplates
 import org.folio.models.OkapiTenant
 import org.folio.models.OkapiUser
@@ -27,6 +27,8 @@ if (params.REFRESH_PARAMETERS) {
   error('DRY RUN BUILD, PARAMETERS REFRESHED!')
 }
 
+PodTemplates podTemplates = new PodTemplates(this)
+
 RancherNamespace namespace = new RancherNamespace(params.CLUSTER, params.NAMESPACE)
   .withSuperTenantAdminUser()
 
@@ -38,22 +40,18 @@ OkapiUser user = new OkapiUser(params.USERNAME, '')
 Users deleteUser = new Users(this, namespace.getDomains()['okapi'])
 
 ansiColor('xterm') {
-  PodTemplates podTemplates = new PodTemplates(this)
-
-  podTemplates.defaultTemplate {
-    node(JenkinsAgentLabel.DEFAULT_AGENT.getLabel()) {
-      try {
-        stage('Ini') {
-          buildName "${namespace.getClusterName()}-${namespace.getNamespaceName()}.${env.BUILD_ID}"
-          buildDescription "Tenant: ${params.TENANT_ID}, User: ${params.USERNAME}"
-        }
-        stage("Delete User") {
-          deleteUser.deleteUser(tenant, user)
-        }
-      } catch (exception) {
-        println(exception)
-        error(exception.getMessage())
+  podTemplates.rancherAgent {
+    try {
+      stage('Ini') {
+        buildName "${namespace.getClusterName()}-${namespace.getNamespaceName()}.${env.BUILD_ID}"
+        buildDescription "Tenant: ${params.TENANT_ID}, User: ${params.USERNAME}"
       }
+      stage("Delete User") {
+        deleteUser.deleteUser(tenant, user)
+      }
+    } catch (exception) {
+      println(exception)
+      error(exception.getMessage())
     }
   }
 }

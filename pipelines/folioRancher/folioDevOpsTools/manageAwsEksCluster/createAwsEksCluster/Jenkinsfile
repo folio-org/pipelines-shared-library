@@ -1,6 +1,5 @@
 #!groovy
 import org.folio.Constants
-import org.folio.jenkins.JenkinsAgentLabel
 import org.folio.jenkins.PodTemplates
 import org.folio.models.TerraformConfig
 
@@ -30,6 +29,7 @@ if (params.REFRESH_PARAMETERS) {
   return
 }
 
+PodTemplates podTemplates = new PodTemplates(this)
 TerraformConfig tfConfig = new TerraformConfig('terraform/rancher/cluster')
   .withWorkspace(params.CLUSTER)
 
@@ -45,23 +45,19 @@ tfConfig.addVar('enable_logging', params.ENABLE_LOGGING)
 tfConfig.addVar('enable_monitoring', params.ENABLE_MONITORING)
 
 ansiColor('xterm') {
-  PodTemplates podTemplates = new PodTemplates(this)
-
-  podTemplates.defaultTemplate {
-    node(JenkinsAgentLabel.DEFAULT_AGENT.getLabel()) {
-      stage('Ini') {
-        buildName "#${params.CLUSTER}.${env.BUILD_ID}"
-      }
-
-      stage('Checkout') {
-        git(url: "${Constants.FOLIO_GITHUB_URL}/pipelines-shared-library.git",
-          branch: folioTools.getPipelineBranch(),
-          credentialsId: Constants.PRIVATE_GITHUB_CREDENTIALS_ID,
-          poll: false)
-      }
-
-      folioTerraformFlow.manageCluster('apply', tfConfig)
+  podTemplates.rancherAgent {
+    stage('Ini') {
+      buildName "#${params.CLUSTER}.${env.BUILD_ID}"
     }
+
+    stage('Checkout') {
+      git(url: "${Constants.FOLIO_GITHUB_URL}/pipelines-shared-library.git",
+        branch: folioTools.getPipelineBranch(),
+        credentialsId: Constants.PRIVATE_GITHUB_CREDENTIALS_ID,
+        poll: false)
+    }
+
+    folioTerraformFlow.manageCluster('apply', tfConfig)
   }
 }
 

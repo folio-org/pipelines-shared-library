@@ -18,7 +18,7 @@ void call(CreateNamespaceParameters args) {
     try {
       stage('Ini') {
         folioCommon.updateBuildName("#${args.clusterName}-${args.namespaceName}.${env.BUILD_ID}")
-        folioCommon.updateBuildDescription("Branch: ${args.folioBranch}\nConfig: ${args.configType}\n")
+        folioCommon.updateBuildDescription("Branch: ${args.folioBranch}\nConfig: ${args.configType}")
       }
 
       stage('Checkout') {

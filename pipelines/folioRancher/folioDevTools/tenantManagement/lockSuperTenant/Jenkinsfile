@@ -1,9 +1,8 @@
 #!groovy
+import org.folio.jenkins.PodTemplates
 import org.folio.models.RancherNamespace
 import org.folio.rest_v2.Main
 import org.jenkinsci.plugins.workflow.libs.Library
-import org.folio.jenkins.JenkinsAgentLabel
-import org.folio.jenkins.PodTemplates
 
 @Library('pipelines-shared-library@RANCHER-2236') _
 
@@ -20,6 +19,7 @@ if (params.REFRESH_PARAMETERS) {
   currentBuild.result = 'ABORTED'
   error('DRY RUN BUILD, PARAMETERS REFRESHED!')
 }
+PodTemplates podTemplates = new PodTemplates(this)
 
 RancherNamespace namespace = new RancherNamespace(params.CLUSTER, params.NAMESPACE)
   .withSuperTenantAdminUser()
@@ -27,28 +27,24 @@ RancherNamespace namespace = new RancherNamespace(params.CLUSTER, params.NAMESPA
 Main main = new Main(this, namespace.getDomains()['okapi'], namespace.getSuperTenant())
 
 ansiColor('xterm') {
-  PodTemplates podTemplates = new PodTemplates(this)
+  podTemplates.rancherAgent {
+    try {
+      stage('Ini') {
+        buildName "${params.CLUSTER}-${params.NAMESPACE}.${env.BUILD_ID}"
 
-  podTemplates.defaultTemplate {
-    node(JenkinsAgentLabel.DEFAULT_AGENT.getLabel()) {
-      try {
-        stage('Ini') {
-          buildName "${params.CLUSTER}-${params.NAMESPACE}.${env.BUILD_ID}"
-
-          namespace.setSuperTenantLocked(main.isTenantLocked(namespace.getSuperTenant()))
-        }
-        stage("Lock Supertenant") {
-          if (!namespace.getSuperTenantLocked()) {
-            main.lockSuperTenant(namespace.getSuperTenant())
-            println("SuperTenant was successfully locked!")
-          } else {
-            println("SuperTenant already locked!")
-          }
-        }
-      } catch (exception) {
-        println(exception)
-        error(exception.getMessage())
+        namespace.setSuperTenantLocked(main.isTenantLocked(namespace.getSuperTenant()))
       }
+      stage("Lock Supertenant") {
+        if (!namespace.getSuperTenantLocked()) {
+          main.lockSuperTenant(namespace.getSuperTenant())
+          println("SuperTenant was successfully locked!")
+        } else {
+          println("SuperTenant already locked!")
+        }
+      }
+    } catch (exception) {
+      println(exception)
+      error(exception.getMessage())
     }
   }
 }

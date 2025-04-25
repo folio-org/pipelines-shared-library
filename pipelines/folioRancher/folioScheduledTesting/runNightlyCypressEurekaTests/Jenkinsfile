@@ -1,8 +1,6 @@
 #!groovy
-
 import groovy.transform.Field
 import org.folio.Constants
-import org.folio.jenkins.JenkinsAgentLabel
 import org.folio.jenkins.PodTemplates
 import org.folio.models.OkapiTenant
 import org.folio.models.OkapiUser
@@ -96,34 +94,32 @@ String reportPortalRunType = 'evrk'
  * Pipeline
  */
 ansiColor('xterm') {
-  podTemplates.defaultTemplate {
-    node(JenkinsAgentLabel.DEFAULT_AGENT.getLabel()) {
-      stage('Ini') {
-        buildDescription "Branch: ${params.CYPRESS_BRANCH}\nConfig: ${namespaceFromBranchParams.getConfigType()}\nEnv: ${cypressParameters.tenantUrl}"
-      }
+  podTemplates.rancherAgent {
+    stage('Ini') {
+      buildDescription "Branch: ${params.CYPRESS_BRANCH}\nConfig: ${namespaceFromBranchParams.getConfigType()}\nEnv: ${cypressParameters.tenantUrl}"
+    }
 
-      stage('[Job] Destroy environment') {
-        def nsExists
-        folioHelm.withKubeConfig(namespaceBaseParams.getClusterName()) {
-          nsExists = kubectl.checkNamespaceExistence("${namespaceBaseParams.getNamespaceName()}")
-        }
-        if (nsExists) {
-          retry(2) {
-            folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceBaseParams)
-          }
-        } else {
-          logger.info("${namespaceBaseParams.getNamespaceName()} namespace does not exists!")
-        }
+    stage('[Job] Destroy environment') {
+      def nsExists
+      folioHelm.withKubeConfig(namespaceBaseParams.getClusterName()) {
+        nsExists = kubectl.checkNamespaceExistence("${namespaceBaseParams.getNamespaceName()}")
       }
-
-      stage('[Job] Provision environment') {
-        try {
-          folioTriggerJob.createNamespaceFromBranch(createNamespaceJobName, namespaceFromBranchParams)
-        } catch (Exception new_ex) {
-          slackSend(attachments: folioSlackNotificationUtils.renderFailedBuildResultMessage()
-            , channel: "#rancher_tests_notifications")
-          throw new Exception("Provision of the environment is failed: " + new_ex)
+      if (nsExists) {
+        retry(2) {
+          folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceBaseParams)
         }
+      } else {
+        logger.info("${namespaceBaseParams.getNamespaceName()} namespace does not exists!")
+      }
+    }
+
+    stage('[Job] Provision environment') {
+      try {
+        folioTriggerJob.createNamespaceFromBranch(createNamespaceJobName, namespaceFromBranchParams)
+      } catch (Exception new_ex) {
+        slackSend(attachments: folioSlackNotificationUtils.renderFailedBuildResultMessage()
+          , channel: "#rancher_tests_notifications")
+        throw new Exception("Provision of the environment is failed: " + new_ex)
       }
     }
 

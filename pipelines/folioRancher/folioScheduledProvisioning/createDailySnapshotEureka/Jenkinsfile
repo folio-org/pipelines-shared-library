@@ -1,8 +1,6 @@
 #!groovy
-
 import groovy.transform.Field
 import org.folio.Constants
-import org.folio.jenkins.JenkinsAgentLabel
 import org.folio.jenkins.PodTemplates
 import org.folio.models.parameters.CreateNamespaceParameters
 import org.folio.rest_v2.PlatformType
@@ -96,74 +94,72 @@ CreateNamespaceParameters namespace2 = new CreateNamespaceParameters.Builder()
   .build()
 
 ansiColor('xterm') {
-  podTemplates.defaultTemplate {
-    node(JenkinsAgentLabel.DEFAULT_AGENT.getLabel()) {
-      stage('Checkout') {
-        checkout scm
-      }
-
-      CreateNamespaceParameters createdEnv = namespace1
-      CreateNamespaceParameters eliminatedEnv = namespace2
-
-      stage('Determination') {
-        // Check if both environments exist
-        def env1Exists = folioHelm.withKubeConfig(namespace1.getClusterName()) { kubectl.checkNamespaceExistence(namespace1.getNamespaceName()) }
-        def env2Exists = folioHelm.withKubeConfig(namespace2.getClusterName()) { kubectl.checkNamespaceExistence(namespace2.getNamespaceName()) }
-
-        println "${namespace1.getNamespaceName()} exist $env1Exists"
-        println "${namespace2.getNamespaceName()} exist $env2Exists"
-
-        // Check both environments status
-        def buildStatusEnv1 = folioHelm.withKubeConfig(namespace1.getClusterName()) { kubectl.getLabelsFromNamespace(namespace1.getNamespaceName(), "build-status") }
-        def buildStatusEnv2 = folioHelm.withKubeConfig(namespace2.getClusterName()) { kubectl.getLabelsFromNamespace(namespace2.getNamespaceName(), "build-status") }
-
-        println "${namespace1.getNamespaceName()} status is $buildStatusEnv1"
-        println "${namespace2.getNamespaceName()} status is $buildStatusEnv2"
-
-        // Check environments build date
-        def env1BuildDate = folioHelm.withKubeConfig(namespace1.getClusterName()) { kubectl.getLabelsFromNamespace(namespace1.getNamespaceName(), "build-date") }
-        def env2BuildDate = folioHelm.withKubeConfig(namespace2.getClusterName()) { kubectl.getLabelsFromNamespace(namespace2.getNamespaceName(), "build-date") }
-
-        println "${namespace1.getNamespaceName()} build date is $env1BuildDate"
-        println "${namespace2.getNamespaceName()} build date is $env2BuildDate"
-
-        try {
-          env1BuildDate = env1BuildDate ? new Date(env1BuildDate.toLong()) : new Date(0)
-        } catch (Exception ignored) {
-          env1BuildDate = new Date(0) // fallback in case of error
-        }
-
-        try {
-          env2BuildDate = env2BuildDate ? new Date(env2BuildDate.toLong()) : new Date(0)
-        } catch (Exception ignored) {
-          env2BuildDate = new Date(0) // fallback in case of error
-        }
-
-        env1Exists = env1Exists && buildStatusEnv1 == 'SUCCESS'
-        env2Exists = env2Exists && buildStatusEnv2 == 'SUCCESS'
-
-        env1Exists = env1Exists && env2Exists ? env2BuildDate <= env1BuildDate : env1Exists
-        env2Exists = env1Exists && env2Exists ? env1BuildDate < env2BuildDate : env2Exists
-
-        createdEnv = env1Exists ? namespace2 : namespace1
-        eliminatedEnv = env1Exists ? namespace1 : namespace2
-
-        println "Env will be created: ${createdEnv.getNamespaceName()}"
-      }
-
-      stage('Build name') {
-        buildName "${createdEnv.getClusterName()}-${createdEnv.getNamespaceName()}.${env.BUILD_ID}"
-        buildDescription "Config: ${createdEnv.getConfigType()}"
-      }
-
-      spinUpNamespaces(createdEnv, eliminatedEnv)
-
-      //TODO: Decision needs to be made
-      if (eliminatedEnv.getNamespaceName() == namespace1.getNamespaceName())
-        stage('Spinning up N1 del N2') {
-          spinUpNamespaces(eliminatedEnv, createdEnv)
-        }
+  podTemplates.rancherAgent {
+    stage('Checkout') {
+      checkout scm
     }
+
+    CreateNamespaceParameters createdEnv = namespace1
+    CreateNamespaceParameters eliminatedEnv = namespace2
+
+    stage('Determination') {
+      // Check if both environments exist
+      def env1Exists = folioHelm.withKubeConfig(namespace1.getClusterName()) { kubectl.checkNamespaceExistence(namespace1.getNamespaceName()) }
+      def env2Exists = folioHelm.withKubeConfig(namespace2.getClusterName()) { kubectl.checkNamespaceExistence(namespace2.getNamespaceName()) }
+
+      println "${namespace1.getNamespaceName()} exist $env1Exists"
+      println "${namespace2.getNamespaceName()} exist $env2Exists"
+
+      // Check both environments status
+      def buildStatusEnv1 = folioHelm.withKubeConfig(namespace1.getClusterName()) { kubectl.getLabelsFromNamespace(namespace1.getNamespaceName(), "build-status") }
+      def buildStatusEnv2 = folioHelm.withKubeConfig(namespace2.getClusterName()) { kubectl.getLabelsFromNamespace(namespace2.getNamespaceName(), "build-status") }
+
+      println "${namespace1.getNamespaceName()} status is $buildStatusEnv1"
+      println "${namespace2.getNamespaceName()} status is $buildStatusEnv2"
+
+      // Check environments build date
+      def env1BuildDate = folioHelm.withKubeConfig(namespace1.getClusterName()) { kubectl.getLabelsFromNamespace(namespace1.getNamespaceName(), "build-date") }
+      def env2BuildDate = folioHelm.withKubeConfig(namespace2.getClusterName()) { kubectl.getLabelsFromNamespace(namespace2.getNamespaceName(), "build-date") }
+
+      println "${namespace1.getNamespaceName()} build date is $env1BuildDate"
+      println "${namespace2.getNamespaceName()} build date is $env2BuildDate"
+
+      try {
+        env1BuildDate = env1BuildDate ? new Date(env1BuildDate.toLong()) : new Date(0)
+      } catch (Exception ignored) {
+        env1BuildDate = new Date(0) // fallback in case of error
+      }
+
+      try {
+        env2BuildDate = env2BuildDate ? new Date(env2BuildDate.toLong()) : new Date(0)
+      } catch (Exception ignored) {
+        env2BuildDate = new Date(0) // fallback in case of error
+      }
+
+      env1Exists = env1Exists && buildStatusEnv1 == 'SUCCESS'
+      env2Exists = env2Exists && buildStatusEnv2 == 'SUCCESS'
+
+      env1Exists = env1Exists && env2Exists ? env2BuildDate <= env1BuildDate : env1Exists
+      env2Exists = env1Exists && env2Exists ? env1BuildDate < env2BuildDate : env2Exists
+
+      createdEnv = env1Exists ? namespace2 : namespace1
+      eliminatedEnv = env1Exists ? namespace1 : namespace2
+
+      println "Env will be created: ${createdEnv.getNamespaceName()}"
+    }
+
+    stage('Build name') {
+      buildName "${createdEnv.getClusterName()}-${createdEnv.getNamespaceName()}.${env.BUILD_ID}"
+      buildDescription "Config: ${createdEnv.getConfigType()}"
+    }
+
+    spinUpNamespaces(createdEnv, eliminatedEnv)
+
+    //TODO: Decision needs to be made
+    if (eliminatedEnv.getNamespaceName() == namespace1.getNamespaceName())
+      stage('Spinning up N1 del N2') {
+        spinUpNamespaces(eliminatedEnv, createdEnv)
+      }
   }
 }
 

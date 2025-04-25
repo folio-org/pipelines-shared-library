@@ -29,9 +29,24 @@ enum JenkinsAgentLabel {
   DEFAULT_AGENT("default-agent"),
 
   /**
-   * Java-specific agent for java builds.
+   * Rancher agent for general builds.
    */
-  JAVA_AGENT("java-agent"),
+  RANCHER_AGENT("rancher-agent"),
+
+  /**
+   * Rancher agent for general builds with java.
+   */
+  RANCHER_JAVA_AGENT("rancher-java-agent"),
+
+  /**
+   * Java-specific agent for java testing.
+   */
+  JAVA_KARATE_AGENT("java-karate-agent"),
+
+  /**
+   * Jenkins agent for Java builds.
+   */
+  JAVA_BUILD_AGENT('java-build-agent'),
 
   /**
    * Stripes-specific agent for stripes build.

@@ -1,5 +1,5 @@
 #!groovy
-import org.folio.jenkins.JenkinsAgentLabel
+
 import org.folio.jenkins.PodTemplates
 import org.folio.models.OkapiTenant
 import org.folio.models.OkapiUser
@@ -29,6 +29,7 @@ if (params.REFRESH_PARAMETERS) {
   currentBuild.result = 'ABORTED'
   error('DRY RUN BUILD, PARAMETERS REFRESHED!')
 }
+PodTemplates podTemplates = new PodTemplates(this)
 
 String permissions = params.PERMISSIONS
 List<String> permissionsList = permissions.split(',')
@@ -50,22 +51,18 @@ OkapiUser user = new OkapiUser(params.NEW_USERNAME, params.NEW_PASSWORD)
   .withType("staff")
 
 ansiColor('xterm') {
-  PodTemplates podTemplates = new PodTemplates(this)
-
-  podTemplates.defaultTemplate {
-    node(JenkinsAgentLabel.DEFAULT_AGENT.getLabel()) {
-      try {
-        stage('Ini') {
-          buildName "${namespace.getClusterName()}-${namespace.getNamespaceName()}.${env.BUILD_ID}"
-          buildDescription "Tenant: ${params.TENANT_ID}, User: ${params.NEW_USERNAME}"
-        }
-        stage("Create New User") {
-          main.createOkapiUser(tenant, user)
-        }
-      } catch (exception) {
-        println(exception)
-        error(exception.getMessage())
+  podTemplates.rancherAgent {
+    try {
+      stage('Ini') {
+        buildName "${namespace.getClusterName()}-${namespace.getNamespaceName()}.${env.BUILD_ID}"
+        buildDescription "Tenant: ${params.TENANT_ID}, User: ${params.NEW_USERNAME}"
       }
+      stage("Create New User") {
+        main.createOkapiUser(tenant, user)
+      }
+    } catch (exception) {
+      println(exception)
+      error(exception.getMessage())
     }
   }
 }

@@ -1,5 +1,5 @@
 #!groovy
-import org.folio.jenkins.JenkinsAgentLabel
+
 import org.folio.jenkins.PodTemplates
 import org.folio.models.OkapiTenant
 import org.folio.rest_v2.Configurations
@@ -36,25 +36,23 @@ tenant.okapiConfig.withResetPasswordLink("https://${params.CLUSTER}-${params.NAM
 Configurations config = new Configurations(this, "${params.CLUSTER}-${params.NAMESPACE}-okapi.${Constants.CI_ROOT_DOMAIN}")
 
 ansiColor('xterm') {
-  podTemplates.defaultTemplate {
-    node(JenkinsAgentLabel.DEFAULT_AGENT.getLabel()) {
-      stage('Ini') {
-        buildName "${params.CLUSTER}-${params.NAMESPACE}.${env.BUILD_ID}"
-        buildDescription "CONFIGURE: ${params.TENANT_ID}"
-      }
-      stage('Checkout') {
-        checkout scm
+  podTemplates.rancherAgent {
+    stage('Ini') {
+      buildName "${params.CLUSTER}-${params.NAMESPACE}.${env.BUILD_ID}"
+      buildDescription "CONFIGURE: ${params.TENANT_ID}"
+    }
+    stage('Checkout') {
+      checkout scm
+    }
+
+    stage('Configure tenant') {
+      if (params.ResetPasswordLink) {
+        config.setResetPasswordLink(tenant)
       }
 
-      stage('Configure tenant') {
-        if (params.ResetPasswordLink) {
-          config.setResetPasswordLink(tenant)
-        }
-
-        /**
-         * The rest configuration activities placeholder: Reindex, SMTP, etc.
-         */
-      }
+      /**
+       * The rest configuration activities placeholder: Reindex, SMTP, etc.
+       */
     }
   }
 }

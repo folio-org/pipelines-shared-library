@@ -1,6 +1,5 @@
 #!groovy
 import org.folio.Constants
-import org.folio.jenkins.JenkinsAgentLabel
 import org.folio.jenkins.PodTemplates
 import org.folio.models.*
 import org.folio.rest_v2.Main
@@ -54,29 +53,27 @@ OkapiTenant tenant = null
 ansiColor('xterm') {
   PodTemplates podTemplates = new PodTemplates(this)
 
-  podTemplates.defaultTemplate {
-    node(JenkinsAgentLabel.DEFAULT_AGENT.getLabel()) {
-      try {
-        stage('Ini') {
-          buildName "${namespace.getClusterName()}-${namespace.getNamespaceName()}.${env.TENANT_ID}"
-          buildDescription "Create Tenant: ${params.REFERENCE_TENANT_ID}-${params.TENANT_ID}"
-        }
-        stage("Create Tenant") {
-          tenant = new OkapiTenant(params.TENANT_ID)
-            .withTenantName(params.TENANT_NAME)
-            .withTenantDescription(params.TENANT_DESCRIPTION)
-            .withAdminUser(folioDefault.adminOkapiUser("${params.TENANT_ID.toLowerCase()}_admin", 'admin'))
-            .withConfiguration(new OkapiConfig().withSmtp(smtp).withKbApiKey(kbApiKey))
-            .withInstallJson(main.getInstallJson(params.REFERENCE_TENANT_ID))
-            .withIndex(new Index('instance', true, true))
-            .withIndex(new Index('authority', true, false))
-            .withInstallRequestParams(installRequestParams.clone())
-          main.createTenantFlow(tenant)
-        }
-      } catch (exception) {
-        println(exception)
-        error(exception.getMessage())
+  podTemplates.rancherAgent {
+    try {
+      stage('Ini') {
+        buildName "${namespace.getClusterName()}-${namespace.getNamespaceName()}.${env.TENANT_ID}"
+        buildDescription "Create Tenant: ${params.REFERENCE_TENANT_ID}-${params.TENANT_ID}"
       }
+      stage("Create Tenant") {
+        tenant = new OkapiTenant(params.TENANT_ID)
+          .withTenantName(params.TENANT_NAME)
+          .withTenantDescription(params.TENANT_DESCRIPTION)
+          .withAdminUser(folioDefault.adminOkapiUser("${params.TENANT_ID.toLowerCase()}_admin", 'admin'))
+          .withConfiguration(new OkapiConfig().withSmtp(smtp).withKbApiKey(kbApiKey))
+          .withInstallJson(main.getInstallJson(params.REFERENCE_TENANT_ID))
+          .withIndex(new Index('instance', true, true))
+          .withIndex(new Index('authority', true, false))
+          .withInstallRequestParams(installRequestParams.clone())
+        main.createTenantFlow(tenant)
+      }
+    } catch (exception) {
+      println(exception)
+      error(exception.getMessage())
     }
   }
 }

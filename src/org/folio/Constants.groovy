@@ -1,6 +1,5 @@
 package org.folio
 
-import org.folio.jenkins.JenkinsAgentLabel
 import org.folio.rest_v2.PlatformType
 import java.util.regex.Pattern
 

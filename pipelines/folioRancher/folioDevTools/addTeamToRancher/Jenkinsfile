@@ -1,6 +1,7 @@
 #!groovy
-import org.folio.jenkins.JenkinsAgentLabel
+
 import org.folio.jenkins.PodTemplates
+import org.jenkinsci.plugins.workflow.libs.Library
 import java.time.LocalDateTime
 
 @Library('pipelines-shared-library@RANCHER-2236') _
@@ -22,20 +23,18 @@ if (params.REFRESH_PARAMETERS) {
 PodTemplates podTemplates = new PodTemplates(this)
 
 ansiColor('xterm') {
-  podTemplates.defaultTemplate {
-    node(JenkinsAgentLabel.DEFAULT_AGENT.getLabel()) {
-      stage('Ini') {
-        buildDescription "Add GitHub team ${params.TEAM_NAME} to ${params.NAMESPACE}\n" +
-          "${LocalDateTime.now().toString()}"
-      }
+  podTemplates.rancherAgent {
+    stage('Ini') {
+      buildDescription "Add GitHub team ${params.TEAM_NAME} to ${params.NAMESPACE}\n" +
+        "${LocalDateTime.now().toString()}"
+    }
 
-      stage('Checkout') {
-        checkout scm
-      }
+    stage('Checkout') {
+      checkout scm
+    }
 
-      stage('Add GitHub team') {
-        folioTools.addGithubTeamsToRancherProjectMembersList("${params.TEAM_NAME}", "${params.NAMESPACE}")
-      }
+    stage('Add GitHub team') {
+      folioTools.addGithubTeamsToRancherProjectMembersList("${params.TEAM_NAME}", "${params.NAMESPACE}")
     }
   }
 }

@@ -1,5 +1,5 @@
 #!groovy
-import org.folio.jenkins.JenkinsAgentLabel
+
 import org.folio.jenkins.PodTemplates
 import org.folio.models.FolioInstallJson
 import org.folio.models.InstallRequestParams
@@ -77,14 +77,13 @@ namespace.addDeploymentConfig(folioTools.getPipelineBranch())
  * Pipeline
  */
 ansiColor('xterm') {
-  podTemplates.defaultTemplate {
-    node(JenkinsAgentLabel.DEFAULT_AGENT.getLabel()) {
-      stage('Ini') {
-        buildName("#${namespace.getClusterName()}-${namespace.getNamespaceName()}.${env.BUILD_ID}")
-        buildDescription("Config: ${namespace.getDeploymentConfigType()}")
-      }
+  podTemplates.rancherAgent {
+    stage('Ini') {
+      buildName("#${namespace.getClusterName()}-${namespace.getNamespaceName()}.${env.BUILD_ID}")
+      buildDescription("Config: ${namespace.getDeploymentConfigType()}")
+    }
 
-      stage('Preparation') {
+    stage('Preparation') {
 /**
  * TODO This logic should be revised in separate ticket
  */
@@ -114,34 +113,33 @@ ansiColor('xterm') {
 //          currentBuild.result = 'UNSTABLE'
 //        }
 
-        FolioModule okapiModule = installJsonObject.getOkapiModule()
-        if (okapiModule) {
-          namespace.setOkapiVersion(okapiModule.getVersion())
-          installJsonObject.removeModuleByName('okapi')
-        }
-
-        // Cache install JSON and Okapi module
-        List installJson = installJsonObject.getInstallJson()
-
-        tenants.each { tenantId ->
-          OkapiTenant tenant = new OkapiTenant(tenantId)
-            .withInstallJson(installJson)
-            .withInstallRequestParams(installRequestParams.clone())
-          namespace.addTenant(tenant)
-          //TODO change to retrieve admin user information from secrets
-          Map folioTenants = folioDefault.tenants()
-          if (folioTenants.containsKey(tenantId)) {
-            namespace.getTenants()[tenantId].setAdminUser(folioTenants[tenantId].getAdminUser())
-          }
-        }
-
-        namespace.getModules().setInstallJsonObject(installJson)
+      FolioModule okapiModule = installJsonObject.getOkapiModule()
+      if (okapiModule) {
+        namespace.setOkapiVersion(okapiModule.getVersion())
+        installJsonObject.removeModuleByName('okapi')
       }
 
-      stage('Install') {
-        logger.info("Modules to install:\n${writeJSON(json: installJsonObject.getInstallJson(), returnText: true, pretty: 2)}")
-        folioDeployFlow.update(namespace)
+      // Cache install JSON and Okapi module
+      List installJson = installJsonObject.getInstallJson()
+
+      tenants.each { tenantId ->
+        OkapiTenant tenant = new OkapiTenant(tenantId)
+          .withInstallJson(installJson)
+          .withInstallRequestParams(installRequestParams.clone())
+        namespace.addTenant(tenant)
+        //TODO change to retrieve admin user information from secrets
+        Map folioTenants = folioDefault.tenants()
+        if (folioTenants.containsKey(tenantId)) {
+          namespace.getTenants()[tenantId].setAdminUser(folioTenants[tenantId].getAdminUser())
+        }
       }
+
+      namespace.getModules().setInstallJsonObject(installJson)
+    }
+
+    stage('Install') {
+      logger.info("Modules to install:\n${writeJSON(json: installJsonObject.getInstallJson(), returnText: true, pretty: 2)}")
+      folioDeployFlow.update(namespace)
     }
   }
 }

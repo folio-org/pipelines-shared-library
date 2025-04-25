@@ -1,4 +1,3 @@
-import org.folio.Constants
 import org.folio.client.reportportal.ReportPortalClient
 import org.folio.jenkins.PodTemplates
 import org.folio.models.parameters.CypressTestsParameters
@@ -63,7 +62,7 @@ IRunExecutionSummary call(String ciBuildId, List<CypressTestsParameters> testsTo
 
 
   try {
-    podTemplates.cypressTestsAgent {
+    podTemplates.cypressAgent {
       // Initialize Report Portal client if needed and set up execution parameters
       if (reportPortalUse) {
         reportPortalClient = new ReportPortalClient(this,
@@ -117,7 +116,7 @@ IRunExecutionSummary call(String ciBuildId, List<CypressTestsParameters> testsTo
           testParams.numberOfWorkers.times { int workerIndex ->
             String workerId = "${runId}${workerIndex}"
             workers["Worker#${workerId}"] = {
-              podTemplates.cypressTestsAgent {
+              podTemplates.cypressAgent {
                 container('cypress') {
                   stage('[Stash] Extract tests') {
                     unstash name: cypressStash('name')
@@ -159,7 +158,7 @@ IRunExecutionSummary call(String ciBuildId, List<CypressTestsParameters> testsTo
     echo("Error executing tests: ${e.getMessage()}")
     throw e // Rethrow the exception for further handling if necessary
   } finally {
-    podTemplates.javaPlainAgent(Constants.JAVA_LATEST_VERSION) {
+    podTemplates.rancherJavaAgent {
       if (reportPortalUse && reportPortalClient != null) {
         folioCypress.finalizeReportPortal(reportPortalClient)
       }
