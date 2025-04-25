@@ -204,6 +204,9 @@ spec:
   void cypressTemplate(String podUuid = '', Closure body) {
     defaultTemplate {
       steps.podTemplate(label: "${JenkinsAgentLabel.CYPRESS_AGENT.getLabel()}${podUuid}",
+        workspaceVolume: steps.genericEphemeralVolume(accessModes: 'ReadWriteOnce',
+          requestsSize: '15Gi',
+          storageClassName: 'gp3'),
         volumes: [steps.persistentVolumeClaim(claimName: YARN_CACHE_PVC, mountPath: "${WORKING_DIR}/.yarn/cache")],
         containers: [steps.containerTemplate(name: 'cypress',
           image: "${Constants.ECR_FOLIO_REPOSITORY}/cypress/browsers:latest",
