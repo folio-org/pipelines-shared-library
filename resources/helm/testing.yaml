@@ -2173,6 +2173,7 @@ mod-inventory:
   extraJavaOpts:
   - -XX:MaxRAMPercentage=85.0
   - -Dinventory.kafka.DataImportConsumer.loadLimit=16
+  - -DSYSTEM_USER_ENABLED=false
   startupProbe:
     httpGet:
       path: /admin/health
@@ -2307,6 +2308,7 @@ mod-invoice:
     targetMemoryUtilizationPercentage: 70
   extraJavaOpts:
   - -XX:MaxRAMPercentage=80.0
+  - -DSYSTEM_USER_ENABLED=false
   startupProbe:
     httpGet:
       path: /admin/health
@@ -3005,6 +3007,7 @@ mod-orders:
     targetMemoryUtilizationPercentage: 65
   extraJavaOpts:
   - -XX:MaxRAMPercentage=75.0
+  - -DSYSTEM_USER_ENABLED=false
   startupProbe:
     httpGet:
       path: /admin/health
@@ -4037,6 +4040,7 @@ mod-source-record-manager:
   - -XX:MaxRAMPercentage=85.0
   - -Dsrm.kafka.DataImportConsumer.loadLimit=8
   - -Dsrm.kafka.DataImportConsumer.globalLoadLimit=64
+  - -DSYSTEM_USER_ENABLED=false
   startupProbe:
     httpGet:
       path: /admin/health
@@ -4120,6 +4124,7 @@ mod-source-record-storage:
   - -Dsrs.kafka.DataImportConsumer.loadLimit=16
   - -Dsrs.kafka.ParsedMarcChunkConsumer.loadLimit=16
   - -Dsrs.kafka.QuickMarcConsumer.loadLimit=4
+  - -DSYSTEM_USER_ENABLED=false
   startupProbe:
     httpGet:
       path: /admin/health
