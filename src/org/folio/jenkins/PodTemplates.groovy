@@ -248,6 +248,9 @@ spec:
 
     defaultTemplate {
       steps.podTemplate(label: podLabel,
+        workspaceVolume: steps.genericEphemeralVolume(accessModes: 'ReadWriteOnce',
+          requestsSize: '15Gi',
+          storageClassName: 'gp3'),
         volumes: [steps.persistentVolumeClaim(claimName: YARN_CACHE_PVC, mountPath: "${WORKING_DIR}/.yarn/cache")],
         containers: [
           steps.containerTemplate(name: 'cypress',

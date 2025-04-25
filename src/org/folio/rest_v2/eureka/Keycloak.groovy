@@ -98,23 +98,25 @@ class Keycloak extends Base {
     return response['okapiToken']
   }
 
-  Keycloak defineTTL(String tenantId, int ttl = 600){
-    logger.info("Increasing TTL for tenant $tenantId ....")
+  Keycloak defineTTL(String tenantId, int ttl = 600, boolean force = false) {
+    if (force) {
+      logger.info("Increasing TTL for tenant $tenantId ....")
 
-    String url = generateUrl("/admin/realms/${tenantId}")
+      String url = generateUrl("/admin/realms/${tenantId}")
 
-    Map<String,String> headers = ['Content-Type':'application/json'] + getAuthMasterTenantHeaders()
+      Map<String, String> headers = ['Content-Type': 'application/json'] + getAuthMasterTenantHeaders()
 
-    Map body = [
-      "accessTokenLifespan": "$ttl",
-      "ssoSessionIdleTimeout": "$ttl"
-    ]
+      Map body = [
+        "accessTokenLifespan"  : "$ttl",
+        "ssoSessionIdleTimeout": "$ttl"
+      ]
 
-    restClient.put(url, body, headers).body
+      restClient.put(url, body, headers).body
 
-    logger.info("TTL for tenant $tenantId has been increased successfully to $ttl")
+      logger.info("TTL for tenant $tenantId has been increased successfully to $ttl")
 
-    return this
+      return this
+    }
   }
 
   static String getRealmTokenPath(String tenantId){
