@@ -5,6 +5,7 @@ import org.csanchez.jenkins.plugins.kubernetes.pod.retention.Never
 import org.csanchez.jenkins.plugins.kubernetes.pod.retention.OnFailure
 import org.csanchez.jenkins.plugins.kubernetes.pod.retention.PodRetention
 import org.csanchez.jenkins.plugins.kubernetes.pod.yaml.Merge
+import org.folio.Constants
 import org.folio.utilities.Logger
 
 /**
@@ -122,10 +123,10 @@ spec:
    * @param javaVersion The Java version (e.g., "11", "17", "21").
    * @param body A closure containing the pipeline logic to execute within this pod.
    */
-  void javaBaseTemplate(String javaVersion, String podUuid = '', Closure body) {
+  void javaBaseTemplate(String javaVersion, String podLabel = JenkinsAgentLabel.JAVA_AGENT.getLabel(), Closure body) {
     logger.info("Using Java version: ${javaVersion}")
-    String podLabel = podUuid?.isEmpty() ? JenkinsAgentLabel.JAVA_AGENT.getLabel()
-      : "${JenkinsAgentLabel.JAVA_AGENT.getLabel()}-${podUuid}"
+//    String podLabel = podUuid?.isEmpty() ? JenkinsAgentLabel.JAVA_AGENT.getLabel()
+//      : "${JenkinsAgentLabel.JAVA_AGENT.getLabel()}-${podUuid}"
 
     defaultTemplate {
       steps.podTemplate(label: podLabel,
@@ -283,7 +284,7 @@ spec:
     String podLabel = podUuid?.isEmpty() ? JenkinsAgentLabel.JAVA_AGENT.getLabel()
       : "${JenkinsAgentLabel.JAVA_AGENT.getLabel()}-${podUuid}"
 
-    javaBaseTemplate(javaVersion, podUuid) {
+    javaBaseTemplate(javaVersion, podLabel) {
       steps.node(podLabel) {
         body.call()
       }
@@ -297,9 +298,9 @@ spec:
   void stripesAgent() {}
 
   void rancherAgent(Closure body) {
-    String podLabel = JenkinsAgentLabel.DEFAULT_AGENT.getLabel()
+    String podLabel = 'rancher-agent'
 
-    defaultTemplate {
+    javaBaseTemplate(Constants.JAVA_LATEST_VERSION, podLabel) {
       steps.node(podLabel) {
         body.call()
       }
