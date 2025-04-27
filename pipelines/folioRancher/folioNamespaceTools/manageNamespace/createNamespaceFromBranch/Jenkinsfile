@@ -138,7 +138,11 @@ if (params.MARC_MIGRATIONS) {
 
 RancherNamespace namespace = new RancherNamespace(namespaceParams.getClusterName(), namespaceParams.getNamespaceName())
 
-GlobalConst.validateNamespace(namespaceParams.getNamespaceName())
+try {
+  GlobalConst.validateNamespace(namespaceParams.getNamespaceName())
+} catch (Exception e) {
+  error(e.message)
+}
 
 CypressTestsParameters cypressSanityParameters = new CypressTestsParameters()
 cypressSanityParameters.setCiBuildId(env.JOB_BASE_NAME)
