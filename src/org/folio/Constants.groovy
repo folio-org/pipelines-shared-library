@@ -411,7 +411,7 @@ class Constants {
     allNamespaces.addAll(AWS_EKS_RELEASE_NAMESPACES)
     allNamespaces.addAll(AWS_EKS_DEV_NAMESPACES)
 
-    if (!allNamespaces*.toLowerCase().contains(namespace.toLowerCase())) {
+    if (!allNamespaces.collect { it.toLowerCase() }.contains(namespace.toLowerCase())) {
       throw new RuntimeException("Unknown namespace: ${namespace}")
     }
   }
