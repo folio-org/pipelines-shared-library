@@ -5,7 +5,7 @@ import org.folio.jenkins.JenkinsAgentLabel
 import org.folio.jenkins.PodTemplates
 import org.folio.models.parameters.CreateNamespaceParameters
 
-@Library('pipelines-shared-library@RANCHER-2186') _
+@Library('pipelines-shared-library@RANCHER-2236') _
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
