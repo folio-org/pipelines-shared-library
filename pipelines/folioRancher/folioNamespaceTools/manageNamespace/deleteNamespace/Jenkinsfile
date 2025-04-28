@@ -5,7 +5,7 @@ import org.folio.jenkins.JenkinsAgentLabel
 import org.folio.jenkins.PodTemplates
 import org.folio.models.parameters.CreateNamespaceParameters
 
-@Library('pipelines-shared-library@RANCHER-2236') _
+@Library('pipelines-shared-library@RANCHER-2186') _
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
@@ -42,11 +42,7 @@ CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builde
   .s3Type(params.S3_BUCKET)
   .build()
 
-try {
-  Constants.validateNamespace(namespaceParams.getNamespaceName())
-} catch (Exception e) {
-  error(e.message)
-}
+folioCommon.validateNamespace(namespaceParams.getNamespaceName())
 
 ansiColor('xterm') {
   PodTemplates podTemplates = new PodTemplates(this)

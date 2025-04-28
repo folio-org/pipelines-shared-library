@@ -11,7 +11,7 @@ import org.folio.rest_v2.Constants
 import org.folio.rest_v2.PlatformType
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library@RANCHER-2236') _
+@Library('pipelines-shared-library@RANCHER-2186') _
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
@@ -138,11 +138,7 @@ if (params.MARC_MIGRATIONS) {
 
 RancherNamespace namespace = new RancherNamespace(namespaceParams.getClusterName(), namespaceParams.getNamespaceName())
 
-try {
-  GlobalConst.validateNamespace(namespaceParams.getNamespaceName())
-} catch (Exception e) {
-  error(e.message)
-}
+folioCommon.validateNamespace(params.NAMESPACE)
 
 CypressTestsParameters cypressSanityParameters = new CypressTestsParameters()
 cypressSanityParameters.setCiBuildId(env.JOB_BASE_NAME)

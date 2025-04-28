@@ -65,3 +65,15 @@ private void requestApproval() {
     submitter: Constants.JENKINS_KITFOX_USER_IDS.join(', ')
   )
 }
+
+void validateNamespace(String namespace) {
+  List allNamespaces = []
+  allNamespaces.addAll(Constants.AWS_EKS_TMP_NAMESPACES)
+  allNamespaces.addAll(Constants.AWS_EKS_TESTING_NAMESPACES)
+  allNamespaces.addAll(Constants.AWS_EKS_RELEASE_NAMESPACES)
+  allNamespaces.addAll(Constants.AWS_EKS_DEV_NAMESPACES)
+
+  if (!allNamespaces.collect { it.toLowerCase() }.contains(namespace.toLowerCase())) {
+    error("Unknown namespace: ${namespace}")
+  }
+}

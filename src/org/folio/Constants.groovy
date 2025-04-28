@@ -398,15 +398,4 @@ class Constants {
                                 'folio-kong',
                                 'folio-keycloak']
 
-  static void validateNamespace(String namespace) {
-    List allNamespaces = []
-    allNamespaces.addAll(AWS_EKS_TMP_NAMESPACES)
-    allNamespaces.addAll(AWS_EKS_TESTING_NAMESPACES)
-    allNamespaces.addAll(AWS_EKS_RELEASE_NAMESPACES)
-    allNamespaces.addAll(AWS_EKS_DEV_NAMESPACES)
-
-    if (!allNamespaces.collect { it.toLowerCase() }.contains(namespace.toLowerCase())) {
-      throw new RuntimeException("Unknown namespace: ${namespace}")
-    }
-  }
 }
