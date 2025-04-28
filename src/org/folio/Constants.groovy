@@ -35,7 +35,7 @@ class Constants {
   static String AWS_S3_DATA_EXPORT_ID = 'ci-data-export-s3'
   static String AWS_S3_POSTGRES_BACKUPS = 'aws-s3-db-backups-credentials'
   static String AWS_EKS_VPC_NAME = 'folio-rancher-vpc'
-  static String AWS_EKS_ADMIN_USERS = 'rancher-port-forward,jenkins-service-user,oleksandrhaimanov,eldiiarduishenaliev,tarasspashchenko,stanislav,arsenatoyan,dmytromoroz,vasylavramenko,yaroslavishchenko,sergiimasiuk'
+  static String AWS_EKS_ADMIN_USERS = 'rancher-port-forward,jenkins-service-user,oleksandrhaimanov,eldiiarduishenaliev,stanislav,arsenatoyan,vasylavramenko,sergiimasiuk'
   static List AWS_EKS_TMP_NAMESPACES = ['test', 'test-1', 'test-2', 'tdspora']
   static List AWS_EKS_TESTING_NAMESPACES = ['cypress', 'data-migration', 'ecs-snapshot', 'karate', 'snapshot', 'snapshot2', 'sprint', 'pre-bugfest', 'orchid-migration', 'lsdi']
   static List AWS_EKS_RELEASE_NAMESPACES = ['poppy', 'quesnelia']
@@ -126,12 +126,6 @@ class Constants {
       , platform: [ PlatformType.EUREKA ]
       , namespaces: AWS_EKS_DEV_NAMESPACES + AWS_EKS_RELEASE_NAMESPACES
       , disabled: false
-    ],
-    [
-      name: 'folio-etmp'
-      , platform: [ PlatformType.EUREKA ]
-      , namespaces: AWS_EKS_TMP_NAMESPACES
-      , disabled: true
     ],
     [
       name: 'folio-tmp'
@@ -381,11 +375,10 @@ class Constants {
 
   static List KITFOX_MEMBERS = ["oleksii_petrenko1@epam.com",
                                 "oleksandr_haimanov@epam.com",
-                                "dmytro_moroz@epam.com",
                                 "arsen_atoyan@epam.com",
                                 "vasyl_avramenko@epam.com",
                                 "eldiiar_duishenaliev@epam",
-                                "yaroslav_ishchenko@epam.com"]
+                                "sergii_masiuk@epam.com"]
 
   static List PGSQL_VERSION = ["12.12", "13.13", "14.10", "15.5", "16.1"]
 

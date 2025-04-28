@@ -41,6 +41,8 @@ if (params.CLUSTER == 'folio-testing') {
   folioCommon.kitfoxApproval()
 }
 
+folioCommon.validateNamespace(params.NAMESPACE)
+
 /**
  * Set terraform configuration
  */

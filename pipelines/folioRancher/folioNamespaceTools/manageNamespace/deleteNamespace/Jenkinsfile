@@ -42,6 +42,8 @@ CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builde
   .s3Type(params.S3_BUCKET)
   .build()
 
+folioCommon.validateNamespace(params.NAMESPACE)
+
 ansiColor('xterm') {
   PodTemplates podTemplates = new PodTemplates(this)
 

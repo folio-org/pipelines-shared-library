@@ -46,6 +46,8 @@ CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builde
   .namespaceOnly(true)
   .build()
 
+folioCommon.validateNamespace(params.NAMESPACE)
+
 ansiColor('xterm') {
   PodTemplates podTemplates = new PodTemplates(this)
 
