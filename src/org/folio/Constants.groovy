@@ -397,5 +397,4 @@ class Constants {
                                 'folio-module-sidecar',
                                 'folio-kong',
                                 'folio-keycloak']
-
 }
