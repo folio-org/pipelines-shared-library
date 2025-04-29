@@ -81,7 +81,7 @@ void destroy(TerraformConfig config, boolean approveRequired = false, Closure pr
   folioTerraform.selectWorkspace(config.getWorkDir(), config.getWorkspace())
   folioTerraform.statePull(config.getWorkDir())
 
-  if (config.getVars()['pg_embedded'] != 'true' && config.getVars()['rancher_project_name'] != 'sprint') {
+  if (config.getVars()['pg_embedded'] != 'true') {
     folioTerraform.cleanUpPostgresResources(config.getWorkDir())
   }
 
