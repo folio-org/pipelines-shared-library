@@ -90,6 +90,7 @@ private void requestApproval() {
 }
 
 void validateNamespace(String namespace) {
+  Map cause = getRelevantCause()
   List allNamespaces = []
   allNamespaces.addAll(Constants.AWS_EKS_TMP_NAMESPACES)
   allNamespaces.addAll(Constants.AWS_EKS_TESTING_NAMESPACES)
@@ -97,7 +98,7 @@ void validateNamespace(String namespace) {
   allNamespaces.addAll(Constants.AWS_EKS_DEV_NAMESPACES)
   allNamespaces.addAll(Constants.RANCHER_KNOWN_NAMESPACES)
 
-  if (!allNamespaces.collect { it.toLowerCase() }.contains(namespace.toLowerCase())) {
+  if (!isApprovedUser(cause?.userId) && !allNamespaces.collect { it.toLowerCase() }.contains(namespace.toLowerCase())) {
     error("Unknown namespace: ${namespace}")
   }
 }

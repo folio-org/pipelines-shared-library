@@ -77,6 +77,8 @@ if (params.REFRESH_PARAMETERS) {
   return
 }
 
+folioCommon.validateNamespace(params.NAMESPACE)
+
 if (params.CLUSTER == 'folio-testing') {
   folioCommon.kitfoxApproval()
 }
@@ -135,8 +137,6 @@ if (params.MARC_MIGRATIONS) {
 }
 
 RancherNamespace namespace = new RancherNamespace(namespaceParams.getClusterName(), namespaceParams.getNamespaceName())
-
-folioCommon.validateNamespace(params.NAMESPACE)
 
 CypressTestsParameters cypressSanityParameters = new CypressTestsParameters()
 cypressSanityParameters.setCiBuildId(env.JOB_BASE_NAME)
