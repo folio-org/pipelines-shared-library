@@ -3286,7 +3286,7 @@ mod-consortia-keycloak:
 mod-login-keycloak:
   extraEnvVars:
     - name: KC_ADMIN_TOKEN_TTL
-      value: '410s'
+      value: '295s'
     - name: X_OKAPI_TOKEN_HEADER_ENABLED
       value: 'false'
     - name: LOGIN_COOKIE_SAMESITE
