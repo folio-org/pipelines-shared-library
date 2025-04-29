@@ -98,8 +98,9 @@ class Keycloak extends Base {
     return response['okapiToken']
   }
 
-  Keycloak defineTTL(String tenantId, int ttl = 600, boolean force = false) {
-    if (force) {
+  Keycloak defineTTL(String tenantId, int ttl = 300) {
+    if (tenantId == 'master') {
+
       logger.info("Increasing TTL for tenant $tenantId ....")
 
       String url = generateUrl("/admin/realms/${tenantId}")
