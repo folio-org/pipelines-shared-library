@@ -1,6 +1,5 @@
 #!groovy
 import org.folio.Constants
-import org.folio.jenkins.JenkinsAgentLabel
 import org.folio.jenkins.PodTemplates
 import org.folio.models.RancherNamespace
 import org.folio.models.parameters.CreateNamespaceParameters
@@ -16,16 +15,16 @@ import org.jenkinsci.plugins.workflow.libs.Library
  */
 properties([
 //  pipelineTriggers([cron('H 16 * * 1-5')]),
-  buildDiscarder(logRotator(numToKeepStr: '30')),
-  disableConcurrentBuilds(),
-  parameters([
-    string(name: 'TESTS_BRANCH', defaultValue: 'master-eureka', description: "(Required) Karate tests repository branch to checkout"),
-    string(name: 'THREADS_COUNT', defaultValue: '1', description: "(Required) Number of parallel threads"),
-    string(name: 'TESTS_TIMEOUT', defaultValue: '15', description: "(Required) Tests execution timeout in hours"),
-    booleanParam(name: 'RETRY_FAILED', defaultValue: false, description: "(Optional) Retry failed tests"),
-    booleanParam(name: 'DESTROY_AFTER', defaultValue: false, description: '(Optional) Set to false to not destroy namespace after tests execution'),
-    folioParameters.refreshParameters()
-  ])
+buildDiscarder(logRotator(numToKeepStr: '30')),
+disableConcurrentBuilds(),
+parameters([
+  string(name: 'TESTS_BRANCH', defaultValue: 'master-eureka', description: "(Required) Karate tests repository branch to checkout"),
+  string(name: 'THREADS_COUNT', defaultValue: '1', description: "(Required) Number of parallel threads"),
+  string(name: 'TESTS_TIMEOUT', defaultValue: '15', description: "(Required) Tests execution timeout in hours"),
+  booleanParam(name: 'RETRY_FAILED', defaultValue: false, description: "(Optional) Retry failed tests"),
+  booleanParam(name: 'DESTROY_AFTER', defaultValue: false, description: '(Optional) Set to false to not destroy namespace after tests execution'),
+  folioParameters.refreshParameters()
+])
 ])
 
 if (params.REFRESH_PARAMETERS) {
@@ -43,112 +42,109 @@ Logger logger = new Logger(this, env.JOB_BASE_NAME)
  * Pipeline
  */
 ansiColor('xterm') {
-  podTemplates.defaultTemplate {
-    node(JenkinsAgentLabel.DEFAULT_AGENT.getLabel()) {
+  podTemplates.rancherAgent {
+    final String createNamespaceJobName = Constants.JENKINS_CREATE_NAMESPACE_FROM_BRANCH_JOB
+    final String deleteNamespaceJobName = Constants.JENKINS_DELETE_NAMESPACE_JOB
+    String okapiVersion = folioTools.eval(folioStringScripts.getOkapiVersions(), ['FOLIO_BRANCH': 'snapshot'])[0]
 
-      final String createNamespaceJobName = Constants.JENKINS_CREATE_NAMESPACE_FROM_BRANCH_JOB
-      final String deleteNamespaceJobName = Constants.JENKINS_DELETE_NAMESPACE_JOB
-      String okapiVersion = folioTools.eval(folioStringScripts.getOkapiVersions(), ['FOLIO_BRANCH': 'snapshot'])[0]
+    CreateNamespaceParameters namespaceBaseParams = new CreateNamespaceParameters.Builder()
+      .platform(PlatformType.EUREKA)
+      .clusterName('folio-tmp')
+      .namespaceName('karate-eureka')
+      .rwSplit(false)
+      .greenmail(false)
+      .mockServer(false)
+      .pgType('built-in')
+      .pgVersion('16.1')
+      .kafkaType('built-in')
+      .opensearchType('aws')
+      .s3Type('built-in')
+      .runSanityCheck(false)
+      .members('dojo')
+      .uiBuild(true)
+      .build()
 
-      CreateNamespaceParameters namespaceBaseParams = new CreateNamespaceParameters.Builder()
-        .platform(PlatformType.EUREKA)
-        .clusterName('folio-tmp')
-        .namespaceName('karate-eureka')
-        .rwSplit(false)
-        .greenmail(false)
-        .mockServer(false)
-        .pgType('built-in')
-        .pgVersion('16.1')
-        .kafkaType('built-in')
-        .opensearchType('aws')
-        .s3Type('built-in')
-        .runSanityCheck(false)
-        .members('dojo')
-        .uiBuild(true)
-        .build()
+    CreateNamespaceParameters namespaceFromBranchParams = namespaceBaseParams.toBuilder()
+      .folioBranch('snapshot')
+      .okapiVersion(okapiVersion)
+      .configType('testing')
+      .loadReference(true)
+      .loadSample(true)
+      .linkedData(true)
+      .mockServer(true)
+      .consortia(true)
+      .splitFiles(true)
+      .rtr(false)
+      .applicationSet('Complete')
+      .applications(org.folio.rest_v2.Constants.APPLICATION_BRANCH('Complete'))
+      .hasSecureTenant(true)
+      .secureTenantId(folioDefault.consortiaTenants().get('university').getTenantId())
+      .uiBuild(true)
+      .build()
 
-      CreateNamespaceParameters namespaceFromBranchParams = namespaceBaseParams.toBuilder()
-        .folioBranch('snapshot')
-        .okapiVersion(okapiVersion)
-        .configType('testing')
-        .loadReference(true)
-        .loadSample(true)
-        .linkedData(true)
-        .mockServer(true)
-        .consortia(true)
-        .splitFiles(true)
-        .rtr(false)
-        .applicationSet('Complete')
-        .applications(org.folio.rest_v2.Constants.APPLICATION_BRANCH('Complete'))
-        .hasSecureTenant(true)
-        .secureTenantId(folioDefault.consortiaTenants().get('university').getTenantId())
-        .uiBuild(true)
-        .build()
+    RancherNamespace namespace = new RancherNamespace(namespaceBaseParams.getClusterName(), namespaceBaseParams.getNamespaceName())
+    namespace.withDefaultTenant('diku')
+    namespace.withSuperTenantAdminUser('diku_admin', 'admin')
 
-      RancherNamespace namespace = new RancherNamespace(namespaceBaseParams.getClusterName(), namespaceBaseParams.getNamespaceName())
-      namespace.withDefaultTenant('diku')
-      namespace.withSuperTenantAdminUser('diku_admin', 'admin')
-
-      KarateTestsParameters karateTestsParams = new KarateTestsParameters()
-      karateTestsParams.gitBranch = params.TESTS_BRANCH
-      karateTestsParams.okapiUrl = "https://${namespace.getDomains().kong}"
-      karateTestsParams.edgeUrl = "https://${namespace.getDomains().edge}"
-      karateTestsParams.tenant = namespace.getDefaultTenantId()
-      karateTestsParams.prototypeTenant = 'consortium'
-      karateTestsParams.adminUserName = namespace.getSuperTenant().getAdminUser().getUsername()
-      karateTestsParams.adminPassword = namespace.getSuperTenant().getAdminUser().getPassword()
-      karateTestsParams.threadsCount = params.THREADS_COUNT
+    KarateTestsParameters karateTestsParams = new KarateTestsParameters()
+    karateTestsParams.gitBranch = params.TESTS_BRANCH
+    karateTestsParams.okapiUrl = "https://${namespace.getDomains().kong}"
+    karateTestsParams.edgeUrl = "https://${namespace.getDomains().edge}"
+    karateTestsParams.tenant = namespace.getDefaultTenantId()
+    karateTestsParams.prototypeTenant = 'consortium'
+    karateTestsParams.adminUserName = namespace.getSuperTenant().getAdminUser().getUsername()
+    karateTestsParams.adminPassword = namespace.getSuperTenant().getAdminUser().getPassword()
+    karateTestsParams.threadsCount = params.THREADS_COUNT
 //      karateTestsParams.reportPortalProjectName = namespace.getNamespaceName()
 //      karateTestsParams.sendSlackNotification = currentBuild.rawBuild.getCauses().any { it.toString().contains("TimerTriggerCause") } ? true : false
 //      karateTestsParams.sendTeamsSlackNotification = currentBuild.rawBuild.getCauses().any { it.toString().contains("TimerTriggerCause") } ? true : false
 //      karateTestsParams.syncWithJira = currentBuild.rawBuild.getCauses().any { it.toString().contains("TimerTriggerCause") } ? true : false
-      karateTestsParams.timeout = params.TESTS_TIMEOUT
+    karateTestsParams.timeout = params.TESTS_TIMEOUT
 
-      try {
-        stage('Ini') {
-          buildDescription "Branch: ${params.TESTS_BRANCH}\nThreads: ${params.THREADS_COUNT}\nDestroy after: ${params.DESTROY_AFTER}"
-          cleanWs()
-        }
+    try {
+      stage('Ini') {
+        buildDescription "Branch: ${params.TESTS_BRANCH}\nThreads: ${params.THREADS_COUNT}\nDestroy after: ${params.DESTROY_AFTER}"
+        cleanWs()
+      }
 
-        stage('[Job] Destroy environment (before)') {
-          def nsExists
-          folioHelm.withKubeConfig(namespaceBaseParams.getClusterName()) {
-            nsExists = kubectl.checkNamespaceExistence("${namespaceBaseParams.getNamespaceName()}")
-          }
-          if (nsExists) {
-            retry(2) {
-              params.RETRY_FAILED ? null : folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceBaseParams)
-            }
-          } else {
-            logger.warning("${namespaceBaseParams.getNamespaceName()} namespace does not exists!")
-          }
+      stage('[Job] Destroy environment (before)') {
+        def nsExists
+        folioHelm.withKubeConfig(namespaceBaseParams.getClusterName()) {
+          nsExists = kubectl.checkNamespaceExistence("${namespaceBaseParams.getNamespaceName()}")
         }
+        if (nsExists) {
+          retry(2) {
+            params.RETRY_FAILED ? null : folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceBaseParams)
+          }
+        } else {
+          logger.warning("${namespaceBaseParams.getNamespaceName()} namespace does not exists!")
+        }
+      }
 
-        stage('[Job] Provision environment') {
-          try {
-            params.RETRY_FAILED ? null : folioTriggerJob.createNamespaceFromBranch(createNamespaceJobName, namespaceFromBranchParams)
-          } catch (Exception new_ex) {
-            slackSend(attachments: folioSlackNotificationUtils.renderFailedBuildResultMessage()
-              , channel: "#rancher_tests_notifications")
-            throw new Exception("Provision of the environment is failed: " + new_ex)
-          }
+      stage('[Job] Provision environment') {
+        try {
+          params.RETRY_FAILED ? null : folioTriggerJob.createNamespaceFromBranch(createNamespaceJobName, namespaceFromBranchParams)
+        } catch (Exception new_ex) {
+          slackSend(attachments: folioSlackNotificationUtils.renderFailedBuildResultMessage()
+            , channel: "#rancher_tests_notifications")
+          throw new Exception("Provision of the environment is failed: " + new_ex)
         }
+      }
 
-        stage('[Flow] Execute tests') {
-          folioKarateFlow.call(karateTestsParams)
-        }
-      } catch (e) {
-        logger.warning("Caught exception: ${e}")
-        error(e.getMessage())
-      } finally {
-        stage('Cleanup') {
-          if (params.DESTROY_AFTER) {
-            stage('[Job] Destroy environment (after)') {
-              folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceBaseParams)
-            }
+      stage('[Flow] Execute tests') {
+        folioKarateFlow.call(karateTestsParams)
+      }
+    } catch (e) {
+      logger.warning("Caught exception: ${e}")
+      error(e.getMessage())
+    } finally {
+      stage('Cleanup') {
+        if (params.DESTROY_AFTER) {
+          stage('[Job] Destroy environment (after)') {
+            folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceBaseParams)
           }
-          logger.debug("Workspace size: ${sh(returnStdout: true, script: 'du -sh .').trim()}")
         }
+        logger.debug("Workspace size: ${sh(returnStdout: true, script: 'du -sh .').trim()}")
       }
     }
   }

@@ -2,49 +2,10 @@ import com.mkobit.jenkins.pipelines.http.ApiTokenAuthentication
 import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
 
-buildscript {
-  repositories {
-    mavenCentral() // must be first to resolve eddsa!
-    maven {
-      url "https://repo.jenkins-ci.org/public/"
-    }
-    maven {
-      url "https://repo.jenkins-ci.org/releases/"
-    }
-    maven {
-      url "https://maven.google.com"
-    }
-    gradlePluginPortal()
-  }
-  dependencies {
-    classpath("org.antlr:antlr4-runtime:4.13.2")
-    classpath("com.squareup.okhttp3:okhttp:4.9.3")
-    classpath("com.google:google:5")
-    classpath("com.google.inject:guice:6.0.0")
-    classpath("org.eclipse.ee4j:project:1.0.6")
-    classpath("jakarta.servlet.jsp.jstl:jakarta.servlet.jsp.jstl-api:2.0.0")
-    classpath("com.google.guava:failureaccess:1.0.2")
-  }
-}
-
 plugins {
   id 'com.mkobit.jenkins.pipelines.shared-library' version '0.10.1'
   id 'java'
   id 'groovy'
-}
-
-repositories {
-  mavenCentral() // must be first to resolve eddsa!
-  maven {
-    url "https://repo.jenkins-ci.org/public/"
-  }
-  maven {
-    url "https://repo.jenkins-ci.org/releases/"
-  }
-  maven {
-    url "https://maven.google.com"
-  }
-  gradlePluginPortal()
 }
 
 tasks {
@@ -57,7 +18,24 @@ java {
   sourceCompatibility = JavaVersion.VERSION_17
 }
 
+repositories.removeIf { it.name == "JenkinsPublic" }
+
+repositories {
+  mavenCentral()
+  google()
+  gradlePluginPortal()
+
+  maven { url = uri("https://repo.jenkins-ci.org/public/") }
+  maven { url = uri("https://repo.jenkins-ci.org/releases/") }
+  maven { url = uri("https://repo.jenkins-ci.org/snapshots/") }
+  maven { url = uri("https://repo.jenkins-ci.org/incrementals/") }
+}
+
 dependencies {
+  implementation platform("org.jenkins-ci.plugins:plugin:4.66")
+  compileOnly "com.github.ben-manes.caffeine:caffeine:3.2.0"
+  compileOnly "org.springframework.security:spring-security-web:6.4.2"
+  compileOnly "org.jenkins-ci.plugins:gradle:2.14.1"
   testImplementation(platform("org.junit:junit-bom:${junitVersion}"))
   testImplementation('org.junit.jupiter:junit-jupiter')
   testImplementation("org.mockito:mockito-junit-jupiter:${mockitoVersion}")

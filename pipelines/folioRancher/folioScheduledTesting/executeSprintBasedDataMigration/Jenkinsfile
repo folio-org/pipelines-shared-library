@@ -1,6 +1,5 @@
 #!groovy
 import org.folio.Constants
-import org.folio.jenkins.JenkinsAgentLabel
 import org.folio.jenkins.PodTemplates
 import org.jenkinsci.plugins.workflow.libs.Library
 
@@ -33,28 +32,26 @@ Map Parameters = [
 PodTemplates podTemplates = new PodTemplates(this)
 
 ansiColor('xterm') {
-  podTemplates.defaultTemplate {
-    node(JenkinsAgentLabel.DEFAULT_AGENT.getLabel()) {
-      stage('Ini') {
-        buildName env.BUILD_ID
-        buildDescription ""
-        cleanWs()
-      }
+  podTemplates.rancherAgent {
+    stage('Ini') {
+      buildName env.BUILD_ID
+      buildDescription ""
+      cleanWs()
+    }
 
-      stage('[Job] Execute Schema Comparison Job') {
-        script {
-          try {
-            build job: Constants.JENKINS_JOB_DATA_MIGRATION,
-              parameters:
-                [string(name: 'FOLIO_REPOSITORY', value: FOLIO_REPOSITORY),
-                 string(name: 'FOLIO_BRANCH_SRC', value: FOLIO_BRANCH_SRC),
-                 string(name: 'FOLIO_BRANCH_DST', value: FOLIO_BRANCH_DST),
-                 string(name: 'BACKUP_NAME', value: BACKUP_NAME),]
-          } catch (Exception new_ex) {
-            slackSend(attachments: folioSlackNotificationUtils.renderFailedBuildResultMessage()
-              , channel: "#folioschemacompare")
-            throw new Exception("Execution Of Schema Comparison Job Failed: " + new_ex.getMessage())
-          }
+    stage('[Job] Execute Schema Comparison Job') {
+      script {
+        try {
+          build job: Constants.JENKINS_JOB_DATA_MIGRATION,
+            parameters:
+              [string(name: 'FOLIO_REPOSITORY', value: FOLIO_REPOSITORY),
+               string(name: 'FOLIO_BRANCH_SRC', value: FOLIO_BRANCH_SRC),
+               string(name: 'FOLIO_BRANCH_DST', value: FOLIO_BRANCH_DST),
+               string(name: 'BACKUP_NAME', value: BACKUP_NAME),]
+        } catch (Exception new_ex) {
+          slackSend(attachments: folioSlackNotificationUtils.renderFailedBuildResultMessage()
+            , channel: "#folioschemacompare")
+          throw new Exception("Execution Of Schema Comparison Job Failed: " + new_ex.getMessage())
         }
       }
     }

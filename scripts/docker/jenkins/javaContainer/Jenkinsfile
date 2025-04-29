@@ -1,9 +1,6 @@
 #!groovy
-
 import org.folio.Constants
-import org.folio.jenkins.JenkinsAgentLabel
 import org.folio.jenkins.PodTemplates
-import org.folio.utilities.Logger
 
 @Library('pipelines-shared-library@RANCHER-2236') _ //TODO update before merge to master
 
@@ -25,30 +22,27 @@ if (params.REFRESH_PARAMETERS) {
 }
 
 PodTemplates podTemplates = new PodTemplates(this)
-Logger logger = new Logger(this, env.JOB_BASE_NAME)
 def dockerfilePath = './scripts/docker/jenkins/javaContainer'
 
 ansiColor('xterm') {
-  podTemplates.kanikoTemplate {
-    node(JenkinsAgentLabel.KANIKO_AGENT.getLabel()) {
-      stage('[Git] Checkout source') {
-        checkout scmGit(
-          branches: [[name: "*/${env.DOCKERFILE_BRANCH}"]],
-          extensions: [],
-          userRemoteConfigs: [[url: 'https://github.com/folio-org/pipelines-shared-library.git']]
-        )
-      }
+  podTemplates.kanikoAgent {
+    stage('[Git] Checkout source') {
+      checkout scmGit(
+        branches: [[name: "*/${env.DOCKERFILE_BRANCH}"]],
+        extensions: [],
+        userRemoteConfigs: [[url: 'https://github.com/folio-org/pipelines-shared-library.git']]
+      )
+    }
 
-      stage('[Docker] Build and push') {
-        common.checkEcrRepoExistence('amazoncorretto')
-        dir(dockerfilePath) {
-          container('kaniko') {
-            withAWS(credentials: Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID, region: Constants.AWS_REGION) {
-              ecrLogin()
-              folioKaniko.dockerHubLogin()
-              sh """/kaniko/executor  --build-arg JAVA_VERSION=${env.JAVA_VERSION.trim()} \
+    stage('[Docker] Build and push') {
+      common.checkEcrRepoExistence('amazoncorretto')
+      dir(dockerfilePath) {
+        container('kaniko') {
+          withAWS(credentials: Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID, region: Constants.AWS_REGION) {
+            ecrLogin()
+            folioKaniko.dockerHubLogin()
+            sh """/kaniko/executor  --build-arg JAVA_VERSION=${env.JAVA_VERSION.trim()} \
 --destination ${Constants.ECR_FOLIO_REPOSITORY}/amazoncorretto:${env.IMAGE_TAG} --dockerfile ./Dockerfile --context ."""
-            }
           }
         }
       }

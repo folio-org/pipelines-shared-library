@@ -9,59 +9,58 @@ import org.folio.Constants
 import org.folio.utilities.Logger
 
 /**
- * The {@code PodTemplates} class defines Kubernetes pod templates for Jenkins pipelines.
+ * {@code PodTemplates} provides predefined Kubernetes pod templates for Jenkins pipelines,
+ * tailored for different types of builds (e.g., Java builds, Cypress tests, Rancher jobs).
  *
- * <p>This class provides structured pod templates for different Jenkins agents, ensuring consistent configuration.
- * Each method represents a specific Jenkins agent type and provisions the required containers dynamically.
- * It leverages the Jenkins Kubernetes Plugin to manage agent pods.</p>
+ * <p>It abstracts common container patterns, volume mounts, and resource configurations,
+ * ensuring consistency, maintainability, and optimized agent deployments in the Jenkins cluster.</p>
+ *
+ * <h2>Key Features:</h2>
+ * <ul>
+ *   <li>Dynamic container configurations (Java, Docker-in-Docker, Cypress, Kaniko).</li>
+ *   <li>Support for workspace ephemeral storage and caching (Maven, Yarn).</li>
+ *   <li>Debugging support with pod YAML dump on failure.</li>
+ * </ul>
  *
  * <h2>References:</h2>
  * <ul>
- *     <li><a href="https://plugins.jenkins.io/kubernetes/#plugin-content-nesting-pod-templates">Jenkins Kubernetes Plugin</a> - Official documentation</li>
- *     <li><a href="https://www.jenkins.io/doc/pipeline/steps/kubernetes/">Jenkins Pipeline Kubernetes Steps</a> - Guide for Kubernetes steps in pipelines</li>
- *     <li><a href="https://github.com/jenkinsci/kubernetes-plugin">Kubernetes Plugin Repository</a> - Source code repository</li>
+ *   <li><a href="https://plugins.jenkins.io/kubernetes/">Jenkins Kubernetes Plugin</a></li>
+ *   <li><a href="https://github.com/jenkinsci/kubernetes-plugin">Plugin Source Repository</a></li>
+ *   <li><a href="https://www.jenkins.io/doc/pipeline/steps/kubernetes/">Pipeline Kubernetes Steps</a></li>
  * </ul>
  *
- * <h2>Usage Example in a Jenkinsfile:</h2>
- *
+ * <h2>Example Usage:</h2>
  * <pre>{@code
- * import org.folio.jenkins.PodTemplates;
- *
- * podTemplates = new PodTemplates(this)
- * ansiColor('xterm') {
- *     podTemplates.cypressTemplate {
- *         podTemplates.javaTemplate("11") {
- *             node(JenkinsAgentLabel.JAVA_AGENT.getLabel()) {
- *                 container('java') {
- *                     sh 'java -version'
- *                 }
- *                 container('cypress') {
- *                     sh 'yarn -v'
- *                 }
- *             }
- *         }
- *     }
+ * def templates = new PodTemplates(this)
+ * templates.cypressAgent {
+ *   container('cypress') {
+ *     sh 'yarn run test'
+ *   }
  * }
- *}</pre>*/
+ *}</pre>
+ */
 class PodTemplates {
+  // ===== Static Configuration =====
   private static final String CLOUD_NAME = 'folio-jenkins-agents'
   private static final String NAMESPACE = 'jenkins-agents'
   private static final String SERVICE_ACCOUNT = 'jenkins-service-account'
   public static final String WORKING_DIR = '/home/jenkins/agent'
   private static final String YARN_CACHE_PVC = 'yarn-cache-pvc'
   private static final String MAVEN_CACHE_PVC = 'maven-cache-pvc'
+  private static final String ECR_REPOSITORY = '732722833398.dkr.ecr.us-west-2.amazonaws.com'
 
 
+  // ===== Instance State =====
   private Object steps
   private boolean debug
   private Logger logger
   private PodRetention podRetention = new Never()
 
   /**
-   * Constructs a {@code PodTemplates} instance.
+   * Creates a new instance of {@code PodTemplates}.
    *
-   * @param context The pipeline script context (usually `this` in a Jenkinsfile).
-   * @param debug Enables debugging mode to display raw YAML configurations (default: {@code false}).
+   * @param context The Jenkins pipeline script context (typically {@code this} in a Jenkinsfile).
+   * @param debug If {@code true}, enables YAML output for pod templates on agent creation failures.
    */
   PodTemplates(context, boolean debug = false) {
     this.steps = context
@@ -73,15 +72,17 @@ class PodTemplates {
   }
 
   /**
-   * Defines a default Kubernetes pod template for Jenkins agents.
+   * Defines the base pod template configuration.
    *
-   * <p>This template serves as a base for other pod templates, providing consistent configurations.</p>
+   * <p>Provides workspace volume, pod security context, and a minimal JNLP container.</p>
    *
-   * @param body A closure containing the pipeline logic to execute within this pod.
+   * @param body The closure to execute inside this pod.
    */
-  void defaultTemplate(Closure body) {
+  private void defaultTemplate(Closure body) {
     logger.debug("Debug mode: ${debug}")
-    steps.podTemplate(cloud: CLOUD_NAME,
+
+    steps.podTemplate(
+      cloud: CLOUD_NAME,
       label: JenkinsAgentLabel.DEFAULT_AGENT.getLabel(),
       namespace: NAMESPACE,
       serviceAccount: SERVICE_ACCOUNT,
@@ -100,64 +101,218 @@ spec:
       workspaceVolume: steps.genericEphemeralVolume(accessModes: 'ReadWriteOnce',
         requestsSize: '5Gi',
         storageClassName: 'gp3'),
-      containers: [steps.containerTemplate(name: 'jnlp',
-        image: "${Constants.ECR_FOLIO_REPOSITORY}/folio-jenkins-agent:latest",
-        ttyEnabled: true,
-        alwaysPullImage: true,
-        workingDir: WORKING_DIR,
-        resourceRequestMemory: '1536Mi',
-        resourceLimitMemory: '2048Mi',
-      )]) {
+      containers: [
+        steps.containerTemplate(name: 'jnlp',
+          image: "${ECR_REPOSITORY}/folio-jenkins-agent:latest",
+          alwaysPullImage: true,
+          ttyEnabled: true,
+          workingDir: WORKING_DIR,
+          resourceRequestMemory: '1536Mi',
+          resourceLimitMemory: '2048Mi',
+        )]) {
       body.call()
     }
   }
 
   /**
-   * Defines a pod template for Java-based builds.
+   * Generates a pod label based on a base agent label and an optional UUID suffix.
    *
-   * <p>Provisions a pod with a Java container for the specified Java version.</p>
-   *
-   * @param javaVersion The Java version (e.g., "11", "17", "21").
-   * @param body A closure containing the pipeline logic to execute within this pod.
+   * @param label Base {@link JenkinsAgentLabel}.
+   * @param uuid Optional unique identifier suffix.
+   * @return Combined label.
    */
-  void javaTemplate(String javaVersion, String podUuid = '', Closure body) {
+  private static String generatePodLabel(JenkinsAgentLabel label, String uuid = null) {
+    return uuid?.trim() ? "${label.getLabel()}-${uuid}" : label.getLabel()
+  }
+
+  // ========= Container Builders =========
+
+  /**
+   * Builds a Java container definition for a specified Java version.
+   *
+   * @param javaVersion Java version tag (e.g., {@code 17}, {@code 21}).
+   * @param extraEnvVars Optional extra environment variables.
+   * @param resourceRequestMemory Minimum memory request (default {@code 2Gi}).
+   * @param resourceLimitMemory Memory limit (default {@code 4Gi}).
+   * @return Java container definition.
+   */
+  private Object buildJavaContainer(
+    String javaVersion,
+    List<KeyValueEnvVar> extraEnvVars = [],
+    String resourceRequestMemory = '2Gi',
+    String resourceLimitMemory = '4Gi'
+  ) {
+    return steps.containerTemplate(
+      name: 'java',
+      image: "${ECR_REPOSITORY}/amazoncorretto:${javaVersion}-alpine-jdk",
+      alwaysPullImage: true,
+      envVars: [new KeyValueEnvVar('HOME', WORKING_DIR)] + extraEnvVars,
+      command: 'sleep',
+      args: '99d',
+      runAsGroup: '1000',
+      runAsUser: '1000',
+      resourceRequestMemory: resourceRequestMemory,
+      resourceLimitMemory: resourceLimitMemory
+    )
+  }
+
+  /**
+   * Builds a Docker-in-Docker (DIND) container.
+   *
+   * @param extraEnvVars Optional additional environment variables.
+   * @return DIND container definition.
+   */
+  private Object buildDindContainer(List<KeyValueEnvVar> extraEnvVars = []) {
+    return steps.containerTemplate(
+      name: 'dind',
+      image: 'docker:dind',
+      envVars: [new KeyValueEnvVar('DOCKER_TLS_CERTDIR', '')] + extraEnvVars,
+      privileged: true,
+      args: '--host=tcp://0.0.0.0:2375 --host=unix:///var/run/docker.sock'
+    )
+  }
+
+  /**
+   * Builds a Kaniko container for Docker image builds without Docker daemon.
+   *
+   * @param extraEnvVars Optional environment variables.
+   * @param resourceRequestMemory Minimum memory request (default {@code 2Gi}).
+   * @param resourceLimitMemory Memory limit (default {@code 4Gi}).
+   * @return Kaniko container definition.
+   */
+  private Object buildKanikoContainer(
+    List<KeyValueEnvVar> extraEnvVars = [],
+    String resourceRequestMemory = '2Gi',
+    String resourceLimitMemory = '4Gi'
+  ) {
+    return steps.containerTemplate(
+      name: 'kaniko',
+      image: 'gcr.io/kaniko-project/executor:debug',
+      alwaysPullImage: true,
+      envVars: [new KeyValueEnvVar('KANIKO_DIR', "${WORKING_DIR}/kaniko")] + extraEnvVars,
+      command: 'sleep',
+      args: '99d',
+      resourceRequestMemory: resourceRequestMemory,
+      resourceLimitMemory: resourceLimitMemory
+    )
+  }
+
+
+  /**
+   * Builds a Cypress test container.
+   *
+   * @param extraEnvVars Optional environment variables.
+   * @param resourceRequestMemory Minimum memory request (default {@code 2Gi}).
+   * @param resourceLimitMemory Memory limit (default {@code 3Gi}).
+   * @return Cypress container definition.
+   */
+  private Object buildCypressContainer(
+    List<KeyValueEnvVar> extraEnvVars = [],
+    String resourceRequestMemory = '2Gi',
+    String resourceLimitMemory = '3Gi'
+  ) {
+    return steps.containerTemplate(
+      name: 'cypress',
+      image: "${ECR_REPOSITORY}/cypress/browsers:latest",
+      alwaysPullImage: true,
+      command: 'sleep',
+      args: '99d',
+      envVars: [
+        new KeyValueEnvVar('YARN_CACHE_FOLDER', "${WORKING_DIR}/.yarn/cache"),
+        new KeyValueEnvVar('NODE_PATH', "${WORKING_DIR}/.yarn/cache/node_modules")
+      ] + extraEnvVars,
+      runAsGroup: '1000',
+      runAsUser: '1000',
+      resourceRequestMemory: resourceRequestMemory,
+      resourceLimitMemory: resourceLimitMemory
+    )
+  }
+
+  /**
+   * Creates a customized pod template and executes a pipeline body inside.
+   *
+   * @param config Configuration object defining the template (volumes, containers, yaml, etc.).
+   * @param body Closure to execute inside the configured pod.
+   */
+  private void createTemplate(PodTemplateConfig config, Closure body) {
     defaultTemplate {
-      steps.podTemplate(label: "${JenkinsAgentLabel.JAVA_AGENT.getLabel()}${podUuid}",
-        volumes: [steps.persistentVolumeClaim(claimName: MAVEN_CACHE_PVC, mountPath: "${WORKING_DIR}/.m2/repository")],
-        containers: [steps.containerTemplate(name: 'java',
-          image: "${Constants.ECR_FOLIO_REPOSITORY}/amazoncorretto:${javaVersion}-alpine-jdk",
-          alwaysPullImage: true,
-          envVars: [new KeyValueEnvVar('DOCKER_HOST', 'tcp://localhost:2375'),
-                    new KeyValueEnvVar('HOME', WORKING_DIR)],
-          command: 'sleep',
-          args: '99d',
-          runAsGroup: '1000',
-          runAsUser: '1000',
-          resourceRequestMemory: '4Gi',
-          resourceLimitMemory: '5Gi'),
-        steps.containerTemplate(name: 'dind',
-          image: 'docker:dind',
-          envVars: [new KeyValueEnvVar('DOCKER_TLS_CERTDIR', '')],
-          privileged: true,
-          args: '--host=tcp://0.0.0.0:2375 --host=unix:///var/run/docker.sock'
-        )]) {
-        logger.info("Using Java version: ${javaVersion}")
+      steps.podTemplate(
+        label: config.label ?: JenkinsAgentLabel.DEFAULT_AGENT.getLabel(),
+        workspaceVolume: config.workspaceVolume ?: steps.genericEphemeralVolume(
+          accessModes: 'ReadWriteOnce',
+          requestsSize: '5Gi',
+          storageClassName: 'gp3'
+        ),
+        yaml: config.yaml ?: """
+spec:
+  securityContext:
+    fsGroup: 1000
+""",
+        containers: config.containers ?: [],
+        volumes: config.volumes ?: []
+      ) {
+        body.call()
+      }
+    }
+  }
+
+  // ========= Public Pod Template Methods =========
+
+  /**
+   * Defines a Java build agent template.
+   *
+   * <p>Installs Java, Docker daemon, and Kaniko for Maven and Docker builds.</p>
+   *
+   * @param javaVersion Java version to install.
+   * @param body Pipeline steps to execute inside this agent.
+   */
+  void javaBuildAgent(String javaVersion, Closure body) {
+    createTemplate(new PodTemplateConfig(
+      label: JenkinsAgentLabel.JAVA_BUILD_AGENT.getLabel(),
+      volumes: [steps.persistentVolumeClaim(claimName: MAVEN_CACHE_PVC, mountPath: "${WORKING_DIR}/.m2/repository")],
+      containers: [
+        buildKanikoContainer(),
+        buildJavaContainer(javaVersion, [new KeyValueEnvVar('DOCKER_HOST', 'tcp://localhost:2375')], '4Gi', '5Gi'),
+        buildDindContainer()
+      ]
+    )) {
+      steps.node(JenkinsAgentLabel.JAVA_BUILD_AGENT.getLabel()) {
         body.call()
       }
     }
   }
 
   /**
-   * Defines a pod template for building Stripes UI bundle.
+   * Defines a Java agent optimized for Karate tests.
    *
-   * <p>This template provisions a pod with a predefined Jenkins agent container.</p>
-   *
-   * @param body A closure containing the pipeline logic to execute within this pod.
+   * @param javaVersion Java version to install.
+   * @param body Pipeline steps to execute inside this agent.
    */
-  void stripesTemplate(Closure body) {
-    kanikoTemplate {
-      steps.podTemplate(label: JenkinsAgentLabel.STRIPES_AGENT.getLabel(),
-        yaml: """
+  void javaKarateAgent(String javaVersion, Closure body) {
+    createTemplate(new PodTemplateConfig(
+      label: JenkinsAgentLabel.JAVA_KARATE_AGENT.getLabel(),
+      volumes: [steps.persistentVolumeClaim(claimName: MAVEN_CACHE_PVC, mountPath: "${WORKING_DIR}/.m2/repository")],
+      containers: [
+        buildJavaContainer(javaVersion, [], '2Gi', '4Gi')
+      ]
+    )) {
+      steps.node(JenkinsAgentLabel.JAVA_KARATE_AGENT.getLabel()) {
+        body.call()
+      }
+    }
+  }
+
+  /**
+   * Defines a Stripes UI build agent.
+   *
+   * <p>Kaniko is provided for building containerized frontend applications.</p>
+   *
+   * @param body Pipeline steps to execute inside this agent.
+   */
+  void stripesAgent(Closure body) {
+    createTemplate(new PodTemplateConfig(
+      label: JenkinsAgentLabel.STRIPES_AGENT.getLabel(),
+      yaml: """
 spec:
   topologySpreadConstraints:
   - maxSkew: 2
@@ -165,62 +320,89 @@ spec:
     whenUnsatisfiable: DoNotSchedule
     labelSelector:
       matchLabels:
-        jenkins/label: "stripes-agent"
+        jenkins/label: "${JenkinsAgentLabel.STRIPES_AGENT.getLabel()}"
 """,
-        containers: [steps.containerTemplate(name: 'kaniko',
-          image: 'gcr.io/kaniko-project/executor:debug',
-          resourceRequestMemory: '8Gi',
-          resourceLimitMemory: '10Gi')]) {
+      containers: [
+        buildKanikoContainer([], '8Gi', '10Gi'),
+      ]
+    )) {
+      steps.node(JenkinsAgentLabel.STRIPES_AGENT.getLabel()) {
         body.call()
       }
     }
   }
 
   /**
-   * Defines a pod template for Kaniko, used for building container images in Kubernetes.
+   * Defines an agent specialized for Cypress end-to-end testing.
    *
-   * @param body A closure containing the pipeline logic to execute within this pod.
+   * @param body Pipeline steps to execute inside this agent.
    */
-  void kanikoTemplate(Closure body) {
-    defaultTemplate {
-      steps.podTemplate(label: JenkinsAgentLabel.KANIKO_AGENT.getLabel(),
-        containers: [steps.containerTemplate(name: 'kaniko',
-          image: 'gcr.io/kaniko-project/executor:debug',
-          envVars: [new KeyValueEnvVar('KANIKO_DIR', "${WORKING_DIR}/kaniko")],
-          command: 'sleep',
-          args: '99d'
-          // TODO: Define resource requests/limits after production load testing
-        )]) {
+  void cypressAgent(Closure body) {
+    createTemplate(new PodTemplateConfig(
+      label: JenkinsAgentLabel.CYPRESS_AGENT.getLabel(),
+      workspaceVolume: steps.genericEphemeralVolume(accessModes: 'ReadWriteOnce',
+        requestsSize: '15Gi',
+        storageClassName: 'gp3'),
+      volumes: [steps.persistentVolumeClaim(claimName: YARN_CACHE_PVC, mountPath: "${WORKING_DIR}/.yarn/cache")],
+      containers: [
+        buildCypressContainer()
+      ]
+    )) {
+      steps.node(JenkinsAgentLabel.CYPRESS_AGENT.getLabel()) {
         body.call()
       }
     }
   }
 
   /**
-   * Defines a pod template for Cypress end-to-end testing.
+   * Defines a minimal Rancher CLI agent (without extra tools).
    *
-   * @param body A closure containing the pipeline logic to execute within this pod.
+   * @param body Pipeline steps to execute inside this agent.
    */
-  void cypressTemplate(String podUuid = '', Closure body) {
-    defaultTemplate {
-      steps.podTemplate(label: "${JenkinsAgentLabel.CYPRESS_AGENT.getLabel()}${podUuid}",
-        workspaceVolume: steps.genericEphemeralVolume(accessModes: 'ReadWriteOnce',
-          requestsSize: '15Gi',
-          storageClassName: 'gp3'),
-        volumes: [steps.persistentVolumeClaim(claimName: YARN_CACHE_PVC, mountPath: "${WORKING_DIR}/.yarn/cache")],
-        containers: [steps.containerTemplate(name: 'cypress',
-          image: "${Constants.ECR_FOLIO_REPOSITORY}/cypress/browsers:latest",
-          command: 'sleep',
-          args: '99d',
-          envVars: [new KeyValueEnvVar('YARN_CACHE_FOLDER', "${WORKING_DIR}/.yarn/cache"),
-                    new KeyValueEnvVar('NODE_PATH', "${WORKING_DIR}/.yarn/cache/node_modules")],
-          runAsGroup: '1000',
-          runAsUser: '1000',
-          resourceRequestMemory: '2Gi',
-          resourceLimitMemory: '3Gi'
-        )]) {
+  void rancherAgent(Closure body) {
+    createTemplate(new PodTemplateConfig(
+      label: JenkinsAgentLabel.RANCHER_AGENT.getLabel()
+    )) {
+      steps.node(JenkinsAgentLabel.RANCHER_AGENT.getLabel()) {
+        body.call()
+      }
+    }
+  }
+
+  /**
+   * Defines a Rancher CLI agent with Java pre-installed.
+   *
+   * @param body Pipeline steps to execute inside this agent.
+   */
+  void rancherJavaAgent(Closure body) {
+    createTemplate(new PodTemplateConfig(
+      label: JenkinsAgentLabel.RANCHER_JAVA_AGENT.getLabel(),
+      containers: [
+        buildJavaContainer(Constants.JAVA_LATEST_VERSION)
+      ]
+    )) {
+      steps.node(JenkinsAgentLabel.RANCHER_JAVA_AGENT.getLabel()) {
+        body.call()
+      }
+    }
+  }
+
+  /**
+   * Defines a minimal Kaniko agent for container builds only.
+   *
+   * @param body Pipeline steps to execute inside this agent.
+   */
+  void kanikoAgent(Closure body) {
+    createTemplate(new PodTemplateConfig(
+      label: JenkinsAgentLabel.KANIKO_AGENT.getLabel(),
+      containers: [
+        buildKanikoContainer()
+      ]
+    )) {
+      steps.node(JenkinsAgentLabel.KANIKO_AGENT.getLabel()) {
         body.call()
       }
     }
   }
 }
+

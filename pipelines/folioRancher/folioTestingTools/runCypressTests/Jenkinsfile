@@ -1,6 +1,5 @@
 #!groovy
 import hudson.util.Secret
-import org.folio.jenkins.JenkinsAgentLabel
 import org.folio.jenkins.PodTemplates
 import org.folio.models.OkapiTenant
 import org.folio.models.OkapiUser
@@ -11,8 +10,6 @@ import org.jenkinsci.plugins.workflow.libs.Library
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '50')),
-  throttleJobProperty(categories: [], limitOneJobWithMatchingParams: true, maxConcurrentPerNode: 0,
-    maxConcurrentTotal: 3, paramsToUseForLimit: '', throttleEnabled: true, throttleOption: 'project'),
   parameters([
     folioParameters.branch('CYPRESS_BRANCH', 'stripes-testing'),
     string(name: 'TENANT_URL', defaultValue: "https://folio-etesting-cypress-diku.ci.folio.org", description: 'Target environment tenant UI URL', trim: true),
@@ -41,6 +38,8 @@ if (params.REFRESH_PARAMETERS) {
   return
 }
 
+PodTemplates podTemplates = new PodTemplates(this, true)
+
 String ciBuildId = params.CUSTOM_BUILD_NAME?.trim() ? params.CUSTOM_BUILD_NAME : env.JOB_BASE_NAME
 boolean reportPortalUse = params.REPORT_PORTAL_USE
 String reportPortalRunType = params.REPORT_PORTAL_RUN_TYPE
@@ -63,14 +62,10 @@ cypressParameters.setKbId(params.KB_ID)
 cypressParameters.setKbKey(params.KB_KEY.getPlainText())
 
 ansiColor('xterm') {
-  PodTemplates podTemplates = new PodTemplates(this)
-
-  podTemplates.defaultTemplate {
-    node(JenkinsAgentLabel.DEFAULT_AGENT.getLabel()) {
-      stage('Ini') {
-        buildName "#${cypressParameters.getCiBuildId()}.${env.BUILD_ID}"
-        buildDescription "Branch: ${cypressParameters.testsSrcBranch}\nEnv: ${cypressParameters.tenantUrl}"
-      }
+  podTemplates.rancherAgent {
+    stage('Ini') {
+      buildName("#${cypressParameters.getCiBuildId()}.${env.BUILD_ID}")
+      buildDescription("Branch: ${cypressParameters.testsSrcBranch}\nEnv: ${cypressParameters.tenantUrl}")
     }
   }
 

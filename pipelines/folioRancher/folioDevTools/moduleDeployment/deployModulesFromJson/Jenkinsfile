@@ -1,5 +1,5 @@
 #!groovy
-import org.folio.jenkins.JenkinsAgentLabel
+
 import org.folio.jenkins.PodTemplates
 import org.folio.models.InstallRequestParams
 import org.folio.models.RancherNamespace
@@ -64,33 +64,31 @@ namespace.addDeploymentConfig(DEPLOYMENT_CONFIG_BRANCH)
 ansiColor('xterm') {
   PodTemplates podTemplates = new PodTemplates(this)
 
-  podTemplates.defaultTemplate {
-    node(JenkinsAgentLabel.DEFAULT_AGENT.getLabel()) {
-      try {
-        stage('Ini') {
-          buildName "${namespace.getClusterName()}-${namespace.getNamespaceName()}.${env.BUILD_ID}"
-          buildDescription "Config: ${namespace.getDeploymentConfigType()}"
-        }
-
-        stage('Preparation') {
-          List newInstallJson = readJSON text: params.INSTALL_JSON
-          folioDeployFlow.updatePreparation(namespace, installRequestParams, newInstallJson)
-        }
-
-        stage('Update') {
-          folioDeployFlow.update(namespace)
-        }
-      } catch (Exception e) {
-        println "Caught exception: ${e}"
-        error "Pipeline failed due to error: ${e.getMessage()}"
+  podTemplates.rancherAgent {
+    try {
+      stage('Ini') {
+        buildName "${namespace.getClusterName()}-${namespace.getNamespaceName()}.${env.BUILD_ID}"
+        buildDescription "Config: ${namespace.getDeploymentConfigType()}"
       }
+
+      stage('Preparation') {
+        List newInstallJson = readJSON text: params.INSTALL_JSON
+        folioDeployFlow.updatePreparation(namespace, installRequestParams, newInstallJson)
+      }
+
+      stage('Update') {
+        folioDeployFlow.update(namespace)
+      }
+    } catch (Exception e) {
+      println "Caught exception: ${e}"
+      error "Pipeline failed due to error: ${e.getMessage()}"
     }
   }
 }
 // Function to validate input parameters
-  void validateInputs(params) {
-    if (params.DEFAULT_TENANT_ID.trim().isEmpty()) {
-      error "DEFAULT_TENANT_ID parameter is required."
-    }
+void validateInputs(params) {
+  if (params.DEFAULT_TENANT_ID.trim().isEmpty()) {
+    error "DEFAULT_TENANT_ID parameter is required."
   }
+}
 

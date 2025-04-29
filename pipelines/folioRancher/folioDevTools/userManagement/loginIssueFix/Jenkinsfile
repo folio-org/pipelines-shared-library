@@ -1,5 +1,5 @@
 #!groovy
-import org.folio.jenkins.JenkinsAgentLabel
+
 import org.folio.jenkins.PodTemplates
 import org.folio.utilities.Logger
 import org.jenkinsci.plugins.workflow.libs.Library
@@ -26,22 +26,20 @@ PodTemplates podTemplates = new PodTemplates(this)
 Logger logger = new Logger(this, env.JOB_BASE_NAME)
 
 ansiColor('xterm') {
-  podTemplates.defaultTemplate {
-    node(JenkinsAgentLabel.DEFAULT_AGENT.getLabel()) {
-      stage('Ini') {
-        buildDescription "${params.CLUSTER}-${params.NAMESPACE}"
-      }
+  podTemplates.rancherAgent {
+    stage('Ini') {
+      buildDescription "${params.CLUSTER}-${params.NAMESPACE}"
+    }
 
-      stage('Checkout') {
-        checkout scm
-      }
+    stage('Checkout') {
+      checkout scm
+    }
 
-      stage('[FIX] Login Issue') {
-        logger.info("Fixing login issue for ${params.CLUSTER}-${params.NAMESPACE}")
-        folioHelm.withKubeConfig(params.CLUSTER) {
-          params.MODULES.tokenize(',').each { moduleName ->
-            kubectl.rolloutDeployment(moduleName, params.NAMESPACE)
-          }
+    stage('[FIX] Login Issue') {
+      logger.info("Fixing login issue for ${params.CLUSTER}-${params.NAMESPACE}")
+      folioHelm.withKubeConfig(params.CLUSTER) {
+        params.MODULES.tokenize(',').each { moduleName ->
+          kubectl.rolloutDeployment(moduleName, params.NAMESPACE)
         }
       }
     }

@@ -1,6 +1,5 @@
 #!groovy
 import org.folio.Constants
-import org.folio.jenkins.JenkinsAgentLabel
 import org.folio.jenkins.PodTemplates
 import org.folio.models.RancherNamespace
 import org.folio.models.parameters.CreateNamespaceParameters
@@ -88,36 +87,34 @@ karateTestsParams.timeout = '2'
  * Pipeline
  */
 ansiColor('xterm') {
-  podTemplates.defaultTemplate {
-    node(JenkinsAgentLabel.DEFAULT_AGENT.getLabel()) {
-      stage('Ini') {
-        buildDescription "Branch: ${params.TESTS_BRANCH}\nThreads: ${params.THREADS_COUNT}\nDestroy after: ${params.DESTROY_AFTER}"
-      }
+  podTemplates.rancherAgent {
+    stage('Ini') {
+      buildDescription "Branch: ${params.TESTS_BRANCH}\nThreads: ${params.THREADS_COUNT}\nDestroy after: ${params.DESTROY_AFTER}"
+    }
 
-      stage('[Job] Destroy environment (before)') {
-        def nsExists
-        folioHelm.withKubeConfig(namespaceBaseParams.getClusterName()) {
-          nsExists = kubectl.checkNamespaceExistence("${namespaceBaseParams.getNamespaceName()}")
-        }
-        if (nsExists) {
-          folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceBaseParams)
-        } else {
-          logger.warning("${namespaceBaseParams.getNamespaceName()} namespace does not exists!")
-        }
+    stage('[Job] Destroy environment (before)') {
+      def nsExists
+      folioHelm.withKubeConfig(namespaceBaseParams.getClusterName()) {
+        nsExists = kubectl.checkNamespaceExistence("${namespaceBaseParams.getNamespaceName()}")
       }
-
-      stage('[Job] Provision environment') {
-        folioTriggerJob.createNamespaceFromBranch(createNamespaceJobName, namespaceFromBranchParams)
+      if (nsExists) {
+        folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceBaseParams)
+      } else {
+        logger.warning("${namespaceBaseParams.getNamespaceName()} namespace does not exists!")
       }
+    }
 
-      stage('[Flow] Execute tests') {
-        folioKarateFlow.call(karateTestsParams)
-      }
+    stage('[Job] Provision environment') {
+      folioTriggerJob.createNamespaceFromBranch(createNamespaceJobName, namespaceFromBranchParams)
+    }
 
-      if (params.DESTROY_AFTER) {
-        stage('[Job] Destroy environment (after)') {
-          folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceBaseParams)
-        }
+    stage('[Flow] Execute tests') {
+      folioKarateFlow.call(karateTestsParams)
+    }
+
+    if (params.DESTROY_AFTER) {
+      stage('[Job] Destroy environment (after)') {
+        folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceBaseParams)
       }
     }
   }

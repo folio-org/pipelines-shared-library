@@ -1,5 +1,5 @@
 #!groovy
-import org.folio.jenkins.JenkinsAgentLabel
+
 import org.folio.jenkins.PodTemplates
 import org.folio.models.OkapiConfig
 import org.folio.models.OkapiTenant
@@ -63,16 +63,14 @@ OkapiTenant tenant = new OkapiTenant(params.TENANT_ID)
   .withConfiguration(new OkapiConfig())
 
 ansiColor('xterm') {
-  podTemplates.defaultTemplate {
-    node(JenkinsAgentLabel.DEFAULT_AGENT.getLabel()) {
-      stage('Ini') {
-        buildName "#${namespace.getWorkspaceName()}.${env.BUILD_ID}"
-        buildDescription "Branch: ${params.FOLIO_BRANCH}\nConsortia: ${params.CONSORTIA}\nLinked-data: ${params.LINKED_DATA}"
+  podTemplates.rancherAgent {
+    stage('Ini') {
+      buildName "#${namespace.getWorkspaceName()}.${env.BUILD_ID}"
+      buildDescription "Branch: ${params.FOLIO_BRANCH}\nConsortia: ${params.CONSORTIA}\nLinked-data: ${params.LINKED_DATA}"
 
-        tenant.enableFolioExtensions(this, extensions, isRelease)
-        namespace.addDeploymentConfig(folioTools.getPipelineBranch())
-        namespace.addTenant(tenant)
-      }
+      tenant.enableFolioExtensions(this, extensions, isRelease)
+      namespace.addDeploymentConfig(folioTools.getPipelineBranch())
+      namespace.addTenant(tenant)
     }
   }
 

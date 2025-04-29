@@ -1,5 +1,5 @@
 #!groovy
-import org.folio.jenkins.JenkinsAgentLabel
+
 import org.folio.jenkins.PodTemplates
 import org.folio.models.InstallRequestParams
 import org.folio.models.RancherNamespace
@@ -51,62 +51,60 @@ namespace.addDeploymentConfig(CONFIG_BRANCH)
 Main main = new Main(this, namespace.getDomains()['okapi'], namespace.getSuperTenant())
 
 ansiColor('xterm') {
-  podTemplates.defaultTemplate {
-    node(JenkinsAgentLabel.DEFAULT_AGENT.getLabel()) {
-      try {
-        stage('Ini') {
-          buildName "${namespace.getClusterName()}-${namespace.getNamespaceName()}.${env.BUILD_ID}"
-          buildDescription ""
-        }
-        stage('Set properties') {
-          namespace.getModules().setInstallJsonObject(main.getInstallJson(params.BASE_TENANT_ID))
-          namespace.setEnableConsortia(true)
-
-          folioDefault.consortiaTenants(namespace.getModules().getInstallJson(), installRequestParams).values().each { tenant ->
-            if (tenant.getIsCentralConsortiaTenant()) {
-              tenant.withTenantUi(tenantUi.clone())
-            }
-            tenant.enableFolioExtensions(this, ['consortia'])
-            namespace.addTenant(tenant)
-          }
-        }
-
-        stage('[Helm] Deploy backend') {
-          folioHelm.withKubeConfig(namespace.getClusterName()) {
-            folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getBackendModules())
-            folioHelm.checkDeploymentsRunning(namespace.getNamespaceName(), namespace.getModules().getBackendModules())
-          }
-        }
-
-        stage('[Rest] Create tenants') {
-          List consortiaInstallJson = namespace.getModules().getInstallJson().findAll { it['id'].contains("consortia") }
-          List consortiaDiscovery = namespace.getModules().getDiscoveryList().findAll { it['srvcId'].contains("consortia") }
-          main.publishDescriptors(consortiaInstallJson)
-          main.publishServiceDiscovery(consortiaDiscovery)
-          namespace.getTenants().each { tenantId, tenant ->
-            main.createTenantFlow(tenant)
-          }
-        }
-
-        stage('[Rest] Create consortia') {
-          main.setUpConsortia(namespace.getTenants().values().toList())
-        }
-
-        stage('Build and deploy UI') {
-          Map branches = [:]
-          namespace.getTenants().each { tenantId, tenant ->
-            if (tenant.getTenantUi()) {
-              branches[tenantId] = {
-                folioUI.buildAndDeploy(namespace, tenant)
-              }
-            }
-          }
-          parallel branches
-        }
-      } catch (e) {
-        println "Caught exception: ${e}"
-        error(e.getMessage())
+  podTemplates.rancherAgent {
+    try {
+      stage('Ini') {
+        buildName "${namespace.getClusterName()}-${namespace.getNamespaceName()}.${env.BUILD_ID}"
+        buildDescription ""
       }
+      stage('Set properties') {
+        namespace.getModules().setInstallJsonObject(main.getInstallJson(params.BASE_TENANT_ID))
+        namespace.setEnableConsortia(true)
+
+        folioDefault.consortiaTenants(namespace.getModules().getInstallJson(), installRequestParams).values().each { tenant ->
+          if (tenant.getIsCentralConsortiaTenant()) {
+            tenant.withTenantUi(tenantUi.clone())
+          }
+          tenant.enableFolioExtensions(this, ['consortia'])
+          namespace.addTenant(tenant)
+        }
+      }
+
+      stage('[Helm] Deploy backend') {
+        folioHelm.withKubeConfig(namespace.getClusterName()) {
+          folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getBackendModules())
+          folioHelm.checkDeploymentsRunning(namespace.getNamespaceName(), namespace.getModules().getBackendModules())
+        }
+      }
+
+      stage('[Rest] Create tenants') {
+        List consortiaInstallJson = namespace.getModules().getInstallJson().findAll { it['id'].contains("consortia") }
+        List consortiaDiscovery = namespace.getModules().getDiscoveryList().findAll { it['srvcId'].contains("consortia") }
+        main.publishDescriptors(consortiaInstallJson)
+        main.publishServiceDiscovery(consortiaDiscovery)
+        namespace.getTenants().each { tenantId, tenant ->
+          main.createTenantFlow(tenant)
+        }
+      }
+
+      stage('[Rest] Create consortia') {
+        main.setUpConsortia(namespace.getTenants().values().toList())
+      }
+
+      stage('Build and deploy UI') {
+        Map branches = [:]
+        namespace.getTenants().each { tenantId, tenant ->
+          if (tenant.getTenantUi()) {
+            branches[tenantId] = {
+              folioUI.buildAndDeploy(namespace, tenant)
+            }
+          }
+        }
+        parallel branches
+      }
+    } catch (e) {
+      println "Caught exception: ${e}"
+      error(e.getMessage())
     }
   }
 }

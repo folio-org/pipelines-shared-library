@@ -1,8 +1,7 @@
 #!groovy
-import org.folio.Constants
-import org.folio.jenkins.JenkinsAgentLabel
-import org.folio.jenkins.PodTemplates
+
 import org.folio.models.parameters.CreateNamespaceParameters
+import org.jenkinsci.plugins.workflow.libs.Library
 
 @Library('pipelines-shared-library@RANCHER-2236') _
 
@@ -49,24 +48,5 @@ CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builde
 folioCommon.validateNamespace(params.NAMESPACE)
 
 ansiColor('xterm') {
-  PodTemplates podTemplates = new PodTemplates(this)
-
-  podTemplates.defaultTemplate {
-    node(JenkinsAgentLabel.DEFAULT_AGENT.getLabel()) {
-      stage('Ini') {
-        buildName "${params.CLUSTER}-${params.NAMESPACE}.${env.BUILD_ID}"
-        buildDescription "DB version: ${params.DB_VERSION}\nRW split: ${params.RW_SPLIT}\n" +
-          "Greenmail: ${params.POSTGRESQL}\nMock server: ${params.MOCK_SERVER}"
-      }
-
-      stage('Checkout') {
-        git(url: "${Constants.FOLIO_GITHUB_URL}/pipelines-shared-library.git",
-          branch: folioTools.getPipelineBranch(),
-          credentialsId: Constants.PRIVATE_GITHUB_CREDENTIALS_ID,
-          poll: false)
-      }
-
-      folioNamespaceCreate.call(namespaceParams)
-    }
-  }
+  folioNamespaceCreate.call(namespaceParams)
 }

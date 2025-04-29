@@ -1,7 +1,6 @@
 #!groovy
 import groovy.transform.Field
 import org.folio.Constants
-import org.folio.jenkins.JenkinsAgentLabel
 import org.folio.jenkins.PodTemplates
 import org.folio.models.RancherNamespace
 import org.folio.models.parameters.CreateNamespaceParameters
@@ -83,42 +82,40 @@ namespace.withSuperTenantAdminUser()
  * Pipeline
  */
 ansiColor('xterm') {
-  podTemplates.defaultTemplate {
-    node(JenkinsAgentLabel.DEFAULT_AGENT.getLabel()) {
-      try {
-        stage('Ini') {
-          buildDescription "Destroy after: ${params.DESTROY_AFTER}\nRetry failed: ${params.RETRY_FAILED}"
-          cleanWs()
-        }
-
-        stage('Checkout') {
-          checkout scm
-        }
-
-        stage('[Job] Destroy environment (before)') {
-          params.RETRY_FAILED ? println('RETRY data-migration performance | Skip destroy stage') : folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceParams)
-        }
-
-        stage('[Job] Provision environment') {
-          params.RETRY_FAILED ? println('RETRY data-migration performance | Skip provision stage') : dataMigrationReport(namespaceParams)
-        }
-
-        if (params.DESTROY_AFTER) {
-          stage('[Job] Destroy environment (after)') {
-            folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceParams)
-          }
-        }
-
-      } catch (e) {
-        logger.warning("Caught exception: ${e}")
-
-        stage('[Job] Destroy environment (error)') {
-          params.RETRY_FAILED ? null : folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceParams)
-          // Always destroy namespace on error
-        }
-
-        error(e.getMessage())
+  podTemplates.rancherAgent {
+    try {
+      stage('Ini') {
+        buildDescription "Destroy after: ${params.DESTROY_AFTER}\nRetry failed: ${params.RETRY_FAILED}"
+        cleanWs()
       }
+
+      stage('Checkout') {
+        checkout scm
+      }
+
+      stage('[Job] Destroy environment (before)') {
+        params.RETRY_FAILED ? println('RETRY data-migration performance | Skip destroy stage') : folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceParams)
+      }
+
+      stage('[Job] Provision environment') {
+        params.RETRY_FAILED ? println('RETRY data-migration performance | Skip provision stage') : dataMigrationReport(namespaceParams)
+      }
+
+      if (params.DESTROY_AFTER) {
+        stage('[Job] Destroy environment (after)') {
+          folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceParams)
+        }
+      }
+
+    } catch (e) {
+      logger.warning("Caught exception: ${e}")
+
+      stage('[Job] Destroy environment (error)') {
+        params.RETRY_FAILED ? null : folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceParams)
+        // Always destroy namespace on error
+      }
+
+      error(e.getMessage())
     }
   }
 }
