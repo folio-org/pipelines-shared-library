@@ -1,8 +1,8 @@
 import org.folio.client.reportportal.ReportPortalClient
 import org.folio.jenkins.PodTemplates
 import org.folio.models.parameters.CypressTestsParameters
-import org.folio.testing.IRunExecutionSummary
 import org.folio.testing.TestType
+import org.folio.testing.cypress.results.CypressRunExecutionSummary
 import org.folio.utilities.Logger
 
 /**
@@ -46,11 +46,11 @@ private static def cypressStash(String key = null) {
  * @param reportPortalUse Flag to enable Report Portal integration.
  *                              Defaults to false.
  * @param reportPortalRunType Specifies the Report Portal run type; applicable when integration is enabled.
- * @return An IRunExecutionSummary instance summarizing the test execution.
+ * @return An CypressRunExecutionSummary instance summarizing the test execution.
  * @throws Exception            Propagates any exceptions encountered during the execution flow.
  */
-IRunExecutionSummary call(String ciBuildId, List<CypressTestsParameters> testsToRun, boolean sendNotification = false,
-                          boolean reportPortalUse = false, String reportPortalRunType = '') {
+CypressRunExecutionSummary call(String ciBuildId, List<CypressTestsParameters> testsToRun, boolean sendNotification = false,
+                                boolean reportPortalUse = false, String reportPortalRunType = '') {
   folioCypress.validateParameter(ciBuildId, "ciBuildId")
   folioCypress.validateParameter(testsToRun, "testsToRun")
 
@@ -173,7 +173,7 @@ IRunExecutionSummary call(String ciBuildId, List<CypressTestsParameters> testsTo
       }
 
       // Analyze results after execution
-      IRunExecutionSummary testRunExecutionSummary = folioCypress.analyzeResults()
+      CypressRunExecutionSummary testRunExecutionSummary = folioCypress.analyzeResults()
       try {
         if (sendNotification) {
           // Send notifications based on the execution summary
