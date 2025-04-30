@@ -1,0 +1,77 @@
+#!groovy
+import groovy.transform.Field
+import org.folio.Constants
+import org.folio.jenkins.PodTemplates
+import org.folio.models.parameters.CreateNamespaceParameters
+import org.folio.rest_v2.PlatformType
+import org.jenkinsci.plugins.workflow.libs.Library
+
+@Library('pipelines-shared-library@RANCHER-2236') _
+
+@Field final String createNamespaceJobName = Constants.JENKINS_CREATE_NAMESPACE_FROM_BRANCH_JOB
+
+properties([
+  buildDiscarder(logRotator(numToKeepStr: '30')),
+  disableConcurrentBuilds(),
+  parameters([folioParameters.platform(),
+              folioParameters.cluster('PLATFORM'),
+              folioParameters.namespace(),
+              folioParameters.configType(),
+              string(name: 'DB_BACKUP_NAME', defaultValue: 'folio-general-dataset-april-2025-all-users-clean-v2', description: 'Set DB backup name'),
+              booleanParam(name: 'MARC_MIGRATIONS', defaultValue: false, description: 'enable marc-migrations'),
+              choice(name: 'TYPE', choices: ['full', 'terraform', 'update'], defaultValue: 'update', description: '(Required) Set action TYPE to perform'),
+              folioParameters.refreshParameters()
+              ]),
+  pipelineTriggers([
+    parameterizedCron('''
+      0 6 * * 1-5 %PLATFORM=EUREKA;CLUSTER=folio-etesting;NAMESPACE=sprint;CONFIG_TYPE=testing;DB_BACKUP_NAME=folio-general-dataset-april-2025-all-users-clean-v2;MARC_MIGRATIONS=false;TYPE=update
+    ''')])
+])
+
+
+if (params.REFRESH_PARAMETERS) {
+  currentBuild.result = 'ABORTED'
+  return
+}
+
+PodTemplates podTemplates = new PodTemplates(this)
+
+CreateNamespaceParameters namespace = new CreateNamespaceParameters.Builder()
+  .platform(PlatformType.EUREKA)
+  .clusterName(params.CLUSTER)
+  .namespaceName(params.NAMESPACE)
+  .folioBranch('snapshot')
+  .okapiVersion('latest')
+  .configType(params.CONFIG_TYPE)
+  .loadReference(false)
+  .loadSample(false)
+  .consortia(true)
+  .linkedData(true)
+  .rwSplit(false)
+  .greenmail(false)
+  .mockServer(false)
+  .rtr(false)
+  .splitFiles(true)
+  .ecsCCL(false)
+  .applicationSet('Complete')
+  .applications(org.folio.rest_v2.Constants.APPLICATION_BRANCH('Complete'))
+  .marcMigrations(params.MARC_MIGRATIONS)
+  .dbBackupName(params.DB_BACKUP_NAME)
+  .provisioningType(params.TYPE)
+  .hasSecureTenant(false)
+  .dataset(true)
+  .pgType('aws')
+  .pgVersion('16.6')
+  .kafkaType('aws')
+  .opensearchType('aws')
+  .s3Type('aws')
+  .uiBuild(false)
+  .runSanityCheck(false)
+  .build()
+
+ansiColor('xterm') {
+
+    stage('Update Sprint Testing') {
+      folioTriggerJob.createNamespaceFromBranch(createNamespaceJobName, namespace)
+    }
+  }
