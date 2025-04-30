@@ -53,8 +53,16 @@ resource "rancher2_app_v2" "kubecost" {
   name          = "kubecost"
   repo_name     = rancher2_catalog_v2.kubecost[0].name
   chart_name    = "cost-analyzer"
-  chart_version = "1.101.3"
+  chart_version = "2.5.0"
   values        = <<-EOT
+    kubecostAggregator:
+      resources:
+        requests:
+          cpu: 3
+          memory: 10Gi
+      limits:
+        cpu: 4
+        memory: 12Gi
     kubecostModel:
       resources:
         limits:
