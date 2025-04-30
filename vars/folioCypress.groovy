@@ -2,10 +2,8 @@ import groovy.json.JsonException
 import org.folio.Constants
 import org.folio.client.reportportal.ReportPortalClient
 import org.folio.models.parameters.CypressTestsParameters
-import org.folio.testing.IRunExecutionSummary
 import org.folio.testing.TestType
 import org.folio.testing.cypress.results.CypressRunExecutionSummary
-import org.jenkinsci.plugins.workflow.cps.RunWrapperBinder
 
 /**
  * Validates the specified parameter.
@@ -32,7 +30,7 @@ void validateParameter(param, String paramName) {
     throw new IllegalArgumentException("${paramName} must be provided and cannot be empty.")
   }
 
-  // For booleans and other types (e.g., IRunExecutionSummary), a non-null value is considered valid
+  // For booleans and other types (e.g., CypressRunExecutionSummary), a non-null value is considered valid
 }
 
 /**
@@ -48,12 +46,12 @@ void cloneCypressRepo(String branch) {
   validateParameter(branch, "Branch name")
 
   stage('[Git] Checkout Cypress repo') {
-      echo("Checking out branch: ${branch}")
-      checkout(scmGit(
-        branches: [[name: "*/${branch}"]],
-        extensions: [cloneOption(depth: 50, noTags: true, reference: '', shallow: true)],
-        userRemoteConfigs: [[credentialsId: Constants.PRIVATE_GITHUB_CREDENTIALS_ID,
-                             url: Constants.CYPRESS_REPOSITORY_URL]]))
+    echo("Checking out branch: ${branch}")
+    checkout(scmGit(
+      branches: [[name: "*/${branch}"]],
+      extensions: [cloneOption(depth: 50, noTags: true, reference: '', shallow: true)],
+      userRemoteConfigs: [[credentialsId: Constants.PRIVATE_GITHUB_CREDENTIALS_ID,
+                           url          : Constants.CYPRESS_REPOSITORY_URL]]))
   }
 }
 
@@ -391,9 +389,9 @@ void generateAndPublishAllureReport(List resultPaths) {
  *
  * @return The test run summary.
  */
-IRunExecutionSummary analyzeResults() {
+CypressRunExecutionSummary analyzeResults() {
   stage('[Report] Analyze results') {
-    IRunExecutionSummary testRunExecutionSummary
+    CypressRunExecutionSummary testRunExecutionSummary
     String suitesPath = "${env.WORKSPACE}/allure-report/data/suites.json"
     String categoriesPath = "${env.WORKSPACE}/allure-report/data/categories.json"
 
@@ -417,7 +415,7 @@ IRunExecutionSummary analyzeResults() {
  * @param useReportPortal Indicates whether Report Portal is used.
  * @param channel The Slack channel to send notifications to. Defaults to '#rancher_tests_notifications'.
  */
-void sendNotifications(IRunExecutionSummary testRunExecutionSummary, String ciBuildId, boolean useReportPortal,
+void sendNotifications(CypressRunExecutionSummary testRunExecutionSummary, String ciBuildId, boolean useReportPortal,
                        String channel = '#rancher_tests_notifications') {
   validateParameter(testRunExecutionSummary, "Test run execution summary")
   validateParameter(ciBuildId, "CI build ID")
