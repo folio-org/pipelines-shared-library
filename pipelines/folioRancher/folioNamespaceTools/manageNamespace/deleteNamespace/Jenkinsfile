@@ -41,7 +41,9 @@ CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builde
   .s3Type(params.S3_BUCKET)
   .build()
 
-folioCommon.validateNamespace(params.NAMESPACE)
+if (params.CLUSTER != 'folio-tmp') {
+  folioCommon.validateNamespace(params.NAMESPACE)
+}
 
 ansiColor('xterm') {
   podTemplates.rancherAgent {
