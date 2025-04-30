@@ -135,16 +135,12 @@ ansiColor('xterm') {
         folioKarateFlow.call(karateTestsParams)
       }
     } catch (e) {
-      logger.warning("Caught exception: ${e}")
-      error(e.getMessage())
+      logger.error("Caught exception: ${e}")
     } finally {
-      stage('Cleanup') {
+      stage('[Job] Destroy environment (after)') {
         if (params.DESTROY_AFTER) {
-          stage('[Job] Destroy environment (after)') {
-            folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceBaseParams)
-          }
+          folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceBaseParams)
         }
-        logger.debug("Workspace size: ${sh(returnStdout: true, script: 'du -sh .').trim()}")
       }
     }
   }
