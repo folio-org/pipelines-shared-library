@@ -89,7 +89,7 @@ CreateNamespaceParameters namespaceFromBranchParams = namespaceBaseParams.toBuil
   .build()
 
 ansiColor('xterm') {
-  try {
+//  try {
     podTemplates.rancherAgent {
       stage('Check Changes') {
         if (params.SKIP_CHECK) {
@@ -199,13 +199,13 @@ ansiColor('xterm') {
         slackSend(attachments: attachments, channel: "#rancher_tests_notifications")
       }
     }
-  } catch (e) {
-    logger.error("Caught exception: ${e}")
-  } finally {
-    if (!autoCanceled) {
-      destroyParallelStage(deleteNamespaceJob, envsMap, namespaceBaseParams, globalSlackChannel)
-    }
-  }
+//  } catch (e) {
+//    logger.error("Caught exception: ${e}")
+//  } finally {
+//    if (!autoCanceled) {
+//      destroyParallelStage(deleteNamespaceJob, envsMap, namespaceBaseParams, globalSlackChannel)
+//    }
+//  }
 }
 
 void provisionFromBranchParallelStage(String jobName, Map envsMap, CreateNamespaceParameters namespaceFromBranchParams, String slackChannel) {
