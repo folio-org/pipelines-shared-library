@@ -56,6 +56,7 @@ CypressRunExecutionSummary call(String ciBuildId, List<CypressTestsParameters> t
 
   PodTemplates podTemplates = new PodTemplates(this, true)
   Logger logger = new Logger(this, 'folioCypressFlow.groovy')
+  CypressRunExecutionSummary testRunExecutionSummary
   List allureResultsList = []
   String reportPortalExecParameters = ''
   ReportPortalClient reportPortalClient = null
@@ -172,10 +173,10 @@ CypressRunExecutionSummary call(String ciBuildId, List<CypressTestsParameters> t
         }
       }
 
-      println('I am here!')
       // Analyze results after execution
-      CypressRunExecutionSummary testRunExecutionSummary = folioCypress.analyzeResults()
-      println('I am here 2!')
+      testRunExecutionSummary = folioCypress.analyzeResults()
+      println(writeJSON(returnText: true, json: testRunExecutionSummary))
+      println('I am here!')
       try {
         if (sendNotification) {
           // Send notifications based on the execution summary
