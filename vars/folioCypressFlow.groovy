@@ -172,8 +172,10 @@ CypressRunExecutionSummary call(String ciBuildId, List<CypressTestsParameters> t
         }
       }
 
+      println('I am here!')
       // Analyze results after execution
       CypressRunExecutionSummary testRunExecutionSummary = folioCypress.analyzeResults()
+      println('I am here 2!')
       try {
         if (sendNotification) {
           // Send notifications based on the execution summary

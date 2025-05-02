@@ -397,6 +397,8 @@ CypressRunExecutionSummary analyzeResults() {
 
     Map jsonSuites = fileExists(suitesPath) ? readJSON(file: suitesPath) : [:]
     Map jsonDefects = fileExists(categoriesPath) ? readJSON(file: categoriesPath) : [:]
+    println("Suites: ${jsonSuites}")
+    println("Defects: ${jsonDefects}")
 
     testRunExecutionSummary = CypressRunExecutionSummary.addFromJSON(jsonSuites)
     testRunExecutionSummary.addDefectsFromJSON(jsonDefects)
