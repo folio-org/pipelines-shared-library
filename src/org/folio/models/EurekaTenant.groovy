@@ -82,6 +82,23 @@ class EurekaTenant extends OkapiTenant {
   }
 
   /**
+   * Chainable setter for applications.
+   * This method sets the applications for the tenant and adds their modules to the tenant's module list.
+   *
+   * @param apps The list of applications to be added.
+   * @return The EurekaTenant object for method chaining.
+   */
+  EurekaTenant withApplications(ApplicationList apps){
+    applications = apps
+
+    apps.each { app ->
+      app.modules.each {modules.addModule(it) }
+    }
+
+    return this
+  }
+
+  /**
    * Chainable setter for install JSON.
    * This method sets the installation JSON object while ensuring that specific
    * modules ('mod-consortia' and 'folio_consortia-settings') are removed.
