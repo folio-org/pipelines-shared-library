@@ -2,6 +2,7 @@ package org.folio.models
 
 import com.cloudbees.groovy.cps.NonCPS
 import hudson.util.Secret
+import org.folio.models.application.ApplicationList
 import org.folio.models.module.EurekaModule
 
 /**
@@ -31,7 +32,7 @@ class EurekaTenant extends OkapiTenant {
   /** Modules that are installed for the tenant. */
   FolioInstallJson<EurekaModule> modules = new FolioInstallJson(EurekaModule.class)
 
-  Map<String, String> applications = [:]
+  ApplicationList applications = new ApplicationList()
 
   boolean isSecureTenant = false
 
@@ -88,6 +89,7 @@ class EurekaTenant extends OkapiTenant {
    * @param installJson The install JSON object.
    * @return The OkapiTenant object for method chaining.
    */
+  @Override
   EurekaTenant withInstallJson(List<Map<String, String>> installJson) {
     //TODO: Fix DTO convert issue with transformation from FolioInstallJson<FolioModule> to FolioInstallJson<EurekaModule>
     modules = new FolioInstallJson(EurekaModule.class)
@@ -128,7 +130,7 @@ class EurekaTenant extends OkapiTenant {
       "tenantDescription": "$tenantDescription",
       "isSecureTenant": "$isSecureTenant",
       "applications": "$applications",
-      "modules": $modules,
+      "modules": ${modules.getInstallJsonObject()},
       "indexes": $indexes
     """
   }
