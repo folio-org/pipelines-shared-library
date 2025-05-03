@@ -175,8 +175,6 @@ CypressRunExecutionSummary call(String ciBuildId, List<CypressTestsParameters> t
 
       // Analyze results after execution
       testRunExecutionSummary = folioCypress.analyzeResults()
-      println(writeJSON(returnText: true, json: testRunExecutionSummary))
-      println('I am here!')
       try {
         if (sendNotification) {
           // Send notifications based on the execution summary
