@@ -97,6 +97,7 @@ void validateNamespace(String namespace) {
   allNamespaces.addAll(Constants.AWS_EKS_RELEASE_NAMESPACES)
   allNamespaces.addAll(Constants.AWS_EKS_DEV_NAMESPACES)
   allNamespaces.addAll(Constants.RANCHER_KNOWN_NAMESPACES)
+  allNamespaces.addAll(['karate-eureka'])
 
   if (!isApprovedUser(cause?.userId) && !allNamespaces.collect { it.toLowerCase() }.contains(namespace.toLowerCase())) {
     error("Unknown namespace: ${namespace}")
