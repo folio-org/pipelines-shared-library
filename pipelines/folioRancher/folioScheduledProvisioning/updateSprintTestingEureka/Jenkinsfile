@@ -67,6 +67,7 @@ CreateNamespaceParameters namespace = new CreateNamespaceParameters.Builder()
   .s3Type('aws')
   .uiBuild(false)
   .runSanityCheck(false)
+  .members('thunderjet,folijet,spitfire,vega,thor,Eureka,volaris,corsair,Bama,Aggies,Dreamliner,Leipzig,firebird,dojo,erm')
   .build()
 
 ansiColor('xterm') {
