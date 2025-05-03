@@ -1,7 +1,6 @@
 package org.folio.models
 
 import com.cloudbees.groovy.cps.NonCPS
-import org.folio.models.application.Application
 import org.folio.models.application.ApplicationList
 import org.folio.models.module.EurekaModule
 import org.folio.rest_v2.eureka.Eureka
