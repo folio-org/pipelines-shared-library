@@ -39,9 +39,11 @@ class Eureka extends Base {
 
     ApplicationList entitledApps = Tenants.get(kong).getEnabledApplications(tenant)
 
+    logger.debug("Eureka.createTenantFlow tenant.applications: ${tenant.applications}")
+
     Tenants.get(kong).enableApplications(
       tenant
-      , (tenant.applications.findAll{app -> entitledApps.contains(app) } as ApplicationList).ids()
+      , (tenant.applications.findAll{app -> !(entitledApps.contains(app)) } as ApplicationList).ids()
     )
 
     context.folioTools.stsKafkaLag(cluster, namespace, tenant.tenantId)
