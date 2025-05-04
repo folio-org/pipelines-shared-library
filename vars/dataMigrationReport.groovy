@@ -243,14 +243,10 @@ void call(CreateNamespaceParameters args) {
         )
         eureka.registerApplications(apps)
 
-        //TODO: The following three lines will be changed in the upcoming PR
-        eureka.assignAppToTenants(namespace.getTenants().values().toList(), apps.collectEntries {[it.getName(), it.getId() ] })
-        namespace.withApplications(apps.collectEntries {[it.getName(), it.getId() ] })
+        namespace.getTenants().values().each { it.assignApplications(apps)}
+        namespace.withApplications(apps)
 
-        eureka.registerModulesFlow(
-          namespace.getModules()
-          , apps
-        )
+        eureka.registerModulesFlow(namespace.getModules())
       }
     }
 
@@ -299,6 +295,7 @@ void call(CreateNamespaceParameters args) {
           , namespace.getClusterName()
           , namespace.getNamespaceName()
           , namespace.getEnableConsortia()
+          , true
           , args.dataset // Set this option true, when users & groups migration is required.
         )
       }
