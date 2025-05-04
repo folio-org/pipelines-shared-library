@@ -2,7 +2,10 @@ package folioRancher.folioDevTools.moduleDeployment.deployModule
 
 import hudson.AbortException
 import org.folio.Constants
+import org.folio.models.FolioInstallJson
 import org.folio.models.module.EurekaModule
+import org.folio.models.module.FolioModule
+import org.folio.rest_v2.eureka.kong.Tenants
 import org.folio.utilities.GitHubClient
 import org.folio.utilities.Logger
 import org.folio.models.EurekaNamespace
@@ -291,7 +294,7 @@ ansiColor('xterm') {
       // 2. Enable New Module Version (Discovery) for Application
       stage('[Rest] Module Discovery') {
         try {
-          eureka.runModuleDiscoveryFlow(module)
+          eureka.registerModulesFlow(new FolioInstallJson<FolioModule>(EurekaModule.class).addModule(module))
         } catch (e) {
           logger.warning("Failed to perform new module discovery: ${e}")
           eureka.removeResourcesOnFailFlow(updatedAppInfoMap, module)
@@ -319,7 +322,9 @@ ansiColor('xterm') {
       // 4. Enable Application Descriptor with Updated Module Version for Tenants in Namespace
       stage('[Rest] Enable New App') {
         try {
-          eureka.enableApplicationsOnTenantsFlow(namespace.tenants, updatedAppInfoMap)
+          namespace.getTenants().values().each {tenant ->
+            Tenants.get(eureka.getKong()).updateApplications(tenant, updatedAppInfoMap.values().toList())
+          }
         } catch (e) {
           logger.warning("Failed to enable (entitle) new application version: ${e}")
           eureka.removeResourcesOnFailFlow(updatedAppInfoMap, module)
