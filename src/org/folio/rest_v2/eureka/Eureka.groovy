@@ -29,7 +29,8 @@ class Eureka extends Base {
     return this
   }
 
-  Eureka createTenantFlow(EurekaTenant tenant, String cluster, String namespace, boolean migrate = false) {
+  Eureka createTenantFlow(EurekaTenant tenant, String cluster, String namespace
+                          , boolean skipExistedType = false, boolean migrate = false) {
     EurekaTenant createdTenant = Tenants.get(kong).createTenant(tenant)
 
     tenant.withUUID(createdTenant.getUuid())
@@ -42,15 +43,7 @@ class Eureka extends Base {
     Tenants.get(kong).enableApplications(
       tenant
       , tenant.applications
-              .findAll { app ->
-                logger.debug("Current app: ${app.id}")
-
-                !entitledApps.any {
-                  logger.debug("Entitled app: ${it.id}")
-
-                  it.id == app.id
-                }
-              }
+              .findAll { app -> !entitledApps.any { skipExistedType? it.name = app.name : it.id == app.id } }
               .collect { it.id }
     )
 
@@ -211,8 +204,10 @@ class Eureka extends Base {
   }
 
   Eureka initializeFromScratch(Map<String, EurekaTenant> tenants, String cluster, String namespace
-                               , boolean enableConsortia, boolean migrate = false) {
-    tenants.each { tenantId, tenant -> createTenantFlow(tenant, cluster, namespace, migrate) }
+                               , boolean enableConsortia, boolean skipExistedAppType = false, boolean migrate = false) {
+    tenants.each { tenantId, tenant ->
+      createTenantFlow(tenant, cluster, namespace, skipExistedAppType, migrate)
+    }
 
     if (enableConsortia)
       setUpConsortiaFlow(
