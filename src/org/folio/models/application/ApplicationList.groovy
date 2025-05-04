@@ -12,28 +12,28 @@ class ApplicationList extends ArrayList<Application> {
 
   @Override
   boolean add(Application e) {
-    return !contains(e) && super.add(e)
+    return !any{it.equals(e) } && super.add(e)
   }
 
   @Override
   void add(int index, Application element) {
-    if (!contains(element))
+    if (!any { it.equals(element) })
       super.add(index, element)
   }
 
   @Override
   boolean addAll(int index, Collection<? extends Application> c) {
-    return super.addAll(index, c.findAll{!contains(it) })
+    return super.addAll(index, c.findAll{!any{app -> app.equals(it) } })
   }
 
   @Override
   boolean addAll(Collection<? extends Application> c) {
-    return super.addAll(c.findAll{!contains(it) })
+    return super.addAll(c.findAll{!any{app -> app.equals(it) } })
   }
 
   @Override
   Application set(int index, Application element) {
-    return (!contains(element) ? super.set(index, element) : get(index)) as Application
+    return (!any { it.equals(element) } ? super.set(index, element) : get(index)) as Application
   }
 
   Map<String, ApplicationList> group() {

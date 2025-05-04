@@ -148,7 +148,10 @@ class Eureka extends Base {
 
     Applications.get(kong).registerModules(
       ((modules.getBackendModules() + modules.getEdgeModules()) as List<EurekaModule>)
-        .findAll{ !alreadyRegistered.contains(it.getId()) } // Exclude already registered modules to avoid error
+        .findAll{
+          // Exclude already registered modules to avoid error
+          !alreadyRegistered.any{registered -> registered.getId() == it.getId() }
+        }
     )
 
     return this
