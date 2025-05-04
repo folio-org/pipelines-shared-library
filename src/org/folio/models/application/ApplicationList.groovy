@@ -64,10 +64,6 @@ class ApplicationList extends ArrayList<Application> {
     return byName(name).max { a, b -> a.build <=> b.build }.build
   }
 
-  List<String> ids(){
-    return this.collect { it.id }
-  }
-
   /**
    * Retrieves a list of applications that contain a specific module name.
    *
