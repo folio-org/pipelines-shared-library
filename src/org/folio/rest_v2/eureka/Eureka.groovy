@@ -47,6 +47,10 @@ class Eureka extends Base {
 
     context.input(message: "Let's check again")
 
+    logger.debug("Eureka.createTenantFlow (tenant.applications.findAll{app -> !(entitledApps.contains(app)) } as ApplicationList).ids(): ${(tenant.applications.findAll{app -> !(entitledApps.contains(app)) } as ApplicationList).ids()}")
+
+    context.input(message: "Let's check once again")
+
     Tenants.get(kong).enableApplications(
       tenant
       , (tenant.applications.findAll{app -> !(entitledApps.contains(app)) } as ApplicationList).ids()
