@@ -245,12 +245,9 @@ void call(CreateNamespaceParameters args) {
 
         //TODO: The following three lines will be changed in the upcoming PR
         eureka.assignAppToTenants(namespace.getTenants().values().toList(), apps.collectEntries {[it.getName(), it.getId() ] })
-        namespace.withApplications(apps.collectEntries {[it.getName(), it.getId() ] })
+        namespace.withApplications(apps)
 
-        eureka.registerModulesFlow(
-          namespace.getModules()
-          , apps
-        )
+        eureka.registerModulesFlow(namespace.getModules())
       }
     }
 

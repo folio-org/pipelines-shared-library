@@ -41,11 +41,27 @@ class FolioInstallJson<T extends FolioModule> {
   /**
    * Adds a single module to the installJsonObject.
    *
+   * @param module the module to add.
+   * @return the instance of FolioInstallJson for method chaining.
+   */
+  FolioInstallJson addModule(T module) {
+    if(module.getType() == ModuleType.SIDECAR)
+      removeModulesByName(getSidecars().collect{it.getName()})
+
+    if(!installJsonObject.contains(module))
+      this.installJsonObject.add(module)
+
+    return this
+  }
+
+  /**
+   * Adds a single module to the installJsonObject.
+   *
    * @param id the ID of the module to add.
    * @param action the action to perform on the module (optional).
    */
   void addModule(String id, String action = null) {
-    this.installJsonObject.add(moduleType.getDeclaredConstructor().newInstance().loadModuleDetails(id, action) as T)
+    addModule(moduleType.getDeclaredConstructor().newInstance().loadModuleDetails(id, action) as T)
   }
 
   /**
@@ -139,8 +155,24 @@ class FolioInstallJson<T extends FolioModule> {
     return this.installJsonObject.find { module -> module.getType() == ModuleType.OKAPI }
   }
 
+  /**
+   * Retrieves a module by its name from the installJsonObject.
+   *
+   * @param moduleName the name of the module to retrieve.
+   * @return the FolioModule with the specified name, or null if not found.
+   */
   T getModuleByName(String moduleName) {
     return this.installJsonObject.find { module -> module.getName() == moduleName }
+  }
+
+  /**
+   * Retrieves a module by its ID from the installJsonObject.
+   *
+   * @param id the ID of the module to retrieve.
+   * @return the FolioModule with the specified ID, or null if not found.
+   */
+  T getModuleById(String id) {
+    return this.installJsonObject.find { module -> module.getId() == id }
   }
 
   /**
