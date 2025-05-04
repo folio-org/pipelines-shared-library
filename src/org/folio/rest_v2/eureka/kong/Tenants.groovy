@@ -4,7 +4,6 @@ import com.cloudbees.groovy.cps.NonCPS
 import org.folio.models.EurekaTenant
 import org.folio.models.application.Application
 import org.folio.models.application.ApplicationList
-import org.folio.models.module.FolioModule
 import org.folio.rest_v2.eureka.Keycloak
 import org.folio.rest_v2.eureka.Kong
 
