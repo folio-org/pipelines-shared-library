@@ -42,7 +42,15 @@ class Eureka extends Base {
     Tenants.get(kong).enableApplications(
       tenant
       , tenant.applications
-              .findAll { app -> !entitledApps.any { it.id == app.id } }
+              .findAll { app ->
+                logger.debug("Current app: ${app.id}")
+
+                !entitledApps.any {
+                  logger.debug("Entitled app: ${it.id}")
+
+                  it.id == app.id
+                }
+              }
               .collect { it.id }
     )
 
