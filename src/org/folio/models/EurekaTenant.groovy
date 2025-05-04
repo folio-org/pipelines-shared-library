@@ -136,13 +136,13 @@ class EurekaTenant extends OkapiTenant {
           return !(this instanceof EurekaTenantConsortia)
           break
         default:
-          return true
+          return false
           break
       }
     }
 
     if (logger) {
-      logger.debug("Assigning applications appsToAssign: ${appsToAssign}")
+      logger.debug("Assigning applications on tenant ${getTenantId()} appsToAssign: ${appsToAssign}")
     }
 
     return addApplications(appsToAssign)
