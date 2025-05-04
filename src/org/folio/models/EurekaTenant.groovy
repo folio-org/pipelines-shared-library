@@ -4,6 +4,7 @@ import com.cloudbees.groovy.cps.NonCPS
 import hudson.util.Secret
 import org.folio.models.application.ApplicationList
 import org.folio.models.module.EurekaModule
+import org.folio.utilities.Logger
 
 /**
  * EurekaTenant class representing a tenant configuration for Eureka.
@@ -122,7 +123,7 @@ class EurekaTenant extends OkapiTenant {
    * @param apps The list of applications to be assigned.
    * @return The EurekaTenant object for method chaining.
    */
-  EurekaTenant assignApplications(ApplicationList apps){
+  EurekaTenant assignApplications(ApplicationList apps, Logger logger = null){
     ApplicationList appsToAssign = new ApplicationList()
     appsToAssign.addAll(apps)
 
@@ -138,6 +139,10 @@ class EurekaTenant extends OkapiTenant {
           return true
           break
       }
+    }
+
+    if (logger) {
+      logger.debug("Assigning applications appsToAssign: ${appsToAssign}")
     }
 
     return addApplications(appsToAssign)
