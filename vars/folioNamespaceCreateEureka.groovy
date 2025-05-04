@@ -278,16 +278,12 @@ void call(CreateNamespaceParameters args) {
           counter++
           eureka.registerApplications(apps)
 
-          //TODO: The following three lines will be changed in the upcoming PR
-          eureka.assignAppToTenants(namespace.getTenants().values().toList(), apps.collectEntries { [it.getName(), it.getId()] })
-          namespace.withApplications(apps.collectEntries { [it.getName(), it.getId()] })
+        namespace.getTenants().values().each { it.assignApplications(apps)}
+        namespace.withApplications(apps)
 
-          eureka.registerModulesFlow(
-            namespace.getModules()
-            , apps
-          )
-        }
+        eureka.registerModulesFlow(namespace.getModules())
       }
+    }
 
       stage('[Helm] Deploy modules') {
         folioHelm.withKubeConfig(namespace.getClusterName()) {
@@ -329,15 +325,16 @@ void call(CreateNamespaceParameters args) {
           sleep time: (counter == 0 ? 10 : 2), unit: 'MINUTES'
           counter++
 
-          eureka.initializeFromScratch(
-            namespace.getTenants()
-            , namespace.getClusterName()
-            , namespace.getNamespaceName()
-            , namespace.getEnableConsortia()
-            , false // Set this option true, when users & groups migration is required.
-          )
-        }
+        eureka.initializeFromScratch(
+          namespace.getTenants()
+          , namespace.getClusterName()
+          , namespace.getNamespaceName()
+          , namespace.getEnableConsortia()
+          , true
+          , false // Set this option true, when users & groups migration is required.
+        )
       }
+    }
 
       stage('[Rest] Configure edge') {
         retry(5) {
