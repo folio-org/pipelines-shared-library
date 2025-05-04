@@ -253,7 +253,7 @@ void call(CreateNamespaceParameters args) {
 
         logger.debug("Before assigning applications to tenants: ${namespace.getTenants().values()}")
 
-        namespace.getTenants().values().each { it.assignApplications(apps)}
+        namespace.getTenants().values().each { it.assignApplications(apps, logger)}
 
         logger.debug("After assigning applications to tenants: ${namespace.getTenants().values()}")
 
