@@ -136,7 +136,7 @@ class EurekaTenant extends OkapiTenant {
           return !(this instanceof EurekaTenantConsortia)
           break
         default:
-          return true
+          return false
           break
       }
     }
@@ -196,7 +196,6 @@ class EurekaTenant extends OkapiTenant {
       .withTenantName(content.name as String)
       .withTenantDescription(content.description as String) as EurekaTenant
   }
-
 
   @NonCPS
   @Override
