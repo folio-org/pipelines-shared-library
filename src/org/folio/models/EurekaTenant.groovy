@@ -82,6 +82,68 @@ class EurekaTenant extends OkapiTenant {
   }
 
   /**
+   * Chainable setter for applications.
+   * This method sets the applications for the tenant and adds their modules to the tenant's module list.
+   *
+   * @param apps The list of applications to be added.
+   * @return The EurekaTenant object for method chaining.
+   */
+  EurekaTenant withApplications(ApplicationList apps){
+    applications = apps
+
+    apps.each { app ->
+      app.modules.each {modules.addModule(it) }
+    }
+
+    return this
+  }
+
+  /**
+   * Chainable setter for applications.
+   * This method adds the provided applications to the tenant's application list and updates the modules accordingly.
+   *
+   * @param apps The list of applications to be added.
+   * @return The EurekaTenant object for method chaining.
+   */
+  EurekaTenant addApplications(ApplicationList apps){
+    applications.addAll(apps)
+
+    apps.each { app ->
+      app.modules.each {modules.addModule(it) }
+    }
+
+    return this
+  }
+
+  /**
+   * Assigns applications to the tenant based on specific conditions.
+   * This method filters the provided applications and assigns them to the tenant.
+   *
+   * @param apps The list of applications to be assigned.
+   * @return The EurekaTenant object for method chaining.
+   */
+  EurekaTenant assignApplications(ApplicationList apps){
+    ApplicationList appsToAssign = new ApplicationList()
+    appsToAssign.addAll(apps)
+
+    appsToAssign.removeIf {app ->
+      switch (app.name) {
+        case "app-requests-mediated-ui":
+          return !isSecureTenant
+          break
+        case ["app-consortia", "app-consortia-ui"]:
+          return !(this instanceof EurekaTenantConsortia)
+          break
+        default:
+          return true
+          break
+      }
+    }
+
+    return addApplications(appsToAssign)
+  }
+
+  /**
    * Chainable setter for install JSON.
    * This method sets the installation JSON object while ensuring that specific
    * modules ('mod-consortia' and 'folio_consortia-settings') are removed.

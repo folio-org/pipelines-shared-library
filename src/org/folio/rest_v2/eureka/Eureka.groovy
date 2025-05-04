@@ -143,27 +143,6 @@ class Eureka extends Base {
     return apps.each {app -> Applications.get(kong).registerApplication(app.descriptor) }
   }
 
-  //TODO: FIX!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  Eureka assignAppToTenants(List<EurekaTenant> tenants, Map<String, String> registeredApps) {
-    tenants.each { tenant ->
-      tenant.applications = registeredApps.clone() as Map
-
-      //TODO: Refactoring is needed!!! Utilization of extension should be applied.
-      if (!(tenant instanceof EurekaTenantConsortia)) {
-        tenant.applications.remove("app-consortia")
-        tenant.applications.remove("app-consortia-manager")
-      } else if (!tenant.isCentralConsortiaTenant) {
-        tenant.applications.remove("app-consortia-manager")
-        tenant.applications.remove("app-linked-data")
-      }
-
-      if (!tenant.isSecureTenant)
-        tenant.applications.remove("app-requests-mediated-ui")
-    }
-
-    return this
-  }
-
   Eureka registerModulesFlow(FolioInstallJson<? extends FolioModule> modules) {
     List<EurekaModule> alreadyRegistered = Applications.get(kong).getRegisteredModules()
 
