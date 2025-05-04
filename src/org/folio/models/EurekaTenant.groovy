@@ -123,7 +123,7 @@ class EurekaTenant extends OkapiTenant {
    * @param apps The list of applications to be assigned.
    * @return The EurekaTenant object for method chaining.
    */
-  EurekaTenant assignApplications(ApplicationList apps, Logger logger = null){
+  EurekaTenant assignApplications(ApplicationList apps){
     ApplicationList appsToAssign = new ApplicationList()
     appsToAssign.addAll(apps)
 
@@ -139,10 +139,6 @@ class EurekaTenant extends OkapiTenant {
           return false
           break
       }
-    }
-
-    if (logger) {
-      logger.debug("Assigning applications on tenant ${getTenantId()} appsToAssign: ${appsToAssign}")
     }
 
     return addApplications(appsToAssign)
