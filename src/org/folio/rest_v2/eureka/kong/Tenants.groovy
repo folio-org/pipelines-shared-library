@@ -121,10 +121,10 @@ class Tenants extends Kong{
    * @return Tenants instance.
    */
   Tenants enableApplications(EurekaTenant tenant, List<String> appIds, boolean skipExistence = false){
+    logger.info("Enable (entitle) applications with ids: ${appIds} on tenant ${tenant.tenantId} with ${tenant.uuid}...")
+
     if(!appIds)
       return this
-
-    logger.info("Enable (entitle) applications with ids: ${appIds} on tenant ${tenant.tenantId} with ${tenant.uuid}...")
 
     Map<String, String> headers = getMasterHttpHeaders(true)
 
