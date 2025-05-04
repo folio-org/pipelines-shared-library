@@ -119,7 +119,7 @@ class EurekaTenantConsortia extends EurekaTenant {
     ApplicationList appsToAssign = new ApplicationList()
     appsToAssign.addAll(apps)
 
-    appsToAssign.removeIf {app -> (app.name == "app-consortia-manager" || app.name == "app-linked-data") && !isCentralConsortiaTenant  }
+    appsToAssign.removeAll {app -> (app.name == "app-consortia-manager" || app.name == "app-linked-data") && !isCentralConsortiaTenant  }
 
     return super.assignApplications(appsToAssign) as EurekaTenantConsortia
   }

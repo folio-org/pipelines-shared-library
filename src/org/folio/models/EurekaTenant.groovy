@@ -127,7 +127,7 @@ class EurekaTenant extends OkapiTenant {
     ApplicationList appsToAssign = new ApplicationList()
     appsToAssign.addAll(apps)
 
-    appsToAssign.removeIf {app ->
+    appsToAssign.removeAll {app ->
       switch (app.name) {
         case "app-requests-mediated-ui":
           return !isSecureTenant
