@@ -251,7 +251,12 @@ void call(CreateNamespaceParameters args) {
         )
         eureka.registerApplications(apps)
 
+        logger.debug("Before assigning applications to tenants: ${namespace.getTenants().values()}")
+
         namespace.getTenants().values().each { it.assignApplications(apps)}
+
+        logger.debug("After assigning applications to tenants: ${namespace.getTenants().values()}")
+
         namespace.withApplications(apps)
 
         eureka.registerModulesFlow(namespace.getModules())
