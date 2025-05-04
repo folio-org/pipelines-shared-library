@@ -50,44 +50,44 @@ void call(CreateNamespaceParameters args) {
       }
     }
 
-    stage('[Terraform] Provision') {
-      switch (args.type) {
-        case 'full':
-          folioTerraformFlow.manageNamespace('apply', tfConfig)
-          break
-        case 'terraform':
-          folioTerraformFlow.manageNamespace('apply', tfConfig)
-
-          currentBuild.result = 'ABORTED'
-          currentBuild.description = 'Terraform refresh complete'
-          return
-
-          break
-        case 'update':
-          logger.info("Skip [Terraform] Provision stage")
-          break
-      }
-    }
-
-    if (args.greenmail) {
-      stage('[Helm] Deploy greenmail') {
-        folioHelm.withKubeConfig(namespace.getClusterName()) {
-          folioHelmFlow.deployGreenmail(namespace.getNamespaceName())
-        }
-      }
-    }
-
-    if (args.mockServer) {
-      stage('[Helm] Deploy mock-server') {
-        folioHelm.withKubeConfig(namespace.getClusterName()) {
-          folioHelmFlow.deployMockServer(namespace)
-        }
-      }
-    }
-
-    if (args.namespaceOnly) {
-      return
-    }
+//    stage('[Terraform] Provision') {
+//      switch (args.type) {
+//        case 'full':
+//          folioTerraformFlow.manageNamespace('apply', tfConfig)
+//          break
+//        case 'terraform':
+//          folioTerraformFlow.manageNamespace('apply', tfConfig)
+//
+//          currentBuild.result = 'ABORTED'
+//          currentBuild.description = 'Terraform refresh complete'
+//          return
+//
+//          break
+//        case 'update':
+//          logger.info("Skip [Terraform] Provision stage")
+//          break
+//      }
+//    }
+//
+//    if (args.greenmail) {
+//      stage('[Helm] Deploy greenmail') {
+//        folioHelm.withKubeConfig(namespace.getClusterName()) {
+//          folioHelmFlow.deployGreenmail(namespace.getNamespaceName())
+//        }
+//      }
+//    }
+//
+//    if (args.mockServer) {
+//      stage('[Helm] Deploy mock-server') {
+//        folioHelm.withKubeConfig(namespace.getClusterName()) {
+//          folioHelmFlow.deployMockServer(namespace)
+//        }
+//      }
+//    }
+//
+//    if (args.namespaceOnly) {
+//      return
+//    }
 
     def defaultTenantId = args.dataset ? 'fs09000000' : 'diku'
     String folioRepository = 'platform-complete'
