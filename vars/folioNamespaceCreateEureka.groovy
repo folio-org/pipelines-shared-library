@@ -263,6 +263,8 @@ void call(CreateNamespaceParameters args) {
       }
     }
 
+    input message: "Let's check"
+
 //    stage('[Helm] Deploy modules') {
 //      folioHelm.withKubeConfig(namespace.getClusterName()) {
 //        logger.info(namespace.getModules().getBackendModules())
