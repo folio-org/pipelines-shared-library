@@ -50,44 +50,44 @@ void call(CreateNamespaceParameters args) {
       }
     }
 
-    stage('[Terraform] Provision') {
-      switch (args.type) {
-        case 'full':
-          folioTerraformFlow.manageNamespace('apply', tfConfig)
-          break
-        case 'terraform':
-          folioTerraformFlow.manageNamespace('apply', tfConfig)
-
-          currentBuild.result = 'ABORTED'
-          currentBuild.description = 'Terraform refresh complete'
-          return
-
-          break
-        case 'update':
-          logger.info("Skip [Terraform] Provision stage")
-          break
-      }
-    }
-
-    if (args.greenmail) {
-      stage('[Helm] Deploy greenmail') {
-        folioHelm.withKubeConfig(namespace.getClusterName()) {
-          folioHelmFlow.deployGreenmail(namespace.getNamespaceName())
-        }
-      }
-    }
-
-    if (args.mockServer) {
-      stage('[Helm] Deploy mock-server') {
-        folioHelm.withKubeConfig(namespace.getClusterName()) {
-          folioHelmFlow.deployMockServer(namespace)
-        }
-      }
-    }
-
-    if (args.namespaceOnly) {
-      return
-    }
+//    stage('[Terraform] Provision') {
+//      switch (args.type) {
+//        case 'full':
+//          folioTerraformFlow.manageNamespace('apply', tfConfig)
+//          break
+//        case 'terraform':
+//          folioTerraformFlow.manageNamespace('apply', tfConfig)
+//
+//          currentBuild.result = 'ABORTED'
+//          currentBuild.description = 'Terraform refresh complete'
+//          return
+//
+//          break
+//        case 'update':
+//          logger.info("Skip [Terraform] Provision stage")
+//          break
+//      }
+//    }
+//
+//    if (args.greenmail) {
+//      stage('[Helm] Deploy greenmail') {
+//        folioHelm.withKubeConfig(namespace.getClusterName()) {
+//          folioHelmFlow.deployGreenmail(namespace.getNamespaceName())
+//        }
+//      }
+//    }
+//
+//    if (args.mockServer) {
+//      stage('[Helm] Deploy mock-server') {
+//        folioHelm.withKubeConfig(namespace.getClusterName()) {
+//          folioHelmFlow.deployMockServer(namespace)
+//        }
+//      }
+//    }
+//
+//    if (args.namespaceOnly) {
+//      return
+//    }
 
     def defaultTenantId = args.dataset ? 'fs09000000' : 'diku'
     String folioRepository = 'platform-complete'
@@ -211,27 +211,27 @@ void call(CreateNamespaceParameters args) {
       }
     }
 
-    stage('[Helm] Deploy mgr-*') {
-      folioHelm.withKubeConfig(namespace.getClusterName()) {
-        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getMgrModules())
-
-        //Check availability of the mgr-applications /applications endpoint to ensure the module up and running
-        int counter = 0
-        retry(10) {
-          sleep time: (counter == 0 ? 0 : 30), unit: 'SECONDS'
-          counter++
-
-          Applications.get(eureka.kong).getRegisteredApplications()
-        }
-        if (args.type == 'update') {
-          List sql_cmd = ['DELETE FROM public.module', 'DELETE FROM public.entitlement',
-                          'DELETE FROM public.entitlement_module', 'DELETE FROM public.application',
-                          'DELETE FROM public.application_flow']
-          String pod = sh(script: "kubectl get pod -l 'app.kubernetes.io/name=pgadmin4' -o=name -n ${namespace.getNamespaceName()}", returnStdout: true).trim()
-          sql_cmd.each {sh(script: "kubectl exec ${pod} --namespace ${namespace.getNamespaceName()} -- /usr/local/pgsql-16/psql -c '${it}'", returnStdout: true)}
-        }
-      }
-    }
+//    stage('[Helm] Deploy mgr-*') {
+//      folioHelm.withKubeConfig(namespace.getClusterName()) {
+//        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getMgrModules())
+//
+//        //Check availability of the mgr-applications /applications endpoint to ensure the module up and running
+//        int counter = 0
+//        retry(10) {
+//          sleep time: (counter == 0 ? 0 : 30), unit: 'SECONDS'
+//          counter++
+//
+//          Applications.get(eureka.kong).getRegisteredApplications()
+//        }
+//        if (args.type == 'update') {
+//          List sql_cmd = ['DELETE FROM public.module', 'DELETE FROM public.entitlement',
+//                          'DELETE FROM public.entitlement_module', 'DELETE FROM public.application',
+//                          'DELETE FROM public.application_flow']
+//          String pod = sh(script: "kubectl get pod -l 'app.kubernetes.io/name=pgadmin4' -o=name -n ${namespace.getNamespaceName()}", returnStdout: true).trim()
+//          sql_cmd.each {sh(script: "kubectl exec ${pod} --namespace ${namespace.getNamespaceName()} -- /usr/local/pgsql-16/psql -c '${it}'", returnStdout: true)}
+//        }
+//      }
+//    }
 
     stage('[Rest] Preinstall') {
       int counter = 0
@@ -258,27 +258,27 @@ void call(CreateNamespaceParameters args) {
       }
     }
 
-    stage('[Helm] Deploy modules') {
-      folioHelm.withKubeConfig(namespace.getClusterName()) {
-        logger.info(namespace.getModules().getBackendModules())
-
-        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getBackendModules())
-        folioHelm.checkDeploymentsRunning(namespace.getNamespaceName(), namespace.getModules().getBackendModules())
-      }
-    }
-
-    stage('[Helm] Deploy edge') {
-      folioHelm.withKubeConfig(namespace.getClusterName()) {
-        folioEdge.renderEphemeralPropertiesEureka(namespace)
-        namespace.getModules().getEdgeModules().each { module ->
-          kubectl.createConfigMap("${module.name}-ephemeral-properties", namespace.getNamespaceName(), "./${module.name}-ephemeral-properties")
-        }
-
-        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getEdgeModules())
-        folioHelm.checkDeploymentsRunning(namespace.getNamespaceName(), namespace.getModules().getEdgeModules())
-
-      }
-    }
+//    stage('[Helm] Deploy modules') {
+//      folioHelm.withKubeConfig(namespace.getClusterName()) {
+//        logger.info(namespace.getModules().getBackendModules())
+//
+//        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getBackendModules())
+//        folioHelm.checkDeploymentsRunning(namespace.getNamespaceName(), namespace.getModules().getBackendModules())
+//      }
+//    }
+//
+//    stage('[Helm] Deploy edge') {
+//      folioHelm.withKubeConfig(namespace.getClusterName()) {
+//        folioEdge.renderEphemeralPropertiesEureka(namespace)
+//        namespace.getModules().getEdgeModules().each { module ->
+//          kubectl.createConfigMap("${module.name}-ephemeral-properties", namespace.getNamespaceName(), "./${module.name}-ephemeral-properties")
+//        }
+//
+//        folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getEdgeModules())
+//        folioHelm.checkDeploymentsRunning(namespace.getNamespaceName(), namespace.getModules().getEdgeModules())
+//
+//      }
+//    }
 
     stage('[Rest] Initialize') {
       if (args.dataset) { // Prepare for large dataset reindex
