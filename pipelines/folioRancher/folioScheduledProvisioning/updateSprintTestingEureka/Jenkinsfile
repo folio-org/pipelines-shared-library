@@ -24,7 +24,7 @@ properties([
               ]),
   pipelineTriggers([
     parameterizedCron('''
-      0 6 * * 1-6 %PLATFORM=EUREKA;CLUSTER=folio-etesting;NAMESPACE=sprint;CONFIG_TYPE=testing;DB_BACKUP_NAME=folio-general-dataset-april-2025-all-users-clean-v2;MARC_MIGRATIONS=false;TYPE=update
+      H 6 * * 1-6 %PLATFORM=EUREKA;CLUSTER=folio-etesting;NAMESPACE=sprint;CONFIG_TYPE=testing;DB_BACKUP_NAME=folio-general-dataset-april-2025-all-users-clean-v2;MARC_MIGRATIONS=true;TYPE=update
     ''')])
 ])
 
