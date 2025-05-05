@@ -56,7 +56,7 @@ CypressRunExecutionSummary call(String ciBuildId, List<CypressTestsParameters> t
 
   PodTemplates podTemplates = new PodTemplates(this, true)
   Logger logger = new Logger(this, 'folioCypressFlow.groovy')
-  CypressRunExecutionSummary testRunExecutionSummary
+  CypressRunExecutionSummary testRunExecutionSummary = new CypressRunExecutionSummary()
   List allureResultsList = []
   String reportPortalExecParameters = ''
   ReportPortalClient reportPortalClient = null
