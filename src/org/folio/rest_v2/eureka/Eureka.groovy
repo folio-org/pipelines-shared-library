@@ -47,7 +47,7 @@ class Eureka extends Base {
                 logger.debug("createTenantFlow. app: ${app.id} name: ${app.name}")
 
                 !entitledApps.any {
-                  logger.debug("createTenantFlow. entitledApps: ${it.id}" name: "${it.name}")
+                  logger.debug("createTenantFlow. entitledApps: ${it.id} name: ${it.name}")
                   logger.debug("createTenantFlow. skipExistedType ? it.name == app.name : it.id == app.id: ${skipExistedType ? it.name == app.name : it.id == app.id}")
 
                   skipExistedType ? it.name == app.name : it.id == app.id
