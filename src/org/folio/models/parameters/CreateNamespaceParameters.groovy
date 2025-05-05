@@ -41,6 +41,8 @@ class CreateNamespaceParameters implements Cloneable {
 
   boolean rtr
 
+  boolean marcMigrations = false
+
   boolean hasSecureTenant
 
   String secureTenantId
@@ -50,6 +52,8 @@ class CreateNamespaceParameters implements Cloneable {
   boolean dataset = false
 
   String dmSnapshot
+
+  String dbBackupName = ""
 
   //TODO: remove after pipeline refactoring. Just utilize it. Use this only in the main pipeline for developers
   // as a select-simplicity approach. Don't use it, and do not include it in the underlying
@@ -297,6 +301,16 @@ class CreateNamespaceParameters implements Cloneable {
     }
 
     /**
+     * Do or not marc-migrations
+     * @param doMigrations `true` to do marc-migrations; `false` to skip.
+     * @return Builder instance for method chaining.
+     */
+    Builder doMarcMigrations(boolean doMigrations) {
+      parameters.marcMigrations = doMigrations
+      return this
+    }
+
+    /**
      * Activate or not secure tenant
      * @param has `true` to activate security on tenant secureTenantId
      * @return Builder instance for method chaining.
@@ -474,6 +488,16 @@ class CreateNamespaceParameters implements Cloneable {
      */
     Builder dmSnapshot(String dmSnapshot) {
       parameters.dmSnapshot = dmSnapshot
+      return this
+    }
+
+    /**
+     * Specifies the name of the database backup to be used.
+     * @param name The name of the database backup.
+     * @return Builder instance for method chaining.
+     */
+    Builder dbBackupName(String name) {
+      parameters.dbBackupName = name
       return this
     }
 
