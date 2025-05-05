@@ -43,16 +43,7 @@ class Eureka extends Base {
     Tenants.get(kong).enableApplications(
       tenant
       , tenant.applications
-              .findAll { app ->
-                logger.debug("createTenantFlow. app: ${app.id} name: ${app.name}")
-
-                !entitledApps.any {
-                  logger.debug("createTenantFlow. entitledApps: ${it.id} name: ${it.name}")
-                  logger.debug("createTenantFlow. skipExistedType ? it.name == app.name : it.id == app.id: ${skipExistedType ? it.name == app.name : it.id == app.id}")
-
-                  skipExistedType ? it.name == app.name : it.id == app.id
-                }
-              }
+              .findAll { app -> !entitledApps.any { skipExistedType ? it.name == app.name : it.id == app.id } }
               .collect { it.id }
     )
 
