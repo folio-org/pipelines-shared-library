@@ -134,8 +134,8 @@ ansiColor('xterm') {
         cypressParameters.setNumberOfWorkers(4)
         cypressParameters.setTimeout('180')
 
-        cypressTestsExecutionSummary = folioCypressFlow.call(cypressParameters.getCiBuildId(), [cypressParameters], false, true, 'ci')
-        logger.debug(writeJSON(returnText: true, json: cypressTestsExecutionSummary))
+//        cypressTestsExecutionSummary =
+        folioCypressFlow.call(cypressParameters.getCiBuildId(), [cypressParameters], false, true, 'ci')
       }
       if (params.INCLUDE_KARATE) {
         branches['Karate'] = { ->

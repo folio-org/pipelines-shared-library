@@ -175,6 +175,7 @@ CypressRunExecutionSummary call(String ciBuildId, List<CypressTestsParameters> t
 
       // Analyze results after execution
       testRunExecutionSummary = folioCypress.analyzeResults()
+
       try {
         if (sendNotification) {
           // Send notifications based on the execution summary
@@ -184,6 +185,7 @@ CypressRunExecutionSummary call(String ciBuildId, List<CypressTestsParameters> t
         echo("Error sending notifications: ${e.getMessage()}")
       }
 
+      logger.debug(testRunExecutionSummary.getClass())
       return testRunExecutionSummary
     }
   }
