@@ -298,7 +298,7 @@ spec:
       label: JenkinsAgentLabel.JAVA_KARATE_AGENT.getLabel(),
       volumes: [steps.persistentVolumeClaim(claimName: MAVEN_CACHE_PVC, mountPath: "${WORKING_DIR}/.m2/repository")],
       containers: [
-        buildJavaContainer(javaVersion, [], '1536Mi', '2048Mi')
+        buildJavaContainer(javaVersion, [], '2048Mi', '2560Mi')
       ]
     )) {
       steps.node(JenkinsAgentLabel.JAVA_KARATE_AGENT.getLabel()) {
