@@ -19,7 +19,7 @@ properties([
               folioParameters.configType(),
               string(name: 'DB_BACKUP_NAME', defaultValue: 'folio-general-dataset-april-2025-all-users-clean-v2', description: 'Set DB backup name'),
               booleanParam(name: 'MARC_MIGRATIONS', defaultValue: false, description: 'enable marc-migrations'),
-              choice(name: 'TYPE', choices: ['full', 'terraform', 'update'], defaultValue: 'update', description: '(Required) Set action TYPE to perform'),
+              choice(name: 'TYPE', choices: ['full', 'terraform', 'update'], description: '(Required) Set action TYPE to perform'),
               folioParameters.refreshParameters()
               ]),
   pipelineTriggers([
@@ -59,6 +59,7 @@ CreateNamespaceParameters namespace = new CreateNamespaceParameters.Builder()
   .doMarcMigrations(params.MARC_MIGRATIONS)
   .type(params.TYPE)
   .hasSecureTenant(false)
+  .secureTenantId(folioDefault.consortiaTenants().get('university').getTenantId())
   .dataset(true)
   .pgType('aws')
   .pgVersion('16.6')
