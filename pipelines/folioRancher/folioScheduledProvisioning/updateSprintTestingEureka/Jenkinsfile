@@ -55,11 +55,11 @@ CreateNamespaceParameters namespace = new CreateNamespaceParameters.Builder()
   .ecsCCL(false)
   .applicationSet('Complete')
   .applications(org.folio.rest_v2.Constants.APPLICATION_BRANCH('Complete') +
-          params.MARC_MIGRATIONS ?
+          (params.MARC_MIGRATIONS ?
           org.folio.rest_v2.Constants.APPLICATION_COMPLETE
-                  .find{it.name == 'app-marc-migrations' }
+                  .findAll {it.name == 'app-marc-migrations' }
                   .collectEntries{app -> [ app.name, app.branch ] } :
-          [:]
+          [:])
   )
   .dbBackupName(params.DB_BACKUP_NAME)
   .doMarcMigrations(params.MARC_MIGRATIONS)
@@ -78,8 +78,7 @@ CreateNamespaceParameters namespace = new CreateNamespaceParameters.Builder()
   .build()
 
 ansiColor('xterm') {
-
-    stage('Update Sprint Testing') {
-      folioTriggerJob.createNamespaceFromBranch(createNamespaceJobName, namespace)
-    }
+  stage('Update Sprint Testing') {
+    folioTriggerJob.createNamespaceFromBranch(createNamespaceJobName, namespace)
   }
+}
