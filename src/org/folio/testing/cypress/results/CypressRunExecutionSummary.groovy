@@ -8,7 +8,6 @@ import org.folio.testing.TestExecutionResult
 import org.folio.testing.teams.Team
 import org.folio.testing.teams.TeamAssignment
 
-@CpsSerializable
 class CypressRunExecutionSummary implements IRunExecutionSummary, ITestParent {
 
   static Map<String, CypressTestExecution> tests = [:]
@@ -19,10 +18,8 @@ class CypressRunExecutionSummary implements IRunExecutionSummary, ITestParent {
 
   String uid = ""
 
-  @CpsSerializable
   CypressRunExecutionSummary() {}
 
-  @CpsSerializable
   CypressRunExecutionSummary(String uid) {
     this.uid = uid
   }
