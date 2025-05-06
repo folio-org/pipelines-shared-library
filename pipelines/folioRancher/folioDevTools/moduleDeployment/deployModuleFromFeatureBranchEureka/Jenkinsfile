@@ -13,7 +13,7 @@ import org.folio.utilities.GitHubClient
 import org.folio.utilities.Logger
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library@RANCHER-2236') _
+@Library('pipelines-shared-library@RANCHER-2305-fix-test') _
 
 /** Job properties and parameters */
 properties([
@@ -208,11 +208,19 @@ ansiColor('xterm') {
       module.descriptor = [readJSON(file: module.modDescriptorPath)]
     }
 
-      stage('Generate context') {
-        eureka.getExistedTenantsForModule("${namespace.getClusterName()}-${namespace.getNamespaceName()}", module.getName())
-          .values().each {namespace.addTenant(it)}
+    stage('Generate context') {
+      eureka.getExistedTenantsForModule("${namespace.getClusterName()}-${namespace.getNamespaceName()}", module.getName())
+        .values().each {namespace.addTenant(it)}
 
-        namespace.tenants.values().each {it.getModules().addModule(module)}
+      logger.debug("Let's look at the tenants: ${namespace.tenants}")
+
+      input message: "let's check"
+
+      logger.debug("Let's look at the applications: ${namespace.applications}")
+
+      input message: "Let's check once again"
+
+      namespace.tenants.values().each {it.getModules().addModule(module)}
 
       if (!(namespace.tenants))
         throw new Exception("There are no tenants with the module ${module.getName()}")
