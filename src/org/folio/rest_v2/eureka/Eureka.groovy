@@ -237,7 +237,7 @@ class Eureka extends Base {
         tenant.withAWSSecretStoragePathName(namespace)
           .withClientSecret(retrieveTenantClientSecretFromAWSSSM(tenant))
 
-        tenant.withApplications(Tenants.get(kong).getEnabledApplicationOnTenant(tenant))
+        tenant.withApplications(Tenants.get(kong).getEnabledApplicationOnTenant(tenant, true))
 
         TenantConsortiaConfiguration consortiaConfig = Consortia.get(kong).getTenantConsortiaConfiguration(tenant)
 
@@ -261,7 +261,7 @@ class Eureka extends Base {
   Map<String, EurekaTenant> getExistedTenantsForModule(String namespace, String moduleName) {
     return getExistedTenantsFlow(namespace).findAll {tenantName, tenant ->
 
-      logger.debug("getEnabledApplicationOnTenant: ${Tenants.get(kong).getEnabledApplicationOnTenant(tenant)}")
+      logger.debug("getEnabledApplicationOnTenant: ${Tenants.get(kong).getEnabledApplicationOnTenant(tenant, true)}")
       context.input(message: "Let's check")
 
       logger.debug("getExistedTenantsForModule applist: ${tenant.applications}")
