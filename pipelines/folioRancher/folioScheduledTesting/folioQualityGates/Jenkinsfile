@@ -40,8 +40,8 @@ Logger logger = new Logger(this, env.JOB_BASE_NAME)
 boolean autoCanceled = false
 String currentBuildSha
 String previousBuildSha
-CypressRunExecutionSummary cypressTestsExecutionSummary
-KarateRunExecutionSummary karateTestsExecutionSummary
+CypressRunExecutionSummary cypressTestsExecutionSummary = new CypressRunExecutionSummary()
+KarateRunExecutionSummary karateTestsExecutionSummary = new KarateRunExecutionSummary()
 
 String createNamespaceFromBranchJob = GlobalConstants.JENKINS_CREATE_NAMESPACE_FROM_BRANCH_JOB
 String deleteNamespaceJob = GlobalConstants.JENKINS_DELETE_NAMESPACE_JOB
