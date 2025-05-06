@@ -287,7 +287,7 @@ class Eureka extends Base {
 
     appWithDescriptors.each { app ->
 
-      String incrementalNumber = app.build + 1
+      String incrementalNumber = app.build.toInteger() + 1
 
       Map updatedAppDescriptor = getUpdatedApplicationDescriptor(app.descriptor, module, incrementalNumber)
 
