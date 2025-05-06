@@ -137,6 +137,7 @@ ansiColor('xterm') {
         cypressParameters.setNumberOfWorkers(4)
         cypressParameters.setTimeout('180')
 
+        println(folioCypressFlow.call(cypressParameters.getCiBuildId(), [cypressParameters], false, true, 'ci').getClass())
 //        cypressTestsExecutionSummary = folioCypressFlow.call(cypressParameters.getCiBuildId(), [cypressParameters], false, true, 'ci')
       }
       if (params.INCLUDE_KARATE) {
@@ -149,7 +150,6 @@ ansiColor('xterm') {
           karateTestsParams.adminUserName = 'super_admin'
           karateTestsParams.adminPassword = 'admin'
           karateTestsParams.threadsCount = '4'
-          karateTestsParams.modulesToTest = 'mod-bulk-operations' //TODO for tests
           karateTestsParams.reportPortalProjectName = 'junit5-integration'
           karateTestsParams.sendSlackNotification = false
           karateTestsParams.sendTeamsSlackNotification = false
