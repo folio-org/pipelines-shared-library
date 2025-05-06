@@ -183,13 +183,11 @@ class Tenants extends Kong{
       applications: appIds
     ]
 
-    def response = restClient.post(
+    restClient.post(
       generateUrl("/entitlements${tenant.getInstallRequestParams()?.toQueryString() ?: ''}")
       , body
       , headers
     )
-
-    String contentStr = response.body.toString()
 
     logger.info("Update the following applications ${appIds} on tenant ${tenant.tenantId} with ${tenant.uuid} was finished successfully")
 
@@ -205,7 +203,7 @@ class Tenants extends Kong{
    * @param limit number of records to return in response.
    * @return Map of Entitled Applications.
    */
-  ApplicationList getEnabledApplications(EurekaTenant tenant, String query = "", Boolean includeModules = true, int limit = 500) {
+  ApplicationList getEnabledApplications(EurekaTenant tenant, String query = "", boolean includeModules = false, int limit = 500) {
     String pathParams = "query=${query ?: "tenantId=${tenant.uuid}"}&includeModules=${includeModules}&limit=${limit}"
 
     logger.info("Get enabled (entitled) applications for ${tenant.tenantId} tenant with parameters: ${pathParams}...")
@@ -262,7 +260,7 @@ class Tenants extends Kong{
    * @param appId Application id (e.g. app-platform-full-1.0.0-SNAPSHOT.176)
    * @return Application instance with specificId
    */
-  Application getEnabledApplicationById(EurekaTenant tenant, String appId, Boolean includeModules = false){
+  Application getEnabledApplicationById(EurekaTenant tenant, String appId, boolean includeModules = false){
     ApplicationList enabledApps = getEnabledApplications(tenant,"applicationId=${appId}", includeModules)
 
     return enabledApps ? enabledApps[0]: null
@@ -275,7 +273,7 @@ class Tenants extends Kong{
    * @param includeModules boolean flag to include modules.
    * @return ApplicationList of enabled applications.
    */
-  ApplicationList getEnabledApplicationOnTenant(EurekaTenant tenant, Boolean includeModules = false){
+  ApplicationList getEnabledApplicationOnTenant(EurekaTenant tenant, boolean includeModules = false){
     return getEnabledApplications(tenant,"tenantId=${tenant.uuid}", includeModules)
   }
 
