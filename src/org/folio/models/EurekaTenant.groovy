@@ -89,7 +89,7 @@ class EurekaTenant extends OkapiTenant {
    * @param apps The list of applications to be added.
    * @return The EurekaTenant object for method chaining.
    */
-  EurekaTenant withApplications(ApplicationList apps){
+  EurekaTenant withApplications(Collection apps){
     ApplicationList list = (apps instanceof ApplicationList)
       ? apps
       : new ApplicationList().tap { addAll(apps) }
