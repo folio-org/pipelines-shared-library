@@ -36,6 +36,10 @@ if (params.REFRESH_PARAMETERS) {
 
 PodTemplates podTemplates = new PodTemplates(this)
 
+println("Fing marc-migration: ${org.folio.rest_v2.Constants.APPLICATION_COMPLETE.find{it.name == 'app-marc-migrations' }}")
+
+input message: "Let's wait"
+
 CreateNamespaceParameters namespace = new CreateNamespaceParameters.Builder()
   .platform(PlatformType.EUREKA)
   .clusterName(params.CLUSTER)
@@ -78,8 +82,7 @@ CreateNamespaceParameters namespace = new CreateNamespaceParameters.Builder()
   .build()
 
 ansiColor('xterm') {
-
-    stage('Update Sprint Testing') {
-      folioTriggerJob.createNamespaceFromBranch(createNamespaceJobName, namespace)
-    }
+  stage('Update Sprint Testing') {
+    folioTriggerJob.createNamespaceFromBranch(createNamespaceJobName, namespace)
   }
+}
