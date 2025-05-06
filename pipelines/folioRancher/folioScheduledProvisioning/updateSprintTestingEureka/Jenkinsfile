@@ -37,8 +37,14 @@ if (params.REFRESH_PARAMETERS) {
 PodTemplates podTemplates = new PodTemplates(this)
 
 println("Fing marc-migration: ${org.folio.rest_v2.Constants.APPLICATION_COMPLETE.find{it.name == 'app-marc-migrations' }}")
+println("App map: ${org.folio.rest_v2.Constants.APPLICATION_BRANCH('Complete')}")
 
 input message: "Let's wait"
+
+//Map<String, ?> marcMigrationApp = org.folio.rest_v2.Constants.APPLICATION_COMPLETE
+//        .find{it.name == 'app-marc-migrations' }
+//
+//Map marcAppToAdd = [[]]
 
 CreateNamespaceParameters namespace = new CreateNamespaceParameters.Builder()
   .platform(PlatformType.EUREKA)
