@@ -209,6 +209,10 @@ ansiColor('xterm') {
     }
 
     stage('Generate context') {
+      logger.debug("Module name: ${module.getName()}")
+
+      input message: "Let's check the module name"
+
       def tenants = eureka.getExistedTenantsForModule("${namespace.getClusterName()}-${namespace.getNamespaceName()}", module.getName())
         .values()
 
