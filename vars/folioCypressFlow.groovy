@@ -185,8 +185,8 @@ CypressRunExecutionSummary call(String ciBuildId, List<CypressTestsParameters> t
         echo("Error sending notifications: ${e.getMessage()}")
       }
 
-      logger.debug(testRunExecutionSummary.getClass())
-      return testRunExecutionSummary
+
     }
   }
+  return testRunExecutionSummary
 }
