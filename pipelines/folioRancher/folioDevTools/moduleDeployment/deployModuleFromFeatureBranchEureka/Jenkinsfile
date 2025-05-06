@@ -208,29 +208,11 @@ ansiColor('xterm') {
       module.descriptor = [readJSON(file: module.modDescriptorPath)]
     }
 
-    stage('Generate context') {
-      logger.debug("Module name: ${module.getName()}")
+      stage('Generate context') {
+        eureka.getExistedTenantsForModule("${namespace.getClusterName()}-${namespace.getNamespaceName()}", module.getName())
+          .values().each {namespace.addTenant(it)}
 
-      input message: "Let's check the module name"
-
-      def tenants = eureka.getExistedTenantsForModule("${namespace.getClusterName()}-${namespace.getNamespaceName()}", module.getName())
-        .values()
-
-      tenants.each {namespace.addTenant(it)}
-
-      logger.debug("Let's look at the tenants: ${tenants}")
-
-      input message: "let's check"
-
-      logger.debug("Let's look at the tenants in the namespace: ${namespace.tenants}")
-
-      input message: "let's check once again"
-
-      logger.debug("Let's look at the applications: ${namespace.applications}")
-
-      input message: "Let's check one more time"
-
-      namespace.tenants.values().each {it.getModules().addModule(module)}
+        namespace.tenants.values().each {it.getModules().addModule(module)}
 
       if (!(namespace.tenants))
         throw new Exception("There are no tenants with the module ${module.getName()}")
