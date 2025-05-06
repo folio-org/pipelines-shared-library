@@ -276,7 +276,10 @@ class Eureka extends Base {
     ApplicationList appWithDescriptors = new ApplicationList()
 
     applications.each { app ->
-      appWithDescriptors.add(new Application(Applications.get(kong).getRegisteredApplicationDescriptors(app.id, true) as Map))
+      appWithDescriptors.add(
+        new Application()
+          .withDescriptor(Applications.get(kong).getRegisteredApplicationDescriptors(app.id, true) as Map)
+      )
     }
 
     Map<String, String> updatedAppInfoMap = [:]
