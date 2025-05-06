@@ -16,10 +16,10 @@ import org.folio.testing.karate.results.KarateRunExecutionSummary
 import org.folio.utilities.Logger
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library@RANCHER-2236') _
+@Library('pipelines-shared-library@qualityGates-debug') _
 
 properties([
-  pipelineTriggers([cron('H 6,9,12,15,18,21 * * 1-5')]),
+//  pipelineTriggers([cron('H 6,9,12,15,18,21 * * 1-5')]),
   buildDiscarder(logRotator(numToKeepStr: '40')),
   disableConcurrentBuilds(),
   parameters([
@@ -49,7 +49,8 @@ String globalSlackChannel = '#rancher_tests_notifications'
 String okapiVersion = folioTools.eval(folioStringScripts.getOkapiVersions(), ['FOLIO_BRANCH': params.FOLIO_BRANCH])[0]
 
 Map envsMap = [
-  cypress: [cluster: 'folio-etesting', namespace: 'cicypress', platform: 'eureka'],
+//  cypress: [cluster: 'folio-etesting', namespace: 'cicypress', platform: 'eureka'],
+  cypress: [cluster: 'folio-tmp', namespace: 'test-2', platform: 'eureka'],
 //  schema : [cluster: 'folio-tmp', namespace: 'cischema']
 ]
 
@@ -116,9 +117,9 @@ ansiColor('xterm') {
       return
     }
 
-    destroyParallelStage(deleteNamespaceJob, envsMap, namespaceBaseParams, globalSlackChannel)
+//    destroyParallelStage(deleteNamespaceJob, envsMap, namespaceBaseParams, globalSlackChannel)
 
-    provisionFromBranchParallelStage(createNamespaceFromBranchJob, envsMap, namespaceFromBranchParams, globalSlackChannel)
+//    provisionFromBranchParallelStage(createNamespaceFromBranchJob, envsMap, namespaceFromBranchParams, globalSlackChannel)
 
     stage('Execute quality gates') {
       Map branches = [failFast: false]
@@ -130,7 +131,8 @@ ansiColor('xterm') {
         cypressParameters.setOkapiUrl("https://${envsMap['cypress']['cluster']}-${envsMap['cypress']['namespace']}-kong.${GlobalConstants.CI_ROOT_DOMAIN}")
         cypressParameters.setTenant(new OkapiTenant('diku')
           .withAdminUser(new OkapiUser('diku_admin', 'admin')))
-        cypressParameters.setExecParameters('--env grepTags="shiftLeft"')
+//        cypressParameters.setExecParameters('--env grepTags="shiftLeft"')
+        cypressParameters.setExecParameters('--env grepTags="fse+sanity"')
         cypressParameters.setNumberOfWorkers(4)
         cypressParameters.setTimeout('180')
 
@@ -161,11 +163,11 @@ ansiColor('xterm') {
     }
 
     podTemplates.rancherAgent {
-      stage('[AWS] Update ssm') {
-        if (currentBuildSha) {
-          folioHashCommitCheck.updateBuildSha(currentBuildSha)
-        }
-      }
+//      stage('[AWS] Update ssm') {
+//        if (currentBuildSha) {
+//          folioHashCommitCheck.updateBuildSha(currentBuildSha)
+//        }
+//      }
 
       stage('[Slack] Send notification') {
         String karateTestsResultMessage = ''
@@ -195,7 +197,7 @@ ansiColor('xterm') {
           changelog
         ])
 
-        slackSend(attachments: attachments, channel: "#rancher_tests_notifications")
+//        slackSend(attachments: attachments, channel: "#rancher_tests_notifications")
       }
     }
 //  } catch (e) {
