@@ -291,6 +291,9 @@ class Eureka extends Base {
 
       Map updatedAppDescriptor = getUpdatedApplicationDescriptor(app.descriptor, module, incrementalNumber)
 
+      logger.debug("updatedAppDescriptor: ${updatedAppDescriptor}")
+      context.input(message: "Let's check")
+
       Applications.get(kong).registerApplication(updatedAppDescriptor)
 
       updatedAppInfoMap.put(updatedAppDescriptor['name'] as String, updatedAppDescriptor['id'] as String)
