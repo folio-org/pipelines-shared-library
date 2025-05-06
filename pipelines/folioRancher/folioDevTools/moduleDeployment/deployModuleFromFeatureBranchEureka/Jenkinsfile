@@ -291,6 +291,8 @@ ansiColor('xterm') {
       // 4. Enable Application Descriptor with Updated Module Version for Tenants in Namespace
       stage('[Rest] Enable New App') {
         try {
+          input message: "Let's check a new application"
+
           namespace.getTenants().values().each {tenant ->
             Tenants.get(eureka.getKong()).updateApplications(tenant, updatedAppInfoMap.values().toList())
           }

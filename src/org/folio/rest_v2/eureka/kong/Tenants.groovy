@@ -183,13 +183,11 @@ class Tenants extends Kong{
       applications: appIds
     ]
 
-    def response = restClient.post(
+    restClient.post(
       generateUrl("/entitlements${tenant.getInstallRequestParams()?.toQueryString() ?: ''}")
       , body
       , headers
     )
-
-    String contentStr = response.body.toString()
 
     logger.info("Update the following applications ${appIds} on tenant ${tenant.tenantId} with ${tenant.uuid} was finished successfully")
 
