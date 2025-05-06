@@ -90,9 +90,13 @@ class EurekaTenant extends OkapiTenant {
    * @return The EurekaTenant object for method chaining.
    */
   EurekaTenant withApplications(ApplicationList apps){
-    applications = apps
+    ApplicationList list = (apps instanceof ApplicationList)
+      ? apps
+      : new ApplicationList().tap { addAll(apps) }
 
-    apps.each { app ->
+    this.applications = list
+
+    list.each { app ->
       app.modules.each {modules.addModule(it) }
     }
 
