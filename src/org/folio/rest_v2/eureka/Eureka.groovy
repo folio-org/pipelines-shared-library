@@ -237,7 +237,7 @@ class Eureka extends Base {
         tenant.withAWSSecretStoragePathName(namespace)
           .withClientSecret(retrieveTenantClientSecretFromAWSSSM(tenant))
 
-        tenant.withApplications(Tenants.get(kong).getEnabledApplicationOnTenant(tenant))
+        tenant.withApplications(Tenants.get(kong).getEnabledApplicationOnTenant(tenant, true))
 
         TenantConsortiaConfiguration consortiaConfig = Consortia.get(kong).getTenantConsortiaConfiguration(tenant)
 
@@ -260,7 +260,8 @@ class Eureka extends Base {
    */
   Map<String, EurekaTenant> getExistedTenantsForModule(String namespace, String moduleName) {
     return getExistedTenantsFlow(namespace).findAll {tenantName, tenant ->
-      tenant.applications.byModuleName(moduleName)
+      tenant.withApplications(tenant.applications.byModuleName(moduleName))
+      return tenant.applications.size() > 0
     }
   }
 
@@ -276,14 +277,17 @@ class Eureka extends Base {
     ApplicationList appWithDescriptors = new ApplicationList()
 
     applications.each { app ->
-      appWithDescriptors.add(new Application(Applications.get(kong).getRegisteredApplicationDescriptors(app.id, true) as Map))
+      appWithDescriptors.add(
+        new Application()
+          .withDescriptor(Applications.get(kong).getRegisteredApplicationDescriptors(app.id, true) as Map)
+      )
     }
 
     Map<String, String> updatedAppInfoMap = [:]
 
     appWithDescriptors.each { app ->
 
-      String incrementalNumber = app.build + 1
+      String incrementalNumber = app.build.toInteger() + 1
 
       Map updatedAppDescriptor = getUpdatedApplicationDescriptor(app.descriptor, module, incrementalNumber)
 
