@@ -261,6 +261,9 @@ class Eureka extends Base {
   Map<String, EurekaTenant> getExistedTenantsForModule(String namespace, String moduleName) {
     return getExistedTenantsFlow(namespace).findAll {tenantName, tenant ->
 
+      logger.debug("getEnabledApplicationOnTenant: ${Tenants.get(kong).getEnabledApplicationOnTenant(tenant)}")
+      context.input(message: "Let's check")
+
       logger.debug("getExistedTenantsForModule applist: ${tenant.applications}")
       context.input(message: "Let's check")
 
