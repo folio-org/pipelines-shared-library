@@ -209,16 +209,22 @@ ansiColor('xterm') {
     }
 
     stage('Generate context') {
-      eureka.getExistedTenantsForModule("${namespace.getClusterName()}-${namespace.getNamespaceName()}", module.getName())
-        .values().each {namespace.addTenant(it)}
+      def tenants = eureka.getExistedTenantsForModule("${namespace.getClusterName()}-${namespace.getNamespaceName()}", module.getName())
+        .values()
 
-      logger.debug("Let's look at the tenants: ${namespace.tenants}")
+      tenants.each {namespace.addTenant(it)}
+
+      logger.debug("Let's look at the tenants: ${tenants}")
 
       input message: "let's check"
 
+      logger.debug("Let's look at the tenants in the namespace: ${namespace.tenants}")
+
+      input message: "let's check once again"
+
       logger.debug("Let's look at the applications: ${namespace.applications}")
 
-      input message: "Let's check once again"
+      input message: "Let's check one more time"
 
       namespace.tenants.values().each {it.getModules().addModule(module)}
 
