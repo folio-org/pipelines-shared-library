@@ -55,7 +55,8 @@ Map envsMap = [
 ]
 
 if (params.INCLUDE_KARATE) {
-  envsMap.put('karate', [cluster: 'folio-etesting', namespace: 'cikarate', platform: 'eureka'])
+//  envsMap.put('karate', [cluster: 'folio-etesting', namespace: 'cikarate', platform: 'eureka'])
+  envsMap.put('karate', [cluster: 'folio-tmp', namespace: 'test-2', platform: 'eureka'])
 }
 
 CreateNamespaceParameters namespaceBaseParams = new CreateNamespaceParameters.Builder()
