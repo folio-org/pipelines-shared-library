@@ -179,7 +179,13 @@ void cleanUpAgreementsFedLocks(String namespace = 'default', int timer = 0, Stri
         case 300:
           println("5 minutes passed. Trying to cleanup federation_lock table.")
           String pod = sh(script: "kubectl get pod -l 'app.kubernetes.io/name=pgadmin4' -o=name  --ignore-not-found=true --namespace ${namespace}", returnStdout: true).trim()
-          sh(script: "kubectl exec --request-timeout=10s --namespace=${namespace} ${pod} -- /usr/local/pgsql-16/psql -c 'TRUNCATE ${moduleId.replace('-', '_')}__system.federation_lock'", returnStatus: false)
+          try {
+           timeout(time: 1, UNITS: 'MINUTES') {
+            sh(script: "kubectl exec --request-timeout=10s --namespace=${namespace} ${pod} -- /usr/local/pgsql-16/psql -c '${moduleId.replace('-', '_')}__system.federation_lock'", returnStatus: false)}
+          } catch (Exception e) {
+            kubectl.rolloutDeployment(moduleId, namespace)
+            println("Unable to cleanup federation_lock table.\nError: " + e.getMessage())
+          }
           break
         case 600:
           println("10 minutes passed. Trying to delete $moduleId pod(s).")
