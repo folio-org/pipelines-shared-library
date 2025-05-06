@@ -54,7 +54,13 @@ CreateNamespaceParameters namespace = new CreateNamespaceParameters.Builder()
   .splitFiles(true)
   .ecsCCL(false)
   .applicationSet('Complete')
-  .applications(org.folio.rest_v2.Constants.APPLICATION_BRANCH('Complete'))
+  .applications(org.folio.rest_v2.Constants.APPLICATION_BRANCH('Complete') +
+          params.MARC_MIGRATIONS ?
+          org.folio.rest_v2.Constants.APPLICATION_COMPLETE
+                  .find{it.name == 'app-marc-migrations' }
+                  .collectEntries{app -> [ app.name, app.branch ] } :
+          [:]
+  )
   .dbBackupName(params.DB_BACKUP_NAME)
   .doMarcMigrations(params.MARC_MIGRATIONS)
   .type(params.TYPE)
