@@ -1,6 +1,7 @@
 package org.folio.rest_v2.eureka.kong
 
 import com.cloudbees.groovy.cps.NonCPS
+import org.folio.models.EurekaTenant
 import org.folio.models.EurekaTenantConsortia
 import org.folio.models.Role
 import org.folio.models.User
@@ -65,7 +66,7 @@ class Consortia extends Kong {
     return content.id
   }
 
-  String getConsortiaID(EurekaTenantConsortia centralConsortiaTenant) {
+  String getConsortiaID(EurekaTenant centralConsortiaTenant) {
     logger.info("Get tenant's ${centralConsortiaTenant.getTenantId()} ${centralConsortiaTenant.getUuid()} consortia ID ...")
 
     Map<String, String> headers = getTenantHttpHeaders(centralConsortiaTenant, true)
@@ -84,6 +85,29 @@ class Consortia extends Kong {
       logger.debug("Consortia hasn't been found")
       logger.debug("HTTP response is: ${response}")
       throw new Exception("Consortia(s) not found")
+    }
+  }
+
+  /**
+   * Checks if a tenant is a consortia tenant via the consortia-configuration endpoint and returns TenantConsortiaConfiguration
+   *
+   * @param tenant The tenant to check.
+   * @return consortia tenant configuration, null otherwise.
+   */
+  TenantConsortiaConfiguration getTenantConsortiaConfiguration(EurekaTenant tenant){
+    logger.info("Check if tenant ${tenant.getTenantId()} ${tenant.getUuid()} is a consortia tenant ...")
+
+    Map<String, String> headers = getTenantHttpHeaders(tenant, true)
+
+    try {
+      def response = restClient.get(generateUrl("/consortia-configuration"), headers)
+      Map content = response.body as Map
+
+      return new TenantConsortiaConfiguration(content.id as String, content.centralTenantId as String)
+    }catch (Exception ignored){
+      logger.debug("Tenant is not a consortia tenant")
+
+      return null
     }
   }
 
