@@ -37,7 +37,7 @@ if (params.REFRESH_PARAMETERS) {
 PodTemplates podTemplates = new PodTemplates(this)
 
 println("Fing marc-migration: ${org.folio.rest_v2.Constants.APPLICATION_COMPLETE.find{it.name == 'app-marc-migrations' }}")
-println("App map: ${org.folio.rest_v2.Constants.APPLICATION_COMPLETE.find{it.name == 'app-marc-migrations' }.collectEntries{app -> [ app.name, app.branch ] }}")
+println("App map: ${org.folio.rest_v2.Constants.APPLICATION_COMPLETE.findAll {it.name == 'app-marc-migrations' }.collectEntries{app -> [ app.name, app.branch ] }}")
 
 input message: "Let's wait"
 
@@ -67,7 +67,7 @@ CreateNamespaceParameters namespace = new CreateNamespaceParameters.Builder()
   .applications(org.folio.rest_v2.Constants.APPLICATION_BRANCH('Complete') +
           (params.MARC_MIGRATIONS ?
           org.folio.rest_v2.Constants.APPLICATION_COMPLETE
-                  .find{it.name == 'app-marc-migrations' }
+                  .findAll {it.name == 'app-marc-migrations' }
                   .collectEntries{app -> [ app.name, app.branch ] } :
           [:])
   )
