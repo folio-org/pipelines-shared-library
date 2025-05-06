@@ -45,7 +45,7 @@ KarateRunExecutionSummary call(KarateTestsParameters args) {
         timeout(time: args.timeout, unit: 'HOURS') {
           container('java') {
             withMaven(jdk: args.javaToolName, maven: args.mavenToolName,
-              mavenOpts: '-XX:MaxRAMPercentage=85',
+              mavenOpts: '-XX:MaxRAMPercentage=75',
               mavenLocalRepo: "${podTemplates.WORKING_DIR}/.m2/repository",
               traceability: true,
               options: [artifactsPublisher(disabled: true)]) {
