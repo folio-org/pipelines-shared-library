@@ -34,6 +34,9 @@ class ApplicationList extends ArrayList<Application> {
   void addAll(Collection<? extends Application> c, def context) {
     context.println("Adding all applications to the list c.findAll{!any{app -> app.equals(it) } } ${c.findAll{!any{app -> app.equals(it) } }}")
     context.input(message: "Let's check")
+
+    context.println("Adding all applications to the list c.findAll{!any{app -> app.equals(it) } } ${c.findAll{!any{app -> app.id == it.id } }}")
+    context.input(message: "Let's check")
   }
 
   @Override
