@@ -2,6 +2,7 @@ package v2.applications.buildPush
 
 import groovy.json.JsonOutput
 import org.folio.Constants
+import org.folio.jenkins.PodTemplates
 import org.folio.models.FolioInstallJson
 import org.folio.models.application.Application
 import org.folio.models.module.EurekaModule
@@ -11,7 +12,7 @@ import org.folio.utilities.Logger
 import org.jenkinsci.plugins.pipeline.modeldefinition.Utils
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-2236') _
 
 List defaultInstallJson = new GitHubUtility(this).getEnableList('platform-complete', 'snapshot')
 defaultInstallJson.addAll(new GitHubUtility(this).getEurekaList('platform-complete', 'snapshot'))
@@ -71,29 +72,28 @@ properties([
 
     string(name: 'VERSION', defaultValue: '', description: '(Optional) A version to be explicitly set for new application descriptor.'),
     booleanParam(name: 'PUSH_DESCRIPTOR_TO_REGISTRY', defaultValue: true, description: 'Set true to push application descriptor to the registry'),
-    folioParameters.agent(),
     folioParameters.refreshParameters()
 
-    , folioParameters.groupCheckboxes([ 'FROM_REPOSITORY', 'FROM_DESCRIPTOR', 'FROM_TEMPLATE' ])
-    , folioParameters.groupCheckboxes([ 'RECREATE', 'UPGRADE' ])
+    , folioParameters.groupCheckboxes(['FROM_REPOSITORY', 'FROM_DESCRIPTOR', 'FROM_TEMPLATE'])
+    , folioParameters.groupCheckboxes(['RECREATE', 'UPGRADE'])
 
     , folioParameters.hideParameters(
     [
-      '' :[ 'APPLICATION_SET', 'APPLICATION', 'APPLICATION_BRANCH' ],
-      'on': [ 'VERSION' ]
+      ''  : ['APPLICATION_SET', 'APPLICATION', 'APPLICATION_BRANCH'],
+      'on': ['VERSION']
     ]
     , "FROM_REPOSITORY", "FROM_REPOSITORY,FROM_DESCRIPTOR,FROM_TEMPLATE")
 
     , folioParameters.hideParameters(
     [
-      '' :[ //'in_params/descriptor.json',
-            'DESCRIPTOR_URL', 'RECREATE', 'UPGRADE' ]
+      '': [ //'in_params/descriptor.json',
+            'DESCRIPTOR_URL', 'RECREATE', 'UPGRADE']
     ]
     , "FROM_DESCRIPTOR", "FROM_REPOSITORY,FROM_DESCRIPTOR,FROM_TEMPLATE")
 
     , folioParameters.hideParameters(
     [
-      '' :[ 'TEMPLATE', 'APP_NAME', 'APP_DESCRIPTION' ]
+      '': ['TEMPLATE', 'APP_NAME', 'APP_DESCRIPTION']
     ]
     , "FROM_TEMPLATE", "FROM_REPOSITORY,FROM_DESCRIPTOR,FROM_TEMPLATE")
   ])
@@ -102,15 +102,16 @@ properties([
 // Abort if refresh parameters is set or if no source type is selected
 // or if template source type is selected without any approach type
 if (params.REFRESH_PARAMETERS || !(params.FROM_REPOSITORY || params.FROM_DESCRIPTOR || params.FROM_TEMPLATE) ||
-      (params.FROM_TEMPLATE && !(params.RECREATE || params.UPGRADE))) {
+  (params.FROM_TEMPLATE && !(params.RECREATE || params.UPGRADE))) {
   currentBuild.result = 'ABORTED'
   return
 }
 
-ansiColor('xterm') {
-  node(params.AGENT) {
-    Logger logger = new Logger(this, env.JOB_BASE_NAME)
+PodTemplates podTemplates = new PodTemplates(this, true)
+Logger logger = new Logger(this, env.JOB_BASE_NAME)
 
+ansiColor('xterm') {
+  podTemplates.rancherJavaAgent {
     ApplicationsBuildPushPipeline.SourceType sourceType =
       params.FROM_REPOSITORY ? ApplicationsBuildPushPipeline.SourceType.REPOSITORY :
         (params.FROM_DESCRIPTOR ? ApplicationsBuildPushPipeline.SourceType.DESCRIPTOR :
@@ -124,10 +125,10 @@ ansiColor('xterm') {
 
     Map initialDescriptor = [:]
 
-    if(sourceType == ApplicationsBuildPushPipeline.SourceType.DESCRIPTOR){
+    if (sourceType == ApplicationsBuildPushPipeline.SourceType.DESCRIPTOR) {
       String descFile = fileExists('in_params/descriptor.json') ?
-              readFile(file: 'in_params/descriptor.json') :
-              sh(script: "curl -sS ${params.DESCRIPTOR_URL}", returnStdout: true).trim()
+        readFile(file: 'in_params/descriptor.json') :
+        sh(script: "curl -sS ${params.DESCRIPTOR_URL}", returnStdout: true).trim()
 
       initialDescriptor = readJSON(text: descFile) as Map
     }
@@ -137,32 +138,32 @@ ansiColor('xterm') {
     String appName = ""
     Application application
 
-    try {
-      stage('Init'){
-        String additionalInfo = null
+    stage('Init') {
+      String additionalInfo = null
 
-        switch (sourceType) {
-          case ApplicationsBuildPushPipeline.SourceType.REPOSITORY:
-            appName = params.APPLICATION
-            additionalInfo = "Source: Repository\nBranch: ${params.APPLICATION_BRANCH}"
-            break
+      switch (sourceType) {
+        case ApplicationsBuildPushPipeline.SourceType.REPOSITORY:
+          appName = params.APPLICATION
+          additionalInfo = "Source: Repository\nBranch: ${params.APPLICATION_BRANCH}"
+          break
 
-          case ApplicationsBuildPushPipeline.SourceType.DESCRIPTOR:
-            appName = initialDescriptor.name
-            additionalInfo = "Source: Descriptor\nApproach: ${params.RECREATE ? 'Recreate' : 'Upgrade'}"
-            break
+        case ApplicationsBuildPushPipeline.SourceType.DESCRIPTOR:
+          appName = initialDescriptor.name
+          additionalInfo = "Source: Descriptor\nApproach: ${params.RECREATE ? 'Recreate' : 'Upgrade'}"
+          break
 
-          case ApplicationsBuildPushPipeline.SourceType.TEMPLATE:
-            appName = params.APP_NAME
-            additionalInfo = "Source: Template"
-            break
-        }
-
-        buildName "${appName}${params.VERSION ? ".${params.VERSION}" : ""}.${env.BUILD_ID}"
-        buildDescription additionalInfo ?: ""
+        case ApplicationsBuildPushPipeline.SourceType.TEMPLATE:
+          appName = params.APP_NAME
+          additionalInfo = "Source: Template"
+          break
       }
 
-      stage('[Maven] Build descriptor') {
+      buildName "${appName}${params.VERSION ? ".${params.VERSION}" : ""}.${env.BUILD_ID}"
+      buildDescription additionalInfo ?: ""
+    }
+
+    stage('[Maven] Build descriptor') {
+      container('java') {
         switch (sourceType) {
           case ApplicationsBuildPushPipeline.SourceType.REPOSITORY:
             application = new Application().withDescriptor(folioEurekaAppGenerator.generateFromRepository(
@@ -173,7 +174,7 @@ ansiColor('xterm') {
             break
 
           case ApplicationsBuildPushPipeline.SourceType.DESCRIPTOR:
-            if(params.RECREATE) {
+            if (params.RECREATE) {
               application = new Application().withDescriptor(folioEurekaAppGenerator.generateFromDescriptor(
                 initialDescriptor,
                 beUpdated,
@@ -198,31 +199,23 @@ ansiColor('xterm') {
             break
         }
       }
+    }
 
-      stage('[Registry] Upload descriptor') {
-        if (!params.PUSH_DESCRIPTOR_TO_REGISTRY) {
-          logger.info("Skip [Registry] Upload descriptor stage")
-          Utils.markStageSkippedForConditional('[Registry] Upload descriptor')
-        }else{
-          writeJSON file: application.getId() + '.json', json: application.getDescriptor()
+    stage('[Registry] Upload descriptor') {
+      if (!params.PUSH_DESCRIPTOR_TO_REGISTRY) {
+        logger.info("Skip [Registry] Upload descriptor stage")
+        Utils.markStageSkippedForConditional('[Registry] Upload descriptor')
+      } else {
+        writeJSON file: application.getId() + '.json', json: application.getDescriptor()
 
-          sh(
-            label: "Upload an application descriptor to ECR",
-            returnStdout: false,
-            script: "[ -e ${application.getId()}.json ] && curl -sS -X PUT ${Constants.EUREKA_REGISTRY_APP_DESCRIPTORS_URL}${application.getId()} --upload-file ${application.getId()}.json"
-          )
+        sh(
+          label: "Upload an application descriptor to ECR",
+          returnStdout: false,
+          script: "[ -e ${application.getId()}.json ] && curl -sS -X PUT ${Constants.EUREKA_REGISTRY_APP_DESCRIPTORS_URL}${application.getId()} --upload-file ${application.getId()}.json"
+        )
 
-          zip zipFile: application.getId() + '.json.zip', glob: application.getId() + '.json'
-          archiveArtifacts allowEmptyArchive: true, artifacts: "${application.getId()}.json.zip", fingerprint: true, defaultExcludes: false
-        }
-      }
-    } catch (e) {
-      logger.warning("Caught exception: ${e}")
-      error(e.getMessage())
-    } finally {
-      stage('Cleanup') {
-        logger.debug("Workspace size: ${sh(returnStdout: true, script: 'du -sh .').trim()}")
-        cleanWs notFailBuild: true
+        zip zipFile: application.getId() + '.json.zip', glob: application.getId() + '.json'
+        archiveArtifacts allowEmptyArchive: true, artifacts: "${application.getId()}.json.zip", fingerprint: true, defaultExcludes: false
       }
     }
   }

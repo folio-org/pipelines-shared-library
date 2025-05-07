@@ -1,6 +1,7 @@
 package v2.modules.buildPush
 
 import org.folio.Constants
+import org.folio.jenkins.PodTemplates
 import org.folio.models.module.FolioModule
 import org.folio.models.module.ModuleBuildTool
 import org.folio.models.module.ModuleType
@@ -9,7 +10,7 @@ import org.folio.utilities.Logger
 import org.jenkinsci.plugins.pipeline.modeldefinition.Utils
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-2236') _
 
 
 properties([
@@ -19,9 +20,9 @@ properties([
     folioParameters.moduleName(), // MODULE_NAME, Folio Module moduleName
     folioParameters.branchWithRef('MODULE_BRANCH', 'MODULE_NAME'), // MODULE_BRANCH, Module Github branch
     string(name: 'MAVEN_ARGS', defaultValue: '-DskipTests', description: 'Maven build arguments'),
+    choice(name: 'JAVA_VERSION', choices: ['21', '17'], description: 'Java version to use for tests'),
     booleanParam(name: 'PUSH_IMAGE_TO_ECR', defaultValue: true, description: 'Set true to push built image to the ECR repository'),
     booleanParam(name: 'PUSH_DESCRIPTOR_TO_ECR', defaultValue: true, description: 'Set true to push module descriptor to the ECR repository'),
-    folioParameters.agent(Constants.JENKINS_AGENTS_BUILD_MODULE),
     folioParameters.refreshParameters()
   ])
 ])
@@ -31,154 +32,157 @@ if (params.REFRESH_PARAMETERS) {
   return
 }
 
+PodTemplates podTemplates = new PodTemplates(this, true)
+Logger logger = new Logger(this, env.JOB_BASE_NAME)
+
 ansiColor('xterm') {
-  node(params.AGENT) {
+  podTemplates.javaBuildAgent(params.JAVA_VERSION) {
     String moduleName = params.MODULE_NAME
     String branch = params.MODULE_BRANCH
     String mavenArgs = params.MAVEN_ARGS.trim()
     String gradleOpts = '--quiet --console plain --no-daemon'
 
-    Logger logger = new Logger(this, env.JOB_BASE_NAME)
+
     FolioModule module = new FolioModule()
     String commitHash = ""
     String args = ""
 
-    try {
-      stage('[Git] Checkout module source') {
-        checkout([
-          $class           : 'GitSCM',
-          branches         : [[name: "*/${branch}"]],
-          extensions       : [[$class: 'RelativeTargetDirectory', relativeTargetDir: moduleName],
-                              [$class: 'CleanBeforeCheckout', deleteUntrackedNestedRepositories: true],
-                              [$class: 'AuthorInChangelog'],
-                              [$class: 'SubmoduleOption', recursiveSubmodules: true]],
-          userRemoteConfigs: [[url: "https://github.com/folio-org/${moduleName}.git"]]
-        ])
-      }
+    stage('[Git] Checkout module source') {
+      checkout([
+        $class           : 'GitSCM',
+        branches         : [[name: "*/${branch}"]],
+        extensions       : [[$class: 'RelativeTargetDirectory', relativeTargetDir: moduleName],
+                            [$class: 'CleanBeforeCheckout', deleteUntrackedNestedRepositories: true],
+                            [$class: 'AuthorInChangelog'],
+                            [$class: 'SubmoduleOption', recursiveSubmodules: true]],
+        userRemoteConfigs: [[url: "https://github.com/folio-org/${moduleName}.git"]]
+      ])
+    }
 
-      stage('Init'){
-        commitHash = new GitHubClient(this).getBranchInfo(moduleName, branch).commit.sha.take(7)
+    stage('Init') {
+      commitHash = new GitHubClient(this).getBranchInfo(moduleName, branch).commit.sha.take(7)
 
-        module.buildTool = getBuildTool(moduleName)
-        module.buildDir = getBuildDir(moduleName, module.buildTool)
-        module.modDescriptorPath = getDescriptorPath(module.buildTool, module.buildDir)
+      module.buildTool = getBuildTool(moduleName)
+      module.buildDir = getBuildDir(moduleName, module.buildTool)
+      module.modDescriptorPath = getDescriptorPath(module.buildTool, module.buildDir)
 
-        String version = getModuleVersion(module.buildTool, module.buildDir)
-        module.loadModuleDetails("${moduleName}-${version}.${commitHash}")
+      String version = getModuleVersion(module.buildTool, module.buildDir)
+      module.loadModuleDetails("${moduleName}-${version}.${commitHash}")
 
-        args = module.buildTool == ModuleBuildTool.MAVEN ? mavenArgs : args
-        args = module.buildTool == ModuleBuildTool.GRADLE ? gradleOpts : args
+      args = module.buildTool == ModuleBuildTool.MAVEN ? mavenArgs : args
+      args = module.buildTool == ModuleBuildTool.GRADLE ? gradleOpts : args
 
-        buildName "${moduleName}.${env.BUILD_ID}"
-        buildDescription """Module: ${module.id}
+      buildName "${moduleName}.${env.BUILD_ID}"
+      buildDescription """Module: ${module.id}
 Branch: ${branch}
 Build tool: ${module.buildTool.toString()}"""
 
-        writeJSON file: 'execution_results.json', json: [
-          moduleId: module.id
-        ] // Export module ID to be used in the upstream jobs. DO NOT REMOVE!!!
-        archiveArtifacts allowEmptyArchive: true, artifacts: "execution_results.json", fingerprint: true, defaultExcludes: false
+      writeJSON file: 'execution_results.json', json: [
+        moduleId: module.id
+      ] // Export module ID to be used in the upstream jobs. DO NOT REMOVE!!!
+      archiveArtifacts allowEmptyArchive: true, artifacts: "execution_results.json", fingerprint: true, defaultExcludes: false
+    }
+
+    stage('[Maven/Gradle] Build artifact') {
+      if (!params.PUSH_DESCRIPTOR_TO_ECR || module.buildTool == ModuleBuildTool.NONE) {
+        logger.info("Skip [Maven/Gradle] Build artifact stage")
+        Utils.markStageSkippedForConditional('[Maven/Gradle] Build artifact')
+      } else {
+        compile(module, args)
+
+        zip zipFile: "${module.name}.jar.zip", glob: "**/${module.name}*.jar"
+        archiveArtifacts allowEmptyArchive: true, artifacts: "${module.name}.jar.zip", fingerprint: true, defaultExcludes: false
       }
+    }
 
-      stage('[Maven/Gradle] Build artifact') {
-        if (!params.PUSH_DESCRIPTOR_TO_ECR || module.buildTool == ModuleBuildTool.NONE){
-          logger.info("Skip [Maven/Gradle] Build artifact stage")
-          Utils.markStageSkippedForConditional('[Maven/Gradle] Build artifact')
-        }else{
-          compile(module, args)
 
-          zip zipFile: "${module.name}.jar.zip", glob: "**/${module.name}*.jar"
-          archiveArtifacts allowEmptyArchive: true, artifacts: "${module.name}.jar.zip", fingerprint: true, defaultExcludes: false
-        }
+    stage('[Docker] Build image and push') {
+      if (!params.PUSH_IMAGE_TO_ECR) {
+        logger.info("Skip [Docker] Build image and push stage")
+        Utils.markStageSkippedForConditional('[Docker] Build image and push')
+      } else {
+
+        buildAndPushImage(module, args)
+
+        archiveArtifacts allowEmptyArchive: true, artifacts: "**/${module.name}-${module.version}.tar.gz", fingerprint: true, defaultExcludes: false
       }
+    }
 
+    stage('[CURL] Upload module descriptor') {
+      boolean isBackendOrEdge = module.type == ModuleType.BACKEND || module.type == ModuleType.EDGE
 
-      stage('[Docker] Build image and push') {
-        if (!params.PUSH_IMAGE_TO_ECR) {
-          logger.info("Skip [Docker] Build image and push stage")
-          Utils.markStageSkippedForConditional('[Docker] Build image and push')
-        }else{
+      if (!params.PUSH_DESCRIPTOR_TO_ECR || !isBackendOrEdge) {
+        logger.info("Skip [CURL] Upload module descriptor stage")
+        Utils.markStageSkippedForConditional('[CURL] Upload module descriptor')
+      } else {
 
-          buildAndPushImage(module, args)
+        module.descriptor = [readJSON(file: module.modDescriptorPath)]
 
-          archiveArtifacts allowEmptyArchive: true, artifacts: "**/${module.name}-${module.version}.tar.gz", fingerprint: true, defaultExcludes: false
-        }
-      }
+        sh(
+          label: "Upload Module Descriptor to Module Registry",
+          returnStdout: false,
+          script: "[ -e ${module.modDescriptorPath} ] && curl -sS -X PUT ${Constants.EUREKA_REGISTRY_DESCRIPTORS_URL}${module.name}-${module.version} --upload-file ${module.modDescriptorPath}"
+        )
 
-      stage('[CURL] Upload module descriptor') {
-        boolean isBackendOrEdge = module.type == ModuleType.BACKEND || module.type == ModuleType.EDGE
-
-        if (!params.PUSH_DESCRIPTOR_TO_ECR || !isBackendOrEdge) {
-          logger.info("Skip [CURL] Upload module descriptor stage")
-          Utils.markStageSkippedForConditional('[CURL] Upload module descriptor')
-        }else{
-
-          module.descriptor = [readJSON(file: module.modDescriptorPath)]
-
-          sh(
-            label: "Upload Module Descriptor to Module Registry",
-            returnStdout: false,
-            script: "[ -e ${module.modDescriptorPath} ] && curl -sS -X PUT ${Constants.EUREKA_REGISTRY_DESCRIPTORS_URL}${module.name}-${module.version} --upload-file ${module.modDescriptorPath}"
-          )
-
-          zip zipFile: "ModuleDescriptor.json.zip", glob: "**/ModuleDescriptor.json"
-          archiveArtifacts allowEmptyArchive: true, artifacts: "ModuleDescriptor.json.zip", fingerprint: true, defaultExcludes: false
-        }
-      }
-    } catch (e) {
-      logger.warning("Caught exception: ${e}")
-      error(e.getMessage())
-    } finally {
-      stage('Cleanup') {
-        logger.debug("Workspace size: ${sh(returnStdout: true, script: 'du -sh .').trim()}")
-        cleanWs notFailBuild: true
+        zip zipFile: "ModuleDescriptor.json.zip", glob: "**/ModuleDescriptor.json"
+        archiveArtifacts allowEmptyArchive: true, artifacts: "ModuleDescriptor.json.zip", fingerprint: true, defaultExcludes: false
       }
     }
   }
 }
 
 void compile(FolioModule module, String args) {
-  dir(module.buildDir) {
-    switch (module.buildTool) {
-      case ModuleBuildTool.MAVEN:
-        withMaven(
-          jdk: "${common.selectJavaBasedOnAgent(params.AGENT)}".toString(),
-          maven: Constants.MAVEN_TOOL_NAME,
-          traceability: false,
-          options: [artifactsPublisher(disabled: true)])
-          {
+  PodTemplates podTemplates = new PodTemplates(this, true)
+  container('java') {
+    dir(module.buildDir) {
+      switch (module.buildTool) {
+        case ModuleBuildTool.MAVEN:
+          withMaven(
+            jdk: Constants.JAVA_TOOL_NAME,
+            maven: Constants.MAVEN_TOOL_NAME,
+            mavenOpts: '-XX:MaxRAMPercentage=85',
+            mavenLocalRepo: "${podTemplates.WORKING_DIR}/.m2/repository",
+            traceability: false,
+            options: [artifactsPublisher(disabled: true)]) {
             sh(
-              label: 'Build with Maven', script: """
-            mvn versions:set -DnewVersion=${module.version}
-            mvn package ${args}
-          """.stripIndent().trim()
+              label: 'Build with Maven',
+              script: """
+              mvn versions:set -DnewVersion=${module.version}
+              mvn package ${args}
+            """.stripIndent().trim()
             )
           }
-        break
+          break
 
-      case ModuleBuildTool.GRADLE:
-        sh(label: 'Build with Gradle', script: "./gradlew ${args} -PappVersion=${module.version} assemble")
-        break
+        case ModuleBuildTool.GRADLE:
+          sh(label: 'Build with Gradle', script: "./gradlew ${args} -PappVersion=${module.version} assemble")
+          break
 
-      default:
-        throw new RuntimeException("Unsupported build tool for module: ${module.name}")
+        default:
+          throw new RuntimeException("Unsupported build tool for module: ${module.name}")
+      }
     }
   }
 }
 
 def buildAndPushImage(FolioModule module, String args) {
-  docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
-    common.checkEcrRepoExistence(module.name)
-
-    dir(module.buildDir) {
-      switch (module.buildTool) {
-        case [ModuleBuildTool.MAVEN, ModuleBuildTool.NONE]:
+  common.checkEcrRepoExistence(module.name)
+  dir(module.buildDir) {
+    switch (module.buildTool) {
+      case [ModuleBuildTool.MAVEN, ModuleBuildTool.NONE]:
+        container('kaniko') {
           String buildArgs = module.type == ModuleType.KONG ? '--build-arg TARGETARCH=amd64' : ''
+          withAWS(credentials: Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID, region: Constants.AWS_REGION) {
+            ecrLogin()
+            folioKaniko.dockerHubLogin()
+            // Build and Push Docker Image
+            sh "/kaniko/executor --destination ${Constants.ECR_FOLIO_REPOSITORY}/${module.name}:${module.version} $buildArgs --context ."
+          }
+        }
+        break
 
-          docker.build("${module.name}:${module.version}", "--no-cache=true $buildArgs --pull=true .")
-          break
-
-        case ModuleBuildTool.GRADLE:
+      case ModuleBuildTool.GRADLE:
+        docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
           String shellCmd = """
             echo '[INFO] Build Container Image'
             ./gradlew ${args} -PdockerRepo=folioci -PappVersion=${module.version} buildImage
@@ -191,21 +195,20 @@ def buildAndPushImage(FolioModule module, String args) {
           """.stripIndent().trim()
 
           sh(label: 'Build Container Image', script: shellCmd)
-          break
+          sh "docker save ${module.name}:${module.version} | gzip > ${module.name}-${module.version}.tar.gz"
 
-        default:
-          throw new RuntimeException("Unsupported build tool for Eureka module: ${module.buildTool}")
-      }
+          docker.image("${module.name}:${module.version}").push()
+        }
+        break
 
-      sh "docker save ${module.name}:${module.version} | gzip > ${module.name}-${module.version}.tar.gz"
-
-      docker.image("${module.name}:${module.version}").push()
+      default:
+        throw new RuntimeException("Unsupported build tool for Eureka module: ${module.buildTool}")
     }
   }
 }
 
 @SuppressWarnings('GrMethodMayBeStatic')
-String getDescriptorPath(ModuleBuildTool buildTool, String buildDir){
+String getDescriptorPath(ModuleBuildTool buildTool, String buildDir) {
   switch (buildTool) {
     case ModuleBuildTool.MAVEN:
       return "${buildDir}/target/ModuleDescriptor.json"
@@ -224,7 +227,7 @@ String getDescriptorPath(ModuleBuildTool buildTool, String buildDir){
   }
 }
 
-String getModuleVersion(ModuleBuildTool buildTool, String buildDir){
+String getModuleVersion(ModuleBuildTool buildTool, String buildDir) {
   dir(buildDir) {
     switch (buildTool) {
       case ModuleBuildTool.MAVEN:
@@ -264,7 +267,7 @@ echo "${version}"
   }
 }
 
-String getBuildDir(String moduleName, ModuleBuildTool buildTool){
+String getBuildDir(String moduleName, ModuleBuildTool buildTool) {
   switch (buildTool) {
     case ModuleBuildTool.MAVEN:
       return "${env.WORKSPACE}/${moduleName}"
@@ -283,10 +286,10 @@ String getBuildDir(String moduleName, ModuleBuildTool buildTool){
   }
 }
 
-ModuleBuildTool getBuildTool(String moduleName){
+ModuleBuildTool getBuildTool(String moduleName) {
   ModuleType type = ModuleType.determineModuleType(moduleName)
 
-  if(type == ModuleType.KONG || type == ModuleType.KEYCLOAK){
+  if (type == ModuleType.KONG || type == ModuleType.KEYCLOAK) {
     return ModuleBuildTool.NONE
   }
 

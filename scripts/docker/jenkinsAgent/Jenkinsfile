@@ -26,41 +26,31 @@ if (params.REFRESH_PARAMETERS) {
 }
 
 Logger logger = new Logger(this, env.JOB_BASE_NAME)
+PodTemplates podTemplates = new PodTemplates(this, true)
 def dockerfilePath = './scripts/docker/jenkinsAgent/'
 
 ansiColor('xterm') {
-  node('cicd-agent') {
-    try {
-      stage('[Git] Checkout source') {
-        checkout scmGit(
-          branches: [[name: "*/${env.DOCKERFILE_BRANCH}"]],
-          extensions: [],
-          userRemoteConfigs: [[url: 'https://github.com/folio-org/pipelines-shared-library.git']]
-        )
-      }
+  podTemplates.kanikoAgent {
+    stage('[Git] Checkout source') {
+      checkout scmGit(
+        branches: [[name: "*/${env.DOCKERFILE_BRANCH}"]],
+        extensions: [],
+        userRemoteConfigs: [[url: 'https://github.com/folio-org/pipelines-shared-library.git']]
+      )
+    }
 
-      stage('[Docker] Build and push') {
-        dir(dockerfilePath) {
-          container('kaniko') {
-            withAWS(credentials: Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID, region: Constants.AWS_REGION) {
-              ecrLogin()
-              sh """/kaniko/executor  --build-arg TERRAFORM_VERSION=${env.TERRAFORM_VER.trim()} \
+    stage('[Docker] Build and push') {
+      dir(dockerfilePath) {
+        container('kaniko') {
+          withAWS(credentials: Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID, region: Constants.AWS_REGION) {
+            ecrLogin()
+            sh """/kaniko/executor  --build-arg TERRAFORM_VERSION=${env.TERRAFORM_VER.trim()} \
 --build-arg HELM_VERSION=${env.HELM_VER} \
 --build-arg KUBECTL_VERSION=${env.KUBECTL_VER} \
 --build-arg KAFKA_VERSION=${env.KAFKA_VER} \
 --destination folio-jenkins-agent:${env.IMAGE_TAG} --dockerfile ./Dockerfile --context ."""
-            }
           }
         }
-      }
-    } catch (e) {
-      logger.error("Caught exception: ${e}")
-      error(e.getMessage())
-    } finally {
-      stage('Cleanup') {
-        logger.warning("Workspace size before cleanup: " +
-          sh(returnStdout: true, script: 'du -sh .').trim())
-        cleanWs notFailBuild: true
       }
     }
   }

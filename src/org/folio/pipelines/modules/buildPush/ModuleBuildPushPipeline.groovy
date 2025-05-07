@@ -4,7 +4,7 @@ import org.folio.rest_v2.PlatformType
 import org.jenkinsci.plugins.workflow.support.steps.build.RunWrapper
 
 class ModuleBuildPushPipeline {
-  static String JOB_NAME = "/v2/DevOps_Tools/modules/build_push"
+  static String JOB_NAME = "/folioDevTools/moduleDeployment/buildAndPushModule"
 
   List parameters = []
   def context

@@ -3,7 +3,7 @@ package org.folio.pipelines.applications.buildPush
 import org.jenkinsci.plugins.workflow.support.steps.build.RunWrapper
 
 class ApplicationsBuildPushPipeline {
-  static String JOB_NAME = "/v2/DevOps_Tools/applications/build_push"
+  static String JOB_NAME = "/folioDevTools/moduleDeployment/buildAndPushApplication"
 
   enum SourceType {
     REPOSITORY,
