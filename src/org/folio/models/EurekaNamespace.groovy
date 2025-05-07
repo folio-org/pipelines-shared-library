@@ -1,6 +1,7 @@
 package org.folio.models
 
 import com.cloudbees.groovy.cps.NonCPS
+import org.folio.models.application.ApplicationList
 import org.folio.models.module.EurekaModule
 
 /**
@@ -11,7 +12,7 @@ class EurekaNamespace extends RancherNamespace {
 
   Map<String, EurekaTenant> tenants = [:]
 
-  Map<String, String> applications = [:]
+  ApplicationList applications = new ApplicationList()
 
   boolean enableECS_CCL = false
 
@@ -23,7 +24,7 @@ class EurekaNamespace extends RancherNamespace {
     super(clusterName, namespaceName)
   }
 
-  EurekaNamespace withApplications(Map<String, String> apps){
+  EurekaNamespace withApplications(ApplicationList apps){
     applications = apps
     return this
   }
@@ -42,7 +43,7 @@ class EurekaNamespace extends RancherNamespace {
       hasSecureTenant = (tenant as EurekaTenant).isSecureTenant
     }
 
-    applications.putAll((tenant as EurekaTenant).applications)
+    applications.addAll((tenant as EurekaTenant).applications)
   }
 
   /**
@@ -78,10 +79,13 @@ class EurekaNamespace extends RancherNamespace {
   String toString(){
     return """
       "class_name": "EurekaNamespace",
-      "applications": "$applications"
+      "namespace": "${getNamespaceName()}",
+      "applications": "$applications",
+      "modules": ${modules.getInstallJsonObject()},
       "enableECS_CCL": "$enableECS_CCL",
       "hasSecureTenant": "$hasSecureTenant",
       "secureTenant": "$secureTenant",
+      "tenants": "$tenants"
     """
   }
 }

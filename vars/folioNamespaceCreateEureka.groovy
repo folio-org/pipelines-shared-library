@@ -251,14 +251,10 @@ void call(CreateNamespaceParameters args) {
         )
         eureka.registerApplications(apps)
 
-        //TODO: The following three lines will be changed in the upcoming PR
-        eureka.assignAppToTenants(namespace.getTenants().values().toList(), apps.collectEntries {[it.getName(), it.getId() ] })
-        namespace.withApplications(apps.collectEntries {[it.getName(), it.getId() ] })
+        namespace.getTenants().values().each { it.assignApplications(apps)}
+        namespace.withApplications(apps)
 
-        eureka.registerModulesFlow(
-          namespace.getModules()
-          , apps
-        )
+        eureka.registerModulesFlow(namespace.getModules())
       }
     }
 
@@ -298,8 +294,7 @@ void call(CreateNamespaceParameters args) {
       }
       int counter = 0
       retry(20) {
-        // The first wait time should be at least 10 minutes due to module's long time instantiation
-        sleep time: (counter == 0 ? 10 : 2), unit: 'MINUTES'
+        sleep time: (counter == 0 ? 0 : 2), unit: 'MINUTES'
         counter++
 
         eureka.initializeFromScratch(
@@ -307,6 +302,7 @@ void call(CreateNamespaceParameters args) {
           , namespace.getClusterName()
           , namespace.getNamespaceName()
           , namespace.getEnableConsortia()
+          , true
           , false // Set this option true, when users & groups migration is required.
         )
       }

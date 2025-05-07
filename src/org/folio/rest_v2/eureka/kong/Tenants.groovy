@@ -2,7 +2,8 @@ package org.folio.rest_v2.eureka.kong
 
 import com.cloudbees.groovy.cps.NonCPS
 import org.folio.models.EurekaTenant
-import org.folio.models.module.FolioModule
+import org.folio.models.application.Application
+import org.folio.models.application.ApplicationList
 import org.folio.rest_v2.eureka.Keycloak
 import org.folio.rest_v2.eureka.Kong
 
@@ -111,11 +112,19 @@ class Tenants extends Kong{
     return getTenant(tenantId) ? true : false
   }
 
-  Tenants enableApplicationsOnTenant(EurekaTenant tenant, List<String> appIds, boolean skipExists = false){
+  /**
+   * Enable (entitle) applications on tenant.
+   *
+   * @param tenant EurekaTenant instance.
+   * @param appIds List of application ids to be enabled.
+   * @param skipExistence boolean flag to skip error if apps were already enabled.
+   * @return Tenants instance.
+   */
+  Tenants enableApplications(EurekaTenant tenant, List<String> appIds, boolean skipExistence = false){
+    logger.info("Enable (entitle) applications with ids: ${appIds} on tenant ${tenant.tenantId} with ${tenant.uuid}...")
+
     if(!appIds)
       return this
-
-    logger.info("Enable (entitle) applications on tenant ${tenant.tenantId} with ${tenant.uuid}...")
 
     Map<String, String> headers = getMasterHttpHeaders(true)
 
@@ -124,11 +133,7 @@ class Tenants extends Kong{
       applications: appIds
     ]
 
-    logger.debug("enableApplicationsOnTenant body: ${body}")
-    logger.debug("enableApplicationsOnTenant tenant.applications: ${tenant.applications}")
-    logger.debug("enableApplicationsOnTenant install params: ${tenant.getInstallRequestParams()?.toQueryString()}")
-
-    List responseCodes = skipExists ? [201, 400] : []
+    List responseCodes = skipExistence ? [201, 400] : []
 
     def response = restClient.post(
       generateUrl("/entitlements${tenant.getInstallRequestParams()?.toQueryString() ?: ''}")
@@ -153,7 +158,38 @@ class Tenants extends Kong{
       }
     }
 
-    logger.info("Enabling (entitle) applications on tenant ${tenant.tenantId} with ${tenant.uuid} were finished successfully")
+    logger.info("Enabling (entitle) applications on tenant ${tenant.tenantId} with ${tenant.uuid} was finished successfully")
+
+    return this
+  }
+
+  /**
+   * Update applications on tenant.
+   *
+   * @param tenant EurekaTenant instance.
+   * @param appIds List of application ids to be updated.
+   * @return Tenants instance.
+   */
+  Tenants updateApplications(EurekaTenant tenant, List<String> appIds) {
+    if(!appIds)
+      return this
+
+    logger.info("Update the following applications ${appIds} on tenant ${tenant.tenantId} with ${tenant.uuid}...")
+
+    Map<String, String> headers = getMasterHttpHeaders(true)
+
+    Map body = [
+      tenantId    : tenant.uuid,
+      applications: appIds
+    ]
+
+    restClient.put(
+      generateUrl("/entitlements${tenant.getInstallRequestParams()?.toQueryString() ?: ''}")
+      , body
+      , headers
+    )
+
+    logger.info("Update the following applications ${appIds} on tenant ${tenant.tenantId} with ${tenant.uuid} was finished successfully")
 
     return this
   }
@@ -167,7 +203,7 @@ class Tenants extends Kong{
    * @param limit number of records to return in response.
    * @return Map of Entitled Applications.
    */
-  Map<String, Map> getEnabledApplications(EurekaTenant tenant, String query = "", Boolean includeModules = false, int limit = 500) {
+  ApplicationList getEnabledApplications(EurekaTenant tenant, String query = "", boolean includeModules = false, int limit = 500) {
     String pathParams = "query=${query ?: "tenantId=${tenant.uuid}"}&includeModules=${includeModules}&limit=${limit}"
 
     logger.info("Get enabled (entitled) applications for ${tenant.tenantId} tenant with parameters: ${pathParams}...")
@@ -186,7 +222,16 @@ class Tenants extends Kong{
         Response content:
         ${contentStr}""")
 
-      return content['entitlements'].collectEntries { entitlement -> [entitlement.applicationId, entitlement] }
+      ApplicationList applicationList = new ApplicationList()
+      applicationList.addAll(
+        (content['entitlements'] as List<Map>)
+          .collect { entitlement ->
+            new Application(entitlement.applicationId as String)
+              .withModulesIds(entitlement.modules as List<String>)
+          }
+      )
+
+      return applicationList
     } else {
       logger.error("""
         Get enabled applications on tenant ${tenant.tenantId} failed
@@ -199,10 +244,11 @@ class Tenants extends Kong{
   }
 
   /**
-   * Check if specific application is enabled
-   * @param tenant EurekaTenant instance
-   * @param appId application id (e.g. app-platform-full-1.0.0-SNAPSHOT.176)
-   * @return boolean true if application is enabled (entitled)
+   * Check if application is enabled (entitled) for tenant.
+   *
+   * @param tenant EurekaTenant instance.
+   * @param appId application id (e.g. app-platform-full-1.0.0-SNAPSHOT.176).
+   * @return boolean flag indicating if application is enabled.
    */
   boolean isApplicationEnabled(EurekaTenant tenant, String appId) {
     return getEnabledApplications(tenant, "applicationId=${appId}").size() > 0
@@ -211,50 +257,24 @@ class Tenants extends Kong{
   /**
    * Get specific enabled application
    * @param tenant EurekaTenant instance
-   * @param appId application id (e.g. app-platform-full-1.0.0-SNAPSHOT.176)
-   * @return Map with enabled (entitled) application
+   * @param appId Application id (e.g. app-platform-full-1.0.0-SNAPSHOT.176)
+   * @return Application instance with specificId
    */
-  Map getEnabledApplicationById(EurekaTenant tenant, String appId, Boolean includeModules = false){
-    return getEnabledApplications(tenant,"applicationId=${appId}", includeModules)[0]
+  Application getEnabledApplicationById(EurekaTenant tenant, String appId, boolean includeModules = false){
+    ApplicationList enabledApps = getEnabledApplications(tenant,"applicationId=${appId}", includeModules)
+
+    return enabledApps ? enabledApps[0]: null
   }
 
   /**
-   * Get specific enabled application
-   * @param tenant EurekaTenant instance
-   * @param tenantUuid Tenant UUID (e.g. 75fdaeb7-0027-41fc-a0c5-b8d170c08722)
-   * @return Map with enabled (entitled) application
+   * Get enabled applications for specific tenant.
+   *
+   * @param tenant EurekaTenant instance of a specific tenant.
+   * @param includeModules boolean flag to include modules.
+   * @return ApplicationList of enabled applications.
    */
-  Map getEnabledApplicationByTenantUuid(EurekaTenant tenant, String tenantUuid, Boolean includeModules = false){
-    return getEnabledApplications(tenant,"tenantId=${tenantUuid}", includeModules)[0]
-  }
-
-  /**
-   * Get Eureka Applications Enabled for Tenant with Specific Module.
-   * @param tenant EurekaTenant instance
-   * @param module FolioModule instance
-   * @return Map of Entitled Applications with Specific Module.
-   */
-  Map getEnabledApplicationsWithModule(EurekaTenant tenant, FolioModule module) {
-    logger.info("Get enabled applications for ${tenant.tenantId} tenant with ${module.id} module...")
-
-    Map enabledApps = this.getEnabledApplications(tenant, '', true)
-
-    Map enabledAppsWithModule = enabledApps.findAll {application ->
-      application.value.modules.any { it.startsWith(module.name) }
-    }
-
-    if (enabledAppsWithModule != null) {
-      logger.info("""
-        Enabled applications on tenant ${tenant.tenantId} contains module ${module.name}:
-        Response content:
-        ${enabledAppsWithModule}""")
-
-      return enabledAppsWithModule.collectEntries { enabledApp ->
-        [enabledApp.key, [tenantName: tenant.tenantName, tenantId: enabledApp.value.tenantId]]
-      }
-    } else {
-      logger.warning("Enabled applications on tenant ${tenant.tenantId} don't contain module ${module.name}")
-    }
+  ApplicationList getEnabledApplicationOnTenant(EurekaTenant tenant, boolean includeModules = false){
+    return getEnabledApplications(tenant,"tenantId=${tenant.uuid}", includeModules)
   }
 
   @NonCPS
