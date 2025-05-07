@@ -37,7 +37,7 @@ class ApplicationList extends ArrayList<Application> {
 
     c.findAll {
       !any { app ->
-        context.ptintln("app: ${app}")
+        context.println("app: ${app}")
         context.println("app.id: ${app.id} it.id: ${it.id}")
 
         context.input(message: "Let's check")
