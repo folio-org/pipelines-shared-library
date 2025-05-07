@@ -33,6 +33,11 @@ class ApplicationList extends ArrayList<Application> {
 
   void addAll(Collection<? extends Application> c, def context) {
     context.println("Current application list ${this}")
+    context.println("Current application list size ${this.size()}")
+    each {
+      context.println("name: ${it.name} version: ${it.version} build: ${it.build}")
+    }
+
     context.input(message: "Let's check")
 
     context.println("Adding all applications to the list c.findAll{!any{app -> app.equals(it) } } ${c.findAll{!any{app -> app.equals(it) } }}")
@@ -46,17 +51,6 @@ class ApplicationList extends ArrayList<Application> {
         context.input(message: "Let's check")
 
         app.id == it.id
-      }
-    }
-
-    c.findAll {
-      every { app ->
-        context.println("app.id: ${app.id} it.id: ${it.id}")
-        context.println("app.name: ${app.name} app.version: ${app.version} app.build: ${app.build}")
-
-        context.input(message: "Let's check")
-
-        app.id != it.id
       }
     }
 
