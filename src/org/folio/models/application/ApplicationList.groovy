@@ -51,11 +51,11 @@ class ApplicationList extends ArrayList<Application> {
 
     context.input(message: "Let's check")
 
-    context.println("Adding all applications to the list c.findAll{!any{app -> app.equals(it) } } ${c.findAll{!any{app -> app.equals(it) } }}")
+    context.println("Adding all applications to the list c.findAll{!any{app -> app.equals(it) } } ${c.findAll{!this.any{app -> app.equals(it) } }}")
     context.input(message: "Let's check")
 
     c.findAll {
-      !any { app ->
+      !this.any { app ->
         context.println("app.id: ${app.id} it.id: ${it.id}")
         context.println("app.name: ${app.name} app.version: ${app.version} app.build: ${app.build}")
 
@@ -68,13 +68,13 @@ class ApplicationList extends ArrayList<Application> {
     context.input(message: "Let's check")
 
     def ttt = c.findAll {
-      every { app -> app.id != it.id }
+      this.every { app -> app.id != it.id }
     }
 
     context.println("Adding all applications to the list c.findAll {every { app -> app.id != it.id } } ${ttt}")
     context.input(message: "Let's check")
 
-    context.println("Adding all applications to the list c.findAll{!any{app -> app.id == it.id } } ${c.findAll{!any{app -> app.id == it.id } }}")
+    context.println("Adding all applications to the list c.findAll{!any{app -> app.id == it.id } } ${c.findAll{!this.any{app -> app.id == it.id } }}")
     context.input(message: "Let's check")
   }
 
