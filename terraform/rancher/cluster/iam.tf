@@ -65,6 +65,28 @@ module "ebs_csi_irsa_role" {
   )
 }
 
+module "efs_csi_irsa_role" {
+  source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
+  version = "~>5.16.0"
+
+  role_name             = join("-", [terraform.workspace, "efs-csi-role"])
+  attach_efs_csi_policy = true
+
+  oidc_providers = {
+    main = {
+      provider_arn               = module.eks_cluster.oidc_provider_arn
+      namespace_service_accounts = ["kube-system:efs-csi-controller-sa"]
+    }
+  }
+
+  tags = merge(
+    {
+      Name = "efs-csi-role"
+    },
+    var.tags
+  )
+}
+
 module "external_dns_irsa_role" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
   version = "~>5.16.0"

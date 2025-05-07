@@ -2,6 +2,7 @@
 import com.cloudbees.groovy.cps.NonCPS
 import groovy.text.StreamingTemplateEngine
 import org.folio.Constants
+import org.folio.jenkins.PodTemplates
 import org.folio.models.OkapiTenant
 import org.folio.models.RancherNamespace
 import org.folio.models.TenantUi
@@ -10,23 +11,22 @@ import org.folio.utilities.RestClient
 
 void build(String okapiUrl, OkapiTenant tenant, boolean isEureka = false, String kongDomain = ''
            , String keycloakDomain = '', boolean enableEcsRequests = false) {
-  final String baseDir = "platform-complete-${tenant.getTenantId()}"
   TenantUi tenantUi = tenant.getTenantUi()
+  PodTemplates podTemplates = new PodTemplates(this)
 
-  stage('[UI] Checkout') {
-    dir(baseDir) {
+  podTemplates.stripesAgent {
+    stage('[UI] Checkout') {
       cleanWs()
-    }
-    checkout([$class           : 'GitSCM',
-              branches         : [[name: tenantUi.getHash()]],
-              extensions       : [[$class: 'CleanBeforeCheckout', deleteUntrackedNestedRepositories: true],
-                                  [$class: 'RelativeTargetDirectory', relativeTargetDir: baseDir]],
-              userRemoteConfigs: [[url: 'https://github.com/folio-org/platform-complete.git']]])
-  }
 
-  stage('[UI] Add folio extensions') {
-    if (tenantUi.getCustomUiModules() || isEureka) {
-      dir(baseDir) {
+      checkout([$class           : 'GitSCM',
+                branches         : [[name: tenantUi.getHash()]],
+                extensions       : [[$class: 'CleanBeforeCheckout', deleteUntrackedNestedRepositories: true]],
+                userRemoteConfigs: [[credentialsId: Constants.PRIVATE_GITHUB_CREDENTIALS_ID,
+                                     url          : "${Constants.FOLIO_GITHUB_URL}/platform-complete.git"]]])
+    }
+
+    stage('[UI] Add folio extensions') {
+      if (tenantUi.getCustomUiModules() || isEureka) {
         //TODO refactoring and reviewing required.
         if (isEureka) {
           String tenantId = tenant.getTenantId()
@@ -80,81 +80,76 @@ void build(String okapiUrl, OkapiTenant tenant, boolean isEureka = false, String
         _updateStripesConfigJsFile(uiModulesToAdd)
       }
     }
-  }
-  stage('[UI] Build and Push') {
-    dir(baseDir) {
-      docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}"
-        , "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
-        def image = docker.build(
-          tenantUi.getImageName(),
-          "--build-arg OKAPI_URL=${okapiUrl} " +
-            "--build-arg TENANT_ID=${tenant.getTenantId()} " +
-            "-f docker/Dockerfile " +
-            "."
-        )
-        image.push()
+
+
+    stage('[UI] Build and Push') {
+      container('kaniko') {
+        withAWS(credentials: Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID, region: Constants.AWS_REGION) {
+          ecrLogin()
+          folioKaniko.dockerHubLogin()
+          // Add YARN_CACHE_FOLDER to the Dockerfile
+          sh "sed -i '/^FROM /a ENV YARN_CACHE_FOLDER=${WORKSPACE}/.cache/yarn' docker/Dockerfile"
+          // Build and push the image
+          sh """/kaniko/executor --destination ${tenantUi.getImageName()} \
+--build-arg OKAPI_URL=${okapiUrl} \
+--build-arg TENANT_ID=${tenant.getTenantId()} \
+--dockerfile docker/Dockerfile --context ."""
+        }
+      }
+    }
+
+    //TODO Refactoring required
+    stage('Update keycloak redirect') {
+      if (isEureka) {
+        String tenantId = tenant.getTenantId()
+        RestClient client = new RestClient(this, true)
+        Map headers = ['Content-Type': 'application/x-www-form-urlencoded']
+        String tokenUrl = "https://${keycloakDomain}/realms/master/protocol/openid-connect/token"
+        String tokenBody = "grant_type=password&username=admin&password=SecretPassword&client_id=admin-cli"
+
+        def response = client.post(tokenUrl, tokenBody, headers).body
+        String token = response['access_token']
+        headers.put("Authorization", "Bearer ${token}")
+
+        String getRealmUrl = "https://${keycloakDomain}/admin/realms/${tenantId}/clients?clientId=${tenantId}-application"
+        def realm = client.get(getRealmUrl, headers).body
+
+        String updateRealmUrl = "https://${keycloakDomain}/admin/realms/${tenantId}/clients/${realm['id'].get(0)}"
+        headers['Content-Type'] = 'application/json'
+        String tenantUrl = "https://${tenantUi.getDomain()}"
+        def updateContent = [
+          rootUrl                     : tenantUrl,
+          baseUrl                     : tenantUrl,
+          adminUrl                    : tenantUrl,
+          redirectUris                : ["${tenantUrl}/*", "http://localhost:3000/*", "https://eureka-snapshot-${tenantId}.${Constants.CI_ROOT_DOMAIN}/*"], //Requested by AQA Team
+          webOrigins                  : ["/*"],
+          authorizationServicesEnabled: true,
+          serviceAccountsEnabled      : true,
+          attributes                  : ['post.logout.redirect.uris': "/*##${tenantUrl}/*", login_theme: 'custom-theme']
+        ]
+        def ssoUpdates = [
+          resetPasswordAllowed: true
+        ]
+
+        client.put(updateRealmUrl, writeJSON(json: updateContent, returnText: true), headers)
+        client.put("https://${keycloakDomain}/admin/realms/${tenantId}", writeJSON(json: ssoUpdates, returnText: true), headers)
       }
     }
   }
-
-
-  //TODO Refactoring required
-  stage('Update keycloak redirect') {
-    if (isEureka) {
-      String tenantId = tenant.getTenantId()
-      RestClient client = new RestClient(this, true)
-      Map headers = ['Content-Type': 'application/x-www-form-urlencoded']
-      String tokenUrl = "https://${keycloakDomain}/realms/master/protocol/openid-connect/token"
-      String tokenBody = "grant_type=password&username=admin&password=SecretPassword&client_id=admin-cli"
-
-      def response = client.post(tokenUrl, tokenBody, headers).body
-      String token = response['access_token']
-      headers.put("Authorization", "Bearer ${token}")
-
-      String getRealmUrl = "https://${keycloakDomain}/admin/realms/${tenantId}/clients?clientId=${tenantId}-application"
-      def realm = client.get(getRealmUrl, headers).body
-
-      String updateRealmUrl = "https://${keycloakDomain}/admin/realms/${tenantId}/clients/${realm['id'].get(0)}"
-      headers['Content-Type'] = 'application/json'
-      String tenantUrl = "https://${tenantUi.getDomain()}"
-      def updateContent = [
-        rootUrl                     : tenantUrl,
-        baseUrl                     : tenantUrl,
-        adminUrl                    : tenantUrl,
-        redirectUris                : ["${tenantUrl}/*", "http://localhost:3000/*", "https://eureka-snapshot-${tenantId}.${Constants.CI_ROOT_DOMAIN}/*"], //Requested by AQA Team
-        webOrigins                  : ["/*"],
-        authorizationServicesEnabled: true,
-        serviceAccountsEnabled      : true,
-        attributes                  : ['post.logout.redirect.uris': "/*##${tenantUrl}/*", login_theme: 'custom-theme']
-      ]
-      def ssoUpdates = [
-        ssoSessionIdleTimeout   : 7200,
-        ssoSessionMaxLifespan   : 7200,
-        clientSessionIdleTimeout: 7200,
-        clientSessionMaxLifespan: 7200,
-        resetPasswordAllowed    : true
-      ]
-
-      client.put(updateRealmUrl, writeJSON(json: updateContent, returnText: true), headers)
-      client.put("https://${keycloakDomain}/admin/realms/${tenantId}", writeJSON(json: ssoUpdates, returnText: true), headers)
-    }
-  }
-
-  stage('[UI] Cleanup') {
-    common.removeImage(tenantUi.getImageName())
-  }
-
 }
 
-
 void deploy(RancherNamespace namespace, OkapiTenant tenant) {
-  stage('[UI] Deploy bundle') {
-    TenantUi tenantUi = tenant.getTenantUi()
-    def clusterName = namespace.getClusterName()
-    def tenantId = tenantUi.getTenantId()
-    def tag = tenantUi.getTag()
-    folioHelm.withKubeConfig(clusterName) {
-      folioHelm.deployFolioModule(namespace, 'ui-bundle', tag, false, tenantId)
+  PodTemplates podTemplates = new PodTemplates(this)
+
+  podTemplates.rancherAgent {
+    stage('[UI] Deploy bundle') {
+      TenantUi tenantUi = tenant.getTenantUi()
+      def clusterName = namespace.getClusterName()
+      def tenantId = tenantUi.getTenantId()
+      def tag = tenantUi.getTag()
+      folioHelm.withKubeConfig(clusterName) {
+        folioHelm.deployFolioModule(namespace, 'ui-bundle', tag, false, tenantId)
+      }
     }
   }
 }
@@ -195,7 +190,7 @@ private List<String> _updatePackageJsonFile(TenantUi tenantUi) {
   List<String> uiModulesToAdd = []
 
   // Safely read the package.json file
-  def packageJson
+  Map packageJson
   try {
     packageJson = readJSON(file: packageJsonFile)
   } catch (Exception e) {

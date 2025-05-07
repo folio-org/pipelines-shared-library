@@ -1,315 +1,190 @@
 import org.folio.client.reportportal.ReportPortalClient
+import org.folio.jenkins.PodTemplates
 import org.folio.models.parameters.CypressTestsParameters
-import org.folio.testing.IRunExecutionSummary
 import org.folio.testing.TestType
-
-@SuppressWarnings('GrMethodMayBeStatic')
-/**
- * Returns the path to the Report Portal execution parameters file.
- *
- * @return The path as a string.
- */
-private final String _reportPortalExecPramsPath() {
-  return 'rp-exec-parameters.txt'
-}
-
-@SuppressWarnings('GrMethodMayBeStatic')
-/**
- * Returns the path to the test results JSON file.
- *
- * @return The path as a string.
- */
-private final String _testsResultsPath() {
-  return 'result-paths.json'
-}
+import org.folio.testing.cypress.results.CypressRunExecutionSummary
+import org.folio.utilities.Logger
 
 /**
- * Manages a JSON file in the Jenkins workspace.
+ * Retrieves the Cypress stash configuration.
  *
- * If the JSON file exists, it reads the content, adds new elements,
- * and writes the updated list back to the file. If the file does
- * not exist, it creates a new JSON file with the initial content.
- *
- * @param elementsToAdd A list of elements to add to the JSON list.
+ * @param key Optional parameter. If provided, returns the value corresponding to the key in the stash map.
+ *            Valid keys include: \`name\` for the test stash name, \`archive\` for the archive filename, and \`checksum\` for the checksum filename.
+ * @return The value from the stash map if a key is provided; otherwise, returns the full stash map.
  */
-void updateResultPathsFile(List<String> elementsToAdd) {
-  if (!elementsToAdd || elementsToAdd.isEmpty()) {
-    return // Exit if no elements are provided
+private static def cypressStash(String key = null) {
+  def stashMap = [name: 'cypress-tests', archive: 'cypress-tests.tar.gz', checksum: 'cypress-tests.tar.gz.md5']
+  if (key) {
+    return stashMap[key]
   }
-
-  String jsonFilePath = _testsResultsPath()
-  List jsonList = []
-
-  // Check if the JSON file exists in the workspace
-  if (fileExists(jsonFilePath)) {
-    echo "File '${jsonFilePath}' exists. Reading content..."
-    jsonList = readJSON(file: jsonFilePath) // Read and parse the JSON file
-    echo "Current list: ${jsonList}"
-  } else {
-    echo "File '${jsonFilePath}' does not exist. Creating a new one."
-  }
-
-  // Add elements to the list
-  jsonList.addAll(elementsToAdd)
-
-  // Write the updated JSON content back to the file
-  writeJSON(file: jsonFilePath, json: jsonList)
-
-  echo "Updated list written to '${jsonFilePath}': ${jsonList}"
-}
-
-@SuppressWarnings('GrMethodMayBeStatic')
-/**
- * Retrieves the worker configurations for different Cypress testing scenarios.
- *
- * @return A map containing worker limits and batch sizes for different worker labels.
- */
-private final Map<String, Map<String, Integer>> _getWorkerConfigs() {
-  return ['cypress-ci'    : ['workerLimit': 4, 'batchSize': 4],
-          'cypress-static': ['workerLimit': 6, 'batchSize': 6],
-          'cypress'       : ['workerLimit': 12, 'batchSize': 4]]
-}
-
-@SuppressWarnings('GrMethodMayBeStatic')
-/**
- * Retrieves the worker limit based on the provided worker label.
- *
- * @param workerLabel The label of the worker whose limit is being requested.
- * @return The worker limit associated with the specified worker label.
- * @throws IllegalArgumentException if the worker label is unknown.
- */
-private int _getWorkerLimit(String workerLabel) {
-  Map<String, Integer> config = _getWorkerConfigs()[workerLabel]
-  if (config) {
-    return config['workerLimit'] // Return the worker limit
-  }
-  throw new IllegalArgumentException("Worker agent label unknown: '${workerLabel}'")
-}
-
-@SuppressWarnings('GrMethodMayBeStatic')
-/**
- * Retrieves the batch size based on the provided worker label.
- *
- * @param workerLabel The label of the worker whose batch size is being requested.
- * @return The batch size associated with the specified worker label.
- * @throws IllegalArgumentException if the worker label is unknown.
- */
-private int _getBatchSize(String workerLabel) {
-  Map<String, Integer> config = _getWorkerConfigs()[workerLabel]
-  if (config) {
-    return config['batchSize'] // Return the batch size
-  }
-  throw new IllegalArgumentException("Worker agent label unknown: '${workerLabel}'")
+  return stashMap
 }
 
 /**
- * Executes Cypress tests in a multi-threaded environment, managing batches of workers.
+ * Executes the Cypress test flow.
  *
- * This method sets up the necessary environment variables, divides the workers into batches,
- * and executes tests in parallel, archiving results and generating reports.
+ * This function validates the input parameters, sets up the Report Portal client if required,
+ * and orchestrates the Cypress tests execution workflow. It performs the following steps:
  *
- * @param params The parameters for the Cypress test execution.
+ *   1. Validates required parameters.
+ *   2. Initializes a Report Portal client (if reporting is enabled) and configures execution parameters.
+ *   3. Clones the Cypress repository and sets up common environment variables.
+ *   4. Compiles the Cypress tests.
+ *   5. Archives the tests and stashes the archive for parallel execution.
+ *   6. Configures parallel workers to:
+ *       - Unstash and extract the archived tests.
+ *       - Execute the tests with specified timeout settings.
+ *       - Archive the test results.
+ *   7. Merges results from all workers.
+ *   8. Finalizes Report Portal reporting (if enabled), unpacks the Allure report,
+ *      generates and publishes the Allure report, and analyzes the test run.
+ *
+ * @param ciBuildId The CI build identifier.
+ * @param testsToRun A list of CypressTestsParameters containing test execution details.
+ * @param sendNotification Flag to indicate if notifications should be sent after execution.
+ *                              Defaults to false.
+ * @param reportPortalUse Flag to enable Report Portal integration.
+ *                              Defaults to false.
+ * @param reportPortalRunType Specifies the Report Portal run type; applicable when integration is enabled.
+ * @return An CypressRunExecutionSummary instance summarizing the test execution.
+ * @throws Exception            Propagates any exceptions encountered during the execution flow.
  */
-void multiThreadRun(CypressTestsParameters params) {
-  List stashNames = []
-  String workerId = folioCypress.generateRandomId(3)
-  params.ciBuildId = "multi-thread-${params.ciBuildId}-${workerId}"
+CypressRunExecutionSummary call(String ciBuildId, List<CypressTestsParameters> testsToRun, boolean sendNotification = false,
+                                boolean reportPortalUse = false, String reportPortalRunType = '') {
+  folioCypress.validateParameter(ciBuildId, "ciBuildId")
+  folioCypress.validateParameter(testsToRun, "testsToRun")
 
-  // Read Report Portal execution parameters if the file exists
-  if (fileExists(_reportPortalExecPramsPath())) {
-    String reportPortalExecParameters = readFile(file: _reportPortalExecPramsPath()).trim()
-    params.addExecParameter(reportPortalExecParameters)
-  }
+  PodTemplates podTemplates = new PodTemplates(this, true)
+  Logger logger = new Logger(this, 'folioCypressFlow.groovy')
+  CypressRunExecutionSummary testRunExecutionSummary
+  List allureResultsList = []
+  String reportPortalExecParameters = ''
+  ReportPortalClient reportPortalClient = null
 
-  // Set up common environment variables for Cypress execution
-  folioCypress.setupCommonEnvironmentVariables(params.tenantUrl,
-    params.okapiUrl,
-    params.tenant.tenantId,
-    params.tenant.adminUser.username,
-    params.tenant.adminUser.getPasswordPlainText())
 
-  int workersLimit = _getWorkerLimit(params.workerLabel)
-  int batchSize = _getBatchSize(params.workerLabel)
-  int maxWorkers = Math.min(params.numberOfWorkers, workersLimit)
-  // Ensure the number of workers does not exceed the limit
-  List<List<Integer>> batches = (1..maxWorkers).toList().collate(batchSize) // Divide workers into batches
+  try {
+    podTemplates.cypressAgent {
+      // Initialize Report Portal client if needed and set up execution parameters
+      if (reportPortalUse) {
+        reportPortalClient = new ReportPortalClient(this,
+          TestType.CYPRESS,
+          ciBuildId,
+          env.BUILD_NUMBER,
+          env.WORKSPACE,
+          reportPortalRunType)
+        reportPortalExecParameters = folioCypress.setupReportPortal(reportPortalClient)
+      }
 
-  // Execute each batch of workers
-  Map<String, Closure> batchExecutions = [failFast: false]
-  batches.eachWithIndex { batch, batchIndex ->
-    String batchId = (batchIndex + 1).toString()
-    String firstWorkerId = "${workerId}${batch[0]}"
-    batchExecutions["Batch#${batchId}"] = {
-      node(params.workerLabel) {
-        stage("[Cypress] Multi thread run #${batchId}") {
-          cleanWs notFailBuild: true
+      container('cypress') {
+        logger.info("Starting test execution flow...")
 
-          dir("cypress-${firstWorkerId}") {
-            // Clone the Cypress repository and compile tests
-            folioCypress.cloneCypressRepo(params.testsSrcBranch)
-            folioCypress.compileCypressTests()
+        testsToRun.each { CypressTestsParameters testParams ->
+          testParams.addExecParameter(reportPortalExecParameters)
+
+          // Clone repository with tests
+          folioCypress.cloneCypressRepo(testParams.testsSrcBranch)
+          // Set up common environment variables
+          folioCypress.setupCommonEnvironmentVariables(testParams.tenantUrl,
+            testParams.okapiUrl,
+            testParams.tenant.tenantId,
+            testParams.tenant.adminUser.username,
+            testParams.tenant.adminUser.getPasswordPlainText())
+          // Compile tests
+          folioCypress.compileCypressTests()
+
+          if (testParams.prepare) {
+            folioCypress.prepareTenantForCypressTests(testParams)
           }
 
-          // Execute tests in parallel for each worker in the batch
-          Map<String, Closure> parallelWorkers = [failFast: false]
-          batch.eachWithIndex { worker, workerIndex ->
-            String workerItemId = "${workerId}${worker}"
-            if (workerIndex > 0) {
-              sh "mkdir -p cypress-${workerItemId}"
-              sh "cp -r cypress-${firstWorkerId}/. cypress-${workerItemId}"
-            }
-            parallelWorkers["Worker#${workerItemId}"] = {
-              dir("cypress-${workerItemId}") {
-                // Execute tests with timeout
-                timeout(time: params.timeout, unit: 'MINUTES') {
-                  folioCypress.executeTests(params.ciBuildId,
-                    params.browserName,
-                    params.execParameters,
-                    workerItemId,
-                    params.testrailProjectID,
-                    params.testrailRunID)
-                }
+          stage('[Stash] Archive tests') {
+            // Archive tests for parallel
+            sh """
+            touch ${cypressStash('archive')}
+            tar --exclude=${cypressStash('archive')} -zcf ${cypressStash('archive')} .
+            md5sum ${cypressStash('archive')} > ${cypressStash('checksum')}
+          """.stripIndent()
+            // Stash tests for parallel
+            stash(name: cypressStash('name'),
+              includes: "${cypressStash('archive')},${cypressStash('checksum')}")
+          }
+          // Set up parallel workers for executing tests
+          def workers = [failFast: false]
+          String runId = folioCypress.generateRandomId(3)
+          testParams.ciBuildId = "${ciBuildId}-${runId}"
+          // Use a local list to collect Allure results per test to avoid concurrent modification issues
+          List localAllureResults = []
+          // Run tests in parallel with the specified number of workers and timeout for each worker
+          testParams.numberOfWorkers.times { int workerIndex ->
+            String workerId = "${runId}${workerIndex}"
+            workers["Worker#${workerId}"] = {
+              podTemplates.cypressAgent {
+                container('cypress') {
+                  stage('[Stash] Extract tests') {
+                    unstash name: cypressStash('name')
+                    sh """
+                      md5sum -c ${cypressStash('checksum')}
+                      tar -zxf ${cypressStash('archive')}
+                      rm -rf ${cypressStash('archive')} ${cypressStash('checksum')}
+                    """
+                  }
 
-                stashNames.add(folioCypress.archiveTestResults(workerItemId))
+                  timeout(time: testParams.timeout, unit: 'MINUTES') {
+                    // Set up common environment variables
+                    folioCypress.setupCommonEnvironmentVariables(testParams.tenantUrl,
+                      testParams.okapiUrl,
+                      testParams.tenant.tenantId,
+                      testParams.tenant.adminUser.username,
+                      testParams.tenant.adminUser.getPasswordPlainText())
+                    // Execute tests with Cypress runner
+                    folioCypress.executeTests(testParams.ciBuildId,
+                      testParams.browserName,
+                      testParams.execParameters,
+                      testParams.testrailProjectID,
+                      testParams.testrailRunID)
+                  }
+                  // Archive test results for each worker and add to local list for merging later
+                  localAllureResults.add(folioCypress.archiveTestResults(workerId))
+                }
               }
             }
           }
 
-          // Run all workers in parallel
-          parallel(parallelWorkers)
+          // Run all workers in parallel and merge their results
+          parallel(workers)
+          allureResultsList.addAll(localAllureResults)
         }
       }
     }
-  }
-
-  // Execute all batch runs
-  parallel(batchExecutions)
-
-  // Unpack Allure report and update result paths
-  folioCypress.unpackAllureReport(stashNames)
-  updateResultPathsFile(stashNames)
-}
-
-/**
- * Executes Cypress tests in a single-threaded environment.
- *
- * This method sets up the necessary environment variables, runs the tests,
- * and archives the results.
- *
- * @param params The parameters for the Cypress test execution.
- */
-void singleThreadRun(CypressTestsParameters params) {
-  String stashName = ''
-  String workerId = folioCypress.generateRandomId(3)
-  params.ciBuildId = "single-thread-${params.ciBuildId}-${workerId}"
-
-  // Read Report Portal execution parameters if the file exists
-  if (fileExists(_reportPortalExecPramsPath())) {
-    String reportPortalExecParameters = readFile(file: _reportPortalExecPramsPath()).trim()
-    params.addExecParameter(reportPortalExecParameters)
-  }
-
-  // Set up common environment variables for Cypress execution
-  folioCypress.setupCommonEnvironmentVariables(params.tenantUrl,
-    params.okapiUrl,
-    params.tenant.tenantId,
-    params.tenant.adminUser.username,
-    params.tenant.adminUser.getPasswordPlainText())
-
-  node(params.workerLabel) {
-    stage('[Cypress] Single thread run') {
-      cleanWs notFailBuild: true
-
-      echo "Running tests with worker ID: ${workerId}"
-      dir("cypress-${workerId}") {
-        // Clone the Cypress repository and compile tests
-        folioCypress.cloneCypressRepo(params.testsSrcBranch)
-        folioCypress.compileCypressTests()
-
-        timeout(time: params.timeout, unit: 'MINUTES') {
-          // Execute tests
-          folioCypress.executeTests(params.ciBuildId,
-            params.browserName,
-            params.execParameters,
-            workerId,
-            params.testrailProjectID,
-            params.testrailRunID)
-        }
-
-        // Archive test results
-        stashName = folioCypress.archiveTestResults(workerId)
-      }
-    }
-  }
-
-  // Unpack Allure report and update result paths
-  folioCypress.unpackAllureReport([stashName])
-  updateResultPathsFile([stashName])
-}
-
-/**
- * Wrapper for executing tests with optional Report Portal integration.
- *
- * This function initializes the Report Portal client, executes the provided closure,
- * finalizes Report Portal, generates an Allure report, analyzes results, and sends notifications.
- *
- * @param ciBuildId The CI build ID to associate with the test run.
- * @param reportPortalUse A flag indicating whether to use Report Portal for reporting.
- * @param reportPortalRunType The type of run for Report Portal (required if reportPortalUse is true).
- * @param body A closure that contains the test execution logic.
- * @return An IRunExecutionSummary object summarizing the test execution results.
- * @throws IllegalArgumentException if reportPortalRunType is empty when reportPortalUse is true.
- * @throws Exception if an error occurs during test execution.
- */
-IRunExecutionSummary runWrapper(String ciBuildId, boolean reportPortalUse = false, String reportPortalRunType = '', boolean sendNotification = true, Closure body) {
-  if (reportPortalUse && (reportPortalRunType == null || reportPortalRunType.trim().isEmpty())) {
-    throw new IllegalArgumentException("ReportPortal run type could not be empty!")
-  }
-
-  // Initialize the Report Portal client
-  ReportPortalClient reportPortalClient = new ReportPortalClient(this,
-    TestType.CYPRESS,
-    ciBuildId,
-    env.BUILD_NUMBER,
-    env.WORKSPACE,
-    reportPortalRunType)
-
-  // Set up Report Portal and gather execution parameters if requested
-  if (reportPortalUse) {
-    String reportPortalExecParameters = folioCypress.setupReportPortal(reportPortalClient)
-    if (reportPortalExecParameters) {
-      writeFile(file: _reportPortalExecPramsPath(), text: reportPortalExecParameters)
-    }
-  }
-
-  try {
-    echo "Starting test execution flow..."
-
-    // Execute the provided closure containing test logic
-    body()
-
-    echo "Test execution flow completed."
-
   } catch (Exception e) {
-    echo "Error executing tests: ${e.message}"
+    echo("Error executing tests: ${e.getMessage()}")
     throw e // Rethrow the exception for further handling if necessary
   } finally {
-    if (reportPortalUse) {
-      folioCypress.finalizeReportPortal(reportPortalClient)
+    podTemplates.rancherJavaAgent {
+      if (reportPortalUse && reportPortalClient != null) {
+        folioCypress.finalizeReportPortal(reportPortalClient)
+      }
+
+      if (!allureResultsList.isEmpty()) {
+        // Unpack Allure report
+        folioCypress.unpackAllureReport(allureResultsList)
+        // Generate and publish Allure report
+        container('java') {
+          folioCypress.generateAndPublishAllureReport(allureResultsList)
+        }
+      }
+
+      // Analyze results after execution
+      testRunExecutionSummary = folioCypress.analyzeResults()
+
+      try {
+        if (sendNotification) {
+          // Send notifications based on the execution summary
+          folioCypress.sendNotifications(testRunExecutionSummary, ciBuildId, reportPortalUse)
+        }
+      } catch (Exception e) {
+        echo("Error sending notifications: ${e.getMessage()}")
+      }
     }
-
-    // Generate and publish Allure report
-    List resultPathsList = fileExists(_testsResultsPath()) ? readJSON(file: _testsResultsPath()) : []
-    folioCypress.generateAndPublishAllureReport(resultPathsList)
-
-    // Analyze results after execution
-    IRunExecutionSummary testRunExecutionSummary = folioCypress.analyzeResults()
-
-    if (sendNotification) {
-      // Send notifications based on the execution summary
-      folioCypress.sendNotifications(testRunExecutionSummary, ciBuildId, reportPortalUse)
-    }
-
-    return testRunExecutionSummary
   }
+  return testRunExecutionSummary
 }

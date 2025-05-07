@@ -31,6 +31,6 @@ class Logger implements Serializable {
   @NonCPS
   def error(def message) {
     steps.echo("\u001B[31m [${className}][ERROR] - ${message} \u001B[0m")
-    throw new Exception(message)
+    steps.error(message)
   }
 }

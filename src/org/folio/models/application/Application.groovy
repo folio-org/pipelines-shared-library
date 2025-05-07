@@ -87,6 +87,7 @@ class Application {
     return version ==~ /^\d+\.\d+\.\d+-SNAPSHOT\.\d+$/ ? version.replaceFirst(/^\d+\.\d+\.\d+-SNAPSHOT\./, "") : ""
   }
 
+  @NonCPS
   @Override
   String toString() {
     return """{

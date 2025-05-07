@@ -3,7 +3,10 @@
  */
 
 #!groovy
+
+import org.folio.jenkins.PodTemplates
 import org.folio.utilities.Logger
+import org.jenkinsci.plugins.workflow.libs.Library
 
 @Library('pipelines-shared-library') _
 
@@ -17,7 +20,6 @@ properties([
     /**
      *  Placeholder for job parameters
      *  */
-    folioParameters.agent(),
     folioParameters.refreshParameters()
   ])
 ])
@@ -34,17 +36,18 @@ if (params.CLUSTER == 'folio-testing') {
 /**
  * Job variables
  */
+PodTemplates podTemplates = new PodTemplates(this)
 Logger logger = new Logger(this, env.JOB_BASE_NAME)
 
 /**
  * Pipeline
  */
 ansiColor('xterm') {
-  node(params.AGENT) {
+  podTemplates.rancherAgent {
     try {
       stage('Ini') {
-        buildName ""
-        buildDescription ""
+        buildName('')
+        buildDescription('')
       }
       /**
        * Placeholder for stages
@@ -52,11 +55,6 @@ ansiColor('xterm') {
     } catch (e) {
       logger.warning("Caught exception: ${e}")
       error(e.getMessage())
-    } finally {
-      stage('Cleanup') {
-        logger.debug("Workspace size: ${sh(returnStdout: true, script: 'du -sh .').trim()}")
-        cleanWs notFailBuild: true
-      }
     }
   }
 }

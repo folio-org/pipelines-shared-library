@@ -70,6 +70,16 @@ class GitHubUtility implements Serializable {
   }
 
   /**
+   * List of pinned Eureka modules
+   * @param repository
+   * @param branch
+   * @return
+   */
+  List getEurekaPinnedList(String repository, String branch) {
+    return getJsonModulesList(repository, branch, 'eureka-extras.json')
+  }
+
+  /**
    *  Parsing the install.json file and creating a map of module names and versions.
    * @param install_json
    * @return

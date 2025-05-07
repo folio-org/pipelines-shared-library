@@ -33,6 +33,29 @@ void kitfoxApproval() {
   requestApproval()
 }
 
+/**
+ * Method to update the build name with a new name
+ * This method is used to set the build name in Jenkins.
+ * @param newName
+ */
+void updateBuildName(String newName) {
+  if (currentBuild.displayName == "#${env.BUILD_ID}") {
+    currentBuild.displayName = newName
+  }
+}
+
+/**
+ * Method to update the build description with new content
+ * @param newContent The new content to be added to the build description
+ */
+void updateBuildDescription(String newContent) {
+  if (!currentBuild.description) {
+    currentBuild.description = newContent
+  } else {
+    currentBuild.description += "\n${newContent}"
+  }
+}
+
 // Method to retrieve the relevant cause for user, upstream build, or timer trigger
 private Map getRelevantCause() {
   return currentBuild.getBuildCauses().find {
@@ -64,4 +87,19 @@ private void requestApproval() {
     ok: 'Proceed',
     submitter: Constants.JENKINS_KITFOX_USER_IDS.join(', ')
   )
+}
+
+void validateNamespace(String namespace) {
+  Map cause = getRelevantCause()
+  List allNamespaces = []
+  allNamespaces.addAll(Constants.AWS_EKS_TMP_NAMESPACES)
+  allNamespaces.addAll(Constants.AWS_EKS_TESTING_NAMESPACES)
+  allNamespaces.addAll(Constants.AWS_EKS_RELEASE_NAMESPACES)
+  allNamespaces.addAll(Constants.AWS_EKS_DEV_NAMESPACES)
+  allNamespaces.addAll(Constants.RANCHER_KNOWN_NAMESPACES)
+  allNamespaces.addAll(['karate-eureka'])
+
+  if (!isApprovedUser(cause?.userId) && !allNamespaces.collect { it.toLowerCase() }.contains(namespace.toLowerCase())) {
+    error("Unknown namespace: ${namespace}")
+  }
 }

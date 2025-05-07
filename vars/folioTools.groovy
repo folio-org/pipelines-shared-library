@@ -136,6 +136,8 @@ def getRancherProjectInfo(String project) {
 }
 
 def addGithubTeamsToRancherProjectMembersList(String teams, String project) {
+  Constants.AWS_EKS_DEV_NAMESPACES.add('snapshot')
+  Constants.AWS_EKS_DEV_NAMESPACES.add('snapshot2')
   if (project.trim() in Constants.AWS_EKS_DEV_NAMESPACES || project.trim() == 'sprint') {
     RestClient client = new RestClient(this)
     def members = getGitHubTeamsIds(teams)

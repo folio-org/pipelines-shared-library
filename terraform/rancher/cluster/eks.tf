@@ -70,6 +70,10 @@ module "eks_cluster" {
       most_recent              = true
       service_account_role_arn = module.ebs_csi_irsa_role.iam_role_arn
     }
+    aws-efs-csi-driver = {
+      most_recent              = true
+      service_account_role_arn = module.efs_csi_irsa_role.iam_role_arn
+    }
   }
 
   # Switch off cloudwatch log group
@@ -126,7 +130,7 @@ module "eks_cluster" {
 
       min_size     = var.eks_nodes_group_size.min_size
       max_size     = var.eks_nodes_group_size.max_size
-      desired_size = var.eks_nodes_group_size.min_size
+      desired_size = var.eks_nodes_group_size.desired_size
 
       # For future schedule https://registry.terraform.io/modules/terraform-aws-modules/eks/aws/latest/submodules/eks-managed-node-group#input_schedules
     }

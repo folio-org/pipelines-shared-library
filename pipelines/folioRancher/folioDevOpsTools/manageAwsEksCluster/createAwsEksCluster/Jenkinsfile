@@ -1,8 +1,9 @@
 #!groovy
 import org.folio.Constants
+import org.folio.jenkins.PodTemplates
 import org.folio.models.TerraformConfig
 
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-2236') _
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '20')),
@@ -13,16 +14,22 @@ properties([
     choice(name: 'INSTANCE_TYPE', choices: ['ON_DEMAND', 'SPOT'], description: 'Select capacity type associated with the EKS Node Group. (SPOT-for testing purposes only)'),
     string(name: 'CLUSTER_MIN_SIZE', defaultValue: '2', description: 'Minimum size of node group for eks cluster', trim: true),
     string(name: 'CLUSTER_MAX_SIZE', defaultValue: '3', description: 'Maximum size of node group for eks cluster', trim: true),
+    string(name: 'CLUSTER_DESIRED_SIZE', defaultValue: '2', description: 'Desired size of node group for eks cluster', trim: true),
     booleanParam(name: 'REGISTER', defaultValue: true, description: 'Register cluster in Rancher'),
     booleanParam(name: 'KUBECOST', defaultValue: true, description: 'Deploy Kubecost to cluster'),
     booleanParam(name: 'SORRY_CYPRESS', defaultValue: false, description: 'Deploy Sorry Cypress to cluster'),
     booleanParam(name: 'ENABLE_LOGGING', defaultValue: false, description: 'Deploy ELK stack to cluster'),
     booleanParam(name: 'ENABLE_MONITORING', defaultValue: true, description: 'Deploy Prometheus to cluster'),
-    folioParameters.agent(),
     folioParameters.refreshParameters()
   ])
 ])
 
+if (params.REFRESH_PARAMETERS) {
+  currentBuild.result = 'ABORTED'
+  return
+}
+
+PodTemplates podTemplates = new PodTemplates(this)
 TerraformConfig tfConfig = new TerraformConfig('terraform/rancher/cluster')
   .withWorkspace(params.CLUSTER)
 
@@ -38,36 +45,27 @@ tfConfig.addVar('enable_logging', params.ENABLE_LOGGING)
 tfConfig.addVar('enable_monitoring', params.ENABLE_MONITORING)
 
 ansiColor('xterm') {
-  if (params.REFRESH_PARAMETERS) {
-    currentBuild.result = 'ABORTED'
-    error('DRY RUN BUILD, PARAMETERS REFRESHED!')
-  }
-  node(params.AGENT) {
-    try {
-      stage('Ini') {
-        buildName "${params.CLUSTER}.${env.BUILD_ID}"
-        buildDescription "Type: ${params.INSTANCE_TYPE}\nShape: ${params.INSTANCE_SHAPE}\nSize: ${params.CLUSTER_MIN_SIZE}/${params.CLUSTER_MAX_SIZE}"
-      }
-
-      stage('Checkout') {
-        checkout scm
-      }
-
-      folioTerraformFlow.manageCluster('apply', tfConfig)
-    } catch (e) {
-      println "Caught exception: ${e}"
-      error(e.getMessage())
-    } finally {
-      stage('Cleanup') {
-        cleanWs notFailBuild: true
-      }
+  podTemplates.rancherAgent {
+    stage('Ini') {
+      buildName "#${params.CLUSTER}.${env.BUILD_ID}"
     }
+
+    stage('Checkout') {
+      git(url: "${Constants.FOLIO_GITHUB_URL}/pipelines-shared-library.git",
+        branch: folioTools.getPipelineBranch(),
+        credentialsId: Constants.PRIVATE_GITHUB_CREDENTIALS_ID,
+        poll: false)
+    }
+
+    folioTerraformFlow.manageCluster('apply', tfConfig)
   }
 }
 
 private String _getClusterSize() {
-  if (params.CLUSTER_MIN_SIZE.toInteger() >= params.CLUSTER_MAX_SIZE.toInteger()) {
-    error("The minimum cluster size (${params.CLUSTER_MIN_SIZE}) must be smaller than the maximum size (${params.CLUSTER_MAX_SIZE})")
+  if (params.CLUSTER_MIN_SIZE.toInteger() >= params.CLUSTER_MAX_SIZE.toInteger() ||
+    params.CLUSTER_MIN_SIZE.toInteger() > params.CLUSTER_DESIRED_SIZE.toInteger() ||
+    params.CLUSTER_MAX_SIZE.toInteger() < params.CLUSTER_DESIRED_SIZE.toInteger()) {
+    error("Cluster size parameters are incorrect")
   }
-  return writeJSON(returnText: true, json: [min_size: params.CLUSTER_MIN_SIZE, max_size: params.CLUSTER_MAX_SIZE])
+  return writeJSON(returnText: true, json: [min_size: params.CLUSTER_MIN_SIZE, max_size: params.CLUSTER_MAX_SIZE, desired_size: params.CLUSTER_DESIRED_SIZE])
 }
