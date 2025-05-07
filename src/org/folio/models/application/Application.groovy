@@ -94,7 +94,8 @@ class Application {
       "id": "$id",
       "name": "$name",
       "version": "$version",
-      "build": "$build"${modules ? "\"modules\": $modules" : ""}
+      "build": "$build"
     }"""
+    //${modules ? "\n\"modules\": $modules" : ""}
   }
 }
