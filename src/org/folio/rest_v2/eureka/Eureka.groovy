@@ -356,13 +356,8 @@ class Eureka extends Base {
   //TODO: Remove this method
   void removeStaleResourcesFlow(ApplicationList configuredApps, Map<String, String> updatedApplications, EurekaModule module) {
     configuredApps.each { app ->
-      if (updatedApplications.containsKey(app.name)) {
-
-        if(Applications.get(kong).isModuleRegistered(module))
-          Applications.get(kong).deleteRegisteredModule(module)
-
+      if (updatedApplications.containsKey(app.name))
         Applications.get(kong).deleteRegisteredApplication(app.id)
-      }
     }
   }
 

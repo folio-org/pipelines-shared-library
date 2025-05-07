@@ -166,7 +166,7 @@ class Applications extends Kong{
    * @return true if module is registered, false otherwise
    */
   boolean isModuleRegistered(EurekaModule module) {
-    return getRegisteredModulesDiscovery("name==${module.name}").size() > 0
+    return getRegisteredModulesDiscovery("id==${module.id}").size() > 0
   }
 
   List<EurekaModule> getRegisteredModules(int limit = 500) {

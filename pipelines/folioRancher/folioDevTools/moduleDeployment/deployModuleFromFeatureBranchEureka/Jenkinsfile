@@ -208,11 +208,11 @@ ansiColor('xterm') {
       module.descriptor = [readJSON(file: module.modDescriptorPath)]
     }
 
-      stage('Generate context') {
-        eureka.getExistedTenantsForModule("${namespace.getClusterName()}-${namespace.getNamespaceName()}", module.getName())
-          .values().each {namespace.addTenant(it)}
+    stage('Generate context') {
+      eureka.getExistedTenantsForModule("${namespace.getClusterName()}-${namespace.getNamespaceName()}", module.getName())
+        .values().each {namespace.addTenant(it)}
 
-        namespace.tenants.values().each {it.getModules().addModule(module)}
+      namespace.tenants.values().each {it.getModules().addModule(module)}
 
       if (!(namespace.tenants))
         throw new Exception("There are no tenants with the module ${module.getName()}")
@@ -261,16 +261,16 @@ ansiColor('xterm') {
       }
     }
 
-      // 2. Enable New Module Version (Discovery) for Application
-      stage('[Rest] Module Discovery') {
-        try {
-          eureka.registerModulesFlow(new FolioInstallJson<FolioModule>(EurekaModule.class).addModule(module))
-        } catch (e) {
-          logger.warning("Failed to perform new module discovery: ${e}")
-          eureka.removeResourcesOnFailFlow(updatedAppInfoMap, module)
-          throw e
-        }
+    // 2. Enable New Module Version (Discovery) for Application
+    stage('[Rest] Module Discovery') {
+      try {
+        eureka.registerModulesFlow(new FolioInstallJson<FolioModule>(EurekaModule.class).addModule(module))
+      } catch (e) {
+        logger.warning("Failed to perform new module discovery: ${e}")
+        eureka.removeResourcesOnFailFlow(updatedAppInfoMap, module)
+        throw e
       }
+    }
 
     // 3. Deploy New Module Version to Rancher Namespace via Helm
     stage('[Helm] Deploy Module Ver') {
@@ -288,18 +288,18 @@ ansiColor('xterm') {
       }
     }
 
-      // 4. Enable Application Descriptor with Updated Module Version for Tenants in Namespace
-      stage('[Rest] Enable New App') {
-        try {
-          namespace.getTenants().values().each {tenant ->
-            Tenants.get(eureka.getKong()).updateApplications(tenant, updatedAppInfoMap.values().toList())
-          }
-        } catch (e) {
-          logger.warning("Failed to enable (entitle) new application version: ${e}")
-          eureka.removeResourcesOnFailFlow(updatedAppInfoMap, module)
-          throw e
+    // 4. Enable Application Descriptor with Updated Module Version for Tenants in Namespace
+    stage('[Rest] Enable New App') {
+      try {
+        namespace.getTenants().values().each {tenant ->
+          Tenants.get(eureka.getKong()).updateApplications(tenant, updatedAppInfoMap.values().toList())
         }
+      } catch (e) {
+        logger.warning("Failed to enable (entitle) new application version: ${e}")
+        eureka.removeResourcesOnFailFlow(updatedAppInfoMap, module)
+        throw e
       }
+    }
 
     stage('[Rest] Remove Stale Resources') {
       eureka.removeStaleResourcesFlow(namespace.applications, updatedAppInfoMap, module)

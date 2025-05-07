@@ -183,7 +183,7 @@ class Tenants extends Kong{
       applications: appIds
     ]
 
-    restClient.post(
+    restClient.put(
       generateUrl("/entitlements${tenant.getInstallRequestParams()?.toQueryString() ?: ''}")
       , body
       , headers
