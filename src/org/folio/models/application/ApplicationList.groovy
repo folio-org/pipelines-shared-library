@@ -32,10 +32,11 @@ class ApplicationList extends ArrayList<Application> {
   }
 
   void addAll(Collection<? extends Application> c, def context) {
-    context.println("Adding all applications to the list c.findAll{!any{app -> app.equals(it) } } ${c.findAll{!any{app -> app.equals(it) } }}")
+    context.println("Current application list ${this}")
     context.input(message: "Let's check")
 
-
+    context.println("Adding all applications to the list c.findAll{!any{app -> app.equals(it) } } ${c.findAll{!any{app -> app.equals(it) } }}")
+    context.input(message: "Let's check")
 
     c.findAll {
       !any { app ->
