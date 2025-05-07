@@ -23,59 +23,12 @@ class ApplicationList extends ArrayList<Application> {
 
   @Override
   boolean addAll(int index, Collection<? extends Application> c) {
-    return super.addAll(index, c.findAll{!any{app -> app.equals(it) } })
+    return super.addAll(index, c.findAll{!this.any{app -> app.equals(it) } })
   }
 
   @Override
   boolean addAll(Collection<? extends Application> c) {
-    return super.addAll(c.findAll{!any{app -> app.equals(it) } })
-  }
-
-  void addAll(Collection<? extends Application> c, def context) {
-    context.println("Current application list ${this}")
-    context.println("Current application list size ${this.size()}")
-    each {
-      context.println("name: ${it.name} version: ${it.version} build: ${it.build}")
-    }
-
-    context.input(message: "Let's check")
-
-    c.each {app->
-      this.each {
-        context.println("name: ${it.name} version: ${it.version} build: ${it.build}")
-        context.println("app.name: ${app.name} app.version: ${app.version} app.build: ${app.build}")
-        context.println("app.equals(it) ${app.equals(it)}")
-        context.println("app.id == it.id ${app.id == it.id}")
-      }
-    }
-
-    context.input(message: "Let's check")
-
-    context.println("Adding all applications to the list c.findAll{!any{app -> app.equals(it) } } ${c.findAll{!this.any{app -> app.equals(it) } }}")
-    context.input(message: "Let's check")
-
-    c.findAll {
-      !this.any { app ->
-        context.println("app.id: ${app.id} it.id: ${it.id}")
-        context.println("app.name: ${app.name} app.version: ${app.version} app.build: ${app.build}")
-
-        context.input(message: "Let's check")
-
-        app.id == it.id
-      }
-    }
-
-    context.input(message: "Let's check")
-
-    def ttt = c.findAll {
-      this.every { app -> app.id != it.id }
-    }
-
-    context.println("Adding all applications to the list c.findAll {every { app -> app.id != it.id } } ${ttt}")
-    context.input(message: "Let's check")
-
-    context.println("Adding all applications to the list c.findAll{!any{app -> app.id == it.id } } ${c.findAll{!this.any{app -> app.id == it.id } }}")
-    context.input(message: "Let's check")
+    return super.addAll(c.findAll{!this.any{app -> app.equals(it) } })
   }
 
   @Override
