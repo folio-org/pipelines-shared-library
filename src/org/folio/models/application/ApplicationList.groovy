@@ -48,6 +48,24 @@ class ApplicationList extends ArrayList<Application> {
       }
     }
 
+    c.findAll {
+      every { app ->
+        context.println("app.id: ${app.id} it.id: ${it.id}")
+        context.println("app.name: ${app.name} app.version: ${app.version} app.build: ${app.build}")
+
+        context.input(message: "Let's check")
+
+        app.id != it.id
+      }
+    }
+
+    context.input(message: "Let's check")
+
+    def ttt = c.findAll {
+      every { app -> app.id != it.id }
+    }
+
+    context.println("Adding all applications to the list c.findAll {every { app -> app.id != it.id } } ${ttt}")
     context.input(message: "Let's check")
 
     context.println("Adding all applications to the list c.findAll{!any{app -> app.id == it.id } } ${c.findAll{!any{app -> app.id == it.id } }}")
