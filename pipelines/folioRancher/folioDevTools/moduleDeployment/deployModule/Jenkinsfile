@@ -243,9 +243,9 @@ ansiColor('xterm') {
         }
       }
 
-      stage('Generate context') {
-        eureka.getExistedTenantsForModule(module).values()
-          .each {namespace.addTenant(it)}
+    stage('Generate context') {
+      eureka.getExistedTenantsForModule("${namespace.getClusterName()}-${namespace.getNamespaceName()}", module.getName())
+        .values().each {namespace.addTenant(it)}
 
         if(!(namespace.tenants))
           throw new Exception("There are no tenants with the module ${module.getName()}")

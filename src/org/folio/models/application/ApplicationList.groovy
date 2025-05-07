@@ -23,12 +23,12 @@ class ApplicationList extends ArrayList<Application> {
 
   @Override
   boolean addAll(int index, Collection<? extends Application> c) {
-    return super.addAll(index, c.findAll{!any{app -> app.equals(it) } })
+    return super.addAll(index, c.findAll{!this.any{app -> app.equals(it) } })
   }
 
   @Override
   boolean addAll(Collection<? extends Application> c) {
-    return super.addAll(c.findAll{!any{app -> app.equals(it) } })
+    return super.addAll(c.findAll{!this.any{app -> app.equals(it) } })
   }
 
   @Override
