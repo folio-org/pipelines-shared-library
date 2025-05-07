@@ -5,6 +5,8 @@ import org.folio.testing.teams.TeamAssignment
 class KarateTestsParameters {
   String okapiUrl
 
+  String keycloakUrl
+
   String edgeUrl
 
   String tenant
