@@ -31,6 +31,11 @@ class ApplicationList extends ArrayList<Application> {
     return super.addAll(c.findAll{!any{app -> app.equals(it) } })
   }
 
+  void addAll(Collection<? extends Application> c, def context) {
+    context.println("Adding all applications to the list c.findAll{!any{app -> app.equals(it) } } ${c.findAll{!any{app -> app.equals(it) } }}")
+    context.input(message: "Let's check")
+  }
+
   @Override
   Application set(int index, Application element) {
     return (!any { it.equals(element) } ? super.set(index, element) : get(index)) as Application

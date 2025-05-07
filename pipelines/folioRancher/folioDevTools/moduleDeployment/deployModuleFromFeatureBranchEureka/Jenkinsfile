@@ -210,7 +210,11 @@ ansiColor('xterm') {
 
     stage('Generate context') {
       eureka.getExistedTenantsForModule("${namespace.getClusterName()}-${namespace.getNamespaceName()}", module.getName())
-        .values().each {namespace.addTenant(it)}
+        .values().each {
+            namespace.applications.addAll(it.applications, this)
+            namespace.addTenant(it)
+
+          }
 
       namespace.tenants.values().each {it.getModules().addModule(module)}
 
