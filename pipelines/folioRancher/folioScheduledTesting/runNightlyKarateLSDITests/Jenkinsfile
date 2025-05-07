@@ -81,6 +81,7 @@ namespace.withSuperTenantAdminUser()
 KarateTestsParameters karateTestsParams = new KarateTestsParameters()
 karateTestsParams.gitBranch = params.TESTS_BRANCH
 karateTestsParams.okapiUrl = "https://${namespace.getDomains().kong}"
+karateTestsParams.keycloakUrl = "https://${namespace.getDomains().keycloak}"
 karateTestsParams.edgeUrl = "https://${namespace.getDomains().edge}"
 karateTestsParams.tenant = namespace.getSuperTenant().getTenantId()
 karateTestsParams.prototypeTenant = 'diku'

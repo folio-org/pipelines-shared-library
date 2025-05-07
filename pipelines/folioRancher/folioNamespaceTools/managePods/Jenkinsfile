@@ -25,8 +25,6 @@ properties([
     50 23 * * 0 %ACTION=start;CLUSTER=folio-testing;NAMESPACE=ecs-snapshot
     0 0 * * 1-5 %ACTION=stop;CLUSTER=folio-testing;NAMESPACE=ecs-snapshot
     0 9 * * 1-5 %ACTION=start;CLUSTER=folio-testing;NAMESPACE=ecs-snapshot
-    45 22 * * 5 %ACTION=stop;CLUSTER=folio-etesting;NAMESPACE=karate-eureka
-    55 23 * * 0 %ACTION=start;CLUSTER=folio-etesting;NAMESPACE=karate-eureka
     0 0 * * * %ACTION=stop;CLUSTER=folio-perf;NAMESPACE=corsair
     55 21 * * * %ACTION=stop;CLUSTER=folio-perf;NAMESPACE=firebird
     5 22 * * * %ACTION=stop;CLUSTER=folio-perf;NAMESPACE=folijet

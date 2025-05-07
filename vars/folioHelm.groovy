@@ -302,7 +302,7 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
         break
 
       case 'mgr-tenant-entitlements':
-          moduleConfig['extraEnvVars'] +=  ns.getNamespaceName() == 'karate-eureka' ? [
+          moduleConfig['extraEnvVars'] +=  ns.getNamespaceName() == 'cikarate' ? [
             name : 'VALIDATION_INTERFACE_INTEGRITY_ENABLED',
             value: 'false'
           ] : []
@@ -359,7 +359,7 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
         break
 
       case 'mod-fqm-manager':
-        ns.namespaceName == 'karate-eureka' ? moduleConfig['extraEnvVars'] += [
+        ns.namespaceName == 'cikarate' ? moduleConfig['extraEnvVars'] += [
           name: 'mod-fqm-manager.entity-type-cache-timeout-seconds',
           value: '0'
         ] : []
