@@ -50,7 +50,7 @@ ansiColor('xterm') {
     CreateNamespaceParameters namespaceBaseParams = new CreateNamespaceParameters.Builder()
       .platform(PlatformType.EUREKA)
       .clusterName('folio-etesting')
-      .namespaceName('karate-eureka')
+      .namespaceName('cikarate')
       .rwSplit(false)
       .greenmail(false)
       .mockServer(false)

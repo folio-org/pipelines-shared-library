@@ -56,7 +56,7 @@ CypressRunExecutionSummary call(String ciBuildId, List<CypressTestsParameters> t
 
   PodTemplates podTemplates = new PodTemplates(this, true)
   Logger logger = new Logger(this, 'folioCypressFlow.groovy')
-  CypressRunExecutionSummary testRunExecutionSummary = new CypressRunExecutionSummary()
+  CypressRunExecutionSummary testRunExecutionSummary
   List allureResultsList = []
   String reportPortalExecParameters = ''
   ReportPortalClient reportPortalClient = null
@@ -184,9 +184,7 @@ CypressRunExecutionSummary call(String ciBuildId, List<CypressTestsParameters> t
       } catch (Exception e) {
         echo("Error sending notifications: ${e.getMessage()}")
       }
-
-      logger.debug(testRunExecutionSummary.getClass())
-      return testRunExecutionSummary
     }
   }
+  return testRunExecutionSummary
 }
