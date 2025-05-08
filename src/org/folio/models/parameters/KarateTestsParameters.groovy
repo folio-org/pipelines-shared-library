@@ -48,4 +48,31 @@ class KarateTestsParameters {
   boolean lsdi = false
 
   String timeout
+
+  @Override
+  String toString() {
+    return "KarateTestsParameters{" +
+      "okapiUrl='" + okapiUrl + '\'' +
+      ", keycloakUrl='" + keycloakUrl + '\'' +
+      ", edgeUrl='" + edgeUrl + '\'' +
+      ", tenant='" + tenant + '\'' +
+      ", prototypeTenant='" + prototypeTenant + '\'' +
+      ", adminUserName='" + adminUserName + '\'' +
+      ", adminPassword='" + adminPassword + '\'' +
+      ", modulesToTest='" + modulesToTest + '\'' +
+      ", threadsCount='" + threadsCount + '\'' +
+      ", gitBranch='" + gitBranch + '\'' +
+      ", karateConfig='" + karateConfig + '\'' +
+      ", javaVerson='" + javaVerson + '\'' +
+      ", javaToolName='" + javaToolName + '\'' +
+      ", mavenToolName='" + mavenToolName + '\'' +
+      ", mavenSettings='" + mavenSettings + '\'' +
+      ", reportPortalProjectName='" + reportPortalProjectName + '\'' +
+      ", reportPortalProjectId='" + reportPortalProjectId + '\'' +
+      ", syncWithJira=" + syncWithJira +
+      ", sendSlackNotification=" + sendSlackNotification +
+      ", sendTeamsSlackNotification=" + sendTeamsSlackNotification +
+      ", lsdi=" + lsdi +
+      '}'
+  }
 }
