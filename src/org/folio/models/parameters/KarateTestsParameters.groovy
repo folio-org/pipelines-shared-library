@@ -1,5 +1,6 @@
 package org.folio.models.parameters
 
+import com.cloudbees.groovy.cps.NonCPS
 import org.folio.testing.teams.TeamAssignment
 
 class KarateTestsParameters {
@@ -49,6 +50,7 @@ class KarateTestsParameters {
 
   String timeout
 
+  @NonCPS
   @Override
   String toString() {
     return "KarateTestsParameters{" +
