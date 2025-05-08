@@ -33,7 +33,12 @@ KarateRunExecutionSummary call(KarateTestsParameters args) {
         List files = findFiles(glob: '**/karate-config.js')
         files.each { file ->
           logger.info("Updating file: ${file.path}")
+          logger.debug("File content before update: ${readFile(file.path)}")
           writeFile(file: file.path, text: karateTestUtils.renderKarateConfig(readFile(file.path), args))
+          logger.debug("File content after update: ${readFile(file.path)}")
+          if(file.path.contains('mod-audit')) {
+            input message: "Let's check"
+          }
         }
       }
 
