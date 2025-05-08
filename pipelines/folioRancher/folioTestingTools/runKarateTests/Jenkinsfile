@@ -53,7 +53,7 @@ karateTestsParams.threadsCount = params.THREADS_COUNT
 karateTestsParams.javaVerson = params.JAVA_VERSION
 karateTestsParams.timeout = '6'
 
-println("Karate tests parameters: ${karateTestsParams}")
+println("Karate tests parameters: ${karateTestsParams.toString()}")
 
 /**
  * Pipeline

@@ -15,7 +15,7 @@ KarateRunExecutionSummary call(KarateTestsParameters args) {
   PodTemplates podTemplates = new PodTemplates(this)
   KarateRunExecutionSummary karateTestsExecutionSummary
 
-  logger.debug("Karate tests parameters inside folioKarateFlow: ${args}")
+  logger.debug("Karate tests parameters inside folioKarateFlow: ${args.toString()}")
 
   podTemplates.javaKarateAgent(args.javaVerson) {
     dir('folio-integration-tests') {
