@@ -263,10 +263,6 @@ String renderKarateConfig(String config, KarateTestsParameters params) {
       "usageConsolidationCredentialsSecret": ebsco_usage_secret,
       "usageConsolidationCustomerKey"      : ebsco_usage_key
     ]
-
-    println("Karate test parameters: ${params}")
-    println("Binding: ${binding}")
-
     return engine.createTemplate(config.replaceAll(/(\\)/, /\\$0/)).make(binding).toString()
   }
 }
