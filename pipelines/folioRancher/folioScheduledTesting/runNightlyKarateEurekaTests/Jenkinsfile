@@ -96,7 +96,7 @@ ansiColor('xterm') {
     karateTestsParams.adminUserName = namespace.getSuperTenant().getAdminUser().getUsername()
     karateTestsParams.adminPassword = namespace.getSuperTenant().getAdminUser().getPassword()
     karateTestsParams.threadsCount = params.THREADS_COUNT
-    karateTestsParams.reportPortalProjectName = namespace.getNamespaceName()
+    karateTestsParams.reportPortalProjectName = "karate-eureka"
     karateTestsParams.sendSlackNotification = currentBuild.rawBuild.getCauses().any { it.toString().contains("TimerTriggerCause") } ? true : false
     karateTestsParams.sendTeamsSlackNotification = currentBuild.rawBuild.getCauses().any { it.toString().contains("TimerTriggerCause") } ? true : false
     karateTestsParams.syncWithJira = currentBuild.rawBuild.getCauses().any { it.toString().contains("TimerTriggerCause") } ? true : false
