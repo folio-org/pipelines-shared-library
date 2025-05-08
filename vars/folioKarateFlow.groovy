@@ -15,6 +15,8 @@ KarateRunExecutionSummary call(KarateTestsParameters args) {
   PodTemplates podTemplates = new PodTemplates(this)
   KarateRunExecutionSummary karateTestsExecutionSummary
 
+  logger.debug("Karate tests parameters inside folioKarateFlow: ${args}")
+
   podTemplates.javaKarateAgent(args.javaVerson) {
     dir('folio-integration-tests') {
       stage('[Git] Checkout folio-integration-tests repo') {
