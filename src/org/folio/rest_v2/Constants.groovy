@@ -208,6 +208,14 @@ class Constants {
       , dependsOn: ["app-platform-minimal", "app-platform-complete"]
     ],
     [
+      name: "app-reporting"
+      , branch: "snapshot"
+      , consortia: false
+      , core: false
+      , byDefault: true
+      , dependsOn: ["app-platform-minimal"]
+    ],
+    [
       name: "app-oai-pmh"
       , branch: "snapshot"
       , consortia: false
