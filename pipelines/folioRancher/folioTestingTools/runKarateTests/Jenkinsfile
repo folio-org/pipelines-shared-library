@@ -11,7 +11,6 @@ import org.jenkinsci.plugins.workflow.libs.Library
  */
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
-  disableConcurrentBuilds(),
   parameters([
     folioParameters.branch('TESTS_BRANCH', 'folio-integration-tests'),
     string(name: 'TESTS', defaultValue: '', description: 'Comma separated modules list to test (no spaces).\nLeave empty to launch all.'),
