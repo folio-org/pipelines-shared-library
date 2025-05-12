@@ -9,7 +9,7 @@ import org.folio.rest_v2.Constants
 import org.folio.rest_v2.PlatformType
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library@RANCHER-2236') _
+@Library('pipelines-shared-library@RANCHER-2304-test') _
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
@@ -75,14 +75,6 @@ properties([
 if (params.REFRESH_PARAMETERS) {
   currentBuild.result = 'ABORTED'
   return
-}
-
-if (params.CLUSTER != 'folio-tmp') {
-  folioCommon.validateNamespace(params.NAMESPACE)
-}
-
-if (params.CLUSTER == 'folio-testing') {
-  folioCommon.kitfoxApproval()
 }
 
 if (params.DATASET) {
