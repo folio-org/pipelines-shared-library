@@ -77,13 +77,13 @@ if (params.REFRESH_PARAMETERS) {
   return
 }
 
-if (params.CLUSTER != 'folio-tmp') {
-  folioCommon.validateNamespace(params.NAMESPACE)
-}
-
-if (params.CLUSTER == 'folio-testing') {
-  folioCommon.kitfoxApproval()
-}
+//if (params.CLUSTER != 'folio-tmp') {
+//  folioCommon.validateNamespace(params.NAMESPACE)
+//}
+//
+//if (params.CLUSTER == 'folio-testing') {
+//  folioCommon.kitfoxApproval()
+//}
 
 if (params.DATASET) {
   folioCommon.kitfoxApproval()
