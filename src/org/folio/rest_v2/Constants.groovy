@@ -89,7 +89,7 @@ class Constants {
     ],
     [
       name: "app-platform-complete"
-      , branch: "MikeTaylor:FOLREL-762--add-app-reporting"
+      , branch: "RANCHER-2304"
       , consortia: false
       , core     : false
       , byDefault: true
