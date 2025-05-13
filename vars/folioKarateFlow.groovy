@@ -64,11 +64,15 @@ KarateRunExecutionSummary call(KarateTestsParameters args) {
         }
 
         stage('[Report] Publish results') {
-          cucumber(buildStatus: 'UNSTABLE',
+          cucumber(
+            buildStatus: 'UNSTABLE',
             fileIncludePattern: '**/target/karate-reports*/*.json',
             sortingMethod: 'ALPHABETICAL')
 
-          junit(testResults: '**/target/karate-reports*/*.xml')
+          junit(
+            testResults: '**/target/karate-reports*/*.xml',
+            allowEmptyResults: true,
+            skipPublishingChecks: true,)
         }
 
         if (args.reportPortalProjectName && args.reportPortalProjectId) {
