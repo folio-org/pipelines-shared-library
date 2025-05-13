@@ -246,7 +246,7 @@ void call(CreateNamespaceParameters args) {
         namespace.getTenants().values().each { it.assignApplications(apps)}
         namespace.withApplications(apps)
 
-        eureka.registerModulesFlow(namespace.getModules())
+        eureka.registerModulesFlow(namespace.applications.getInstallJson())
       }
     }
 
