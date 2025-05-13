@@ -89,7 +89,7 @@ class Constants {
     ],
     [
       name: "app-platform-complete"
-      , branch: "snapshot"
+      , branch: "FOLREL-762--add-app-reporting"
       , consortia: false
       , core     : false
       , byDefault: true
