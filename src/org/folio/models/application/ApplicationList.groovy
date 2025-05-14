@@ -1,5 +1,8 @@
 package org.folio.models.application
 
+import org.folio.models.FolioInstallJson
+import org.folio.models.module.EurekaModule
+
 class ApplicationList extends ArrayList<Application> {
 
   ApplicationList(List<String> apps) {
@@ -74,5 +77,16 @@ class ApplicationList extends ArrayList<Application> {
     return findAll { app ->
       app.modules.any { module -> module.name == moduleName }
     }
+  }
+
+  FolioInstallJson<EurekaModule> getInstallJson() {
+    FolioInstallJson<EurekaModule> installJson = new FolioInstallJson(EurekaModule.class)
+    this.each { app ->
+      app.modules.each { module ->
+        installJson.addModule(module)
+      }
+    }
+
+    return installJson
   }
 }

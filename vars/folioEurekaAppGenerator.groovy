@@ -103,7 +103,7 @@ Map createTemplateFromDescriptor(Map descriptor, String version = null, boolean 
  * @param debug Flag to enable debug logging (default: false).
  */
 Map generateFromRepository(String repoName, FolioInstallJson moduleList, String branch = "master", boolean debug = false) {
-  logger.info("Generating application descriptor from repository...")
+  logger.info("Generating application descriptor from repository ${repoName}...")
 
   checkout(poll: false,
     changelog: false,

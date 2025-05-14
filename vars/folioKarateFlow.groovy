@@ -45,7 +45,6 @@ KarateRunExecutionSummary call(KarateTestsParameters args) {
         timeout(time: args.timeout, unit: 'HOURS') {
           container('java') {
             withMaven(jdk: args.javaToolName, maven: args.mavenToolName,
-//              mavenOpts: '-XX:MaxRAMPercentage=75',
               mavenLocalRepo: "${podTemplates.WORKING_DIR}/.m2/repository",
               traceability: true,
               options: [artifactsPublisher(disabled: true)]) {
@@ -65,11 +64,15 @@ KarateRunExecutionSummary call(KarateTestsParameters args) {
         }
 
         stage('[Report] Publish results') {
-          cucumber(buildStatus: 'UNSTABLE',
+          cucumber(
+            buildStatus: 'UNSTABLE',
             fileIncludePattern: '**/target/karate-reports*/*.json',
             sortingMethod: 'ALPHABETICAL')
 
-          junit(testResults: '**/target/karate-reports*/*.xml')
+          junit(
+            testResults: '**/target/karate-reports*/*.xml',
+            allowEmptyResults: true,
+            skipPublishingChecks: true,)
         }
 
         if (args.reportPortalProjectName && args.reportPortalProjectId) {
