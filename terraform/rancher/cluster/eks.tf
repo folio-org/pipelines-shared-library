@@ -131,6 +131,7 @@ module "eks_cluster" {
       min_size     = var.eks_nodes_group_size.min_size
       max_size     = var.eks_nodes_group_size.max_size
       desired_size = var.eks_nodes_group_size.desired_size
+
       iam_role_additional_policies = {
         AmazonSSMFullAccess = "arn:aws:iam::aws:policy/AmazonSSMFullAccess"
       }
