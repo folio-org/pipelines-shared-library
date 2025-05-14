@@ -131,6 +131,9 @@ module "eks_cluster" {
       min_size     = var.eks_nodes_group_size.min_size
       max_size     = var.eks_nodes_group_size.max_size
       desired_size = var.eks_nodes_group_size.desired_size
+      iam_role_additional_policies = {
+        AmazonSSMFullAccess = "arn:aws:iam::aws:policy/AmazonSSMFullAccess"
+      }
 
       # For future schedule https://registry.terraform.io/modules/terraform-aws-modules/eks/aws/latest/submodules/eks-managed-node-group#input_schedules
     }
@@ -141,6 +144,10 @@ module "eks_cluster" {
         name         = "cicypress"
         description  = "EKS managed node group for CI Cypress env"
         ami_type     = "AL2_x86_64"
+
+        iam_role_additional_policies = {
+          AmazonSSMFullAccess = "arn:aws:iam::aws:policy/AmazonSSMFullAccess"
+        }
 
         capacity_type  = var.eks_nodes_type
         disk_size      = 100
@@ -177,6 +184,10 @@ module "eks_cluster" {
         name         = "cikarate"
         description  = "EKS managed node group for CI Karate env"
         ami_type     = "AL2_x86_64"
+
+        iam_role_additional_policies = {
+          AmazonSSMFullAccess = "arn:aws:iam::aws:policy/AmazonSSMFullAccess"
+        }
 
         capacity_type  = var.eks_nodes_type
         disk_size      = 100
