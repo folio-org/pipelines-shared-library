@@ -4535,6 +4535,8 @@ mgr-tenant-entitlements:
       value: 'true'
     - name: SECURITY_ENABLED
       value: 'true'
+    - name: VALIDATION_INTERFACE_COLLECTOR_MODE
+      value: "scoped"
   integrations:
     db:
       enabled: true
