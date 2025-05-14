@@ -397,7 +397,7 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
   }
 
   //Toleration and NodeSelector
-  if ((ns.getClusterName() == 'folio-testing') && (['cicypress', 'cikarate'].contains(ns.getNamespaceName()))) {
+  if ((['folio-testing', 'folio-etesting'].contains(ns.getClusterName())) && (['cicypress', 'cikarate'].contains(ns.getNamespaceName()))) {
     moduleConfig['nodeSelector'] = ["folio.org/qualitygate": ns.getNamespaceName()]
     moduleConfig['tolerations'] = [[key     : "folio.org/qualitygate",
                                     operator: "Equal",
