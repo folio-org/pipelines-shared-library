@@ -150,19 +150,6 @@ class OkapiTenant extends DTO{
     return this
   }
 
-  @NonCPS
-  @Override
-  String toString() {
-    return """
-      "class_name": "OkapiTenant",
-      "tenantId": "$tenantId",
-      "tenantName": "$tenantName",
-      "tenantDescription": "$tenantDescription",
-      "modules": $modules,
-      "indexes": $indexes
-    """
-  }
-
   /**
    * Enables specified Folio extensions for the tenant.
    * This method retrieves the latest version of each specified extension module
@@ -204,5 +191,18 @@ class OkapiTenant extends DTO{
   List getExtensionModulesList(Object steps, String extensionName) {
     final String EXTENSIONS_PATH = 'folio-extensions'
     return steps.readJSON(text: steps.libraryResource("${EXTENSIONS_PATH}/${extensionName}.json"))
+  }
+
+  @NonCPS
+  @Override
+  String toString() {
+    return """
+      "class_name": "OkapiTenant",
+      "tenantId": "$tenantId",
+      "tenantName": "$tenantName",
+      "tenantDescription": "$tenantDescription",
+      "modules": $modules,
+      "indexes": $indexes
+    """
   }
 }

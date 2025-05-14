@@ -1,11 +1,10 @@
 package org.folio.rest_v2.eureka.kong
 
 import com.cloudbees.groovy.cps.NonCPS
-import org.folio.models.EurekaTenant
+import org.folio.models.module.EurekaModule
 import org.folio.models.module.FolioModule
 import org.folio.rest_v2.eureka.Keycloak
 import org.folio.rest_v2.eureka.Kong
-import org.folio.utilities.RequestException
 
 class Applications extends Kong{
 
@@ -21,7 +20,7 @@ class Applications extends Kong{
     this(kong.context, kong.kongUrl, kong.keycloak, kong.getDebug())
   }
 
-  String registerApplication(def jsonAppDefinition) {
+  String registerApplication(Map jsonAppDefinition) {
     logger.info("Register application \"${jsonAppDefinition.id}\"")
 
     Map<String, String> headers = getMasterHttpHeaders()
@@ -39,7 +38,7 @@ class Applications extends Kong{
           ${contentStr}""")
 
         // Check twice
-        def app = getRegisteredApplication(jsonAppDefinition.id as String)
+        def app = getRegisteredApplicationDescriptors(jsonAppDefinition.id as String)
         return app.id
       } else {
         logger.error("""
@@ -61,7 +60,7 @@ class Applications extends Kong{
     return content.id
   }
 
-  def getRegisteredApplication(String appId, boolean fullInfo = false){
+  def getRegisteredApplicationDescriptors(String appId, boolean fullInfo = false){
     List apps = getRegisteredApplications("id==$appId", fullInfo)
 
     if (apps.size() == 0)
@@ -94,122 +93,12 @@ class Applications extends Kong{
     }
   }
 
-  Applications registerModules(def jsonModuleList) {
-    logger.info("Register module list...")
-
-    Map<String, String> headers = getMasterHttpHeaders()
-
-    restClient.post(generateUrl("/modules/discovery"), jsonModuleList, headers)
-
-    return this
-  }
-
   /**
-   * Get Existing Module Discovery by its ID
-   * @param module FolioModule object to discover
-   * @return Module Discovery Information as Map
-   */
-  Map getModuleDiscovery(FolioModule module) {
-    Map<String, String> headers = getMasterHttpHeaders()
-
-    // URL for GET request
-    String url = generateUrl("/modules/${module.name}-${module.version}/discovery")
-
-    logger.info("Getting Module Discovery for new module version...")
-
-    def response = restClient.get(url, headers, [200, 404])
-    String contentStr = response['body'].toString()
-
-    if (response['responseCode'] == 404) {
-      if (contentStr.contains("Unable to find discovery of the module with id")) {
-        logger.info("""
-          Module \"${module.name}-${module.version}\" not found in environment
-          Status: ${response['responseCode']}
-          Response content:
-          ${contentStr}
-        """.stripIndent())
-
-        throw new RequestException(contentStr, response['responseCode'] as int)
-      }
-    }
-
-    logger.info("Module Discovery Info is provided for ${module.name}-${module.version}.")
-
-    return response as Map
-  }
-
-  /**
-   * Create New Module Discovery for Application
-   * @param module FolioModule object to discover
-   */
-  void createModuleDiscovery(FolioModule module) {
-    Map<String, String> headers = getMasterHttpHeaders()
-
-    // URL for POST request
-    String url = generateUrl("/modules/${module.name}-${module.version}/discovery")
-
-    // Request Body for POST request
-    Map requestBody = [
-      'location': "http://${module.name}:8082",
-      'id': "${module.name}-${module.version}",
-      'name': module.name,
-      'version': module.version
-    ]
-
-    logger.info("Performing Module Discovery for new module version...")
-
-    def response = restClient.post(url, requestBody, headers).body
-
-    logger.info("New Module Discovery is created for ${module.name}-${module.version}.")
-  }
-
-  /**
-   * Upgrade Applications (switch to new version) on Tenant
-   * @param tenant EurekaTenant object to upgrade application for
-   * @param appsToEnableMap Map<AppName, AppID> of Applications to enable on Tenant
-   */
-  void upgradeTenantApplication(EurekaTenant tenant, Map<String, String> appsToEnableMap) {
-    // Get Authorization Headers for Master Tenant from Keycloak
-    Map<String, String> headers = getMasterHttpHeaders()
-
-    // URL for PUT request
-    String url = generateUrl("/entitlements")
-
-    // Request Body for PUT request
-    Map requestBody = [
-      'tenantId': tenant.uuid,
-      'applications': appsToEnableMap.values()
-    ]
-
-    logger.info("Performing Application Upgrade for \"${tenant.tenantName}\" Tenant...")
-
-    restClient.put(url, requestBody, headers)
-
-    logger.info("We've successfully upgraded Application for \"${tenant.tenantName}\" Tenant.")
-  }
-
-  /**
-   * Delete Module Discovery for Registered Application
-   * @param moduleId
-   */
-  void deleteModuleDiscovery(String moduleId) {
-    Map<String, String> headers = getMasterHttpHeaders()
-
-    // URL for DELETE request
-    String url = generateUrl("/modules/${moduleId}/discovery")
-
-    logger.info("Deleting Module Discovery for ${moduleId} module version...")
-
-    restClient.delete(url, headers)
-
-    logger.info("Module Discovery is deleted for ${moduleId}.")
-  }
-
-  /**
-   * Delete Registered Application
+   * Delete registered application
    * @param appId
+   * @return this instance of Applications
    */
-  void deleteRegisteredApplication(String appId) {
+  Applications deleteRegisteredApplication(String appId) {
     logger.info("Delete registered application ${appId} ...")
 
     Map<String, String> headers = getMasterHttpHeaders()
@@ -217,26 +106,117 @@ class Applications extends Kong{
     restClient.delete(generateUrl("/applications/${appId}"), headers)
 
     logger.info("Registered Application ${appId} is deleted.")
+
+    return this
   }
 
   /**
-   * Search Module Discovery by query
-   * @param query search query (leave empty for all)
-   * @param limit limit of search results (default 300)
-   * @return Map of Module Discoveries
+   * Register modules (discovery information)
+   * @param modules list of modules to register
+   * @param skipExists if true, skip already registered (409 response code) error
+   * @return this instance of Applications
    */
-  Map searchModuleDiscovery(String query = '', int limit = 300) {
-    logger.info("Get Module Discoveries${query ? " with query=${query}" : ""}...")
+  Applications registerModules(List<? extends FolioModule> modules, boolean skipExists = false) {
+    logger.info("Register/discovery modules $modules ...")
 
     Map<String, String> headers = getMasterHttpHeaders()
 
-    String url = generateUrl("/modules/discovery?${query ? "query=$query" : ""}&limit=$limit")
+    Map requestsBody = [
+      "discovery": modules.collect { it.getDiscovery() }
+    ]
+
+    List validResponseCodes = skipExists ? [201, 409] : []
+    def response = restClient.post(generateUrl("/modules/discovery"), requestsBody, headers, validResponseCodes)
+
+    String contentStr = response.body.toString()
+    Map content = response.body as Map
+
+    if (response.responseCode == 409) {
+      if (contentStr.contains("Module Discovery already exists")) {
+        logger.info("""
+          Given modules already exists
+          Status: ${response.responseCode}
+          Response content:
+          ${contentStr}""")
+
+        return this
+      } else {
+        logger.error("""
+          The module registering result
+          Status: ${response.responseCode}
+          Response content:
+          ${contentStr}""")
+
+        throw new Exception("Build failed: " + contentStr)
+      }
+    }
+
+    logger.info("""
+      Modules successfully registered
+      Status: ${response.responseCode}
+      Response content:
+      ${content.toString()}""")
+
+    return this
+  }
+
+  /**
+   * Check if module is registered
+   * @param module
+   * @return true if module is registered, false otherwise
+   */
+  boolean isModuleRegistered(EurekaModule module) {
+    return getRegisteredModulesDiscovery("id==${module.id}").size() > 0
+  }
+
+  List<EurekaModule> getRegisteredModules(int limit = 500) {
+    return getRegisteredModulesDiscovery("", limit)
+      .collect { new EurekaModule().loadModuleDetails(it.id as String, 'enabled') }
+  }
+
+  /**
+   * Get registered modules
+   * @param query search query (leave empty for all)
+   * @param limit limit of search results (default 500)
+   * @return json with registered modules discovery information
+   */
+  List<Map> getRegisteredModulesDiscovery(String query = "", int limit = 500) {
+    logger.info("Get registered modules${query ? " with query=${query}" : ""}...")
+
+    Map<String, String> headers = getMasterHttpHeaders()
+
+    String url = generateUrl("/modules/discovery?${query ? "query=${query}&limit=${limit}" : "limit=${limit}"}")
 
     Map response = restClient.get(url, headers).body as Map
 
-    logger.info("Got Module Discoveries successfully.")
+    if (response.totalRecords > 0) {
+      logger.debug("Found modules: ${response.discovery.collect({ it['id'] })}")
+      return response.discovery as List
+    } else {
+      logger.debug("By the url ${url} registered modules not found")
+      logger.debug("HTTP response is: ${response}")
 
-    return response
+      return []
+    }
+  }
+
+  /**
+   * Delete module registration (discovery information)
+   * @param module
+   * @return this instance of Applications
+   */
+  Applications deleteRegisteredModule(EurekaModule module) {
+    logger.info("Deleting module registration (discovery information) for module ${module.getId()} ...")
+
+    Map<String, String> headers = getMasterHttpHeaders()
+
+    String url = generateUrl("/modules/${module.getId()}/discovery")
+
+    restClient.delete(url, headers)
+
+    logger.info("Module registration has been deleted for ${module.getId()}.")
+
+    return this
   }
 
   @NonCPS
