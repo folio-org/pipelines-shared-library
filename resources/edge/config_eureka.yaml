@@ -52,6 +52,16 @@ edge-orders:
   capabilitiesSet:
   - gobi.manage
   - ebsconet.manage
+  - mosaic.manage
+  - orders_order-templates.manage
+  - finance_funds.manage
+  - finance_expense-classes.manage
+  - acquisitions-units_units.manage
+  - organizations_organizations.manage
+  - configuration.manage
+  - orders-storage_custom-fields.manage
+  - perms_users.manage
+  - inventory-storage.manage
 edge-ncip:
   capabilitiesSet:
   - ncip.manage
