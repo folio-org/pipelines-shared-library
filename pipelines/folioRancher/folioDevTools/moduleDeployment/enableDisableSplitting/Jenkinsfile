@@ -14,8 +14,8 @@ properties([
   parameters([
           folioParameters.cluster(),
           folioParameters.namespace(),
-          booleanParameter(name: 'ENABLE_DI_SPLITTING', defaultValue: false, description: 'Check this option for enabling DI splitting'),
-          booleanParameter(name: 'DISABLE_DI_SPLITTING', defaultValue: false, description: 'Check this option for disabling DI splitting'),
+          booleanParam(name: 'ENABLE_DI_SPLITTING', defaultValue: false, description: 'Check this option for enabling DI splitting'),
+          booleanParam(name: 'DISABLE_DI_SPLITTING', defaultValue: false, description: 'Check this option for disabling DI splitting'),
           folioParameters.refreshParameters()
   ])
 ])
