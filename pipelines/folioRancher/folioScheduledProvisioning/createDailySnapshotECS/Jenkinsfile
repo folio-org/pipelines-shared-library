@@ -195,10 +195,8 @@ ansiColor('xterm') {
       stage('Notify') {
         println "Caught exception: ${e}"
         params.NOTIFY ? slackSend(color: 'danger', message: "ecs-snapshot env build failed...\nConsole output: " + "${env.BUILD_URL}", channel: '#rancher_tests_notifications') : null
-        params.RETRY ? null : folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceBaseParams)
       }
       error(e.getMessage())
     }
-
   }
 }
