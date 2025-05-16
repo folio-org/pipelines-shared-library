@@ -82,7 +82,7 @@ ansiColor('xterm') {
       tfConfig.addVar('pg_vol_size', 100)
       tfConfig.addVar('pg_embedded', true)
       tfConfig.addVar('kafka_shared', false)
-      tfConfig.addVar('opensearch_shared', false)
+      tfConfig.addVar('opensearch_shared', true)
       tfConfig.addVar('s3_embedded', true)
       tfConfig.addVar('pgadmin4', 'true')
       tfConfig.addVar('pg_ldp_user_password', Constants.PG_LDP_DEFAULT_PASSWORD)
