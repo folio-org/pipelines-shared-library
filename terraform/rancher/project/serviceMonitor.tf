@@ -1,5 +1,6 @@
 # Create ServiceMonitor for monitoring jvm metrics on 9991 port
 resource "kubectl_manifest" "service_monitor" {
+  count              = rancher2_namespace.this.name != "ecs-snapshot" ? 1 : 0
   provider           = kubectl
   override_namespace = rancher2_namespace.this.name
   yaml_body          = <<YAML
@@ -26,6 +27,7 @@ spec:
 
 # Create ServiceMonitor for monitoring Opensearch metrics
 resource "kubectl_manifest" "service_monitor_opensearch" {
+  count              = rancher2_namespace.this.name != "ecs-snapshot" ? 1 : 0
   provider           = kubectl
   override_namespace = rancher2_namespace.this.name
   yaml_body          = <<YAML
