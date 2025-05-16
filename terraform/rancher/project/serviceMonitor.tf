@@ -24,7 +24,7 @@ spec:
   YAML
 }
 
-# Create ServiceMonitor for monitoring Openearch metrics
+# Create ServiceMonitor for monitoring Opensearch metrics
 resource "kubectl_manifest" "service_monitor_opensearch" {
   provider           = kubectl
   override_namespace = rancher2_namespace.this.name
@@ -32,7 +32,7 @@ resource "kubectl_manifest" "service_monitor_opensearch" {
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: ${var.rancher_project_name}-opensearch-mertics
+  name: ${var.rancher_project_name}-opensearch-metrics
 spec:
   endpoints:
   - interval: 30s
