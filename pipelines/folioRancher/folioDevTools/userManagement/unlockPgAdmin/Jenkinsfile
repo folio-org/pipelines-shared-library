@@ -40,11 +40,10 @@ ansiColor('xterm') {
     stage('[FIX] pgAdmin unlock') {
       logger.info("Unlocking pgAdmin")
       folioHelm.withKubeConfig(params.CLUSTER) {
-        sh(script: "helm get values pgadmin4 --namespace ${params.NAMESPACE} | tail -n +2 > /tmp/values.yml", returnStdout: false)
-        sh(script: "helm repo add fix https://helm.runix.net", returnStdout: false)
-        sh(script: "helm uninstall pgadmin4 --namespace ${params.NAMESPACE} --wait", returnStdout: false)
-        sh(script: "helm install pgadmin4 fix/pgadmin4 --namespace ${params.NAMESPACE} -f /tmp/values.yml --wait", returnStdout: false)
-        sleep time: 2, unit: 'MINUTES'
+        sh(script: "set +x && helm get values pgadmin4 --namespace ${params.NAMESPACE} | tail -n +2 > /tmp/values.yml", returnStdout: false)
+        sh(script: "set +x && helm repo add fix https://helm.runix.net", returnStdout: false)
+        sh(script: "set +x && helm uninstall pgadmin4 --namespace ${params.NAMESPACE} --wait", returnStdout: false)
+        sh(script: "set +x && helm install pgadmin4 fix/pgadmin4 --namespace ${params.NAMESPACE} -f /tmp/values.yml --wait", returnStdout: false)
       }
     }
   }
