@@ -18,8 +18,8 @@ properties([
   parameters([
     booleanParam(name: 'RETRY', defaultValue: false, description: '(Optional) Set to true to retry install'),
     booleanParam(name: 'NOTIFY', defaultValue: false, description: '(Optional) Set to true to notify about the build'),
-    folioParameters.refreshParameters()]),
-  pipelineTriggers([parameterizedCron('''25 20 * * 3 %RETRY=false;REFRESH_PARAMETERS=false;NOTIFY=true''')])
+    folioParameters.refreshParameters()])
+//  , pipelineTriggers([parameterizedCron('''25 20 * * 3 %RETRY=false;REFRESH_PARAMETERS=false;NOTIFY=true''')])
 ])
 
 if (params.REFRESH_PARAMETERS) {
@@ -127,7 +127,7 @@ ansiColor('xterm') {
 
         }
 
-        params.RETRY ? null : folioDeployFlow.restore(namespace)
+//        params.RETRY ? null : folioDeployFlow.restore(namespace)
 
         folioHelm.withKubeConfig(namespace.getClusterName()) {
 
