@@ -409,19 +409,23 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
   boolean enableIngress = moduleConfig.containsKey('ingress') ? moduleConfig['ingress']['enabled'] : false
   if (enableIngress) {
     moduleConfig['ingress']['hosts'][0] += [host: domain]
-    if (moduleName == 'ui-bundle' && ns.clusterName == 'folio-etesting' && ns.namespaceName ==~ /snapshot.*/ ) {
-      moduleConfig['ingress']['hosts'] += [
-        [
-          host : "eureka-snapshot-${ns.defaultTenantId}.${Constants.CI_ROOT_DOMAIN}",
-          paths: [
+    if (ns.clusterName == 'folio-etesting' && ns.namespaceName ==~ /snapshot.*/) {
+      ns.getTenants().each { tenant ->
+        if (tenant.tenantId == 'diku' || tenant.tenantId == 'consortium') {
+          moduleConfig['ingress']['hosts'] += [
             [
-              path       : "/*",
-              pathType   : "ImplementationSpecific",
-              servicePort: 80
+              host : "eureka-snapshot-${tenant.tenantId}.${Constants.CI_ROOT_DOMAIN}",
+              paths: [
+                [
+                  path       : "/*",
+                  pathType   : "ImplementationSpecific",
+                  servicePort: 80
+                ]
+              ]
             ]
           ]
-        ]
-      ]
+        }
+      }
     }
     moduleConfig['ingress']['annotations'] += ['alb.ingress.kubernetes.io/group.name': "${ns.clusterName}.${ns.namespaceName}"]
     moduleConfig['ingress']['annotations'] += ['alb.ingress.kubernetes.io/target-type': 'ip']
