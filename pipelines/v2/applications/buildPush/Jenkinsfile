@@ -117,19 +117,19 @@ ansiColor('xterm') {
         (params.FROM_DESCRIPTOR ? ApplicationsBuildPushPipeline.SourceType.DESCRIPTOR :
           ApplicationsBuildPushPipeline.SourceType.TEMPLATE)
 
-    logger.debug("Is exist ${params.DESCRIPTOR_FILE ? "true" : "false"}")
-    input message: "Let's check existence of the descriptor file"
-
-    logger.debug("DESCRIPTOR_FILE: ${params.DESCRIPTOR_FILE}")
-    input message: "Let's look at the descriptor file"
-
-    logger.debug("DESCRIPTOR_FILE: ${new String(params.DESCRIPTOR_FILE.decodeBase64(), 'UTF-8')}")
-    input message: "Let's decode the descriptor file"
-
-    def check = sh(script: "echo $DESCRIPTOR_FILE | base64 -d", returnStdout: true).trim()
-    logger.debug("Decoded file content: $check")
-
-    input message: "Let's check"
+//    logger.debug("Is exist ${params.DESCRIPTOR_FILE ? "true" : "false"}")
+//    input message: "Let's check existence of the descriptor file"
+//
+//    logger.debug("DESCRIPTOR_FILE: ${params.DESCRIPTOR_FILE}")
+//    input message: "Let's look at the descriptor file"
+//
+//    logger.debug("DESCRIPTOR_FILE: ${new String(params.DESCRIPTOR_FILE.decodeBase64(), 'UTF-8')}")
+//    input message: "Let's decode the descriptor file"
+//
+//    def check = sh(script: "echo $DESCRIPTOR_FILE | base64 -d", returnStdout: true).trim()
+//    logger.debug("Decoded file content: $check")
+//
+//    input message: "Let's check"
 
     List<Map<String, String>> installJson = params.INSTALL_JSON.trim() ? readJSON(text: params.INSTALL_JSON) as List<Map<String, String>> : []
     installJson = installJson.unique()
@@ -140,8 +140,8 @@ ansiColor('xterm') {
     Map initialDescriptor = [:]
 
     if (sourceType == ApplicationsBuildPushPipeline.SourceType.DESCRIPTOR) {
-      String descFile = fileExists('DESCRIPTOR_FILE') ?
-        readFile(file: 'DESCRIPTOR_FILE') :
+      String descFile = params.DESCRIPTOR_FILE ?
+        new String(params.DESCRIPTOR_FILE.decodeBase64(), 'UTF-8') :
         sh(script: "curl -sS ${params.DESCRIPTOR_URL}", returnStdout: true).trim()
 
       initialDescriptor = readJSON(text: descFile) as Map
