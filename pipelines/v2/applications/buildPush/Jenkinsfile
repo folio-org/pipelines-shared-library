@@ -32,7 +32,7 @@ properties([
     booleanParam(name: 'UPGRADE', defaultValue: false, description: 'Check to upgrade previously built descriptor with the new module versions'),
 
     //TODO: Uncomment the following line on new Jenkins with this plugin https://plugins.jenkins.io/file-parameters/
-    base64File(name: 'in_params/descriptor.json', description: 'Previously generated application descriptor file.'),
+    base64File(name: 'DESCRIPTOR_FILE', description: 'Previously generated application descriptor file.'),
     string(name: 'DESCRIPTOR_URL', defaultValue: "${Constants.EUREKA_REGISTRY_APP_DESCRIPTORS_URL}", description: '(Optional) Registry URL of the previously generated application descriptor file.'),
 
     booleanParam(name: 'FROM_TEMPLATE', defaultValue: false, description: 'Check for building from template'),
@@ -86,7 +86,7 @@ properties([
 
     , folioParameters.hideParameters(
     [
-      '': [ 'in_params/descriptor.json',
+      '': [ 'DESCRIPTOR_FILE',
             'DESCRIPTOR_URL', 'RECREATE', 'UPGRADE']
     ]
     , "FROM_DESCRIPTOR", "FROM_REPOSITORY,FROM_DESCRIPTOR,FROM_TEMPLATE")
@@ -117,6 +117,11 @@ ansiColor('xterm') {
         (params.FROM_DESCRIPTOR ? ApplicationsBuildPushPipeline.SourceType.DESCRIPTOR :
           ApplicationsBuildPushPipeline.SourceType.TEMPLATE)
 
+    def check = sh(script: "echo $DESCRIPTOR_FILE | base64 -d", returnStdout: true).trim()
+    logger.debug("Decoded file content: $check")
+
+    input message: "Let's check"
+
     List<Map<String, String>> installJson = params.INSTALL_JSON.trim() ? readJSON(text: params.INSTALL_JSON) as List<Map<String, String>> : []
     installJson = installJson.unique()
 
@@ -126,8 +131,8 @@ ansiColor('xterm') {
     Map initialDescriptor = [:]
 
     if (sourceType == ApplicationsBuildPushPipeline.SourceType.DESCRIPTOR) {
-      String descFile = fileExists('in_params/descriptor.json') ?
-        readFile(file: 'in_params/descriptor.json') :
+      String descFile = fileExists('DESCRIPTOR_FILE') ?
+        readFile(file: 'DESCRIPTOR_FILE') :
         sh(script: "curl -sS ${params.DESCRIPTOR_URL}", returnStdout: true).trim()
 
       initialDescriptor = readJSON(text: descFile) as Map
