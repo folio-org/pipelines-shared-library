@@ -117,6 +117,9 @@ ansiColor('xterm') {
         (params.FROM_DESCRIPTOR ? ApplicationsBuildPushPipeline.SourceType.DESCRIPTOR :
           ApplicationsBuildPushPipeline.SourceType.TEMPLATE)
 
+    logger.debug("Is exist ${params.DESCRIPTOR_FILE ? "true" : "false"}")
+    input message: "Let's check existence of the descriptor file"
+
     def check = sh(script: "echo $DESCRIPTOR_FILE | base64 -d", returnStdout: true).trim()
     logger.debug("Decoded file content: $check")
 
