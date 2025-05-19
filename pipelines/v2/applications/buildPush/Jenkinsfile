@@ -123,7 +123,7 @@ ansiColor('xterm') {
     logger.debug("DESCRIPTOR_FILE: ${params.DESCRIPTOR_FILE}")
     input message: "Let's look at the descriptor file"
 
-    logger.debug("DESCRIPTOR_FILE: ${params.DESCRIPTOR_FILE.bytes.encodeBase64().toString()}")
+    logger.debug("DESCRIPTOR_FILE: ${params.DESCRIPTOR_FILE.decodeBase64()}")
     input message: "Let's decode the descriptor file"
 
     def check = sh(script: "echo $DESCRIPTOR_FILE | base64 -d", returnStdout: true).trim()
