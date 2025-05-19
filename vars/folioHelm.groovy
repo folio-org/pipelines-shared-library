@@ -409,7 +409,7 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
   boolean enableIngress = moduleConfig.containsKey('ingress') ? moduleConfig['ingress']['enabled'] : false
   if (enableIngress) {
     moduleConfig['ingress']['hosts'][0] += [host: domain]
-    if (moduleName == 'ui-bundle' && ns.clusterName == 'folio-etesting' && ns.namespaceName ==~ /snapshot.*/ ) {
+    if (moduleName ==~ /ui-bundle.*/ && ns.clusterName == 'folio-etesting' && ns.namespaceName ==~ /snapshot.*/ ) {
       moduleConfig['ingress']['hosts'] += [
         [
           host : "eureka-snapshot-${ns.defaultTenantId}.${Constants.CI_ROOT_DOMAIN}",
