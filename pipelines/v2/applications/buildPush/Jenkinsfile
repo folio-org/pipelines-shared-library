@@ -12,7 +12,7 @@ import org.folio.utilities.Logger
 import org.jenkinsci.plugins.pipeline.modeldefinition.Utils
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library@RANCHER-2236') _
+@Library('pipelines-shared-library@RANCHER-2270-test') _
 
 List defaultInstallJson = new GitHubUtility(this).getEnableList('platform-complete', 'snapshot')
 defaultInstallJson.addAll(new GitHubUtility(this).getEurekaList('platform-complete', 'snapshot'))
@@ -32,7 +32,7 @@ properties([
     booleanParam(name: 'UPGRADE', defaultValue: false, description: 'Check to upgrade previously built descriptor with the new module versions'),
 
     //TODO: Uncomment the following line on new Jenkins with this plugin https://plugins.jenkins.io/file-parameters/
-//    base64File(name: 'in_params/descriptor.json', description: 'Previously generated application descriptor file.'),
+    base64File(name: 'in_params/descriptor.json', description: 'Previously generated application descriptor file.'),
     string(name: 'DESCRIPTOR_URL', defaultValue: "${Constants.EUREKA_REGISTRY_APP_DESCRIPTORS_URL}", description: '(Optional) Registry URL of the previously generated application descriptor file.'),
 
     booleanParam(name: 'FROM_TEMPLATE', defaultValue: false, description: 'Check for building from template'),
@@ -86,7 +86,7 @@ properties([
 
     , folioParameters.hideParameters(
     [
-      '': [ //'in_params/descriptor.json',
+      '': [ 'in_params/descriptor.json',
             'DESCRIPTOR_URL', 'RECREATE', 'UPGRADE']
     ]
     , "FROM_DESCRIPTOR", "FROM_REPOSITORY,FROM_DESCRIPTOR,FROM_TEMPLATE")
