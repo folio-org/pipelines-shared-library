@@ -120,6 +120,9 @@ ansiColor('xterm') {
     logger.debug("Is exist ${params.DESCRIPTOR_FILE ? "true" : "false"}")
     input message: "Let's check existence of the descriptor file"
 
+    logger.debug("DESCRIPTOR_FILE: ${params.DESCRIPTOR_FILE}")
+    input message: "Let's look at the descriptor file"
+
     def check = sh(script: "echo $DESCRIPTOR_FILE | base64 -d", returnStdout: true).trim()
     logger.debug("Decoded file content: $check")
 
