@@ -310,6 +310,14 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
             name : 'VALIDATION_INTERFACE_INTEGRITY_ENABLED',
             value: 'false'
           ] : []
+          moduleConfig['extraEnvVars'] +=  ns.getNamespaceName() == 'cikarate' ? [
+            name : 'FLOW_ENGINE_THREADS_NUM',
+            value: '1'
+          ] : []
+          moduleConfig['extraEnvVars'] +=  ns.getNamespaceName() == 'dojo' ? [
+            name : 'FLOW_ENGINE_THREADS_NUM',
+            value: '1'
+          ] : []
         break
 
       case ~/mod-.*-keycloak/:
