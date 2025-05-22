@@ -97,6 +97,7 @@ resource "kubernetes_secret" "docker-hud-credentials" {
     name      = "docker-hub-creds"
     namespace = rancher2_namespace.this.name
   }
+
   type = "kubernetes.io/dockerconfigjson"
 
   data = {
@@ -106,6 +107,9 @@ resource "kubernetes_secret" "docker-hud-credentials" {
           username = data.aws_ssm_parameter.docker_username.value
           password = data.aws_ssm_parameter.docker_password.value
           email    = "jenkins@indexdata.com"
+          auth = base64encode(
+            "${data.aws_ssm_parameter.docker_username.value}:${data.aws_ssm_parameter.docker_password.value}"
+          )
         }
       }
     }))
