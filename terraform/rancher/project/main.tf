@@ -94,6 +94,8 @@ resource "rancher2_registry" "folio-docker" {
 
 resource "random_string" "docker-cfg" {
   length = 6
+  upper   = false
+  lower   = true
   special = false
 }
 
