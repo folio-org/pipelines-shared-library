@@ -116,7 +116,7 @@ resource "kubernetes_secret" "docker_hub_credentials" {
 
 resource "kubernetes_service_account" "default_patched" {
   depends_on = [
-    kubernetes_secret.docker-hud-credentials,
+    kubernetes_secret.docker_hub_credentials,
     rancher2_namespace.this
   ]
   metadata {
@@ -124,7 +124,7 @@ resource "kubernetes_service_account" "default_patched" {
     namespace = rancher2_namespace.this.name
   }
   image_pull_secret {
-    name = kubernetes_secret.docker-hud-credentials.metadata[0].name
+    name = kubernetes_secret.docker_hub_credentials.metadata[0].name
   }
 
   automount_service_account_token = true
