@@ -99,10 +99,10 @@ resource "random_string" "docker-cfg" {
   special = false
 }
 
-
 resource "kubernetes_secret" "docker_hub_credentials" {
   metadata {
     name = random_string.docker-cfg.result
+    namespace = rancher2_namespace.this.name
   }
 
   type = "kubernetes.io/dockerconfigjson"
