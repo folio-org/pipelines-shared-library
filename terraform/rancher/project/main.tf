@@ -104,10 +104,10 @@ resource "kubernetes_secret" "docker_hub_credentials" {
     ".dockerconfigjson" = base64encode(jsonencode({
       auths = {
         "https://index.docker.io/v1/" = {
-          username = data.aws_ssm_parameter.docker_username.value
-          password = data.aws_ssm_parameter.docker_password.value
+          username = local.docker_username
+          password = local.docker_password
           email    = "jenkins@indexdata.com"
-          auth     = base64encode("${data.aws_ssm_parameter.docker_username.value}:${data.aws_ssm_parameter.docker_password.value}")
+          auth     = local.docker_auth
         }
       }
     }))

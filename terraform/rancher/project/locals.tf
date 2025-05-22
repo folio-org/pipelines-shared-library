@@ -46,4 +46,9 @@ EOF
     opensearch = "https://opensearch-project.github.io/helm-charts",
     runix      = "https://helm.runix.net"
   }
+
+
+  docker_username = data.aws_ssm_parameter.docker_username.value
+  docker_password = data.aws_ssm_parameter.docker_password.value
+  docker_auth     = base64encode("${local.docker_username}:${local.docker_password}")
 }
