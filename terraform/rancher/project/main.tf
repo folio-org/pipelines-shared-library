@@ -113,24 +113,15 @@ resource "kubernetes_secret" "docker_hub_credentials" {
   }
 }
 
-resource "kubernetes_service_account" "default_patched" {
-  depends_on = [
-    kubernetes_secret.docker_hub_credentials,
-    rancher2_namespace.this
-  ]
-  metadata {
-    name      = "default"
-    namespace = rancher2_namespace.this.name
-  }
-  image_pull_secret {
-    name = kubernetes_secret.docker_hub_credentials.metadata[0].name
-  }
-
-  automount_service_account_token = true
-  lifecycle {
-    ignore_changes = [
-      metadata
-    ]
-  }
+resource "kubectl_manifest" "default-service-account" {
+  depends_on = [kubernetes_secret.docker_hub_credentials, rancher2_namespace.this]
+  yaml_body  = <<YAML
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: default
+  namespace: ${rancher2_namespace.this.name}
+imagePullSecrets:
+- name: docker-cfg
+YAML
 }
-
