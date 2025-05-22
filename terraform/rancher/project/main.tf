@@ -92,9 +92,14 @@ resource "rancher2_registry" "folio-docker" {
   }
 }
 
+resource "random_string" "docker-cfg" {
+  length = 12
+}
+
+
 resource "kubernetes_secret" "docker_hub_credentials" {
   metadata {
-    name = "docker-cfg"
+    name = random_string.docker-cfg.result
   }
 
   type = "kubernetes.io/dockerconfigjson"
@@ -122,6 +127,6 @@ metadata:
   name: default
   namespace: ${rancher2_namespace.this.name}
 imagePullSecrets:
-- name: docker-cfg
+- name: ${kubernetes_secret.docker_hub_credentials.metadata[0].name}
 YAML
 }
