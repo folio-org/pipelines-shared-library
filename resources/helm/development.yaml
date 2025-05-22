@@ -588,6 +588,9 @@ mod-agreements:
     db:
       enabled: true
       existingSecret: db-credentials
+    s3:
+      enabled: true
+      existingSecret: s3-mod-agreements-credentials
   replicaCount: 1
   resources:
     limits:
@@ -1846,6 +1849,9 @@ mod-licenses:
     db:
       enabled: true
       existingSecret: db-credentials
+    s3:
+      enabled: true
+      existingSecret: s3-mod-licenses-credentials
   replicaCount: 1
   resources:
     limits:
