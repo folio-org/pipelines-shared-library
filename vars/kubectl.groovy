@@ -180,7 +180,7 @@ void cleanUpAgreementsFedLocks(String namespace = 'default', int timer = 0, Stri
           println("5 minutes passed. Trying to cleanup federation_lock table.")
           String pod = sh(script: "kubectl get pod -l 'app.kubernetes.io/name=pgadmin4' -o=name  --ignore-not-found=true --namespace ${namespace}", returnStdout: true).trim()
           try {
-            sh(script: "kubectl exec --request-timeout=10s --namespace=${namespace} ${pod} -- /usr/bin/timeout 30s /usr/local/pgsql-16/psql -c '${moduleId.replace('-', '_')}__system.federation_lock'", returnStatus: false)
+            sh(script: "kubectl exec --request-timeout=10s --namespace=${namespace} ${pod} -- /usr/bin/timeout 30s /usr/local/pgsql-16/psql -c 'TRUNCATE ${moduleId.replace('-', '_')}__system.federation_lock'", returnStatus: false)
           } catch (Exception e) {
             kubectl.rolloutDeployment(moduleId, namespace)
             println("Unable to cleanup federation_lock table.\nError: " + e.getMessage())
@@ -194,7 +194,7 @@ void cleanUpAgreementsFedLocks(String namespace = 'default', int timer = 0, Stri
           println("15 minutes passed. Trying to delete $moduleId pod(s) and cleanup federation_lock table.")
           sh(script: "kubectl delete pod -l 'app.kubernetes.io/name=$moduleId' --force --namespace ${namespace}", returnStatus: false)
           String pod = sh(script: "kubectl get pod -l 'app.kubernetes.io/name=pgadmin4' -o=name  --ignore-not-found=true --namespace ${namespace}", returnStdout: true).trim()
-          sh(script: "kubectl exec --request-timeout=10s --namespace=${namespace} ${pod} -- /usr/bin/timeout 30s /usr/local/pgsql-16/psql -c '${moduleId.replace('-', '_')}__system.federation_lock'", returnStatus: false)
+          sh(script: "kubectl exec --request-timeout=10s --namespace=${namespace} ${pod} -- /usr/bin/timeout 30s /usr/local/pgsql-16/psql -c 'TRUNCATE ${moduleId.replace('-', '_')}__system.federation_lock'", returnStatus: false)
           break
         default:
           println("Did not reach the expected time yet.")
