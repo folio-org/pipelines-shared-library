@@ -94,23 +94,22 @@ resource "rancher2_registry" "folio-docker" {
 
 resource "kubernetes_secret" "docker_hub_credentials" {
   metadata {
-    name      = "docker-hub-creds"
-    namespace = rancher2_namespace.this.name
+    name = "docker-cfg"
   }
 
   type = "kubernetes.io/dockerconfigjson"
 
   data = {
-    ".dockerconfigjson" = base64encode(jsonencode({
+    ".dockerconfigjson" = jsonencode({
       auths = {
         "https://index.docker.io/v1/" = {
-          username = local.docker_username
-          password = local.docker_password
-          email    = "jenkins@indexdata.com"
-          auth     = local.docker_auth
+          "username" = data.aws_ssm_parameter.docker_username.value
+          "password" = data.aws_ssm_parameter.docker_password.value
+          "email"    = "jenkins@indexdata.com"
+          "auth"     = base64encode("${data.aws_ssm_parameter.docker_username}:${data.aws_ssm_parameter.docker_password.value}")
         }
       }
-    }))
+    })
   }
 }
 
