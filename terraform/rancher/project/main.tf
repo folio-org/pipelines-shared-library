@@ -92,3 +92,44 @@ resource "rancher2_registry" "folio-docker" {
   }
 }
 
+resource "kubernetes_secret" "docker-hud-credentials" {
+  metadata {
+    name      = "docker-hub-creds"
+    namespace = rancher2_namespace.this.name
+  }
+  type = "kubernetes.io/dockerconfigjson"
+
+  data = {
+    ".dockerconfigjson" = base64encode(jsonencode({
+      auths = {
+        "https://index.docker.io/v1/" = {
+          username = data.aws_ssm_parameter.docker_username.value
+          password = data.aws_ssm_parameter.docker_password.value
+          email    = "jenkins@indexdata.com"
+        }
+      }
+    }))
+  }
+}
+
+resource "kubernetes_service_account" "default_patched" {
+  depends_on = [
+    kubernetes_secret.docker-hud-credentials,
+    rancher2_namespace.this
+  ]
+  metadata {
+    name      = "default"
+    namespace = rancher2_namespace.this.name
+  }
+  image_pull_secret {
+    name = kubernetes_secret.docker-hud-credentials.metadata[0].name
+  }
+
+  automount_service_account_token = true
+  lifecycle {
+    ignore_changes = [
+      metadata
+    ]
+  }
+}
+
