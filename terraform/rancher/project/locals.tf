@@ -46,4 +46,5 @@ EOF
     opensearch = "https://opensearch-project.github.io/helm-charts",
     runix      = "https://helm.runix.net"
   }
+
 }
