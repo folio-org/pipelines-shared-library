@@ -301,7 +301,7 @@ spec:
       label: JenkinsAgentLabel.JAVA_KARATE_AGENT.getLabel(),
       volumes: [steps.persistentVolumeClaim(claimName: MAVEN_CACHE_PVC, mountPath: "${WORKING_DIR}/.m2/repository")],
       containers: [
-        buildJavaContainer(javaVersion, [], '4096Mi', '4608Mi')
+        buildJavaContainer(javaVersion, [], '6144Mi', '6656Mi')
       ]
     )) {
       steps.node(JenkinsAgentLabel.JAVA_KARATE_AGENT.getLabel()) {
@@ -386,7 +386,7 @@ spec:
     createTemplate(new PodTemplateConfig(
       label: JenkinsAgentLabel.RANCHER_JAVA_AGENT.getLabel(),
       containers: [
-        buildJavaContainer(Constants.JAVA_LATEST_VERSION, [], '1024Mi', '1536Mi')
+        buildJavaContainer(Constants.JAVA_LATEST_VERSION, [], '2048Mi', '2560Mi')
       ]
     )) {
       steps.node(JenkinsAgentLabel.RANCHER_JAVA_AGENT.getLabel()) {
