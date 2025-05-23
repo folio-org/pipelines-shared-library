@@ -446,6 +446,15 @@ edge-orders:
       - path: /acquisition-methods*
         pathType: ImplementationSpecific
         servicePort: 80
+      - path: /locations-for-order*
+        pathType: ImplementationSpecific
+        servicePort: 80
+      - path: /material-types-for-order*
+        pathType: ImplementationSpecific
+        servicePort: 80
+      - path: /users-for-order*
+        pathType: ImplementationSpecific
+        servicePort: 80
   service:
     type: NodePort
   extraEnvVars: []
