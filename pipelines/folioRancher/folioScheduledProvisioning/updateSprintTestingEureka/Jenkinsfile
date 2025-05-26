@@ -33,7 +33,6 @@ properties([
     booleanParam(name: 'IS_CRON_JOB', defaultValue: false, description: '(Hidden) Is job triggered by cron job'),
     folioParameters.refreshParameters()
     , folioParameters.hideParameters(['IS_CRON_JOB'])
-
   ])
 ])
 
