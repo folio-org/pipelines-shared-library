@@ -97,7 +97,7 @@ CreateNamespaceParameters namespace = new CreateNamespaceParameters.Builder()
 ansiColor('xterm') {
   stage('Update Sprint Testing') {
     if(params.TYPE == 'full' ) {
-      input message: "It seems like a recreation date, and it needs to be deleted first Let's check."
+      input message: "It seems like a recreation date, and it needs to be deleted first Let's check. isRecreateDate=${isRecreateDate}"
 //      folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespace)
     }
 
