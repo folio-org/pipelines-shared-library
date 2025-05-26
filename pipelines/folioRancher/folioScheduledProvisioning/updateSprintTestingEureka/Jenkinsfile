@@ -14,9 +14,9 @@ import java.time.temporal.ChronoUnit
 @Field final String createNamespaceJobName = Constants.JENKINS_CREATE_NAMESPACE_FROM_BRANCH_JOB
 @Field final String deleteNamespaceJobName = Constants.JENKINS_DELETE_NAMESPACE_JOB
 
-@Field final LocalDate sprintStartRecreationDate = LocalDate.parse('2025-05-28')
+@Field final LocalDate sprintStartRecreationDate = LocalDate.parse('2025-05-13')
 @Field final boolean isRecreateDate =
-  LocalDate.now().getDayOfWeek() == DayOfWeek.WEDNESDAY && LocalDate.now() > sprintStartRecreationDate
+  LocalDate.now().getDayOfWeek() == DayOfWeek.TUESDAY && LocalDate.now() > sprintStartRecreationDate
     && ChronoUnit.WEEKS.between(sprintStartRecreationDate, LocalDate.now()) % 2 == 0
 
 properties([
@@ -97,9 +97,12 @@ CreateNamespaceParameters namespace = new CreateNamespaceParameters.Builder()
 ansiColor('xterm') {
   stage('Update Sprint Testing') {
     if(params.TYPE == 'full' ) {
-      folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespace)
+      input message: "It seems like a recreation date, and it needs to be deleted first Let's check."
+//      folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespace)
     }
 
-    folioTriggerJob.createNamespaceFromBranch(createNamespaceJobName, namespace)
+    input message: "Are you sure you wanna update the namespace"
+
+//    folioTriggerJob.createNamespaceFromBranch(createNamespaceJobName, namespace)
   }
 }
