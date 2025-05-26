@@ -1,30 +1,44 @@
 #!groovy
 import groovy.transform.Field
 import org.folio.Constants
-import org.folio.jenkins.PodTemplates
 import org.folio.models.parameters.CreateNamespaceParameters
 import org.folio.rest_v2.PlatformType
 import org.jenkinsci.plugins.workflow.libs.Library
 
+import java.time.DayOfWeek
+import java.time.LocalDate
+import java.time.temporal.ChronoUnit
+
 @Library('pipelines-shared-library@RANCHER-2236') _
 
 @Field final String createNamespaceJobName = Constants.JENKINS_CREATE_NAMESPACE_FROM_BRANCH_JOB
+@Field final String deleteNamespaceJobName = Constants.JENKINS_DELETE_NAMESPACE_JOB
+
+@Field final LocalDate sprintStartRecreationDate = LocalDate.parse('2025-05-28')
+@Field final boolean isRecreateDate =
+  LocalDate.now().getDayOfWeek() == DayOfWeek.WEDNESDAY && currentDate > sprintStartRecreationDate
+    && ChronoUnit.WEEKS.between(sprintStartRecreationDate, LocalDate.now()) % 2 == 0
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
   disableConcurrentBuilds(),
-  parameters([folioParameters.platform(),
-              folioParameters.cluster('PLATFORM'),
-              folioParameters.namespace(),
-              folioParameters.configType(),
-              string(name: 'DB_BACKUP_NAME', defaultValue: 'folio-general-dataset-april-2025-all-users-clean-v2', description: 'Set DB backup name'),
-              booleanParam(name: 'MARC_MIGRATIONS', defaultValue: false, description: 'enable marc-migrations'),
-              choice(name: 'TYPE', choices: ['full', 'terraform', 'update'], description: '(Required) Set action TYPE to perform'),
-              folioParameters.refreshParameters()
-              ]),
+  parameters([
+    folioParameters.platform(),
+    folioParameters.cluster('PLATFORM'),
+    folioParameters.namespace(),
+    folioParameters.configType(),
+    string(name: 'DB_BACKUP_NAME', defaultValue: 'folio-general-dataset-april-2025-all-users-clean-v2', description: 'Set DB backup name'),
+    booleanParam(name: 'MARC_MIGRATIONS', defaultValue: false, description: 'enable marc-migrations'),
+    choice(name: 'TYPE', choices: ['full', 'terraform', 'update'], description: '(Required) Set action TYPE to perform'),
+    booleanParam(name: 'IS_CRON_JOB', defaultValue: false, description: '(Hidden) Is job triggered by cron job'),
+    folioParameters.refreshParameters()
+    , folioParameters.hideParameters(['IS_CRON_JOB'])
+
+  ]),
   pipelineTriggers([
     parameterizedCron('''
-      H 3 * * 1-5 %PLATFORM=EUREKA;CLUSTER=folio-etesting;NAMESPACE=sprint;CONFIG_TYPE=testing;DB_BACKUP_NAME=folio-general-dataset-april-2025-all-users-clean-v2;MARC_MIGRATIONS=true;TYPE=update
+      H 3 * * 1,2,4,5 %PLATFORM=EUREKA;CLUSTER=folio-etesting;NAMESPACE=sprint;CONFIG_TYPE=testing;DB_BACKUP_NAME=folio-general-dataset-april-2025-all-users-clean-v2;MARC_MIGRATIONS=true;TYPE=update;IS_CRON_JOB=true
+      H 0 * * 3 %PLATFORM=EUREKA;CLUSTER=folio-etesting;NAMESPACE=sprint;CONFIG_TYPE=testing;DB_BACKUP_NAME=folio-general-dataset-april-2025-all-users-clean-v2;MARC_MIGRATIONS=true;TYPE=full;IS_CRON_JOB=true
     ''')])
 ])
 
@@ -34,7 +48,10 @@ if (params.REFRESH_PARAMETERS) {
   return
 }
 
-PodTemplates podTemplates = new PodTemplates(this)
+if(params.IS_CRON_JOB && !isRecreateDate && params.TYPE == 'full') {
+  currentBuild.result = 'ABORTED'
+  return
+}
 
 CreateNamespaceParameters namespace = new CreateNamespaceParameters.Builder()
   .platform(PlatformType.EUREKA)
@@ -79,6 +96,10 @@ CreateNamespaceParameters namespace = new CreateNamespaceParameters.Builder()
 
 ansiColor('xterm') {
   stage('Update Sprint Testing') {
+    if(params.TYPE == 'full' ) {
+      folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespace)
+    }
+
     folioTriggerJob.createNamespaceFromBranch(createNamespaceJobName, namespace)
   }
 }
