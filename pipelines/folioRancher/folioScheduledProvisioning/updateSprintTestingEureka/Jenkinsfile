@@ -14,9 +14,9 @@ import java.time.temporal.ChronoUnit
 @Field final String createNamespaceJobName = Constants.JENKINS_CREATE_NAMESPACE_FROM_BRANCH_JOB
 @Field final String deleteNamespaceJobName = Constants.JENKINS_DELETE_NAMESPACE_JOB
 
-@Field final LocalDate sprintStartRecreationDate = LocalDate.parse('2025-05-28')
+@Field final LocalDate sprintStartRecreationDate = LocalDate.parse('2025-05-14')
 @Field final boolean isRecreationDate =
-  LocalDate.now().getDayOfWeek() == DayOfWeek.WEDNESDAY && LocalDate.now() > sprintStartRecreationDate &&
+  LocalDate.now().getDayOfWeek() == DayOfWeek.WEDNESDAY && LocalDate.now() >= sprintStartRecreationDate &&
    ChronoUnit.WEEKS.between(sprintStartRecreationDate, LocalDate.now()) % 2 == 0
 
 properties([
