@@ -16,8 +16,8 @@ import java.time.temporal.ChronoUnit
 
 @Field final LocalDate sprintStartRecreationDate = LocalDate.parse('2025-05-13')
 @Field final boolean isRecreateDate =
-  LocalDate.now().getDayOfWeek() == DayOfWeek.TUESDAY && LocalDate.now() > sprintStartRecreationDate
-    && ChronoUnit.WEEKS.between(sprintStartRecreationDate, LocalDate.now()) % 2 == 0
+  LocalDate.now().getDayOfWeek() == DayOfWeek.TUESDAY && LocalDate.now() > sprintStartRecreationDate &&
+    ChronoUnit.WEEKS.between(sprintStartRecreationDate, LocalDate.now()) % 2 == 0
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
