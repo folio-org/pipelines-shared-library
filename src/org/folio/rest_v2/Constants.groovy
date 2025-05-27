@@ -121,7 +121,7 @@ class Constants {
     ],
     [
       name: "app-acquisitions"
-      , branch: "snapshot"
+      , branch: "MODMO-7"
       , consortia: false
       , core: false
       , byDefault: true
@@ -161,7 +161,7 @@ class Constants {
     ],
     [
       name: "app-edge-complete"
-      , branch: "snapshot"
+      , branch: "EDGFQM-35"
       , consortia: false
       , core     : false
       , byDefault: true
@@ -193,7 +193,7 @@ class Constants {
     ],
     [
       name: "app-fqm"
-      , branch: "snapshot"
+      , branch: "EDGFQM-35-snapshot"
       , consortia: false
       , core: false
       , byDefault: true
