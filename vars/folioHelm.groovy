@@ -39,7 +39,7 @@ void install(String release_name, String namespace, String values_path, String c
 
 void upgrade(String release_name, String namespace, String values_path, String chart_repo, String chart_name) {
   if (release_name.startsWith("mgr-")) {
-    sh "helm upgrade --install ${release_name} --namespace=${namespace} ${valuesPathOption(values_path)} ${chart_repo}/${chart_name} --wait"
+    sh "helm upgrade --install ${release_name} --namespace=${namespace} ${valuesPathOption(values_path)} ${chart_repo}/${chart_name} --wait --timeout=15m"
   } else {
     sh "helm upgrade --install ${release_name} --namespace=${namespace} ${valuesPathOption(values_path)} ${chart_repo}/${chart_name}"
   }
@@ -310,6 +310,14 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
             name : 'VALIDATION_INTERFACE_INTEGRITY_ENABLED',
             value: 'false'
           ] : []
+          moduleConfig['extraEnvVars'] +=  ns.getNamespaceName() == 'cikarate' ? [
+            name : 'FLOW_ENGINE_THREADS_NUM',
+            value: '1'
+          ] : []
+          moduleConfig['extraEnvVars'] +=  ns.getNamespaceName() == 'dojo' ? [
+            name : 'FLOW_ENGINE_THREADS_NUM',
+            value: '1'
+          ] : []
         break
 
       case ~/mod-.*-keycloak/:
@@ -409,7 +417,7 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
   boolean enableIngress = moduleConfig.containsKey('ingress') ? moduleConfig['ingress']['enabled'] : false
   if (enableIngress) {
     moduleConfig['ingress']['hosts'][0] += [host: domain]
-    if (moduleName == 'ui-bundle' && ns.clusterName == 'folio-etesting' && ns.namespaceName ==~ /snapshot.*/ ) {
+    if (moduleName ==~ /ui-bundle.*/ && ns.clusterName == 'folio-etesting' && ns.namespaceName ==~ /snapshot.*/ ) {
       moduleConfig['ingress']['hosts'] += [
         [
           host : "eureka-snapshot-${ns.defaultTenantId}.${Constants.CI_ROOT_DOMAIN}",

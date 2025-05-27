@@ -47,7 +47,9 @@ KarateRunExecutionSummary call(KarateTestsParameters args) {
             withMaven(jdk: args.javaToolName, maven: args.mavenToolName,
               mavenLocalRepo: "${podTemplates.WORKING_DIR}/.m2/repository",
               traceability: true,
-              options: [artifactsPublisher(disabled: true)]) {
+              options: [artifactsPublisher(disabled: true),
+                        junitPublisher(disabled: true),
+                        jacocoPublisher(disabled: true)]) {
               logger.debug(sh(returnStdout: true, script: 'echo $JAVA_HOME').trim())
               String modules = args.modulesToTest ? "-pl common,testrail-integration," + args.modulesToTest : args.modulesToTest
               catchError(stageResult: 'FAILURE') {

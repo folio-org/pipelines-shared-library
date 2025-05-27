@@ -62,6 +62,9 @@ edge-orders:
   - orders-storage_custom-fields.manage
   - perms_users.manage
   - inventory-storage.manage
+  - orders_acquisition-methods.manage
+  - inventory-storage.manage
+  - users.manage
 edge-ncip:
   capabilitiesSet:
   - ncip.manage

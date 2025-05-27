@@ -19,7 +19,7 @@ locals {
   ]
 
   s3_integrated_modules = ["mod-data-export", "mod-data-export-worker", "mod-data-import", "mod-lists",
-    "mod-bulk-operations", "mod-oai-pmh", "mod-marc-migrations"
+    "mod-bulk-operations", "mod-oai-pmh", "mod-marc-migrations", "mod-agreements", "mod-licenses"
   ]
 
   s3_buckets_map = { for module in local.s3_integrated_modules :
@@ -46,4 +46,5 @@ EOF
     opensearch = "https://opensearch-project.github.io/helm-charts",
     runix      = "https://helm.runix.net"
   }
+
 }

@@ -443,6 +443,18 @@ edge-orders:
       - path: /addresses*
         pathType: ImplementationSpecific
         servicePort: 80
+      - path: /acquisition-methods*
+        pathType: ImplementationSpecific
+        servicePort: 80
+      - path: /locations-for-order*
+        pathType: ImplementationSpecific
+        servicePort: 80
+      - path: /material-types-for-order*
+        pathType: ImplementationSpecific
+        servicePort: 80
+      - path: /users-for-order*
+        pathType: ImplementationSpecific
+        servicePort: 80
   service:
     type: NodePort
   extraEnvVars: []
@@ -585,6 +597,9 @@ mod-agreements:
     db:
       enabled: true
       existingSecret: db-credentials
+    s3:
+      enabled: true
+      existingSecret: s3-mod-agreements-credentials
   replicaCount: 1
   resources:
     limits:
@@ -1843,6 +1858,9 @@ mod-licenses:
     db:
       enabled: true
       existingSecret: db-credentials
+    s3:
+      enabled: true
+      existingSecret: s3-mod-licenses-credentials
   replicaCount: 1
   resources:
     limits:

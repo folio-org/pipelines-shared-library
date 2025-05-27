@@ -18,8 +18,8 @@ properties([
   parameters([
     booleanParam(name: 'RETRY', defaultValue: false, description: '(Optional) Set to true to retry install'),
     booleanParam(name: 'NOTIFY', defaultValue: false, description: '(Optional) Set to true to notify about the build'),
-    folioParameters.refreshParameters()]),
-  pipelineTriggers([parameterizedCron('''25 20 * * 3 %RETRY=false;REFRESH_PARAMETERS=false;NOTIFY=true''')])
+    folioParameters.refreshParameters()])
+//  , pipelineTriggers([parameterizedCron('''25 20 * * 3 %RETRY=false;REFRESH_PARAMETERS=false;NOTIFY=true''')])
 ])
 
 if (params.REFRESH_PARAMETERS) {
@@ -82,7 +82,7 @@ ansiColor('xterm') {
       tfConfig.addVar('pg_vol_size', 100)
       tfConfig.addVar('pg_embedded', true)
       tfConfig.addVar('kafka_shared', false)
-      tfConfig.addVar('opensearch_shared', false)
+      tfConfig.addVar('opensearch_shared', true)
       tfConfig.addVar('s3_embedded', true)
       tfConfig.addVar('pgadmin4', 'true')
       tfConfig.addVar('pg_ldp_user_password', Constants.PG_LDP_DEFAULT_PASSWORD)
@@ -127,7 +127,7 @@ ansiColor('xterm') {
 
         }
 
-        params.RETRY ? null : folioDeployFlow.restore(namespace)
+//        params.RETRY ? null : folioDeployFlow.restore(namespace)
 
         folioHelm.withKubeConfig(namespace.getClusterName()) {
 
@@ -195,10 +195,9 @@ ansiColor('xterm') {
       stage('Notify') {
         println "Caught exception: ${e}"
         params.NOTIFY ? slackSend(color: 'danger', message: "ecs-snapshot env build failed...\nConsole output: " + "${env.BUILD_URL}", channel: '#rancher_tests_notifications') : null
-        params.RETRY ? null : folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceBaseParams)
+        folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceBaseParams)
       }
       error(e.getMessage())
     }
-
   }
 }

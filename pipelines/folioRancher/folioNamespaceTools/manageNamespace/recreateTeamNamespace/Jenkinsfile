@@ -77,7 +77,7 @@ ansiColor('xterm') {
 
     stage('Build name') {
       buildName "${namespace.getClusterName()}-${namespace.getNamespaceName()}.${env.BUILD_ID}"
-      buildDescription "Config: development"
+      buildDescription "Config: ${params.CONFIG_TYPE}"
     }
 
     stage('Cleaning env') {
