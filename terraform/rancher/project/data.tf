@@ -50,3 +50,13 @@ data "aws_ssm_parameter" "msk" {
   count = var.kafka_shared ? 1 : 0
   name  = var.kafka_shared_name
 }
+
+data "aws_ssm_parameter" "docker_username" {
+  name            = "docker_username"
+  with_decryption = true
+}
+
+data "aws_ssm_parameter" "docker_password" {
+  name            = "docker_password"
+  with_decryption = true
+}

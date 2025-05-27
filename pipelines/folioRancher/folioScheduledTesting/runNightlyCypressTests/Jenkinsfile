@@ -1,7 +1,6 @@
 #!groovy
-package folioRancher.folioScheduledTesting.runNightlyCypressTests
-
 import org.folio.Constants
+import org.folio.jenkins.PodTemplates
 import org.folio.models.OkapiTenant
 import org.folio.models.OkapiUser
 import org.folio.models.RancherNamespace
@@ -10,20 +9,19 @@ import org.folio.models.parameters.CypressTestsParameters
 import org.folio.utilities.Logger
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-2236') _
 
 /**
  * Job properties and parameters
  */
 properties([
 //  pipelineTriggers([cron('H 21 * * 1,3,5')]),
-  buildDiscarder(logRotator(numToKeepStr: '30')),
-  disableConcurrentBuilds(),
-  parameters([
-    string(name: 'CYPRESS_BRANCH', defaultValue: 'okapi', description: "(Required) Insert what 'stripes-testing' branch use for build"),
-    folioParameters.agent(),
-    folioParameters.refreshParameters()
-  ])
+buildDiscarder(logRotator(numToKeepStr: '30')),
+disableConcurrentBuilds(),
+parameters([
+  string(name: 'CYPRESS_BRANCH', defaultValue: 'okapi', description: "(Required) Insert what 'stripes-testing' branch use for build"),
+  folioParameters.refreshParameters()
+])
 ])
 
 if (params.REFRESH_PARAMETERS) {
@@ -34,6 +32,7 @@ if (params.REFRESH_PARAMETERS) {
 /**
  * Job variables
  */
+PodTemplates podTemplates = new PodTemplates(this)
 Logger logger = new Logger(this, env.JOB_BASE_NAME)
 
 final String createNamespaceJobName = Constants.JENKINS_CREATE_NAMESPACE_FROM_BRANCH_JOB
@@ -52,9 +51,7 @@ CreateNamespaceParameters namespaceBaseParams = new CreateNamespaceParameters.Bu
   .kafkaType('aws')
   .opensearchType('aws')
   .s3Type('built-in')
-  .runSanityCheck(false)
   .members('')
-  .worker('rancher')
   .build()
 
 CreateNamespaceParameters namespaceFromBranchParams = namespaceBaseParams.toBuilder()
@@ -82,7 +79,6 @@ cypressParameters.setTenant(new OkapiTenant('diku')
 cypressParameters.setExecParameters('--env grepTags="smoke criticalPath"')
 cypressParameters.setTestrailProjectID('14')
 cypressParameters.setTestrailRunID('2108')
-cypressParameters.setWorkerLabel('cypress')
 cypressParameters.setNumberOfWorkers(12)
 cypressParameters.setTimeout('480')
 
@@ -93,56 +89,41 @@ String reportPortalRunType = 'night'
  * Pipeline
  */
 ansiColor('xterm') {
-  node(params.AGENT) {
-    try {
-      stage('Ini') {
-        buildDescription "Branch: ${params.CYPRESS_BRANCH}\nEnv: ${cypressParameters.tenantUrl}"
-        cleanWs()
-      }
+  podTemplates.rancherAgent {
+    stage('Ini') {
+      buildDescription "Branch: ${params.CYPRESS_BRANCH}\nEnv: ${cypressParameters.tenantUrl}"
+    }
 
-      stage('Approve') {
-        timeout(time: 60, unit: 'MINUTES') {
-          folioCommon.kitfoxApproval()
-        }
+    stage('Approve') {
+      timeout(time: 60, unit: 'MINUTES') {
+        folioCommon.kitfoxApproval()
       }
+    }
 
-      stage('[Job] Destroy environment') {
-        def nsExists
-        folioHelm.withKubeConfig(namespaceBaseParams.getClusterName()) {
-          nsExists = kubectl.checkNamespaceExistence("${namespaceBaseParams.getNamespaceName()}")
-        }
-        if (nsExists) {
-          retry(2) {
-            folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceBaseParams)
-          }
-        } else {
-          logger.warning("${namespaceBaseParams.getNamespaceName()} namespace does not exists!")
-        }
+    stage('[Job] Destroy environment') {
+      def nsExists
+      folioHelm.withKubeConfig(namespaceBaseParams.getClusterName()) {
+        nsExists = kubectl.checkNamespaceExistence("${namespaceBaseParams.getNamespaceName()}")
       }
+      if (nsExists) {
+        retry(2) {
+          folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceBaseParams)
+        }
+      } else {
+        logger.info("${namespaceBaseParams.getNamespaceName()} namespace does not exists!")
+      }
+    }
 
-      stage('[Job] Provision environment') {
-        try {
-          folioTriggerJob.createNamespaceFromBranch(createNamespaceJobName, namespaceFromBranchParams)
-        } catch (Exception new_ex) {
-          slackSend(attachments: folioSlackNotificationUtils.renderFailedBuildResultMessage()
-            , channel: "#rancher_tests_notifications")
-          throw new Exception("Provision of the environment is failed: " + new_ex)
-        }
-      }
-
-      stage('[Flow] Execute tests') {
-        cypressTestsExecutionSummary = folioCypressFlow.runWrapper(cypressParameters.getCiBuildId(), reportPortalUse, reportPortalRunType) {
-          folioCypressFlow.multiThreadRun(cypressParameters)
-        }
-      }
-    } catch (e) {
-      logger.warning("Caught exception: ${e}")
-      error(e.getMessage())
-    } finally {
-      stage('Cleanup') {
-        logger.debug("Workspace size: ${sh(returnStdout: true, script: 'du -sh .').trim()}")
-        cleanWs notFailBuild: true
+    stage('[Job] Provision environment') {
+      try {
+        folioTriggerJob.createNamespaceFromBranch(createNamespaceJobName, namespaceFromBranchParams)
+      } catch (Exception new_ex) {
+        slackSend(attachments: folioSlackNotificationUtils.renderFailedBuildResultMessage()
+          , channel: "#rancher_tests_notifications")
+        throw new Exception("Provision of the environment is failed: " + new_ex)
       }
     }
   }
+
+  folioCypressFlow.call(cypressParameters.getCiBuildId(), [cypressParameters], false, reportPortalUse, reportPortalRunType)
 }

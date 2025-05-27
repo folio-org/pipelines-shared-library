@@ -70,6 +70,10 @@ module "eks_cluster" {
       most_recent              = true
       service_account_role_arn = module.ebs_csi_irsa_role.iam_role_arn
     }
+    aws-efs-csi-driver = {
+      most_recent              = true
+      service_account_role_arn = module.efs_csi_irsa_role.iam_role_arn
+    }
   }
 
   # Switch off cloudwatch log group
@@ -126,7 +130,11 @@ module "eks_cluster" {
 
       min_size     = var.eks_nodes_group_size.min_size
       max_size     = var.eks_nodes_group_size.max_size
-      desired_size = var.eks_nodes_group_size.min_size
+      desired_size = var.eks_nodes_group_size.desired_size
+
+      iam_role_additional_policies = {
+        AmazonSSMFullAccess = "arn:aws:iam::aws:policy/AmazonSSMFullAccess"
+      }
 
       # For future schedule https://registry.terraform.io/modules/terraform-aws-modules/eks/aws/latest/submodules/eks-managed-node-group#input_schedules
     }
@@ -138,6 +146,10 @@ module "eks_cluster" {
         description  = "EKS managed node group for CI Cypress env"
         ami_type     = "AL2_x86_64"
 
+        iam_role_additional_policies = {
+          AmazonSSMFullAccess = "arn:aws:iam::aws:policy/AmazonSSMFullAccess"
+        }
+
         capacity_type  = var.eks_nodes_type
         disk_size      = 100
         instance_types = var.asg_instance_types
@@ -145,7 +157,7 @@ module "eks_cluster" {
         enable_monitoring = false
 
         min_size     = 1
-        max_size     = 6
+        max_size     = 7
         desired_size = 1
 
         taints = {
@@ -174,6 +186,10 @@ module "eks_cluster" {
         description  = "EKS managed node group for CI Karate env"
         ami_type     = "AL2_x86_64"
 
+        iam_role_additional_policies = {
+          AmazonSSMFullAccess = "arn:aws:iam::aws:policy/AmazonSSMFullAccess"
+        }
+
         capacity_type  = var.eks_nodes_type
         disk_size      = 100
         instance_types = var.asg_instance_types
@@ -181,7 +197,7 @@ module "eks_cluster" {
         enable_monitoring = false
 
         min_size     = 1
-        max_size     = 6
+        max_size     = 7
         desired_size = 1
 
         taints = {

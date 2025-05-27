@@ -1,28 +1,29 @@
 #!groovy
 import hudson.util.Secret
+import org.folio.jenkins.PodTemplates
 import org.folio.models.parameters.KarateTestsParameters
-import org.folio.utilities.Logger
+import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-2236') _
 
 /**
  * Job properties and parameters
  */
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
-  disableConcurrentBuilds(),
   parameters([
     folioParameters.branch('TESTS_BRANCH', 'folio-integration-tests'),
     string(name: 'TESTS', defaultValue: '', description: 'Comma separated modules list to test (no spaces).\nLeave empty to launch all.'),
-    string(name: 'OKAPI_URL', defaultValue: 'https://folio-testing-karate-okapi.ci.folio.org', description: 'Target environment OKAPI URL'),
-    string(name: 'EDGE_URL', defaultValue: 'https://folio-testing-karate-edge.ci.folio.org', description: 'Target environment EDGE URL'),
-    string(name: 'SUPER_TENANT', defaultValue: 'supertenant', description: 'Supertenant for test tenants creation flow'),
-    string(name: 'SUPER_ADMIN_USERNAME', defaultValue: 'super_admin', description: 'Super admin username'),
+    string(name: 'OKAPI_URL', defaultValue: 'https://folio-etesting-karate-kong.ci.folio.org', description: 'Target environment OKAPI URL'),
+    string(name: 'KEYCLOAK_URL', defaultValue: 'https://folio-etesting-karate-keycloak.ci.folio.org', description: 'Target environment KEYCLOAK URL'),
+    string(name: 'EDGE_URL', defaultValue: 'https://folio-etesting-karate-edge.ci.folio.org', description: 'Target environment EDGE URL'),
+    string(name: 'SUPER_TENANT', defaultValue: 'diku', description: 'Supertenant for test tenants creation flow'),
+    string(name: 'SUPER_ADMIN_USERNAME', defaultValue: 'diku_admin', description: 'Super admin username'),
     password(name: 'SUPER_ADMIN_PASSWORD', defaultValueAsSecret: Secret.fromString('admin'), description: 'Super admin user password'),
-    string(name: 'PROTOTYPE_TENANT', defaultValue: 'diku', description: 'Tenant name that will be used by tests as a prototype during test tenants creation'),
-    string(name: 'THREADS_COUNT', defaultValue: '4', description: 'Number of parallel threads'),
+    string(name: 'PROTOTYPE_TENANT', defaultValue: 'consortium', description: 'Tenant name that will be used by tests as a prototype during test tenants creation'),
+    string(name: 'THREADS_COUNT', defaultValue: '1', description: 'Number of parallel threads'),
+    choice(name: 'JAVA_VERSION', choices: ['21', '17'], description: 'Java version to use for tests'),
 //    booleanParam(name: 'CREATE_CUSTOM_EDGE_TENANT', defaultValue: false, description: 'Do you need to create tenant for edge modules from edge-configuration.json file?'),
-    folioParameters.agent(),
     folioParameters.refreshParameters()
   ])
 ])
@@ -35,42 +36,31 @@ if (params.REFRESH_PARAMETERS) {
 /**
  * Job variables
  */
-Logger logger = new Logger(this, env.JOB_BASE_NAME)
+PodTemplates podTemplates = new PodTemplates(this)
 
 KarateTestsParameters karateTestsParams = new KarateTestsParameters()
 karateTestsParams.gitBranch = params.TESTS_BRANCH
 karateTestsParams.modulesToTest = params.TESTS
 karateTestsParams.okapiUrl = params.OKAPI_URL
+karateTestsParams.keycloakUrl = params.KEYCLOAK_URL
 karateTestsParams.edgeUrl = params.EDGE_URL
 karateTestsParams.tenant = params.SUPER_TENANT
 karateTestsParams.adminUserName = params.SUPER_ADMIN_USERNAME
-karateTestsParams.adminPassword = params.SUPER_ADMIN_PASSWORD
+karateTestsParams.adminPassword = params.SUPER_ADMIN_PASSWORD.getPlainText()
 karateTestsParams.prototypeTenant = params.PROTOTYPE_TENANT
 karateTestsParams.threadsCount = params.THREADS_COUNT
-karateTestsParams.sendTeamsSlackNotification = false
-karateTestsParams.timeout = '3'
+karateTestsParams.javaVerson = params.JAVA_VERSION
+karateTestsParams.timeout = '24'
 
 /**
  * Pipeline
  */
 ansiColor('xterm') {
-  node(params.AGENT) {
-    try {
-      stage('Ini') {
-        buildDescription currentBuild.getBuildCauses()[0].shortDescription
-      }
-
-      stage('[Flow] Execute tests') {
-        folioKarateFlow(karateTestsParams)
-      }
-    } catch (e) {
-      logger.warning("Caught exception: ${e}")
-      error(e.getMessage())
-    } finally {
-      stage('Cleanup') {
-        logger.debug("Workspace size: ${sh(returnStdout: true, script: 'du -sh .').trim()}")
-        cleanWs notFailBuild: true
-      }
+  podTemplates.rancherAgent {
+    stage('Ini') {
+      buildDescription currentBuild.getBuildCauses()[0].shortDescription
     }
   }
+
+  folioKarateFlow.call(karateTestsParams)
 }

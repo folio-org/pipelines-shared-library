@@ -102,5 +102,7 @@ resource "rancher2_secret" "s3-credentials" {
     S3_SECRET_ACCESS_KEY = base64encode(var.s3_embedded ? random_password.secret_access_key[0].result : var.s3_secret_key)
 
     LIST_APP_S3_BUCKET = base64encode(each.value)
+
+    GLOBAL_S3_SECRET_KEY = base64encode(var.s3_embedded ? random_password.secret_access_key[0].result : var.s3_secret_key)
   }
 }

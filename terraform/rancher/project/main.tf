@@ -92,3 +92,44 @@ resource "rancher2_registry" "folio-docker" {
   }
 }
 
+resource "random_string" "docker-cfg" {
+  length  = 6
+  upper   = false
+  lower   = true
+  special = false
+}
+
+resource "kubernetes_secret" "docker_hub_credentials" {
+  metadata {
+    name = random_string.docker-cfg.result
+    namespace = rancher2_namespace.this.name
+  }
+
+  type = "kubernetes.io/dockerconfigjson"
+
+  data = {
+    ".dockerconfigjson" = jsonencode({
+      auths = {
+        "https://index.docker.io/v1/" = {
+          "username" = data.aws_ssm_parameter.docker_username.value
+          "password" = data.aws_ssm_parameter.docker_password.value
+          "email"    = "jenkins@indexdata.com"
+          "auth"     = base64encode("${data.aws_ssm_parameter.docker_username.value}:${data.aws_ssm_parameter.docker_password.value}")
+        }
+      }
+    })
+  }
+}
+
+resource "kubectl_manifest" "default-service-account" {
+  depends_on = [kubernetes_secret.docker_hub_credentials, rancher2_namespace.this]
+  yaml_body  = <<YAML
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: default
+  namespace: ${rancher2_namespace.this.name}
+imagePullSecrets:
+- name: ${kubernetes_secret.docker_hub_credentials.metadata[0].name}
+YAML
+}

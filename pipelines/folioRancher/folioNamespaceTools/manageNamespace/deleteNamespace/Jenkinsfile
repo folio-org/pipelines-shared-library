@@ -1,14 +1,13 @@
 #!groovy
-import org.jenkinsci.plugins.workflow.libs.Library
+import org.folio.Constants
+import org.folio.jenkins.PodTemplates
 import org.folio.models.parameters.CreateNamespaceParameters
+import org.jenkinsci.plugins.workflow.libs.Library
 
-
-//TODO Switch branch before final merge
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-2236') _
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
-//  disableConcurrentBuilds(),
   parameters([
     folioParameters.cluster(),
     folioParameters.namespace(),
@@ -17,7 +16,6 @@ properties([
     folioParameters.kafkaType(),
     folioParameters.opensearchType(),
     folioParameters.s3Type(),
-    folioParameters.agent(),
     folioParameters.refreshParameters()
   ])
 ])
@@ -31,8 +29,8 @@ if (params.CLUSTER == 'folio-testing') {
   folioCommon.kitfoxApproval()
 }
 
-boolean nsExists
-
+PodTemplates podTemplates = new PodTemplates(this)
+boolean nsExists = false
 CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builder()
   .clusterName(params.CLUSTER)
   .namespaceName(params.NAMESPACE)
@@ -43,31 +41,30 @@ CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builde
   .s3Type(params.S3_BUCKET)
   .build()
 
+if (params.CLUSTER != 'folio-tmp') {
+  folioCommon.validateNamespace(params.NAMESPACE)
+}
+
 ansiColor('xterm') {
-  node(params.AGENT) {
-    try {
-      stage('Ini') {
-        buildName "${params.CLUSTER}-${params.NAMESPACE}.${env.BUILD_ID}"
-      }
-
-      stage('Checkout') {
-        checkout scm
-      }
-
-      folioHelm.withKubeConfig(namespaceParams.getClusterName()) {
-        nsExists = kubectl.checkNamespaceExistence(namespaceParams.getNamespaceName())
-      }
-
-      if (nsExists) {
-        folioNamespaceDelete(namespaceParams)
-      }
-    } catch (e) {
-      println "Caught exception: ${e}"
-      error(e.getMessage())
-    } finally {
-      stage('Cleanup') {
-        cleanWs notFailBuild: true
-      }
+  podTemplates.rancherAgent {
+    stage('Ini') {
+      buildName("#${params.CLUSTER}-${params.NAMESPACE}.${env.BUILD_ID}")
     }
+
+    stage('Checkout') {
+      checkout(poll: false,
+        scm: scmGit(branches: [[name: "*/${folioTools.getPipelineBranch()}"]],
+          extensions: [cloneOption(depth: 50, noTags: true, reference: '', shallow: true)],
+          userRemoteConfigs: [[credentialsId: Constants.PRIVATE_GITHUB_CREDENTIALS_ID,
+                               url          : "${Constants.FOLIO_GITHUB_URL}/pipelines-shared-library.git"]]))
+    }
+
+    folioHelm.withKubeConfig(namespaceParams.getClusterName()) {
+      nsExists = kubectl.checkNamespaceExistence(namespaceParams.getNamespaceName())
+    }
+  }
+
+  if (nsExists) {
+    folioNamespaceDelete.call(namespaceParams)
   }
 }

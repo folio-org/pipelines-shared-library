@@ -2,6 +2,7 @@ import groovy.text.SimpleTemplateEngine
 import org.folio.Constants
 import org.folio.jira.JiraClient
 import org.folio.jira.model.JiraIssue
+import org.folio.models.parameters.KarateTestsParameters
 import org.folio.testing.karate.KarateConstants
 import org.folio.testing.karate.results.KarateFeatureExecutionSummary
 import org.folio.testing.karate.results.KarateModuleExecutionSummary
@@ -233,7 +234,7 @@ def getJiraIssuesByTeam(String team, String timeFilter) {
   return ticketsByTeam
 }
 
-String renderKarateConfig(String config, params) {
+String renderKarateConfig(String config, KarateTestsParameters params) {
   withCredentials([
     string(credentialsId: 'mod-kb-ebsco-url', variable: 'ebsco_url'),
     string(credentialsId: 'mod-kb-ebsco-id', variable: 'ebsco_id'),
@@ -246,6 +247,7 @@ String renderKarateConfig(String config, params) {
     Map binding = [
       "baseUrl"                            : params.okapiUrl,
       "edgeUrl"                            : params.edgeUrl,
+      "baseKeycloakUrl"                    : params.keycloakUrl,
       "centralServerUrl"                   : params.okapiUrl.replaceAll("kong", "mockserver"),
       "admin"                              : [
         tenant  : params.tenant,

@@ -87,13 +87,14 @@ class Application {
     return version ==~ /^\d+\.\d+\.\d+-SNAPSHOT\.\d+$/ ? version.replaceFirst(/^\d+\.\d+\.\d+-SNAPSHOT\./, "") : ""
   }
 
+  @NonCPS
   @Override
   String toString() {
     return """{
       "id": "$id",
       "name": "$name",
       "version": "$version",
-      "build": "$build"${modules ? "\"modules\": $modules" : ""}
+      "build": "$build"${modules ? "\n\"modules\": $modules" : ""}
     }"""
   }
 }

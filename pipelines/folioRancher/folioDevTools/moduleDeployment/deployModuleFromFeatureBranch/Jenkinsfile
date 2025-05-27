@@ -1,5 +1,6 @@
 #!groovy
 import org.folio.Constants
+import org.folio.jenkins.PodTemplates
 import org.folio.models.InstallRequestParams
 import org.folio.models.OkapiTenant
 import org.folio.models.RancherNamespace
@@ -7,12 +8,12 @@ import org.folio.models.module.FolioModule
 import org.folio.rest_v2.Main
 import org.folio.utilities.GitHubClient
 import org.folio.utilities.Logger
+import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-2236') _
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
-  disableConcurrentBuilds(),
   parameters([
     folioParameters.cluster(),
     folioParameters.namespace(),
@@ -20,11 +21,11 @@ properties([
     folioParameters.branchWithRef('MODULE_BRANCH', 'MODULE_NAME'),
     folioParameters.configType(),
     string(name: 'MAVEN_ARGS', defaultValue: '-DskipTests', description: 'Maven build arguments'),
+    choice(name: 'JAVA_VERSION', choices: ['21', '17'], description: 'Java version to use for tests'),
     folioParameters.loadReference(false),
     folioParameters.loadSample(false),
     folioParameters.simulate(),
     folioParameters.ignoreErrors(),
-    folioParameters.agent(),
     folioParameters.refreshParameters()
   ])
 ])
@@ -38,6 +39,7 @@ if (params.CLUSTER == 'folio-testing') {
   folioCommon.kitfoxApproval()
 }
 
+PodTemplates podTemplates = new PodTemplates(this, true)
 Logger logger = new Logger(this, env.JOB_BASE_NAME)
 
 FolioModule module = new FolioModule()
@@ -62,99 +64,97 @@ namespace.addDeploymentConfig(folioTools.getPipelineBranch())
 Main main = new Main(this, namespace.getDomains()['okapi'], namespace.getSuperTenant())
 
 ansiColor('xterm') {
-  node(params.AGENT) {
-    try {
-      stage('Ini') {
-        buildName "#${params.MODULE_NAME}.${env.BUILD_ID}"
-        buildDescription "Env: ${namespace.getWorkspaceName()}\nBranch: ${params.MODULE_BRANCH}\n" + "Config: ${params.CONFIG_TYPE}\n${currentBuild.getBuildCauses()[0].shortDescription}"
-        featureHash = new GitHubClient(this).getBranchInfo(module.getName(), featureBranch).commit.sha.take(7)
-      }
+  podTemplates.javaBuildAgent(params.JAVA_VERSION) {
+    stage('Ini') {
+      buildName "#${params.MODULE_NAME}.${env.BUILD_ID}"
+      buildDescription("Env: ${namespace.getWorkspaceName()}\nBranch: ${params.MODULE_BRANCH}\n" +
+        "Config: ${params.CONFIG_TYPE}\n${currentBuild.getBuildCauses()[0].shortDescription}")
 
-      stage('[Git] Checkout module source') {
-        checkout([$class           : 'GitSCM',
-                  branches         : [[name: "*/${featureBranch}"]],
-                  extensions       : [[$class: 'RelativeTargetDirectory', relativeTargetDir: module.getName()],
-                                      [$class: 'CleanBeforeCheckout', deleteUntrackedNestedRepositories: true],
-                                      [$class: 'AuthorInChangelog'],
-                                      [$class: 'SubmoduleOption', recursiveSubmodules: true]],
-                  userRemoteConfigs: [[url: "https://github.com/folio-org/${module.getName()}.git"]]])
-      }
+      featureHash = new GitHubClient(this).getBranchInfo(module.getName(), featureBranch).commit.sha.take(7)
+    }
 
-      stage('[Maven] Compile') {
+    stage('[Git] Checkout module source') {
+      checkout(scmGit(
+        branches: [[name: "*/${featureBranch}"]],
+        extensions: [cloneOption(depth: 50, noTags: true, reference: '', shallow: true),
+                     authorInChangelog(),
+                     submodule(recursiveSubmodules: true, reference: ''),
+                     [$class: 'RelativeTargetDirectory', relativeTargetDir: "${module.getName()}"]],
+        userRemoteConfigs: [[credentialsId: Constants.PRIVATE_GITHUB_CREDENTIALS_ID,
+                             url          : "${Constants.FOLIO_GITHUB_URL}/${module.getName()}.git"]]))
+    }
+
+    stage('[Maven] Compile') {
+      container('java') {
         dir(module.getName()) {
           String origVersion = readMavenPom().getVersion()
           module.version = "${origVersion}.${featureHash}"
 
-          withMaven(jdk: "${common.selectJavaBasedOnAgent(params.AGENT)}",
+          withMaven(jdk: Constants.JAVA_TOOL_NAME,
             maven: Constants.MAVEN_TOOL_NAME,
+            mavenOpts: '-XX:MaxRAMPercentage=85',
+            mavenLocalRepo: "${podTemplates.WORKING_DIR}/.m2/repository",
             traceability: false,
             options: [artifactsPublisher(disabled: true)]) {
-            sh """
-              mvn versions:set -DnewVersion=${module.getVersion()}
-              mvn package ${mavenArguments}
-            """
+              sh """
+                mvn versions:set -DnewVersion=${module.getVersion()}
+                mvn package ${mavenArguments}
+              """.stripIndent()
           }
 
           String descriptorPath = "target/ModuleDescriptor.json"
-          if (fileExists(descriptorPath)) {
-            module.descriptor = [readJSON(file: descriptorPath)]
+          module.descriptor = fileExists(descriptorPath) ? [readJSON(file: descriptorPath)] : []
+        }
+      }
+    }
+
+    stage('[Docker] Build and push') {
+      common.checkEcrRepoExistence(module.getName())
+      container('kaniko') {
+        dir(module.getName() == 'okapi' ? 'okapi/okapi-core' : module.getName()) {
+          withAWS(credentials: Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID, region: Constants.AWS_REGION) {
+            ecrLogin()
+            folioKaniko.dockerHubLogin()
+            sh "/kaniko/executor --destination ${Constants.ECR_FOLIO_REPOSITORY}/${module.getName()}:${module.getVersion()} --context ."
           }
         }
       }
+    }
 
-      stage('[Docker] Build and push') {
-        common.checkEcrRepoExistence(module.getName())
-        docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
-          dir(module.getName() == 'okapi' ? 'okapi/okapi-core' : module.getName()) {
-            def image = docker.build("${module.getName()}:${module.getVersion()}", '--no-cache=true --pull=true .')
-            image.push()
-          }
-        }
+    stage('Generate context') {
+      if (module.getName() == 'okapi') {
+        namespace.setOkapiVersion(module.getVersion() - ".${featureHash}")
+      } else {
+        installJson = [["id"    : "${module.getName()}-${module.getVersion()}",
+                        "action": "enable"]]
       }
 
-      stage('Generate context') {
-        if (module.getName() == 'okapi') {
-          namespace.setOkapiVersion(module.getVersion() - ".${featureHash}")
+      //TODO change to retrieve admin user information from secrets
+      Map folioTenants = folioDefault.tenants() + folioDefault.consortiaTenants()
+      main.getTenantsList().each { tenantId ->
+        if (tenantId == 'supertenant') {
+          if (module.getName() ==~ /mod-(permissions|users|login|authtoken)/) {
+            namespace.getSuperTenant().withInstallJson(installJson)
+          }
         } else {
-          installJson = [["id"    : "${module.getName()}-${module.getVersion()}",
-                          "action": "enable"]]
-        }
-
-        //TODO change to retrieve admin user information from secrets
-        Map folioTenants = folioDefault.tenants() + folioDefault.consortiaTenants()
-        main.getTenantsList().each { tenantId ->
-          if (tenantId == 'supertenant') {
-            if (module.getName() ==~ /mod-(permissions|users|login|authtoken)/) {
-              namespace.getSuperTenant().withInstallJson(installJson)
-            }
+          namespace.addTenant(new OkapiTenant(tenantId)
+            .withInstallJson(installJson)
+            .withInstallRequestParams(installRequestParams.clone()))
+          if (folioTenants.containsKey(tenantId)) {
+            namespace.getTenants()[tenantId].setAdminUser(folioTenants[tenantId].getAdminUser())
           } else {
-            namespace.addTenant(new OkapiTenant(tenantId)
-              .withInstallJson(installJson)
-              .withInstallRequestParams(installRequestParams.clone()))
-            if (folioTenants.containsKey(tenantId)) {
-              namespace.getTenants()[tenantId].setAdminUser(folioTenants[tenantId].getAdminUser())
-            } else {
-              logger.warning("Credentials missing for tenant ${tenantId}")
-            }
+            logger.warning("Credentials missing for tenant ${tenantId}")
           }
         }
-
-        namespace.getModules().setInstallJsonObject(installJson)
       }
 
-      stage('Update') {
-        main.publishModulesDescriptors(module.getDescriptor())
+      namespace.getModules().setInstallJsonObject(installJson)
+    }
 
-        folioDeployFlow.update(namespace)
-      }
-    } catch (e) {
-      logger.error("Caught exception: ${e}")
-      error(e.getMessage())
-    } finally {
-      stage('Cleanup') {
-        logger.warning("Workspace size: ${sh(returnStdout: true, script: 'du -sh .').trim()}")
-        cleanWs notFailBuild: true
-      }
+    stage('Update') {
+      main.publishModulesDescriptors(module.getDescriptor())
+
+      folioDeployFlow.update(namespace)
     }
   }
 }

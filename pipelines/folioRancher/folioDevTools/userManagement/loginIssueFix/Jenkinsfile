@@ -1,10 +1,10 @@
 #!groovy
-package folioRancher.folioDevTools.userManagement.loginIssueFix
 
+import org.folio.jenkins.PodTemplates
 import org.folio.utilities.Logger
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-2236') _
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
@@ -12,7 +12,6 @@ properties([
   parameters([
     folioParameters.cluster(),
     folioParameters.namespace(),
-    folioParameters.agent(),
     string(name: 'MODULES', defaultValue: 'mod-permissions, mod-login-keycloak, mod-roles-keycloak, mod-users-keycloak', description: '(Optional) Coma separated list of modules to restart'),
     folioParameters.refreshParameters()
   ])
@@ -23,36 +22,25 @@ if (params.REFRESH_PARAMETERS) {
   return
 }
 
+PodTemplates podTemplates = new PodTemplates(this)
 Logger logger = new Logger(this, env.JOB_BASE_NAME)
 
 ansiColor('xterm') {
-  node(params.AGENT) {
-    try {
-      stage('Ini') {
-        buildName "Login Issue Fix"
-        buildDescription "${params.CLUSTER}-${params.NAMESPACE}"
-      }
+  podTemplates.rancherAgent {
+    stage('Ini') {
+      buildDescription "${params.CLUSTER}-${params.NAMESPACE}"
+    }
 
-      stage('Checkout') {
-        checkout scm
-      }
+    stage('Checkout') {
+      checkout scm
+    }
 
-      stage('[FIX] Login Issue') {
-        logger.info("Fixing login issue for ${params.CLUSTER}-${params.NAMESPACE}")
-        folioHelm.withKubeConfig(params.CLUSTER) {
-          params.MODULES.tokenize(',').each { moduleName ->
-            kubectl.rolloutDeployment(moduleName, params.NAMESPACE)
-          }
+    stage('[FIX] Login Issue') {
+      logger.info("Fixing login issue for ${params.CLUSTER}-${params.NAMESPACE}")
+      folioHelm.withKubeConfig(params.CLUSTER) {
+        params.MODULES.tokenize(',').each { moduleName ->
+          kubectl.rolloutDeployment(moduleName, params.NAMESPACE)
         }
-      }
-
-    } catch (e) {
-      logger.warning("Caught exception: ${e}")
-      error(e.getMessage())
-    } finally {
-      stage('Cleanup') {
-        logger.debug("Workspace size: ${sh(returnStdout: true, script: 'du -sh .').trim()}")
-        cleanWs notFailBuild: true
       }
     }
   }

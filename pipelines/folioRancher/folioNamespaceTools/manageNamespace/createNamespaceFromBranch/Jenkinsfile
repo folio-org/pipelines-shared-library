@@ -1,5 +1,4 @@
 #!groovy
-package folioRancher.folioNamespaceTools.manageNamespace.createNamespaceFromBranch
 
 import org.folio.models.OkapiTenant
 import org.folio.models.OkapiUser
@@ -10,12 +9,10 @@ import org.folio.rest_v2.Constants
 import org.folio.rest_v2.PlatformType
 import org.jenkinsci.plugins.workflow.libs.Library
 
-//TODO remove branch before merge to master
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-2236') _
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
-//  disableConcurrentBuilds(),
   parameters([
     folioParameters.platform(),
     folioParameters.cluster('PLATFORM'),
@@ -26,9 +23,9 @@ properties([
     folioParameters.applications(),
     folioParameters.configType(),
     folioParameters.groupParameters("Environment features"
-      , [ "LOAD_REFERENCE", "LOAD_SAMPLE", "BUILD_UI", "CONSORTIA", "LINKED_DATA", "MARC_MIGRATIONS", "SPLIT_FILES"
-          , "RW_SPLIT", "ECS_CCL", "GREENMAIL", "MOCK_SERVER", "RTR", "DATASET", "TYPE"
-          , "HAS_SECURE_TENANT", "SECURE_TENANT"
+      , ["LOAD_REFERENCE", "LOAD_SAMPLE", "BUILD_UI", "CONSORTIA", "LINKED_DATA", "MARC_MIGRATIONS", "SPLIT_FILES"
+         , "RW_SPLIT", "ECS_CCL", "GREENMAIL", "MOCK_SERVER", "RTR", "DATASET", "TYPE"
+         , "HAS_SECURE_TENANT", "SECURE_TENANT"
     ]),
     folioParameters.loadReference(),
     folioParameters.loadSample(),
@@ -48,30 +45,28 @@ properties([
     choice(name: 'TYPE', choices: ['full', 'terraform', 'update'], description: '(Required) Set action TYPE to perform'),
     string(name: 'DB_BACKUP_NAME', defaultValue: org.folio.Constants.BUGFEST_SNAPSHOT_NAME, description: '(Optional) Set name of the DB backup to restore'),
     folioParameters.groupParameters("Integrations"
-      , [ "POSTGRESQL", "DB_VERSION", "KAFKA", "OPENSEARCH", "S3_BUCKET", "DB_BACKUP_NAME"]),
+      , ["POSTGRESQL", "DB_VERSION", "KAFKA", "OPENSEARCH", "S3_BUCKET", "DB_BACKUP_NAME"]),
     folioParameters.pgType(),
     folioParameters.pgVersion(),
     folioParameters.kafkaType(),
     folioParameters.opensearchType(),
     folioParameters.s3Type(),
     folioParameters.runSanityCheck(),
-    string(name: 'MEMBERS', defaultValue: '', description: '(Optional) Coma separated list of GitHub teams who need an access to the namespace'),
-    folioParameters.agent(),
     folioParameters.refreshParameters()
     , folioParameters.hideParameters(
     [
-      'EUREKA':['OKAPI_VERSION'],
-      'OKAPI': ['APPLICATION_SET', 'APPLICATIONS' ]
+      'EUREKA': ['OKAPI_VERSION'],
+      'OKAPI' : ['APPLICATION_SET', 'APPLICATIONS']
     ]
     , "PLATFORM")
     , folioParameters.hideParameters(
     [
-      '' :['HAS_SECURE_TENANT', 'SECURE_TENANT']
+      '': ['HAS_SECURE_TENANT', 'SECURE_TENANT']
     ]
     , "CONSORTIA")
     , folioParameters.hideParameters(
     [
-      '' :['SECURE_TENANT']
+      '': ['SECURE_TENANT']
     ]
     , "HAS_SECURE_TENANT")
   ])
@@ -80,6 +75,10 @@ properties([
 if (params.REFRESH_PARAMETERS) {
   currentBuild.result = 'ABORTED'
   return
+}
+
+if (params.CLUSTER != 'folio-tmp') {
+  folioCommon.validateNamespace(params.NAMESPACE)
 }
 
 if (params.CLUSTER == 'folio-testing') {
@@ -117,7 +116,6 @@ CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builde
   .kafkaType(params.KAFKA)
   .opensearchType(params.OPENSEARCH)
   .s3Type(params.S3_BUCKET)
-  .members(params.MEMBERS)
   .uiBuild(params.BUILD_UI)
   .kongVersion('latest')
   .keycloakVersion('latest')
@@ -153,56 +151,27 @@ cypressSanityParameters.setWorkerLabel('cypress-static') // Switch back to cypre
 cypressSanityParameters.setNumberOfWorkers(4)
 cypressSanityParameters.setTimeout('60')
 
-if(namespaceParams.platform == PlatformType.EUREKA) {
+if (namespaceParams.platform == PlatformType.EUREKA) {
   cypressSanityParameters.setTestsSrcBranch('master')
   cypressSanityParameters.setOkapiUrl("https://${namespace.getDomains().kong}")
   //TODO: Temporary exclusion of the eholdings and software-version test cases.
   cypressSanityParameters.setExecParameters('--env grepTags="fse+sanity"')
-}else {
+} else {
   cypressSanityParameters.setTestsSrcBranch('okapi')
   cypressSanityParameters.setOkapiUrl("https://${namespace.getDomains().okapi}")
   cypressSanityParameters.setExecParameters('--env grepTags="fse+sanity"')
 }
 
 ansiColor('xterm') {
-  node(params.AGENT) {
-    try {
-      stage('Ini') {
-        buildName "${params.CLUSTER}-${params.NAMESPACE}.${env.BUILD_ID}"
-        buildDescription "Branch: ${params.FOLIO_BRANCH}\nConfig: ${params.CONFIG_TYPE}\n" +
-          "DB version: ${params.DB_VERSION}\nRW split: ${params.RW_SPLIT}\nGreenmail: ${params.POSTGRESQL}\n" +
-          "Mock server: ${params.MOCK_SERVER}\nConsortia: ${params.CONSORTIA}"
-      }
+  if (namespaceParams.platform == PlatformType.EUREKA) {
+    folioNamespaceCreateEureka.call(namespaceParams)
+  } else {
+    folioNamespaceCreate.call(namespaceParams)
+  }
 
-      stage('Checkout') {
-        checkout scm
-      }
-
-      if (namespaceParams.platform == PlatformType.EUREKA) {
-        folioNamespaceCreateEureka(namespaceParams)
-      } else {
-        folioNamespaceCreate(namespaceParams)
-      }
-
-      stage('[Cypress] Run sanity check'){
-        if(params.RUN_SANITY_CHECK) {
-          folioCypressFlow.runWrapper(cypressSanityParameters.getCiBuildId(), false, '', false) {
-            folioCypressFlow.multiThreadRun(cypressSanityParameters)
-          }
-        }
-      }
-
-    } catch (e) {
-      /** Put error message to the Job Run description */
-      currentBuild.description = e.getMessage()
-      currentBuild.result = 'FAILURE'
-
-      println "Caught exception: ${e}"
-      error(e.getMessage())
-    } finally {
-      stage('Cleanup') {
-        cleanWs notFailBuild: true
-      }
+  stage('[Cypress] Run sanity check') {
+    if (params.RUN_SANITY_CHECK) {
+      folioCypressFlow.call(cypressSanityParameters.getCiBuildId(), [cypressSanityParameters])
     }
   }
 }

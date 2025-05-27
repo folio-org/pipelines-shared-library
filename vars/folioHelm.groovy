@@ -11,9 +11,7 @@ void withK8sClient(Closure closure) {
                     credentialsId    : Constants.AWS_CREDENTIALS_ID,
                     accessKeyVariable: 'AWS_ACCESS_KEY_ID',
                     secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
-    docker.image(Constants.DOCKER_K8S_CLIENT_IMAGE).inside("-u 0:0 --entrypoint=") {
-      closure()
-    }
+    closure()
   }
 }
 
@@ -41,7 +39,7 @@ void install(String release_name, String namespace, String values_path, String c
 
 void upgrade(String release_name, String namespace, String values_path, String chart_repo, String chart_name) {
   if (release_name.startsWith("mgr-")) {
-    sh "helm upgrade --install ${release_name} --namespace=${namespace} ${valuesPathOption(values_path)} ${chart_repo}/${chart_name} --wait"
+    sh "helm upgrade --install ${release_name} --namespace=${namespace} ${valuesPathOption(values_path)} ${chart_repo}/${chart_name} --wait --timeout=15m"
   } else {
     sh "helm upgrade --install ${release_name} --namespace=${namespace} ${valuesPathOption(values_path)} ${chart_repo}/${chart_name}"
   }
@@ -217,9 +215,9 @@ void checkDeploymentsRunning(String ns, List<FolioModule> deploymentsList) {
           def status = deployment.status
           def specReplicas = deployment.spec.replicas
           if (status.updatedReplicas != specReplicas ||
-              status.readyReplicas != specReplicas ||
-              status.unavailableReplicas > 0 ||
-              status.conditions.any { it.type == "Available" && it.status == "False" }) {
+            status.readyReplicas != specReplicas ||
+            status.unavailableReplicas > 0 ||
+            status.conditions.any { it.type == "Available" && it.status == "False" }) {
             unfinishedDeployments << folioModule.name
           }
         } else {
@@ -251,9 +249,6 @@ void checkDeploymentsRunning(String ns, List<FolioModule> deploymentsList) {
     throw e // Rethrow the error to mark the Jenkins build as failed
   }
 }
-
-
-
 
 static String valuesPathOption(String path) {
   return path.trim() ? "-f ${path}" : ''
@@ -307,7 +302,7 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
         break
 
       case 'mgr-tenant-entitlements':
-          moduleConfig['extraEnvVars'] +=  ns.getNamespaceName() == 'karate-eureka' ? [
+          moduleConfig['extraEnvVars'] +=  ns.getNamespaceName() == 'cikarate' ? [
             [
               name : 'VALIDATION_INTERFACE_INTEGRITY_ENABLED',
               value: 'false'
@@ -326,6 +321,14 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
               name : 'FLOW_ENGINE_PRINT_FLOW_RESULTS',
               value: 'true'
             ]
+          ] : []
+          moduleConfig['extraEnvVars'] +=  ns.getNamespaceName() == 'cikarate' ? [
+            name : 'FLOW_ENGINE_THREADS_NUM',
+            value: '1'
+          ] : []
+          moduleConfig['extraEnvVars'] +=  ns.getNamespaceName() == 'dojo' ? [
+            name : 'FLOW_ENGINE_THREADS_NUM',
+            value: '1'
           ] : []
         break
 
@@ -376,7 +379,7 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
         break
 
       case 'mod-fqm-manager':
-        ns.namespaceName == 'karate-eureka' ? moduleConfig['extraEnvVars'] += [
+        ns.namespaceName == 'cikarate' ? moduleConfig['extraEnvVars'] += [
           name: 'mod-fqm-manager.entity-type-cache-timeout-seconds',
           value: '0'
         ] : []
@@ -385,7 +388,6 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
   }
 
   //Enable RTR functionality
-
 
   //mod-authtoken jwt.signing.key
   if (moduleName == 'mod-authtoken') {
@@ -415,7 +417,7 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
   }
 
   //Toleration and NodeSelector
-  if ((ns.getClusterName() == 'folio-testing') && (['cicypress', 'cikarate'].contains(ns.getNamespaceName()))) {
+  if ((['folio-testing', 'folio-etesting'].contains(ns.getClusterName())) && (['cicypress', 'cikarate'].contains(ns.getNamespaceName()))) {
     moduleConfig['nodeSelector'] = ["folio.org/qualitygate": ns.getNamespaceName()]
     moduleConfig['tolerations'] = [[key     : "folio.org/qualitygate",
                                     operator: "Equal",
@@ -427,7 +429,7 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
   boolean enableIngress = moduleConfig.containsKey('ingress') ? moduleConfig['ingress']['enabled'] : false
   if (enableIngress) {
     moduleConfig['ingress']['hosts'][0] += [host: domain]
-    if (moduleName == 'ui-bundle' && ns.clusterName == 'folio-etesting' && ns.namespaceName ==~ /snapshot.*/ ) {
+    if (moduleName ==~ /ui-bundle.*/ && ns.clusterName == 'folio-etesting' && ns.namespaceName ==~ /snapshot.*/ ) {
       moduleConfig['ingress']['hosts'] += [
         [
           host : "eureka-snapshot-${ns.defaultTenantId}.${Constants.CI_ROOT_DOMAIN}",
