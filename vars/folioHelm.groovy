@@ -39,7 +39,7 @@ void install(String release_name, String namespace, String values_path, String c
 
 void upgrade(String release_name, String namespace, String values_path, String chart_repo, String chart_name) {
   if (release_name.startsWith("mgr-")) {
-    sh "helm upgrade --install ${release_name} --namespace=${namespace} ${valuesPathOption(values_path)} ${chart_repo}/${chart_name} --wait"
+    sh "helm upgrade --install ${release_name} --namespace=${namespace} ${valuesPathOption(values_path)} ${chart_repo}/${chart_name} --wait --timeout=15m"
   } else {
     sh "helm upgrade --install ${release_name} --namespace=${namespace} ${valuesPathOption(values_path)} ${chart_repo}/${chart_name}"
   }
