@@ -3,6 +3,7 @@ import com.cloudbees.groovy.cps.NonCPS
 import groovy.text.StreamingTemplateEngine
 import org.folio.Constants
 import org.folio.jenkins.PodTemplates
+import org.folio.models.InstallRequestParams
 import org.folio.models.OkapiTenant
 import org.folio.models.RancherNamespace
 import org.folio.models.TenantUi
@@ -46,6 +47,23 @@ void build(String okapiUrl, OkapiTenant tenant, boolean isEureka = false, String
             binding.kongUrl = "https://ecs-${kongDomain}"
             binding.isSingleTenant = false
             okapiUrl = binding.kongUrl
+
+            InstallRequestParams installRequestParams = new InstallRequestParams()
+
+            switch (tenantId) {
+              case 'consortium':
+                folioDefault.consortiaTenants([],installRequestParams).each {
+                 it.value.getTenantId() != 'consortium' ? binding.tenantOptions += """${it.value.getTenantId()}: {name: "${it.value.getTenantId()}", clientId: "${it.value.getTenantId()}-application"},""" : null
+                }
+                break
+              case 'cs00000int':
+                (folioDefault.tenants([], installRequestParams).findAll { it.value.getTenantId().startsWith('cs00000int') }).each {
+                  if (it.value.getTenantId() != 'cs00000int') {
+                    binding.tenantOptions += """${it.value.getTenantId()}: {name: "${it.value.getTenantId()}", clientId: "${it.value.getTenantId()}-application"},"""
+                  }
+                }
+                break
+            }
           }
 
           switch (tenantId) {
