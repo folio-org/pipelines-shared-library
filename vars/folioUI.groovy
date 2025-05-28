@@ -55,7 +55,7 @@ void build(String okapiUrl, OkapiTenant tenant, boolean isEureka = false, String
               case 'consortium':
                 folioDefault.consortiaTenants([],installRequestParams).each {
                  if (it.value.getTenantId() != 'consortium') {
-                    tntOpts[it.value.getTenantId()] = [name: it.value.getTenantId(), clientId: "${it.value.getTenantId()}-application"]
+                    tntOpts[it.value.getTenantId()] = [name: it.value.getTenantId(), clientId: it.value.getTenantId() + "-application"]
                   }
                 }
                 binding.tenantOptions = writeJSON(json: tntOpts, returnText: true).toString()
@@ -63,7 +63,7 @@ void build(String okapiUrl, OkapiTenant tenant, boolean isEureka = false, String
               case 'cs00000int':
                 (folioDefault.tenants([], installRequestParams).findAll { it.value.getTenantId().startsWith('cs00000int') }).each {
                   if (it.value.getTenantId() != 'cs00000int') {
-                    tntOpts[it.value.getTenantId()] = [name: it.value.getTenantId(), clientId: "${it.value.getTenantId()}-application"]
+                    tntOpts[it.value.getTenantId()] = [name: it.value.getTenantId(), clientId: it.value.getTenantId() + "-application"]
                   }
                 }
                 binding.tenantOptions = writeJSON(json: tntOpts, returnText: true).toString()
