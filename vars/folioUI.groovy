@@ -52,9 +52,9 @@ void build(String okapiUrl, OkapiTenant tenant, boolean isEureka = false, String
 
             switch (tenantId) {
               case 'consortium':
+                def tntOpts = readJSON(text: binding.tenantOptions)
                 folioDefault.consortiaTenants([],installRequestParams).each {
                  if (it.value.getTenantId() != 'consortium') {
-                    def tntOpts = readJSON(text: binding.tenantOptions)
                     tntOpts[it.value.getTenantId()] = [name: it.value.getTenantId(), clientId: "${it.value.getTenantId()}-application"]
                   }
                 }
