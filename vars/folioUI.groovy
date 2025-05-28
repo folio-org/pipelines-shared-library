@@ -53,13 +53,13 @@ void build(String okapiUrl, OkapiTenant tenant, boolean isEureka = false, String
             switch (tenantId) {
               case 'consortium':
                 folioDefault.consortiaTenants([],installRequestParams).each {
-                 it.value.getTenantId() != 'consortium' ? binding.tenantOptions += """${it.value.getTenantId()}: {name: "${it.value.getTenantId()}", clientId: "${it.value.getTenantId()}-application"},""" : null
+                 it.value.getTenantId() != 'consortium' ? binding.tenantOptions += """,{${it.value.getTenantId()}: {name: "${it.value.getTenantId()}", clientId: "${it.value.getTenantId()}-application"}}""" : null
                 }
                 break
               case 'cs00000int':
                 (folioDefault.tenants([], installRequestParams).findAll { it.value.getTenantId().startsWith('cs00000int') }).each {
                   if (it.value.getTenantId() != 'cs00000int') {
-                    binding.tenantOptions += """${it.value.getTenantId()}: {name: "${it.value.getTenantId()}", clientId: "${it.value.getTenantId()}-application"},"""
+                    binding.tenantOptions += """,{${it.value.getTenantId()}: {name: "${it.value.getTenantId()}", clientId: "${it.value.getTenantId()}-application"}}"""
                   }
                 }
                 break
