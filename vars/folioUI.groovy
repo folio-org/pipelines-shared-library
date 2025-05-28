@@ -53,8 +53,12 @@ void build(String okapiUrl, OkapiTenant tenant, boolean isEureka = false, String
             switch (tenantId) {
               case 'consortium':
                 folioDefault.consortiaTenants([],installRequestParams).each {
-                 it.value.getTenantId() != 'consortium' ? binding.tenantOptions += """,{${it.value.getTenantId()}: {name: "${it.value.getTenantId()}", clientId: "${it.value.getTenantId()}-application"}}""" : null
+                 if (it.value.getTenantId() != 'consortium') {
+                    def tntOpts = readJSON(text: binding.tenantOptions)
+                    tntOpts[it.value.getTenantId()] = [name: it.value.getTenantId(), clientId: "${it.value.getTenantId()}-application"]
+                  }
                 }
+                binding.tenantOptions = writeJSON(json: tntOpts, pretty: 2)
                 break
               case 'cs00000int':
                 (folioDefault.tenants([], installRequestParams).findAll { it.value.getTenantId().startsWith('cs00000int') }).each {
