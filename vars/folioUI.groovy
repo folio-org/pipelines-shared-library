@@ -49,23 +49,24 @@ void build(String okapiUrl, OkapiTenant tenant, boolean isEureka = false, String
             okapiUrl = binding.kongUrl
 
             InstallRequestParams installRequestParams = new InstallRequestParams()
+            def tntOpts = readJSON(text: binding.tenantOptions)
 
             switch (tenantId) {
               case 'consortium':
-                def tntOpts = readJSON(text: binding.tenantOptions)
                 folioDefault.consortiaTenants([],installRequestParams).each {
                  if (it.value.getTenantId() != 'consortium') {
                     tntOpts[it.value.getTenantId()] = [name: it.value.getTenantId(), clientId: "${it.value.getTenantId()}-application"]
                   }
                 }
-                binding.tenantOptions = writeJSON(json: tntOpts, pretty: 2)
+                binding.tenantOptions = writeJSON(json: tntOpts, pretty: 2, returnText: true)
                 break
               case 'cs00000int':
                 (folioDefault.tenants([], installRequestParams).findAll { it.value.getTenantId().startsWith('cs00000int') }).each {
                   if (it.value.getTenantId() != 'cs00000int') {
-                    binding.tenantOptions += """,{${it.value.getTenantId()}: {name: "${it.value.getTenantId()}", clientId: "${it.value.getTenantId()}-application"}}"""
+                    tntOpts[it.value.getTenantId()] = [name: it.value.getTenantId(), clientId: "${it.value.getTenantId()}-application"]
                   }
                 }
+                binding.tenantOptions = writeJSON(json: tntOpts, pretty: 2, returnText: true)
                 break
             }
           }
