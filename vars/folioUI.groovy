@@ -58,7 +58,7 @@ void build(String okapiUrl, OkapiTenant tenant, boolean isEureka = false, String
                     tntOpts[it.value.getTenantId()] = [name: it.value.getTenantId(), clientId: "${it.value.getTenantId()}-application"]
                   }
                 }
-                binding.tenantOptions = writeJSON(json: tntOpts, pretty: 2, returnText: true)
+                binding.tenantOptions = writeJSON(json: tntOpts, returnText: true).toString()
                 break
               case 'cs00000int':
                 (folioDefault.tenants([], installRequestParams).findAll { it.value.getTenantId().startsWith('cs00000int') }).each {
@@ -66,7 +66,7 @@ void build(String okapiUrl, OkapiTenant tenant, boolean isEureka = false, String
                     tntOpts[it.value.getTenantId()] = [name: it.value.getTenantId(), clientId: "${it.value.getTenantId()}-application"]
                   }
                 }
-                binding.tenantOptions = writeJSON(json: tntOpts, pretty: 2, returnText: true)
+                binding.tenantOptions = writeJSON(json: tntOpts, returnText: true).toString()
                 break
             }
           }
