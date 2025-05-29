@@ -19,7 +19,7 @@ void deployMockServer(RancherNamespace ns) {
   String version = "5.15.0"
   String MOCK_SERVER_REPO_NAME = 'mockserver'
   String MOCK_SERVER_REPO_URL = 'https://www.mock-server.com'
-  String configFileUrl = Constants.FOLIO_GITHUB_RAW_URL + "/folio-integration-tests/master/mod-inn-reach/" + "src/main/resources/volaris/mod-inn-reach/mocks/general/mockserverInitialization.json"
+  String configFileUrl = Constants.FOLIO_GITHUB_RAW_URL + "/folio-integration-tests/master-eureka/mod-inn-reach/" + "src/main/resources/volaris/mod-inn-reach/mocks/general/mockserverInitialization.json"
 
   // Define file paths
   String valuesFilePath = "./values/mockserver.yaml"

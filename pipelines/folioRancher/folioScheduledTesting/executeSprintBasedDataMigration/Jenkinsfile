@@ -1,5 +1,6 @@
 #!groovy
 import org.folio.Constants
+import org.folio.jenkins.PodTemplates
 import org.jenkinsci.plugins.workflow.libs.Library
 
 @Library('pipelines-shared-library') _
@@ -28,8 +29,10 @@ Map Parameters = [
   BACKUP_NAME     : params.BACKUP_NAME,
 ]
 
+PodTemplates podTemplates = new PodTemplates(this)
+
 ansiColor('xterm') {
-  node(params.AGENT) {
+  podTemplates.rancherAgent {
     stage('Ini') {
       buildName env.BUILD_ID
       buildDescription ""

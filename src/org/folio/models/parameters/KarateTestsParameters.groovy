@@ -1,9 +1,12 @@
 package org.folio.models.parameters
 
+import com.cloudbees.groovy.cps.NonCPS
 import org.folio.testing.teams.TeamAssignment
 
 class KarateTestsParameters {
   String okapiUrl
+
+  String keycloakUrl
 
   String edgeUrl
 
@@ -23,9 +26,11 @@ class KarateTestsParameters {
 
   String karateConfig = 'folio-testing-karate'
 
-  String javaVerson = 'openjdk-21-jenkins-slave-all'
+  String javaVerson = '21'
 
-  String mavenVersion = 'maven3-jenkins-slave-all'
+  String javaToolName = 'amazoncorretto-jdk'
+
+  String mavenToolName = 'maven-3.9.9'
 
   String mavenSettings = 'folioci-maven-settings'
 
@@ -39,9 +44,37 @@ class KarateTestsParameters {
 
   boolean sendSlackNotification = false
 
-  boolean sendTeamsSlackNotification = true
+  boolean sendTeamsSlackNotification = false
 
   boolean lsdi = false
 
   String timeout
+
+  @NonCPS
+  @Override
+  String toString() {
+    return "KarateTestsParameters{" +
+      "okapiUrl='" + okapiUrl + '\'' +
+      ", keycloakUrl='" + keycloakUrl + '\'' +
+      ", edgeUrl='" + edgeUrl + '\'' +
+      ", tenant='" + tenant + '\'' +
+      ", prototypeTenant='" + prototypeTenant + '\'' +
+      ", adminUserName='" + adminUserName + '\'' +
+      ", adminPassword='" + adminPassword + '\'' +
+      ", modulesToTest='" + modulesToTest + '\'' +
+      ", threadsCount='" + threadsCount + '\'' +
+      ", gitBranch='" + gitBranch + '\'' +
+      ", karateConfig='" + karateConfig + '\'' +
+      ", javaVerson='" + javaVerson + '\'' +
+      ", javaToolName='" + javaToolName + '\'' +
+      ", mavenToolName='" + mavenToolName + '\'' +
+      ", mavenSettings='" + mavenSettings + '\'' +
+      ", reportPortalProjectName='" + reportPortalProjectName + '\'' +
+      ", reportPortalProjectId='" + reportPortalProjectId + '\'' +
+      ", syncWithJira=" + syncWithJira +
+      ", sendSlackNotification=" + sendSlackNotification +
+      ", sendTeamsSlackNotification=" + sendTeamsSlackNotification +
+      ", lsdi=" + lsdi +
+      '}'
+  }
 }

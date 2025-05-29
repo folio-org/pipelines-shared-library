@@ -1,4 +1,6 @@
 #!groovy
+
+import org.folio.jenkins.PodTemplates
 import org.folio.models.InstallRequestParams
 import org.folio.models.RancherNamespace
 import org.jenkinsci.plugins.workflow.libs.Library
@@ -30,7 +32,6 @@ properties([
     folioParameters.simulate(),
     folioParameters.reinstall(),
     folioParameters.ignoreErrors(),
-    folioParameters.agent(),
     folioParameters.refreshParameters()
   ])
 ])
@@ -61,7 +62,9 @@ RancherNamespace namespace = new RancherNamespace(params.CLUSTER, params.NAMESPA
 namespace.addDeploymentConfig(DEPLOYMENT_CONFIG_BRANCH)
 
 ansiColor('xterm') {
-  node(params.AGENT) {
+  PodTemplates podTemplates = new PodTemplates(this)
+
+  podTemplates.rancherAgent {
     try {
       stage('Ini') {
         buildName "${namespace.getClusterName()}-${namespace.getNamespaceName()}.${env.BUILD_ID}"
@@ -79,17 +82,13 @@ ansiColor('xterm') {
     } catch (Exception e) {
       println "Caught exception: ${e}"
       error "Pipeline failed due to error: ${e.getMessage()}"
-    } finally {
-      stage('Cleanup') {
-        cleanWs notFailBuild: true
-      }
     }
   }
 }
-
 // Function to validate input parameters
 void validateInputs(params) {
   if (params.DEFAULT_TENANT_ID.trim().isEmpty()) {
     error "DEFAULT_TENANT_ID parameter is required."
   }
 }
+

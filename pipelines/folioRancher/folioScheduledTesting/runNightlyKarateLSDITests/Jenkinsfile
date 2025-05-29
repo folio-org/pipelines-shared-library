@@ -1,16 +1,13 @@
 #!groovy
-package folioRancher.folioScheduledTesting.runNightlyKarateLSDITests
-
 import groovy.transform.Field
 import org.folio.Constants
+import org.folio.jenkins.PodTemplates
 import org.folio.models.RancherNamespace
 import org.folio.models.parameters.CreateNamespaceParameters
 import org.folio.models.parameters.KarateTestsParameters
-import org.folio.rest_v2.PlatformType
-import org.folio.testing.teams.TeamAssignment
-import org.folio.utilities.Logger
-import org.jenkinsci.plugins.workflow.libs.Library
 import org.folio.rest_v2.Constants as RestConstants
+import org.folio.rest_v2.PlatformType
+import org.jenkinsci.plugins.workflow.libs.Library
 
 @Library('pipelines-shared-library') _
 
@@ -18,7 +15,7 @@ import org.folio.rest_v2.Constants as RestConstants
  * Job properties and parameters
  */
 properties([
-pipelineTriggers([cron('H 2 * * 1-5')]),
+//pipelineTriggers([cron('H 2 * * 1-5')]),
 buildDiscarder(logRotator(numToKeepStr: '30')),
 disableConcurrentBuilds(),
 parameters([
@@ -38,9 +35,9 @@ if (params.REFRESH_PARAMETERS) {
 /**
  * Job variables
  */
-Logger logger = new Logger(this, env.JOB_BASE_NAME)
+PodTemplates podTemplates = new PodTemplates(this)
 
-@Field final String deleteNamespaceJobName = Constants.JENKINS_DELETE_NAMESPACE_JOB_EUREKA
+@Field final String deleteNamespaceJobName = Constants.JENKINS_DELETE_NAMESPACE_JOB
 
 String okapiVersion = folioTools.eval(folioStringScripts.getOkapiVersions(), ['FOLIO_BRANCH': 'snapshot'])[0]
 
@@ -84,6 +81,7 @@ namespace.withSuperTenantAdminUser()
 KarateTestsParameters karateTestsParams = new KarateTestsParameters()
 karateTestsParams.gitBranch = params.TESTS_BRANCH
 karateTestsParams.okapiUrl = "https://${namespace.getDomains().kong}"
+karateTestsParams.keycloakUrl = "https://${namespace.getDomains().keycloak}"
 karateTestsParams.edgeUrl = "https://${namespace.getDomains().edge}"
 karateTestsParams.tenant = namespace.getSuperTenant().getTenantId()
 karateTestsParams.prototypeTenant = 'diku'
@@ -101,45 +99,28 @@ karateTestsParams.karateConfig = "etesting-lsdi"
 /**
  * Pipeline
  */
-
 ansiColor('xterm') {
-  node('jenkins-agent-java21') {
-    try {
-      stage('Ini') {
-        buildDescription "Branch: ${params.TESTS_BRANCH}\nThreads: ${params.THREADS_COUNT}\nDestroy after: ${params.DESTROY_AFTER}"
-        cleanWs()
-      }
+  podTemplates.rancherAgent {
+    stage('Ini') {
+      buildDescription "Branch: ${params.TESTS_BRANCH}\nThreads: ${params.THREADS_COUNT}\nDestroy after: ${params.DESTROY_AFTER}"
+    }
 
-      stage('Checkout') {
-        checkout scm
-      }
+    stage('[Job] Destroy environment (before)') {
+      params.RETRY_FAILED ? println('RETRY tests execution | Skip destroy stage') : folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceParams)
+    }
 
-      stage('[Job] Destroy environment (before)') {
-        params.RETRY_FAILED ? println('RETRY tests execution | Skip destroy stage') : folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceParams)
-      }
+    stage('[Job] Provision environment') {
+      params.RETRY_FAILED ? println('RETRY tests execution | Skip provision stage') : folioNamespaceCreateEureka.call(namespaceParams)
+    }
 
-      stage('[Job] Provision environment') {
-        params.RETRY_FAILED ? println('RETRY tests execution | Skip provision stage') : folioNamespaceCreateEureka(namespaceParams)
-      }
+    stage('[Flow] Execute tests') {
+      sleep time: 5, unit: 'MINUTES' // Wait for namespace to be ready
+      folioKarateFlow.call(karateTestsParams)
+    }
 
-      stage('[Flow] Execute tests') {
-        sleep time: 5, unit: 'MINUTES' // Wait for namespace to be ready
-        folioKarateFlow(karateTestsParams)
-      }
-
-      if (params.DESTROY_AFTER) {
-        stage('[Job] Destroy environment (after)') {
-          folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceParams)
-        }
-      }
-
-    } catch (e) {
-      logger.warning("Caught exception: ${e}")
-      error(e.getMessage())
-    } finally {
-      stage('Cleanup') {
-        logger.debug("Workspace size: ${sh(returnStdout: true, script: 'du -sh .').trim()}")
-        cleanWs notFailBuild: true
+    if (params.DESTROY_AFTER) {
+      stage('[Job] Destroy environment (after)') {
+        folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceParams)
       }
     }
   }

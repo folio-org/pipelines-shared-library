@@ -59,8 +59,9 @@ variable "eks_nodes_group_size" {
   type = object({
     min_size : number,
     max_size : number,
+    desired_size : number,
   })
-  default     = { "min_size" : 2, "max_size" : 4 }
+  default     = { "min_size" : 2, "max_size" : 4, "desired_size" : 2 }
   description = "Minimum and maximum number of instances/nodes"
 }
 

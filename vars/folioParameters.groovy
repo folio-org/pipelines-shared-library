@@ -90,10 +90,12 @@ private def _paramFormattedHTML(String script, String reference, boolean omitVal
   _extendedDynamicParam(name, reference, script, description, omitValue, "ET_FORMATTED_HTML")
 }
 
-def agent(List agents = Constants.JENKINS_AGENTS, String paramName = 'AGENT') {
-  return _paramChoice(paramName, agents, 'Select Jenkins agent for build')
+@Deprecated
+def agent() {
+  return _paramChoice('AGENT', [], 'Select Jenkins agent for build')
 }
 
+@Deprecated
 def cypressAgent() {
   return _paramChoice('AGENT', CypressConstants.JENKINS_CYPRESS_AGENTS, 'Select Jenkins agent for build')
 }
@@ -197,7 +199,7 @@ def uiBundleTag() {
   return _paramExtendedSingleSelect('UI_BUNDLE_TAG', 'CLUSTER,NAMESPACE', folioStringScripts.getUIImagesList(), 'Select image tag/version for UI which will be deployed')
 }
 
-def tenantId(String tenant_id = folioDefault.tenants()['diku'].tenantId) {
+def tenantId(String tenant_id = 'diku') {
   return _paramString('TENANT_ID', tenant_id, 'Input Tenant ID')
 }
 
