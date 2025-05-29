@@ -2716,7 +2716,10 @@ mod-login-saml:
     enabled: true
     maxUnavailable: 1
 mod-marc-migrations:
-  extraEnvVars: []
+  heapDumpEnabled: true
+  extraEnvVars:
+    - name: LOCAL_FILE_STORAGE_PATH
+      value: /tmp/dump
   integrations:
     db:
       enabled: true
