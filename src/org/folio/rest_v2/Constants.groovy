@@ -152,6 +152,14 @@ class Constants {
       , dependsOn: ["app-platform-minimal", "app-platform-complete", "app-acquisitions"]
     ],
     [
+      name: "app-rtac"
+      , branch: "snapshot"
+      , consortia: false
+      , core: false
+      , byDefault: true
+      , dependsOn: ["app-platform-minimal", "app-platform-complete", "app-acquisitions"]
+    ],
+    [
       name: "app-dcb"
       , branch: "snapshot"
       , consortia: false
