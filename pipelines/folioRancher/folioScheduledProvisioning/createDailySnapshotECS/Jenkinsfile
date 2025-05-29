@@ -1,7 +1,6 @@
 #!groovy
-package folioRancher.folioNamespaceTools.manageNamespace.createDailySnapshotECS
-
 import org.folio.Constants
+import org.folio.jenkins.PodTemplates
 import org.folio.models.*
 import org.folio.models.parameters.CreateNamespaceParameters
 import org.folio.rest.GitHubUtility
@@ -13,14 +12,14 @@ import org.jenkinsci.plugins.workflow.libs.Library
 
 @Library('pipelines-shared-library') _
 
-CONFIG_BRANCH = 'master'
-
-properties([buildDiscarder(logRotator(numToKeepStr: '10')),
-            disableConcurrentBuilds(),
-            parameters([booleanParam(name: 'RETRY', defaultValue: false, description: '(Optional) Set to true to retry install'),
-                        booleanParam(name: 'NOTIFY', defaultValue: false, description: '(Optional) Set to true to notify about the build'),
-                        folioParameters.refreshParameters()]),
-            pipelineTriggers([parameterizedCron('''25 20 * * 3 %RETRY=false;REFRESH_PARAMETERS=false;NOTIFY=true''')])
+properties([
+  buildDiscarder(logRotator(numToKeepStr: '10')),
+  disableConcurrentBuilds(),
+  parameters([
+    booleanParam(name: 'RETRY', defaultValue: false, description: '(Optional) Set to true to retry install'),
+    booleanParam(name: 'NOTIFY', defaultValue: false, description: '(Optional) Set to true to notify about the build'),
+    folioParameters.refreshParameters()])
+//  , pipelineTriggers([parameterizedCron('''25 20 * * 3 %RETRY=false;REFRESH_PARAMETERS=false;NOTIFY=true''')])
 ])
 
 if (params.REFRESH_PARAMETERS) {
@@ -28,53 +27,50 @@ if (params.REFRESH_PARAMETERS) {
   return
 }
 
+final String deleteNamespaceJobName = Constants.JENKINS_DELETE_NAMESPACE_JOB
+
+PodTemplates podTemplates = new PodTemplates(this)
+Logger logger = new Logger(this, env.JOB_BASE_NAME)
+String defaultTenantId = 'cs00000int'
+String installJsonS3Path = "${Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME}/ecs-snapshot/"
+List newInstallJson = []
+RancherNamespace namespace = new RancherNamespace('folio-testing', 'ecs-snapshot')
+  .withDefaultTenant(defaultTenantId)
+  .withDeploymentConfigType('testing')
+  .withSuperTenantAdminUser()
+
+namespace.addDeploymentConfig(folioTools.getPipelineBranch())
+
+InstallRequestParams installRequestParams = new InstallRequestParams()
+  .withTenantParameters("loadReference=false,loadSample=false,centralTenantId=${defaultTenantId}")
+  .withReinstall(true)
+
+TerraformConfig tfConfig = new TerraformConfig('terraform/rancher/project')
+  .withWorkspace("${namespace.getClusterName()}-${namespace.getNamespaceName()}")
+
+CreateNamespaceParameters namespaceBaseParams = new CreateNamespaceParameters.Builder()
+  .clusterName('folio-testing')
+  .namespaceName('ecs-snapshot')
+  .rwSplit(false)
+  .greenmail(false)
+  .mockServer(false)
+  .pgType('built-in')
+  .pgVersion('16.1')
+  .kafkaType('built-in')
+  .opensearchType('aws')
+  .s3Type('built-in')
+  .members('')
+  .build()
+
 ansiColor('xterm') {
-  node('rancher') {
-
-    String defaultTenantId = 'cs00000int'
-
-    TerraformConfig tfConfig = new TerraformConfig('terraform/rancher/project')
-      .withWorkspace("folio-testing-ecs-snapshot")
-
-    RancherNamespace namespace = new RancherNamespace('folio-testing', 'ecs-snapshot')
-      .withDefaultTenant(defaultTenantId)
-      .withDeploymentConfigType('testing')
-      .withSuperTenantAdminUser()
-
-    namespace.addDeploymentConfig(CONFIG_BRANCH)
-
-    Logger logger = new Logger(this, env.JOB_BASE_NAME)
-
-    String installJsonS3Path = "${Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME}/ecs-snapshot/"
-    List newInstallJson = []
-
-    InstallRequestParams installRequestParams = new InstallRequestParams()
-      .withTenantParameters("loadReference=false,loadSample=false,centralTenantId=${defaultTenantId}")
-      .withReinstall(true)
-
-    final String deleteNamespaceJobName = Constants.JENKINS_DELETE_NAMESPACE_JOB
-
-    CreateNamespaceParameters namespaceBaseParams = new CreateNamespaceParameters.Builder()
-      .clusterName('folio-testing')
-      .namespaceName('ecs-snapshot')
-      .rwSplit(false)
-      .greenmail(false)
-      .mockServer(false)
-      .pgType('built-in')
-      .pgVersion('16.1')
-      .kafkaType('built-in')
-      .opensearchType('aws')
-      .s3Type('built-in')
-      .members('')
-      .worker('rancher')
-      .build()
-
+  podTemplates.rancherAgent {
     stage('Ini') {
-      buildName "folio-testing-ecs-snapshot-${env.BUILD_ID}"
+      buildName "#${namespace.getClusterName()}-${namespace.getNamespaceName()}-${env.BUILD_ID}"
       buildDescription "Config: testing"
       newInstallJson = new GitHubUtility(this).getEnableList('platform-complete', 'snapshot')
       newInstallJson.removeAll { module -> module.id == 'okapi' }
     }
+
     stage('[TF] Set variables') {
       tfConfig.addVar('rancher_cluster_name', 'folio-testing')
       tfConfig.addVar('rancher_project_name', 'ecs-snapshot')
@@ -86,12 +82,11 @@ ansiColor('xterm') {
       tfConfig.addVar('pg_vol_size', 100)
       tfConfig.addVar('pg_embedded', true)
       tfConfig.addVar('kafka_shared', false)
-      tfConfig.addVar('opensearch_shared', false)
+      tfConfig.addVar('opensearch_shared', true)
       tfConfig.addVar('s3_embedded', true)
       tfConfig.addVar('pgadmin4', 'true')
       tfConfig.addVar('pg_ldp_user_password', Constants.PG_LDP_DEFAULT_PASSWORD)
     }
-
     try {
       stage('Checkout') {
         checkout scm
@@ -119,7 +114,6 @@ ansiColor('xterm') {
             params.RETRY ? null : psqlDumpMethods.restoreHelmData("psql-restore", "psql-dump", "1.0.6", "roles", "ecs-snapshot", Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME, "ecs-snapshot", "ecs-snapshot")
           }
         }
-
       }
 
       stage('Prepare for update') {
@@ -133,7 +127,7 @@ ansiColor('xterm') {
 
         }
 
-        params.RETRY ? null : folioDeployFlow.restore(namespace)
+//        params.RETRY ? null : folioDeployFlow.restore(namespace)
 
         folioHelm.withKubeConfig(namespace.getClusterName()) {
 
@@ -163,7 +157,6 @@ ansiColor('xterm') {
             search_user.active ? null : users.activateUser(id as OkapiTenant, search_system_user)
             search_system_user.setUuid(search_user.get('id') as String)
             users.resetUserPassword(tenant, search_system_user)
-
           }
         }
       }
@@ -178,12 +171,11 @@ ansiColor('xterm') {
 
         folioDeployFlow.updatePreparation(namespace, installRequestParams, newInstallJson)
 
-        params.RETRY ? retry(3) {new Main(this, "https://" + namespace.generateDomain('okapi'), namespace.getSuperTenant())} : folioDeployFlow.update(namespace)
-
+        params.RETRY ? retry(3) { new Main(this, "https://" + namespace.generateDomain('okapi'), namespace.getSuperTenant()) } : folioDeployFlow.update(namespace)
       }
 
       stage('Build and deploy UI') {
-        build job: '/folioRancher/folioDevTools/uiManagement/buildAndDeployUI',
+        build job: '/folioDevTools/uiManagement/buildAndDeployUI',
           parameters: [string(name: 'CLUSTER', value: 'folio-testing'),
                        string(name: 'NAMESPACE', value: 'ecs-snapshot'),
                        string(name: 'FOLIO_REPOSITORY', value: 'platform-complete'),
@@ -203,7 +195,7 @@ ansiColor('xterm') {
       stage('Notify') {
         println "Caught exception: ${e}"
         params.NOTIFY ? slackSend(color: 'danger', message: "ecs-snapshot env build failed...\nConsole output: " + "${env.BUILD_URL}", channel: '#rancher_tests_notifications') : null
-        params.RETRY ? null : folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceBaseParams)
+        folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceBaseParams)
       }
       error(e.getMessage())
     }

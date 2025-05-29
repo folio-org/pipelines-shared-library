@@ -1,11 +1,12 @@
 #!groovy
+
 import org.folio.models.parameters.CreateNamespaceParameters
+import org.jenkinsci.plugins.workflow.libs.Library
 
 @Library('pipelines-shared-library') _
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
-  disableConcurrentBuilds(),
   parameters([
     folioParameters.cluster(),
     folioParameters.namespace(),
@@ -17,8 +18,6 @@ properties([
     folioParameters.kafkaType(),
     folioParameters.opensearchType(),
     folioParameters.s3Type(),
-    string(name: 'MEMBERS', defaultValue: '', description: '(Optional) Coma separated list of GitHub teams who need an access to the namespace'),
-    folioParameters.agent(),
     folioParameters.refreshParameters()
   ])
 ])
@@ -43,32 +42,11 @@ CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builde
   .kafkaType(params.KAFKA)
   .opensearchType(params.OPENSEARCH)
   .s3Type(params.S3_BUCKET)
-  .members(params.MEMBERS)
   .namespaceOnly(true)
   .build()
 
+folioCommon.validateNamespace(params.NAMESPACE)
+
 ansiColor('xterm') {
-  node(params.AGENT) {
-    try {
-      stage('Ini') {
-        buildName "${params.CLUSTER}-${params.NAMESPACE}.${env.BUILD_ID}"
-        buildDescription "DB version: ${params.DB_VERSION}\nRW split: ${params.RW_SPLIT}\n" +
-          "Greenmail: ${params.POSTGRESQL}\nMock server: ${params.MOCK_SERVER}"
-      }
-
-      stage('Checkout') {
-        checkout scm
-      }
-
-      folioNamespaceCreate(namespaceParams)
-
-    } catch (e) {
-      println "Caught exception: ${e}"
-      error(e.getMessage())
-    } finally {
-      stage('Cleanup') {
-        cleanWs notFailBuild: true
-      }
-    }
-  }
+  folioNamespaceCreate.call(namespaceParams)
 }

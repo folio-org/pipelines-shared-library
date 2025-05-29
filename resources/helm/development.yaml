@@ -428,6 +428,33 @@ edge-orders:
       - path: /orders*
         pathType: ImplementationSpecific
         servicePort: 80
+      - path: /mosaic*
+        pathType: ImplementationSpecific
+        servicePort: 80
+      - path: /finance*
+        pathType: ImplementationSpecific
+        servicePort: 80
+      - path: /acquisitions-units*
+        pathType: ImplementationSpecific
+        servicePort: 80
+      - path: /organizations*
+        pathType: ImplementationSpecific
+        servicePort: 80
+      - path: /addresses*
+        pathType: ImplementationSpecific
+        servicePort: 80
+      - path: /acquisition-methods*
+        pathType: ImplementationSpecific
+        servicePort: 80
+      - path: /locations-for-order*
+        pathType: ImplementationSpecific
+        servicePort: 80
+      - path: /material-types-for-order*
+        pathType: ImplementationSpecific
+        servicePort: 80
+      - path: /users-for-order*
+        pathType: ImplementationSpecific
+        servicePort: 80
   service:
     type: NodePort
   extraEnvVars: []
@@ -570,6 +597,9 @@ mod-agreements:
     db:
       enabled: true
       existingSecret: db-credentials
+    s3:
+      enabled: true
+      existingSecret: s3-mod-agreements-credentials
   replicaCount: 1
   resources:
     limits:
@@ -1606,6 +1636,9 @@ mod-inventory:
     kafka:
       enabled: true
       existingSecret: kafka-credentials
+    systemuser:
+      enabled: true
+      existingSecret: mod-inventory-systemuser
   replicaCount: 1
   resources:
     limits:
@@ -1695,6 +1728,9 @@ mod-invoice:
     kafka:
       enabled: true
       existingSecret: kafka-credentials
+    systemuser:
+      enabled: true
+      existingSecret: mod-invoice-systemuser
   replicaCount: 1
   resources:
     limits:
@@ -1828,6 +1864,9 @@ mod-licenses:
     db:
       enabled: true
       existingSecret: db-credentials
+    s3:
+      enabled: true
+      existingSecret: s3-mod-licenses-credentials
   replicaCount: 1
   resources:
     limits:
@@ -2207,6 +2246,9 @@ mod-orders:
     kafka:
       enabled: true
       existingSecret: kafka-credentials
+    systemuser:
+      enabled: true
+      existingSecret: mod-orders-systemuser
   replicaCount: 1
   resources:
     limits:
@@ -2892,6 +2934,9 @@ mod-source-record-manager:
     kafka:
       enabled: true
       existingSecret: kafka-credentials
+    systemuser:
+      enabled: true
+      existingSecret: mod-source-record-manager-systemuser
   replicaCount: 1
   resources:
     limits:
@@ -2921,6 +2966,9 @@ mod-source-record-storage:
     kafka:
       enabled: true
       existingSecret: kafka-credentials
+    systemuser:
+      enabled: true
+      existingSecret: mod-source-record-storage-systemuser
   replicaCount: 1
   resources:
     limits:
@@ -3167,10 +3215,6 @@ mgr-applications:
       value: "941241418"
     - name: KONG_WRITE_TIMEOUT
       value: "941241418"
-    - name: KC_INTEGRATION_ENABLED
-      value: 'true'
-    - name: SECURITY_ENABLED
-      value: 'true'
   extraJavaOpts:
     - "-Dlogging.level.root=DEBUG -Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties"
   integrations:
@@ -3205,10 +3249,6 @@ mgr-tenants:
       value: "941241418"
     - name: KONG_WRITE_TIMEOUT
       value: "941241418"
-    - name: KC_INTEGRATION_ENABLED
-      value: 'true'
-    - name: SECURITY_ENABLED
-      value: 'true'
   extraJavaOpts:
     - "-Dlogging.level.root=DEBUG -Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties"
   integrations:
@@ -3244,10 +3284,6 @@ mgr-tenant-entitlements:
       value: "941241418"
     - name: KONG_WRITE_TIMEOUT
       value: "941241418"
-    - name: KC_INTEGRATION_ENABLED
-      value: 'true'
-    - name: SECURITY_ENABLED
-      value: 'true'
     - name: VALIDATION_INTERFACE_COLLECTOR_MODE
       value: "scoped"
   integrations:
@@ -3300,7 +3336,7 @@ mod-consortia-keycloak:
 mod-login-keycloak:
   extraEnvVars:
     - name: KC_ADMIN_TOKEN_TTL
-      value: '410s'
+      value: '295s'
     - name: X_OKAPI_TOKEN_HEADER_ENABLED
       value: 'false'
     - name: LOGIN_COOKIE_SAMESITE

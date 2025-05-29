@@ -1,0 +1,51 @@
+#!groovy
+import org.folio.Constants
+import org.folio.jenkins.PodTemplates
+
+@Library('pipelines-shared-library') _ //TODO update before merge to master
+
+properties([
+  buildDiscarder(logRotator(numToKeepStr: '30')),
+  disableConcurrentBuilds(),
+  parameters([
+    string(name: 'DOCKERFILE_BRANCH', defaultValue: 'master', description: 'Dockerfile Branch'),
+    string(name: 'JAVA_VERSION', defaultValue: '21', description: 'Java base image version'),
+    string(name: 'IMAGE_TAG', defaultValue: "21-alpine-jdk", description: 'Image Tag'),
+    folioParameters.refreshParameters()
+  ])
+])
+
+// Early exit if refresh parameters is triggered
+if (params.REFRESH_PARAMETERS) {
+  currentBuild.result = 'ABORTED'
+  return
+}
+
+PodTemplates podTemplates = new PodTemplates(this)
+def dockerfilePath = './scripts/docker/jenkins/javaContainer'
+
+ansiColor('xterm') {
+  podTemplates.kanikoAgent {
+    stage('[Git] Checkout source') {
+      checkout scmGit(
+        branches: [[name: "*/${env.DOCKERFILE_BRANCH}"]],
+        extensions: [],
+        userRemoteConfigs: [[url: 'https://github.com/folio-org/pipelines-shared-library.git']]
+      )
+    }
+
+    stage('[Docker] Build and push') {
+      common.checkEcrRepoExistence('amazoncorretto')
+      dir(dockerfilePath) {
+        container('kaniko') {
+          withAWS(credentials: Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID, region: Constants.AWS_REGION) {
+            ecrLogin()
+            folioKaniko.dockerHubLogin()
+            sh """/kaniko/executor  --build-arg JAVA_VERSION=${env.JAVA_VERSION.trim()} \
+--destination ${Constants.ECR_FOLIO_REPOSITORY}/amazoncorretto:${env.IMAGE_TAG} --dockerfile ./Dockerfile --context ."""
+          }
+        }
+      }
+    }
+  }
+}

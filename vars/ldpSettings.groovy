@@ -16,7 +16,7 @@ static LdpConfig ldpConfig(Map args = [:]) {
 }
 
 def get_ldp_queries_gh_token() {
-  withCredentials([string(credentialsId: 'ldp_queries_gh_token', variable: 'ldp_queries_gh_token')]) {
+  withCredentials([string(credentialsId: 'ldp-queries-gh-token', variable: 'ldp_queries_gh_token')]) {
     return ldp_queries_gh_token
   }
 }

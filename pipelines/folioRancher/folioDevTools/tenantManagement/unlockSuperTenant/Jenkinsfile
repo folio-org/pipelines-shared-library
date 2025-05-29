@@ -1,10 +1,10 @@
 #!groovy
-
-@Library('pipelines-shared-library') _
-
+import org.folio.jenkins.PodTemplates
 import org.folio.models.RancherNamespace
 import org.folio.rest_v2.Main
 import org.jenkinsci.plugins.workflow.libs.Library
+
+@Library('pipelines-shared-library') _
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
@@ -12,7 +12,6 @@ properties([
   parameters([
     folioParameters.cluster(),
     folioParameters.namespace(),
-    folioParameters.agent(),
     folioParameters.refreshParameters()])
 ])
 
@@ -21,17 +20,19 @@ if (params.REFRESH_PARAMETERS) {
   error('DRY RUN BUILD, PARAMETERS REFRESHED!')
 }
 
+PodTemplates podTemplates = new PodTemplates(this)
+
 RancherNamespace namespace = new RancherNamespace(params.CLUSTER, params.NAMESPACE)
   .withSuperTenantAdminUser()
 
 Main main = new Main(this, namespace.getDomains()['okapi'], namespace.getSuperTenant())
-namespace.setSuperTenantLocked(main.isTenantLocked(namespace.getSuperTenant()))
 
 ansiColor('xterm') {
-  node(params.AGENT) {
+  podTemplates.rancherAgent {
     try {
       stage('Ini') {
         buildName "${namespace.getClusterName()}-${namespace.getNamespaceName()}.${env.BUILD_ID}"
+        namespace.setSuperTenantLocked(main.isTenantLocked(namespace.getSuperTenant()))
       }
       stage("Unlock Supertenant") {
         if (namespace.getSuperTenantLocked()) {
@@ -44,10 +45,6 @@ ansiColor('xterm') {
     } catch (exception) {
       println(exception)
       error(exception.getMessage())
-    } finally {
-      stage('Cleanup') {
-        cleanWs notFailBuild: true
-      }
     }
   }
 }

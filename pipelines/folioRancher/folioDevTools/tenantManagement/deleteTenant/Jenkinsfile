@@ -1,13 +1,12 @@
 #!groovy
+import org.folio.jenkins.PodTemplates
 import org.folio.models.InstallRequestParams
 import org.folio.models.OkapiTenant
-
-@Library('pipelines-shared-library') _
-
-
 import org.folio.models.RancherNamespace
 import org.folio.rest_v2.Main
 import org.jenkinsci.plugins.workflow.libs.Library
+
+@Library('pipelines-shared-library') _
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
@@ -16,7 +15,6 @@ properties([
     folioParameters.cluster(),
     folioParameters.namespace(),
     folioParameters.tenantId(''),
-    folioParameters.agent(),
     folioParameters.refreshParameters()])
 ])
 
@@ -25,27 +23,29 @@ if (params.REFRESH_PARAMETERS) {
   error('DRY RUN BUILD, PARAMETERS REFRESHED!')
 }
 
+PodTemplates podTemplates = new PodTemplates(this)
+
 RancherNamespace namespace = new RancherNamespace(params.CLUSTER, params.NAMESPACE)
   .withSuperTenantAdminUser()
 
 Main main = new Main(this, namespace.getDomains()['okapi'], namespace.getSuperTenant())
 
-if (!main.isTenantExist(params.TENANT_ID)) {
-  currentBuild.result = 'ABORTED'
-  error('Tenant does not exist, stopping the pipeline')
-}
-
-InstallRequestParams installRequestParams = new InstallRequestParams()
-  .withTenantParameters("purge=true")
-
-OkapiTenant tenant = new OkapiTenant(params.TENANT_ID)
-  .withInstallJson(main.getInstallJson(params.TENANT_ID, 'disable'))
-  .withInstallRequestParams(installRequestParams)
-
+OkapiTenant tenant = null
 
 ansiColor('xterm') {
-  node(params.AGENT) {
+  podTemplates.rancherAgent {
     try {
+      stage(name: 'Pre-check') {
+        if (!main.isTenantExist(params.TENANT_ID)) {
+          currentBuild.result = 'ABORTED'
+          error('Tenant does not exist, stopping the pipeline')
+        }
+        InstallRequestParams installRequestParams = new InstallRequestParams()
+          .withTenantParameters("purge=true")
+        tenant = new OkapiTenant(params.TENANT_ID)
+          .withInstallJson(main.getInstallJson(params.TENANT_ID, 'disable'))
+          .withInstallRequestParams(installRequestParams)
+      }
       stage('Ini') {
         buildName "${namespace.getClusterName()}-${namespace.getNamespaceName()}.${env.BUILD_ID}"
         buildDescription "Tenant: ${params.TENANT_ID}"
@@ -60,10 +60,6 @@ ansiColor('xterm') {
     } catch (exception) {
       println(exception)
       error(exception.getMessage())
-    } finally {
-      stage('Cleanup') {
-        cleanWs notFailBuild: true
-      }
     }
   }
 }

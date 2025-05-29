@@ -1,4 +1,4 @@
-package folioRancher.folioScheduledTesting
+
 
 import org.folio.Constants
 import org.folio.utilities.Tools
@@ -162,7 +162,6 @@ private List getEnvironmentJobParameters(String okapiVersion, clusterName, proje
    string(name: 'OPENSEARCH', value: 'built-in'),
    string(name: 'S3_BUCKET', value: 'built-in'),
    string(name: 'RUN_SANITY_CHECK', value: false),
-   string(name: 'MEMBERS', value: ''),
    string(name: 'AGENT', value: 'jenkins-agent-java21'),
    booleanParam(name: 'REFRESH_PARAMETERS', value: false)]
 }
