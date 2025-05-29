@@ -2,6 +2,7 @@ variable "prefix" {
   type        = string
   description = "Name prefix."
 }
+
 variable "vpc_id" {
   type        = string
   description = "VPC ID"

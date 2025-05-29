@@ -1,13 +1,13 @@
 #!groovy
+
+import org.folio.jenkins.PodTemplates
 import org.folio.models.OkapiTenant
-
-@Library('pipelines-shared-library') _
-
-
 import org.folio.models.OkapiUser
 import org.folio.models.RancherNamespace
 import org.folio.rest_v2.Users
 import org.jenkinsci.plugins.workflow.libs.Library
+
+@Library('pipelines-shared-library') _
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
@@ -19,7 +19,6 @@ properties([
     folioParameters.adminUsername(),
     folioParameters.adminPassword(),
     string(name: 'USERNAME', defaultValue: '', description: "Please input username for deletion"),
-    folioParameters.agent(),
     folioParameters.refreshParameters()])
 ])
 
@@ -27,6 +26,8 @@ if (params.REFRESH_PARAMETERS) {
   currentBuild.result = 'ABORTED'
   error('DRY RUN BUILD, PARAMETERS REFRESHED!')
 }
+
+PodTemplates podTemplates = new PodTemplates(this)
 
 RancherNamespace namespace = new RancherNamespace(params.CLUSTER, params.NAMESPACE)
   .withSuperTenantAdminUser()
@@ -39,7 +40,7 @@ OkapiUser user = new OkapiUser(params.USERNAME, '')
 Users deleteUser = new Users(this, namespace.getDomains()['okapi'])
 
 ansiColor('xterm') {
-  node(params.AGENT) {
+  podTemplates.rancherAgent {
     try {
       stage('Ini') {
         buildName "${namespace.getClusterName()}-${namespace.getNamespaceName()}.${env.BUILD_ID}"
@@ -51,10 +52,6 @@ ansiColor('xterm') {
     } catch (exception) {
       println(exception)
       error(exception.getMessage())
-    } finally {
-      stage('Cleanup') {
-        cleanWs notFailBuild: true
-      }
     }
   }
 }

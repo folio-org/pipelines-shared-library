@@ -18,6 +18,12 @@ class CypressRunExecutionSummary implements IRunExecutionSummary, ITestParent {
 
   String uid = ""
 
+  CypressRunExecutionSummary() {}
+
+  CypressRunExecutionSummary(String uid) {
+    this.uid = uid
+  }
+
   Map<Team, List<IModuleExecutionSummary>> getModuleResultByTeam(TeamAssignment teamAssignment) {
     Map<Team, List<IModuleExecutionSummary>> teamResults = [:]
 
@@ -174,9 +180,7 @@ class CypressRunExecutionSummary implements IRunExecutionSummary, ITestParent {
   }
 
   static CypressRunExecutionSummary addFromJSON(def json){
-    CypressRunExecutionSummary ret = new CypressRunExecutionSummary(
-      uid: json?.uid,
-    )
+    CypressRunExecutionSummary ret = new CypressRunExecutionSummary(json?.uid)
 
     ret.children = json?.children ? addChildrenFromJSON(json?.children, ret) : []
 

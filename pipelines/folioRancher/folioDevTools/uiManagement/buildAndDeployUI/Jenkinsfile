@@ -1,9 +1,12 @@
 #!groovy
+
+import org.folio.jenkins.PodTemplates
 import org.folio.models.OkapiConfig
 import org.folio.models.OkapiTenant
 import org.folio.models.RancherNamespace
 import org.folio.models.TenantUi
 import org.folio.utilities.Logger
+import org.jenkinsci.plugins.workflow.libs.Library
 
 @Library('pipelines-shared-library') _
 
@@ -19,7 +22,6 @@ properties([
     folioParameters.tenantId(),
     booleanParam(name: 'CONSORTIA', defaultValue: false, description: '(Optional) Include consortia module in UI bundle'),
     booleanParam(name: 'LINKED_DATA', defaultValue: false, description: '(Optional) Include linked-data module in UI bundle'),
-    folioParameters.agent(),
     folioParameters.refreshParameters()])
 ])
 
@@ -44,7 +46,9 @@ if (params.LINKED_DATA) {
 /**
  * Job variables
  **/
+PodTemplates podTemplates = new PodTemplates(this)
 Logger logger = new Logger(this, env.JOB_BASE_NAME)
+
 final String deploymentConfigType = 'testing'
 boolean isRelease = params.FOLIO_BRANCH ==~ /^R\d-\d{4}.*/
 String commitHash = params.CUSTOM_HASH?.trim() ? params.CUSTOM_HASH : common.getLastCommitHash(params.FOLIO_REPOSITORY, params.FOLIO_BRANCH)
@@ -55,31 +59,21 @@ RancherNamespace namespace = new RancherNamespace(params.CLUSTER, params.NAMESPA
 TenantUi tenantUi = new TenantUi(namespace.getWorkspaceName(), commitHash, params.FOLIO_BRANCH)
 
 OkapiTenant tenant = new OkapiTenant(params.TENANT_ID)
-  .withTenantUi(tenantUi)
+  .withTenantUi(tenantUi.clone())
   .withConfiguration(new OkapiConfig())
 
 ansiColor('xterm') {
-  node(params.AGENT) {
-    try {
-      stage('Ini') {
-        buildName "#${namespace.getWorkspaceName()}.${env.BUILD_ID}"
-        buildDescription "Branch: ${params.FOLIO_BRANCH}\nConsortia: ${params.CONSORTIA}\nLinked-data: ${params.LINKED_DATA}"
+  podTemplates.rancherAgent {
+    stage('Ini') {
+      buildName "#${namespace.getWorkspaceName()}.${env.BUILD_ID}"
+      buildDescription "Branch: ${params.FOLIO_BRANCH}\nConsortia: ${params.CONSORTIA}\nLinked-data: ${params.LINKED_DATA}"
 
-        tenant.enableFolioExtensions(this, extensions, isRelease)
-        namespace.addDeploymentConfig(folioTools.getPipelineBranch())
-        namespace.addTenant(tenant)
-      }
-
-      folioUI.buildAndDeploy(namespace, tenant)
-    } catch (e) {
-      logger.warning("Caught exception: ${e}")
-      error(e.getMessage())
-    } finally {
-      stage('Cleanup') {
-        logger.debug("Workspace size: ${sh(returnStdout: true, script: 'du -sh .').trim()}")
-        cleanWs notFailBuild: true
-      }
+      tenant.enableFolioExtensions(this, extensions, isRelease)
+      namespace.addDeploymentConfig(folioTools.getPipelineBranch())
+      namespace.addTenant(tenant)
     }
   }
+
+  folioUI.buildAndDeploy(namespace, tenant)
 }
 

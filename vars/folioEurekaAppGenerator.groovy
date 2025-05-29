@@ -1,5 +1,6 @@
 import groovy.transform.Field
 import org.folio.Constants
+import org.folio.jenkins.PodTemplates
 import org.folio.models.FolioInstallJson
 import org.folio.utilities.Logger
 import org.folio.utilities.Tools
@@ -43,14 +44,14 @@ Map updateDescriptor(Map descriptor, FolioInstallJson moduleList, boolean debug 
  * @param version The version of the application (optional).
  * @param debug Flag to enable debug logging (default: false).
  */
-Map generateFromDescriptor(Map descriptor, FolioInstallJson moduleList, String version = null, boolean debug = false){
+Map generateFromDescriptor(Map descriptor, FolioInstallJson moduleList, String version = null, boolean debug = false) {
   logger.info("Generating application descriptor from descriptor...")
 
   Map template = createTemplateFromDescriptor(descriptor, version, debug)
   String appName = template.name
 
   dir(appName) {
-    if(moduleList) {
+    if (moduleList) {
       template = updateTemplate(template, moduleList, debug, false)
     }
 
@@ -87,7 +88,7 @@ Map createTemplateFromDescriptor(Map descriptor, String version = null, boolean 
     (module as Map).remove('id')
   }
 
-  if(debug)
+  if (debug)
     logger.debug("Generated template from descriptor:\n $template")
 
   return template
@@ -104,10 +105,18 @@ Map createTemplateFromDescriptor(Map descriptor, String version = null, boolean 
 Map generateFromRepository(String repoName, FolioInstallJson moduleList, String branch = "master", boolean debug = false) {
   logger.info("Generating application descriptor from repository ${repoName}...")
 
-  sh(script: "rm -rf ${repoName} || true && git clone --branch ${branch} --single-branch ${Constants.FOLIO_GITHUB_URL}/${repoName}.git")
+  checkout(poll: false,
+    changelog: false,
+    scm: scmGit(
+      branches: [[name: "*/${branch}"]],
+      extensions: [cloneOption(depth: 10, noTags: true, reference: '', shallow: true),
+                   [$class: 'RelativeTargetDirectory', relativeTargetDir: repoName]],
+      userRemoteConfigs: [[credentialsId: Constants.PRIVATE_GITHUB_CREDENTIALS_ID,
+                           url          : "${Constants.FOLIO_GITHUB_URL}/${repoName}.git"]])
+  )
 
   dir(repoName) {
-    if(moduleList) {
+    if (moduleList) {
       Map updatedTemplate = updateTemplate(readJSON(file: repoName + ".template.json"), moduleList, debug)
       writeJSON file: repoName + ".template.json", json: updatedTemplate
     }
@@ -127,11 +136,11 @@ Map generateFromRepository(String repoName, FolioInstallJson moduleList, String 
  * @param debug Flag to enable debug logging (default: false).
  */
 Map generateFromTemplate(String appName, Map template, FolioInstallJson moduleList
-                         , String appDescription = null, String version = null, boolean debug = false){
+                         , String appDescription = null, String version = null, boolean debug = false) {
   logger.info("Generating application descriptor from template...")
 
   dir(appName) {
-    if(moduleList) {
+    if (moduleList) {
       template = updateTemplate(template, moduleList, debug, false)
     }
 
@@ -140,8 +149,8 @@ Map generateFromTemplate(String appName, Map template, FolioInstallJson moduleLi
 
     return _generate(appName, debug, "org.folio:folio-application-generator:generateFromJson"
       , "-Dproject.name=${appName} -DtemplatePath=${appName}.template.json" +
-        "${version ? " -Dproject.version=${version}" : ""}" +
-        "${appDescription ? " -Dproject.description='${appDescription}'" : ""}")
+      "${version ? " -Dproject.version=${version}" : ""}" +
+      "${appDescription ? " -Dproject.description='${appDescription}'" : ""}")
   }
 }
 
@@ -150,8 +159,10 @@ private Map _generate(String appName, boolean debug = false, String command = "o
 
   awscli.withAwsClient() {
     withMaven(
-      jdk: "${common.selectJavaBasedOnAgent(params.AGENT)}".toString(),
+      jdk: Constants.JAVA_TOOL_NAME,
       maven: Constants.MAVEN_TOOL_NAME,
+      mavenOpts: '-XX:MaxRAMPercentage=85',
+      mavenLocalRepo: "${new PodTemplates(this).WORKING_DIR}/.m2/repository",
       traceability: false,
       options: [artifactsPublisher(disabled: true)]
     ) {
@@ -165,7 +176,7 @@ private Map _generate(String appName, boolean debug = false, String command = "o
   }
 
   dir('target') {
-    if(debug) {
+    if (debug) {
       sh(script: "ls -la")
 
       logger.debug(""""Generated application:
@@ -212,8 +223,8 @@ def replaceModuleVersions(def templateModules, FolioInstallJson moduleList, bool
 
   def updatedModules = templateModules
 
-  templateModules.eachWithIndex{module, index ->
-    if(!moduleList.getModuleByName(module.name))
+  templateModules.eachWithIndex { module, index ->
+    if (!moduleList.getModuleByName(module.name))
       logger.info("Install JSON doesn't contain $module.name")
     else
       updatedModules[index].version = module.version.trim() != "latest" && onlyLatest ?

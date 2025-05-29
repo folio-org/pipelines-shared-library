@@ -1,8 +1,7 @@
 #!groovy
-package folioRancher.folioScheduledTesting.runNightlyCypressEurekaTests
-
 import groovy.transform.Field
 import org.folio.Constants
+import org.folio.jenkins.PodTemplates
 import org.folio.models.OkapiTenant
 import org.folio.models.OkapiUser
 import org.folio.models.RancherNamespace
@@ -23,7 +22,6 @@ properties([
   disableConcurrentBuilds(),
   parameters([
     string(name: 'CYPRESS_BRANCH', defaultValue: 'master', description: "(Required) Insert what 'stripes-testing' branch use for build"),
-    folioParameters.agent(),
     folioParameters.refreshParameters()
   ])
 ])
@@ -36,10 +34,11 @@ if (params.REFRESH_PARAMETERS) {
 /**
  * Job variables
  */
+PodTemplates podTemplates = new PodTemplates(this)
 Logger logger = new Logger(this, env.JOB_BASE_NAME)
 
-@Field final String deleteNamespaceJobName = Constants.JENKINS_DELETE_NAMESPACE_JOB_EUREKA
-@Field final String createNamespaceJobName = Constants.JENKINS_CREATE_NAMESPACE_FROM_BRANCH_JOB_EUREKA
+@Field final String deleteNamespaceJobName = Constants.JENKINS_DELETE_NAMESPACE_JOB
+@Field final String createNamespaceJobName = Constants.JENKINS_CREATE_NAMESPACE_FROM_BRANCH_JOB
 
 final String platformCompleteBranch = 'snapshot'
 
@@ -56,7 +55,6 @@ CreateNamespaceParameters namespaceBaseParams = new CreateNamespaceParameters.Bu
   .opensearchType('aws')
   .s3Type('built-in')
   .members('')
-  .worker('rancher')
   .build()
 
 CreateNamespaceParameters namespaceFromBranchParams = namespaceBaseParams.toBuilder()
@@ -86,7 +84,6 @@ cypressParameters.setTenant(new OkapiTenant('diku')
 cypressParameters.setExecParameters('--env grepTags="smoke criticalPath"')
 cypressParameters.setTestrailProjectID('14')
 cypressParameters.setTestrailRunID('2723')
-cypressParameters.setWorkerLabel('cypress')
 cypressParameters.setNumberOfWorkers(12)
 cypressParameters.setTimeout('480')
 
@@ -97,54 +94,35 @@ String reportPortalRunType = 'evrk'
  * Pipeline
  */
 ansiColor('xterm') {
-  node(params.AGENT) {
-    try {
-      stage('Ini') {
-        buildDescription "Branch: ${params.CYPRESS_BRANCH}\nConfig: ${namespaceFromBranchParams.getConfigType()}\nEnv: ${cypressParameters.tenantUrl}"
-        cleanWs()
-      }
+  podTemplates.rancherAgent {
+    stage('Ini') {
+      buildDescription "Branch: ${params.CYPRESS_BRANCH}\nConfig: ${namespaceFromBranchParams.getConfigType()}\nEnv: ${cypressParameters.tenantUrl}"
+    }
 
-      stage('Checkout') {
-        checkout scm
+    stage('[Job] Destroy environment') {
+      def nsExists
+      folioHelm.withKubeConfig(namespaceBaseParams.getClusterName()) {
+        nsExists = kubectl.checkNamespaceExistence("${namespaceBaseParams.getNamespaceName()}")
       }
-
-      stage('[Job] Destroy environment') {
-        def nsExists
-        folioHelm.withKubeConfig(namespaceBaseParams.getClusterName()) {
-          nsExists = kubectl.checkNamespaceExistence("${namespaceBaseParams.getNamespaceName()}")
+      if (nsExists) {
+        retry(2) {
+          folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceBaseParams)
         }
-        if (nsExists) {
-          retry(2) {
-            folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceBaseParams)
-          }
-        } else {
-          logger.warning("${namespaceBaseParams.getNamespaceName()} namespace does not exists!")
-        }
-      }
-
-      stage('[Job] Provision environment') {
-        try {
-          folioTriggerJob.createNamespaceFromBranch(createNamespaceJobName, namespaceFromBranchParams)
-        } catch (Exception new_ex) {
-          slackSend(attachments: folioSlackNotificationUtils.renderFailedBuildResultMessage()
-            , channel: "#rancher_tests_notifications")
-          throw new Exception("Provision of the environment is failed: " + new_ex)
-        }
-      }
-
-      stage('[Flow] Execute tests') {
-        cypressTestsExecutionSummary = folioCypressFlow.runWrapper(cypressParameters.getCiBuildId(), reportPortalUse, reportPortalRunType) {
-          folioCypressFlow.multiThreadRun(cypressParameters)
-        }
-      }
-    } catch (e) {
-      logger.warning("Caught exception: ${e}")
-      error(e.getMessage())
-    } finally {
-      stage('Cleanup') {
-        logger.debug("Workspace size: ${sh(returnStdout: true, script: 'du -sh .').trim()}")
-        cleanWs notFailBuild: true
+      } else {
+        logger.info("${namespaceBaseParams.getNamespaceName()} namespace does not exists!")
       }
     }
+
+    stage('[Job] Provision environment') {
+      try {
+        folioTriggerJob.createNamespaceFromBranch(createNamespaceJobName, namespaceFromBranchParams)
+      } catch (Exception new_ex) {
+        slackSend(attachments: folioSlackNotificationUtils.renderFailedBuildResultMessage()
+          , channel: "#rancher_tests_notifications")
+        throw new Exception("Provision of the environment is failed: " + new_ex)
+      }
+    }
+
+    folioCypressFlow.call(cypressParameters.getCiBuildId(), [cypressParameters], false, reportPortalUse, reportPortalRunType)
   }
 }
