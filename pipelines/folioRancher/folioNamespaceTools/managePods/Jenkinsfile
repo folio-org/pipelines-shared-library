@@ -5,7 +5,7 @@ import org.folio.jenkins.PodTemplates
 import org.folio.utilities.Tools
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library@RANCHER-2236') _
+@Library('pipelines-shared-library') _
 
 
 def postgresql
@@ -62,6 +62,7 @@ properties([
     15 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=thunderjet
     20 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=vega
     20 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=volaris-2nd
+    33 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=thor
     0 0 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=dojo
     0 0 * * * %ACTION=stop;CLUSTER=folio-eperf;NAMESPACE=corsair
   ''')])

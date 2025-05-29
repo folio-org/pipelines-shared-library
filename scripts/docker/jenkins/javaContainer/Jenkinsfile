@@ -2,7 +2,7 @@
 import org.folio.Constants
 import org.folio.jenkins.PodTemplates
 
-@Library('pipelines-shared-library@RANCHER-2236') _ //TODO update before merge to master
+@Library('pipelines-shared-library') _ //TODO update before merge to master
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),

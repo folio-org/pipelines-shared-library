@@ -1636,6 +1636,9 @@ mod-inventory:
     kafka:
       enabled: true
       existingSecret: kafka-credentials
+    systemuser:
+      enabled: true
+      existingSecret: mod-inventory-systemuser
   replicaCount: 1
   resources:
     limits:
@@ -1725,6 +1728,9 @@ mod-invoice:
     kafka:
       enabled: true
       existingSecret: kafka-credentials
+    systemuser:
+      enabled: true
+      existingSecret: mod-invoice-systemuser
   replicaCount: 1
   resources:
     limits:
@@ -2240,6 +2246,9 @@ mod-orders:
     kafka:
       enabled: true
       existingSecret: kafka-credentials
+    systemuser:
+      enabled: true
+      existingSecret: mod-orders-systemuser
   replicaCount: 1
   resources:
     limits:
@@ -2925,6 +2934,9 @@ mod-source-record-manager:
     kafka:
       enabled: true
       existingSecret: kafka-credentials
+    systemuser:
+      enabled: true
+      existingSecret: mod-source-record-manager-systemuser
   replicaCount: 1
   resources:
     limits:
@@ -2954,6 +2966,9 @@ mod-source-record-storage:
     kafka:
       enabled: true
       existingSecret: kafka-credentials
+    systemuser:
+      enabled: true
+      existingSecret: mod-source-record-storage-systemuser
   replicaCount: 1
   resources:
     limits:
