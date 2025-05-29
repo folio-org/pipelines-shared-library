@@ -8,7 +8,7 @@ import org.folio.rest_v2.PlatformType
 import org.folio.utilities.Logger
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library@RANCHER-2236') _
+@Library('pipelines-shared-library') _
 
 /**
  * Job properties and parameters
@@ -99,7 +99,7 @@ ansiColor('xterm') {
     karateTestsParams.reportPortalProjectName = "karate-eureka"
     karateTestsParams.sendSlackNotification = currentBuild.rawBuild.getCauses().any { it.toString().contains("TimerTriggerCause") } ? true : false
     karateTestsParams.sendTeamsSlackNotification = currentBuild.rawBuild.getCauses().any { it.toString().contains("TimerTriggerCause") } ? true : false
-    karateTestsParams.syncWithJira = currentBuild.rawBuild.getCauses().any { it.toString().contains("TimerTriggerCause") } ? true : false
+    karateTestsParams.syncWithJira = currentBuild.rawBuild.getCauses().any { it.toString().contains("TimerTriggerCause") } ? false : false
     karateTestsParams.timeout = params.TESTS_TIMEOUT
 
     try {

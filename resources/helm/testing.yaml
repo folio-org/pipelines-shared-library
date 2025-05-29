@@ -483,6 +483,18 @@ edge-orders:
       - path: /addresses*
         pathType: ImplementationSpecific
         servicePort: 80
+      - path: /acquisition-methods*
+        pathType: ImplementationSpecific
+        servicePort: 80
+      - path: /locations-for-order*
+        pathType: ImplementationSpecific
+        servicePort: 80
+      - path: /material-types-for-order*
+        pathType: ImplementationSpecific
+        servicePort: 80
+      - path: /users-for-order*
+        pathType: ImplementationSpecific
+        servicePort: 80
   service:
     type: NodePort
   extraEnvVars: []
@@ -647,6 +659,9 @@ mod-agreements:
     db:
       enabled: true
       existingSecret: db-credentials
+    s3:
+      enabled: true
+      existingSecret: s3-mod-agreements-credentials
   replicaCount: 2
   resources:
     limits:
@@ -2174,6 +2189,9 @@ mod-inventory:
     kafka:
       enabled: true
       existingSecret: kafka-credentials
+    systemuser:
+      enabled: true
+      existingSecret: mod-inventory-systemuser
   replicaCount: 1
   resources:
     limits:
@@ -2309,6 +2327,9 @@ mod-invoice:
     kafka:
       enabled: true
       existingSecret: kafka-credentials
+    systemuser:
+      enabled: true
+      existingSecret: mod-invoice-systemuser
   replicaCount: 1
   resources:
     limits:
@@ -2497,6 +2518,9 @@ mod-licenses:
     db:
       enabled: true
       existingSecret: db-credentials
+    s3:
+      enabled: true
+      existingSecret: s3-mod-licenses-credentials
   replicaCount: 1
   resources:
     limits:
@@ -2692,7 +2716,9 @@ mod-login-saml:
     enabled: true
     maxUnavailable: 1
 mod-marc-migrations:
-  extraEnvVars: []
+  extraEnvVars:
+    - name: LOCAL_FILE_STORAGE_PATH
+      value: /tmp
   integrations:
     db:
       enabled: true
@@ -3007,6 +3033,9 @@ mod-orders:
     kafka:
       enabled: true
       existingSecret: kafka-credentials
+    systemuser:
+      enabled: true
+      existingSecret: mod-orders-systemuser
   replicaCount: 1
   resources:
     limits:
@@ -4037,6 +4066,9 @@ mod-source-record-manager:
     kafka:
       enabled: true
       existingSecret: kafka-credentials
+    systemuser:
+      enabled: true
+      existingSecret: mod-source-record-manager-systemuser
   replicaCount: 1
   resources:
     limits:
@@ -4117,6 +4149,9 @@ mod-source-record-storage:
     kafka:
       enabled: true
       existingSecret: kafka-credentials
+    systemuser:
+      enabled: true
+      existingSecret: mod-source-record-storage-systemuser
   replicaCount: 1
   resources:
     limits:

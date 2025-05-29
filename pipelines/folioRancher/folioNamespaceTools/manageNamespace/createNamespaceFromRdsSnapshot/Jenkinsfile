@@ -9,7 +9,7 @@ import org.jenkinsci.plugins.workflow.libs.Library
 import static groovy.json.JsonOutput.prettyPrint
 import static groovy.json.JsonOutput.toJson
 
-@Library('pipelines-shared-library@RANCHER-2236') _
+@Library('pipelines-shared-library') _
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),

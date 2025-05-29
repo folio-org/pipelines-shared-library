@@ -4,7 +4,7 @@ import org.folio.jenkins.PodTemplates
 import org.folio.models.parameters.KarateTestsParameters
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library@RANCHER-2236') _
+@Library('pipelines-shared-library') _
 
 /**
  * Job properties and parameters
@@ -50,7 +50,7 @@ karateTestsParams.adminPassword = params.SUPER_ADMIN_PASSWORD.getPlainText()
 karateTestsParams.prototypeTenant = params.PROTOTYPE_TENANT
 karateTestsParams.threadsCount = params.THREADS_COUNT
 karateTestsParams.javaVerson = params.JAVA_VERSION
-karateTestsParams.timeout = '6'
+karateTestsParams.timeout = '24'
 
 /**
  * Pipeline
