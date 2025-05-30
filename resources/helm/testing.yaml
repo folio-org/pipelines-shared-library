@@ -2718,7 +2718,7 @@ mod-login-saml:
 mod-marc-migrations:
   extraEnvVars:
     - name: LOCAL_FILE_STORAGE_PATH
-      value: /tmp
+      value: /tmp/marc
   integrations:
     db:
       enabled: true

@@ -410,12 +410,19 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
       (ns.getClusterName() == 'folio-testing' && ns.getNamespaceName() == 'sprint') ||
       (ns.getClusterName() == 'folio-etesting' && ns.getNamespaceName() == 'sprint')
 
-  if (isSuitableNamespaceAndCluster && (moduleName == 'mod-data-export'|| moduleName == 'mod-marc-migrations')) {
-    String defaultSize = moduleName == 'mod-marc-migrations' ? '100Gi' : '20Gi'
+  if (isSuitableNamespaceAndCluster && moduleName == 'mod-data-export') {
+
     moduleConfig << [initContainer    : [enabled: true],
                      extraVolumes     : [extendedtmp: [enabled: true]],
                      extraVolumeMounts: [extendedtmp: [enabled: true]],
-                     volumeClaims     : [extendedtmp: [enabled: true, size: defaultSize]]]
+                     volumeClaims     : [extendedtmp: [enabled: true]]]
+  }
+
+  if (isSuitableNamespaceAndCluster && moduleName == 'mod-marc-migrations') {
+    moduleConfig << [initContainer    : [enabled: true],
+                     extraVolumes     : [extendedtmp: [enabled: true]],
+                     extraVolumeMounts: [extendedtmp: [enabled: true, mountPath: '/tmp/marc']],
+                     volumeClaims     : [extendedtmp: [enabled: true, size: '120Gi']]]
   }
 
   //Toleration and NodeSelector
