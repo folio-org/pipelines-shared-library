@@ -24,7 +24,8 @@ class GitHubUtility implements Serializable {
    * @param fileName
    */
   def getJsonModulesList(String repository, String branch, String fileName) {
-    String url = OkapiConstants.RAW_GITHUB_URL + '/' + repository + '/' + branch + '/' + fileName
+    String RAW_GITHUB_URL = 'https://raw.githubusercontent.com/folio-org'
+    String url = RAW_GITHUB_URL + '/' + repository + '/' + branch + '/' + fileName
     def res = http.getRequest(url, [], true)
     if (res.status == HttpURLConnection.HTTP_OK) {
       return tools.jsonParse(res.content)

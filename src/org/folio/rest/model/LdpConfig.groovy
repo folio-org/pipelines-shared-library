@@ -1,5 +1,6 @@
 package org.folio.rest.model
 
+@Deprecated
 class LdpConfig {
 
   String ldp_db_name
