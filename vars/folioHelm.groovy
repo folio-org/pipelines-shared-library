@@ -419,10 +419,11 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
   }
 
   if (isSuitableNamespaceAndCluster && moduleName == 'mod-marc-migrations') {
-    moduleConfig << [initContainer    : [enabled: true],
+    moduleConfig << [initContainer    : [enabled: true, command: '["sh", "-c", "chown -R 1000:1000 /tmp/marc"]',
+                                         extraVolumeMounts: [extendedtmp: [enabled: true, mountPath: '/tmp/marc']]],
                      extraVolumes     : [extendedtmp: [enabled: true]],
                      extraVolumeMounts: [extendedtmp: [enabled: true, mountPath: '/tmp/marc']],
-                     volumeClaims     : [extendedtmp: [enabled: true, size: '120Gi']]]
+                     volumeClaims     : [extendedtmp: [enabled: true, size: '100Gi']]]
   }
 
   //Toleration and NodeSelector
