@@ -584,6 +584,16 @@ mod-aes:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -XX:MaxMetaspaceSize=80m -Xms64m -Xmx64m"
+      resources:
+        limits:
+          memory: 300Mi
+        requests:
+          memory: 256Mi1
 mod-agreements:
   extraEnvVars:
   - name: DB_MAXPOOLSIZE
@@ -620,6 +630,16 @@ mod-agreements:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -XX:MaxMetaspaceSize=80m -Xms64m -Xmx64m"
+      resources:
+        limits:
+          memory: 300Mi
+        requests:
+          memory: 256Mi1
 mod-audit:
   extraEnvVars: []
   integrations:
@@ -649,6 +669,16 @@ mod-audit:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -XX:MaxMetaspaceSize=80m -Xms64m -Xmx64m"
+      resources:
+        limits:
+          memory: 300Mi
+        requests:
+          memory: 256Mi1
 mod-authtoken:
   extraEnvVars: []
   extraJavaOpts:
@@ -679,6 +709,16 @@ mod-authtoken:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -XX:MaxMetaspaceSize=80m -Xms64m -Xmx64m"
+      resources:
+        limits:
+          memory: 300Mi
+        requests:
+          memory: 256Mi1
 mod-batch-print:
   extraEnvVars: []
   integrations:
@@ -705,6 +745,16 @@ mod-batch-print:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -XX:MaxMetaspaceSize=80m -Xms64m -Xmx64m"
+      resources:
+        limits:
+          memory: 300Mi
+        requests:
+          memory: 256Mi1
 mod-bulk-operations:
   extraEnvVars:
   - name: MAX_UPLOADING_RETRIES
@@ -745,6 +795,16 @@ mod-bulk-operations:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -XX:MaxMetaspaceSize=80m -Xms64m -Xmx64m"
+      resources:
+        limits:
+          memory: 300Mi
+        requests:
+          memory: 256Mi1
 mod-calendar:
   extraEnvVars: []
   integrations:
@@ -771,6 +831,16 @@ mod-calendar:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -XX:MaxMetaspaceSize=80m -Xms64m -Xmx64m"
+      resources:
+        limits:
+          memory: 300Mi
+        requests:
+          memory: 256Mi1
 mod-camunda:
   extraEnvVars:
     - name: SPRING_JERSEY_APPLICATIONPATH
@@ -805,6 +875,16 @@ mod-camunda:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -XX:MaxMetaspaceSize=80m -Xms64m -Xmx64m"
+      resources:
+        limits:
+          memory: 300Mi
+        requests:
+          memory: 256Mi1
 mod-circulation:
   extraEnvVars:
   - name: SCHEDULED_ANONYMIZATION_NUMBER_OF_LOANS_TO_CHECK
@@ -838,6 +918,16 @@ mod-circulation:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -XX:MaxMetaspaceSize=80m -Xms64m -Xmx64m"
+      resources:
+        limits:
+          memory: 300Mi
+        requests:
+          memory: 256Mi1
 mod-circulation-bff:
   extraEnvVars: []
   integrations:
@@ -867,6 +957,16 @@ mod-circulation-bff:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -XX:MaxMetaspaceSize=80m -Xms64m -Xmx64m"
+      resources:
+        limits:
+          memory: 300Mi
+        requests:
+          memory: 256Mi1
 mod-circulation-storage:
   extraEnvVars:
   - name: REPLICATION_FACTOR
@@ -898,6 +998,16 @@ mod-circulation-storage:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -XX:MaxMetaspaceSize=80m -Xms64m -Xmx64m"
+      resources:
+        limits:
+          memory: 300Mi
+        requests:
+          memory: 256Mi1
 mod-codex-ekb:
   extraEnvVars: []
   integrations: {}
@@ -919,6 +1029,16 @@ mod-codex-ekb:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -XX:MaxMetaspaceSize=80m -Xms64m -Xmx64m"
+      resources:
+        limits:
+          memory: 300Mi
+        requests:
+          memory: 256Mi1
 mod-codex-inventory:
   extraEnvVars: []
   integrations: {}
@@ -940,6 +1060,16 @@ mod-codex-inventory:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -XX:MaxMetaspaceSize=80m -Xms64m -Xmx64m"
+      resources:
+        limits:
+          memory: 300Mi
+        requests:
+          memory: 256Mi1
 mod-codex-mux:
   extraEnvVars: []
   integrations: {}
@@ -961,6 +1091,16 @@ mod-codex-mux:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -XX:MaxMetaspaceSize=80m -Xms64m -Xmx64m"
+      resources:
+        limits:
+          memory: 300Mi
+        requests:
+          memory: 256Mi1
 mod-configuration:
   extraEnvVars: []
   integrations:
@@ -987,6 +1127,16 @@ mod-configuration:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -XX:MaxMetaspaceSize=80m -Xms64m -Xmx64m"
+      resources:
+        limits:
+          memory: 300Mi
+        requests:
+          memory: 256Mi1
 mod-consortia:
   extraEnvVars: []
   integrations:
@@ -1022,6 +1172,16 @@ mod-consortia:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -XX:MaxMetaspaceSize=80m -Xms64m -Xmx64m"
+      resources:
+        limits:
+          memory: 300Mi
+        requests:
+          memory: 256Mi1
 mod-copycat:
   extraEnvVars: []
   integrations:
@@ -1048,6 +1208,16 @@ mod-copycat:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -XX:MaxMetaspaceSize=80m -Xms64m -Xmx64m"
+      resources:
+        limits:
+          memory: 300Mi
+        requests:
+          memory: 256Mi1
 mod-courses:
   extraEnvVars: []
   integrations:
@@ -1074,6 +1244,16 @@ mod-courses:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -XX:MaxMetaspaceSize=80m -Xms64m -Xmx64m"
+      resources:
+        limits:
+          memory: 300Mi
+        requests:
+          memory: 256Mi1
 mod-data-export:
   extraEnvVars: []
   integrations:
@@ -1106,6 +1286,16 @@ mod-data-export:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -XX:MaxMetaspaceSize=80m -Xms64m -Xmx64m"
+      resources:
+        limits:
+          memory: 300Mi
+        requests:
+          memory: 256Mi1
 mod-data-export-spring:
   extraEnvVars: []
   integrations:
@@ -1141,6 +1331,16 @@ mod-data-export-spring:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -XX:MaxMetaspaceSize=80m -Xms64m -Xmx64m"
+      resources:
+        limits:
+          memory: 300Mi
+        requests:
+          memory: 256Mi1
 mod-data-export-worker:
   extraEnvVars: []
   integrations:
@@ -1173,6 +1373,16 @@ mod-data-export-worker:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -XX:MaxMetaspaceSize=80m -Xms64m -Xmx64m"
+      resources:
+        limits:
+          memory: 300Mi
+        requests:
+          memory: 256Mi1
 mod-data-import:
   extraEnvVars: []
   integrations:
@@ -1208,6 +1418,16 @@ mod-data-import:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -XX:MaxMetaspaceSize=80m -Xms64m -Xmx64m"
+      resources:
+        limits:
+          memory: 300Mi
+        requests:
+          memory: 256Mi1
 mod-di-converter-storage:
   extraEnvVars: []
   integrations:
@@ -1234,6 +1454,16 @@ mod-di-converter-storage:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -XX:MaxMetaspaceSize=80m -Xms64m -Xmx64m"
+      resources:
+        limits:
+          memory: 300Mi
+        requests:
+          memory: 256Mi1
 mod-ebsconet:
   extraEnvVars: []
   integrations: {}
@@ -1257,6 +1487,16 @@ mod-ebsconet:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -XX:MaxMetaspaceSize=80m -Xms64m -Xmx64m"
+      resources:
+        limits:
+          memory: 300Mi
+        requests:
+          memory: 256Mi1
 mod-email:
   extraEnvVars: []
   integrations:
@@ -1283,6 +1523,16 @@ mod-email:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -XX:MaxMetaspaceSize=80m -Xms64m -Xmx64m"
+      resources:
+        limits:
+          memory: 300Mi
+        requests:
+          memory: 256Mi1
 mod-entities-links:
   extraEnvVars:
   - name: INSTANCE_STORAGE_QUERY_BATCH_SIZE
@@ -1329,6 +1579,16 @@ mod-entities-links:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -XX:MaxMetaspaceSize=80m -Xms64m -Xmx64m"
+      resources:
+        limits:
+          memory: 300Mi
+        requests:
+          memory: 256Mi1
 mod-erm-usage:
   extraEnvVars: []
   integrations:
@@ -1355,6 +1615,16 @@ mod-erm-usage:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -XX:MaxMetaspaceSize=80m -Xms64m -Xmx64m"
+      resources:
+        limits:
+          memory: 300Mi
+        requests:
+          memory: 256Mi1
 mod-erm-usage-harvester:
   extraEnvVars: []
   integrations:
@@ -1387,6 +1657,16 @@ mod-erm-usage-harvester:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -XX:MaxMetaspaceSize=80m -Xms64m -Xmx64m"
+      resources:
+        limits:
+          memory: 300Mi
+        requests:
+          memory: 256Mi1
 mod-eusage-reports:
   extraEnvVars: []
   integrations:
@@ -1413,6 +1693,16 @@ mod-eusage-reports:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -XX:MaxMetaspaceSize=80m -Xms64m -Xmx64m"
+      resources:
+        limits:
+          memory: 300Mi
+        requests:
+          memory: 256Mi1
 mod-event-config:
   extraEnvVars: []
   integrations:
@@ -1439,6 +1729,16 @@ mod-event-config:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -XX:MaxMetaspaceSize=80m -Xms64m -Xmx64m"
+      resources:
+        limits:
+          memory: 300Mi
+        requests:
+          memory: 256Mi1
 mod-feesfines:
   extraEnvVars: []
   integrations:
@@ -1465,6 +1765,16 @@ mod-feesfines:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -XX:MaxMetaspaceSize=80m -Xms64m -Xmx64m"
+      resources:
+        limits:
+          memory: 300Mi
+        requests:
+          memory: 256Mi1
 mod-finance:
   extraEnvVars: []
   integrations: {}
@@ -1488,6 +1798,16 @@ mod-finance:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -XX:MaxMetaspaceSize=80m -Xms64m -Xmx64m"
+      resources:
+        limits:
+          memory: 300Mi
+        requests:
+          memory: 256Mi1
 mod-finance-storage:
   extraEnvVars: []
   integrations:
@@ -1514,6 +1834,16 @@ mod-finance-storage:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -XX:MaxMetaspaceSize=80m -Xms64m -Xmx64m"
+      resources:
+        limits:
+          memory: 300Mi
+        requests:
+          memory: 256Mi1
 mod-fqm-manager:
   extraEnvVars:
   - name: QUERY_RETENTION_DURATION
@@ -1544,6 +1874,16 @@ mod-fqm-manager:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -XX:MaxMetaspaceSize=80m -Xms64m -Xmx64m"
+      resources:
+        limits:
+          memory: 300Mi
+        requests:
+          memory: 256Mi1
 mod-gobi:
   extraEnvVars: []
   integrations: {}
@@ -1567,6 +1907,16 @@ mod-gobi:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -XX:MaxMetaspaceSize=80m -Xms64m -Xmx64m"
+      resources:
+        limits:
+          memory: 300Mi
+        requests:
+          memory: 256Mi1
 mod-graphql:
   extraEnvVars: []
   integrations: {}
@@ -1590,6 +1940,16 @@ mod-graphql:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -XX:MaxMetaspaceSize=80m -Xms64m -Xmx64m"
+      resources:
+        limits:
+          memory: 300Mi
+        requests:
+          memory: 256Mi1
 mod-inn-reach:
   extraEnvVars:
   - name: INNREACH_TENANTS
@@ -1627,6 +1987,16 @@ mod-inn-reach:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -XX:MaxMetaspaceSize=80m -Xms64m -Xmx64m"
+      resources:
+        limits:
+          memory: 300Mi
+        requests:
+          memory: 256Mi1
 mod-inventory:
   extraEnvVars: []
   integrations:
@@ -1659,6 +2029,16 @@ mod-inventory:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -XX:MaxMetaspaceSize=80m -Xms64m -Xmx64m"
+      resources:
+        limits:
+          memory: 300Mi
+        requests:
+          memory: 256Mi1
 mod-inventory-storage:
   extraEnvVars:
   - name: REPLICATION_FACTOR
@@ -1692,6 +2072,16 @@ mod-inventory-storage:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -XX:MaxMetaspaceSize=80m -Xms64m -Xmx64m"
+      resources:
+        limits:
+          memory: 300Mi
+        requests:
+          memory: 256Mi1
 mod-inventory-update:
   extraEnvVars: []
   integrations: {}
@@ -1715,6 +2105,16 @@ mod-inventory-update:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -XX:MaxMetaspaceSize=80m -Xms64m -Xmx64m"
+      resources:
+        limits:
+          memory: 300Mi
+        requests:
+          memory: 256Mi1
 mod-invoice:
   extraEnvVars:
   - name: dataimport.consumer.verticle.mandatory
@@ -1751,6 +2151,16 @@ mod-invoice:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -XX:MaxMetaspaceSize=80m -Xms64m -Xmx64m"
+      resources:
+        limits:
+          memory: 300Mi
+        requests:
+          memory: 256Mi1
 mod-invoice-storage:
   extraEnvVars: []
   integrations:
@@ -1780,6 +2190,16 @@ mod-invoice-storage:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -XX:MaxMetaspaceSize=80m -Xms64m -Xmx64m"
+      resources:
+        limits:
+          memory: 300Mi
+        requests:
+          memory: 256Mi1
 mod-kb-ebsco-java:
   extraEnvVars: []
   integrations:
@@ -1806,6 +2226,16 @@ mod-kb-ebsco-java:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -XX:MaxMetaspaceSize=80m -Xms64m -Xmx64m"
+      resources:
+        limits:
+          memory: 300Mi
+        requests:
+          memory: 256Mi1
 mod-ldp:
   extraEnvVars: []
   integrations:
@@ -1832,6 +2262,16 @@ mod-ldp:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -XX:MaxMetaspaceSize=80m -Xms64m -Xmx64m"
+      resources:
+        limits:
+          memory: 300Mi
+        requests:
+          memory: 256Mi1
 mod-reporting:
   extraEnvVars: []
   integrations: {}
@@ -1855,6 +2295,16 @@ mod-reporting:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -XX:MaxMetaspaceSize=80m -Xms64m -Xmx64m"
+      resources:
+        limits:
+          memory: 300Mi
+        requests:
+          memory: 256Mi1
 mod-licenses:
   extraEnvVars: []
   integrations:
@@ -1887,6 +2337,16 @@ mod-licenses:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -XX:MaxMetaspaceSize=80m -Xms64m -Xmx64m"
+      resources:
+        limits:
+          memory: 300Mi
+        requests:
+          memory: 256Mi1
 mod-linked-data:
   extraEnvVars: []
   integrations:
@@ -1921,6 +2381,16 @@ mod-linked-data:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -XX:MaxMetaspaceSize=80m -Xms64m -Xmx64m"
+      resources:
+        limits:
+          memory: 300Mi
+        requests:
+          memory: 256Mi1
 mod-lists:
   extraEnvVars:
   - name: MAX_LIST_SIZE
@@ -1962,6 +2432,16 @@ mod-lists:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -XX:MaxMetaspaceSize=80m -Xms64m -Xmx64m"
+      resources:
+        limits:
+          memory: 300Mi
+        requests:
+          memory: 256Mi1
 mod-login:
   extraEnvVars: []
   integrations:
@@ -1988,6 +2468,16 @@ mod-login:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -XX:MaxMetaspaceSize=80m -Xms64m -Xmx64m"
+      resources:
+        limits:
+          memory: 300Mi
+        requests:
+          memory: 256Mi1
 mod-login-saml:
   extraEnvVars:
     - name: DB_MAXPOOLSIZE
@@ -2016,6 +2506,16 @@ mod-login-saml:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -XX:MaxMetaspaceSize=80m -Xms64m -Xmx64m"
+      resources:
+        limits:
+          memory: 300Mi
+        requests:
+          memory: 256Mi1
 mod-marc-migrations:
   extraEnvVars: []
   integrations:
@@ -2051,6 +2551,16 @@ mod-marc-migrations:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -XX:MaxMetaspaceSize=80m -Xms64m -Xmx64m"
+      resources:
+        limits:
+          memory: 300Mi
+        requests:
+          memory: 256Mi1
 mod-marccat:
   extraEnvVars: []
   integrations:
@@ -2075,6 +2585,16 @@ mod-marccat:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -XX:MaxMetaspaceSize=80m -Xms64m -Xmx64m"
+      resources:
+        limits:
+          memory: 300Mi
+        requests:
+          memory: 256Mi1
 mod-mosaic:
   extraEnvVars: []
   integrations:
@@ -2101,6 +2621,16 @@ mod-mosaic:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -XX:MaxMetaspaceSize=80m -Xms64m -Xmx64m"
+      resources:
+        limits:
+          memory: 300Mi
+        requests:
+          memory: 256Mi1
 mod-ncip:
   extraEnvVars: []
   integrations: {}
@@ -2124,6 +2654,16 @@ mod-ncip:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -XX:MaxMetaspaceSize=80m -Xms64m -Xmx64m"
+      resources:
+        limits:
+          memory: 300Mi
+        requests:
+          memory: 256Mi1
 mod-notes:
   extraEnvVars: []
   integrations:
@@ -2150,6 +2690,16 @@ mod-notes:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -XX:MaxMetaspaceSize=80m -Xms64m -Xmx64m"
+      resources:
+        limits:
+          memory: 300Mi
+        requests:
+          memory: 256Mi1
 mod-notify:
   extraEnvVars: []
   integrations:
@@ -2176,6 +2726,16 @@ mod-notify:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -XX:MaxMetaspaceSize=80m -Xms64m -Xmx64m"
+      resources:
+        limits:
+          memory: 300Mi
+        requests:
+          memory: 256Mi1
 mod-oa:
   extraEnvVars: []
   integrations:
@@ -2205,6 +2765,16 @@ mod-oa:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -XX:MaxMetaspaceSize=80m -Xms64m -Xmx64m"
+      resources:
+        limits:
+          memory: 300Mi
+        requests:
+          memory: 256Mi1
 mod-oai-pmh:
   extraEnvVars:
   - name: CLEAN_UP_ERROR_LOGS_INTERVAL
@@ -2237,6 +2807,16 @@ mod-oai-pmh:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -XX:MaxMetaspaceSize=80m -Xms64m -Xmx64m"
+      resources:
+        limits:
+          memory: 300Mi
+        requests:
+          memory: 256Mi1
 mod-orders:
   extraEnvVars: []
   integrations:
@@ -2269,6 +2849,16 @@ mod-orders:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -XX:MaxMetaspaceSize=80m -Xms64m -Xmx64m"
+      resources:
+        limits:
+          memory: 300Mi
+        requests:
+          memory: 256Mi1
 mod-orders-storage:
   extraEnvVars:
   - name: consumer.verticle.mandatory
@@ -2300,6 +2890,16 @@ mod-orders-storage:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -XX:MaxMetaspaceSize=80m -Xms64m -Xmx64m"
+      resources:
+        limits:
+          memory: 300Mi
+        requests:
+          memory: 256Mi1
 mod-dcb:
   extraEnvVars:
   - name: consumer.verticle.mandatory
@@ -2337,6 +2937,16 @@ mod-dcb:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -XX:MaxMetaspaceSize=80m -Xms64m -Xmx64m"
+      resources:
+        limits:
+          memory: 300Mi
+        requests:
+          memory: 256Mi1
 mod-circulation-item:
   extraEnvVars:
   - name: consumer.verticle.mandatory
@@ -2368,6 +2978,16 @@ mod-circulation-item:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -XX:MaxMetaspaceSize=80m -Xms64m -Xmx64m"
+      resources:
+        limits:
+          memory: 300Mi
+        requests:
+          memory: 256Mi1
 mod-organizations:
   extraEnvVars: []
   integrations: {}
@@ -2391,6 +3011,16 @@ mod-organizations:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -XX:MaxMetaspaceSize=80m -Xms64m -Xmx64m"
+      resources:
+        limits:
+          memory: 300Mi
+        requests:
+          memory: 256Mi1
 mod-organizations-storage:
   extraEnvVars: []
   integrations:
@@ -2420,6 +3050,16 @@ mod-organizations-storage:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -XX:MaxMetaspaceSize=80m -Xms64m -Xmx64m"
+      resources:
+        limits:
+          memory: 300Mi
+        requests:
+          memory: 256Mi1
 mod-password-validator:
   extraEnvVars: []
   integrations:
@@ -2446,6 +3086,16 @@ mod-password-validator:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -XX:MaxMetaspaceSize=80m -Xms64m -Xmx64m"
+      resources:
+        limits:
+          memory: 300Mi
+        requests:
+          memory: 256Mi1
 mod-patron:
   extraEnvVars: []
   integrations: {}
@@ -2469,6 +3119,16 @@ mod-patron:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -XX:MaxMetaspaceSize=80m -Xms64m -Xmx64m"
+      resources:
+        limits:
+          memory: 300Mi
+        requests:
+          memory: 256Mi1
 mod-patron-blocks:
   extraEnvVars: []
   integrations:
@@ -2495,6 +3155,16 @@ mod-patron-blocks:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -XX:MaxMetaspaceSize=80m -Xms64m -Xmx64m"
+      resources:
+        limits:
+          memory: 300Mi
+        requests:
+          memory: 256Mi1
 mod-permissions:
   extraEnvVars: []
   integrations:
@@ -2521,6 +3191,16 @@ mod-permissions:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -XX:MaxMetaspaceSize=80m -Xms64m -Xmx64m"
+      resources:
+        limits:
+          memory: 300Mi
+        requests:
+          memory: 256Mi1
 mod-pubsub:
   extraEnvVars: []
   integrations:
@@ -2556,6 +3236,16 @@ mod-pubsub:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -XX:MaxMetaspaceSize=80m -Xms64m -Xmx64m"
+      resources:
+        limits:
+          memory: 300Mi
+        requests:
+          memory: 256Mi1
 mod-quick-marc:
   extraEnvVars:
   - name: REPLICATION_FACTOR
@@ -2589,6 +3279,16 @@ mod-quick-marc:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -XX:MaxMetaspaceSize=80m -Xms64m -Xmx64m"
+      resources:
+        limits:
+          memory: 300Mi
+        requests:
+          memory: 256Mi1
 mod-reading-room:
   extraEnvVars: []
   integrations:
@@ -2615,6 +3315,16 @@ mod-reading-room:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -XX:MaxMetaspaceSize=80m -Xms64m -Xmx64m"
+      resources:
+        limits:
+          memory: 300Mi
+        requests:
+          memory: 256Mi1
 mod-record-specifications:
   extraEnvVars: []
   integrations:
@@ -2643,6 +3353,16 @@ mod-record-specifications:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -XX:MaxMetaspaceSize=80m -Xms64m -Xmx64m"
+      resources:
+        limits:
+          memory: 300Mi
+        requests:
+          memory: 256Mi1
 mod-remote-storage:
   extraEnvVars: []
   integrations:
@@ -2678,6 +3398,16 @@ mod-remote-storage:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -XX:MaxMetaspaceSize=80m -Xms64m -Xmx64m"
+      resources:
+        limits:
+          memory: 300Mi
+        requests:
+          memory: 256Mi1
 mod-requests-mediated:
   extraEnvVars: []
   integrations:
@@ -2713,6 +3443,16 @@ mod-requests-mediated:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -XX:MaxMetaspaceSize=80m -Xms64m -Xmx64m"
+      resources:
+        limits:
+          memory: 300Mi
+        requests:
+          memory: 256Mi1
 mod-rtac:
   extraEnvVars: []
   integrations: {}
@@ -2736,6 +3476,16 @@ mod-rtac:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -XX:MaxMetaspaceSize=80m -Xms64m -Xmx64m"
+      resources:
+        limits:
+          memory: 300Mi
+        requests:
+          memory: 256Mi1
 mod-search:
   extraEnvVars:
   - name: INSTANCE_SUBJECTS_INDEXING_RETRY_ATTEMPTS
@@ -2814,6 +3564,16 @@ mod-search:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -XX:MaxMetaspaceSize=80m -Xms64m -Xmx64m"
+      resources:
+        limits:
+          memory: 300Mi
+        requests:
+          memory: 256Mi1
 mod-sender:
   extraEnvVars: []
   integrations: {}
@@ -2837,6 +3597,16 @@ mod-sender:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -XX:MaxMetaspaceSize=80m -Xms64m -Xmx64m"
+      resources:
+        limits:
+          memory: 300Mi
+        requests:
+          memory: 256Mi1
 mod-serials-management:
   extraEnvVars:
   - name: DB_MAXPOOLSIZE
@@ -2868,6 +3638,16 @@ mod-serials-management:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -XX:MaxMetaspaceSize=80m -Xms64m -Xmx64m"
+      resources:
+        limits:
+          memory: 300Mi
+        requests:
+          memory: 256Mi1
 mod-service-interaction:
   extraEnvVars:
   - name: DB_MAXPOOLSIZE
@@ -2899,6 +3679,16 @@ mod-service-interaction:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -XX:MaxMetaspaceSize=80m -Xms64m -Xmx64m"
+      resources:
+        limits:
+          memory: 300Mi
+        requests:
+          memory: 256Mi1
 mod-settings:
   extraEnvVars: []
   integrations:
@@ -2925,6 +3715,16 @@ mod-settings:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -XX:MaxMetaspaceSize=80m -Xms64m -Xmx64m"
+      resources:
+        limits:
+          memory: 300Mi
+        requests:
+          memory: 256Mi1
 mod-source-record-manager:
   extraEnvVars: []
   integrations:
@@ -2957,6 +3757,16 @@ mod-source-record-manager:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -XX:MaxMetaspaceSize=80m -Xms64m -Xmx64m"
+      resources:
+        limits:
+          memory: 300Mi
+        requests:
+          memory: 256Mi1
 mod-source-record-storage:
   extraEnvVars: []
   integrations:
@@ -2989,6 +3799,16 @@ mod-source-record-storage:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -XX:MaxMetaspaceSize=80m -Xms64m -Xmx64m"
+      resources:
+        limits:
+          memory: 300Mi
+        requests:
+          memory: 256Mi1
 mod-tags:
   extraEnvVars: []
   integrations:
@@ -3015,6 +3835,16 @@ mod-tags:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -XX:MaxMetaspaceSize=80m -Xms64m -Xmx64m"
+      resources:
+        limits:
+          memory: 300Mi
+        requests:
+          memory: 256Mi1
 mod-template-engine:
   extraEnvVars: []
   integrations:
@@ -3041,6 +3871,16 @@ mod-template-engine:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -XX:MaxMetaspaceSize=80m -Xms64m -Xmx64m"
+      resources:
+        limits:
+          memory: 300Mi
+        requests:
+          memory: 256Mi1
 mod-tlr:
   extraEnvVars: []
   integrations:
@@ -3076,6 +3916,16 @@ mod-tlr:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -XX:MaxMetaspaceSize=80m -Xms64m -Xmx64m"
+      resources:
+        limits:
+          memory: 300Mi
+        requests:
+          memory: 256Mi1
 mod-user-import:
   extraEnvVars: []
   integrations: {}
@@ -3099,6 +3949,16 @@ mod-user-import:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -XX:MaxMetaspaceSize=80m -Xms64m -Xmx64m"
+      resources:
+        limits:
+          memory: 300Mi
+        requests:
+          memory: 256Mi1
 mod-users:
   extraEnvVars: []
   integrations:
@@ -3128,6 +3988,16 @@ mod-users:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -XX:MaxMetaspaceSize=80m -Xms64m -Xmx64m"
+      resources:
+        limits:
+          memory: 300Mi
+        requests:
+          memory: 256Mi1
 mod-users-bl:
   extraEnvVars: []
   integrations: {}
@@ -3151,6 +4021,16 @@ mod-users-bl:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -XX:MaxMetaspaceSize=80m -Xms64m -Xmx64m"
+      resources:
+        limits:
+          memory: 300Mi
+        requests:
+          memory: 256Mi1
 mod-workflow:
   extraEnvVars:
     - name: OKAPI_CAMUNDA_BASEPATH
@@ -3187,6 +4067,16 @@ mod-workflow:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -XX:MaxMetaspaceSize=80m -Xms64m -Xmx64m"
+      resources:
+        limits:
+          memory: 300Mi
+        requests:
+          memory: 256Mi1
 mod-z3950:
   extraEnvVars: []
   integrations: {}
@@ -3199,6 +4089,16 @@ mod-z3950:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -XX:MaxMetaspaceSize=80m -Xms64m -Xmx64m"
+      resources:
+        limits:
+          memory: 300Mi
+        requests:
+          memory: 256Mi1
 mgr-applications:
   extraEnvVars:
     - name: ROUTEMANAGEMENT_ENABLE
@@ -3331,6 +4231,16 @@ mod-consortia-keycloak:
       memory: 628Mi
     requests:
       memory: 480Mi
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -XX:MaxMetaspaceSize=80m -Xms64m -Xmx64m"
+      resources:
+        limits:
+          memory: 300Mi
+        requests:
+          memory: 256Mi
 mod-login-keycloak:
   extraEnvVars:
     - name: KC_ADMIN_TOKEN_TTL
@@ -3355,6 +4265,16 @@ mod-login-keycloak:
       memory: 563Mi
     requests:
       memory: 398Mi
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -XX:MaxMetaspaceSize=80m -Xms64m -Xmx64m"
+      resources:
+        limits:
+          memory: 300Mi
+        requests:
+          memory: 256Mi
 mod-roles-keycloak:
   extraEnvVars:
     - name: KAFKA_CAPABILITIES_TOPIC_PATTERN
@@ -3382,6 +4302,16 @@ mod-roles-keycloak:
       memory: 773Mi
     requests:
       memory: 616Mi
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -XX:MaxMetaspaceSize=80m -Xms64m -Xmx64m"
+      resources:
+        limits:
+          memory: 300Mi
+        requests:
+          memory: 256Mi
 mod-users-keycloak:
   extraEnvVars:
     - name: MOD_USERS_URL
@@ -3421,6 +4351,16 @@ mod-users-keycloak:
       memory: 582Mi
     requests:
       memory: 437Mi
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -XX:MaxMetaspaceSize=80m -Xms64m -Xmx64m"
+      resources:
+        limits:
+          memory: 300Mi
+        requests:
+          memory: 256Mi
 mod-scheduler:
   extraEnvVars:
     - name: KC_IMPERSONATION_CLIENT
@@ -3460,6 +4400,16 @@ mod-scheduler:
       memory: 764Mi
     requests:
       memory: 505Mi
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -XX:MaxMetaspaceSize=80m -Xms64m -Xmx64m"
+      resources:
+        limits:
+          memory: 300Mi
+        requests:
+          memory: 256Mi
 mod-okapi-facade:
   extraEnvVars:
     - name: AM_TLS_ENABLED
@@ -3486,6 +4436,16 @@ mod-okapi-facade:
       memory: 512Mi
     requests:
       memory: 223Mi
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -XX:MaxMetaspaceSize=80m -Xms64m -Xmx64m"
+      resources:
+        limits:
+          memory: 300Mi
+        requests:
+          memory: 256Mi
 okapi:
   ingress:
     enabled: true
@@ -3546,6 +4506,6 @@ ui-bundle:
   replicaCount: 1
   resources:
     limits:
-      memory: 200Mi
+      memory: 256Mi
     requests:
       memory: 100Mi

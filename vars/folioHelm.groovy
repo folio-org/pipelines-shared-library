@@ -310,28 +310,13 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
             [
               name : 'FLOW_ENGINE_PRINT_FLOW_RESULTS',
               value: 'true'
-            ]
-          ] : []
-          moduleConfig['extraEnvVars'] +=  ns.getNamespaceName() == 'dojo' ? [
-            [
-              name : 'VALIDATION_INTERFACE_INTEGRITY_ENABLED',
-              value: 'false'
             ],
             [
-              name : 'FLOW_ENGINE_PRINT_FLOW_RESULTS',
-              value: 'true'
+              name : 'FLOW_ENGINE_THREADS_NUM',
+              value: '1'
             ]
           ] : []
-          moduleConfig['extraEnvVars'] +=  ns.getNamespaceName() == 'cikarate' ? [
-            name : 'FLOW_ENGINE_THREADS_NUM',
-            value: '1'
-          ] : []
-          moduleConfig['extraEnvVars'] +=  ns.getNamespaceName() == 'dojo' ? [
-            name : 'FLOW_ENGINE_THREADS_NUM',
-            value: '1'
-          ] : []
         break
-
       case ~/mod-.*-keycloak/:
         moduleConfig['extraEnvVars'] += [
           name: 'MOD_USERS_ID',
