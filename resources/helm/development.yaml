@@ -593,7 +593,7 @@ mod-aes:
         limits:
           memory: 300Mi
         requests:
-          memory: 256Mi1
+          memory: 256Mi
 mod-agreements:
   extraEnvVars:
   - name: DB_MAXPOOLSIZE
@@ -639,7 +639,7 @@ mod-agreements:
         limits:
           memory: 300Mi
         requests:
-          memory: 256Mi1
+          memory: 256Mi
 mod-audit:
   extraEnvVars: []
   integrations:
@@ -678,7 +678,7 @@ mod-audit:
         limits:
           memory: 300Mi
         requests:
-          memory: 256Mi1
+          memory: 256Mi
 mod-authtoken:
   extraEnvVars: []
   extraJavaOpts:
@@ -718,7 +718,7 @@ mod-authtoken:
         limits:
           memory: 300Mi
         requests:
-          memory: 256Mi1
+          memory: 256Mi
 mod-batch-print:
   extraEnvVars: []
   integrations:
@@ -754,7 +754,7 @@ mod-batch-print:
         limits:
           memory: 300Mi
         requests:
-          memory: 256Mi1
+          memory: 256Mi
 mod-bulk-operations:
   extraEnvVars:
   - name: MAX_UPLOADING_RETRIES
@@ -804,7 +804,7 @@ mod-bulk-operations:
         limits:
           memory: 300Mi
         requests:
-          memory: 256Mi1
+          memory: 256Mi
 mod-calendar:
   extraEnvVars: []
   integrations:
@@ -840,7 +840,7 @@ mod-calendar:
         limits:
           memory: 300Mi
         requests:
-          memory: 256Mi1
+          memory: 256Mi
 mod-camunda:
   extraEnvVars:
     - name: SPRING_JERSEY_APPLICATIONPATH
@@ -884,7 +884,7 @@ mod-camunda:
         limits:
           memory: 300Mi
         requests:
-          memory: 256Mi1
+          memory: 256Mi
 mod-circulation:
   extraEnvVars:
   - name: SCHEDULED_ANONYMIZATION_NUMBER_OF_LOANS_TO_CHECK
@@ -927,7 +927,7 @@ mod-circulation:
         limits:
           memory: 300Mi
         requests:
-          memory: 256Mi1
+          memory: 256Mi
 mod-circulation-bff:
   extraEnvVars: []
   integrations:
@@ -966,7 +966,7 @@ mod-circulation-bff:
         limits:
           memory: 300Mi
         requests:
-          memory: 256Mi1
+          memory: 256Mi
 mod-circulation-storage:
   extraEnvVars:
   - name: REPLICATION_FACTOR
@@ -1007,7 +1007,7 @@ mod-circulation-storage:
         limits:
           memory: 300Mi
         requests:
-          memory: 256Mi1
+          memory: 256Mi
 mod-codex-ekb:
   extraEnvVars: []
   integrations: {}
@@ -1038,7 +1038,7 @@ mod-codex-ekb:
         limits:
           memory: 300Mi
         requests:
-          memory: 256Mi1
+          memory: 256Mi
 mod-codex-inventory:
   extraEnvVars: []
   integrations: {}
@@ -1069,7 +1069,7 @@ mod-codex-inventory:
         limits:
           memory: 300Mi
         requests:
-          memory: 256Mi1
+          memory: 256Mi
 mod-codex-mux:
   extraEnvVars: []
   integrations: {}
@@ -1100,7 +1100,7 @@ mod-codex-mux:
         limits:
           memory: 300Mi
         requests:
-          memory: 256Mi1
+          memory: 256Mi
 mod-configuration:
   extraEnvVars: []
   integrations:
@@ -1136,7 +1136,7 @@ mod-configuration:
         limits:
           memory: 300Mi
         requests:
-          memory: 256Mi1
+          memory: 256Mi
 mod-consortia:
   extraEnvVars: []
   integrations:
@@ -1181,7 +1181,7 @@ mod-consortia:
         limits:
           memory: 300Mi
         requests:
-          memory: 256Mi1
+          memory: 256Mi
 mod-copycat:
   extraEnvVars: []
   integrations:
@@ -1217,7 +1217,7 @@ mod-copycat:
         limits:
           memory: 300Mi
         requests:
-          memory: 256Mi1
+          memory: 256Mi
 mod-courses:
   extraEnvVars: []
   integrations:
@@ -1253,7 +1253,7 @@ mod-courses:
         limits:
           memory: 300Mi
         requests:
-          memory: 256Mi1
+          memory: 256Mi
 mod-data-export:
   extraEnvVars: []
   integrations:
@@ -1295,7 +1295,7 @@ mod-data-export:
         limits:
           memory: 300Mi
         requests:
-          memory: 256Mi1
+          memory: 256Mi
 mod-data-export-spring:
   extraEnvVars: []
   integrations:
@@ -1340,7 +1340,7 @@ mod-data-export-spring:
         limits:
           memory: 300Mi
         requests:
-          memory: 256Mi1
+          memory: 256Mi
 mod-data-export-worker:
   extraEnvVars: []
   integrations:
@@ -1382,7 +1382,7 @@ mod-data-export-worker:
         limits:
           memory: 300Mi
         requests:
-          memory: 256Mi1
+          memory: 256Mi
 mod-data-import:
   extraEnvVars: []
   integrations:
@@ -1427,7 +1427,7 @@ mod-data-import:
         limits:
           memory: 300Mi
         requests:
-          memory: 256Mi1
+          memory: 256Mi
 mod-di-converter-storage:
   extraEnvVars: []
   integrations:
@@ -1463,7 +1463,7 @@ mod-di-converter-storage:
         limits:
           memory: 300Mi
         requests:
-          memory: 256Mi1
+          memory: 256Mi
 mod-ebsconet:
   extraEnvVars: []
   integrations: {}
@@ -1496,7 +1496,7 @@ mod-ebsconet:
         limits:
           memory: 300Mi
         requests:
-          memory: 256Mi1
+          memory: 256Mi
 mod-email:
   extraEnvVars: []
   integrations:
@@ -1532,7 +1532,7 @@ mod-email:
         limits:
           memory: 300Mi
         requests:
-          memory: 256Mi1
+          memory: 256Mi
 mod-entities-links:
   extraEnvVars:
   - name: INSTANCE_STORAGE_QUERY_BATCH_SIZE
@@ -1588,7 +1588,7 @@ mod-entities-links:
         limits:
           memory: 300Mi
         requests:
-          memory: 256Mi1
+          memory: 256Mi
 mod-erm-usage:
   extraEnvVars: []
   integrations:
@@ -1624,7 +1624,7 @@ mod-erm-usage:
         limits:
           memory: 300Mi
         requests:
-          memory: 256Mi1
+          memory: 256Mi
 mod-erm-usage-harvester:
   extraEnvVars: []
   integrations:
@@ -1666,7 +1666,7 @@ mod-erm-usage-harvester:
         limits:
           memory: 300Mi
         requests:
-          memory: 256Mi1
+          memory: 256Mi
 mod-eusage-reports:
   extraEnvVars: []
   integrations:
@@ -1702,7 +1702,7 @@ mod-eusage-reports:
         limits:
           memory: 300Mi
         requests:
-          memory: 256Mi1
+          memory: 256Mi
 mod-event-config:
   extraEnvVars: []
   integrations:
@@ -1738,7 +1738,7 @@ mod-event-config:
         limits:
           memory: 300Mi
         requests:
-          memory: 256Mi1
+          memory: 256Mi
 mod-feesfines:
   extraEnvVars: []
   integrations:
@@ -1774,7 +1774,7 @@ mod-feesfines:
         limits:
           memory: 300Mi
         requests:
-          memory: 256Mi1
+          memory: 256Mi
 mod-finance:
   extraEnvVars: []
   integrations: {}
@@ -1807,7 +1807,7 @@ mod-finance:
         limits:
           memory: 300Mi
         requests:
-          memory: 256Mi1
+          memory: 256Mi
 mod-finance-storage:
   extraEnvVars: []
   integrations:
@@ -1843,7 +1843,7 @@ mod-finance-storage:
         limits:
           memory: 300Mi
         requests:
-          memory: 256Mi1
+          memory: 256Mi
 mod-fqm-manager:
   extraEnvVars:
   - name: QUERY_RETENTION_DURATION
@@ -1883,7 +1883,7 @@ mod-fqm-manager:
         limits:
           memory: 300Mi
         requests:
-          memory: 256Mi1
+          memory: 256Mi
 mod-gobi:
   extraEnvVars: []
   integrations: {}
@@ -1916,7 +1916,7 @@ mod-gobi:
         limits:
           memory: 300Mi
         requests:
-          memory: 256Mi1
+          memory: 256Mi
 mod-graphql:
   extraEnvVars: []
   integrations: {}
@@ -1949,7 +1949,7 @@ mod-graphql:
         limits:
           memory: 300Mi
         requests:
-          memory: 256Mi1
+          memory: 256Mi
 mod-inn-reach:
   extraEnvVars:
   - name: INNREACH_TENANTS
@@ -1996,7 +1996,7 @@ mod-inn-reach:
         limits:
           memory: 300Mi
         requests:
-          memory: 256Mi1
+          memory: 256Mi
 mod-inventory:
   extraEnvVars: []
   integrations:
@@ -2038,7 +2038,7 @@ mod-inventory:
         limits:
           memory: 300Mi
         requests:
-          memory: 256Mi1
+          memory: 256Mi
 mod-inventory-storage:
   extraEnvVars:
   - name: REPLICATION_FACTOR
@@ -2081,7 +2081,7 @@ mod-inventory-storage:
         limits:
           memory: 300Mi
         requests:
-          memory: 256Mi1
+          memory: 256Mi
 mod-inventory-update:
   extraEnvVars: []
   integrations: {}
@@ -2114,7 +2114,7 @@ mod-inventory-update:
         limits:
           memory: 300Mi
         requests:
-          memory: 256Mi1
+          memory: 256Mi
 mod-invoice:
   extraEnvVars:
   - name: dataimport.consumer.verticle.mandatory
@@ -2160,7 +2160,7 @@ mod-invoice:
         limits:
           memory: 300Mi
         requests:
-          memory: 256Mi1
+          memory: 256Mi
 mod-invoice-storage:
   extraEnvVars: []
   integrations:
@@ -2199,7 +2199,7 @@ mod-invoice-storage:
         limits:
           memory: 300Mi
         requests:
-          memory: 256Mi1
+          memory: 256Mi
 mod-kb-ebsco-java:
   extraEnvVars: []
   integrations:
@@ -2235,7 +2235,7 @@ mod-kb-ebsco-java:
         limits:
           memory: 300Mi
         requests:
-          memory: 256Mi1
+          memory: 256Mi
 mod-ldp:
   extraEnvVars: []
   integrations:
@@ -2271,7 +2271,7 @@ mod-ldp:
         limits:
           memory: 300Mi
         requests:
-          memory: 256Mi1
+          memory: 256Mi
 mod-reporting:
   extraEnvVars: []
   integrations: {}
@@ -2304,7 +2304,7 @@ mod-reporting:
         limits:
           memory: 300Mi
         requests:
-          memory: 256Mi1
+          memory: 256Mi
 mod-licenses:
   extraEnvVars: []
   integrations:
@@ -2346,7 +2346,7 @@ mod-licenses:
         limits:
           memory: 300Mi
         requests:
-          memory: 256Mi1
+          memory: 256Mi
 mod-linked-data:
   extraEnvVars: []
   integrations:
@@ -2390,7 +2390,7 @@ mod-linked-data:
         limits:
           memory: 300Mi
         requests:
-          memory: 256Mi1
+          memory: 256Mi
 mod-lists:
   extraEnvVars:
   - name: MAX_LIST_SIZE
@@ -2441,7 +2441,7 @@ mod-lists:
         limits:
           memory: 300Mi
         requests:
-          memory: 256Mi1
+          memory: 256Mi
 mod-login:
   extraEnvVars: []
   integrations:
@@ -2477,7 +2477,7 @@ mod-login:
         limits:
           memory: 300Mi
         requests:
-          memory: 256Mi1
+          memory: 256Mi
 mod-login-saml:
   extraEnvVars:
     - name: DB_MAXPOOLSIZE
@@ -2515,7 +2515,7 @@ mod-login-saml:
         limits:
           memory: 300Mi
         requests:
-          memory: 256Mi1
+          memory: 256Mi
 mod-marc-migrations:
   extraEnvVars: []
   integrations:
@@ -2560,7 +2560,7 @@ mod-marc-migrations:
         limits:
           memory: 300Mi
         requests:
-          memory: 256Mi1
+          memory: 256Mi
 mod-marccat:
   extraEnvVars: []
   integrations:
@@ -2594,7 +2594,7 @@ mod-marccat:
         limits:
           memory: 300Mi
         requests:
-          memory: 256Mi1
+          memory: 256Mi
 mod-mosaic:
   extraEnvVars: []
   integrations:
@@ -2630,7 +2630,7 @@ mod-mosaic:
         limits:
           memory: 300Mi
         requests:
-          memory: 256Mi1
+          memory: 256Mi
 mod-ncip:
   extraEnvVars: []
   integrations: {}
@@ -2663,7 +2663,7 @@ mod-ncip:
         limits:
           memory: 300Mi
         requests:
-          memory: 256Mi1
+          memory: 256Mi
 mod-notes:
   extraEnvVars: []
   integrations:
@@ -2699,7 +2699,7 @@ mod-notes:
         limits:
           memory: 300Mi
         requests:
-          memory: 256Mi1
+          memory: 256Mi
 mod-notify:
   extraEnvVars: []
   integrations:
@@ -2735,7 +2735,7 @@ mod-notify:
         limits:
           memory: 300Mi
         requests:
-          memory: 256Mi1
+          memory: 256Mi
 mod-oa:
   extraEnvVars: []
   integrations:
@@ -2774,7 +2774,7 @@ mod-oa:
         limits:
           memory: 300Mi
         requests:
-          memory: 256Mi1
+          memory: 256Mi
 mod-oai-pmh:
   extraEnvVars:
   - name: CLEAN_UP_ERROR_LOGS_INTERVAL
@@ -2816,7 +2816,7 @@ mod-oai-pmh:
         limits:
           memory: 300Mi
         requests:
-          memory: 256Mi1
+          memory: 256Mi
 mod-orders:
   extraEnvVars: []
   integrations:
@@ -2858,7 +2858,7 @@ mod-orders:
         limits:
           memory: 300Mi
         requests:
-          memory: 256Mi1
+          memory: 256Mi
 mod-orders-storage:
   extraEnvVars:
   - name: consumer.verticle.mandatory
@@ -2899,7 +2899,7 @@ mod-orders-storage:
         limits:
           memory: 300Mi
         requests:
-          memory: 256Mi1
+          memory: 256Mi
 mod-dcb:
   extraEnvVars:
   - name: consumer.verticle.mandatory
@@ -2946,7 +2946,7 @@ mod-dcb:
         limits:
           memory: 300Mi
         requests:
-          memory: 256Mi1
+          memory: 256Mi
 mod-circulation-item:
   extraEnvVars:
   - name: consumer.verticle.mandatory
@@ -2987,7 +2987,7 @@ mod-circulation-item:
         limits:
           memory: 300Mi
         requests:
-          memory: 256Mi1
+          memory: 256Mi
 mod-organizations:
   extraEnvVars: []
   integrations: {}
@@ -3020,7 +3020,7 @@ mod-organizations:
         limits:
           memory: 300Mi
         requests:
-          memory: 256Mi1
+          memory: 256Mi
 mod-organizations-storage:
   extraEnvVars: []
   integrations:
@@ -3059,7 +3059,7 @@ mod-organizations-storage:
         limits:
           memory: 300Mi
         requests:
-          memory: 256Mi1
+          memory: 256Mi
 mod-password-validator:
   extraEnvVars: []
   integrations:
@@ -3095,7 +3095,7 @@ mod-password-validator:
         limits:
           memory: 300Mi
         requests:
-          memory: 256Mi1
+          memory: 256Mi
 mod-patron:
   extraEnvVars: []
   integrations: {}
@@ -3128,7 +3128,7 @@ mod-patron:
         limits:
           memory: 300Mi
         requests:
-          memory: 256Mi1
+          memory: 256Mi
 mod-patron-blocks:
   extraEnvVars: []
   integrations:
@@ -3164,7 +3164,7 @@ mod-patron-blocks:
         limits:
           memory: 300Mi
         requests:
-          memory: 256Mi1
+          memory: 256Mi
 mod-permissions:
   extraEnvVars: []
   integrations:
@@ -3200,7 +3200,7 @@ mod-permissions:
         limits:
           memory: 300Mi
         requests:
-          memory: 256Mi1
+          memory: 256Mi
 mod-pubsub:
   extraEnvVars: []
   integrations:
@@ -3245,7 +3245,7 @@ mod-pubsub:
         limits:
           memory: 300Mi
         requests:
-          memory: 256Mi1
+          memory: 256Mi
 mod-quick-marc:
   extraEnvVars:
   - name: REPLICATION_FACTOR
@@ -3288,7 +3288,7 @@ mod-quick-marc:
         limits:
           memory: 300Mi
         requests:
-          memory: 256Mi1
+          memory: 256Mi
 mod-reading-room:
   extraEnvVars: []
   integrations:
@@ -3324,7 +3324,7 @@ mod-reading-room:
         limits:
           memory: 300Mi
         requests:
-          memory: 256Mi1
+          memory: 256Mi
 mod-record-specifications:
   extraEnvVars: []
   integrations:
@@ -3362,7 +3362,7 @@ mod-record-specifications:
         limits:
           memory: 300Mi
         requests:
-          memory: 256Mi1
+          memory: 256Mi
 mod-remote-storage:
   extraEnvVars: []
   integrations:
@@ -3407,7 +3407,7 @@ mod-remote-storage:
         limits:
           memory: 300Mi
         requests:
-          memory: 256Mi1
+          memory: 256Mi
 mod-requests-mediated:
   extraEnvVars: []
   integrations:
@@ -3452,7 +3452,7 @@ mod-requests-mediated:
         limits:
           memory: 300Mi
         requests:
-          memory: 256Mi1
+          memory: 256Mi
 mod-rtac:
   extraEnvVars: []
   integrations: {}
@@ -3485,7 +3485,7 @@ mod-rtac:
         limits:
           memory: 300Mi
         requests:
-          memory: 256Mi1
+          memory: 256Mi
 mod-search:
   extraEnvVars:
   - name: INSTANCE_SUBJECTS_INDEXING_RETRY_ATTEMPTS
@@ -3573,7 +3573,7 @@ mod-search:
         limits:
           memory: 300Mi
         requests:
-          memory: 256Mi1
+          memory: 256Mi
 mod-sender:
   extraEnvVars: []
   integrations: {}
@@ -3606,7 +3606,7 @@ mod-sender:
         limits:
           memory: 300Mi
         requests:
-          memory: 256Mi1
+          memory: 256Mi
 mod-serials-management:
   extraEnvVars:
   - name: DB_MAXPOOLSIZE
@@ -3647,7 +3647,7 @@ mod-serials-management:
         limits:
           memory: 300Mi
         requests:
-          memory: 256Mi1
+          memory: 256Mi
 mod-service-interaction:
   extraEnvVars:
   - name: DB_MAXPOOLSIZE
@@ -3688,7 +3688,7 @@ mod-service-interaction:
         limits:
           memory: 300Mi
         requests:
-          memory: 256Mi1
+          memory: 256Mi
 mod-settings:
   extraEnvVars: []
   integrations:
@@ -3724,7 +3724,7 @@ mod-settings:
         limits:
           memory: 300Mi
         requests:
-          memory: 256Mi1
+          memory: 256Mi
 mod-source-record-manager:
   extraEnvVars: []
   integrations:
@@ -3766,7 +3766,7 @@ mod-source-record-manager:
         limits:
           memory: 300Mi
         requests:
-          memory: 256Mi1
+          memory: 256Mi
 mod-source-record-storage:
   extraEnvVars: []
   integrations:
@@ -3808,7 +3808,7 @@ mod-source-record-storage:
         limits:
           memory: 300Mi
         requests:
-          memory: 256Mi1
+          memory: 256Mi
 mod-tags:
   extraEnvVars: []
   integrations:
@@ -3844,7 +3844,7 @@ mod-tags:
         limits:
           memory: 300Mi
         requests:
-          memory: 256Mi1
+          memory: 256Mi
 mod-template-engine:
   extraEnvVars: []
   integrations:
@@ -3880,7 +3880,7 @@ mod-template-engine:
         limits:
           memory: 300Mi
         requests:
-          memory: 256Mi1
+          memory: 256Mi
 mod-tlr:
   extraEnvVars: []
   integrations:
@@ -3925,7 +3925,7 @@ mod-tlr:
         limits:
           memory: 300Mi
         requests:
-          memory: 256Mi1
+          memory: 256Mi
 mod-user-import:
   extraEnvVars: []
   integrations: {}
@@ -3958,7 +3958,7 @@ mod-user-import:
         limits:
           memory: 300Mi
         requests:
-          memory: 256Mi1
+          memory: 256Mi
 mod-users:
   extraEnvVars: []
   integrations:
@@ -3997,7 +3997,7 @@ mod-users:
         limits:
           memory: 300Mi
         requests:
-          memory: 256Mi1
+          memory: 256Mi
 mod-users-bl:
   extraEnvVars: []
   integrations: {}
@@ -4030,7 +4030,7 @@ mod-users-bl:
         limits:
           memory: 300Mi
         requests:
-          memory: 256Mi1
+          memory: 256Mi
 mod-workflow:
   extraEnvVars:
     - name: OKAPI_CAMUNDA_BASEPATH
@@ -4076,7 +4076,7 @@ mod-workflow:
         limits:
           memory: 300Mi
         requests:
-          memory: 256Mi1
+          memory: 256Mi
 mod-z3950:
   extraEnvVars: []
   integrations: {}
@@ -4098,7 +4098,7 @@ mod-z3950:
         limits:
           memory: 300Mi
         requests:
-          memory: 256Mi1
+          memory: 256Mi
 mgr-applications:
   extraEnvVars:
     - name: ROUTEMANAGEMENT_ENABLE
