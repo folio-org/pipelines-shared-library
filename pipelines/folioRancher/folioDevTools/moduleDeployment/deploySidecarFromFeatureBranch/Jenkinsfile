@@ -31,7 +31,7 @@ if (params.REFRESH_PARAMETERS) {
 
 /** Job variables */
 PodTemplates podTemplates = new PodTemplates(this)
-Logger logger = new Logger(this, env.JOB_BASE_NAME)
+Logger logger = new Logger(this, env.JOB_BASE_NAME) // unused, but kept for consistency
 
 /** Collect feature branch and hash */
 String featureBranch = params.MODULE_BRANCH
@@ -40,7 +40,7 @@ String featureHash = ""
 /** Collect Maven arguments */
 def mavenArguments = '-DskipTests=true'
 
-params.NATIVE ? mavenArguments + '-Pnative -Dquarkus.native.container-build=true' : mavenArguments
+params.NATIVE == true ? mavenArguments + ' -Pnative -Dquarkus.native.container-build=true' : mavenArguments
 
 /** Sidecar version */
 def sidecarVersion = ""
