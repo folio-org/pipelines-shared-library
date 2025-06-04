@@ -281,7 +281,7 @@ spec:
       containers: [
         buildKanikoContainer([], '512Mi', '768Mi'),
         buildJavaContainer(javaVersion, [new KeyValueEnvVar('DOCKER_HOST', 'tcp://localhost:2375')], '768Mi', '1024Mi'),
-        buildDindContainer([], '8192Mi', '9216Mi')
+        buildDindContainer([], '4096Mi', '5120Mi')
       ]
     )) {
       steps.node(JenkinsAgentLabel.JAVA_BUILD_AGENT.getLabel()) {
