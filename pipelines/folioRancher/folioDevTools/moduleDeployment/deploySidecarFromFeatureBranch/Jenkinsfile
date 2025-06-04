@@ -30,10 +30,6 @@ if (params.REFRESH_PARAMETERS) {
   return
 }
 
-if(params.NATIVE) {
-  params.MVEN_ARGS += ' -Pnative -Dquarkus.native.container-build=true'
-}
-
 /** Job variables */
 PodTemplates podTemplates = new PodTemplates(this)
 Logger logger = new Logger(this, env.JOB_BASE_NAME)
@@ -48,6 +44,8 @@ String featureHash = ""
 
 /** Collect Maven arguments */
 def mavenArguments = params.MAVEN_ARGS.trim()
+
+params.NATIVE ? mavenArguments + '-Pnative -Dquarkus.native.container-build=true' : mavenArguments
 
 /** Sidecar version */
 def sidecarVersion = ""
