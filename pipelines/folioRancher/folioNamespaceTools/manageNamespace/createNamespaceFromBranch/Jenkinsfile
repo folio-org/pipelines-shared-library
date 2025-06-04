@@ -122,7 +122,7 @@ CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builde
   .keycloakVersion('latest')
   .dataset(params.DATASET)
   .type(params.TYPE)
-  .scNative(params.SC_native)
+  .scNative(params.SC_NATIVE)
   .build()
 
 if (params.CONSORTIA) {
