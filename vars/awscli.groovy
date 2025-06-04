@@ -46,7 +46,9 @@ void createEcrRepo(String region, String repo_name) {
         --lifecycle-policy-text '{\"rules\":[{\"rulePriority\":1,\"description\":\"Remove untagged images older than 1 day\",\"selection\":{\"tagStatus\":\"untagged\",\"countType\":\"sinceImagePushed\",\"countUnit\":\"days\",\"countNumber\":1},\"action\":{\"type\":\"expire\"}}]}'"
 }
 
-params
+String listEcrImages(String region, String repo_name) {
+  return sh(script: "aws ecr describe-images --region ${region} --repository-name ${repo_name} --query 'sort_by(imageDetails,& imagePushedAt)[-1].imageTags[0]' --output json", returnStdout: true).trim()
+}
 
 void deleteEcrImage(String region, String repo_name, String image_tag) {
   sh(script: "aws ecr batch-delete-image --region ${region} --repository-name ${repo_name} --image-ids imageTag=${image_tag}")

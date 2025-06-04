@@ -116,6 +116,11 @@ void call(CreateNamespaceParameters args) {
       List pinnedEurekaModules = new GitHubUtility(this).getEurekaPinnedList(folioRepository, args.folioBranch)
       installJson.addAll(eurekaPlatform)
 
+      if (args.scNative) {
+        installJson.remove{ module -> module.id =~ /folio-module-sidecar.*/ }
+        installJson.add([id: aws.listEcrImages(Constants.AWS_REGION, 'folio-module-sidecar'), action: 'enable'])
+      }
+
       //TODO: Temporary solution. Unused by Eureka modules have been removed.
       installJson.removeAll { module -> module.id =~ /(mod-login|mod-authtoken|mod-login-saml)-\d+\..*/ }
       installJson.removeAll { module -> module.id == 'okapi' }

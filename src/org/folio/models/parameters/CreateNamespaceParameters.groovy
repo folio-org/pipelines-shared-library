@@ -51,6 +51,8 @@ class CreateNamespaceParameters implements Cloneable {
 
   boolean dataset = false
 
+  boolean scNative = false
+
   String dmSnapshot
 
   String dbBackupName = ""
@@ -498,6 +500,11 @@ class CreateNamespaceParameters implements Cloneable {
      */
     Builder dbBackupName(String name) {
       parameters.dbBackupName = name
+      return this
+    }
+
+    Builder scNative(boolean scNative) {
+      parameters.scNative = scNative
       return this
     }
 
