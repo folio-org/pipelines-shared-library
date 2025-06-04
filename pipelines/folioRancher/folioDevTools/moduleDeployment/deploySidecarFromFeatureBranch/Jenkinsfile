@@ -43,7 +43,7 @@ def  mavenArguments = '-DskipTests=true'
 
 if (params.NATIVE) {
   mavenArguments += ' -Pnative -Dquarkus.native.container-build=true'
-  logger.info("Building native image for ${sidecarModuleName} on branch ${featureBranch}")
+  logger.info("Building native image for ${sidecarModuleName} on branch ${featureBranch}with options: ${mavenArguments}")
 } else {
   logger.info("Building regular image for ${sidecarModuleName} on branch ${featureBranch}")
 }
