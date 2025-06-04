@@ -118,7 +118,7 @@ void call(CreateNamespaceParameters args) {
 
       if (args.scNative) {
         installJson.remove{ module -> module.id =~ /folio-module-sidecar-.*/ }
-        String tag = awscli.listEcrImages(Constants.AWS_REGION, 'folio-module-sidecar')
+        String tag = (awscli.listEcrImages(Constants.AWS_REGION, 'folio-module-sidecar')).replaceAll('"', '')
         installJson.add([id: "folio-module-sidecar-" + tag, action: 'enable'])
       }
 
