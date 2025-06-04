@@ -39,7 +39,7 @@ String featureHash = ""
 
 /** Collect Maven arguments */
 
-def mavenArguments = params.NATIVE == true ? mavenArguments + ' -Pnative -Dquarkus.native.container-build=true' : mavenArguments
+def mavenArguments = params.NATIVE == true ? + '-DskipTests=true -Pnative -Dquarkus.native.container-build=true' : '-DskipTests=true'
 
 /** Sidecar version */
 def sidecarVersion = ""
