@@ -502,7 +502,12 @@ class CreateNamespaceParameters implements Cloneable {
       parameters.dbBackupName = name
       return this
     }
-
+    /**
+     * Specifies whether the namespace should be created with native support for SC (Service Catalog).
+     * This is typically used for environments that require specific configurations for service catalog features.
+     * @param scNative `true` to enable native support for SC; `false` otherwise.
+     * @return Builder instance for method chaining.
+     */
     Builder scNative(boolean scNative) {
       parameters.scNative = scNative
       return this
