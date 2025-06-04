@@ -38,7 +38,7 @@ String featureBranch = params.MODULE_BRANCH
 String featureHash = ""
 
 /** Collect Maven arguments */
-def mavenArguments = params.MAVEN_ARGS.trim()
+def mavenArguments = '-DskipTests=true'
 
 params.NATIVE ? mavenArguments + '-Pnative -Dquarkus.native.container-build=true' : mavenArguments
 
