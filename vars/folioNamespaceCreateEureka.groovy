@@ -118,7 +118,7 @@ void call(CreateNamespaceParameters args) {
 
       if (args.scNative) {
         installJson.remove{ module -> module.id =~ /folio-module-sidecar.*/ }
-        installJson.add([id: aws.listEcrImages(Constants.AWS_REGION, 'folio-module-sidecar'), action: 'enable'])
+        installJson.add([id: awscli.listEcrImages(Constants.AWS_REGION, 'folio-module-sidecar'), action: 'enable'])
       }
 
       //TODO: Temporary solution. Unused by Eureka modules have been removed.
