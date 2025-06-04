@@ -131,7 +131,7 @@ ansiColor('xterm') {
         cypressParameters.setTenant(new OkapiTenant('diku')
           .withAdminUser(new OkapiUser('diku_admin', 'admin')))
         cypressParameters.setExecParameters('--env grepTags="shiftLeft"')
-        cypressParameters.setNumberOfWorkers(4)
+        cypressParameters.setNumberOfWorkers(5)
         cypressParameters.setTimeout('180')
 
         cypressTestsExecutionSummary = folioCypressFlow.call(cypressParameters.getCiBuildId(), [cypressParameters], false, true, 'ci')
