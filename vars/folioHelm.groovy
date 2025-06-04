@@ -313,7 +313,7 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
             ],
             [
               name : 'FLOW_ENGINE_THREADS_NUM',
-              value: '1'
+              value: '2'
             ]
           ] : []
         break
