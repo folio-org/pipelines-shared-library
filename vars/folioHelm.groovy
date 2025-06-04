@@ -499,7 +499,7 @@ static String determineModulePlacement(String moduleName, String moduleVersion, 
     repository = Constants.ECR_FOLIO_REPOSITORY
   } else {
     switch (moduleVersion) {
-      case ~/^\d{1,3}\.\d{1,3}\.\d{1,3}-native\$/:
+      case ~/^\d{1,3}\.\d{1,3}\.\d{1,3}-native\.[\d\w]{5,}$/:
         repository = Constants.ECR_FOLIO_REPOSITORY
         break
       case ~/^\d{1,3}\.\d{1,3}\.\d{1,3}$/:
