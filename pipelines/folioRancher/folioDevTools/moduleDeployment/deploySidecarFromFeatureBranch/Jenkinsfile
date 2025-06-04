@@ -18,7 +18,6 @@ properties([
   disableConcurrentBuilds(),
   parameters([
     folioParameters.branch('MODULE_BRANCH', sidecarModuleName),
-    string(name: 'MAVEN_ARGS', defaultValue: '-DskipTests', description: 'Maven build arguments'),
     booleanParam(name: 'NATIVE', defaultValue: false, description: 'Build native [SC] image'),
     folioParameters.refreshParameters(),
   ])
@@ -60,7 +59,9 @@ ansiColor('xterm') {
       featureHash = new GitHubClient(this).getBranchInfo(sidecarModuleName, featureBranch).commit.sha.take(7)
 
       buildName "#${sidecarModuleName}.${env.BUILD_ID}"
-      buildDescription "Env: ${namespace.getWorkspaceName()}\nBranch: ${params.MODULE_BRANCH}\n" + "Config: ${params.CONFIG_TYPE}\n${currentBuild.getBuildCauses()[0].shortDescription}"
+      buildDescription  "isNative: ${params.NATIVE}, " +
+                        "branch: ${featureBranch}, " +
+                        "hash: ${featureHash}, "
     }
 
     stage('[Git] Checkout') {
@@ -112,8 +113,8 @@ ansiColor('xterm') {
           }
         }
       }
-      writeFile file: sidecarVersion, text: sidecarVersion
-      archiveArtifacts artifacts: sidecarVersion, onlyIfSuccessful: true
+      writeFile file: "folio-module-sidecar-" + sidecarVersion, text: sidecarVersion
+      archiveArtifacts artifacts: "folio-module-sidecar-" + sidecarVersion, onlyIfSuccessful: true
     }
   }
 }
