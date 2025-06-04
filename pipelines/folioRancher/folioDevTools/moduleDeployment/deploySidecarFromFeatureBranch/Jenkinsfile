@@ -33,10 +33,6 @@ if (params.REFRESH_PARAMETERS) {
 PodTemplates podTemplates = new PodTemplates(this)
 Logger logger = new Logger(this, env.JOB_BASE_NAME)
 
-/** Collect Rancher Namespace Configuration */
-EurekaNamespace namespace = new EurekaNamespace(params.CLUSTER, params.NAMESPACE)
-  .withDeploymentConfigType(params.CONFIG_TYPE) as EurekaNamespace
-
 /** Collect feature branch and hash */
 String featureBranch = params.MODULE_BRANCH
 String featureHash = ""
