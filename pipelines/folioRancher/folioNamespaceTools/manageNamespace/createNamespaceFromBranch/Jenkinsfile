@@ -22,7 +22,7 @@ properties([
     folioParameters.applicationSet(),
     folioParameters.applications(),
     folioParameters.configType(),
-    booleanParam(name: 'SC_NATIVE', defaultValue: false, description: '(Optional) Set true to build native SC image'),
+    booleanParam(name: 'SC_NATIVE', defaultValue: false, description: '(Optional) Set true to use previously built SC image'),
     folioParameters.groupParameters("Environment features"
       , ["LOAD_REFERENCE", "LOAD_SAMPLE", "BUILD_UI", "CONSORTIA", "LINKED_DATA", "MARC_MIGRATIONS", "SPLIT_FILES"
          , "RW_SPLIT", "ECS_CCL", "GREENMAIL", "MOCK_SERVER", "RTR", "DATASET", "TYPE"
