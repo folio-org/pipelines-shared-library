@@ -310,6 +310,10 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
             [
               name : 'FLOW_ENGINE_PRINT_FLOW_RESULTS',
               value: 'true'
+            ],
+            [
+              name : 'FLOW_ENGINE_THREADS_NUM',
+              value: '4'
             ]
           ] : []
           moduleConfig['extraEnvVars'] +=  ns.getNamespaceName() == 'dojo' ? [
@@ -321,10 +325,6 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
               name : 'FLOW_ENGINE_PRINT_FLOW_RESULTS',
               value: 'true'
             ]
-          ] : []
-          moduleConfig['extraEnvVars'] +=  ns.getNamespaceName() == 'cikarate' ? [
-            name : 'FLOW_ENGINE_THREADS_NUM',
-            value: '1'
           ] : []
           moduleConfig['extraEnvVars'] +=  ns.getNamespaceName() == 'dojo' ? [
             name : 'FLOW_ENGINE_THREADS_NUM',
