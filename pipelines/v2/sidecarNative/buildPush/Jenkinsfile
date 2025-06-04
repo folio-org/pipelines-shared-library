@@ -1,4 +1,6 @@
 #!groovy
+package v2.sidecarNative.buildPush
+
 import org.folio.Constants
 import org.folio.jenkins.PodTemplates
 import org.folio.models.EurekaNamespace
@@ -6,7 +8,7 @@ import org.folio.utilities.GitHubClient
 import org.folio.utilities.Logger
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library@RANCHER-2116') _
+@Library('pipelines-shared-library') _
 
 
 /** Sidecar module name (repository name) */
@@ -17,9 +19,9 @@ properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
   disableConcurrentBuilds(),
   parameters([
-    folioParameters.branch('MODULE_BRANCH', sidecarModuleName),
-    booleanParam(name: 'NATIVE', defaultValue: false, description: 'Build native [SC] image'),
-    folioParameters.refreshParameters(),
+          folioParameters.branch('MODULE_BRANCH', sidecarModuleName),
+          string(name: 'MAVEN_ARGS', defaultValue: '-Pnative -DskipTests -Dquarkus.native.container-build=true -Dquarkus.native.builder-image=quay.io/quarkus/ubi-quarkus-mandrel-builder-image:jdk-21', description: 'Maven build arguments'),
+          folioParameters.refreshParameters(),
   ])
 ])
 
@@ -44,8 +46,6 @@ String featureHash = ""
 /** Collect Maven arguments */
 def mavenArguments = params.MAVEN_ARGS.trim()
 
-params.NATIVE ? mavenArguments + '-Pnative -Dquarkus.native.container-build=true' : mavenArguments
-
 /** Sidecar version */
 def sidecarVersion = ""
 
@@ -59,9 +59,7 @@ ansiColor('xterm') {
       featureHash = new GitHubClient(this).getBranchInfo(sidecarModuleName, featureBranch).commit.sha.take(7)
 
       buildName "#${sidecarModuleName}.${env.BUILD_ID}"
-      buildDescription  "isNative: ${params.NATIVE}, " +
-                        "branch: ${featureBranch}, " +
-                        "hash: ${featureHash}, "
+      buildDescription "Env: ${namespace.getWorkspaceName()}\nBranch: ${params.MODULE_BRANCH}\n" + "Config: ${params.CONFIG_TYPE}\n${currentBuild.getBuildCauses()[0].shortDescription}"
     }
 
     stage('[Git] Checkout') {
@@ -79,7 +77,7 @@ ansiColor('xterm') {
       container('java') {
         dir(sidecarWorkDir) {
           /** Read Sidecar version from its pom.xml file PLUS the latest commit hash on branch*/
-          sidecarVersion = (readMavenPom(file: 'pom.xml').version - '-SNAPSHOT') + (params.NATIVE ? "-native.${featureHash}" : ".${featureHash}")
+          sidecarVersion = readMavenPom(file: 'pom.xml').version + ".${featureHash}"
 
           /** Build Sidecar as Maven Project */
           withMaven(jdk: Constants.JAVA_TOOL_NAME,
@@ -103,18 +101,11 @@ ansiColor('xterm') {
           folioKaniko.dockerHubLogin()
           // Build and push the image
           dir(sidecarWorkDir) {
-            if (params.NATIVE) {
-              sh """/kaniko/executor --destination \
-                  ${Constants.ECR_FOLIO_REPOSITORY}/${sidecarModuleName}:${sidecarVersion} -f docker/Dockerfile.native-micro --context .""".stripIndent()
-            } else {
-              sh """/kaniko/executor --destination \
+            sh """/kaniko/executor --destination \
                   ${Constants.ECR_FOLIO_REPOSITORY}/${sidecarModuleName}:${sidecarVersion} --context .""".stripIndent()
-            }
           }
         }
       }
-      writeFile file: "folio-module-sidecar-" + sidecarVersion, text: sidecarVersion
-      archiveArtifacts artifacts: "folio-module-sidecar-" + sidecarVersion, onlyIfSuccessful: true
     }
   }
 }
