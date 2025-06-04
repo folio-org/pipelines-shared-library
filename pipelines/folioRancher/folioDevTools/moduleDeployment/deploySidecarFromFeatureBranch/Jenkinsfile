@@ -109,8 +109,8 @@ ansiColor('xterm') {
           }
         }
       }
-      writeFile file: "folio-module-sidecar-" + sidecarVersion, text: sidecarVersion
-      archiveArtifacts artifacts: "folio-module-sidecar-" + sidecarVersion, onlyIfSuccessful: true
+      writeFile file: "folio-module-sidecar-${sidecarVersion}.txt", text: "folio-module-sidecar-${sidecarVersion}"
+      archiveArtifacts artifacts: "folio-module-sidecar-${sidecarVersion}" , onlyIfSuccessful: true
     }
   }
 }
