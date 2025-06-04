@@ -117,9 +117,13 @@ void call(CreateNamespaceParameters args) {
       installJson.addAll(eurekaPlatform)
 
       if (args.scNative) {
-        installJson.remove { module -> module.id =~ /folio-module-sidecar-.*/ }
         String tag = (awscli.listEcrImages(Constants.AWS_REGION, 'folio-module-sidecar')).replaceAll('"', '')
-        installJson.add([id: "folio-module-sidecar-" + tag, action: 'enable'])
+        if (tag.contains('native')) {
+          installJson.remove { module -> module.id =~ /folio-module-sidecar-.*/ }
+          installJson.add([id: "folio-module-sidecar-" + tag, action: 'enable'])
+        } else {
+          logger.warning("Previously built SC image is not 'NATIVE'. Falling back to default SC image.")
+        }
       }
 
       //TODO: Temporary solution. Unused by Eureka modules have been removed.
