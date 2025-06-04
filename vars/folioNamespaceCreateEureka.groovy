@@ -117,8 +117,9 @@ void call(CreateNamespaceParameters args) {
       installJson.addAll(eurekaPlatform)
 
       if (args.scNative) {
-        installJson.remove{ module -> module.id =~ /folio-module-sidecar.*/ }
-        installJson.add([id: "folio-module-sidecar-" + (awscli.listEcrImages(Constants.AWS_REGION, 'folio-module-sidecar')).toString(), action: 'enable'])
+        installJson.remove{ module -> module.id =~ /folio-module-sidecar-.*/ }
+        String tag = readJSON text: awscli.listEcrImages(Constants.AWS_REGION, 'folio-module-sidecar')
+        installJson.add([id: "folio-module-sidecar-${tag.getAt(0)}", action: 'enable'])
       }
 
       //TODO: Temporary solution. Unused by Eureka modules have been removed.
