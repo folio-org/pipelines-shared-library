@@ -42,7 +42,7 @@ String featureHash = ""
 def  mavenArguments = '-DskipTests=true'
 
 if (params.NATIVE) {
-  mavenArguments += ' -Pnative -Dquarkus.native.container-build=true'
+  mavenArguments += ' -Pnative -Dquarkus.native.container-build=true -Dquarkus.native.builder-image=quay.io/quarkus/ubi-quarkus-mandrel-builder-image:jdk-21'
   logger.info("Building native image for ${sidecarModuleName} on branch ${featureBranch}with options: ${mavenArguments}")
 } else {
   logger.info("Building regular image for ${sidecarModuleName} on branch ${featureBranch}")
@@ -61,9 +61,9 @@ ansiColor('xterm') {
       featureHash = new GitHubClient(this).getBranchInfo(sidecarModuleName, featureBranch).commit.sha.take(7)
 
       buildName "#${sidecarModuleName}.${env.BUILD_ID}"
-      buildDescription  "isNative: ${params.NATIVE}, " +
-                        "branch: ${featureBranch}, " +
-                        "hash: ${featureHash}, "
+      buildDescription  "isNative: ${params.NATIVE}\n" +
+                        "branch: ${featureBranch}\n" +
+                        "hash: ${featureHash}"
     }
 
     stage('[Git] Checkout') {
@@ -107,7 +107,7 @@ ansiColor('xterm') {
           dir(sidecarWorkDir) {
             if (params.NATIVE) {
               sh """/kaniko/executor --destination \
-                  ${Constants.ECR_FOLIO_REPOSITORY}/${sidecarModuleName}:${sidecarVersion} -f docker/Dockerfile.native --context .""".stripIndent()
+                  ${Constants.ECR_FOLIO_REPOSITORY}/${sidecarModuleName}:${sidecarVersion} -f docker/Dockerfile.native-micro --context .""".stripIndent()
             } else {
               sh """/kaniko/executor --destination \
                   ${Constants.ECR_FOLIO_REPOSITORY}/${sidecarModuleName}:${sidecarVersion} --context .""".stripIndent()
