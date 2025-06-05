@@ -42,7 +42,7 @@ String featureHash = ""
 def  mavenArguments = '-DskipTests=true'
 
 if (params.NATIVE) {
-  mavenArguments += ' -Pnative -Dquarkus.native.container-build=true -Dquarkus.native.container-runtime=docker -Dquarkus.native.builder-image=quay.io/quarkus/ubi-quarkus-mandrel-builder-image:23.1-java21'
+  mavenArguments += ' -Pnative'
   logger.info("Building native image for ${sidecarModuleName} on branch ${featureBranch}with options: ${mavenArguments}")
 } else {
   logger.info("Building regular image for ${sidecarModuleName} on branch ${featureBranch}")
@@ -89,7 +89,7 @@ ansiColor('xterm') {
             sh """
                   export CFLAGS="-march=core2"
                   mvn versions:set -DnewVersion=${sidecarVersion}
-                  mvn package ${mavenArguments}
+                  mvn ${params.NATIVE == true ? "install" : "package"} ${mavenArguments}
                 """.stripIndent()
           }
         }
@@ -106,7 +106,7 @@ ansiColor('xterm') {
           dir(sidecarWorkDir) {
             if (params.NATIVE) {
               sh """/kaniko/executor --destination \
-                  ${Constants.ECR_FOLIO_REPOSITORY}/${sidecarModuleName}:${sidecarVersion} -f docker/Dockerfile.native-micro --context .""".stripIndent()
+                  ${Constants.ECR_FOLIO_REPOSITORY}/${sidecarModuleName}:${sidecarVersion} -f docker/Dockerfile.native --context .""".stripIndent()
             } else {
               sh """/kaniko/executor --destination \
                   ${Constants.ECR_FOLIO_REPOSITORY}/${sidecarModuleName}:${sidecarVersion} --context .""".stripIndent()
