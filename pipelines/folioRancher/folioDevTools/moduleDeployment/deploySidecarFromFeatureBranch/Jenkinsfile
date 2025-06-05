@@ -42,7 +42,7 @@ String featureHash = ""
 def  mavenArguments = '-DskipTests=true'
 
 if (params.NATIVE) {
-  mavenArguments += ' -Pnative -Dquarkus.native.additional-build-args="-H:CompilerBackend=llvm -H:CCompilerOption=-march=znver2 --initialize-at-run-time=javax.net.ssl.SSLContext"'
+  mavenArguments += ' -Pnative -Dquarkus.native.additional-build-args="-H:CompilerBackend=llvm -H:CCompilerOption=-march=znver2 --initialize-at-build-time=javax.net.ssl.SSLContext"'
   logger.info("Building native image for ${sidecarModuleName} on branch ${featureBranch}with options: ${mavenArguments}")
 } else {
   logger.info("Building regular image for ${sidecarModuleName} on branch ${featureBranch}")
