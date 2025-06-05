@@ -39,7 +39,7 @@ String featureHash = ""
 
 /** Collect Maven arguments */
 
-def  mavenArguments = '-DskipTests=true -H:CCompilerOption=-march=x86-64'
+def  mavenArguments = '-DskipTests=true -Dquarkus.native.container-build=true -Dquarkus.native.builder-image=quay.io/quarkus/ubi-quarkus-mandrel-builder-image:23.1-java21 -Dquarkus.native.additional-build-args=--compiler-backend=llvm -C=-march=znver2'
 
 if (params.NATIVE) {
   mavenArguments += ' -Pnative'
