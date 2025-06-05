@@ -87,6 +87,7 @@ ansiColor('xterm') {
             traceability: false,
             options: [artifactsPublisher(disabled: true)]) {
             sh """
+                  export CFLAGS="-march=core2"
                   mvn versions:set -DnewVersion=${sidecarVersion}
                   mvn package ${mavenArguments}
                 """.stripIndent()
