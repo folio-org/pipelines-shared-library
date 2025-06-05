@@ -39,7 +39,7 @@ String featureHash = ""
 
 /** Collect Maven arguments */
 
-def  mavenArguments = '-DskipTests=true'
+def  mavenArguments = '-DskipTests=true -H:CCompilerOption=-march=x86-64'
 
 if (params.NATIVE) {
   mavenArguments += ' -Pnative'
