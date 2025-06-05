@@ -122,6 +122,8 @@ void call(CreateNamespaceParameters args) {
           logger.info("Previously built SC image is 'NATIVE'. Using it for Eureka env.")
           installJson.remove { module -> module.id =~ /folio-module-sidecar-.*/ }
           installJson.add([id: "folio-module-sidecar-" + tag, action: 'enable'])
+          writeJSON (file: 'used-install.json', json: installJson, pretty: 4)
+          archiveArtifacts 'used-install.json' // Archive used modules version for review
         } else {
           logger.warning("Previously built SC image is not 'NATIVE'. Falling back to default SC image.")
         }
