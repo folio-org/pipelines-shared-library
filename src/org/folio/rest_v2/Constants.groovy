@@ -116,7 +116,7 @@ class Constants {
       , branch: "snapshot"
       , consortia: false
       , core     : false
-      , byDefault: true
+      , byDefault: false
       , dependsOn: ["app-platform-minimal", "app-platform-complete"]
     ],
     [
