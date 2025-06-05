@@ -61,9 +61,7 @@ ansiColor('xterm') {
       featureHash = new GitHubClient(this).getBranchInfo(sidecarModuleName, featureBranch).commit.sha.take(7)
 
       buildName "#${sidecarModuleName}.${env.BUILD_ID}"
-      buildDescription  """isNative: ${params.NATIVE}
-                           branch: ${featureBranch}
-                           hash: ${featureHash}"""
+      buildDescription  "isNative: ${params.NATIVE} | branch: ${featureBranch} | hash: ${featureHash}"
     }
 
     stage('[Git] Checkout') {
