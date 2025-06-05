@@ -89,7 +89,7 @@ ansiColor('xterm') {
             sh """
                   export CFLAGS="-march=core2"
                   mvn versions:set -DnewVersion=${sidecarVersion}
-                  mvn ${params.NATIVE == true ? "install" : "package"} ${mavenArguments}
+                  mvn clean ${params.NATIVE == true ? "install" : "package"} ${mavenArguments}
                 """.stripIndent()
           }
         }
