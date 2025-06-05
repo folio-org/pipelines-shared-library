@@ -39,10 +39,10 @@ String featureHash = ""
 
 /** Collect Maven arguments */
 
-def  mavenArguments = '-DskipTests=true -Dquarkus.native.container-build=true -Dquarkus.native.builder-image=quay.io/quarkus/ubi-quarkus-mandrel-builder-image:23.1-java21 -Dquarkus.native.additional-build-args=--compiler-backend=llvm -C=-march=znver2'
+def  mavenArguments = '-DskipTests=true'
 
 if (params.NATIVE) {
-  mavenArguments += ' -Pnative'
+  mavenArguments += ' -Pnative -Dquarkus.native.additional-build-args="-H:CompilerBackend=llvm -H:CCompilerOption=-march=znver2"'
   logger.info("Building native image for ${sidecarModuleName} on branch ${featureBranch}with options: ${mavenArguments}")
 } else {
   logger.info("Building regular image for ${sidecarModuleName} on branch ${featureBranch}")
