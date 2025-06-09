@@ -1,7 +1,6 @@
 #!groovy
 import org.folio.Constants
 import org.folio.jenkins.PodTemplates
-import org.folio.models.EurekaNamespace
 import org.folio.utilities.GitHubClient
 import org.folio.utilities.Logger
 import org.jenkinsci.plugins.workflow.libs.Library
@@ -87,8 +86,6 @@ ansiColor('xterm') {
             traceability: false,
             options: [artifactsPublisher(disabled: true)]) {
             sh """
-                  export CFLAGS="-march=core2"
-                  export CXXFLAGS="-march=core2"
                   mvn versions:set -DnewVersion=${sidecarVersion}
                   mvn clean ${params.NATIVE == true ? "install" : "package"} ${mavenArguments}
                 """.stripIndent()
