@@ -38,10 +38,12 @@ String featureHash = ""
 
 /** Collect Maven arguments */
 
-def  mavenArguments = '-DskipTests=true'
+def  mavenArguments = '-DskipTests'
 
 if (params.NATIVE) {
-  mavenArguments += ' -Pnative -Dnative.additional.build.args=-march=x86-64-v2,--initialize-at-build-time=javax.net.ssl.SSLContext,--initialize-at-run-time=org.apache.http.impl.auth.NTLMEngineImpl,--initialize-at-run-time=com.bettercloud.vault.rest.Rest,-H:ReflectionConfigurationFiles=reflection-config.json'
+  mavenArguments += ' -Pnative -Dnative.additional.build.args=-march=x86-64-v2,--initialize-at-build-time=javax.net.ssl.SSLContext,' +
+    '--initialize-at-run-time=org.apache.http.impl.auth.NTLMEngineImpl,--initialize-at-run-time=com.bettercloud.vault.rest.Rest,' +
+    '-H:ReflectionConfigurationFiles=reflection-config.json'
   logger.info("Building native image for ${sidecarModuleName} on branch ${featureBranch}with options: ${mavenArguments}")
 } else {
   logger.info("Building regular image for ${sidecarModuleName} on branch ${featureBranch}")
