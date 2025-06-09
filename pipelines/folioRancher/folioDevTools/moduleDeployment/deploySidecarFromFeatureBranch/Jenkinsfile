@@ -41,7 +41,7 @@ String featureHash = ""
 def  mavenArguments = '-DskipTests'
 
 if (params.NATIVE) {
-  mavenArguments += ' -Pnative -Dnative.march=-march=x86-64-v2'
+  mavenArguments += ' -Pnative -Dnative.march=-march=compatibility'
   logger.info("Building native image for ${sidecarModuleName} on branch ${featureBranch}with options: ${mavenArguments}")
 } else {
   logger.info("Building regular image for ${sidecarModuleName} on branch ${featureBranch}")
@@ -86,6 +86,7 @@ ansiColor('xterm') {
             traceability: false,
             options: [artifactsPublisher(disabled: true)]) {
             sh """
+                  echo 'quarkus.native.builder-args=-march=x86-64-v2' >> src/main/resources/application.properties
                   mvn versions:set -DnewVersion=${sidecarVersion}
                   mvn clean ${params.NATIVE == true ? "install" : "package"} ${mavenArguments}
                 """.stripIndent()
