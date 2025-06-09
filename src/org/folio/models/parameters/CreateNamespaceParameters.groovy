@@ -86,7 +86,7 @@ class CreateNamespaceParameters implements Cloneable {
   @Deprecated
   String worker
 
-  String keycloakVersion = 'latest'
+  String keycloakVersion = '26.2.0-SNAPSHOT.50'
 
   String kongVersion = 'latest'
 
