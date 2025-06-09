@@ -41,7 +41,7 @@ String featureHash = ""
 def  mavenArguments = '-DskipTests=true'
 
 if (params.NATIVE) {
-  mavenArguments += ' -Pnative'
+  mavenArguments += ' -Pnative -Dnative.additional.build.args=-march=x86-64-v2,--initialize-at-run-time=org.apache.http.impl.auth.NTLMEngineImpl,--initialize-at-run-time=com.bettercloud.vault.rest.Rest,-H:ReflectionConfigurationFiles=reflection-config.json'
   logger.info("Building native image for ${sidecarModuleName} on branch ${featureBranch}with options: ${mavenArguments}")
 } else {
   logger.info("Building regular image for ${sidecarModuleName} on branch ${featureBranch}")
