@@ -192,7 +192,7 @@ module "eks_cluster" {
 
         capacity_type  = var.eks_nodes_type
         disk_size      = 100
-        instance_types = ["r5a.2xlarge"]
+        instance_types = var.asg_instance_types
 
         enable_monitoring = false
 
