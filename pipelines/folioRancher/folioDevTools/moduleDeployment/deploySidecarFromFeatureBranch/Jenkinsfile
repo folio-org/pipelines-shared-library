@@ -42,7 +42,7 @@ def  mavenArguments = '-DskipTests'
 
 if (params.NATIVE) {
   mavenArguments += ' -Pnative -Dnative.march=-march=compatibility'
-  logger.info("Building native image for ${sidecarModuleName} on branch ${featureBranch}with options: ${mavenArguments}")
+  logger.info("Building native image for ${sidecarModuleName} on branch ${featureBranch} with options: ${mavenArguments}")
 } else {
   logger.info("Building regular image for ${sidecarModuleName} on branch ${featureBranch}")
 }
@@ -78,7 +78,7 @@ ansiColor('xterm') {
       container('java') {
         dir(sidecarWorkDir) {
           /** Read Sidecar version from its pom.xml file PLUS the latest commit hash on branch*/
-          sidecarVersion = (readMavenPom(file: 'pom.xml').version - '-SNAPSHOT') + (params.NATIVE ? "-native.${featureHash}" : "-SNAPSHOT.${featureHash}")
+          sidecarVersion = (readMavenPom(file: 'pom.xml').version - '-SNAPSHOT') + (params.NATIVE == true ? "-native.${featureHash}" : "-SNAPSHOT.${featureHash}")
 
           /** Build Sidecar as Maven Project */
           withMaven(jdk: Constants.JAVA_TOOL_NAME,
