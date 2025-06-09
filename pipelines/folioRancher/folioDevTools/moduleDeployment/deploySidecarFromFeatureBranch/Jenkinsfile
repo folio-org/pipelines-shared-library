@@ -87,6 +87,7 @@ ansiColor('xterm') {
             options: [artifactsPublisher(disabled: true)]) {
             sh """
                   echo 'quarkus.native.builder-args=-march=x86-64-v2' >> src/main/resources/application.properties
+                  cat src/main/resources/application.properties
                   mvn versions:set -DnewVersion=${sidecarVersion}
                   mvn clean ${params.NATIVE == true ? "install" : "package"} ${mavenArguments}
                 """.stripIndent()
