@@ -1,7 +1,6 @@
 #!groovy
 import org.folio.Constants
 import org.folio.jenkins.PodTemplates
-import org.folio.models.EurekaNamespace
 import org.folio.utilities.GitHubClient
 import org.folio.utilities.Logger
 import org.jenkinsci.plugins.workflow.libs.Library
@@ -18,10 +17,7 @@ properties([
   disableConcurrentBuilds(),
   parameters([
     folioParameters.branch('MODULE_BRANCH', sidecarModuleName),
-    string(name: 'MAVEN_ARGS', defaultValue: '-DskipTests', description: 'Maven build arguments'),
-    folioParameters.cluster(),
-    folioParameters.namespace(),
-    folioParameters.configType(),
+    booleanParam(name: 'NATIVE', defaultValue: false, description: 'Build native [SC] image'),
     folioParameters.refreshParameters(),
   ])
 ])
@@ -36,16 +32,20 @@ if (params.REFRESH_PARAMETERS) {
 PodTemplates podTemplates = new PodTemplates(this)
 Logger logger = new Logger(this, env.JOB_BASE_NAME)
 
-/** Collect Rancher Namespace Configuration */
-EurekaNamespace namespace = new EurekaNamespace(params.CLUSTER, params.NAMESPACE)
-  .withDeploymentConfigType(params.CONFIG_TYPE) as EurekaNamespace
-
 /** Collect feature branch and hash */
 String featureBranch = params.MODULE_BRANCH
 String featureHash = ""
 
 /** Collect Maven arguments */
-def mavenArguments = params.MAVEN_ARGS.trim()
+
+def  mavenArguments = '-DskipTests'
+
+if (params.NATIVE) {
+  mavenArguments += ' -Pnative -Dnative.march=-march=compatibility'
+  logger.info("Building native image for ${sidecarModuleName} on branch ${featureBranch} with options: ${mavenArguments}")
+} else {
+  logger.info("Building regular image for ${sidecarModuleName} on branch ${featureBranch}")
+}
 
 /** Sidecar version */
 def sidecarVersion = ""
@@ -60,7 +60,7 @@ ansiColor('xterm') {
       featureHash = new GitHubClient(this).getBranchInfo(sidecarModuleName, featureBranch).commit.sha.take(7)
 
       buildName "#${sidecarModuleName}.${env.BUILD_ID}"
-      buildDescription "Env: ${namespace.getWorkspaceName()}\nBranch: ${params.MODULE_BRANCH}\n" + "Config: ${params.CONFIG_TYPE}\n${currentBuild.getBuildCauses()[0].shortDescription}"
+      buildDescription  "isNative: ${params.NATIVE} | branch: ${featureBranch} | hash: ${featureHash}"
     }
 
     stage('[Git] Checkout') {
@@ -78,7 +78,7 @@ ansiColor('xterm') {
       container('java') {
         dir(sidecarWorkDir) {
           /** Read Sidecar version from its pom.xml file PLUS the latest commit hash on branch*/
-          sidecarVersion = readMavenPom(file: 'pom.xml').version + ".${featureHash}"
+          sidecarVersion = (readMavenPom(file: 'pom.xml').version - '-SNAPSHOT') + (params.NATIVE == true ? "-native.${featureHash}" : "-SNAPSHOT.${featureHash}")
 
           /** Build Sidecar as Maven Project */
           withMaven(jdk: Constants.JAVA_TOOL_NAME,
@@ -87,7 +87,7 @@ ansiColor('xterm') {
             options: [artifactsPublisher(disabled: true)]) {
             sh """
                   mvn versions:set -DnewVersion=${sidecarVersion}
-                  mvn package ${mavenArguments}
+                  mvn clean ${params.NATIVE == true ? "install" : "package"} ${mavenArguments}
                 """.stripIndent()
           }
         }
@@ -102,44 +102,18 @@ ansiColor('xterm') {
           folioKaniko.dockerHubLogin()
           // Build and push the image
           dir(sidecarWorkDir) {
-            sh """/kaniko/executor --destination \
+            if (params.NATIVE) {
+              sh """/kaniko/executor --destination \
+                  ${Constants.ECR_FOLIO_REPOSITORY}/${sidecarModuleName}:${sidecarVersion} -f docker/Dockerfile.native-micro --context .""".stripIndent()
+            } else {
+              sh """/kaniko/executor --destination \
                   ${Constants.ECR_FOLIO_REPOSITORY}/${sidecarModuleName}:${sidecarVersion} --context .""".stripIndent()
-          }
-        }
-      }
-    }
-
-    stage('[Kubectl] Deploy') {
-      try {
-        folioHelm.withKubeConfig(namespace.clusterName) {
-          def getHelmReleasesCmd = "helm list --short --namespace ${params.NAMESPACE} --filter mod-*" as String
-          def releases = sh(script: getHelmReleasesCmd, returnStdout: true).trim()
-
-          int limit = 10
-          releases.tokenize().collate(limit).each { setOfReleases ->
-            def branches = [:]
-            setOfReleases.each { release ->
-              branches[release.toString()] = {
-                def upgradeHelmReleaseCmd = """
-                    helm upgrade ${release} ${Constants.FOLIO_HELM_V2_REPO_NAME}/${release} \
-                    --namespace ${params.NAMESPACE} \
-                    --reuse-values \
-                    --set sidecarContainers.eureka.image.repository=${Constants.ECR_FOLIO_REPOSITORY}/${sidecarModuleName} \
-                    --set sidecarContainers.eureka.image.tag=${sidecarVersion} \
-                    --atomic
-                  """.stripIndent() as String
-
-                /** Deploy Sidecar to Kubernetes namespace */
-                sh(script: upgradeHelmReleaseCmd, returnStdout: true)
-              }
             }
-            parallel branches
           }
         }
-      } catch (e) {
-        logger.warning("Failed to deploy new Sidecar version from feature branch: ${e.getMessage()}")
-        throw e
       }
+      writeFile file: "folio-module-sidecar-${sidecarVersion}.txt", text: "folio-module-sidecar-${sidecarVersion}"
+      archiveArtifacts artifacts: "folio-module-sidecar-${sidecarVersion}.txt" , onlyIfSuccessful: true
     }
   }
 }

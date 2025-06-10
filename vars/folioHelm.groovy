@@ -229,9 +229,11 @@ void checkDeploymentsRunning(String ns, List<FolioModule> deploymentsList) {
         println("Unfinished deployments: ${unfinishedDeployments}")
         println("Rechecking in 30 seconds...")
         sleep(time: 30, unit: 'SECONDS')
-          unfinishedDeployments.contains('mod-agreements') ? kubectl.cleanUpAgreementsFedLocks(ns, timer) : println("-=No mod-agreements fed locks to clean up=-") //Would say that it's a workaround, but it's not)))
-          unfinishedDeployments.contains('mod-service-interaction') ? kubectl.cleanUpAgreementsFedLocks(ns, timer, 'mod-service-interaction') : println("-=No mod-service-interaction fed locks to clean up=-")
-          unfinishedDeployments.contains('mod-serials-management') ? kubectl.cleanUpAgreementsFedLocks(ns, timer, 'mod-serials-management') : println("-=No mod-serials-management fed locks to clean up=-")
+          unfinishedDeployments.contains('mod-agreements') ? kubectl.cleanUpFedLocks(ns, timer) : println("-=No mod-agreements fed locks to clean up=-") //Would say that it's a workaround, but it's not)))
+          unfinishedDeployments.contains('mod-service-interaction') ? kubectl.cleanUpFedLocks(ns, timer, 'mod-service-interaction') : println("-=No mod-service-interaction fed locks to clean up=-")
+          unfinishedDeployments.contains('mod-serials-management') ? kubectl.cleanUpFedLocks(ns, timer, 'mod-serials-management') : println("-=No mod-serials-management fed locks to clean up=-")
+          unfinishedDeployments.contains('mod-oa') ? kubectl.cleanUpFedLocks(ns, timer, 'mod-oa') : println("-=No mod-oa fed locks to clean up=-")
+          unfinishedDeployments.contains('mod-licenses') ? kubectl.cleanUpFedLocks(ns, timer, 'mod-licenses') : println("-=No mod-licenses fed locks to clean up=-")
         timer += 30
       } else {
         println("All deployments are successfully updated!")
@@ -499,6 +501,9 @@ static String determineModulePlacement(String moduleName, String moduleVersion, 
     repository = Constants.ECR_FOLIO_REPOSITORY
   } else {
     switch (moduleVersion) {
+      case ~/^\d{1,3}\.\d{1,3}\.\d{1,3}-native\.[\d\w]{5,}$/:
+        repository = Constants.ECR_FOLIO_REPOSITORY
+        break
       case ~/^\d{1,3}\.\d{1,3}\.\d{1,3}$/:
         repository = "folioorg"
         break
