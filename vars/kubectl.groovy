@@ -162,7 +162,7 @@ void execCommand(String namespace = 'default', String pod_name, String command) 
   }
 }
 
-void cleanUpAgreementsFedLocks(String namespace = 'default', int timer = 0, String moduleId = 'mod-agreements', String tenantId = 'default') {
+void cleanUpFedLocks(String namespace = 'default', int timer = 0, String moduleId = 'mod-agreements', String tenantId = 'default') {
   if (tenantId != 'default') { // condition for future use. DO NOT REMOVE!!!
     println("Trying to cleanup ${tenantId}_${moduleId}.tenant_changelog_lock.")
     String pod = sh(script: "kubectl get pod -l 'app.kubernetes.io/name=pgadmin4' -o=name  --ignore-not-found=true --namespace ${namespace}", returnStdout: true).trim()

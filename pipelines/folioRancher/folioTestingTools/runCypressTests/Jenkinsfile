@@ -29,7 +29,7 @@ properties([
     booleanParam(name: 'PREPARE', defaultValue: false, description: 'Set to true, to run prepare stage'),
     booleanParam(name: 'REPORT_PORTAL_USE', defaultValue: false, description: 'Set to true, to send tests results to Report Portal'),
     choice(name: 'REPORT_PORTAL_RUN_TYPE', choices: ["day", "night", "week", "evrk"], description: 'Parameter for Report portal filtering'),
-    folioParameters.runSanityCheck(),
+    folioParameters.runSanityCheck(false),
     folioParameters.refreshParameters()])
 ])
 

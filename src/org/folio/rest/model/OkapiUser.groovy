@@ -1,5 +1,6 @@
 package org.folio.rest.model
 
+@Deprecated
 class OkapiUser implements Serializable {
   String username
   String password

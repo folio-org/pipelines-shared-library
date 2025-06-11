@@ -22,6 +22,7 @@ properties([
     folioParameters.applicationSet(),
     folioParameters.applications(),
     folioParameters.configType(),
+    booleanParam(name: 'SC_NATIVE', defaultValue: false, description: '(Optional) Set true to use previously built SC image'),
     folioParameters.groupParameters("Environment features"
       , ["LOAD_REFERENCE", "LOAD_SAMPLE", "BUILD_UI", "CONSORTIA", "LINKED_DATA", "MARC_MIGRATIONS", "SPLIT_FILES"
          , "RW_SPLIT", "ECS_CCL", "GREENMAIL", "MOCK_SERVER", "RTR", "DATASET", "TYPE"
@@ -56,7 +57,7 @@ properties([
     , folioParameters.hideParameters(
     [
       'EUREKA': ['OKAPI_VERSION'],
-      'OKAPI' : ['APPLICATION_SET', 'APPLICATIONS']
+      'OKAPI' : ['APPLICATION_SET', 'APPLICATIONS', 'SC_NATIVE']
     ]
     , "PLATFORM")
     , folioParameters.hideParameters(
@@ -118,9 +119,10 @@ CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builde
   .s3Type(params.S3_BUCKET)
   .uiBuild(params.BUILD_UI)
   .kongVersion('latest')
-  .keycloakVersion('latest')
+  .keycloakVersion('26.2.0-SNAPSHOT.50')
   .dataset(params.DATASET)
   .type(params.TYPE)
+  .scNative(params.SC_NATIVE)
   .build()
 
 if (params.CONSORTIA) {

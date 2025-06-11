@@ -47,7 +47,7 @@ void createEcrRepo(String region, String repo_name) {
 }
 
 String listEcrImages(String region, String repo_name) {
-  return sh(script: "aws ecr describe-images --region ${region} --repository-name ${repo_name} --query 'sort_by(imageDetails,& imagePushedAt)[*].imageTags[0]' --output json", returnStdout: true)
+  return sh(script: "aws ecr describe-images --region ${region} --repository-name ${repo_name} --query 'sort_by(imageDetails,& imagePushedAt)[-1].imageTags[0]' --output json", returnStdout: true).trim()
 }
 
 void deleteEcrImage(String region, String repo_name, String image_tag) {
