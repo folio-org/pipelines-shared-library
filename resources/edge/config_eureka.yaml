@@ -65,6 +65,7 @@ edge-orders:
   - inventory-storage.manage
   - users.manage
   - okapi.manage
+  - orders_acquisitions-units-assignments.manage
 edge-ncip:
   capabilitiesSet:
   - ncip.manage
