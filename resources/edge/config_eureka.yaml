@@ -54,8 +54,7 @@ edge-orders:
   - ebsconet.manage
   - mosaic.manage
   - orders_order-templates.manage
-  - finance_funds.manage
-  - finance_expense-classes.manage
+  - finance.manage
   - acquisitions-units_units.manage
   - organizations_organizations.manage
   - configuration.manage
@@ -65,7 +64,7 @@ edge-orders:
   - orders_acquisition-methods.manage
   - inventory-storage.manage
   - users.manage
-  - orders-storage_custom-fields.manage
+  - okapi.manage
 edge-ncip:
   capabilitiesSet:
   - ncip.manage
