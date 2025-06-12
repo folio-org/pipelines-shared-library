@@ -51,6 +51,8 @@ class CreateNamespaceParameters implements Cloneable {
 
   boolean dataset = false
 
+  boolean scNative = false
+
   String dmSnapshot
 
   String dbBackupName = ""
@@ -84,7 +86,7 @@ class CreateNamespaceParameters implements Cloneable {
   @Deprecated
   String worker
 
-  String keycloakVersion = 'latest'
+  String keycloakVersion = '26.2.0-SNAPSHOT.50'
 
   String kongVersion = 'latest'
 
@@ -498,6 +500,16 @@ class CreateNamespaceParameters implements Cloneable {
      */
     Builder dbBackupName(String name) {
       parameters.dbBackupName = name
+      return this
+    }
+    /**
+     * Specifies whether the namespace should be created with native support for SC (SideCar).
+     * This is typically used for environments that require specific configurations for SideCar features.
+     * @param scNative `true` to enable native support for SC; `false` otherwise.
+     * @return Builder instance for method chaining.
+     */
+    Builder scNative(boolean scNative) {
+      parameters.scNative = scNative
       return this
     }
 

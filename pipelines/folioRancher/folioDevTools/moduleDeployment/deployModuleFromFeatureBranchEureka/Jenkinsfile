@@ -13,7 +13,7 @@ import org.folio.utilities.GitHubClient
 import org.folio.utilities.Logger
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library@RANCHER-2236') _
+@Library('pipelines-shared-library') _
 
 /** Job properties and parameters */
 properties([
@@ -97,7 +97,7 @@ ansiColor('xterm') {
       folioHelm.withKubeConfig(namespace.getClusterName()) {
         def check = sh(script: "kubectl get pods --namespace ${namespace.getNamespaceName()} --no-headers", returnStdout: true).trim()
         if (!check.contains(module.getName())) {
-          logger.error("Target environment is not running. Please start the environment and try again.")
+          logger.error("Reason: target env is not running or module: ${module.getName()} is not presented in environment")
         }
       }
     }

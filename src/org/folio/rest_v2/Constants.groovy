@@ -128,6 +128,38 @@ class Constants {
       , dependsOn: ["app-platform-minimal", "app-platform-complete"]
     ],
     [
+      name: "app-mosaic"
+      , branch: "snapshot"
+      , consortia: false
+      , core: false
+      , byDefault: true
+      , dependsOn: ["app-platform-minimal", "app-platform-complete", "app-acquisitions"]
+    ],
+    [
+      name: "app-ebsconet"
+      , branch: "snapshot"
+      , consortia: false
+      , core: false
+      , byDefault: true
+      , dependsOn: ["app-platform-minimal", "app-platform-complete", "app-acquisitions"]
+    ],
+    [
+      name: "app-gobi"
+      , branch: "snapshot"
+      , consortia: false
+      , core: false
+      , byDefault: true
+      , dependsOn: ["app-platform-minimal", "app-platform-complete", "app-acquisitions"]
+    ],
+    [
+      name: "app-rtac"
+      , branch: "snapshot"
+      , consortia: false
+      , core: false
+      , byDefault: true
+      , dependsOn: ["app-platform-minimal", "app-platform-complete", "app-acquisitions"]
+    ],
+    [
       name: "app-dcb"
       , branch: "snapshot"
       , consortia: false
@@ -206,6 +238,14 @@ class Constants {
       , core: false
       , byDefault: false
       , dependsOn: ["app-platform-minimal", "app-platform-complete"]
+    ],
+    [
+      name: "app-reporting"
+      , branch: "snapshot"
+      , consortia: false
+      , core: false
+      , byDefault: true
+      , dependsOn: ["app-platform-minimal"]
     ],
     [
       name: "app-oai-pmh"

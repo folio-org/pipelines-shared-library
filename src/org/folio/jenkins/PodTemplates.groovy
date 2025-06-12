@@ -146,7 +146,10 @@ spec:
       name: 'java',
       image: "${ECR_REPOSITORY}/amazoncorretto:${javaVersion}-alpine-jdk",
       alwaysPullImage: true,
-      envVars: [new KeyValueEnvVar('HOME', WORKING_DIR)] + extraEnvVars,
+      envVars: [new KeyValueEnvVar('HOME', WORKING_DIR),
+                new KeyValueEnvVar('MAVEN_OPTS', '-XX:MaxRAMPercentage=75.0 ' +
+                  '-javaagent:/jmx_exporter/jmx_prometheus_javaagent.jar=9991:/jmx_exporter/jmx_prometheus_config.yaml')] + extraEnvVars,
+      ports: [[name: 'jmx', containerPort: '9991']],
       command: 'sleep',
       args: '99d',
       runAsGroup: '1000',
@@ -278,7 +281,7 @@ spec:
       containers: [
         buildKanikoContainer([], '512Mi', '768Mi'),
         buildJavaContainer(javaVersion, [new KeyValueEnvVar('DOCKER_HOST', 'tcp://localhost:2375')], '768Mi', '1024Mi'),
-        buildDindContainer([], '128Mi', '256Mi')
+        buildDindContainer([], '4096Mi', '5120Mi')
       ]
     )) {
       steps.node(JenkinsAgentLabel.JAVA_BUILD_AGENT.getLabel()) {
@@ -298,7 +301,7 @@ spec:
       label: JenkinsAgentLabel.JAVA_KARATE_AGENT.getLabel(),
       volumes: [steps.persistentVolumeClaim(claimName: MAVEN_CACHE_PVC, mountPath: "${WORKING_DIR}/.m2/repository")],
       containers: [
-        buildJavaContainer(javaVersion, [], '6144Mi', '8192Mi')
+        buildJavaContainer(javaVersion, [], '2048Mi', '2560Mi')
       ]
     )) {
       steps.node(JenkinsAgentLabel.JAVA_KARATE_AGENT.getLabel()) {
@@ -383,7 +386,7 @@ spec:
     createTemplate(new PodTemplateConfig(
       label: JenkinsAgentLabel.RANCHER_JAVA_AGENT.getLabel(),
       containers: [
-        buildJavaContainer(Constants.JAVA_LATEST_VERSION, [], '1024Mi', '1536Mi')
+        buildJavaContainer(Constants.JAVA_LATEST_VERSION, [], '2048Mi', '2560Mi')
       ]
     )) {
       steps.node(JenkinsAgentLabel.RANCHER_JAVA_AGENT.getLabel()) {

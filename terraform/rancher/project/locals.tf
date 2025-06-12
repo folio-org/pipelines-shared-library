@@ -15,11 +15,12 @@ locals {
   system_user_modules = ["mod-data-export-spring", "mod-inn-reach", "mod-search", "mod-consortia",
     "mod-remote-storage", "mod-entities-links", "mod-erm-usage-harvester", "mod-pubsub", "mod-dcb", "mod-lists",
     "mod-linked-data", "mod-tlr", "mod-marc-migrations", "mod-requests-mediated", "mod-circulation-bff", "mod-bulk-operations",
-    "mod-consortia-keycloak", "mod-scheduler", "mod-users-keycloak", "mod-roles-keycloak"
+    "mod-consortia-keycloak", "mod-scheduler", "mod-users-keycloak", "mod-roles-keycloak", "mod-invoice", "mod-orders", "mod-inventory",
+    "mod-source-record-manager", "mod-source-record-storage"
   ]
 
   s3_integrated_modules = ["mod-data-export", "mod-data-export-worker", "mod-data-import", "mod-lists",
-    "mod-bulk-operations", "mod-oai-pmh", "mod-marc-migrations"
+    "mod-bulk-operations", "mod-oai-pmh", "mod-marc-migrations", "mod-agreements", "mod-licenses"
   ]
 
   s3_buckets_map = { for module in local.s3_integrated_modules :
@@ -46,4 +47,5 @@ EOF
     opensearch = "https://opensearch-project.github.io/helm-charts",
     runix      = "https://helm.runix.net"
   }
+
 }
