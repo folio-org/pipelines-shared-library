@@ -229,7 +229,7 @@ void call(CreateNamespaceParameters args) {
         }
       }
 
-//      Don't move from here because it increases Keycloak TTL before mgr modules to be deployed
+      //Don't move from here because it increases Keycloak TTL before mgr modules to be deployed
       Eureka eureka = new Eureka(this, namespace.generateDomain('kong'), namespace.generateDomain('keycloak'))
       Boolean check = false
       timeout(time: 15, unit: 'MINUTES') {
@@ -383,17 +383,17 @@ void call(CreateNamespaceParameters args) {
         }
       }
 
-    stage('Deploy ldp') {
-      folioHelm.withKubeConfig(namespace.getClusterName()) {
-        folioHelmFlow.deployLdp(namespace)
-      }
-    }
+//    stage('Deploy ldp') {
+//      folioHelm.withKubeConfig(namespace.getClusterName()) {
+//        folioHelmFlow.deployLdp(namespace)
+//      }
+//    }
 
     } catch (Exception e) {
       currentBuild.description = e.getMessage()
       currentBuild.result = 'FAILURE'
       //TODO: Add adequate slack notification https://folio-org.atlassian.net/browse/RANCHER-1892
-//      slackSend(color: 'danger', message: args.clusterName + "-" + args.namespaceName + " env build failed...\n" + "Console output: ${env.BUILD_URL}", channel: args.dataset ? '#eureka-sprint-testing' : Constants.SLACK_CHANNEL)
+      slackSend(color: 'danger', message: args.clusterName + "-" + args.namespaceName + " env build failed...\n" + "Console output: ${env.BUILD_URL}", channel: args.dataset ? '#eureka-sprint-testing' : Constants.SLACK_CHANNEL)
       logger.error(e)
     }
   }
