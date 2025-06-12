@@ -67,24 +67,24 @@ void call(CreateNamespaceParameters args) {
         }
       }
 
-      stage('[Terraform] Provision') {
-        switch (args.type) {
-          case 'full':
-            folioTerraformFlow.manageNamespace('apply', tfConfig)
-            break
-          case 'terraform':
-            folioTerraformFlow.manageNamespace('apply', tfConfig)
-
-            currentBuild.result = 'ABORTED'
-            currentBuild.description = 'Terraform refresh complete'
-            return
-
-            break
-          case 'update':
-            logger.info("Skip [Terraform] Provision stage")
-            break
-        }
-      }
+//      stage('[Terraform] Provision') {
+//        switch (args.type) {
+//          case 'full':
+//            folioTerraformFlow.manageNamespace('apply', tfConfig)
+//            break
+//          case 'terraform':
+//            folioTerraformFlow.manageNamespace('apply', tfConfig)
+//
+//            currentBuild.result = 'ABORTED'
+//            currentBuild.description = 'Terraform refresh complete'
+//            return
+//
+//            break
+//          case 'update':
+//            logger.info("Skip [Terraform] Provision stage")
+//            break
+//        }
+//      }
 
       if (args.greenmail) {
         stage('[Helm] Deploy greenmail') {
@@ -215,174 +215,173 @@ void call(CreateNamespaceParameters args) {
         namespace.getTenants().values().each { tenant -> tenant.indexes.clear() }
 
       // TODO: Move this part to one of Eureka classes later. | DO NOT REMOVE | FIX FOR DNS PROPAGATION ISSUE!!!
-      timeout(time: 25, unit: 'MINUTES') {
-        def check = ''
-
-        while (check == '') {
-          try {
-            check = sh(script: "curl --fail --silent https://${namespace.generateDomain('keycloak')}/admin/master/console/", returnStdout: true).trim()
-            return check
-          } catch (ignored) {
-            logger.debug("DNS record: ${namespace.generateDomain('keycloak')} still not propagated!")
-            sleep time: 5, unit: "SECONDS"
-          }
-        }
-      }
+//      timeout(time: 25, unit: 'MINUTES') {
+//        def check = ''
+//
+//        while (check == '') {
+//          try {
+//            check = sh(script: "curl --fail --silent https://${namespace.generateDomain('keycloak')}/admin/master/console/", returnStdout: true).trim()
+//            return check
+//          } catch (ignored) {
+//            logger.debug("DNS record: ${namespace.generateDomain('keycloak')} still not propagated!")
+//            sleep time: 5, unit: "SECONDS"
+//          }
+//        }
+//      }
 
       //Don't move from here because it increases Keycloak TTL before mgr modules to be deployed
-      Eureka eureka = new Eureka(this, namespace.generateDomain('kong'), namespace.generateDomain('keycloak'))
-      Boolean check = false
-      timeout(time: 15, unit: 'MINUTES') {
-        while (!check) {
-          try {
-            eureka.defineKeycloakTTL()
-            check = true
-          } catch (Exception e) {
-            logger.warning("Keycloak TTL increase failed: ${e.getMessage()}")
-            sleep time: 5, unit: 'SECONDS'
-            check = false
-          }
-        }
-      }
+//      Eureka eureka = new Eureka(this, namespace.generateDomain('kong'), namespace.generateDomain('keycloak'))
+//      Boolean check = false
+//      timeout(time: 15, unit: 'MINUTES') {
+//        while (!check) {
+//          try {
+//            eureka.defineKeycloakTTL()
+//            check = true
+//          } catch (Exception e) {
+//            logger.warning("Keycloak TTL increase failed: ${e.getMessage()}")
+//            sleep time: 5, unit: 'SECONDS'
+//            check = false
+//          }
+//        }
+//      }
 
-      stage('[Helm] Deploy mgr-*') {
-        folioHelm.withKubeConfig(namespace.getClusterName()) {
-          folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getMgrModules())
+//      stage('[Helm] Deploy mgr-*') {
+//        folioHelm.withKubeConfig(namespace.getClusterName()) {
+//          folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getMgrModules())
+//
+//          //Check availability of the mgr-applications /applications endpoint to ensure the module up and running
+//          int counter = 0
+//          retry(10) {
+//            sleep time: (counter == 0 ? 0 : 30), unit: 'SECONDS'
+//            counter++
+//
+//            Applications.get(eureka.kong).getRegisteredApplications()
+//          }
+//          if (args.type == 'update') {
+//            List sql_cmd = ['DELETE FROM public.module', 'DELETE FROM public.entitlement',
+//                            'DELETE FROM public.entitlement_module', 'DELETE FROM public.application',
+//                            'DELETE FROM public.application_flow']
+//            String pod = sh(script: "kubectl get pod -l 'app.kubernetes.io/name=pgadmin4' -o=name -n ${namespace.getNamespaceName()}", returnStdout: true).trim()
+//            sql_cmd.each { sh(script: "kubectl exec ${pod} --namespace ${namespace.getNamespaceName()} -- /usr/local/pgsql-16/psql -c '${it}'", returnStdout: true) }
+//          }
+//        }
+//      }
 
-          //Check availability of the mgr-applications /applications endpoint to ensure the module up and running
-          int counter = 0
-          retry(10) {
-            sleep time: (counter == 0 ? 0 : 30), unit: 'SECONDS'
-            counter++
+//      stage('[Rest] Preinstall') {
+//        ApplicationList apps = []
+//        container('java') {
+//          apps = eureka.generateApplications(
+//            //TODO: Refactoring is needed!!! Utilization of extension should be applied.
+//            // Remove this shit with consortia and linkedData. Apps have to be taken as it is.
+//            args.applications -
+//              (args.consortia ? [:] : ["app-consortia": "snapshot", "app-consortia-manager": "snapshot"]) -
+//              (args.consortia ? [:] : ["app-consortia": "master", "app-consortia-manager": "master"]) -
+//              (args.linkedData ? [:] : ["app-linked-data": "snapshot"]) -
+//              (args.linkedData ? [:] : ["app-linked-data": "master"])
+//            , namespace.getModules()
+//          )
+//        }
 
-            Applications.get(eureka.kong).getRegisteredApplications()
-          }
-          if (args.type == 'update') {
-            List sql_cmd = ['DELETE FROM public.module', 'DELETE FROM public.entitlement',
-                            'DELETE FROM public.entitlement_module', 'DELETE FROM public.application',
-                            'DELETE FROM public.application_flow']
-            String pod = sh(script: "kubectl get pod -l 'app.kubernetes.io/name=pgadmin4' -o=name -n ${namespace.getNamespaceName()}", returnStdout: true).trim()
-            sql_cmd.each { sh(script: "kubectl exec ${pod} --namespace ${namespace.getNamespaceName()} -- /usr/local/pgsql-16/psql -c '${it}'", returnStdout: true) }
-          }
-        }
-      }
+//        int counter = 0
+//        retry(5) {
+//          sleep time: (counter == 0 ? 0 : 30), unit: 'SECONDS'
+//          counter++
+//          eureka.registerApplications(apps)
+//
+//        namespace.getTenants().values().each { it.assignApplications(apps)}
+//        namespace.withApplications(apps)
+//
+//        eureka.registerModulesFlow(namespace.applications.getInstallJson())
+//      }
+//    }
 
-      stage('[Rest] Preinstall') {
-        ApplicationList apps = []
-        container('java') {
-          apps = eureka.generateApplications(
-            //TODO: Refactoring is needed!!! Utilization of extension should be applied.
-            // Remove this shit with consortia and linkedData. Apps have to be taken as it is.
-            args.applications -
-              (args.consortia ? [:] : ["app-consortia": "snapshot", "app-consortia-manager": "snapshot"]) -
-              (args.consortia ? [:] : ["app-consortia": "master", "app-consortia-manager": "master"]) -
-              (args.linkedData ? [:] : ["app-linked-data": "snapshot"]) -
-              (args.linkedData ? [:] : ["app-linked-data": "master"])
-            , namespace.getModules()
-          )
-        }
-
-        int counter = 0
-        retry(5) {
-          sleep time: (counter == 0 ? 0 : 30), unit: 'SECONDS'
-          counter++
-          eureka.registerApplications(apps)
-
-        namespace.getTenants().values().each { it.assignApplications(apps)}
-        namespace.withApplications(apps)
-
-        eureka.registerModulesFlow(namespace.applications.getInstallJson())
-      }
-    }
-
-      stage('[Helm] Deploy modules') {
-        folioHelm.withKubeConfig(namespace.getClusterName()) {
-          logger.info(namespace.getModules().getBackendModules())
-
-          folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getBackendModules())
-          folioHelm.checkDeploymentsRunning(namespace.getNamespaceName(), namespace.getModules().getBackendModules())
-        }
-      }
-
-      stage('[Helm] Deploy edge') {
-        folioHelm.withKubeConfig(namespace.getClusterName()) {
-          folioEdge.renderEphemeralPropertiesEureka(namespace)
-          namespace.getModules().getEdgeModules().each { module ->
-            kubectl.createConfigMap("${module.name}-ephemeral-properties", namespace.getNamespaceName(), "./${module.name}-ephemeral-properties")
-          }
-
-          folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getEdgeModules())
-          folioHelm.checkDeploymentsRunning(namespace.getNamespaceName(), namespace.getModules().getEdgeModules())
-
-        }
-      }
+//      stage('[Helm] Deploy modules') {
+//        folioHelm.withKubeConfig(namespace.getClusterName()) {
+//          logger.info(namespace.getModules().getBackendModules())
+//
+//          folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getBackendModules())
+//          folioHelm.checkDeploymentsRunning(namespace.getNamespaceName(), namespace.getModules().getBackendModules())
+//        }
+//      }
+//
+//      stage('[Helm] Deploy edge') {
+//        folioHelm.withKubeConfig(namespace.getClusterName()) {
+//          folioEdge.renderEphemeralPropertiesEureka(namespace)
+//          namespace.getModules().getEdgeModules().each { module ->
+//            kubectl.createConfigMap("${module.name}-ephemeral-properties", namespace.getNamespaceName(), "./${module.name}-ephemeral-properties")
+//          }
+//
+//          folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getEdgeModules())
+//          folioHelm.checkDeploymentsRunning(namespace.getNamespaceName(), namespace.getModules().getEdgeModules())
+//
+//        }
+//      }
 
       stage('[Rest] Initialize') {
-        if (args.dataset) { // Prepare for large dataset reindex
-          folioHelm.withKubeConfig(namespace.getClusterName()) {
-
-            kubectl.setKubernetesResourceCount('deployment', 'mod-inventory-storage', namespace.getNamespaceName(), '4')
-            sleep(time: 10, unit: 'SECONDS')
-            kubectl.setKubernetesResourceCount('deployment', 'mod-search', namespace.getNamespaceName(), '4')
-
-            folioHelm.checkDeploymentsRunning(namespace.getNamespaceName(), namespace.getModules().getBackendModules())
-
-        }
-      }
-      int counter = 0
-      retry(20) {
-        sleep time: (counter == 0 ? 0 : 2), unit: 'MINUTES'
-        counter++
-
-        eureka.initializeFromScratch(
-          namespace.getTenants()
-          , namespace.getClusterName()
-          , namespace.getNamespaceName()
-          , namespace.getEnableConsortia()
-          , true
-          , false // Set this option true, when users & groups migration is required.
-        )
-      }
+//        if (args.dataset) { // Prepare for large dataset reindex
+//          folioHelm.withKubeConfig(namespace.getClusterName()) {
+//
+//            kubectl.setKubernetesResourceCount('deployment', 'mod-inventory-storage', namespace.getNamespaceName(), '4')
+//            sleep(time: 10, unit: 'SECONDS')
+//            kubectl.setKubernetesResourceCount('deployment', 'mod-search', namespace.getNamespaceName(), '4')
+//
+//            folioHelm.checkDeploymentsRunning(namespace.getNamespaceName(), namespace.getModules().getBackendModules())
+//        }
+//      }
+//      int counter = 0
+//      retry(20) {
+//        sleep time: (counter == 0 ? 0 : 2), unit: 'MINUTES'
+//        counter++
+//
+//        eureka.initializeFromScratch(
+//          namespace.getTenants()
+//          , namespace.getClusterName()
+//          , namespace.getNamespaceName()
+//          , namespace.getEnableConsortia()
+//          , true
+//          , false // Set this option true, when users & groups migration is required.
+//        )
+//      }
     }
 
       stage('[Rest] Configure edge') {
         retry(5) {
-          args.type == 'full' ? new Edge(this, "${namespace.generateDomain('kong')}", "${namespace.generateDomain('keycloak')}").createEurekaUsers(namespace) : null
+          args.type == 'update' ? new Edge(this, "${namespace.generateDomain('kong')}", "${namespace.generateDomain('keycloak')}").createEurekaUsers(namespace) : null
         }
       }
 
-      if (args.uiBuild) {
-        stage('Build and deploy UI') {
-          Map branches = [:]
-          namespace.getTenants().each { tenantId, tenant ->
-            if (tenant.getTenantUi()) {
-              branches[tenantId] = {
-                folioUI.buildAndDeploy(namespace, tenant, args.platform == PlatformType.EUREKA, namespace.getDomains()['kong'] as String
-                  , namespace.getDomains()['keycloak'] as String, args.ecsCCL)
-              }
-            }
-          }
-          parallel branches
-        }
-      }
+//      if (args.uiBuild) {
+//        stage('Build and deploy UI') {
+//          Map branches = [:]
+//          namespace.getTenants().each { tenantId, tenant ->
+//            if (tenant.getTenantUi()) {
+//              branches[tenantId] = {
+//                folioUI.buildAndDeploy(namespace, tenant, args.platform == PlatformType.EUREKA, namespace.getDomains()['kong'] as String
+//                  , namespace.getDomains()['keycloak'] as String, args.ecsCCL)
+//              }
+//            }
+//          }
+//          parallel branches
+//        }
+//      }
 
       //TODO: Add adequate slack notification https://folio-org.atlassian.net/browse/RANCHER-1892
-      stage('[Notify] Eureka') {
-        if (args.dataset) {
-          logger.warning("SUCCESS: Eureka ${args.clusterName}-${args.namespaceName} env successfully built!!!")
-          slackSend(color: 'good', message: args.clusterName + "-" + args.namespaceName + (args.type == 'update' ? " env successfully updated\n" : " env successfully built\n") +
-            "1. https://${namespace.generateDomain('fs09000000')} creds: folio:folio\n" +
-            "2. https://${namespace.generateDomain('fs09000002')} creds: folio-plus:Folio-plus1\n" +
-            "3. https://${namespace.generateDomain('fs09000003')} creds: folio-aqa:Folio-aqa1\n" +
-            "4. https://${namespace.generateDomain('cs00000int')} creds: ECSAdmin:admin",
-            channel: '#eureka-sprint-testing')
-        } else {
-          slackSend(color: 'good', message: args.clusterName + "-" + args.namespaceName + " env successfully built\n" +
-            "1. https://${namespace.generateDomain('diku')}\n" +
-            "2. https://${namespace.generateDomain('consortium')}",
-            channel: Constants.SLACK_CHANNEL)
-        }
-      }
+//      stage('[Notify] Eureka') {
+//        if (args.dataset) {
+//          logger.warning("SUCCESS: Eureka ${args.clusterName}-${args.namespaceName} env successfully built!!!")
+//          slackSend(color: 'good', message: args.clusterName + "-" + args.namespaceName + (args.type == 'update' ? " env successfully updated\n" : " env successfully built\n") +
+//            "1. https://${namespace.generateDomain('fs09000000')} creds: folio:folio\n" +
+//            "2. https://${namespace.generateDomain('fs09000002')} creds: folio-plus:Folio-plus1\n" +
+//            "3. https://${namespace.generateDomain('fs09000003')} creds: folio-aqa:Folio-aqa1\n" +
+//            "4. https://${namespace.generateDomain('cs00000int')} creds: ECSAdmin:admin",
+//            channel: '#eureka-sprint-testing')
+//        } else {
+//          slackSend(color: 'good', message: args.clusterName + "-" + args.namespaceName + " env successfully built\n" +
+//            "1. https://${namespace.generateDomain('diku')}\n" +
+//            "2. https://${namespace.generateDomain('consortium')}",
+//            channel: Constants.SLACK_CHANNEL)
+//        }
+//      }
 
 //    stage('Deploy ldp') {
 //      folioHelm.withKubeConfig(namespace.getClusterName()) {
@@ -394,7 +393,7 @@ void call(CreateNamespaceParameters args) {
       currentBuild.description = e.getMessage()
       currentBuild.result = 'FAILURE'
       //TODO: Add adequate slack notification https://folio-org.atlassian.net/browse/RANCHER-1892
-      slackSend(color: 'danger', message: args.clusterName + "-" + args.namespaceName + " env build failed...\n" + "Console output: ${env.BUILD_URL}", channel: args.dataset ? '#eureka-sprint-testing' : Constants.SLACK_CHANNEL)
+//      slackSend(color: 'danger', message: args.clusterName + "-" + args.namespaceName + " env build failed...\n" + "Console output: ${env.BUILD_URL}", channel: args.dataset ? '#eureka-sprint-testing' : Constants.SLACK_CHANNEL)
       logger.error(e)
     }
   }
