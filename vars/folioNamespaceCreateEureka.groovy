@@ -326,7 +326,6 @@ void call(CreateNamespaceParameters args) {
             kubectl.setKubernetesResourceCount('deployment', 'mod-search', namespace.getNamespaceName(), '4')
 
             folioHelm.checkDeploymentsRunning(namespace.getNamespaceName(), namespace.getModules().getBackendModules())
-
         }
       }
       int counter = 0
@@ -347,7 +346,7 @@ void call(CreateNamespaceParameters args) {
 
       stage('[Rest] Configure edge') {
         retry(5) {
-          args.type == 'full' ? new Edge(this, "${namespace.generateDomain('kong')}", "${namespace.generateDomain('keycloak')}").createEurekaUsers(namespace) : null
+          new Edge(this, "${namespace.generateDomain('kong')}", "${namespace.generateDomain('keycloak')}").createEurekaUsers(namespace)
         }
       }
 
