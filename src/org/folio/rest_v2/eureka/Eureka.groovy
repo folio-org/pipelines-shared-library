@@ -56,7 +56,7 @@ class Eureka extends Base {
       , Permissions.get(kong).getCapabilitySetsId(tenant)
       , migrate)
 
-    configureTenant(tenant)
+//    configureTenant(tenant)
 
     return this
   }
@@ -216,13 +216,13 @@ class Eureka extends Base {
         } as List<EurekaTenantConsortia>
       )
 
-    tenants.each { tenantId, tenant ->
-      if (tenant.indexes) {
-        tenant.indexes.each { index ->
-          Indexes.get(kong).runIndexFlow(tenant, index)
-        }
-      }
-    }
+//    tenants.each { tenantId, tenant ->
+//      if (tenant.indexes) {
+//        tenant.indexes.each { index ->
+//          Indexes.get(kong).runIndexFlow(tenant, index)
+//        }
+//      }
+//    }
 
     return this
   }
