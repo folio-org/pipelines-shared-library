@@ -9,7 +9,7 @@ import org.folio.rest_v2.Constants
 import org.folio.rest_v2.PlatformType
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-2371') _
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
@@ -119,7 +119,7 @@ CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builde
   .s3Type(params.S3_BUCKET)
   .uiBuild(params.BUILD_UI)
   .kongVersion('latest')
-  .keycloakVersion('26.2.0-SNAPSHOT.50')
+  .keycloakVersion('latest')
   .dataset(params.DATASET)
   .type(params.TYPE)
   .scNative(params.SC_NATIVE)
