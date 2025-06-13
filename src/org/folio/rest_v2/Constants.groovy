@@ -97,7 +97,7 @@ class Constants {
     ],
     [
       name: "app-consortia"
-      , branch: "MODCONSKC-78"
+      , branch: "snapshot"
       , consortia: true
       , core     : false
       , byDefault: true
