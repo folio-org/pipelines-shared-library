@@ -89,7 +89,7 @@ class Constants {
     ],
     [
       name: "app-platform-complete"
-      , branch: "snapshot"
+      , branch: "erm_cleanup"
       , consortia: false
       , core     : false
       , byDefault: true
