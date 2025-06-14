@@ -101,7 +101,7 @@ class Constants {
       , consortia: true
       , core     : false
       , byDefault: true
-      , dependsOn: ["app-platform-minimal", "app-platform-complete", "app-consortia-manager"]
+      , dependsOn: ["app-platform-minimal"]
     ],
     [
       name: "app-consortia-manager"
@@ -109,7 +109,7 @@ class Constants {
       , consortia: true
       , core     : false
       , byDefault: true
-      , dependsOn: ["app-platform-minimal", "app-platform-complete", "app-consortia"]
+      , dependsOn: ["app-platform-minimal", "app-consortia"]
     ],
     [
       name: "app-linked-data"

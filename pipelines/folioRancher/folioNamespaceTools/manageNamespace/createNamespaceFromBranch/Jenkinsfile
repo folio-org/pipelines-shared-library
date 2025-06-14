@@ -119,7 +119,7 @@ CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builde
   .s3Type(params.S3_BUCKET)
   .uiBuild(params.BUILD_UI)
   .kongVersion('latest')
-  .keycloakVersion('26.2.0-SNAPSHOT.50')
+  .keycloakVersion('latest')
   .dataset(params.DATASET)
   .type(params.TYPE)
   .scNative(params.SC_NATIVE)
