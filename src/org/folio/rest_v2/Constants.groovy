@@ -225,7 +225,7 @@ class Constants {
     ],
     [
       name: "app-erm-usage"
-      , branch: "snapshot"
+      , branch: "FOLIO-4308"
       , consortia: false
       , core: false
       , byDefault: true
