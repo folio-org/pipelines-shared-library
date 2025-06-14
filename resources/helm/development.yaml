@@ -2917,9 +2917,9 @@ mod-settings:
   replicaCount: 1
   resources:
     limits:
-      memory: 124Mi
+      memory: 512Mi
     requests:
-      memory: 108Mi
+      memory: 256Mi
   extraJavaOpts:
   - -XX:MaxRAMPercentage=85.0
   startupProbe:
@@ -3301,6 +3301,8 @@ mgr-tenant-entitlements:
       value: "941241418"
     - name: KONG_WRITE_TIMEOUT
       value: "941241418"
+    - name: VALIDATION_INTERFACE_COLLECTOR_MODE
+      value: "scoped"
     - name: KC_INTEGRATION_ENABLED
       value: 'true'
     - name: SECURITY_ENABLED

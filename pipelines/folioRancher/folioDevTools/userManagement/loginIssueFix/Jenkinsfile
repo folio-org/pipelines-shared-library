@@ -12,7 +12,7 @@ properties([
   parameters([
     folioParameters.cluster(),
     folioParameters.namespace(),
-    string(name: 'MODULES', defaultValue: 'mod-permissions, mod-login-keycloak, mod-roles-keycloak, mod-users-keycloak', description: '(Optional) Coma separated list of modules to restart'),
+    string(name: 'MODULES', defaultValue: 'mod-permissions, mod-login-keycloak, mod-roles-keycloak, mod-users-keycloak, mod-users', description: '(Optional) Coma separated list of modules to restart'),
     folioParameters.refreshParameters()
   ])
 ])
