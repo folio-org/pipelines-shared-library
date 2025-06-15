@@ -4553,9 +4553,9 @@ mgr-tenants:
   replicaCount: 1
   resources:
     limits:
-      memory: 818Mi
+      memory: 1512Mi
     requests:
-      memory: 562Mi
+      memory: 1024Mi
   readinessProbe:
     httpGet:
       path: /tenants
