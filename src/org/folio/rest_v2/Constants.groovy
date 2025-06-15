@@ -160,6 +160,46 @@ class Constants {
       , dependsOn: ["app-platform-minimal", "app-platform-complete", "app-acquisitions"]
     ],
     [
+      name: "app-oa"
+      , branch: "snapshot"
+      , consortia: false
+      , core     : false
+      , byDefault: true
+      , dependsOn: ["app-platform-minimal"]
+    ],
+    [
+      name: "app-licenses"
+      , branch: "snapshot"
+      , consortia: false
+      , core     : false
+      , byDefault: true
+      , dependsOn: ["app-platform-minimal"]
+    ],
+    [
+      name: "app-agreements"
+      , branch: "snapshot"
+      , consortia: false
+      , core     : false
+      , byDefault: true
+      , dependsOn: ["app-platform-minimal", "app-licenses"]
+    ],
+    [
+      name: "app-service-interaction"
+      , branch: "snapshot"
+      , consortia: false
+      , core     : false
+      , byDefault: true
+      , dependsOn: ["app-platform-minimal"]
+    ],
+    [
+      name: "app-dashboard"
+      , branch: "snapshot"
+      , consortia: false
+      , core     : false
+      , byDefault: true
+      , dependsOn: ["app-platform-minimal", "app-service-interaction"]
+    ],
+    [
       name: "app-dcb"
       , branch: "snapshot"
       , consortia: false
