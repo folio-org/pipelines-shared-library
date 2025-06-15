@@ -2951,9 +2951,9 @@ mod-oa:
   replicaCount: 1
   resources:
     limits:
-      memory: 1024Mi
+      memory: 1512Mi
     requests:
-      memory: 896Mi
+      memory: 1024Mi
   autoscaling:
     enabled: true
     minReplicas: 1
