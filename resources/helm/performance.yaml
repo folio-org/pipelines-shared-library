@@ -4508,6 +4508,10 @@ mgr-applications:
       value: "941241418"
     - name: KONG_WRITE_TIMEOUT
       value: "941241418"
+    - name: KC_INTEGRATION_ENABLED
+      value: 'true'
+    - name: SECURITY_ENABLED
+      value: 'true'
   extraJavaOpts:
     - "-Dlogging.level.root=DEBUG -Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties"
     - -XX:MaxRAMPercentage=80.0
@@ -4543,6 +4547,10 @@ mgr-tenants:
       value: "941241418"
     - name: KONG_WRITE_TIMEOUT
       value: "941241418"
+    - name: KC_INTEGRATION_ENABLED
+      value: 'true'
+    - name: SECURITY_ENABLED
+      value: 'true'
   extraJavaOpts:
     - "-Dlogging.level.root=DEBUG -Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties"
     - -XX:MaxRAMPercentage=75.0
@@ -4582,6 +4590,10 @@ mgr-tenant-entitlements:
       value: "941241418"
     - name: VALIDATION_INTERFACE_COLLECTOR_MODE
       value: "scoped"
+    - name: KC_INTEGRATION_ENABLED
+      value: 'true'
+    - name: SECURITY_ENABLED
+      value: 'true'
   integrations:
     db:
       enabled: true
