@@ -1,0 +1,38 @@
+#!groovy
+import org.folio.Constants
+import org.folio.jenkins.PodTemplates
+import org.jenkinsci.plugins.workflow.libs.Library
+
+@Library('pipelines-shared-library') _
+
+/**
+ * Job properties and parameters
+ */
+properties([
+  buildDiscarder(logRotator(numToKeepStr: '5')),
+  disableConcurrentBuilds(),
+  pipelineTriggers([cron('H 22 * * 7')])
+])
+
+/**
+ * Job variables
+ */
+PodTemplates podTemplates = new PodTemplates(this)
+
+/**
+ * Pipeline
+ */
+ansiColor('xterm') {
+  podTemplates.javaBuildAgent(Constants.JAVA_LATEST_VERSION) {
+    stage('Invalidate Maven Cache') {
+      container('java') {
+        String mvnCacheDir = "${podTemplates.WORKING_DIR}/.m2/repository"
+        sh """
+          ls -al ${mvnCacheDir}
+          rm -rf ${mvnCacheDir}/*
+          ls -al ${mvnCacheDir}
+        """
+      }
+    }
+  }
+}

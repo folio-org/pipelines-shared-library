@@ -26,6 +26,7 @@ properties([
     folioParameters.cluster(),
     folioParameters.namespace(),
     folioParameters.configType(),
+    booleanParam(name: 'FORCE_MVN_CACHE_REFRESH', defaultValue: false, description: 'Force Maven cache refresh'),
     folioParameters.refreshParameters(),
   ])
 ])
@@ -64,7 +65,7 @@ String featureBranch = params.MODULE_BRANCH
 String featureHash = ""
 
 /** Collect Maven arguments */
-String mavenArguments = params.MAVEN_ARGS.trim()
+String mavenArguments = params.FORCE_MVN_CACHE_REFRESH ? "-U ${params.MAVEN_ARGS.trim()}" : params.MAVEN_ARGS.trim()
 
 /** Collect Gradle arguments */
 String commonGradleOpts = '--quiet --console plain --no-daemon'
@@ -125,7 +126,7 @@ ansiColor('xterm') {
                 maven: Constants.MAVEN_TOOL_NAME,
                 mavenOpts: '-XX:MaxRAMPercentage=85',
                 mavenLocalRepo: "${podTemplates.WORKING_DIR}/.m2/repository",
-                traceability: false,
+                traceability: true,
                 options: [artifactsPublisher(disabled: true)]) {
                   sh """
                     mvn versions:set -DnewVersion=${module.getVersion()}
