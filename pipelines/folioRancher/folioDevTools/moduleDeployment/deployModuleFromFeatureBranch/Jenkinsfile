@@ -26,6 +26,7 @@ properties([
     folioParameters.loadSample(false),
     folioParameters.simulate(),
     folioParameters.ignoreErrors(),
+    booleanParam(name: 'FORCE_MVN_CACHE_REFRESH', defaultValue: false, description: 'Force Maven cache refresh'),
     folioParameters.refreshParameters()
   ])
 ])
@@ -47,7 +48,7 @@ module.name = params.MODULE_NAME
 
 String featureBranch = params.MODULE_BRANCH
 String featureHash = ''
-String mavenArguments = params.MAVEN_ARGS.trim()
+String mavenArguments = params.FORCE_MVN_CACHE_REFRESH ? "-U ${params.MAVEN_ARGS.trim()}" : params.MAVEN_ARGS.trim()
 List installJson = []
 
 InstallRequestParams installRequestParams = new InstallRequestParams()
@@ -94,7 +95,7 @@ ansiColor('xterm') {
             maven: Constants.MAVEN_TOOL_NAME,
             mavenOpts: '-XX:MaxRAMPercentage=85',
             mavenLocalRepo: "${podTemplates.WORKING_DIR}/.m2/repository",
-            traceability: false,
+            traceability: true,
             options: [artifactsPublisher(disabled: true)]) {
               sh """
                 mvn versions:set -DnewVersion=${module.getVersion()}

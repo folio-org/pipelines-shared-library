@@ -18,6 +18,7 @@ properties([
   parameters([
     folioParameters.branch('MODULE_BRANCH', sidecarModuleName),
     booleanParam(name: 'NATIVE', defaultValue: false, description: 'Build native [SC] image'),
+    booleanParam(name: 'FORCE_MVN_CACHE_REFRESH', defaultValue: false, description: 'Force Maven cache refresh'),
     folioParameters.refreshParameters(),
   ])
 ])
@@ -38,7 +39,7 @@ String featureHash = ""
 
 /** Collect Maven arguments */
 
-def  mavenArguments = '-DskipTests'
+def  mavenArguments = params.FORCE_MVN_CACHE_REFRESH ? '-U -DskipTests' : '-DskipTests'
 
 if (params.NATIVE) {
   mavenArguments += ' -Pnative -Dnative.march=-march=compatibility'
@@ -83,7 +84,7 @@ ansiColor('xterm') {
           /** Build Sidecar as Maven Project */
           withMaven(jdk: Constants.JAVA_TOOL_NAME,
             maven: Constants.MAVEN_TOOL_NAME,
-            traceability: false,
+            traceability: true,
             options: [artifactsPublisher(disabled: true)]) {
             sh """
                   mvn versions:set -DnewVersion=${sidecarVersion}
