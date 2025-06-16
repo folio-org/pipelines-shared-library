@@ -473,7 +473,6 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
     {
       "scSubnet": "0.0.0.0/0",
       "tenant": "${ns.defaultTenantId}",
-      "errorDetectionEnabled": false,
       "messageDelimiter": "\\r",
       "charset": "ISO-8859-1",
       "errorDetectionEnabled": true
