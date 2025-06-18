@@ -28,7 +28,7 @@ class RestClient {
    * Flag to enable or disable debug logging.
    * If set to `true`, debug statements will be logged.
    */
-  private boolean debug
+  boolean debug
 
   /**
    * The default connection timeout (in milliseconds) for requests.
