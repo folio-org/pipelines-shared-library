@@ -6,6 +6,7 @@ import org.folio.models.application.Application
 import org.folio.models.application.ApplicationList
 import org.folio.rest_v2.eureka.Keycloak
 import org.folio.rest_v2.eureka.Kong
+import org.folio.utilities.RequestException
 
 class Tenants extends Kong{
 
@@ -96,7 +97,7 @@ class Tenants extends Kong{
     try{
       restClient.debug = true
       response = restClient.get(url, headers).body
-    } catch (Exception e) {
+    } catch (RequestException e) {
       logger.error("Failed to get tenants from url: ${url}. Error: ${e.message}")
       context.input(message: "Let's check request")
       throw e
