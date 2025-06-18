@@ -92,6 +92,8 @@ class Tenants extends Kong{
 
     logger.debug("Get tenants url: $url")
 
+    context.input(message: "Let's check endpoint")
+
     def response = restClient.get(url, headers).body
 
     if (response.totalRecords > 0) {
