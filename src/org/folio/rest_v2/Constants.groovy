@@ -280,6 +280,14 @@ class Constants {
       , dependsOn: ["app-platform-minimal", "app-platform-complete"]
     ],
     [
+      name: "app-finc"
+      , branch: "snapshot"
+      , consortia: false
+      , core: false
+      , byDefault: false
+      , dependsOn: ["app-acquisitions", "app-platform-minimal", "app-platform-complete"]
+    ],
+    [
       name: "app-reporting"
       , branch: "snapshot"
       , consortia: false
