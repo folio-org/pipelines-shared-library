@@ -1474,6 +1474,37 @@ mod-feesfines:
   pdb:
     enabled: true
     maxUnavailable: 1
+mod-finc-config:
+  extraEnvVars:
+  - name: EZB_DOWNLOAD_URL
+    value: https://ezb-api.ur.de/ezb/export/licenselist_html.php?pack=0&bibid=%s&lang=de&output_style=kbart&todo_license=ALkbart
+  integrations:
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+    db:
+      enabled: true
+      existingSecret: db-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 384Mi
+    requests:
+      memory: 256Mi
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
 mod-finance:
   extraEnvVars: []
   integrations: {}
