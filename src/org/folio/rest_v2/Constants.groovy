@@ -241,7 +241,7 @@ class Constants {
     ],
     [
       name: "app-fqm"
-      , branch: "MODLISTS-218"
+      , branch: "MODLISTS-218-snapshot"
       , consortia: false
       , core: false
       , byDefault: true
