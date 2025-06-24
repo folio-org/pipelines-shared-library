@@ -281,7 +281,7 @@ class Constants {
     ],
     [
       name: "app-finc"
-      , branch: "snapshot"
+      , branch: "master"
       , consortia: false
       , core: false
       , byDefault: false
