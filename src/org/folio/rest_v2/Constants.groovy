@@ -248,6 +248,14 @@ class Constants {
       , dependsOn: ["app-platform-minimal", "app-platform-complete", "app-acquisitions"]
     ],
     [
+      name: "app-lists"
+      , branch: "snapshot"
+      , consortia: false
+      , core: false
+      , byDefault: true
+      , dependsOn: ["app-platform-minimal", "app-platform-complete", "app-acquisitions", "app-fqm"]
+    ],
+    [
       name: "app-requests-ecs"
       , branch: "snapshot"
       , consortia: false
