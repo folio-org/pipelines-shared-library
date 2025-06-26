@@ -89,7 +89,7 @@ class Constants {
     ],
     [
       name: "app-platform-complete"
-      , branch: "snapshot"
+      , branch: "master"
       , consortia: false
       , core     : false
       , byDefault: true
