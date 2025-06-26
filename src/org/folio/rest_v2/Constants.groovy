@@ -89,7 +89,7 @@ class Constants {
     ],
     [
       name: "app-platform-complete"
-      , branch: "master"
+      , branch: "snapshot-test-entitlement-semver"
       , consortia: false
       , core     : false
       , byDefault: true
