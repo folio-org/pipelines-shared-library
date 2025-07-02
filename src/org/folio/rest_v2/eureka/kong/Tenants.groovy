@@ -158,7 +158,7 @@ class Tenants extends Kong{
       }
     }
 
-    if (response.responseCode == 504 && contentStr.contains("mod-agreements")) {
+    if ((response.responseCode == 504 || 400) && contentStr.contains("mod-agreements")) {
       def parts = kongUrl.split("\\.")
       context.kubectl.rolloutDeployment("mod-agreements", parts[0].split("-")[2])
       context.kubectl.agreementsEntitlementFix(parts[0].split("-")[2], tenant.tenantId)
