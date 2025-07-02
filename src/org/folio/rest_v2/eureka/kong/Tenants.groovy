@@ -133,7 +133,7 @@ class Tenants extends Kong{
       applications: appIds
     ]
 
-    List responseCodes = skipExistence ? [201, 400] : []
+    List responseCodes = skipExistence ? [201, 400, 504] : []
 
     def response = restClient.post(
       generateUrl("/entitlements${tenant.getInstallRequestParams()?.toQueryString() ?: ''}")
@@ -143,6 +143,12 @@ class Tenants extends Kong{
     )
 
     String contentStr = response.body.toString()
+
+    if ((response.responseCode == 504 || 400) && contentStr.contains("mod-agreements")) {
+      def parts = kongUrl.split("\\.")
+      context.kubectl.rolloutDeployment("mod-agreements", parts[0].split("-")[2])
+      context.kubectl.agreementsEntitlementFix(parts[0].split("-")[2], tenant.tenantId)
+    }
 
     if (response.responseCode == 400) {
       if (contentStr.contains("value: Entitle flow finished")) {
@@ -156,12 +162,6 @@ class Tenants extends Kong{
 
         throw new Exception("Build failed: " + contentStr)
       }
-    }
-
-    if ((response.responseCode == 504 || 400) && contentStr.contains("mod-agreements")) {
-      def parts = kongUrl.split("\\.")
-      context.kubectl.rolloutDeployment("mod-agreements", parts[0].split("-")[2])
-      context.kubectl.agreementsEntitlementFix(parts[0].split("-")[2], tenant.tenantId)
     }
 
 
