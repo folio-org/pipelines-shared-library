@@ -158,6 +158,13 @@ class Tenants extends Kong{
       }
     }
 
+    if (response.responseCode == 504 && contentStr.contains("mod-agreements")) {
+      def parts = kongUrl.split("\\.")
+      context.kubectl.rolloutDeployment("mod-agreements", parts[0].split("-")[2])
+      context.kubectl.agreementsEntitlementFix(parts[0].split("-")[2], tenant.tenantId)
+    }
+
+
     logger.info("Enabling (entitle) applications on tenant ${tenant.tenantId} with ${tenant.uuid} was finished successfully")
 
     return this
