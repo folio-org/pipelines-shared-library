@@ -151,7 +151,7 @@ class Tenants extends Kong{
           Status: ${response.responseCode}
           Response content:
           ${contentStr}""")
-      } else if(contentStr.contains("mod-agreements")) {
+      } else if (contentStr.contains("mod-agreements")) {
         logger.info("""
           Application(s) are already entitled on tenant, but need to fix agreements entitlement.
           Status: ${response.responseCode}
