@@ -69,7 +69,7 @@ class Keycloak extends Base {
   }
 
   String getAuthToken(String tenantId, String clientId, Secret clientSecret, String username = null, Secret password = null){
-    logger.info("Getting access token from Keycloak service")
+    logger.info("Getting access token from Keycloak service for tenant $tenantId with client ID $clientId ${username ? "and username $username" : ""} ...")
 
     String url = generateUrl("/${getRealmTokenPath(tenantId)}")
 
