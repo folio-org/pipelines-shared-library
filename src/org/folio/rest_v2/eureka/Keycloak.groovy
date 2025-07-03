@@ -75,10 +75,8 @@ class Keycloak extends Base {
 
     Map<String,String> headers = ['Content-Type':'application/x-www-form-urlencoded']
 
-    logger.debug("Username: ${username ?: 'not provided'}, Password: ${password ? password.getPlainText() : 'not provided'}")
-
-    String userCredentials = username ? "&username=${username}" : "" +
-      password ? "&password=${password.getPlainText()}" : ""
+    String userCredentials = (username ? "&username=${username}" : "") +
+      (password ? "&password=${password.getPlainText()}" : "")
 
     String requestBody = "client_id=${clientId}&client_secret=${clientSecret.getPlainText()}&grant_type=client_credentials" + userCredentials
 
