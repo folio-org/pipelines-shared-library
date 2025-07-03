@@ -19,6 +19,7 @@ properties([
     folioParameters.branch('MODULE_BRANCH', sidecarModuleName),
     booleanParam(name: 'NATIVE', defaultValue: false, description: 'Build native [SC] image'),
     booleanParam(name: 'FORCE_MVN_CACHE_REFRESH', defaultValue: false, description: 'Force Maven cache refresh'),
+    string(name: 'EXTRA_BUILD_ARGS', defaultValue: '--initialize-at-run-time=org.apache.logging.log4j.core.appender.mom.JmsAppender$Builder', description: 'pom.xml extra build arguments'),
     folioParameters.refreshParameters(),
   ])
 ])
@@ -80,6 +81,12 @@ ansiColor('xterm') {
         dir(sidecarWorkDir) {
           /** Read Sidecar version from its pom.xml file PLUS the latest commit hash on branch*/
           sidecarVersion = (readMavenPom(file: 'pom.xml').version - '-SNAPSHOT') + (params.NATIVE == true ? "-native.${featureHash}" : "-SNAPSHOT.${featureHash}")
+
+          def pom_file_adjustment = readFile(file: 'pom.xml')
+
+          pom_file_adjustment.replace("-H:ReflectionConfigurationFiles=reflection-config.json", "-H:ReflectionConfigurationFiles=reflection-config.json, " + params.EXTRA_BUILD_ARGS)
+
+          writeFile file: 'pom.xml', text: pom_file_adjustment, overwrite: true
 
           /** Build Sidecar as Maven Project */
           withMaven(jdk: Constants.JAVA_TOOL_NAME,
