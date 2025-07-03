@@ -279,6 +279,7 @@ class Configurations extends Kong {
     String url = generateUrl('/scheduler/timers')
 
     logger.info("Creating timer for tenant ${tenant.tenantId}...")
+    restClient.debug = true
     Map response = restClient.post(url, timerDescriptor, headers, [201]).body
     logger.info("Timer for tenant ${tenant.tenantId} was created successfully with ID: ${response.id}")
 
