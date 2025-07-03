@@ -95,7 +95,7 @@ ansiColor('xterm') {
 //             '<finalName>folio-runner</finalName>'
 //           )
 
-          writeFile file: 'pom.xml', text: fixed_pom, overwrite: true
+          writeFile file: 'pom.xml', text: adjusted_pom, overwrite: true
 
           /** Build Sidecar as Maven Project */
           withMaven(jdk: Constants.JAVA_TOOL_NAME,
