@@ -90,10 +90,10 @@ ansiColor('xterm') {
             "-H:ReflectionConfigurationFiles=reflection-config.json, ${params.EXTRA_BUILD_ARGS}"
           )
 
-          def fixed_pom = adjusted_pom.replace(
-            '<finalName>${project.artifactId}-${project.version}-runner</finalName>',
-            '<finalName>folio-runner</finalName>'
-          )
+//           def fixed_pom = adjusted_pom.replace(
+//             '<finalName>${project.artifactId}-${project.version}-runner</finalName>',
+//             '<finalName>folio-runner</finalName>'
+//           )
 
           writeFile file: 'pom.xml', text: fixed_pom, overwrite: true
 
