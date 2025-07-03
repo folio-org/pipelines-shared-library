@@ -84,7 +84,7 @@ ansiColor('xterm') {
 
           def pom_file_adjustment = readFile(file: 'pom.xml')
 
-          pom_file_adjustment.replace("-H:ReflectionConfigurationFiles=reflection-config.json", "-H:ReflectionConfigurationFiles=reflection-config.json, " + params.EXTRA_BUILD_ARGS)
+          pom_file_adjustment.replace("-H:ReflectionConfigurationFiles=reflection-config.json", """-H:ReflectionConfigurationFiles=reflection-config.json, ${params.EXTRA_BUILD_ARGS}""")
 
           writeFile file: 'pom.xml', text: pom_file_adjustment, overwrite: true
 
