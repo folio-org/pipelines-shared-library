@@ -61,6 +61,7 @@ class Kong extends Base {
 
     Map requestBody = ["username": username, "password": password.getPlainText()]
 
+    restClient.debug = true
     def response = restClient.post(url, requestBody, headers).body
 
     logger.info("Access token obtained successfully via login for user " + username)
