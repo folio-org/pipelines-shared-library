@@ -78,7 +78,9 @@ class Keycloak extends Base {
     String userCredentials = (username ? "&username=${username}" : "") +
       (password ? "&password=${password.getPlainText()}" : "")
 
-    String requestBody = "client_id=${clientId}&client_secret=${clientSecret.getPlainText()}&grant_type=client_credentials" + userCredentials
+    String grantType = (username && password) ? "&grant_type=password" : "&grant_type=client_credentials"
+
+    String requestBody = "client_id=${clientId}&client_secret=${clientSecret.getPlainText()}${grantType}${userCredentials}"
 
     def response = restClient.post(url, requestBody, headers).body
 
