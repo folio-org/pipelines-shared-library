@@ -45,7 +45,7 @@ class Kong extends Base {
   }
 
   Map<String, String> getTenantHttpHeaders(EurekaTenant tenant, boolean addOkapiAuth = false) {
-    return getDefaultHeaders() + keycloak.getAuthTenantHeaders(tenant, addOkapiAuth)
+    return getDefaultHeaders() + keycloak.getAuthTenantHeaders(tenant, null, addOkapiAuth)
   }
 
   Map<String, String> getTenantUserHttpHeaders(EurekaTenant tenant, User user = tenant.getAdminUser(), boolean addOkapiAuth = false) {
