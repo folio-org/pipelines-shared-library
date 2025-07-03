@@ -238,7 +238,9 @@ class Configurations extends Kong {
    * @return A list of timer descriptors.
    */
   List getTimerDescriptors(EurekaTenant tenant, String limit = '500') {
-    Map<String, String> headers = getTenantUserHttpHeaders(tenant)
+    String token = getAuthUserToken(tenant.tenantId, tenant.getAdminUser().username, tenant.getAdminUser().password)
+
+    Map<String, String> headers = getTenantHttpHeaders(tenant.tenantId, token)
     String url = generateUrl("/scheduler/timers?limit=${limit}")
 
     logger.info("Getting timer descriptors on tenant ${tenant.tenantId}...")
@@ -254,7 +256,9 @@ class Configurations extends Kong {
    * @param timerId The ID of the timer to delete.
    */
   void deleteTimer(EurekaTenant tenant, String timerId) {
-    Map<String, String> headers = getTenantUserHttpHeaders(tenant)
+    String token = getAuthUserToken(tenant.tenantId, tenant.getAdminUser().username, tenant.getAdminUser().password)
+
+    Map<String, String> headers = getTenantHttpHeaders(tenant.tenantId, token)
     String url = generateUrl("/scheduler/timers/${timerId}")
 
     logger.info("Deleting timer ${timerId} on tenant ${tenant.tenantId} ...")
@@ -275,7 +279,9 @@ class Configurations extends Kong {
       return null
     }
 
-    Map<String, String> headers = getTenantHttpHeaders(tenant)
+    String token = getAuthUserToken(tenant.tenantId, tenant.getAdminUser().username, tenant.getAdminUser().password)
+
+    Map<String, String> headers = getTenantHttpHeaders(tenant.tenantId, token)
     String url = generateUrl('/scheduler/timers')
 
     logger.info("Creating timer for tenant ${tenant.tenantId}...")

@@ -3,7 +3,6 @@ package org.folio.rest_v2.eureka
 import groovy.text.StreamingTemplateEngine
 import hudson.util.Secret
 import org.folio.models.EurekaTenant
-import org.folio.models.User
 
 /**
  * The Keycloak class is responsible for various operations related to
@@ -56,29 +55,25 @@ class Keycloak extends Base {
     return getAuthorizedHeaders(getAuthMasterTenantToken(), addOkapiAuth)
   }
 
-  Map<String,String> getAuthTenantHeaders(EurekaTenant tenant, User user = null, boolean addOkapiAuth = false) {
-    return getAuthorizedHeaders(getAuthTenantToken(tenant, user), addOkapiAuth) + ["X-Okapi-Tenant": tenant.tenantId]
+  Map<String,String> getAuthTenantHeaders(EurekaTenant tenant, boolean addOkapiAuth = false) {
+    return getAuthorizedHeaders(getAuthTenantToken(tenant), addOkapiAuth) + ["X-Okapi-Tenant": tenant.tenantId]
   }
 
   String getAuthMasterTenantToken() {
     return getAuthToken("master", MASTER_TENANT_CLIENT_ID, MASTER_TENANT_CLIENT_SECRET)
   }
 
-  String getAuthTenantToken(EurekaTenant tenant, User user = null) {
-    return getAuthToken(tenant.tenantId, tenant.clientId, tenant.clientSecret, user?.username, user?.password)
+  String getAuthTenantToken(EurekaTenant tenant) {
+    return getAuthToken(tenant.tenantId, tenant.clientId, tenant.clientSecret)
   }
 
-  String getAuthToken(String tenantId, String clientId, Secret clientSecret, String username = null, Secret password = null){
-    logger.info("Getting access token from Keycloak service for tenant $tenantId with client ID $clientId ${username ? "and username $username" : ""} ...")
+  String getAuthToken(String tenantId, String clientId, Secret clientSecret){
+    logger.info("Getting access token from Keycloak service")
 
     String url = generateUrl("/${getRealmTokenPath(tenantId)}")
 
     Map<String,String> headers = ['Content-Type':'application/x-www-form-urlencoded']
-
-    String userCredentials = (username ? "&username=${username}" : "") +
-      (password ? "&password=${password.getPlainText()}" : "")
-
-    String requestBody = "client_id=${clientId}&client_secret=${clientSecret.getPlainText()}&grant_type=client_credentials" + userCredentials
+    String requestBody = "client_id=${clientId}&client_secret=${clientSecret.getPlainText()}&grant_type=client_credentials"
 
     def response = restClient.post(url, requestBody, headers).body
 
