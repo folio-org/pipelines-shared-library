@@ -275,7 +275,7 @@ class Configurations extends Kong {
       return null
     }
 
-    Map<String, String> headers = getTenantHttpHeaders(tenant)
+    Map<String, String> headers = getTenantUserHttpHeaders(tenant)
     String url = generateUrl('/scheduler/timers')
 
     logger.info("Creating timer for tenant ${tenant.tenantId}...")
