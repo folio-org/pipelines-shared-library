@@ -84,18 +84,16 @@ ansiColor('xterm') {
           /** Read Sidecar version from its pom.xml file PLUS the latest commit hash on branch*/
           sidecarVersion = (readMavenPom(file: 'pom.xml').version - '-SNAPSHOT') + (params.NATIVE == true ? "-NATIVE-${featureHash}" : "-SNAPSHOT-${featureHash}")
 
+          if (params.EXTRA_BUILD_ARGS.length() > 0) {
+
           def pom_file_adjustment = readFile(file: 'pom.xml')
           def adjusted_pom = pom_file_adjustment.replace(
             "-H:ReflectionConfigurationFiles=reflection-config.json",
             "-H:ReflectionConfigurationFiles=reflection-config.json, ${params.EXTRA_BUILD_ARGS}"
           )
 
-//           def fixed_pom = adjusted_pom.replace(
-//             '<finalName>${project.artifactId}-${project.version}-runner</finalName>',
-//             '<finalName>folio-runner</finalName>'
-//           )
-
           writeFile file: 'pom.xml', text: adjusted_pom, overwrite: true
+          }
 
           /** Build Sidecar as Maven Project */
           withMaven(jdk: Constants.JAVA_TOOL_NAME,
