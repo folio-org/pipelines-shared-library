@@ -34,7 +34,14 @@ class Eureka extends Base {
     EurekaTenant createdTenant = Tenants.get(kong).createTenant(tenant)
 
     tenant.withUUID(createdTenant.getUuid())
-      .withClientSecret(retrieveTenantClientSecretFromAWSSSM(tenant))
+      .withClientSecret(
+        retrieveTenantClientSecretFromAWSSSM(
+          getTenantClientAWSSecretStoragePath("${cluster}-${namespace}", tenant)
+        ))
+      .withUserClientSecret(
+        retrieveTenantClientSecretFromAWSSSM(
+          getTenantUserClientAWSSecretStoragePath("${cluster}-${namespace}", tenant)
+        ))
 
     kong.keycloak.defineTTL(tenant.tenantId, 600)
 
@@ -80,10 +87,10 @@ class Eureka extends Base {
    * @param EurekaTenant object
    * @return client secret as Secret object
    */
-  Secret retrieveTenantClientSecretFromAWSSSM(EurekaTenant tenant) {
+  Secret retrieveTenantClientSecretFromAWSSSM(String secretStoragePathName) {
     context.awscli.withAwsClient {
       return Secret.fromString(
-        context.awscli.getSsmParameterValue(Constants.AWS_REGION, tenant.secretStoragePathName, true) as String
+        context.awscli.getSsmParameterValue(Constants.AWS_REGION, secretStoragePathName, true) as String
       )
     }
   }
@@ -234,10 +241,16 @@ class Eureka extends Base {
   Map<String, EurekaTenant> getExistedTenantsFlow(String namespace) {
     return Tenants.get(kong).getTenants().collectEntries {
       tenant ->
-        tenant.withAWSSecretStoragePathName(namespace)
-          .withClientSecret(retrieveTenantClientSecretFromAWSSSM(tenant))
-
-        tenant.withApplications(Tenants.get(kong).getEnabledApplicationOnTenant(tenant, true))
+        tenant
+          .withClientSecret(
+            retrieveTenantClientSecretFromAWSSSM(
+              getTenantClientAWSSecretStoragePath(namespace, tenant)
+            ))
+          .withUserClientSecret(
+            retrieveTenantClientSecretFromAWSSSM(
+              getTenantUserClientAWSSecretStoragePath(namespace, tenant)
+            ))
+          .withApplications(Tenants.get(kong).getEnabledApplicationOnTenant(tenant, true))
 
         TenantConsortiaConfiguration consortiaConfig = Consortia.get(kong).getTenantConsortiaConfiguration(tenant)
 
@@ -382,5 +395,13 @@ class Eureka extends Base {
         logger.info("Removed resources for failed module update: ${appName}")
       }
     }
+  }
+
+  static String getTenantClientAWSSecretStoragePath(String clusterNamespace, EurekaTenant tenant) {
+    return "${clusterNamespace}_${tenant.tenantId}_${tenant.clientId}"
+  }
+
+  static String getTenantUserClientAWSSecretStoragePath(String clusterNamespace, EurekaTenant tenant) {
+    return "${clusterNamespace}_${tenant.tenantId}_${tenant.tenantId}${tenant.userClientIdSuffix}"
   }
 }
