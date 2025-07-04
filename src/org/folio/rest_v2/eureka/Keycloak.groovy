@@ -65,7 +65,7 @@ class Keycloak extends Base {
   }
 
   String getAuthTenantToken(EurekaTenant tenant, User user = null) {
-    return getAuthToken(tenant.tenantId, tenant.clientId, tenant.clientSecret, user?.username, user?.password)
+    return getAuthToken(tenant.tenantId, "${tenant.tenantId}${tenant.clientIdSuffix}", tenant.clientSecret, user?.username, user?.password)
   }
 
   String getAuthToken(String tenantId, String clientId, Secret clientSecret, String username = null, Secret password = null){

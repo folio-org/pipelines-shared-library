@@ -17,7 +17,7 @@ class EurekaTenant extends OkapiTenant {
   /**
    * Keycloak client identifier.
    */
-  String clientId = "sidecar-module-access-client"
+  String clientIdSuffix = "-application"
 
   /**
    * Some secret phrase to authenticate in Keycloak.
@@ -68,7 +68,7 @@ class EurekaTenant extends OkapiTenant {
   }
 
   EurekaTenant withAWSSecretStoragePathName(String namespace){
-    secretStoragePathName = "${namespace}_${tenantId}_${clientId}"
+    secretStoragePathName = "${namespace}_${tenantId}_${tenantId}${clientIdSuffix}"
     return this
   }
 
