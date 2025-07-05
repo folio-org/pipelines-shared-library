@@ -56,7 +56,11 @@ class Keycloak extends Base {
     return getAuthorizedHeaders(getAuthMasterTenantToken(), addOkapiAuth)
   }
 
-  Map<String,String> getAuthTenantHeaders(EurekaTenant tenant, User user = null, boolean addOkapiAuth = false) {
+  Map<String,String> getAuthTenantHeaders(EurekaTenant tenant, boolean addOkapiAuth = false) {
+    return getAuthorizedHeaders(getAuthTenantToken(tenant), addOkapiAuth) + ["X-Okapi-Tenant": tenant.tenantId]
+  }
+
+  Map<String,String> getAuthTenantHeaders(EurekaTenant tenant, User user, boolean addOkapiAuth = false) {
     return getAuthorizedHeaders(getAuthTenantToken(tenant, user), addOkapiAuth) + ["X-Okapi-Tenant": tenant.tenantId]
   }
 
@@ -64,21 +68,21 @@ class Keycloak extends Base {
     return getAuthToken("master", MASTER_TENANT_CLIENT_ID, MASTER_TENANT_CLIENT_SECRET)
   }
 
-  String getAuthTenantToken(EurekaTenant tenant, User user = null) {
-    return getAuthToken(tenant.tenantId, tenant.clientId, tenant.clientSecret, user?.username, user?.password)
+  String getAuthTenantToken(EurekaTenant tenant) {
+    return getAuthToken(tenant.tenantId, tenant.clientId, tenant.clientSecret)
   }
 
-  String getAuthToken(String tenantId, String clientId, Secret clientSecret, String username = null, Secret password = null){
-    logger.info("Getting access token from Keycloak service for tenant $tenantId with client ID $clientId ${username ? "and username $username" : ""} ...")
+  String getAuthTenantToken(EurekaTenant tenant, User user) {
+    return getAuthUserToken(tenant.tenantId, user.username, user.password)
+  }
+
+  String getAuthToken(String tenantId, String clientId, Secret clientSecret){
+    logger.info("Getting access token from Keycloak service")
 
     String url = generateUrl("/${getRealmTokenPath(tenantId)}")
 
     Map<String,String> headers = ['Content-Type':'application/x-www-form-urlencoded']
-
-    String userCredentials = (username ? "&username=${username}" : "") +
-      (password ? "&password=${password.getPlainText()}" : "")
-
-    String requestBody = "client_id=${clientId}&client_secret=${clientSecret.getPlainText()}&grant_type=client_credentials" + userCredentials
+    String requestBody = "client_id=${clientId}&client_secret=${clientSecret.getPlainText()}&grant_type=client_credentials"
 
     def response = restClient.post(url, requestBody, headers).body
 
@@ -86,6 +90,37 @@ class Keycloak extends Base {
 
     return response['access_token']
   }
+
+  String getAuthUserToken(String tenantId, String username, Secret password) {
+    logger.info("Getting access token from Keycloak service")
+
+    String url = generateUrl("/${getRealmTokenPath(tenantId)}")
+
+    Map<String,String> headers = ['Content-Type':'application/x-www-form-urlencoded']
+    String requestBody = "client_id=${clientId}&client_secret=${clientSecret.getPlainText()}&grant_type=password&username=${username}&password=${password.getPlainText()}"
+
+    def response = restClient.post(url, requestBody, headers).body
+
+    logger.info("Access token obtained successfully from Keycloak service")
+
+    return response['access_token']
+  }
+
+//  String getAuthUserToken(String tenantId, String username, Secret password) {
+//    logger.info("Getting access token from Keycloak service for user " + username)
+//
+//    String url = generateUrl("/authn/login")
+//
+//    Map<String, String> headers = ['Content-Type': 'application/json', 'x-okapi-tenant': tenantId]
+//
+//    Map requestBody = ["username": username, "password": password.getPlainText()]
+//
+//    def response = restClient.post(url, requestBody, headers).body
+//
+//    logger.info("Access token obtained successfully from Keycloak service for user " + username)
+//
+//    return response['okapiToken']
+//  }
 
   Keycloak defineTTL(String tenantId, int ttl = 300) {
     if (tenantId == 'master') {
