@@ -1,5 +1,6 @@
 package org.folio.rest_v2.eureka
 
+import hudson.util.Secret
 import org.folio.models.EurekaTenant
 import org.folio.models.User
 
@@ -8,14 +9,14 @@ class Kong extends Base {
   protected Keycloak keycloak
   protected String kongUrl
 
-  Kong(def context, String kongUrl, Keycloak keycloak, boolean debug = false){
+  Kong(def context, String kongUrl, Keycloak keycloak, boolean debug = false) {
     super(context, debug)
 
     this.keycloak = keycloak
     this.kongUrl = kongUrl
   }
 
-  Kong(def context, String kongUrl, String keycloakUrl, boolean debug = false){
+  Kong(def context, String kongUrl, String keycloakUrl, boolean debug = false) {
     this(context, kongUrl, new Keycloak(context, keycloakUrl, debug), debug)
   }
 
@@ -50,5 +51,25 @@ class Kong extends Base {
 
   Map<String, String> getTenantUserHttpHeaders(EurekaTenant tenant, User user = tenant.getAdminUser(), boolean addOkapiAuth = false) {
     return getDefaultHeaders() + keycloak.getAuthTenantHeaders(tenant, user, addOkapiAuth)
+  }
+
+  Map<String, String> getTenantHttpHeaders(String tenantId, String token, boolean addOkapiAuth = false) {
+    return getDefaultHeaders() + keycloak.getAuthorizedHeaders(token, addOkapiAuth) + ["X-Okapi-Tenant": tenantId]
+  }
+
+  String getAuthUserToken(String tenantId, String username, Secret password) {
+    logger.info("Getting access token via login for user " + username)
+
+    String url = generateUrl("/authn/login")
+
+    Map<String, String> headers = ['Content-Type': 'application/json', 'x-okapi-tenant': tenantId]
+
+    Map requestBody = ["username": username, "password": password.getPlainText()]
+
+    def response = restClient.post(url, requestBody, headers).body
+
+    logger.info("Access token obtained successfully via login for user " + username)
+
+    return response['okapiToken']
   }
 }

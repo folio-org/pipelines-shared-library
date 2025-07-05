@@ -1,0 +1,161 @@
+#!groovy
+import hudson.util.Secret
+import org.folio.Constants
+import org.folio.jenkins.PodTemplates
+import org.folio.models.EurekaNamespace
+import org.folio.models.EurekaTenant
+import org.folio.models.User
+import org.folio.rest_v2.eureka.Eureka
+import org.folio.rest_v2.eureka.Kong
+import org.folio.rest_v2.eureka.kong.Configurations
+import org.folio.utilities.Logger
+import org.jenkinsci.plugins.workflow.libs.Library
+
+@Library('pipelines-shared-library') _
+
+/**
+ * Job properties and parameters
+ */
+properties([
+  buildDiscarder(logRotator(numToKeepStr: '30')),
+  disableConcurrentBuilds(),
+  parameters([
+    folioParameters.cluster(),
+    folioParameters.namespace(),
+    string(name: 'TENANT_IDS', description: 'Comma separated list of tenant ids, if not specified we consider all the tenants.', trim: true),
+    booleanParam(name: 'RECREATE_ALL_TIMERS', defaultValue: false, description: 'Whether to re-create all timers or only those with non-valid moduleId.'),
+    folioParameters.refreshParameters()
+  ])
+])
+
+if (params.REFRESH_PARAMETERS) {
+  currentBuild.result = 'ABORTED'
+  return
+}
+
+if (params.CLUSTER == 'folio-testing') {
+  folioCommon.kitfoxApproval()
+}
+
+/**
+ * Job variables
+ */
+PodTemplates podTemplates = new PodTemplates(this)
+Logger logger = new Logger(this, env.JOB_BASE_NAME)
+
+EurekaNamespace namespace = new EurekaNamespace(params.CLUSTER, params.NAMESPACE)
+Eureka eureka = new Eureka(this, namespace.generateDomain('kong'), namespace.generateDomain('keycloak'), false)
+Kong kong = new Kong(this, namespace.generateDomain('kong'), namespace.generateDomain('keycloak'), false)
+
+Map<String, EurekaTenant> tenants = [:]
+boolean recreateAllTimers = params.RECREATE_ALL_TIMERS
+Map skippedTimers = [:]
+Map updatedTimers = [:]
+
+/**
+ * Pipeline
+ */
+ansiColor('xterm') {
+  podTemplates.rancherAgent {
+    stage('Ini') {
+      buildName("#${namespace.getWorkspaceName()}.${env.BUILD_ID}")
+      buildDescription("Tenant IDs: ${params.TENANT_IDS ?: 'all'} | Recreate all timers: ${recreateAllTimers}")
+    }
+    stage('Preparation') {
+      if (params.TENANT_IDS) {
+        tenants = eureka.getExistedTenantsFlow(namespace.getWorkspaceName())
+          .findAll {
+            it.key in params.TENANT_IDS.split(',').collect {
+              it.trim()
+            }.findAll { it }
+          }
+      } else {
+        tenants = eureka.getExistedTenantsFlow(namespace.getWorkspaceName())
+      }
+    }
+
+    stage('Validate timers') {
+      tenants.each { tenantId, tenant ->
+        tenant.setAdminUser(getSystemUser(namespace, tenantId))
+
+        List modulesList = tenant.applications*.modules.flatten()
+        List timerDescriptors = Configurations.get(kong).getTimerDescriptors(tenant)
+
+        if (!timerDescriptors) {
+          logger.warning("No timers found for tenant ${tenantId}.")
+          return
+        }
+
+        timerDescriptors.each { timerDescriptor ->
+          String entitledModuleId = modulesList.find { it.name == timerDescriptor.moduleName }?.id
+          if (!entitledModuleId) {
+            skippedTimers[timerDescriptor.id] = [
+              tenantId  : tenantId,
+              moduleName: timerDescriptor.moduleName,
+              moduleId  : timerDescriptor.moduleId]
+            logger.warning("No entiteled module found for timer ${timerDescriptor.moduleName} in tenant ${tenantId}.")
+            return
+          }
+
+          if (recreateAllTimers || timerDescriptor.moduleId != entitledModuleId) {
+            Map tmpTimerDescriptor = timerDescriptor.clone()
+            tmpTimerDescriptor.remove('id')
+            tmpTimerDescriptor.moduleId = entitledModuleId
+            tmpTimerDescriptor.enabled = true
+
+            Map newTimerDescriptor = Configurations.get(kong).recreateTimer(tenant, timerDescriptor.id, tmpTimerDescriptor)
+            updatedTimers[newTimerDescriptor.id] = [
+              tenantId   : tenantId,
+              moduleName : newTimerDescriptor.moduleName,
+              moduleId   : timerDescriptor.moduleId,
+              newModuleId: newTimerDescriptor.moduleId
+            ]
+          }
+        }
+      }
+    }
+
+    stage('Report') {
+      if (skippedTimers) {
+        logger.warning("Skipped timers: " + writeJSON(returnText: true, json: skippedTimers, pretty: 2))
+      } else {
+        logger.info("No skipped timers.")
+      }
+
+      if (updatedTimers) {
+        logger.info("Updated timers: " + writeJSON(returnText: true, json: updatedTimers, pretty: 2))
+      } else {
+        logger.info("No timers were updated.")
+      }
+    }
+  }
+}
+
+/**
+ * Retrieves the system user for a given tenant within a specified namespace.
+ *
+ * @param namespace The `EurekaNamespace` object representing the namespace.
+ * @param tenantId The ID of the tenant for which the system user is retrieved.
+ * @return A `User` object containing the system user's credentials.
+ *
+ * This function constructs the system user's secret storage path and retrieves
+ * the password from AWS Systems Manager Parameter Store using the AWS CLI.
+ * The retrieved credentials are then used to create and return a `User` object.
+ */
+@SuppressWarnings('GrMethodMayBeStatic')
+User getSystemUser(EurekaNamespace namespace, String tenantId) {
+  String secretStoragePathName = "${namespace.getWorkspaceName()}_${tenantId}_${tenantId}-system-user"
+  String username = "${tenantId}-system-user"
+  Secret password
+  awscli.withAwsClient {
+    password = Secret.fromString(
+      awscli.getSsmParameterValue(Constants.AWS_REGION, secretStoragePathName, true) as String
+    )
+  }
+
+  User systemUser = new User()
+  systemUser.setUsername(username)
+  systemUser.setPassword(password)
+
+  return systemUser
+}
