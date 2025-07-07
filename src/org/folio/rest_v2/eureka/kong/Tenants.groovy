@@ -141,7 +141,7 @@ class Tenants extends Kong{
       , responseCodes
     )
 
-    logger.debug("Response from entitlements: ${response.responseCode}")
+    logger.debug("Response from entitlements: ${response}")
 
     String contentStr = response.body.toString()
 
