@@ -149,7 +149,7 @@ kong:
   - name: "KONG_NGINX_UPSTREAM_KEEPALIVE"
     value: "1000"
   - name: "KONG_UPSTREAM_KEEPALIVE_IDLE_TIMEOUT"
-    value: "600000"
+    value: "1000"
   - name: "KONG_UPSTREAM_KEEPALIVE_POOL_SIZE"
     value: "1024"
   - name: "KONG_UPSTREAM_KEEPALIVE_MAX_REQUESTS"
