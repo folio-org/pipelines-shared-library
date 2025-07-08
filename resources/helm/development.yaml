@@ -1529,6 +1529,8 @@ mod-finance:
     enabled: true
     maxUnavailable: 1
 mod-finance-storage:
+  extraEnvVarsSecrets:
+    - eureka-common
   extraEnvVars: []
   integrations:
     db:
@@ -3303,6 +3305,9 @@ mgr-tenants:
     db:
       enabled: true
       existingSecret: db-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
   replicaCount: 1
   resources:
     limits:

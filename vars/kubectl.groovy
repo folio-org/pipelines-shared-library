@@ -205,6 +205,20 @@ void cleanUpFedLocks(String namespace = 'default', int timer = 0, String moduleI
   }
 }
 
+void agreementsEntitlementFix(String namespace = 'default', String tenantId = 'default') {
+  try {
+    String pod = sh(script: "kubectl get pod -l 'app.kubernetes.io/name=pgadmin4' -o=name  --ignore-not-found=true --namespace ${namespace}", returnStdout: true).trim()
+    if (pod) {
+      sh(script: "kubectl exec --request-timeout=10s --namespace=${namespace} ${pod} -- /usr/local/pgsql-16/psql -c 'TRUNCATE ${tenantId}_mod_agreements.tenant_changelog_lock'", returnStatus: false)
+      sh(script: "kubectl exec --request-timeout=10s --namespace=${namespace} ${pod} -- /usr/local/pgsql-16/psql -c 'TRUNCATE mod_agreements__system.federation_lock'", returnStatus: false)
+    } else {
+      println("No pgadmin4 pod found in namespace ${namespace}.")
+    }
+  } catch (Exception e) {
+    println("Error during agreements entitlement fix: " + e.getMessage())
+  }
+}
+
 void deletePod(String namespace = 'default', String pod_name, Boolean wait = true) {
   try {
     sh "kubectl delete pod --namespace=${namespace} ${pod_name} --ignore-not-found=true --wait=${wait} --force --grace-period=0"
