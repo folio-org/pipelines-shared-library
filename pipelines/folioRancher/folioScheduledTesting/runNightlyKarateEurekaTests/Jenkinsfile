@@ -70,7 +70,7 @@ ansiColor('xterm') {
       .configType('testing')
       .loadReference(true)
       .loadSample(true)
-      .linkedData(true)
+      .linkedData(false)
       .mockServer(true)
       .consortia(true)
       .splitFiles(true)
