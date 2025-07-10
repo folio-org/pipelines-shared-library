@@ -34,7 +34,7 @@ properties([
     booleanParam(name: 'CONSORTIA', defaultValue: true, description: '(Optional) Set true to create consortium'),
     booleanParam(name: 'HAS_SECURE_TENANT', defaultValue: true, description: '(Optional) Set true to enable secure tenant on one of the consortia institutional tenant'),
     folioParameters.consortiaSecureMemberTenant(),
-    booleanParam(name: 'LINKED_DATA', defaultValue: true, description: '(Optional) Set true to deploy LinkedData'),
+    booleanParam(name: 'LINKED_DATA', defaultValue: false, description: '(Optional) Set true to deploy LinkedData'),
     booleanParam(name: 'MARC_MIGRATIONS', defaultValue: false, description: '(Optional) Set true to deploy Marc-Migrations'),
     booleanParam(name: 'SPLIT_FILES', defaultValue: true, description: '(Optional) Set true to enable split-files functionality'),
     booleanParam(name: 'RW_SPLIT', defaultValue: false, description: '(Optional) Set true to Enable Read/Write split'),
