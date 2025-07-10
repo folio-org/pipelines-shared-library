@@ -54,7 +54,7 @@ CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builde
   .splitFiles(true)
   .ecsCCL(true)
   .rwSplit(false)
-  .linkedData(true)
+  .linkedData(false)
   .greenmail(false)
   .mockServer(false)
   .rtr(false)
