@@ -59,7 +59,7 @@ KarateRunExecutionSummary call(KarateTestsParameters args) {
 
                 execParams = args.reportPortalProjectId ? "$execParams -Drp.launch.uuid=${args.reportPortalProjectId}" : execParams
 
-                sh "mvn test $execParams"
+                sh "export MAVEN_OPTS=-Xmx1024m && mvn test $execParams"
               }
             }
           }
