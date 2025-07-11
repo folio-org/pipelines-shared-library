@@ -73,7 +73,7 @@ class Constants {
       , branch   : "snapshot-full"
       , consortia: false
       , core     : false
-      , byDefault: false
+      , byDefault: true
       , dependsOn: ["app-platform-full"]
     ]
   ]
