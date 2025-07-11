@@ -63,7 +63,7 @@ CreateNamespaceParameters namespaceFromBranchParams = namespaceBaseParams.toBuil
   .configType('testing')
   .loadReference(true)
   .loadSample(true)
-  .linkedData(false)
+  .linkedData(true)
   .consortia(true)
   .rtr(false)
   .applicationSet('Complete')
