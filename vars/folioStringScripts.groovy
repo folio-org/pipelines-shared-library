@@ -196,10 +196,10 @@ def platform = "${reference}" // Provided at runtime
 try {
   def token = getGithubToken(credentialId)
   def modules = fetchAllModules("\${apiUrl}?per_page=\${perPage}", token)
-//  def filteredModules = filterModules(modules, platform)
+  def filteredModules = filterModules(modules, platform)
 
-//  return filteredModules
-  return [platform]
+  return filteredModules
+//  return [platform]
 } catch (Exception e) {
   println "Error: \${e.message}"
   throw e
