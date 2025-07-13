@@ -199,7 +199,7 @@ try {
 //  def filteredModules = filterModules(modules, platform)
 
 //  return filteredModules
-  return modules
+  return [platform]
 } catch (Exception e) {
   println "Error: \${e.message}"
   throw e
