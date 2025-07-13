@@ -208,7 +208,7 @@ def referenceTenantId(String tenant_id = 'diku') {
 }
 
 def moduleName(String reference = 'PLATFORM', String paramName = 'MODULE_NAME') {
-  return _paramExtendedSingleSelect(paramName, reference, folioStringScripts.getModulesList(reference), 'Select module name to install')
+  return _paramExtendedSingleSelect(paramName, reference, folioStringScripts.getModulesList("\${${reference}}"), 'Select module name to install')
 }
 
 def moduleType() {
