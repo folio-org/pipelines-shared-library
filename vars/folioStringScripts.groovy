@@ -134,14 +134,14 @@ def getGithubToken(String credentialId) {
   if (!credential) {
     throw new IllegalStateException("Credential with ID '\${credentialId}' not found!")
   }
-  
+
   return credential.secret.plainText
 }
 
 def fetchAllModules(String initialUrl, String token) {
   def modules = []
   def jsonSlurper = new JsonSlurperClassic()
-  
+
   def fetchPage
   fetchPage = { url ->
   def connection = new URL(url).openConnection()
@@ -167,7 +167,7 @@ def fetchAllModules(String initialUrl, String token) {
 }
 
   fetchPage(initialUrl)
-  
+
   return modules
 }
 
@@ -196,9 +196,10 @@ def platform = "${reference}" // Provided at runtime
 try {
   def token = getGithubToken(credentialId)
   def modules = fetchAllModules("\${apiUrl}?per_page=\${perPage}", token)
-  def filteredModules = filterModules(modules, platform)
+//  def filteredModules = filterModules(modules, platform)
 
-  return filteredModules
+//  return filteredModules
+  return modules
 } catch (Exception e) {
   println "Error: \${e.message}"
   throw e
