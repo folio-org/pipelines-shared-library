@@ -18,15 +18,15 @@ class Configurations extends Kong {
 
   static final String COPYCAT_PROFILE_ID = 'f26df83c-aa25-40b6-876e-96852c3d4fd4'
 
-  Configurations(def context, String kongUrl, Keycloak keycloak, boolean debug = false) {
+  Configurations(def context, String kongUrl, Keycloak keycloak, boolean debug = false){
     super(context, kongUrl, keycloak, debug)
   }
 
-  Configurations(def context, String kongUrl, String keycloakUrl, boolean debug = false) {
+  Configurations(def context, String kongUrl, String keycloakUrl, boolean debug = false){
     super(context, kongUrl, keycloakUrl, debug)
   }
 
-  Configurations(Kong kong) {
+  Configurations(Kong kong){
     this(kong.context, kong.kongUrl, kong.keycloak, kong.getDebug())
   }
 
@@ -162,8 +162,8 @@ class Configurations extends Kong {
       def content = context.readFile file: tools.copyResourceFileToCurrentDirectory("okapi/configurations/" + config)
       String entries = new GStringTemplateEngine().createTemplate(content).make(binding).toString()
 
-      setConfigurationEntries(tenant, entries) {
-        String entryId = getUsersConfigurationEntries(tenant).find { entry -> entry.value ==~ /http.*/ }.id
+      setConfigurationEntries(tenant, entries){
+        String entryId = getUsersConfigurationEntries(tenant).find {entry -> entry.value ==~ /http.*/ }.id
         deleteConfigurationEntries(tenant, entryId)
 
         setConfigurationEntries(tenant, entries)
@@ -173,7 +173,7 @@ class Configurations extends Kong {
     return this
   }
 
-  Map getUsersConfigurationEntries(EurekaTenant tenant) {
+  Map getUsersConfigurationEntries(EurekaTenant tenant){
     return getConfigurationEntries(tenant, "configs=module=USERSBL")
   }
 
@@ -187,8 +187,8 @@ class Configurations extends Kong {
     return restClient.get(url, headers).body.configs
   }
 
-  Configurations setConfigurationEntries(EurekaTenant tenant, String entries = null, Closure existAction = {}) {
-    if (!entries)
+  Configurations setConfigurationEntries(EurekaTenant tenant, String entries = null, Closure existAction = {}){
+    if(!entries)
       return this
 
     logger.info("""Set configuration's entires on tenant ${tenant.tenantId} with ${tenant.uuid} and the following entries
@@ -214,8 +214,8 @@ class Configurations extends Kong {
     return this
   }
 
-  Configurations deleteConfigurationEntries(EurekaTenant tenant, String entryId) {
-    if (!entryId)
+  Configurations deleteConfigurationEntries(EurekaTenant tenant, String entryId){
+    if(!entryId)
       return this
 
     logger.info("Delete configuration's entires $entryId on tenant ${tenant.tenantId} with ${tenant.uuid}...")
@@ -230,81 +230,8 @@ class Configurations extends Kong {
     return this
   }
 
-  /**
-   * Retrieves a list of timer descriptors for the specified tenant.
-   *
-   * @param tenant The tenant for which to retrieve timer descriptors.
-   * @param limit  The maximum number of timer descriptors to retrieve (default is 500).
-   * @return A list of timer descriptors.
-   */
-  List getTimerDescriptors(EurekaTenant tenant, String limit = '500') {
-    Map<String, String> headers = getTenantUserHttpHeaders(tenant)
-    String url = generateUrl("/scheduler/timers?limit=${limit}")
-
-    logger.info("Getting timer descriptors on tenant ${tenant.tenantId}...")
-    List timerDescriptors = restClient.get(url, headers, [200]).body['timerDescriptors']
-    logger.info("Timer descriptors (${timerDescriptors.size()}) on tenant ${tenant.tenantId} were obtained successfully")
-    return timerDescriptors
-  }
-
-  /**
-   * Deletes a specific timer for the specified tenant.
-   *
-   * @param tenant  The tenant for which the timer is to be deleted.
-   * @param timerId The ID of the timer to delete.
-   */
-  void deleteTimer(EurekaTenant tenant, String timerId) {
-    Map<String, String> headers = getTenantUserHttpHeaders(tenant)
-    String url = generateUrl("/scheduler/timers/${timerId}")
-
-    logger.info("Deleting timer ${timerId} on tenant ${tenant.tenantId} ...")
-    restClient.delete(url, headers, [204])
-    logger.info("Timer ${timerId} on tenant ${tenant.tenantId} was deleted successfully")
-  }
-
-  /**
-   * Creates a new timer for the specified tenant.
-   *
-   * @param tenant          The tenant for which the timer is to be created.
-   * @param timerDescriptor A map containing the timer's configuration details.
-   * @return A map containing the details of the created timer.
-   */
-  Map createTimer(EurekaTenant tenant, Map timerDescriptor) {
-    if (!timerDescriptor) {
-      logger.warning("Timer descriptor is null or empty. Cannot create timer.")
-      return null
-    }
-
-    Map<String, String> headers = getTenantUserHttpHeaders(tenant)
-    String url = generateUrl('/scheduler/timers')
-
-    logger.info("Creating timer for tenant ${tenant.tenantId}...")
-    Map response = restClient.post(url, timerDescriptor, headers, [201]).body
-    logger.info("Timer for tenant ${tenant.tenantId} was created successfully with ID: ${response.id}")
-
-    return response
-  }
-
-  /**
-   * Recreates a timer by deleting the existing one and creating a new timer with the provided descriptor.
-   *
-   * @param tenant          The tenant for which the timer is to be recreated.
-   * @param prevTimerId     The ID of the timer to delete before creating a new one.
-   * @param timerDescriptor A map containing the new timer's configuration details.
-   * @return A map containing the details of the newly created timer.
-   */
-  Map recreateTimer(EurekaTenant tenant, String prevTimerId, Map timerDescriptor) {
-    logger.info("Recreating timer ${prevTimerId} for tenant ${tenant.tenantId}...")
-    deleteTimer(tenant, prevTimerId)
-    Map newTimerDescriptor = createTimer(tenant, timerDescriptor)
-    logger.info("Timer ${prevTimerId} for tenant ${tenant.tenantId} was recreated successfully with new ID: " +
-      "${newTimerDescriptor.id} and moduleId: ${newTimerDescriptor.moduleId}")
-    return newTimerDescriptor
-  }
-
-
   @NonCPS
-  static Configurations get(Kong kong) {
+  static Configurations get(Kong kong){
     return new Configurations(kong)
   }
 }
