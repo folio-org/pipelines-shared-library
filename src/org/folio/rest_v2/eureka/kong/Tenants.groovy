@@ -6,6 +6,7 @@ import org.folio.models.application.Application
 import org.folio.models.application.ApplicationList
 import org.folio.rest_v2.eureka.Keycloak
 import org.folio.rest_v2.eureka.Kong
+import org.folio.utilities.RequestException
 
 class Tenants extends Kong{
 
@@ -120,58 +121,56 @@ class Tenants extends Kong{
    * @param skipExistence boolean flag to skip error if apps were already enabled.
    * @return Tenants instance.
    */
-  Tenants enableApplications(EurekaTenant tenant, List<String> appIds, boolean skipExistence = false){
+  Tenants enableApplications(EurekaTenant tenant, List<String> appIds, boolean skipExistence = false) {
     logger.info("Enable (entitle) applications with ids: ${appIds} on tenant ${tenant.tenantId} with ${tenant.uuid}...")
 
-    if(!appIds)
+    if (!appIds)
       return this
 
     Map<String, String> headers = getMasterHttpHeaders(true)
-
     Map body = [
       tenantId    : tenant.uuid,
       applications: appIds
     ]
     List responseCodes = skipExistence ? [201, 400] + (401..599).toList() : []
 
-    def response = restClient.post(
-      generateUrl("/entitlements${tenant.getInstallRequestParams()?.toQueryString() ?: ''}")
-      , body
-      , headers
-      , responseCodes
-    )
-
-    logger.debug("Response from entitlements: ${response}")
-
-    String contentStr = response.body.toString()
-
-    if (response.responseCode == 400) {
-      if (contentStr.contains("value: Entitle flow finished")) {
-        logger.info("""
+    try {
+      def response = restClient.post(
+        generateUrl("/entitlements${tenant.getInstallRequestParams()?.toQueryString() ?: ''}"),
+        body,
+        headers,
+        responseCodes
+      )
+      logger.debug("Response from entitlements: ${response}")
+      logger.info("Enabling (entitle) applications on tenant ${tenant.tenantId} with ${tenant.uuid} was finished successfully")
+      return this
+    } catch (RequestException ex) {
+      String contentStr = ex.responseBody?.toString() ?: ex.message
+      if (ex.statusCode == 400) {
+        if (contentStr.contains("value: Entitle flow finished")) {
+          logger.info("""
           Application(s) are already entitled on tenant, no actions needed..
-          Status: ${response.responseCode}
+          Status: ${ex.statusCode}
           Response content:
           ${contentStr}""")
-      } else if (contentStr.contains("mod-agreements")) {
-        logger.info("""
+        } else if (contentStr.contains("mod-agreements")) {
+          logger.info("""
           Application(s) are already entitled on tenant, but need to fix agreements entitlement.
-          Status: ${response.responseCode}
+          Status: ${ex.statusCode}
           Response content:
           ${contentStr}""")
-         def parts = kongUrl.split("\\.")
-         context.kubectl.rolloutDeployment("mod-agreements", parts[0].split("-")[2])
-         context.kubectl.agreementsEntitlementFix(parts[0].split("-")[2], tenant.tenantId)
+          def parts = kongUrl.split("\\.")
+          context.kubectl.rolloutDeployment("mod-agreements", parts[0].split("-")[2])
+          context.kubectl.agreementsEntitlementFix(parts[0].split("-")[2], tenant.tenantId)
+        } else {
+          logger.error("Enabling application for tenant failed: ${contentStr}")
+          throw new Exception("Build failed: " + contentStr)
+        }
+        return this
       } else {
-        logger.error("Enabling application for tenant failed: ${contentStr}")
-
-        throw new Exception("Build failed: " + contentStr)
+        throw ex
       }
     }
-
-
-    logger.info("Enabling (entitle) applications on tenant ${tenant.tenantId} with ${tenant.uuid} was finished successfully")
-
-    return this
   }
 
   /**
