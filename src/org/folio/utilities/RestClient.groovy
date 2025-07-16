@@ -238,7 +238,7 @@ class RestClient {
 
       // If the status code is >= 400 and not in validResponseCodes, throw an error
       if (!validResponseCodes?.contains(parsed.responseCode) && parsed.responseCode >= 400) {
-        handleHttpError(parsed.responseCode, "HTTP request failed", parsed.body?.toString())
+        handleHttpError(parsed.responseCode, "HTTP request failed", parsed.body, parsed.body?.toString())
       }
 
       return parsed
@@ -500,7 +500,7 @@ class RestClient {
    * @param statusMessage A short message describing the error context.
    * @param responseBody  The body from the server response, if available.
    */
-  private static void handleHttpError(int statusCode, String statusMessage, String responseBody) {
-    throw new RequestException("${statusMessage}(${statusCode}) - ${responseBody}", statusCode)
+  private static void handleHttpError(int statusCode, String statusMessage, Object responseBody, String responseBodyString) {
+    throw new RequestException("${statusMessage}(${statusCode}) - ${responseBodyString}", statusCode, responseBody)
   }
 }
