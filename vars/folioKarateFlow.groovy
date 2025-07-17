@@ -140,6 +140,12 @@ KarateRunExecutionSummary call(KarateTestsParameters args) {
 }
 
 String startReportPortalRun(String projectName) {
+
+  if (!projectName) {
+    println("Report Portal project name is not specified. Skipping Report Portal run start.")
+    return null
+  } // If projectName is not specified, skip printing the error message, see in RANCHER-2355
+
   try {
     String url = "${Constants.REPORT_PORTAL_API_URL}/${projectName}/launch"
     Map headers = ['Content-Type': 'application/json']
