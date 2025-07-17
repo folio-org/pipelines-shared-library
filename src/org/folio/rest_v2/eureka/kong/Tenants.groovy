@@ -161,7 +161,7 @@ class Tenants extends Kong{
           ${contentStr}""")
           def parts = kongUrl.split("\\.")
           context.kubectl.rolloutDeployment("mod-agreements", parts[0].split("-")[2])
-          context.kubectl.agreementsEntitlementFix(parts[0].split("-")[2], tenant.tenantId)
+          context.kubectl.agreementsEntitlementFix(parts[0].split("-")[2], tenant.tenantId, "${parts[0].split("-")[0]}-${parts[0].split("-")[1]}")
         } else {
           logger.error("Enabling application for tenant failed: ${contentStr}")
           throw new Exception("Build failed: " + contentStr)

@@ -205,10 +205,10 @@ void cleanUpFedLocks(String namespace = 'default', int timer = 0, String moduleI
   }
 }
 
-void agreementsEntitlementFix(String namespace = 'default', String tenantId = 'default') {
+void agreementsEntitlementFix(String namespace = 'default', String tenantId = 'default', String clusterName = '') {
   try {
     folioHelm.withK8sClient {
-      awscli.getKubeConfig(Constants.AWS_REGION, namespace)
+      awscli.getKubeConfig(Constants.AWS_REGION, clusterName)
       String pod = sh(script: "kubectl get pod -l 'app.kubernetes.io/name=pgadmin4' -o=name  --ignore-not-found=true --namespace ${namespace}", returnStdout: true).trim()
       if (pod) {
         sh(script: "kubectl exec --request-timeout=10s --namespace=${namespace} ${pod} -- /usr/local/pgsql-16/psql -c 'TRUNCATE ${tenantId}_mod_agreements.tenant_changelog_lock'", returnStatus: false)
