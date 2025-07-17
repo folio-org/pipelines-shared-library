@@ -8,7 +8,7 @@ import org.folio.rest_v2.PlatformType
 import org.folio.utilities.Logger
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library@RANCHER-2236') _
+@Library('pipelines-shared-library') _
 
 /**
  * Job properties and parameters
@@ -18,8 +18,8 @@ properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
   disableConcurrentBuilds(),
   parameters([
-    string(name: 'TESTS_BRANCH', defaultValue: 'master-eureka', description: "(Required) Karate tests repository branch to checkout"),
-    string(name: 'THREADS_COUNT', defaultValue: '1', description: "(Required) Number of parallel threads"),
+    string(name: 'TESTS_BRANCH', defaultValue: 'master', description: "(Required) Karate tests repository branch to checkout"),
+    string(name: 'THREADS_COUNT', defaultValue: '2', description: "(Required) Number of parallel threads"),
     string(name: 'TESTS_TIMEOUT', defaultValue: '15', description: "(Required) Tests execution timeout in hours"),
     booleanParam(name: 'RETRY_FAILED', defaultValue: false, description: "(Optional) Retry failed tests"),
     booleanParam(name: 'DESTROY_AFTER', defaultValue: false, description: '(Optional) Set to false to not destroy namespace after tests execution'),
@@ -99,7 +99,7 @@ ansiColor('xterm') {
     karateTestsParams.reportPortalProjectName = "karate-eureka"
     karateTestsParams.sendSlackNotification = currentBuild.rawBuild.getCauses().any { it.toString().contains("TimerTriggerCause") } ? true : false
     karateTestsParams.sendTeamsSlackNotification = currentBuild.rawBuild.getCauses().any { it.toString().contains("TimerTriggerCause") } ? true : false
-    karateTestsParams.syncWithJira = currentBuild.rawBuild.getCauses().any { it.toString().contains("TimerTriggerCause") } ? false : false
+    karateTestsParams.syncWithJira = currentBuild.rawBuild.getCauses().any { it.toString().contains("TimerTriggerCause") } ? true : false
     karateTestsParams.timeout = params.TESTS_TIMEOUT
 
     try {

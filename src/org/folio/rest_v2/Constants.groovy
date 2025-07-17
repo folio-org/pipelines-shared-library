@@ -101,7 +101,7 @@ class Constants {
       , consortia: true
       , core     : false
       , byDefault: true
-      , dependsOn: ["app-platform-minimal", "app-platform-complete", "app-consortia-manager"]
+      , dependsOn: ["app-platform-minimal"]
     ],
     [
       name: "app-consortia-manager"
@@ -109,7 +109,7 @@ class Constants {
       , consortia: true
       , core     : false
       , byDefault: true
-      , dependsOn: ["app-platform-minimal", "app-platform-complete", "app-consortia"]
+      , dependsOn: ["app-platform-minimal", "app-consortia"]
     ],
     [
       name: "app-linked-data"
@@ -126,6 +126,78 @@ class Constants {
       , core: false
       , byDefault: true
       , dependsOn: ["app-platform-minimal", "app-platform-complete"]
+    ],
+    [
+      name: "app-mosaic"
+      , branch: "snapshot"
+      , consortia: false
+      , core: false
+      , byDefault: true
+      , dependsOn: ["app-platform-minimal", "app-platform-complete", "app-acquisitions"]
+    ],
+    [
+      name: "app-ebsconet"
+      , branch: "snapshot"
+      , consortia: false
+      , core: false
+      , byDefault: true
+      , dependsOn: ["app-platform-minimal", "app-platform-complete", "app-acquisitions"]
+    ],
+    [
+      name: "app-gobi"
+      , branch: "snapshot"
+      , consortia: false
+      , core: false
+      , byDefault: true
+      , dependsOn: ["app-platform-minimal", "app-platform-complete", "app-acquisitions"]
+    ],
+    [
+      name: "app-rtac"
+      , branch: "snapshot"
+      , consortia: false
+      , core: false
+      , byDefault: true
+      , dependsOn: ["app-platform-minimal", "app-platform-complete", "app-acquisitions"]
+    ],
+    [
+      name: "app-oa"
+      , branch: "snapshot"
+      , consortia: false
+      , core     : false
+      , byDefault: true
+      , dependsOn: ["app-platform-minimal"]
+    ],
+    [
+      name: "app-licenses"
+      , branch: "snapshot"
+      , consortia: false
+      , core     : false
+      , byDefault: true
+      , dependsOn: ["app-platform-minimal"]
+    ],
+    [
+      name: "app-agreements"
+      , branch: "snapshot"
+      , consortia: false
+      , core     : false
+      , byDefault: true
+      , dependsOn: ["app-platform-minimal", "app-licenses"]
+    ],
+    [
+      name: "app-service-interaction"
+      , branch: "snapshot"
+      , consortia: false
+      , core     : false
+      , byDefault: true
+      , dependsOn: ["app-platform-minimal"]
+    ],
+    [
+      name: "app-dashboard"
+      , branch: "snapshot"
+      , consortia: false
+      , core     : false
+      , byDefault: true
+      , dependsOn: ["app-platform-minimal", "app-service-interaction"]
     ],
     [
       name: "app-dcb"
@@ -176,6 +248,14 @@ class Constants {
       , dependsOn: ["app-platform-minimal", "app-platform-complete", "app-acquisitions"]
     ],
     [
+      name: "app-lists"
+      , branch: "snapshot"
+      , consortia: false
+      , core: false
+      , byDefault: true
+      , dependsOn: ["app-platform-minimal", "app-platform-complete", "app-acquisitions", "app-fqm"]
+    ],
+    [
       name: "app-requests-ecs"
       , branch: "snapshot"
       , consortia: false
@@ -206,6 +286,14 @@ class Constants {
       , core: false
       , byDefault: false
       , dependsOn: ["app-platform-minimal", "app-platform-complete"]
+    ],
+    [
+      name: "app-finc"
+      , branch: "snapshot"
+      , consortia: false
+      , core: false
+      , byDefault: false
+      , dependsOn: ["app-acquisitions", "app-platform-minimal", "app-platform-complete"]
     ],
     [
       name: "app-reporting"

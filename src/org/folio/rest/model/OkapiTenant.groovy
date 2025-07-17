@@ -1,5 +1,6 @@
 package org.folio.rest.model
 
+@Deprecated
 class OkapiTenant implements Serializable {
   String id
   String name

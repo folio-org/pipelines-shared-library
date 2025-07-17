@@ -15,7 +15,8 @@ locals {
   system_user_modules = ["mod-data-export-spring", "mod-inn-reach", "mod-search", "mod-consortia",
     "mod-remote-storage", "mod-entities-links", "mod-erm-usage-harvester", "mod-pubsub", "mod-dcb", "mod-lists",
     "mod-linked-data", "mod-tlr", "mod-marc-migrations", "mod-requests-mediated", "mod-circulation-bff", "mod-bulk-operations",
-    "mod-consortia-keycloak", "mod-scheduler", "mod-users-keycloak", "mod-roles-keycloak"
+    "mod-consortia-keycloak", "mod-scheduler", "mod-users-keycloak", "mod-roles-keycloak", "mod-invoice", "mod-orders", "mod-inventory",
+    "mod-source-record-manager", "mod-source-record-storage"
   ]
 
   s3_integrated_modules = ["mod-data-export", "mod-data-export-worker", "mod-data-import", "mod-lists",
@@ -26,7 +27,7 @@ locals {
     module => "${data.rancher2_cluster.this.name}-${var.rancher_project_name}-${replace(module, "mod-", "")}"
   }
   s3_buckets_string   = join(",", values(local.s3_buckets_map))
-  ssm_params          = ["master_folio-backend-admin-client", "master_mgr-applications", "master_mgr-tenant-entitlements", "master_mgr-tenants"]
+  ssm_params          = ["master_folio-backend-admin-client"]
   schedule_namespaces = ["cicypress", "cikarate"]
   schedule_object     = <<-EOF
 nodeSelector:

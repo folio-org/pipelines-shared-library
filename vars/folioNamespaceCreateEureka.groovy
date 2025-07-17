@@ -116,6 +116,16 @@ void call(CreateNamespaceParameters args) {
       List pinnedEurekaModules = new GitHubUtility(this).getEurekaPinnedList(folioRepository, args.folioBranch)
       installJson.addAll(eurekaPlatform)
 
+      if (args.scNative) {
+        String tag = (awscli.listEcrImages(Constants.AWS_REGION, 'folio-module-sidecar')).replaceAll('"', '')
+          logger.info("Previously built SC image is 'CUSTOM/NATIVE'. Using it for Eureka env.")
+          installJson.removeAll { module -> module.id =~ /folio-module-sidecar-.*/ }
+          installJson.add([id: "folio-module-sidecar-" + tag, action: 'enable'])
+          writeJSON (file: 'used-install.json', json: installJson, pretty: 4)
+          archiveArtifacts 'used-install.json' // Archive used modules version for review
+
+      }
+
       //TODO: Temporary solution. Unused by Eureka modules have been removed.
       installJson.removeAll { module -> module.id =~ /(mod-login|mod-authtoken|mod-login-saml)-\d+\..*/ }
       installJson.removeAll { module -> module.id == 'okapi' }
@@ -149,7 +159,6 @@ void call(CreateNamespaceParameters args) {
       namespace.addTenant(
         folioDefault.tenants()[namespace.getDefaultTenantId()]
           .convertTo(EurekaTenant.class)
-          .withAWSSecretStoragePathName("${namespace.getClusterName()}-${namespace.getNamespaceName()}")
           .withInstallJson(installJson)
           .withIndex(new Index('instance', true, true))
           .withIndex(new Index('authority', true, false))
@@ -165,7 +174,6 @@ void call(CreateNamespaceParameters args) {
           namespace.addTenant(
             folioDefault.tenants()[tenantId]
               .convertTo(EurekaTenant.class)
-              .withAWSSecretStoragePathName("${namespace.getClusterName()}-${namespace.getNamespaceName()}")
               .withInstallJson(installJson)
               .withIndex(new Index('instance', true, true))
               .withIndex(new Index('authority', true, false))
@@ -190,7 +198,6 @@ void call(CreateNamespaceParameters args) {
           .each { tenant ->
             tenant.withInstallJson(installJson)
               .withSecureTenant(args.hasSecureTenant && args.secureTenantId == tenant.getTenantId())
-              .withAWSSecretStoragePathName("${namespace.getClusterName()}-${namespace.getNamespaceName()}")
 
             if (tenant.getIsCentralConsortiaTenant())
               tenant.withTenantUi(tenantUi.clone())
@@ -316,7 +323,6 @@ void call(CreateNamespaceParameters args) {
             kubectl.setKubernetesResourceCount('deployment', 'mod-search', namespace.getNamespaceName(), '4')
 
             folioHelm.checkDeploymentsRunning(namespace.getNamespaceName(), namespace.getModules().getBackendModules())
-
         }
       }
       int counter = 0
@@ -337,7 +343,7 @@ void call(CreateNamespaceParameters args) {
 
       stage('[Rest] Configure edge') {
         retry(5) {
-          args.type == 'full' ? new Edge(this, "${namespace.generateDomain('kong')}", "${namespace.generateDomain('keycloak')}").createEurekaUsers(namespace) : null
+          new Edge(this, "${namespace.generateDomain('kong')}", "${namespace.generateDomain('keycloak')}").createEurekaUsers(namespace)
         }
       }
 

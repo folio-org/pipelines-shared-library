@@ -455,6 +455,15 @@ edge-orders:
       - path: /users-for-order*
         pathType: ImplementationSpecific
         servicePort: 80
+      - path: /finance/fund-codes-expense-classes*
+        pathType: ImplementationSpecific
+        servicePort: 80
+      - path: /identifier-types-for-order*
+        pathType: ImplementationSpecific
+        servicePort: 80
+      - path: /contributor-name-types-for-order*
+        pathType: ImplementationSpecific
+        servicePort: 80
   service:
     type: NodePort
   extraEnvVars: []
@@ -1465,6 +1474,37 @@ mod-feesfines:
   pdb:
     enabled: true
     maxUnavailable: 1
+mod-finc-config:
+  extraEnvVars:
+  - name: EZB_DOWNLOAD_URL
+    value: https://ezb-api.ur.de/ezb/export/licenselist_html.php?pack=0&bibid=%s&lang=de&output_style=kbart&todo_license=ALkbart
+  integrations:
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+    db:
+      enabled: true
+      existingSecret: db-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 384Mi
+    requests:
+      memory: 256Mi
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
 mod-finance:
   extraEnvVars: []
   integrations: {}
@@ -1489,6 +1529,8 @@ mod-finance:
     enabled: true
     maxUnavailable: 1
 mod-finance-storage:
+  extraEnvVarsSecrets:
+    - eureka-common
   extraEnvVars: []
   integrations:
     db:
@@ -1636,6 +1678,9 @@ mod-inventory:
     kafka:
       enabled: true
       existingSecret: kafka-credentials
+    systemuser:
+      enabled: true
+      existingSecret: mod-inventory-systemuser
   replicaCount: 1
   resources:
     limits:
@@ -1725,6 +1770,9 @@ mod-invoice:
     kafka:
       enabled: true
       existingSecret: kafka-credentials
+    systemuser:
+      enabled: true
+      existingSecret: mod-invoice-systemuser
   replicaCount: 1
   resources:
     limits:
@@ -2240,6 +2288,9 @@ mod-orders:
     kafka:
       enabled: true
       existingSecret: kafka-credentials
+    systemuser:
+      enabled: true
+      existingSecret: mod-orders-systemuser
   replicaCount: 1
   resources:
     limits:
@@ -2899,9 +2950,9 @@ mod-settings:
   replicaCount: 1
   resources:
     limits:
-      memory: 124Mi
+      memory: 512Mi
     requests:
-      memory: 108Mi
+      memory: 256Mi
   extraJavaOpts:
   - -XX:MaxRAMPercentage=85.0
   startupProbe:
@@ -2925,6 +2976,9 @@ mod-source-record-manager:
     kafka:
       enabled: true
       existingSecret: kafka-credentials
+    systemuser:
+      enabled: true
+      existingSecret: mod-source-record-manager-systemuser
   replicaCount: 1
   resources:
     limits:
@@ -2954,6 +3008,9 @@ mod-source-record-storage:
     kafka:
       enabled: true
       existingSecret: kafka-credentials
+    systemuser:
+      enabled: true
+      existingSecret: mod-source-record-storage-systemuser
   replicaCount: 1
   resources:
     limits:
@@ -3200,6 +3257,10 @@ mgr-applications:
       value: "941241418"
     - name: KONG_WRITE_TIMEOUT
       value: "941241418"
+    - name: KC_INTEGRATION_ENABLED
+      value: 'true'
+    - name: SECURITY_ENABLED
+      value: 'true'
   extraJavaOpts:
     - "-Dlogging.level.root=DEBUG -Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties"
   integrations:
@@ -3234,12 +3295,19 @@ mgr-tenants:
       value: "941241418"
     - name: KONG_WRITE_TIMEOUT
       value: "941241418"
+    - name: KC_INTEGRATION_ENABLED
+      value: 'true'
+    - name: SECURITY_ENABLED
+      value: 'true'
   extraJavaOpts:
     - "-Dlogging.level.root=DEBUG -Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties"
   integrations:
     db:
       enabled: true
       existingSecret: db-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
   replicaCount: 1
   resources:
     limits:
@@ -3269,6 +3337,12 @@ mgr-tenant-entitlements:
       value: "941241418"
     - name: KONG_WRITE_TIMEOUT
       value: "941241418"
+    - name: VALIDATION_INTERFACE_COLLECTOR_MODE
+      value: "scoped"
+    - name: KC_INTEGRATION_ENABLED
+      value: 'true'
+    - name: SECURITY_ENABLED
+      value: 'true'
   integrations:
     db:
       enabled: true

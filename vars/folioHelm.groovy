@@ -229,9 +229,11 @@ void checkDeploymentsRunning(String ns, List<FolioModule> deploymentsList) {
         println("Unfinished deployments: ${unfinishedDeployments}")
         println("Rechecking in 30 seconds...")
         sleep(time: 30, unit: 'SECONDS')
-          unfinishedDeployments.contains('mod-agreements') ? kubectl.cleanUpAgreementsFedLocks(ns, timer) : println("-=No mod-agreements fed locks to clean up=-") //Would say that it's a workaround, but it's not)))
-          unfinishedDeployments.contains('mod-service-interaction') ? kubectl.cleanUpAgreementsFedLocks(ns, timer, 'mod-service-interaction') : println("-=No mod-service-interaction fed locks to clean up=-")
-          unfinishedDeployments.contains('mod-serials-management') ? kubectl.cleanUpAgreementsFedLocks(ns, timer, 'mod-serials-management') : println("-=No mod-serials-management fed locks to clean up=-")
+          unfinishedDeployments.contains('mod-agreements') ? kubectl.cleanUpFedLocks(ns, timer) : println("-=No mod-agreements fed locks to clean up=-") //Would say that it's a workaround, but it's not)))
+          unfinishedDeployments.contains('mod-service-interaction') ? kubectl.cleanUpFedLocks(ns, timer, 'mod-service-interaction') : println("-=No mod-service-interaction fed locks to clean up=-")
+          unfinishedDeployments.contains('mod-serials-management') ? kubectl.cleanUpFedLocks(ns, timer, 'mod-serials-management') : println("-=No mod-serials-management fed locks to clean up=-")
+          unfinishedDeployments.contains('mod-oa') ? kubectl.cleanUpFedLocks(ns, timer, 'mod-oa') : println("-=No mod-oa fed locks to clean up=-")
+          unfinishedDeployments.contains('mod-licenses') ? kubectl.cleanUpFedLocks(ns, timer, 'mod-licenses') : println("-=No mod-licenses fed locks to clean up=-")
         timer += 30
       } else {
         println("All deployments are successfully updated!")
@@ -322,14 +324,14 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
               value: 'true'
             ]
           ] : []
-          moduleConfig['extraEnvVars'] +=  ns.getNamespaceName() == 'cikarate' ? [
-            name : 'FLOW_ENGINE_THREADS_NUM',
-            value: '1'
-          ] : []
-          moduleConfig['extraEnvVars'] +=  ns.getNamespaceName() == 'dojo' ? [
-            name : 'FLOW_ENGINE_THREADS_NUM',
-            value: '1'
-          ] : []
+//          moduleConfig['extraEnvVars'] +=  ns.getNamespaceName() == 'cikarate' ? [
+//            name : 'FLOW_ENGINE_THREADS_NUM',
+//            value: '1'
+//          ] : []
+//          moduleConfig['extraEnvVars'] +=  ns.getNamespaceName() == 'dojo' ? [
+//            name : 'FLOW_ENGINE_THREADS_NUM',
+//            value: '1'
+//          ] : []
         break
 
       case ~/mod-.*-keycloak/:
@@ -405,15 +407,27 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
 
   // Enable extra PVC and initContainer for folio-perf with firebird namespace and folio-testing and sprint namespace
   boolean isSuitableNamespaceAndCluster =
-    (ns.getClusterName() == 'folio-perf' && ns.getNamespaceName() == 'firebird') ||
+      (ns.getClusterName() == 'folio-perf' && ns.getNamespaceName() == 'firebird') ||
+      (ns.getClusterName() == 'folio-eperf' && ns.getNamespaceName() == 'firebird') ||
+      (ns.getClusterName() == 'folio-eperf' && ns.getNamespaceName() == 'spitfire') ||
       (ns.getClusterName() == 'folio-dev' && ns.getNamespaceName() == 'firebird') ||
-      (ns.getClusterName() == 'folio-testing' && ns.getNamespaceName() == 'sprint')
+      (ns.getClusterName() == 'folio-testing' && ns.getNamespaceName() == 'sprint') ||
+      (ns.getClusterName() == 'folio-etesting' && ns.getNamespaceName() == 'sprint')
 
   if (isSuitableNamespaceAndCluster && moduleName == 'mod-data-export') {
+
     moduleConfig << [initContainer    : [enabled: true],
                      extraVolumes     : [extendedtmp: [enabled: true]],
                      extraVolumeMounts: [extendedtmp: [enabled: true]],
                      volumeClaims     : [extendedtmp: [enabled: true]]]
+  }
+
+  if (isSuitableNamespaceAndCluster && moduleName == 'mod-marc-migrations') {
+    moduleConfig << [initContainer    : [enabled: true, command: '["sh", "-c", "chown -R 1000:1000 /tmp/marc"]',
+                                         extraVolumeMounts: [extendedtmp: [enabled: true, mountPath: '/tmp/marc']]],
+                     extraVolumes     : [extendedtmp: [enabled: true]],
+                     extraVolumeMounts: [extendedtmp: [enabled: true, mountPath: '/tmp/marc']],
+                     volumeClaims     : [extendedtmp: [enabled: true, size: '100Gi']]]
   }
 
   //Toleration and NodeSelector
@@ -455,15 +469,15 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
     switch (moduleName) {
       case 'edge-sip2':
         edgeNlbDomain = common.generateDomain(ns.clusterName, ns.namespaceName, 'sip2', Constants.CI_ROOT_DOMAIN)
-        moduleConfig << [okapiUrl         : ns.domains["okapi"],
+        moduleConfig << [okapiUrl         : "https://" + ns.domains["kong"],
                          sip2TenantsConfig: """{
   "scTenants": [
     {
       "scSubnet": "0.0.0.0/0",
       "tenant": "${ns.defaultTenantId}",
-      "errorDetectionEnabled": false,
       "messageDelimiter": "\\r",
-      "charset": "ISO-8859-1"
+      "charset": "ISO-8859-1",
+      "errorDetectionEnabled": true
     }
   ]
 }"""]
@@ -489,6 +503,9 @@ static String determineModulePlacement(String moduleName, String moduleVersion, 
     repository = Constants.ECR_FOLIO_REPOSITORY
   } else {
     switch (moduleVersion) {
+      case ~/^\d{1,3}\.\d{1,3}\.\d{1,3}-native\.[\d\w]{5,}$/:
+        repository = Constants.ECR_FOLIO_REPOSITORY
+        break
       case ~/^\d{1,3}\.\d{1,3}\.\d{1,3}$/:
         repository = "folioorg"
         break

@@ -6,7 +6,7 @@ import org.folio.models.OkapiUser
 import org.folio.models.parameters.CypressTestsParameters
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library@RANCHER-2236') _
+@Library('pipelines-shared-library') _
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '50')),
@@ -29,7 +29,7 @@ properties([
     booleanParam(name: 'PREPARE', defaultValue: false, description: 'Set to true, to run prepare stage'),
     booleanParam(name: 'REPORT_PORTAL_USE', defaultValue: false, description: 'Set to true, to send tests results to Report Portal'),
     choice(name: 'REPORT_PORTAL_RUN_TYPE', choices: ["day", "night", "week", "evrk"], description: 'Parameter for Report portal filtering'),
-    folioParameters.runSanityCheck(),
+    folioParameters.runSanityCheck(false),
     folioParameters.refreshParameters()])
 ])
 

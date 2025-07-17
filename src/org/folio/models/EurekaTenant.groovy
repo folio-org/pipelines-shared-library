@@ -4,7 +4,6 @@ import com.cloudbees.groovy.cps.NonCPS
 import hudson.util.Secret
 import org.folio.models.application.ApplicationList
 import org.folio.models.module.EurekaModule
-import org.folio.utilities.Logger
 
 /**
  * EurekaTenant class representing a tenant configuration for Eureka.
@@ -19,13 +18,15 @@ class EurekaTenant extends OkapiTenant {
    */
   String clientId = "sidecar-module-access-client"
 
+  String userClientIdSuffix = "-application"
+
   /**
    * Some secret phrase to authenticate in Keycloak.
    * Is stored in AWS SSM Parameter Store or Hashicorp Vault.
    */
   Secret clientSecret
 
-  String secretStoragePathName
+  Secret userClientSecret
 
   /** Parameters for installation requests for the tenant. */
   EurekaRequestParams installRequestParams
@@ -62,13 +63,8 @@ class EurekaTenant extends OkapiTenant {
     return this
   }
 
-  EurekaTenant withSecretStoragePathName(String path){
-    secretStoragePathName = path
-    return this
-  }
-
-  EurekaTenant withAWSSecretStoragePathName(String namespace){
-    secretStoragePathName = "${namespace}_${tenantId}_${clientId}"
+  EurekaTenant withUserClientSecret(Secret secret){
+    userClientSecret = secret
     return this
   }
 

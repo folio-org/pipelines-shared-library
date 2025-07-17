@@ -341,7 +341,7 @@ resource "helm_release" "pgadmin" {
   version    = "1.10.1"
   values = [<<-EOF
 image:
-  tag: 8.14
+  tag: 9.5.0
   registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
   repository: pgadmin4
   pullPolicy: IfNotPresent

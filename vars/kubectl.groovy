@@ -162,7 +162,7 @@ void execCommand(String namespace = 'default', String pod_name, String command) 
   }
 }
 
-void cleanUpAgreementsFedLocks(String namespace = 'default', int timer = 0, String moduleId = 'mod-agreements', String tenantId = 'default') {
+void cleanUpFedLocks(String namespace = 'default', int timer = 0, String moduleId = 'mod-agreements', String tenantId = 'default') {
   if (tenantId != 'default') { // condition for future use. DO NOT REMOVE!!!
     println("Trying to cleanup ${tenantId}_${moduleId}.tenant_changelog_lock.")
     String pod = sh(script: "kubectl get pod -l 'app.kubernetes.io/name=pgadmin4' -o=name  --ignore-not-found=true --namespace ${namespace}", returnStdout: true).trim()
@@ -202,6 +202,24 @@ void cleanUpAgreementsFedLocks(String namespace = 'default', int timer = 0, Stri
     } catch (Exception e) {
       println(e.getMessage())
     }
+  }
+}
+
+void agreementsEntitlementFix(String namespace = 'default', String tenantId = 'default', String clusterName = '') {
+  try {
+    folioHelm.withK8sClient {
+      awscli.getKubeConfig(Constants.AWS_REGION, clusterName)
+      String pod = sh(script: "kubectl get pod -l 'app.kubernetes.io/name=pgadmin4' -o=name  --ignore-not-found=true --namespace ${namespace}", returnStdout: true).trim()
+      if (pod) {
+        kubectl.rolloutDeployment('mod-agreements', namespace)
+        sh(script: "kubectl exec --request-timeout=10s --namespace=${namespace} ${pod} -- /usr/local/pgsql-16/psql -c 'TRUNCATE mod_agreements__system.federation_lock'", returnStatus: false)
+        sh(script: "kubectl exec --request-timeout=10s --namespace=${namespace} ${pod} -- /usr/local/pgsql-16/psql -c 'TRUNCATE ${tenantId}_mod_agreements.tenant_changelog_lock'", returnStatus: false)
+      } else {
+        println("No pgadmin4 pod found in namespace ${namespace}.")
+      }
+    }
+  } catch (Exception e) {
+    println("Error during agreements entitlement fix: " + e.getMessage())
   }
 }
 
