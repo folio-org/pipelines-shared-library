@@ -53,7 +53,7 @@ KarateRunExecutionSummary call(KarateTestsParameters args) {
               logger.debug(sh(returnStdout: true, script: 'echo $JAVA_HOME').trim())
               String modules = args.modulesToTest ? "-pl common,testrail-integration," + args.modulesToTest : args.modulesToTest
               catchError(stageResult: 'FAILURE') {
-                String execParams = "-DfailIfNoTests=false -DargLine=-Dkarate.env=${args.karateConfig}"
+                String execParams = "-DfailIfNoTests=false -Dkarate.env=${args.karateConfig}"
 
                 execParams = args.lsdi ? "$execParams -pl data-import-large-scale-tests -am -DskipTests=false" : "$execParams -T ${args.threadsCount} ${modules}"
 
