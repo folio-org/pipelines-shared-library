@@ -53,6 +53,7 @@ properties([
     30 22 * * * %ACTION=stop;CLUSTER=folio-tmp;NAMESPACE=test-1
     35 22 * * * %ACTION=stop;CLUSTER=folio-tmp;NAMESPACE=test-2
     0 2 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=citation
+    10 2 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=big-fc
     10 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=corsair
     0 1 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=eureka
     0 1 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=eureka-2nd
