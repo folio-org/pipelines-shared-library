@@ -41,6 +41,7 @@ class Constants {
   static List AWS_EKS_DEV_NAMESPACES = ['aggies',
                                         'bama',
                                         'bienenvolk',
+                                        'big-fc',
                                         'bulk-edit',
                                         'citation',
                                         'concorde',
@@ -275,6 +276,7 @@ class Constants {
 
   //Teams
   static Map ENVS_MEMBERS_LIST = ['bama'          : 'Bama',
+                                  'big-fc'        : 'Big FC',
                                   'citation'      : 'Citation',
                                   'concorde'      : 'concorde',
                                   'consortia'     : 'thunderjet',
