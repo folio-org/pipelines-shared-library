@@ -37,7 +37,7 @@ def recreateConfigMap(String name, String namespace, String file_path) {
   }
 }
 
-def rolloutDeployment(String name, String namespace) {
+static void rolloutDeployment(String name, String namespace) {
   try {
     sh "kubectl rollout restart deployment ${name} --namespace=${namespace}"
   } catch (Exception e) {
