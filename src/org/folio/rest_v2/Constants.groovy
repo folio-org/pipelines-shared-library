@@ -81,7 +81,7 @@ class Constants {
   public static final List<Map<String, ?>> APPLICATION_COMPLETE = [
     [
       name: "app-platform-minimal"
-      , branch: "snapshot"
+      , branch: "RANCHER-2448"
       , consortia: false
       , core     : true
       , byDefault: true
