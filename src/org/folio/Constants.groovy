@@ -398,4 +398,6 @@ class Constants {
                                 'folio-module-sidecar',
                                 'folio-kong',
                                 'folio-keycloak']
+
+  static List ERM_MODULES = ['mod-agreements', 'mod-licenses', 'mod-oa', 'mod-serials-management', 'mod-service-interaction']
 }
