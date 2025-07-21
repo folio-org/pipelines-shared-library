@@ -160,7 +160,23 @@ class Tenants extends Kong{
           Response content:
           ${contentStr}""")
           def parts = kongUrl.split("\\.")
-          context.kubectl.agreementsEntitlementFix(parts[0].split("-")[2], tenant.tenantId, "${parts[0].split("-")[0]}-${parts[0].split("-")[1]}")
+          context.kubectl.ermEntitlementFix(parts[0].split("-")[2], tenant.tenantId, "${parts[0].split("-")[0]}-${parts[0].split("-")[1]}")
+        } else if (contentStr.contains('mod-licenses')) {
+          logger.info("""
+          Application(s) are already entitled on tenant, but need to fix licenses entitlement.
+          Status: ${ex.statusCode}
+          Response content:
+          ${contentStr}""")
+          def parts = kongUrl.split("\\.")
+          context.kubectl.ermEntitlementFix(parts[0].split("-")[2], tenant.tenantId, "${parts[0].split("-")[0]}-${parts[0].split("-")[1]}", "mod-licenses")
+        } else if (contentStr.contains("mod-serials-management")) {
+          logger.info("""
+          Application(s) are already entitled on tenant, but need to fix serials entitlement.
+          Status: ${ex.statusCode}
+          Response content:
+          ${contentStr}""")
+          def parts = kongUrl.split("\\.")
+          context.kubectl.ermEntitlementFix(parts[0].split("-")[2], tenant.tenantId, "${parts[0].split("-")[0]}-${parts[0].split("-")[1]}", "mod-serials-management")
         } else {
           logger.error("Enabling application for tenant failed: ${contentStr}")
           throw new Exception("Build failed: " + contentStr)
