@@ -89,7 +89,7 @@ class Constants {
     ],
     [
       name: "app-platform-complete"
-      , branch: "snapshot"
+      , branch: "RANCHER-2448"
       , consortia: false
       , core     : false
       , byDefault: true
@@ -97,7 +97,7 @@ class Constants {
     ],
     [
       name: "app-consortia"
-      , branch: "snapshot"
+      , branch: "RANCHER-2448"
       , consortia: true
       , core     : false
       , byDefault: true
@@ -161,7 +161,7 @@ class Constants {
     ],
     [
       name: "app-oa"
-      , branch: "snapshot"
+      , branch: "RANCHER-2448"
       , consortia: false
       , core     : false
       , byDefault: true
@@ -169,7 +169,7 @@ class Constants {
     ],
     [
       name: "app-licenses"
-      , branch: "snapshot"
+      , branch: "RANCHER-2448"
       , consortia: false
       , core     : false
       , byDefault: true
@@ -185,7 +185,7 @@ class Constants {
     ],
     [
       name: "app-service-interaction"
-      , branch: "snapshot"
+      , branch: "RANCHER-2448"
       , consortia: false
       , core     : false
       , byDefault: true
@@ -297,7 +297,7 @@ class Constants {
     ],
     [
       name: "app-reporting"
-      , branch: "snapshot"
+      , branch: "RANCHER-2448"
       , consortia: false
       , core: false
       , byDefault: true
