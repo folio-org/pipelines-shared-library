@@ -241,7 +241,7 @@ class Constants {
     ],
     [
       name: "app-fqm"
-      , branch: "snapshot"
+      , branch: "RANCHER-2448"
       , consortia: false
       , core: false
       , byDefault: true
