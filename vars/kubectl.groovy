@@ -182,7 +182,7 @@ void cleanUpFedLocks(String namespace = 'default', int timer = 0, String moduleI
           try {
             sh(script: "kubectl exec --request-timeout=10s --namespace=${namespace} ${pod} -- /usr/bin/timeout 30s /usr/local/pgsql-16/psql -c 'TRUNCATE ${moduleId.replace('-', '_')}__system.federation_lock'", returnStatus: false)
           } catch (Exception e) {
-            kubectl.rolloutDeployment(moduleId, namespace)
+            sh(script: "kubectl rollout restart deployment ${moduleId} --namespace=${namespace}", returnStatus: false)
             println("Unable to cleanup federation_lock table.\nError: " + e.getMessage())
           }
           break
@@ -212,7 +212,8 @@ void ermEntitlementFix(String namespace = 'default', String tenantId = 'default'
       String pod = sh(script: "kubectl get pod -l 'app.kubernetes.io/name=pgadmin4' -o=name  --ignore-not-found=true --namespace ${namespace}", returnStdout: true).trim()
       if (pod) {
         def moduleId = moduleName.replace('-', '_')
-        rolloutDeployment(moduleName, namespace)
+        sh(script: "kubectl rollout restart deployment ${moduleName} --namespace=${namespace}", returnStatus: false)
+        sleep time: 5, unit: 'SECONDS'
         sh(script: "kubectl exec --request-timeout=10s --namespace=${namespace} ${pod} -- /usr/local/pgsql-16/psql -c 'TRUNCATE ${moduleId}__system.federation_lock'", returnStatus: false)
         sh(script: "kubectl exec --request-timeout=10s --namespace=${namespace} ${pod} -- /usr/local/pgsql-16/psql -c 'TRUNCATE ${tenantId}_${moduleId}.tenant_changelog_lock'", returnStatus: false)
       } else {
