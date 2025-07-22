@@ -271,8 +271,9 @@ void call(CreateNamespaceParameters args) {
             //TODO: Refactoring is needed!!! Utilization of extension should be applied.
             // Remove this shit with consortia and linkedData. Apps have to be taken as it is.
             args.applications -
-              (args.consortia ? [:] : ["app-consortia": "snapshot", "app-consortia-manager": "snapshot", "app-requests-ecs": "snapshot"]) -
+              (args.consortia ? [:] : ["app-consortia": "snapshot", "app-consortia-manager": "snapshot"]) -
               (args.consortia ? [:] : ["app-consortia": "master", "app-consortia-manager": "master"]) -
+              (args.consortia) ? [:] : ["app-requests-ecs": "snapshot"] -
               (args.linkedData ? [:] : ["app-linked-data": "snapshot"]) -
               (args.linkedData ? [:] : ["app-linked-data": "master"])
             , namespace.getModules()
