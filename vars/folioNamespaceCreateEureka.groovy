@@ -273,7 +273,6 @@ void call(CreateNamespaceParameters args) {
             args.applications -
               (args.consortia ? [:] : ["app-consortia": "snapshot", "app-consortia-manager": "snapshot"]) -
               (args.consortia ? [:] : ["app-consortia": "master", "app-consortia-manager": "master"]) -
-              (args.consortia ? [:] : ["app-requests-ecs": "snapshot"]) -
               (args.linkedData ? [:] : ["app-linked-data": "snapshot"]) -
               (args.linkedData ? [:] : ["app-linked-data": "master"])
             , namespace.getModules()
