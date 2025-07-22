@@ -81,7 +81,7 @@ class Constants {
   public static final List<Map<String, ?>> APPLICATION_COMPLETE = [
     [
       name: "app-platform-minimal"
-      , branch: "snapshot"
+      , branch: "RANCHER-2449"
       , consortia: false
       , core     : true
       , byDefault: true
@@ -89,7 +89,7 @@ class Constants {
     ],
     [
       name: "app-platform-complete"
-      , branch: "snapshot"
+      , branch: "RANCHER-2449"
       , consortia: false
       , core     : false
       , byDefault: true
@@ -97,7 +97,7 @@ class Constants {
     ],
     [
       name: "app-consortia"
-      , branch: "snapshot"
+      , branch: "RANCHER-2449"
       , consortia: true
       , core     : false
       , byDefault: true
@@ -105,7 +105,7 @@ class Constants {
     ],
     [
       name: "app-consortia-manager"
-      , branch: "snapshot"
+      , branch: "RANCHER-2449"
       , consortia: true
       , core     : false
       , byDefault: true
@@ -113,7 +113,7 @@ class Constants {
     ],
     [
       name: "app-linked-data"
-      , branch: "snapshot"
+      , branch: "RANCHER-2449"
       , consortia: false
       , core     : false
       , byDefault: true
@@ -121,7 +121,7 @@ class Constants {
     ],
     [
       name: "app-acquisitions"
-      , branch: "snapshot"
+      , branch: "RANCHER-2449"
       , consortia: false
       , core: false
       , byDefault: true
@@ -129,7 +129,7 @@ class Constants {
     ],
     [
       name: "app-mosaic"
-      , branch: "snapshot"
+      , branch: "RANCHER-2449"
       , consortia: false
       , core: false
       , byDefault: true
@@ -137,7 +137,7 @@ class Constants {
     ],
     [
       name: "app-ebsconet"
-      , branch: "snapshot"
+      , branch: "RANCHER-2449"
       , consortia: false
       , core: false
       , byDefault: true
@@ -145,7 +145,7 @@ class Constants {
     ],
     [
       name: "app-gobi"
-      , branch: "snapshot"
+      , branch: "RANCHER-2449"
       , consortia: false
       , core: false
       , byDefault: true
@@ -153,7 +153,7 @@ class Constants {
     ],
     [
       name: "app-rtac"
-      , branch: "snapshot"
+      , branch: "RANCHER-2449"
       , consortia: false
       , core: false
       , byDefault: true
@@ -161,7 +161,7 @@ class Constants {
     ],
     [
       name: "app-oa"
-      , branch: "snapshot"
+      , branch: "RANCHER-2449"
       , consortia: false
       , core     : false
       , byDefault: true
@@ -169,7 +169,7 @@ class Constants {
     ],
     [
       name: "app-licenses"
-      , branch: "snapshot"
+      , branch: "RANCHER-2449"
       , consortia: false
       , core     : false
       , byDefault: true
@@ -177,7 +177,7 @@ class Constants {
     ],
     [
       name: "app-agreements"
-      , branch: "snapshot"
+      , branch: "RANCHER-2449"
       , consortia: false
       , core     : false
       , byDefault: true
@@ -185,7 +185,7 @@ class Constants {
     ],
     [
       name: "app-service-interaction"
-      , branch: "snapshot"
+      , branch: "RANCHER-2449"
       , consortia: false
       , core     : false
       , byDefault: true
@@ -193,7 +193,7 @@ class Constants {
     ],
     [
       name: "app-dashboard"
-      , branch: "snapshot"
+      , branch: "RANCHER-2449"
       , consortia: false
       , core     : false
       , byDefault: true
@@ -201,7 +201,7 @@ class Constants {
     ],
     [
       name: "app-dcb"
-      , branch: "snapshot"
+      , branch: "RANCHER-2449"
       , consortia: false
       , core     : false
       , byDefault: true
@@ -209,7 +209,7 @@ class Constants {
     ],
     [
       name: "app-edge-complete"
-      , branch: "snapshot"
+      , branch: "RANCHER-2449"
       , consortia: false
       , core     : false
       , byDefault: true
@@ -217,7 +217,7 @@ class Constants {
     ],
     [
       name: "app-reading-room"
-      , branch: "snapshot"
+      , branch: "RANCHER-2449"
       , consortia: false
       , core: false
       , byDefault: true
@@ -225,7 +225,7 @@ class Constants {
     ],
     [
       name: "app-erm-usage"
-      , branch: "snapshot"
+      , branch: "RANCHER-2449"
       , consortia: false
       , core: false
       , byDefault: true
@@ -233,7 +233,7 @@ class Constants {
     ],
     [
       name: "app-inn-reach"
-      , branch: "snapshot"
+      , branch: "RANCHER-2449"
       , consortia: false
       , core: false
       , byDefault: true
@@ -241,7 +241,7 @@ class Constants {
     ],
     [
       name: "app-fqm"
-      , branch: "snapshot"
+      , branch: "RANCHER-2449"
       , consortia: false
       , core: false
       , byDefault: true
@@ -249,7 +249,7 @@ class Constants {
     ],
     [
       name: "app-lists"
-      , branch: "snapshot"
+      , branch: "RANCHER-2449"
       , consortia: false
       , core: false
       , byDefault: true
@@ -257,7 +257,7 @@ class Constants {
     ],
     [
       name: "app-requests-ecs"
-      , branch: "snapshot"
+      , branch: "RANCHER-2449"
       , consortia: false
       , core: false
       , byDefault: true
@@ -265,7 +265,7 @@ class Constants {
     ],
     [
       name: "app-requests-mediated"
-      , branch: "snapshot"
+      , branch: "RANCHER-2449"
       , consortia: false
       , core: false
       , byDefault: true
@@ -273,7 +273,7 @@ class Constants {
     ],
     [
       name: "app-requests-mediated-ui"
-      , branch: "snapshot"
+      , branch: "RANCHER-2449"
       , consortia: false
       , core: false
       , byDefault: true
@@ -281,7 +281,7 @@ class Constants {
     ],
     [
       name: "app-marc-migrations"
-      , branch: "snapshot"
+      , branch: "RANCHER-2449"
       , consortia: false
       , core: false
       , byDefault: false
@@ -289,7 +289,7 @@ class Constants {
     ],
     [
       name: "app-finc"
-      , branch: "snapshot"
+      , branch: "RANCHER-2449"
       , consortia: false
       , core: false
       , byDefault: false
@@ -297,7 +297,7 @@ class Constants {
     ],
     [
       name: "app-reporting"
-      , branch: "snapshot"
+      , branch: "RANCHER-2449"
       , consortia: false
       , core: false
       , byDefault: true
@@ -305,7 +305,7 @@ class Constants {
     ],
     [
       name: "app-oai-pmh"
-      , branch: "snapshot"
+      , branch: "RANCHER-2449"
       , consortia: false
       , core: false
       , byDefault: true
@@ -313,7 +313,7 @@ class Constants {
     ],
     [
       name: "app-bulk-edit"
-      , branch: "snapshot"
+      , branch: "RANCHER-2449"
       , consortia: false
       , core: false
       , byDefault: true
