@@ -258,7 +258,7 @@ class Constants {
     [
       name: "app-requests-ecs"
       , branch: "snapshot"
-      , consortia: false
+      , consortia: true
       , core: false
       , byDefault: true
       , dependsOn: ["app-platform-minimal", "app-platform-complete", "app-dcb"]
