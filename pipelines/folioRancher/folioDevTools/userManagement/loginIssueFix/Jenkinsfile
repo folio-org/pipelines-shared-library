@@ -39,7 +39,7 @@ ansiColor('xterm') {
       logger.info("Fixing login issue for ${params.CLUSTER}-${params.NAMESPACE}")
       folioHelm.withKubeConfig(params.CLUSTER) {
         params.MODULES.tokenize(',').each { moduleName ->
-          kubectl.rolloutDeployment(moduleName, params.NAMESPACE)
+          sh(script: "kubectl rollout restart deployment ${moduleName} -n ${params.NAMESPACE}")
         }
       }
     }
