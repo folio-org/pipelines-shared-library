@@ -353,8 +353,9 @@ void call(CreateNamespaceParameters args) {
           namespace.getTenants().each { tenantId, tenant ->
             if (tenant.getTenantUi()) {
               branches[tenantId] = {
+                boolean isECSBff = tenant.getApplications().contains("app-requests-ecs")
                 folioUI.buildAndDeploy(namespace, tenant, args.platform == PlatformType.EUREKA, namespace.getDomains()['kong'] as String
-                  , namespace.getDomains()['keycloak'] as String, tenant.getApplications().contains("consortia"))
+                  , namespace.getDomains()['keycloak'] as String, isECSBff)
               }
             }
           }
