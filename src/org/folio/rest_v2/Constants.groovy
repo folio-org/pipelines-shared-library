@@ -202,7 +202,7 @@ class Constants {
     [
       name: "app-dcb"
       , branch: "snapshot"
-      , consortia: false
+      , consortia: true
       , core     : false
       , byDefault: true
       , dependsOn: ["app-platform-minimal", "app-platform-complete"]
@@ -258,7 +258,7 @@ class Constants {
     [
       name: "app-requests-ecs"
       , branch: "snapshot"
-      , consortia: false
+      , consortia: true
       , core: false
       , byDefault: true
       , dependsOn: ["app-platform-minimal", "app-platform-complete", "app-dcb"]
@@ -266,7 +266,7 @@ class Constants {
     [
       name: "app-requests-mediated"
       , branch: "snapshot"
-      , consortia: false
+      , consortia: true
       , core: false
       , byDefault: true
       , dependsOn: ["app-platform-minimal", "app-platform-complete", "app-requests-mediated-ui"]
@@ -274,7 +274,7 @@ class Constants {
     [
       name: "app-requests-mediated-ui"
       , branch: "snapshot"
-      , consortia: false
+      , consortia: true
       , core: false
       , byDefault: true
       , dependsOn: ["app-platform-minimal", "app-platform-complete", "app-requests-mediated"]

@@ -15,9 +15,9 @@ import java.time.temporal.ChronoUnit
 @Field final String deleteNamespaceJobName = Constants.JENKINS_DELETE_NAMESPACE_JOB
 
 @Field final LocalDate sprintStartRecreationDate = LocalDate.parse('2025-05-14')
-@Field final boolean isRecreationDate =
-  LocalDate.now().getDayOfWeek() == DayOfWeek.WEDNESDAY && LocalDate.now() >= sprintStartRecreationDate &&
-   ChronoUnit.WEEKS.between(sprintStartRecreationDate, LocalDate.now()) % 2 == 0
+@Field final boolean isSecondWednesday =
+  LocalDate.now().getDayOfWeek() == DayOfWeek.WEDNESDAY &&
+  ChronoUnit.WEEKS.between(sprintStartRecreationDate, LocalDate.now()) == 1
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
@@ -37,7 +37,7 @@ properties([
   ]),
   pipelineTriggers([
     parameterizedCron('''
-      H 3 * * 1,2,4,5 %PLATFORM=EUREKA;CLUSTER=folio-etesting;NAMESPACE=sprint;CONFIG_TYPE=testing;DB_BACKUP_NAME=folio-general-dataset-april-2025-all-users-clean-v2;MARC_MIGRATIONS=true;TYPE=update;IS_CRON_JOB=true
+      H 3 * * 1,2,3,4,5 %PLATFORM=EUREKA;CLUSTER=folio-etesting;NAMESPACE=sprint;CONFIG_TYPE=testing;DB_BACKUP_NAME=folio-general-dataset-april-2025-all-users-clean-v2;MARC_MIGRATIONS=true;TYPE=update;IS_CRON_JOB=true
       H 0 * * 3 %PLATFORM=EUREKA;CLUSTER=folio-etesting;NAMESPACE=sprint;CONFIG_TYPE=testing;DB_BACKUP_NAME=folio-general-dataset-april-2025-all-users-clean-v2;MARC_MIGRATIONS=true;TYPE=full;IS_CRON_JOB=true
     ''')])
 ])
@@ -48,9 +48,14 @@ if (params.REFRESH_PARAMETERS) {
   return
 }
 
-if(params.IS_CRON_JOB && !isRecreationDate && params.TYPE == 'full') {
-  currentBuild.result = 'ABORTED'
-  return
+if (params.IS_CRON_JOB) {
+  if (isSecondWednesday && params.TYPE != 'full') {
+    currentBuild.result = 'ABORTED'
+    return
+  } else if (!isSecondWednesday && params.TYPE != 'update') {
+    currentBuild.result = 'ABORTED'
+    return
+  }
 }
 
 CreateNamespaceParameters namespace = new CreateNamespaceParameters.Builder()

@@ -41,6 +41,7 @@ class Constants {
   static List AWS_EKS_DEV_NAMESPACES = ['aggies',
                                         'bama',
                                         'bienenvolk',
+                                        'big-fc',
                                         'bulk-edit',
                                         'citation',
                                         'concorde',
@@ -275,6 +276,7 @@ class Constants {
 
   //Teams
   static Map ENVS_MEMBERS_LIST = ['bama'          : 'Bama',
+                                  'big-fc'        : 'Big FC',
                                   'citation'      : 'Citation',
                                   'concorde'      : 'concorde',
                                   'consortia'     : 'thunderjet',
@@ -325,8 +327,8 @@ class Constants {
   static String CYPRESS_TESTRAIL_HOST = 'https://foliotest.testrail.io'
   static String CYPRESS_TESTRAIL_CREDENTIALS_ID = 'cypress-testrail-credentials' // TestRail username and password credentials
 
-  static String REPORT_PORTAL_URL = 'https://poc-report-portal.ci.folio.org'
-  static String REPORT_PORTAL_API_URL = 'https://poc-report-portal.ci.folio.org/api/v1'
+  static String REPORT_PORTAL_URL = 'https://report-portal.ci.folio.org'
+  static String REPORT_PORTAL_API_URL = 'https://report-portal.ci.folio.org/api/v1'
   static String REPORT_PORTAL_API_KEY_ID = 'report-portal-api-key-1'
 
   //RDS
@@ -396,4 +398,6 @@ class Constants {
                                 'folio-module-sidecar',
                                 'folio-kong',
                                 'folio-keycloak']
+
+  static List ERM_MODULES = ['mod-agreements', 'mod-licenses', 'mod-oa', 'mod-serials-management', 'mod-service-interaction']
 }

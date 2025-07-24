@@ -34,7 +34,7 @@ properties([
     20 22 * * * %ACTION=stop;CLUSTER=folio-perf;NAMESPACE=volaris
     50 21 * * * %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=aggies
     25 22 * * * %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=bama
-    0 23 * * * %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=citation
+    0 2 * * * %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=citation
     0 22 * * * %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=corsair
     55 21 * * * %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=dreamliner
     8 22 * * * %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=firebird
@@ -52,7 +52,8 @@ properties([
     25 22 * * * %ACTION=stop;CLUSTER=folio-tmp;NAMESPACE=test
     30 22 * * * %ACTION=stop;CLUSTER=folio-tmp;NAMESPACE=test-1
     35 22 * * * %ACTION=stop;CLUSTER=folio-tmp;NAMESPACE=test-2
-    0 23 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=citation
+    0 2 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=citation
+    10 2 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=big-fc
     10 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=corsair
     0 1 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=eureka
     0 1 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=eureka-2nd

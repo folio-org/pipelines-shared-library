@@ -53,7 +53,7 @@ KarateRunExecutionSummary call(KarateTestsParameters args) {
               logger.debug(sh(returnStdout: true, script: 'echo $JAVA_HOME').trim())
               String modules = args.modulesToTest ? "-pl common,testrail-integration," + args.modulesToTest : args.modulesToTest
               catchError(stageResult: 'FAILURE') {
-                String execParams = "-DfailIfNoTests=false -DargLine=-Dkarate.env=${args.karateConfig}"
+                String execParams = "-DfailIfNoTests=false -Dkarate.env=${args.karateConfig}"
 
                 execParams = args.lsdi ? "$execParams -pl data-import-large-scale-tests -am -DskipTests=false" : "$execParams -T ${args.threadsCount} ${modules}"
 
@@ -140,6 +140,12 @@ KarateRunExecutionSummary call(KarateTestsParameters args) {
 }
 
 String startReportPortalRun(String projectName) {
+
+  if (!projectName) {
+    println("Report Portal project name is not specified. Skipping Report Portal run start.")
+    return null
+  } // If projectName is not specified, skip printing the error message, see in RANCHER-2355
+
   try {
     String url = "${Constants.REPORT_PORTAL_API_URL}/${projectName}/launch"
     Map headers = ['Content-Type': 'application/json']
