@@ -354,7 +354,7 @@ void call(CreateNamespaceParameters args) {
             if (tenant.getTenantUi()) {
               branches[tenantId] = {
                 folioUI.buildAndDeploy(namespace, tenant, args.platform == PlatformType.EUREKA, namespace.getDomains()['kong'] as String
-                  , namespace.getDomains()['keycloak'] as String, tenant.getApplications().name.contains("consortia"))
+                  , namespace.getDomains()['keycloak'] as String, tenant.getApplications().contains("consortia"))
               }
             }
           }
