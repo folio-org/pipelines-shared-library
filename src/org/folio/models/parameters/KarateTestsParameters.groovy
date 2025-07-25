@@ -61,7 +61,7 @@ class KarateTestsParameters {
       "okapiUrl='" + okapiUrl + '\'' +
       ", keycloakUrl='" + keycloakUrl + '\'' +
       ", edgeUrl='" + edgeUrl + '\'' +
-      ", clientid='" + clientId + '\'' +
+      ", clientId='" + clientId + '\'' +
       ", clientSecret='" + clientSecret + '\'' +
       ", tenant='" + tenant + '\'' +
       ", prototypeTenant='" + prototypeTenant + '\'' +
