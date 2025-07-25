@@ -250,10 +250,10 @@ String renderKarateConfig(String config, KarateTestsParameters params) {
       "baseKeycloakUrl"                    : params.keycloakUrl,
       "centralServerUrl"                   : params.okapiUrl.replaceAll("kong", "mockserver"),
       "admin"                              : [
-        tenant  : params.tenant,
-        name    : params.adminUserName,
-        password: params.adminPassword,
-        clientId: params.clientId,
+        tenant      : params.tenant,
+        name        : params.adminUserName,
+        password    : params.adminPassword,
+        clientId    : params.clientId,
         clientSecret: params.clientSecret
       ],
       "prototypeTenant"                    : params.prototypeTenant,

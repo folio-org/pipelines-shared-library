@@ -65,6 +65,7 @@ ansiColor('xterm') {
       buildDescription currentBuild.getBuildCauses()[0].shortDescription
     }
   }
-
+  println "Running karate tests with parameters: ${karateTestsParams}"
+  input message: "Please review the parameters and confirm to run karate tests", ok: 'Run Tests', parameters: [string(name: 'Confirm', defaultValue: 'yes', description: 'Type "yes" to confirm')]
   folioKarateFlow.call(karateTestsParams)
 }
