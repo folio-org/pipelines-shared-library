@@ -4657,6 +4657,14 @@ mgr-tenant-entitlements:
       value: 'true'
     - name: SECURITY_ENABLED
       value: 'true'
+    - name: RETRIES_MODULE_MAX
+      value: '10'
+    - name: RETRIES_MODULE_BACKOFF_DELAY
+      value: '60000'
+    - name: RETRIES_MODULE_BACKOFF_MAXDELAY
+      value: '600000'
+    - name: RETRIES_MODULE_BACKOFF_MULTIPLIER
+      value: '1'
   integrations:
     db:
       enabled: true
