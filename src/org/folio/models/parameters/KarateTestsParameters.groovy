@@ -71,7 +71,7 @@ class KarateTestsParameters {
       ", threadsCount='" + threadsCount + '\'' +
       ", gitBranch='" + gitBranch + '\'' +
       ", karateConfig='" + karateConfig + '\'' +
-      ", javaVerson='" + javaVersion + '\'' +
+      ", javaVersion='" + javaVersion + '\'' +
       ", javaToolName='" + javaToolName + '\'' +
       ", mavenToolName='" + mavenToolName + '\'' +
       ", mavenSettings='" + mavenSettings + '\'' +
