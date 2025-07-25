@@ -5,9 +5,9 @@ function fn() {
             tenant: "${params.tenant}",
             name: "${params.adminUserName}",
             password: "${adminPassword}",
-            clientId: "${params.clientId}",
-            clientSecret: "${params.clientSecret}"
-        }
+        },
+        clientId: "${params.clientId}",
+        clientSecret: "${params.clientSecret}"
     }
 
     return config;
