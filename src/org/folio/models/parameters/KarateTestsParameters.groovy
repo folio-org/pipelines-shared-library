@@ -10,6 +10,10 @@ class KarateTestsParameters {
 
   String edgeUrl
 
+  String clientId = 'folio-backend-admin-client'
+
+  String clientSecret
+
   String tenant
 
   String prototypeTenant
@@ -26,7 +30,7 @@ class KarateTestsParameters {
 
   String karateConfig = 'folio-testing-karate'
 
-  String javaVerson = '21'
+  String javaVersion = '21'
 
   String javaToolName = 'amazoncorretto-jdk'
 
@@ -57,6 +61,8 @@ class KarateTestsParameters {
       "okapiUrl='" + okapiUrl + '\'' +
       ", keycloakUrl='" + keycloakUrl + '\'' +
       ", edgeUrl='" + edgeUrl + '\'' +
+      ", clientId='" + clientId + '\'' +
+      ", clientSecret='" + clientSecret + '\'' +
       ", tenant='" + tenant + '\'' +
       ", prototypeTenant='" + prototypeTenant + '\'' +
       ", adminUserName='" + adminUserName + '\'' +
@@ -65,7 +71,7 @@ class KarateTestsParameters {
       ", threadsCount='" + threadsCount + '\'' +
       ", gitBranch='" + gitBranch + '\'' +
       ", karateConfig='" + karateConfig + '\'' +
-      ", javaVerson='" + javaVerson + '\'' +
+      ", javaVersion='" + javaVersion + '\'' +
       ", javaToolName='" + javaToolName + '\'' +
       ", mavenToolName='" + mavenToolName + '\'' +
       ", mavenSettings='" + mavenSettings + '\'' +

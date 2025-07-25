@@ -3,9 +3,11 @@ function fn() {
         baseUrl: "${params.okapiUrl}",
         admin: {
             tenant: "${params.tenant}",
-            name: ${params.adminUserName},
-            password: "${adminPassword}"
-        }
+            name: "${params.adminUserName}",
+            password: "${adminPassword}",
+        },
+        clientId: "${params.clientId}",
+        clientSecret: "${params.clientSecret}"
     }
 
     return config;
