@@ -4,7 +4,9 @@ function fn() {
         admin: {
             tenant: "${params.tenant}",
             name: ${params.adminUserName},
-            password: "${adminPassword}"
+            password: "${adminPassword}",
+            clientId: "${params.clientId}",
+            clientSecret: "${params.clientSecret}"
         }
     }
 

@@ -10,6 +10,10 @@ class KarateTestsParameters {
 
   String edgeUrl
 
+  String clientId = 'folio-backend-admin-client'
+
+  String clientSecret
+
   String tenant
 
   String prototypeTenant
@@ -57,6 +61,8 @@ class KarateTestsParameters {
       "okapiUrl='" + okapiUrl + '\'' +
       ", keycloakUrl='" + keycloakUrl + '\'' +
       ", edgeUrl='" + edgeUrl + '\'' +
+      ", clientid='" + clientId + '\'' +
+      ", clientSecret='" + clientSecret + '\'' +
       ", tenant='" + tenant + '\'' +
       ", prototypeTenant='" + prototypeTenant + '\'' +
       ", adminUserName='" + adminUserName + '\'' +
