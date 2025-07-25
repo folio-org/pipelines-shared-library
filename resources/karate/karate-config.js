@@ -3,7 +3,7 @@ function fn() {
         baseUrl: "${params.okapiUrl}",
         admin: {
             tenant: "${params.tenant}",
-            name: ${params.adminUserName},
+            name: "${params.adminUserName}",
             password: "${adminPassword}",
             clientId: "${params.clientId}",
             clientSecret: "${params.clientSecret}"
