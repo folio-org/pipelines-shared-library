@@ -30,7 +30,7 @@ class KarateTestsParameters {
 
   String karateConfig = 'folio-testing-karate'
 
-  String javaVerson = '21'
+  String javaVersion = '21'
 
   String javaToolName = 'amazoncorretto-jdk'
 
@@ -71,7 +71,7 @@ class KarateTestsParameters {
       ", threadsCount='" + threadsCount + '\'' +
       ", gitBranch='" + gitBranch + '\'' +
       ", karateConfig='" + karateConfig + '\'' +
-      ", javaVerson='" + javaVerson + '\'' +
+      ", javaVerson='" + javaVersion + '\'' +
       ", javaToolName='" + javaToolName + '\'' +
       ", mavenToolName='" + mavenToolName + '\'' +
       ", mavenSettings='" + mavenSettings + '\'' +

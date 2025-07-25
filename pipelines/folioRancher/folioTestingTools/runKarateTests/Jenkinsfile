@@ -47,13 +47,13 @@ karateTestsParams.okapiUrl = params.OKAPI_URL
 karateTestsParams.keycloakUrl = params.KEYCLOAK_URL
 karateTestsParams.edgeUrl = params.EDGE_URL
 karateTestsParams.clientId = params.CLIENT_ID
-karateTestsParams.clientSecret = params.CLIENT_SECRET
+karateTestsParams.clientSecret = params.CLIENT_SECRET.getPlainText()
 karateTestsParams.tenant = params.SUPER_TENANT
 karateTestsParams.adminUserName = params.SUPER_ADMIN_USERNAME
 karateTestsParams.adminPassword = params.SUPER_ADMIN_PASSWORD.getPlainText()
 karateTestsParams.prototypeTenant = params.PROTOTYPE_TENANT
 karateTestsParams.threadsCount = params.THREADS_COUNT
-karateTestsParams.javaVerson = params.JAVA_VERSION
+karateTestsParams.javaVersion = params.JAVA_VERSION
 karateTestsParams.timeout = '24'
 
 /**
