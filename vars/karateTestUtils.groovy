@@ -252,10 +252,10 @@ String renderKarateConfig(String config, KarateTestsParameters params) {
       "admin"                              : [
         tenant      : params.tenant,
         name        : params.adminUserName,
-        password    : params.adminPassword,
-        clientId    : params.clientId,
-        clientSecret: params.clientSecret
+        password    : params.adminPassword
       ],
+      clientId                             : params.clientId,
+      clientSecret                         : params.clientSecret,
       "prototypeTenant"                    : params.prototypeTenant,
       "kbEbscoCredentialsUrl"              : ebsco_url,
       "kbEbscoCredentialsCustomerId"       : ebsco_id,
