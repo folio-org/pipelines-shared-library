@@ -1,0 +1,58 @@
+graph TD
+    subgraph AWS["AWS Cloud"]
+        subgraph EKS["EKS Cluster"]
+            subgraph RancherProject["Rancher Project"]
+                subgraph K8SNamespace["Kubernetes Namespace (folio-applications-registry)"]
+                    subgraph DBComponents["PostgreSQL Database Components"]
+                        EBSV["AWS EBS Volume\n(gp3)"] --> PV["Persistent Volume\n(CSI Driver)"]
+                        SC["Storage Class\n(ebs.csi.aws.com)"] --> PV
+                        PV --> PVC["Persistent Volume Claim"]
+                        PVC --> PostgreSQL["PostgreSQL\n(Bitnami Helm Chart)"]
+                        
+                        subgraph DBCredentials["Database Credentials"]
+                            RandPass["Random Password\nGeneration"] --> K8Secret["Kubernetes Secret\n(Rancher Secret V2)"]
+                            RandPass --> AWSSecret["AWS Secrets Manager"]
+                        end
+                    end
+
+                    subgraph AppComponents["MGR Application Components"]
+                        MGRApp["MGR Applications\n(FAR Mode)"]
+                        Secret["Database Credentials\nSecret"]
+                        
+                        subgraph AppConfig["App Configuration"]
+                            HelmValues["Helm Values\n(FAR Mode Enabled)"]
+                            Ingress["Ingress\n(ALB)"]
+                            HPA["Horizontal Pod\nAutoscaler"]
+                        end
+                    end
+
+                    PostgreSQL -- "Connection credentials" --> Secret
+                    Secret -- "Provides DB connection" --> MGRApp
+                    K8Secret -- "Referenced by" --> Secret
+                    
+                    MGRApp -- "Stores application data" --> PostgreSQL
+                end
+            end
+        end
+
+        ALB["AWS Application Load Balancer"] -- "Routes traffic" --> MGRApp
+
+        subgraph BackupSystem["Backup & Recovery System"]
+            DLM["AWS Data Lifecycle\nManager"] -- "Creates daily\nsnapshots" --> EBSV
+            IAMRole["DLM IAM Role"] -- "Permissions" --> DLM
+            ProtectionPolicy["Snapshot Protection\nPolicy"] -- "Prevents deletion" --> IAMRole
+            Snapshots["EBS Snapshots\n(180-day retention)"] -- "Restore capability" --> EBSV
+        end
+    end
+
+    Users["Internet Users"] -- "HTTPS Access" --> ALB
+
+    classDef critical fill:#f55,stroke:#000,stroke-width:2px;
+    classDef protected fill:#5f5,stroke:#000,stroke-width:1px;
+    classDef backup fill:#55f,stroke:#000,stroke-width:1px,color:white;
+    classDef config fill:#ff5,stroke:#000,stroke-width:1px;
+
+    class EBSV,K8Secret,AWSSecret protected;
+    class Snapshots,DLM,ProtectionPolicy,IAMRole backup;
+    class PostgreSQL,MGRApp critical;
+    class HelmValues,Ingress,HPA,SC config;
