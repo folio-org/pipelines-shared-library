@@ -12,7 +12,7 @@ class KarateTestsParameters {
 
   String clientId = 'folio-backend-admin-client'
 
-  String clientSecret
+  String clientSecret = 'SecretPassword'
 
   String tenant
 
