@@ -178,7 +178,7 @@ void checkDeploymentsRunning(String ns, List<FolioModule> deploymentsList) {
 
   boolean allDeploymentsUpdated = false
   int timer = 0
-  int maxTime = 30 * 60 // 30 minutes in seconds
+  int maxTime = 35 * 60 // 35 minutes in seconds
 
   try {
     while (!allDeploymentsUpdated) {
