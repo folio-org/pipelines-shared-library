@@ -176,8 +176,8 @@ void cleanUpFedLocks(String namespace = 'default', int timer = 0, String moduleI
         case 0:
           println("First check skipped.")
           break
-        case 300:
-          println("5 minutes passed. Trying to cleanup federation_lock table.")
+        case 600:
+          println("10 minutes passed. Trying to cleanup federation_lock table.")
           String pod = sh(script: "kubectl get pod -l 'app.kubernetes.io/name=pgadmin4' -o=name  --ignore-not-found=true --namespace ${namespace}", returnStdout: true).trim()
           try {
             sh(script: "kubectl exec --request-timeout=10s --namespace=${namespace} ${pod} -- /usr/bin/timeout 30s /usr/local/pgsql-16/psql -c 'TRUNCATE ${moduleId.replace('-', '_')}__system.federation_lock'", returnStatus: false)
@@ -186,12 +186,8 @@ void cleanUpFedLocks(String namespace = 'default', int timer = 0, String moduleI
             println("Unable to cleanup federation_lock table.\nError: " + e.getMessage())
           }
           break
-        case 600:
-          println("10 minutes passed. Trying to delete $moduleId pod(s).")
-          sh(script: "kubectl delete pod -l 'app.kubernetes.io/name=${moduleId}' --force --namespace ${namespace}", returnStatus: false)
-          break
-        case 900:
-          println("15 minutes passed. Trying to delete $moduleId pod(s) and cleanup federation_lock table.")
+        case 1200:
+          println("20 minutes passed. Trying to delete $moduleId pod(s) and cleanup federation_lock table.")
           sh(script: "kubectl delete pod -l 'app.kubernetes.io/name=$moduleId' --force --namespace ${namespace}", returnStatus: false)
           String pod = sh(script: "kubectl get pod -l 'app.kubernetes.io/name=pgadmin4' -o=name  --ignore-not-found=true --namespace ${namespace}", returnStdout: true).trim()
           sh(script: "kubectl exec --request-timeout=10s --namespace=${namespace} ${pod} -- /usr/bin/timeout 30s /usr/local/pgsql-16/psql -c 'TRUNCATE ${moduleId.replace('-', '_')}__system.federation_lock'", returnStatus: false)
