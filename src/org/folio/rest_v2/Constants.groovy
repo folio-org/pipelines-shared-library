@@ -325,7 +325,7 @@ class Constants {
       , consortia: false
       , core: false
       , byDefault: true
-      , dependsOn: ["app-platform-minimal", "app-platform-complete"]
+      , dependsOn: ["app-platform-minimal"]
     ]
   ]
 
