@@ -318,6 +318,14 @@ class Constants {
       , core: false
       , byDefault: true
       , dependsOn: ["app-platform-minimal", "app-platform-complete", "app-fqm"]
+    ],
+    [
+      name: "app-eholdings"
+      , branch: "snapshot"
+      , consortia: false
+      , core: false
+      , byDefault: true
+      , dependsOn: ["app-platform-minimal", "app-platform-complete"]
     ]
   ]
 
