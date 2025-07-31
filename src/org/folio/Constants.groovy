@@ -41,6 +41,7 @@ class Constants {
   static List AWS_EKS_DEV_NAMESPACES = ['aggies',
                                         'bama',
                                         'bienenvolk',
+                                        'big-fc',
                                         'bulk-edit',
                                         'citation',
                                         'concorde',
@@ -275,6 +276,7 @@ class Constants {
 
   //Teams
   static Map ENVS_MEMBERS_LIST = ['bama'          : 'Bama',
+                                  'big-fc'        : 'Big FC',
                                   'citation'      : 'Citation',
                                   'concorde'      : 'concorde',
                                   'consortia'     : 'thunderjet',
@@ -332,7 +334,7 @@ class Constants {
   //RDS
   static String BUGFEST_SNAPSHOT_DBNAME = 'folio'
   static String BUGFEST_SNAPSHOT_NAME = 'folio-general-dataset-april-2025-all-users-clean-v2'
-  static String DATA_MIGRATION_SNAPSHOT_NAME = 'rbf-db-clean-the-latest-csp-21-01-25'
+  static String DATA_MIGRATION_SNAPSHOT_NAME = 'folio-general-dataset-april-2025-all-users-clean-v2'
 
   static Map JMX_METRICS_AVAILABLE = ['mod-bulk-operations': '2.0.0-SNAPSHOT.71']
 
@@ -396,4 +398,6 @@ class Constants {
                                 'folio-module-sidecar',
                                 'folio-kong',
                                 'folio-keycloak']
+
+  static List ERM_MODULES = ['mod-agreements', 'mod-licenses', 'mod-oa', 'mod-serials-management', 'mod-service-interaction']
 }

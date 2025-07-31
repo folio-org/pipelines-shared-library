@@ -17,6 +17,8 @@ properties([
     string(name: 'OKAPI_URL', defaultValue: 'https://folio-etesting-karate-kong.ci.folio.org', description: 'Target environment OKAPI URL'),
     string(name: 'KEYCLOAK_URL', defaultValue: 'https://folio-etesting-karate-keycloak.ci.folio.org', description: 'Target environment KEYCLOAK URL'),
     string(name: 'EDGE_URL', defaultValue: 'https://folio-etesting-karate-edge.ci.folio.org', description: 'Target environment EDGE URL'),
+    string(name: 'CLIENT_ID', defaultValue: 'folio-backend-admin-client', description: 'Client ID in Keycloak for tests'),
+    password(name: 'CLIENT_SECRET', defaultValueAsSecret: Secret.fromString('SecretPassword'), description: 'Keycloak client secret for tests, change the value!'),
     string(name: 'SUPER_TENANT', defaultValue: 'diku', description: 'Supertenant for test tenants creation flow'),
     string(name: 'SUPER_ADMIN_USERNAME', defaultValue: 'diku_admin', description: 'Super admin username'),
     password(name: 'SUPER_ADMIN_PASSWORD', defaultValueAsSecret: Secret.fromString('admin'), description: 'Super admin user password'),
@@ -44,12 +46,14 @@ karateTestsParams.modulesToTest = params.TESTS
 karateTestsParams.okapiUrl = params.OKAPI_URL
 karateTestsParams.keycloakUrl = params.KEYCLOAK_URL
 karateTestsParams.edgeUrl = params.EDGE_URL
+karateTestsParams.clientId = params.CLIENT_ID
+karateTestsParams.clientSecret = params.CLIENT_SECRET.getPlainText()
 karateTestsParams.tenant = params.SUPER_TENANT
 karateTestsParams.adminUserName = params.SUPER_ADMIN_USERNAME
 karateTestsParams.adminPassword = params.SUPER_ADMIN_PASSWORD.getPlainText()
 karateTestsParams.prototypeTenant = params.PROTOTYPE_TENANT
 karateTestsParams.threadsCount = params.THREADS_COUNT
-karateTestsParams.javaVerson = params.JAVA_VERSION
+karateTestsParams.javaVersion = params.JAVA_VERSION
 karateTestsParams.timeout = '24'
 
 /**

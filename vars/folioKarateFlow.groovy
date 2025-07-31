@@ -15,7 +15,7 @@ KarateRunExecutionSummary call(KarateTestsParameters args) {
   PodTemplates podTemplates = new PodTemplates(this, true)
   KarateRunExecutionSummary karateTestsExecutionSummary
 
-  podTemplates.javaKarateAgent(args.javaVerson) {
+  podTemplates.javaKarateAgent(args.javaVersion) {
     dir('folio-integration-tests') {
       stage('[Git] Checkout folio-integration-tests repo') {
         checkout(scmGit(
@@ -59,7 +59,7 @@ KarateRunExecutionSummary call(KarateTestsParameters args) {
 
                 execParams = args.reportPortalProjectId ? "$execParams -Drp.launch.uuid=${args.reportPortalProjectId}" : execParams
 
-                sh "export MAVEN_OPTS=-Xmx1024m && mvn test $execParams"
+                sh "mvn test $execParams"
               }
             }
           }

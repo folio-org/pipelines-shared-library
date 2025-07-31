@@ -7,6 +7,7 @@ import org.folio.models.application.ApplicationList
 import org.folio.rest_v2.eureka.Keycloak
 import org.folio.rest_v2.eureka.Kong
 import org.folio.utilities.RequestException
+import org.folio.Constants
 
 class Tenants extends Kong{
 
@@ -153,14 +154,16 @@ class Tenants extends Kong{
           Status: ${ex.statusCode}
           Response content:
           ${contentStr}""")
-        } else if (contentStr.contains("mod-agreements")) {
-          logger.info("""
-          Application(s) are already entitled on tenant, but need to fix agreements entitlement.
-          Status: ${ex.statusCode}
-          Response content:
-          ${contentStr}""")
-          def parts = kongUrl.split("\\.")
-          context.kubectl.agreementsEntitlementFix(parts[0].split("-")[2], tenant.tenantId, "${parts[0].split("-")[0]}-${parts[0].split("-")[1]}")
+        } else if (Constants.ERM_MODULES.find { contentStr.contains(it) }) {
+            def matchedModule = Constants.ERM_MODULES.find { contentStr.contains(it) }
+            logger.info("""
+            Application(s) are already entitled on tenant, but need to fix erm entitlement.
+            Status: ${ex.statusCode}
+            Response content:
+            ${contentStr}""")
+            def parts = kongUrl.split("\\.")
+            context.kubectl.ermEntitlementFix(parts[0].split("-")[2], tenant.tenantId, "${parts[0].split("-")[0]}-${parts[0].split("-")[1]}", matchedModule)
+          throw new Exception("Build failed: because of erm entitlement fix done for ${matchedModule} module, need to re-run the entitlement process")
         } else {
           logger.error("Enabling application for tenant failed: ${contentStr}")
           throw new Exception("Build failed: " + contentStr)

@@ -7,7 +7,7 @@ void call(KarateTestsParameters args) {
   /** Base directory to clone sources from GitHub repository */
   String gatlingBaseDir = 'folio-gatling-tests'
 
-  podTemplates.javaKarateAgent(args.javaVerson) {
+  podTemplates.javaKarateAgent(args.javaVersion) {
     stage('Ini') {
       def existing = currentBuild.description?.trim()
       def causeDescription = currentBuild.getBuildCauses()[0]?.shortDescription ?: "Unknown cause"

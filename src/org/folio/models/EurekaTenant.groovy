@@ -133,7 +133,7 @@ class EurekaTenant extends OkapiTenant {
         case "app-requests-mediated-ui":
           return !isSecureTenant
           break
-        case ["app-consortia", "app-consortia-manager"]:
+        case ["app-consortia", "app-consortia-manager", "app-dcb", "app-requests-ecs", "app-requests-mediated", "app-requests-mediated-ui"]:
           return !(this instanceof EurekaTenantConsortia)
           break
         default:
