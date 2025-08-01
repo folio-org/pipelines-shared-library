@@ -1,0 +1,131 @@
+flowchart TD
+    classDef scenario fill:#f9f,stroke:#333,stroke-width:2px
+    classDef action fill:#bbf,stroke:#333,stroke-width:1px
+    classDef decision fill:#ff9,stroke:#333,stroke-width:1px
+    classDef resource fill:#bfb,stroke:#333,stroke-width:1px
+    classDef critical fill:#f99,stroke:#333,stroke-width:2px
+    classDef success fill:#9f9,stroke:#333,stroke-width:2px
+
+    Start([Start Recovery Process]) --> Identify{Identify Issue}
+    
+    %% Scenario 1: EBS volume exists, but Kubernetes infrastructure wiped
+    Identify -->|"EBS volume exists,<br>K8s infrastructure wiped"| S1[Scenario 1]:::scenario
+    S1 --> S1_1[Verify EBS volume exists<br>and is healthy]:::action
+    S1_1 --> S1_2{EBS volume<br>healthy?}:::decision
+    S1_2 -->|Yes| S1_3[Run terraform plan<br>to recreate K8s resources]:::action
+    S1_2 -->|No| S1_4[Restore from<br>latest snapshot]:::action
+    S1_4 --> S1_3
+    S1_3 --> S1_5[Apply terraform<br>configuration]:::action
+    S1_5 --> S1_6[Verify PV/PVC<br>binding]:::action
+    S1_6 --> S1_7{PV/PVC<br>bound?}:::decision
+    S1_7 -->|Yes| S1_8[Wait for PostgreSQL<br>pod to start]:::action
+    S1_7 -->|No| S1_9[Manually patch<br>PV/PVC if needed]:::action
+    S1_9 --> S1_8
+    S1_8 --> S1_10[Verify MGR app<br>connectivity to DB]:::action
+    S1_10 --> S1_Success([Recovery Complete]):::success
+    
+    %% Scenario 2: EBS volume wiped/deleted, snapshot exists
+    Identify -->|"EBS volume deleted,<br>snapshot exists"| S2[Scenario 2]:::scenario
+    S2 --> S2_1[Identify latest<br>EBS snapshot]:::action
+    S2_1 --> S2_2[Set snapshot_id<br>in terraform.tfvars]:::action
+    S2_2 --> S2_3[Run terraform apply<br>with snapshot_id]:::action
+    S2_3 --> S2_4[Wait for new EBS<br>volume creation]:::action
+    S2_4 --> S2_5[Verify PV/PVC<br>creation]:::action
+    S2_5 --> S2_6{PV/PVC<br>created?}:::decision
+    S2_6 -->|Yes| S2_7[Wait for PostgreSQL<br>pod to start]:::action
+    S2_6 -->|No| S2_8[Check terraform<br>logs for errors]:::action
+    S2_8 --> S2_3
+    S2_7 --> S2_9[Verify database<br>content]:::action
+    S2_9 --> S2_10{Data<br>intact?}:::decision
+    S2_10 -->|Yes| S2_11[Verify MGR app<br>connectivity]:::action
+    S2_10 -->|No| S2_12[Try older<br>snapshot]:::critical
+    S2_12 --> S2_2
+    S2_11 --> S2_Success([Recovery Complete]):::success
+    
+    %% Scenario 3: PostgreSQL StatefulSet wiped/deleted
+    Identify -->|"PostgreSQL StatefulSet<br>wiped/deleted"| S3[Scenario 3]:::scenario
+    S3 --> S3_1[Taint PostgreSQL<br>resources]:::action
+    S3_1 --> S3_2["terraform taint<br>module.far_postgres_db.helm_release.postgres"]:::action
+    S3_2 --> S3_3[Run terraform<br>plan]:::action
+    S3_3 --> S3_4[Apply terraform<br>configuration]:::action
+    S3_4 --> S3_5[Verify PostgreSQL<br>pod recreation]:::action
+    S3_5 --> S3_6{Pod<br>running?}:::decision
+    S3_6 -->|Yes| S3_7[Verify database<br>content]:::action
+    S3_6 -->|No| S3_8[Check pod<br>events and logs]:::action
+    S3_8 --> S3_9[Fix issues<br>if needed]:::action
+    S3_9 --> S3_4
+    S3_7 --> S3_10{Data<br>intact?}:::decision
+    S3_10 -->|Yes| S3_11[Verify MGR app<br>connectivity]:::action
+    S3_10 -->|No| S3_12[Restore from<br>latest snapshot]:::critical
+    S3_12 --> S2_1
+    S3_11 --> S3_Success([Recovery Complete]):::success
+    
+    %% Scenario 4: MGR App Deployment wiped/deleted
+    Identify -->|"MGR App Deployment<br>wiped/deleted"| S4[Scenario 4]:::scenario
+    S4 --> S4_1[Taint MGR App<br>resources]:::action
+    S4_1 --> S4_2["terraform taint<br>module.far_mgr_app_helm.helm_release.far_mgr_app"]:::action
+    S4_2 --> S4_3[Run terraform<br>plan]:::action
+    S4_3 --> S4_4[Apply terraform<br>configuration]:::action
+    S4_4 --> S4_5[Verify MGR App<br>pod recreation]:::action
+    S4_5 --> S4_6{Pod<br>running?}:::decision
+    S4_6 -->|Yes| S4_7[Verify DB<br>connectivity]:::action
+    S4_6 -->|No| S4_8[Check pod<br>events and logs]:::action
+    S4_8 --> S4_9[Fix issues<br>if needed]:::action
+    S4_9 --> S4_4
+    S4_7 --> S4_10{DB connection<br>successful?}:::decision
+    S4_10 -->|Yes| S4_11[Verify application<br>functionality]:::action
+    S4_10 -->|No| S4_12[Check DB credentials<br>and DB health]:::action
+    S4_12 --> S4_7
+    S4_11 --> S4_Success([Recovery Complete]):::success
+    
+    %% Scenario 5: Complete infrastructure wiped, only snapshot available
+    Identify -->|"Complete infrastructure<br>wiped, snapshot exists"| S5[Scenario 5]:::scenario
+    S5 --> S5_1[Identify latest<br>EBS snapshot]:::action
+    S5_1 --> S5_2[Create new<br>Rancher project]:::action
+    S5_2 --> S5_3[Create new<br>K8s namespace]:::action
+    S5_3 --> S5_4[Set snapshot_id<br>in terraform.tfvars]:::action
+    S5_4 --> S5_5[Run terraform apply<br>with snapshot_id]:::action
+    S5_5 --> S5_6[Wait for complete<br>infrastructure creation]:::action
+    S5_6 --> S5_7[Verify PostgreSQL<br>pod status]:::action
+    S5_7 --> S5_8{PostgreSQL<br>running?}:::decision
+    S5_8 -->|Yes| S5_9[Verify MGR App<br>pod status]:::action
+    S5_8 -->|No| S5_10[Check pod<br>events and logs]:::action
+    S5_10 --> S5_11[Fix issues<br>if needed]:::action
+    S5_11 --> S5_5
+    S5_9 --> S5_12{MGR App<br>running?}:::decision
+    S5_12 -->|Yes| S5_13[Verify application<br>functionality]:::action
+    S5_12 -->|No| S5_14[Check pod<br>events and logs]:::action
+    S5_14 --> S5_15[Fix issues<br>if needed]:::action
+    S5_15 --> S5_5
+    S5_13 --> S5_Success([Recovery Complete]):::success
+    
+    %% Scenario 6: Kubernetes Secret with DB credentials wiped/deleted
+    Identify -->|"K8s Secret with DB<br>credentials wiped"| S6[Scenario 6]:::scenario
+    S6 --> S6_1[Check AWS Secrets<br>Manager for credentials]:::action
+    S6_1 --> S6_2{Credentials<br>in AWS SM?}:::decision
+    S6_2 -->|Yes| S6_3[Retrieve credentials<br>from AWS SM]:::action
+    S6_2 -->|No| S6_4[Check for backup<br>of credentials]:::action
+    S6_4 --> S6_5{Backup<br>available?}:::decision
+    S6_5 -->|Yes| S6_6[Restore from<br>backup]:::action
+    S6_5 -->|No| S6_7[Reset PostgreSQL<br>password]:::critical
+    S6_3 --> S6_8[Recreate K8s<br>Secret manually]:::action
+    S6_6 --> S6_8
+    S6_7 --> S6_9[Update AWS SM with<br>new credentials]:::action
+    S6_9 --> S6_8
+    S6_8 --> S6_10[Restart MGR App<br>pods]:::action
+    S6_10 --> S6_11[Verify DB<br>connectivity]:::action
+    S6_11 --> S6_12{Connection<br>successful?}:::decision
+    S6_12 -->|Yes| S6_13[Run terraform plan<br>to ensure consistency]:::action
+    S6_12 -->|No| S6_14[Check secret format<br>and content]:::action
+    S6_14 --> S6_8
+    S6_13 --> S6_15[Apply terraform<br>if needed]:::action
+    S6_15 --> S6_Success([Recovery Complete]):::success
+    
+    %% Legend
+    Legend([Legend]):::scenario
+    Legend --> Legend1[Scenario]:::scenario
+    Legend --> Legend2[Action]:::action
+    Legend --> Legend3[Decision]:::decision
+    Legend --> Legend4[Resource]:::resource
+    Legend --> Legend5[Critical Step]:::critical
+    Legend --> Legend6[Success]:::success 

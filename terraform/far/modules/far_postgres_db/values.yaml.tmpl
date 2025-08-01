@@ -1,0 +1,70 @@
+global:
+  security:
+    allowInsecureImages: true
+
+image:
+#  registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
+#  repository: postgresql
+  tag: 16.4.0
+#  pullPolicy: IfNotPresent
+
+auth:
+  postgresPassword: "${db_password}"
+  username: "${db_user}"
+  password: "${db_password}"
+  database: "${db_name}"
+
+primary:
+  resources:
+    requests:
+      memory: "2Gi"
+    limits:
+      memory: "4Gi"
+  persistence:
+    existingClaim: "${pvc_name}"
+  extendedConfiguration: |-
+    shared_buffers = '512MB'
+    max_connections = '5000'
+    listen_addresses = '0.0.0.0'
+    effective_cache_size = '1024MB'
+    maintenance_work_mem = '128MB'
+    checkpoint_completion_target = '0.9'
+    wal_buffers = '16MB'
+    min_wal_size = '80MB'
+    max_wal_size = '1GB'
+    default_statistics_target = '100'
+    random_page_cost = '1.1'
+    effective_io_concurrency = '200'
+    work_mem = '3096kB'
+  containerSecurityContext:
+    readOnlyRootFilesystem: false
+
+volumePermissions:
+  enabled: true
+#  image:
+#    registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
+#    repository: os-shell
+#    tag: 11-debian-11-r91
+#    pullPolicy: IfNotPresent
+
+audit:
+  enabled: true
+  logHostname: true
+  logConnections: true
+  logDisconnections: true
+  pgAuditLog: "all"
+
+podAffinityPreset: hard
+
+metrics:
+  enabled: false
+  resources:
+    requests:
+      memory: 1024Mi
+    limits:
+      memory: 2048Mi
+  serviceMonitor:
+    enabled: true
+    namespace: monitoring
+    interval: 30s
+    scrapeTimeout: 30s
