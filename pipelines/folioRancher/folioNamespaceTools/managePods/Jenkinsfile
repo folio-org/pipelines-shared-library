@@ -72,6 +72,7 @@ properties([
     19 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=spitfire-2nd
     21 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=vega-2nd
     23 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=bama
+    25 22 * * * %ACTION=stop;CLUSTER=folio-eperf;NAMESPACE=corsair
   ''')])
 ])
 
