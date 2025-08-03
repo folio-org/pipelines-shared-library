@@ -68,6 +68,9 @@ properties([
     0 0 * * * %ACTION=stop;CLUSTER=folio-eperf;NAMESPACE=corsair
     10 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=erm
     15 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=k-int
+    17 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=leipzig
+    19 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=spitfire-2nd
+    21 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=vega-2nd
   ''')])
 ])
 
