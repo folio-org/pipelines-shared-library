@@ -71,6 +71,7 @@ properties([
     17 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=leipzig
     19 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=spitfire-2nd
     21 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=vega-2nd
+    23 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=bama
   ''')])
 ])
 
