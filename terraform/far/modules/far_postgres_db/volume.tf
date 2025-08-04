@@ -4,7 +4,6 @@ resource "aws_ebs_volume" "postgres" {
   type              = var.ebs_type
   iops              = var.ebs_iops
   throughput        = var.ebs_throughput
-  encrypted         = true
 
   // Use snapshot_id if provided for restoration
   snapshot_id = var.snapshot_id

@@ -86,7 +86,11 @@ resource "aws_iam_role_policy" "dlm_lifecycle" {
         Action = [
           "ec2:CreateTags"
         ],
-        Resource = "arn:aws:ec2:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:snapshot/*"
+        Resource = [
+          "arn:aws:ec2:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:snapshot/*",
+          "arn:aws:ec2::${data.aws_caller_identity.current.account_id}:snapshot/*",
+          "arn:aws:ec2:::snapshot/*"
+        ]
       }
     ]
   })
