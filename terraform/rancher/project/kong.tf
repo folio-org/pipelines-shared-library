@@ -21,7 +21,7 @@ resource "helm_release" "kong" {
   name       = "kong-${var.rancher_project_name}"
   namespace  = rancher2_namespace.this.id
   version    = "12.0.11"
-  repository = "https://repository.folio.org/repository/helm-bitnami-proxy"
+  repository = local.catalogs.bitnami
   values = [
     <<-EOF
 image:

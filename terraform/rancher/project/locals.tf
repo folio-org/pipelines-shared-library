@@ -42,7 +42,7 @@ EOF
   schedule_value = contains(local.schedule_namespaces, var.rancher_project_name) ? local.schedule_object : ""
 
   catalogs = {
-    bitnami    = "https://repository.folio.org/repository/helm-bitnami-proxy",
+    bitnami    = "https://repository.folio.org/repository/folio-helm-infrastructure",
     provectus  = "https://provectus.github.io/kafka-ui-charts",
     opensearch = "https://opensearch-project.github.io/helm-charts",
     runix      = "https://helm.runix.net"
