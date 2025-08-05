@@ -24,7 +24,7 @@ resource "helm_release" "keycloak" {
   namespace    = rancher2_namespace.this.id
   version      = "21.0.4"
   force_update = false
-  repository   = "https://repository.folio.org/repository/helm-bitnami-proxy"
+  repository   = local.catalogs.bitnami
   values = [
     <<-EOF
 image:
