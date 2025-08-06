@@ -1529,8 +1529,6 @@ mod-finance:
     enabled: true
     maxUnavailable: 1
 mod-finance-storage:
-  extraEnvVarsSecrets:
-    - eureka-common
   extraEnvVars: []
   integrations:
     db:
