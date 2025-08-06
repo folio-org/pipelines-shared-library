@@ -1982,8 +1982,6 @@ mod-finance:
         requests:
           memory: 290Mi
 mod-finance-storage:
-  extraEnvVarsSecrets:
-    - eureka-common
   extraEnvVars: []
   integrations:
     db:
