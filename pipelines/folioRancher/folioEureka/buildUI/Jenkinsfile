@@ -30,7 +30,7 @@ if (params.REFRESH_PARAMETERS) {
   return
 }
 
-if (params.NAMESPACE in Constants.PROTECTED_NAMESPACES) {
+if (params.NAMESPACE in Constants.RANCHER_PROTECTED_NAMESPACES) {
  folioCommon.kitfoxApproval()
 }
 

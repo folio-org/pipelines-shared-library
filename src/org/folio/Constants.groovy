@@ -27,7 +27,7 @@ class Constants {
 
   static List AMERICA_TIME_ZONE_TEAMS = ['citation', 'corsair', 'eureka']
 
-  static List PROTECTED_NAMESPACES = ['snapshot', 'snapshot2', 'sprint']
+  static List RANCHER_PROTECTED_NAMESPACES = ['snapshot', 'snapshot2', 'sprint']
 
   //AWS
   static String AWS_REGION = 'us-west-2'
