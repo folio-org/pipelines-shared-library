@@ -27,6 +27,8 @@ class Constants {
 
   static List AMERICA_TIME_ZONE_TEAMS = ['citation', 'corsair', 'eureka']
 
+  static List PROTECTED_NAMESPACES = ['snapshot', 'snapshot2', 'sprint']
+
   //AWS
   static String AWS_REGION = 'us-west-2'
   static String AWS_CREDENTIALS_ID = 'aws-jenkins-service-user'

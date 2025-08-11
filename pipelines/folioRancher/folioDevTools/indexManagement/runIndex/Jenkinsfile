@@ -25,8 +25,8 @@ if (params.REFRESH_PARAMETERS) {
   return
 }
 
-if (params.NAMESPACE == 'sprint') {
-  folioCommon.kitfoxApproval()
+if (params.NAMESPACE in Constants.PROTECTED_NAMESPACES) {
+ folioCommon.kitfoxApproval()
 }
 
 PodTemplates podTemplates = new PodTemplates(this)

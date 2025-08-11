@@ -30,6 +30,10 @@ if (params.REFRESH_PARAMETERS) {
   return
 }
 
+if (params.NAMESPACE in Constants.PROTECTED_NAMESPACES) {
+ folioCommon.kitfoxApproval()
+}
+
 List extensions = []
 if (params.CONSORTIA) {
   extensions.add('consortia-eureka')
