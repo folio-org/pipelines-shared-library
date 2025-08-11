@@ -27,6 +27,7 @@ properties([
     folioParameters.namespace(),
     folioParameters.configType(),
     booleanParam(name: 'FORCE_MVN_CACHE_REFRESH', defaultValue: false, description: 'Force Maven cache refresh'),
+    booleanParam(name: 'CLEANUP_ENV', defaultValue: true, description: 'Delete karate tests tenants before deployment'),
     folioParameters.refreshParameters(),
   ])
 ])
@@ -102,6 +103,12 @@ ansiColor('xterm') {
         }
       }
     }
+
+    stage('[Pre-condition] CleanUp Karate tenants') {
+        if (params.CLEANUP_ENV) {
+          folioTools.karateTenantsCleanUp(params.CLUSTER, params.NAMESPACE)
+        }
+      }
 
     stage('[Maven/Gradle] Compile') {
       container('java') {
