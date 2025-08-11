@@ -188,10 +188,10 @@ void karateTenantsCleanUp(String cluster, String namespace) {
   tenantsJson.tenants.each { tenantObj ->
     String tenantName = tenantObj.name
     String tenantId = tenantObj.id
-    if (tenantName ==~ /(university|central|college)[0-9]+$/) {
+    if (tenantName ==~ /(university|central|college|testtenant)[0-9]+$/) {
       println "Deleting tenant: ${tenantName} (ID: ${tenantId})"
       String deleteUrl = "https://${cluster}-${namespace}-kong.ci.folio.org/tenants/${tenantId}?purge=true"
-      sh(script: "curl -s -X DELETE -H 'Authorization: Bearer ${token}' '${deleteUrl}'", returnStdout: true)
+      sh(script: "curl -s -X DELETE -H 'Authorization: Bearer ${token}' '${deleteUrl}'", returnStdout: false)
     }
   }
 }
