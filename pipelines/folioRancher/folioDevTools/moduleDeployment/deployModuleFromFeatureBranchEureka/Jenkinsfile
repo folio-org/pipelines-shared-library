@@ -37,9 +37,9 @@ if (params.REFRESH_PARAMETERS) {
   return
 }
 
-//if (params.NAMESPACE == 'snapshot' || 'snapshot2') {
-//  folioCommon.kitfoxApproval()
-//}
+if (params.NAMESPACE in Constants.PROTECTED_NAMESPACES) {
+ folioCommon.kitfoxApproval()
+}
 
 
 /** Job variables */

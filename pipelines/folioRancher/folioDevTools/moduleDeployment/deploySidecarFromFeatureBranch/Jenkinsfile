@@ -29,6 +29,10 @@ if (params.REFRESH_PARAMETERS) {
   return
 }
 
+if (params.NAMESPACE in Constants.PROTECTED_NAMESPACES) {
+ folioCommon.kitfoxApproval()
+}
+
 /** Job variables */
 PodTemplates podTemplates = new PodTemplates(this)
 Logger logger = new Logger(this, env.JOB_BASE_NAME)

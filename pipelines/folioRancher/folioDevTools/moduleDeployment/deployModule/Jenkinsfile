@@ -37,6 +37,10 @@ if (params.REFRESH_PARAMETERS) {
   return
 }
 
+if (params.NAMESPACE in Constants.PROTECTED_NAMESPACES) {
+ folioCommon.kitfoxApproval()
+}
+
 
 /** Pipeline variables */
 PodTemplates podTemplates = new PodTemplates(this)
