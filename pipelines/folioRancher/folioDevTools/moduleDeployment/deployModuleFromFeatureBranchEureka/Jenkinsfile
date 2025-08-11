@@ -27,7 +27,7 @@ properties([
     folioParameters.namespace(),
     folioParameters.configType(),
     booleanParam(name: 'FORCE_MVN_CACHE_REFRESH', defaultValue: false, description: 'Force Maven cache refresh'),
-    booleanParam(name: 'CLEANUP_ENV', defaultValue: false, description: 'Delete karate tests tenants before deployment'),
+    booleanParam(name: 'CLEANUP_ENV', defaultValue: true, description: 'Delete karate tests tenants before deployment'),
     folioParameters.refreshParameters(),
   ])
 ])
