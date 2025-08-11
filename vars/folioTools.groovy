@@ -175,7 +175,6 @@ void deleteSSMParameters(String cluster, String namespace) {
 }
 
 void karateTenantsCleanUp(String cluster, String namespace) {
-
   String url = "https://${cluster}-${namespace}-keycloak.ci.folio.org/realms/master/protocol/openid-connect/token"
   String body = "grant_type=client_credentials&client_id=folio-backend-admin-client&client_secret=SecretPassword"
   def tokenResp = sh(script: "curl -s -X POST -d \"${body}\" \"${url}\"", returnStdout: true).trim()
@@ -194,4 +193,5 @@ void karateTenantsCleanUp(String cluster, String namespace) {
       sh(script: "curl -s -X DELETE -H 'Authorization: Bearer ${token}' '${deleteUrl}'", returnStdout: false)
     }
   }
+  folioPrint.colored("Karate tenants cleanup completed for cluster: ${cluster}, namespace: ${namespace}" as String, "green")
 }
