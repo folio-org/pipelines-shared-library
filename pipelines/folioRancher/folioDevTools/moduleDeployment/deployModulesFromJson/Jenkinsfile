@@ -1,4 +1,5 @@
 #!groovy
+import org.folio.Constants
 
 import org.folio.jenkins.PodTemplates
 import org.folio.models.InstallRequestParams
