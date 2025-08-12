@@ -268,7 +268,7 @@ ansiColor('xterm') {
       }
       stage('[Collect] Tenants Info') {
         RestClient restClient = new RestClient(this)
-        def tenants = restClient.get("https://${namespace.getDomain('kong')}/tenants?limit=500")
+        def tenants = restClient.get("https://${namespace.generateDomain("kong")}/tenants?limit=500")
         println "Tenants: ${tenants}"
       }
 
