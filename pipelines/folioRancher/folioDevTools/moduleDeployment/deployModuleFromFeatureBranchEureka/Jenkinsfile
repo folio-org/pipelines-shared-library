@@ -281,7 +281,10 @@ ansiColor('xterm') {
             'Content-Type': 'application/json',
             'Authorization': "Bearer ${keycloak.getAuthMasterTenantToken()}",
           ]
+          folioPrint.colored("Invoking /tenant API for tenant: ${tenant.name} with applications: ${body.applications}", 'green')
           restClient.post("https://${namespace.generateDomain("kong")}/reinstall/applications", writeJSON(json: body, returnText: true), headers)
+          folioPrint.colored("Invokation for tenant: ${tenant.name} is complete", 'green')
+          sleep time: 30, unit: 'SECONDS'
         }
       }
 
