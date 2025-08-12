@@ -274,8 +274,8 @@ ansiColor('xterm') {
         Keycloak keycloak = new Keycloak(this, namespace.generateDomain("keycloak"), false)
         tenants.each { tenant ->
           Map body = [
-          tenantId: tenant.id,
-          applications: [apps.findAll { it.modules.contains(module.name) }*.id]
+            tenantId: tenant.id,
+            applications: apps.findAll { it.modules.contains(module.name) }*.id
           ]
           Map headers = [
             'Content-Type': 'application/json',
