@@ -275,7 +275,7 @@ ansiColor('xterm') {
         tenants.each { tenant ->
           Map body = [
             tenantId: tenant.id,
-            applications: apps.findAll { it.modules.contains(module.name) }*.id
+            applications: apps.findAll { it.modules*.name.contains(module.name) }*.id
           ]
           Map headers = [
             'Content-Type': 'application/json',
