@@ -271,7 +271,7 @@ ansiColor('xterm') {
         RestClient restClient = new RestClient(this)
         def tenants = restClient.get("https://${namespace.generateDomain("kong")}/tenants?limit=500").body.tenants
         def apps = restClient.get("https://${namespace.generateDomain("kong")}/applications?limit=500").body.applicationDescriptors
-        Keycloak keycloak = new Keycloak(this, "https://" + namespace.generateDomain("keycloak"), false)
+        Keycloak keycloak = new Keycloak(this, "https://${namespace.generateDomain("keycloak")}", false)
         tenants.each { tenant ->
           Map body = [
           tenantId: tenant.id,
