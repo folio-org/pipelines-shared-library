@@ -6,6 +6,7 @@ import org.folio.models.FolioInstallJson
 import org.folio.models.EurekaNamespace
 import org.folio.models.module.EurekaModule
 import org.folio.models.module.FolioModule
+import org.folio.rest_v2.eureka.Keycloak
 import org.folio.rest_v2.eureka.kong.Tenants
 import org.folio.models.module.ModuleBuildTool
 import org.folio.rest_v2.eureka.Eureka
@@ -266,10 +267,18 @@ ansiColor('xterm') {
           folioHelm.checkDeploymentsRunning(namespace.getNamespaceName(), namespace.getModules().getBackendModules())
         }
       }
-      stage('[Collect] Tenants Info') {
+      stage('[Invoke] /tenant API POST calls') {
         RestClient restClient = new RestClient(this)
-        def tenants = restClient.get("https://${namespace.generateDomain("kong")}/tenants?limit=500")
-        println "Tenants: ${tenants}"
+        def tenants = restClient.get("https://${namespace.generateDomain("kong")}/tenants?limit=500").body.tenants
+        def apps = restClient.get("https://${namespace.generateDomain("kong")}/applications?limit=500").body.applicationDescriptors
+        Keycloak keycloak = new Keycloak(this, "https://" + namespace.generateDomain("keycloak"), false)
+        tenants.each { tenant ->
+          Map body = [
+          tenantId: tenant.id,
+          applications: [apps.findAll { it.modules.contains(module.name) }*.id]
+          ]
+          restClient.post("https://${namespace.generateDomain("kong")}/reinstall/applications", body, keycloak.getAuthMasterTenantHeaders())
+        }
       }
 
     } else {
