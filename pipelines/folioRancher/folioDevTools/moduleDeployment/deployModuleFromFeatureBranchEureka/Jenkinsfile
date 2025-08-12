@@ -10,6 +10,7 @@ import org.folio.rest_v2.eureka.kong.Tenants
 import org.folio.models.module.ModuleBuildTool
 import org.folio.rest_v2.eureka.Eureka
 import org.folio.utilities.GitHubClient
+import org.folio.utilities.RestClient
 import org.folio.utilities.Logger
 import org.jenkinsci.plugins.workflow.libs.Library
 
