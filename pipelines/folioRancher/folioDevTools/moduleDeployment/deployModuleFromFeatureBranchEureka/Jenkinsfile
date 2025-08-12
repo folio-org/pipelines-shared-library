@@ -6,10 +6,12 @@ import org.folio.models.FolioInstallJson
 import org.folio.models.EurekaNamespace
 import org.folio.models.module.EurekaModule
 import org.folio.models.module.FolioModule
+import org.folio.rest_v2.eureka.Keycloak
 import org.folio.rest_v2.eureka.kong.Tenants
 import org.folio.models.module.ModuleBuildTool
 import org.folio.rest_v2.eureka.Eureka
 import org.folio.utilities.GitHubClient
+import org.folio.utilities.RestClient
 import org.folio.utilities.Logger
 import org.jenkinsci.plugins.workflow.libs.Library
 
@@ -28,6 +30,7 @@ properties([
     folioParameters.configType(),
     booleanParam(name: 'FORCE_MVN_CACHE_REFRESH', defaultValue: false, description: 'Force Maven cache refresh'),
     booleanParam(name: 'CLEANUP_ENV', defaultValue: true, description: 'Delete karate tests tenants before deployment'),
+    booleanParam(name: 'SIMPLIFIED', defaultValue: false, description: 'Use simplified deployment process'),
     folioParameters.refreshParameters(),
   ])
 ])
@@ -257,7 +260,35 @@ ansiColor('xterm') {
 
     /** Updated Applications Info Map<AppName, AppID> */
     Map<String, String> updatedAppInfoMap = [:]
+    if (params.SIMPLIFIED) {
+      stage('[Deploy] Update Module Image') {
+        folioHelm.withKubeConfig(namespace.clusterName) {
+          sh(script: "kubectl set image deployment/${module.name} ${module.name}=${Constants.ECR_FOLIO_REPOSITORY}/${module.name}:${module.version} -n ${namespace.getNamespaceName()}", returnStdout: true)
+          folioHelm.checkDeploymentsRunning(namespace.getNamespaceName(), namespace.getModules().getBackendModules())
+        }
+      }
+      stage('[Invoke] /tenant API POST calls') {
+        RestClient restClient = new RestClient(this)
+        def tenants = restClient.get("https://${namespace.generateDomain("kong")}/tenants?limit=500").body.tenants
+        def apps = restClient.get("https://${namespace.generateDomain("kong")}/applications?limit=500").body.applicationDescriptors
+        Keycloak keycloak = new Keycloak(this, namespace.generateDomain("keycloak"), false)
+        tenants.each { tenant ->
+          Map body = [
+            tenantId: tenant.id,
+            applications: apps.findAll { it.modules*.name.contains(module.name) }*.id
+          ]
+          Map headers = [
+            'Content-Type': 'application/json',
+            'Authorization': "Bearer ${keycloak.getAuthMasterTenantToken()}",
+          ]
+          folioPrint.colored("Invoking /tenant API for tenant: ${tenant.name} with applications: ${body.applications}", 'green')
+          restClient.post("https://${namespace.generateDomain("kong")}/reinstall/applications", writeJSON(json: body, returnText: true), headers)
+          folioPrint.colored("Invokation for tenant: ${tenant.name} is complete", 'green')
+          sleep time: 30, unit: 'SECONDS'
+        }
+      }
 
+    } else {
     // 1. Register Application Descriptor with Updated Module Version
     stage('[Rest] Update App Descriptor') {
       try {
@@ -286,8 +317,7 @@ ansiColor('xterm') {
         folioHelm.withKubeConfig(namespace.clusterName) {
           folioHelm.deployFolioModule(namespace, module.name, module.version, false, namespace.defaultTenantId)
           echo "Module ${module.name}-${module.version} deployed to ${namespace.clusterName} namespace ${namespace.workspaceName}"
-          echo "Waiting another 3 minutes to get module initialized..."
-          sleep time: 3, unit: 'MINUTES'
+          folioHelm.checkDeploymentsRunning(namespace.getNamespaceName(), namespace.getModules().getBackendModules())
         }
       } catch (e) {
         logger.warning("Failed to deploy new module version via Helm: ${e}")
@@ -311,6 +341,7 @@ ansiColor('xterm') {
 
     stage('[Rest] Remove Stale Resources') {
       eureka.removeStaleResourcesFlow(namespace.applications, updatedAppInfoMap, module)
+      }
     }
   }
 }
