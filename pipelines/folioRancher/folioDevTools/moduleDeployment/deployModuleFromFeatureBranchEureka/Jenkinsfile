@@ -277,7 +277,11 @@ ansiColor('xterm') {
           tenantId: tenant.id,
           applications: [apps.findAll { it.modules.contains(module.name) }*.id]
           ]
-          restClient.post("https://${namespace.generateDomain("kong")}/reinstall/applications", writeJSON(json: body, returnText: true), keycloak.getAuthMasterTenantHeaders())
+          Map headers = [
+            'Content-Type': 'application/json',
+            'Authorization': "Bearer ${keycloak.getAuthMasterTenantToken()}",
+          ]
+          restClient.post("https://${namespace.generateDomain("kong")}/reinstall/applications", writeJSON(json: body, returnText: true), headers)
         }
       }
 
