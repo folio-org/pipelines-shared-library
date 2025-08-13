@@ -191,7 +191,7 @@ void call(CreateNamespaceParameters args) {
           folioDefault.tenants([], installRequestParams).findAll { it.value.getTenantId().startsWith('cs00000int') } :
           folioDefault.consortiaTenants([], installRequestParams)
 
-            if (params.consortiaExtra) {
+            if (args.consortiaExtra) {
               defaultConsortiaTenants.putAll(folioDefault.consortiaTenantsExtra([], installRequestParams))
             }
 
