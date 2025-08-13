@@ -59,6 +59,11 @@ void build(String okapiUrl, OkapiTenant tenant, boolean isEureka = false, String
               binding.isSingleTenant = true
               okapiUrl = binding.kongUrl
               break
+            case 'consortium2':
+              binding.kongUrl = "https://ecs2-${kongDomain}"
+              binding.isSingleTenant = false
+              okapiUrl = binding.kongUrl
+              break
           }
 
           writeFile(file: 'stripes.config.js'
@@ -121,7 +126,7 @@ void build(String okapiUrl, OkapiTenant tenant, boolean isEureka = false, String
           rootUrl                     : tenantUrl,
           baseUrl                     : tenantUrl,
           adminUrl                    : tenantUrl,
-          redirectUris                : ["${tenantUrl}/*", "http://localhost:3000/*", "https://eureka-snapshot-${tenantId}.${Constants.CI_ROOT_DOMAIN}/*"], //Requested by AQA Team
+          redirectUris                : ["${tenantUrl}/*", "http://localhost:3000/*", "http://localhost:3001/*", "https://eureka-snapshot-${tenantId}.${Constants.CI_ROOT_DOMAIN}/*"], //Requested by AQA Team
           webOrigins                  : ["/*"],
           authorizationServicesEnabled: true,
           serviceAccountsEnabled      : true,

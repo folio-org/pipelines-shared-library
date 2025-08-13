@@ -9,7 +9,6 @@ import org.folio.rest_v2.eureka.Eureka
 import org.folio.rest_v2.eureka.kong.Applications
 import org.folio.rest_v2.eureka.kong.Edge
 import org.folio.utilities.Logger
-
 import static groovy.json.JsonOutput.prettyPrint
 import static groovy.json.JsonOutput.toJson
 
@@ -191,6 +190,10 @@ void call(CreateNamespaceParameters args) {
         Map defaultConsortiaTenants = args.dataset ?
           folioDefault.tenants([], installRequestParams).findAll { it.value.getTenantId().startsWith('cs00000int') } :
           folioDefault.consortiaTenants([], installRequestParams)
+
+            if (params.consortiaExtra) {
+              defaultConsortiaTenants.putAll(defaultConsortiaTenantsExtra)
+            }
 
 
         DTO.convertMapTo(defaultConsortiaTenants, EurekaTenantConsortia.class)
@@ -376,7 +379,8 @@ void call(CreateNamespaceParameters args) {
         } else {
           slackSend(color: 'good', message: args.clusterName + "-" + args.namespaceName + " env successfully built\n" +
             "1. https://${namespace.generateDomain('diku')}\n" +
-            "2. https://${namespace.generateDomain('consortium')}",
+            "2. https://${namespace.generateDomain('consortium')}\n" +
+            "3. https://${namespace.generateDomain('consortium2')} (if was enabled)",
             channel: Constants.SLACK_CHANNEL)
         }
       }
