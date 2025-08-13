@@ -86,12 +86,12 @@ Map<String, OkapiTenantConsortia> consortiaTenantsExtra(
   installQueryParameters.addTenantParameter('centralTenantId', 'consortium2')
 
   return [
-    consortium: new OkapiTenantConsortia('consortium2', true)
+    consortium2: new OkapiTenantConsortia('consortium2', true)
       .withTenantCode('MCO2')
       .withConsortiaName('Mobius2')
       .withTenantName('Consortium2')
       .withTenantDescription('Central office (created via Jenkins)')
-      .withAdminUser(adminOkapiUser('consortium_admin', 'admin'))
+      .withAdminUser(adminOkapiUser('consortium_admin2', 'admin'))
       .withInstallJson(installJson.collect())
       .withIndex(new Index('instance', true, true))
       .withIndex(new Index('authority', true, false))
@@ -99,22 +99,22 @@ Map<String, OkapiTenantConsortia> consortiaTenantsExtra(
       .withInstallRequestParams(installQueryParameters.clone())
       .withConfiguration(new OkapiConfig().withSmtp(smtp).withKbApiKey(kbApiKey)) as OkapiTenantConsortia,
 
-    university: new OkapiTenantConsortia('university2')
+    university2: new OkapiTenantConsortia('university2')
       .withTenantCode('UNI2')
       .withConsortiaName('Mobius2')
       .withTenantName('University2')
       .withTenantDescription('University (created via Jenkins)')
-      .withAdminUser(adminOkapiUser('university_admin', 'admin'))
+      .withAdminUser(adminOkapiUser('university_admin2', 'admin'))
       .withInstallJson(installJson.collect())
       .withInstallRequestParams(installQueryParameters.clone())
       .withConfiguration(new OkapiConfig().withSmtp(smtp)) as OkapiTenantConsortia,
 
-    college   : new OkapiTenantConsortia('college2')
+    college2: new OkapiTenantConsortia('college2')
       .withTenantCode('COL2')
       .withConsortiaName('Mobius2')
       .withTenantName('College2')
       .withTenantDescription('College (created via Jenkins)')
-      .withAdminUser(adminOkapiUser('college_admin', 'admin'))
+      .withAdminUser(adminOkapiUser('college_admin2', 'admin'))
       .withInstallJson(installJson.collect())
       .withInstallRequestParams(installQueryParameters.clone())
       .withConfiguration(new OkapiConfig().withSmtp(smtp)) as OkapiTenantConsortia
