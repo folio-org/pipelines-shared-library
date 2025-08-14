@@ -22,6 +22,9 @@ class EurekaTenantConsortia extends EurekaTenant {
   /** Code associated with the tenant. */
   String tenantCode
 
+  /** Identifier for the central tenant in the consortia. */
+  String centralTenantId
+
   EurekaTenantConsortia(){}
 
   /**
@@ -135,6 +138,7 @@ class EurekaTenantConsortia extends EurekaTenant {
       "tenantDescription": "$tenantDescription",
       "isCentralConsortiaTenant" : "$isCentralConsortiaTenant",
       "consortiaName": "$consortiaName",
+      "centralTenantId": "$centralTenantId",
       "consortiaUUID": "$consortiaUuid",
       "tenantCode": "$tenantCode",
       "applications": "$applications",
