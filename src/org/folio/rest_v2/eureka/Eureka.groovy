@@ -180,32 +180,39 @@ class Eureka extends Base {
   }
 
   /**
-   * Sets up a consortia with the given tenants.
+   * Sets up multiple consortia with the given tenants.
    *
-   * @param consortiaTenants A map of consortia tenants.
+   * @param consortiaTenants A list of consortia tenants (may include multiple central tenants).
    */
   Eureka setUpConsortiaFlow(List<EurekaTenantConsortia> consortiaTenants) {
-    EurekaTenantConsortia centralConsortiaTenant =
-      consortiaTenants.find { it.isCentralConsortiaTenant }
+    // Find all central tenants
+    List<EurekaTenantConsortia> centralConsortiaTenants =
+      consortiaTenants.findAll { it.isCentralConsortiaTenant }
 
-    Consortia.get(kong).createConsortia(centralConsortiaTenant)
+    centralConsortiaTenants.each { centralConsortiaTenant ->
+      // Create consortia for each central tenant
+      Consortia.get(kong).createConsortia(centralConsortiaTenant)
 
-    Consortia.get(kong)
-      .addCentralConsortiaTenant(centralConsortiaTenant)
-      .checkConsortiaStatus(centralConsortiaTenant, centralConsortiaTenant)
+      Consortia.get(kong)
+        .addCentralConsortiaTenant(centralConsortiaTenant)
+        .checkConsortiaStatus(centralConsortiaTenant, centralConsortiaTenant)
 
-    consortiaTenants.findAll { (!it.isCentralConsortiaTenant) }
-      .each { institutionalTenant ->
+      // Find institutional tenants for this central tenant
+      List<EurekaTenantConsortia> institutionalTenants = consortiaTenants.findAll {
+        !it.isCentralConsortiaTenant && it.centralTenantId == centralConsortiaTenant.tenantId
+      }
+
+      institutionalTenants.each { institutionalTenant ->
         Consortia.get(kong)
           .addConsortiaTenant(centralConsortiaTenant, institutionalTenant)
           .checkConsortiaStatus(centralConsortiaTenant, institutionalTenant)
       }
 
-    consortiaTenants.findAll { (!it.isCentralConsortiaTenant) }
-      .each { institutionalTenant ->
+      institutionalTenants.each { institutionalTenant ->
         Consortia.get(kong)
           .addRoleToShadowAdminUser(centralConsortiaTenant, institutionalTenant, true)
       }
+    }
 
     return this
   }
