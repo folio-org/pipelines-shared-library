@@ -53,7 +53,8 @@ Map<String, OkapiTenantConsortia> consortiaTenants(
       .withAdminUser(adminOkapiUser('university_admin', 'admin'))
       .withInstallJson(installJson.collect())
       .withInstallRequestParams(installQueryParameters.clone())
-      .withConfiguration(new OkapiConfig().withSmtp(smtp)) as OkapiTenantConsortia,
+      .withConfiguration(new OkapiConfig().withSmtp(smtp)) as OkapiTenantConsortia
+      .withCentralTenantId('consortium'),
 
     college: new OkapiTenantConsortia('college')
       .withTenantCode('COL')
@@ -64,6 +65,7 @@ Map<String, OkapiTenantConsortia> consortiaTenants(
       .withInstallJson(installJson.collect())
       .withInstallRequestParams(installQueryParameters.clone())
       .withConfiguration(new OkapiConfig().withSmtp(smtp)) as OkapiTenantConsortia
+      .withCentralTenantId('consortium')
   ]
 }
 
@@ -107,7 +109,8 @@ Map<String, OkapiTenantConsortia> consortiaTenantsExtra(
       .withAdminUser(adminOkapiUser('university2_admin', 'admin'))
       .withInstallJson(installJson.collect())
       .withInstallRequestParams(installQueryParameters.clone())
-      .withConfiguration(new OkapiConfig().withSmtp(smtp)) as OkapiTenantConsortia,
+      .withConfiguration(new OkapiConfig().withSmtp(smtp)) as OkapiTenantConsortia
+      .withCentralTenantId('consortium2'),
 
     college2: new OkapiTenantConsortia('college2')
       .withTenantCode('COL2')
@@ -118,6 +121,7 @@ Map<String, OkapiTenantConsortia> consortiaTenantsExtra(
       .withInstallJson(installJson.collect())
       .withInstallRequestParams(installQueryParameters.clone())
       .withConfiguration(new OkapiConfig().withSmtp(smtp)) as OkapiTenantConsortia
+      .withCentralTenantId('consortium2')
   ]
 }
 

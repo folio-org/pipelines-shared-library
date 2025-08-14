@@ -18,6 +18,9 @@ class OkapiTenantConsortia extends OkapiTenant {
   /** Code associated with the tenant. */
   String tenantCode
 
+  /** Identifier for the central tenant in the consortia. */
+  String centralTenantId
+
   OkapiTenantConsortia(){}
 
   /**
@@ -111,4 +114,14 @@ class OkapiTenantConsortia extends OkapiTenant {
 
     return this
   }
+
+  /**
+   * Central tenant ID property | required for the 2nd consortium setup.
+   * This method allows for setting the identifier for the central tenant in the consortia tenants.
+   */
+  OkapiTenantConsortia withCentralTenantId(String centralTenantId) {
+    this.centralTenantId = centralTenantId
+    return this
+  }
+
 }
