@@ -199,7 +199,7 @@ class Eureka extends Base {
 
       // Find institutional tenants for this central tenant
       List<EurekaTenantConsortia> institutionalTenants = consortiaTenants.findAll {
-        !it.isCentralConsortiaTenant && it.centralTenantId == centralConsortiaTenant.tenantId
+        !it.isCentralConsortiaTenant && it.consortiaName == centralConsortiaTenant.consortiaName
       }
 
       institutionalTenants.each { institutionalTenant ->
