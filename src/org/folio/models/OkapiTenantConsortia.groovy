@@ -47,6 +47,17 @@ class OkapiTenantConsortia extends OkapiTenant {
     return this
   }
 
+
+  /**
+   * Central tenant ID property | required for the 2nd consortium setup.
+   * This method allows for setting the identifier for the central tenant in the consortia tenants.
+   */
+  OkapiTenantConsortia withCentralTenantId(String centralTenantId) {
+    this.centralTenantId = centralTenantId
+    return this
+  }
+
+
   /**
    * Chainable setter for consortia name.
    * This method allows for setting the name of the consortia in a fluent manner.
@@ -114,14 +125,4 @@ class OkapiTenantConsortia extends OkapiTenant {
 
     return this
   }
-
-  /**
-   * Central tenant ID property | required for the 2nd consortium setup.
-   * This method allows for setting the identifier for the central tenant in the consortia tenants.
-   */
-  OkapiTenantConsortia withCentralTenantId(String centralTenantId) {
-    this.centralTenantId = centralTenantId
-    return this
-  }
-
 }
