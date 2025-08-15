@@ -144,6 +144,10 @@ void call(CreateNamespaceParameters args) {
         .doLoadReference(args.loadReference)
         .doLoadSample(args.loadSample) as EurekaRequestParams
 
+      // Prepare separate params for each consortia group to avoid duplicate centralTenantId
+      def consortiaParams1 = installRequestParams.clone()
+      def consortiaParams2 = installRequestParams.clone()
+
       namespace.withSuperTenantAdminUser()
         .withOkapiVersion(args.okapiVersion)
         .withDefaultTenant(defaultTenantId)
@@ -189,11 +193,11 @@ void call(CreateNamespaceParameters args) {
 
         Map defaultConsortiaTenants = args.dataset ?
           folioDefault.tenants([], installRequestParams).findAll { it.value.getTenantId().startsWith('cs00000int') } :
-          folioDefault.consortiaTenants([], installRequestParams)
+          folioDefault.consortiaTenants([], consortiaParams1 as InstallRequestParams)
 
-            if (args.consortiaExtra) {
-              defaultConsortiaTenants.putAll(folioDefault.consortiaTenantsExtra([], installRequestParams.clone() as InstallRequestParams))
-            }
+        if (args.consortiaExtra) {
+          defaultConsortiaTenants.putAll(folioDefault.consortiaTenantsExtra([], consortiaParams2 as InstallRequestParams))
+        }
 
 
         DTO.convertMapTo(defaultConsortiaTenants, EurekaTenantConsortia.class)
