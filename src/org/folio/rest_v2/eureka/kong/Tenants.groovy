@@ -124,6 +124,7 @@ class Tenants extends Kong{
    */
   Tenants enableApplications(EurekaTenant tenant, List<String> appIds, boolean skipExistence = false) {
     logger.info("Enable (entitle) applications with ids: ${appIds} on tenant ${tenant.tenantId} with ${tenant.uuid}...")
+    logger.info("TenantParameters: ${tenant.getInstallRequestParams()?.toQueryString() ?: ''}")
 
     if (!appIds)
       return this

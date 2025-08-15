@@ -9,7 +9,6 @@ import org.folio.rest_v2.eureka.Eureka
 import org.folio.rest_v2.eureka.kong.Applications
 import org.folio.rest_v2.eureka.kong.Edge
 import org.folio.utilities.Logger
-
 import static groovy.json.JsonOutput.prettyPrint
 import static groovy.json.JsonOutput.toJson
 
@@ -145,6 +144,10 @@ void call(CreateNamespaceParameters args) {
         .doLoadReference(args.loadReference)
         .doLoadSample(args.loadSample) as EurekaRequestParams
 
+      // Prepare separate params for each consortia group to avoid duplicate centralTenantId | SIMPLE SOLUTION
+      def consortiaParams1 = installRequestParams.clone()
+      def consortiaParams2 = installRequestParams.clone()
+
       namespace.withSuperTenantAdminUser()
         .withOkapiVersion(args.okapiVersion)
         .withDefaultTenant(defaultTenantId)
@@ -190,7 +193,11 @@ void call(CreateNamespaceParameters args) {
 
         Map defaultConsortiaTenants = args.dataset ?
           folioDefault.tenants([], installRequestParams).findAll { it.value.getTenantId().startsWith('cs00000int') } :
-          folioDefault.consortiaTenants([], installRequestParams)
+          folioDefault.consortiaTenants([], consortiaParams1 as InstallRequestParams)
+
+        if (args.consortiaExtra) {
+          defaultConsortiaTenants.putAll(folioDefault.consortiaTenantsExtra([], consortiaParams2 as InstallRequestParams))
+        }
 
 
         DTO.convertMapTo(defaultConsortiaTenants, EurekaTenantConsortia.class)
@@ -376,7 +383,8 @@ void call(CreateNamespaceParameters args) {
         } else {
           slackSend(color: 'good', message: args.clusterName + "-" + args.namespaceName + " env successfully built\n" +
             "1. https://${namespace.generateDomain('diku')}\n" +
-            "2. https://${namespace.generateDomain('consortium')}",
+            "2. https://${namespace.generateDomain('consortium')}\n" +
+            (args.consortiaExtra ? "3. https://${namespace.generateDomain('consortium2')}" : ''),
             channel: Constants.SLACK_CHANNEL)
         }
       }
@@ -388,10 +396,10 @@ void call(CreateNamespaceParameters args) {
 //    }
 
     } catch (Exception e) {
-      currentBuild.description = e.getMessage()
-      currentBuild.result = 'FAILURE'
+       currentBuild.description = e.getMessage()
+       currentBuild.result = 'FAILURE'
       //TODO: Add adequate slack notification https://folio-org.atlassian.net/browse/RANCHER-1892
-      slackSend(color: 'danger', message: args.clusterName + "-" + args.namespaceName + " env build failed...\n" + "Console output: ${env.BUILD_URL}", channel: args.dataset ? '#eureka-sprint-testing' : Constants.SLACK_CHANNEL)
+       slackSend(color: 'danger', message: args.clusterName + "-" + args.namespaceName + " env build failed...\n" + "Console output: ${env.BUILD_URL}", channel: args.dataset ? '#eureka-sprint-testing' : Constants.SLACK_CHANNEL)
       logger.error(e)
     }
   }

@@ -50,12 +50,14 @@ class EurekaNamespace extends RancherNamespace {
    * Updates the configuration for consortia tenants in the RancherNamespace.*/
   @Override
   protected void updateConsortiaTenantsConfig() {
-    EurekaTenantConsortia centralConsortiaTenant = findCentralConsortiaTenant()
-
-    if (centralConsortiaTenant) {
+    List<EurekaTenantConsortia> centralConsortiaTenants = findCentralConsortiaTenants()
+    if (centralConsortiaTenants) {
       tenants.values().findAll { it instanceof EurekaTenantConsortia && !it.isCentralConsortiaTenant }
         .each { tenant ->
-          tenant.okapiConfig.resetPasswordLink = centralConsortiaTenant.okapiConfig.resetPasswordLink
+          // Apply config from all central tenants (last one wins if overlap)
+          centralConsortiaTenants.each { centralTenant ->
+            tenant.okapiConfig.resetPasswordLink = centralTenant.okapiConfig.resetPasswordLink
+          }
         }
     }
   }
@@ -68,10 +70,10 @@ class EurekaNamespace extends RancherNamespace {
       setDeploymentConfig(mergeMaps(getDeploymentConfig(), getFeatureConfig('ecs-ccl', branch)))
   }
 
-  private EurekaTenantConsortia findCentralConsortiaTenant() {
-    return tenants.values().find {
+  private List<EurekaTenantConsortia> findCentralConsortiaTenants() {
+    return tenants.values().findAll {
       it instanceof EurekaTenantConsortia && it.isCentralConsortiaTenant
-    } as EurekaTenantConsortia
+    } as List<EurekaTenantConsortia>
   }
 
   @NonCPS

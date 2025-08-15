@@ -1,8 +1,8 @@
 resource "rancher2_project" "this" {
-  provider                  = rancher2
-  name                      = var.rancher_project_name
-  cluster_id                = data.rancher2_cluster.this.id
-  enable_project_monitoring = false
+  provider   = rancher2
+  name       = var.rancher_project_name
+  cluster_id = data.rancher2_cluster.this.id
+  #enable_project_monitoring = false
   container_resource_limit {
     limits_memory   = "256Mi"
     requests_memory = "128Mi"
@@ -101,7 +101,7 @@ resource "random_string" "docker-cfg" {
 
 resource "kubernetes_secret" "docker_hub_credentials" {
   metadata {
-    name = random_string.docker-cfg.result
+    name      = random_string.docker-cfg.result
     namespace = rancher2_namespace.this.name
   }
 

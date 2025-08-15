@@ -55,7 +55,7 @@ Map<String, OkapiTenantConsortia> consortiaTenants(
       .withInstallRequestParams(installQueryParameters.clone())
       .withConfiguration(new OkapiConfig().withSmtp(smtp)) as OkapiTenantConsortia,
 
-    college   : new OkapiTenantConsortia('college')
+    college: new OkapiTenantConsortia('college')
       .withTenantCode('COL')
       .withConsortiaName('Mobius')
       .withTenantName('College')
@@ -63,6 +63,60 @@ Map<String, OkapiTenantConsortia> consortiaTenants(
       .withAdminUser(adminOkapiUser('college_admin', 'admin'))
       .withInstallJson(installJson.collect())
       .withInstallRequestParams(installQueryParameters.clone())
+      .withConfiguration(new OkapiConfig().withSmtp(smtp)) as OkapiTenantConsortia
+  ]
+}
+
+Map<String, OkapiTenantConsortia> consortiaTenantsExtra(
+          Object installJson = [],
+          InstallRequestParams installQueryParameters2 = new InstallRequestParams()) {
+
+  SmtpConfig smtp = null
+  String kbApiKey = ''
+
+  withCredentials([[$class           : 'AmazonWebServicesCredentialsBinding',
+                    credentialsId    : Constants.EMAIL_SMTP_CREDENTIALS_ID,
+                    accessKeyVariable: 'EMAIL_USERNAME',
+                    secretKeyVariable: 'EMAIL_PASSWORD'],
+                   string(credentialsId: Constants.EBSCO_KB_CREDENTIALS_ID, variable: 'KB_API_KEY')]) {
+    smtp = new SmtpConfig(Constants.EMAIL_SMTP_SERVER, Constants.EMAIL_SMTP_PORT, EMAIL_USERNAME, EMAIL_PASSWORD, Constants.EMAIL_FROM)
+    kbApiKey = KB_API_KEY
+  }
+
+  installQueryParameters2.addTenantParameter('centralTenantId', 'consortium2')
+
+  return [
+    consortium2: new OkapiTenantConsortia('consortium2', true)
+      .withTenantCode('MCO2')
+      .withConsortiaName('Mobius2')
+      .withTenantName('Consortium2')
+      .withTenantDescription('Central office2 (created via Jenkins)')
+      .withAdminUser(adminOkapiUser('consortium2_admin', 'admin'))
+      .withInstallJson(installJson.collect())
+      .withIndex(new Index('instance', true, true))
+      .withIndex(new Index('authority', true, false))
+      .withIndex(new Index('location', true, false))
+      .withInstallRequestParams(installQueryParameters2.clone())
+      .withConfiguration(new OkapiConfig().withSmtp(smtp).withKbApiKey(kbApiKey)) as OkapiTenantConsortia,
+
+    university2: new OkapiTenantConsortia('university2')
+      .withTenantCode('UNI2')
+      .withConsortiaName('Mobius2')
+      .withTenantName('University2')
+      .withTenantDescription('University2 (created via Jenkins)')
+      .withAdminUser(adminOkapiUser('university2_admin', 'admin'))
+      .withInstallJson(installJson.collect())
+      .withInstallRequestParams(installQueryParameters2.clone())
+      .withConfiguration(new OkapiConfig().withSmtp(smtp)) as OkapiTenantConsortia,
+
+    college2: new OkapiTenantConsortia('college2')
+      .withTenantCode('COL2')
+      .withConsortiaName('Mobius2')
+      .withTenantName('College2')
+      .withTenantDescription('College2 (created via Jenkins)')
+      .withAdminUser(adminOkapiUser('college_admin2', 'admin'))
+      .withInstallJson(installJson.collect())
+      .withInstallRequestParams(installQueryParameters2.clone())
       .withConfiguration(new OkapiConfig().withSmtp(smtp)) as OkapiTenantConsortia
   ]
 }

@@ -27,6 +27,8 @@ class CreateNamespaceParameters implements Cloneable {
 
   boolean consortia
 
+  boolean consortiaExtra = false
+
   boolean linkedData
 
   boolean splitFiles
@@ -223,6 +225,16 @@ class CreateNamespaceParameters implements Cloneable {
      */
     Builder consortia(boolean consortia) {
       parameters.consortia = consortia
+      return this
+    }
+
+    /**
+     * Enables or disables the second consortium features within the namespace.
+     * @param consortiaExtra `true` to enable the second consortium features; `false` to disable.
+     * @return Builder instance for method chaining.
+     */
+    Builder consortiaExtra(boolean consortiaExtra) {
+      parameters.consortiaExtra = consortiaExtra
       return this
     }
 
