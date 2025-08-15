@@ -144,7 +144,7 @@ void call(CreateNamespaceParameters args) {
         .doLoadReference(args.loadReference)
         .doLoadSample(args.loadSample) as EurekaRequestParams
 
-      // Prepare separate params for each consortia group to avoid duplicate centralTenantId
+      // Prepare separate params for each consortia group to avoid duplicate centralTenantId | SIMPLE SOLUTION
       def consortiaParams1 = installRequestParams.clone()
       def consortiaParams2 = installRequestParams.clone()
 
@@ -384,7 +384,7 @@ void call(CreateNamespaceParameters args) {
           slackSend(color: 'good', message: args.clusterName + "-" + args.namespaceName + " env successfully built\n" +
             "1. https://${namespace.generateDomain('diku')}\n" +
             "2. https://${namespace.generateDomain('consortium')}\n" +
-            "3. https://${namespace.generateDomain('consortium2')} (if was enabled)",
+            (args.consortiaExtra ? "3. https://${namespace.generateDomain('consortium2')}" : ''),
             channel: Constants.SLACK_CHANNEL)
         }
       }
@@ -396,10 +396,10 @@ void call(CreateNamespaceParameters args) {
 //    }
 
     } catch (Exception e) {
-      // currentBuild.description = e.getMessage()
-      // currentBuild.result = 'FAILURE'
+       currentBuild.description = e.getMessage()
+       currentBuild.result = 'FAILURE'
       //TODO: Add adequate slack notification https://folio-org.atlassian.net/browse/RANCHER-1892
-      // slackSend(color: 'danger', message: args.clusterName + "-" + args.namespaceName + " env build failed...\n" + "Console output: ${env.BUILD_URL}", channel: args.dataset ? '#eureka-sprint-testing' : Constants.SLACK_CHANNEL)
+       slackSend(color: 'danger', message: args.clusterName + "-" + args.namespaceName + " env build failed...\n" + "Console output: ${env.BUILD_URL}", channel: args.dataset ? '#eureka-sprint-testing' : Constants.SLACK_CHANNEL)
       logger.error(e)
     }
   }
