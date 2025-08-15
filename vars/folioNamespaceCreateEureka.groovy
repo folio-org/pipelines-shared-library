@@ -192,8 +192,7 @@ void call(CreateNamespaceParameters args) {
           folioDefault.consortiaTenants([], installRequestParams)
 
             if (args.consortiaExtra) {
-              defaultConsortiaTenants.putAll(folioDefault.consortiaTenantsExtra([],
-                installRequestParams.addTenantParameter("centralTenantId", "consortium2")))
+              defaultConsortiaTenants.putAll(folioDefault.consortiaTenantsExtra([]))
             }
 
 
