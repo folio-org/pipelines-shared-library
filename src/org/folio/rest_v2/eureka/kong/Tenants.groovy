@@ -163,7 +163,7 @@ class Tenants extends Kong{
             Response content:
             ${contentStr}""")
             def parts = kongUrl.split("\\.")
-            def properNamespace = parts[0].split("-").length > 4 ? "${parts[2]-parts[3]}" : "${parts[2]}"
+            def properNamespace = parts[0].split("-").length > 4 ? parts[0].split("-")[2..3].join("-") : parts[0].split("-")[2]
             context.kubectl.ermEntitlementFix(properNamespace, tenant.tenantId, "${parts[0].split("-")[0]}-${parts[0].split("-")[1]}", matchedModule)
           throw new Exception("Build failed: because of erm entitlement fix done for ${matchedModule} module, need to re-run the entitlement process")
         } else {
