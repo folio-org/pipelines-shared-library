@@ -150,17 +150,20 @@ class RancherNamespace {
   /**
    * Updates the configuration for consortia tenants in the RancherNamespace.*/
   protected void updateConsortiaTenantsConfig() {
-    OkapiTenantConsortia centralConsortiaTenant = findCentralConsortiaTenant()
-    if (centralConsortiaTenant) {
+    List<OkapiTenantConsortia> centralConsortiaTenants = findCentralConsortiaTenants()
+    if (centralConsortiaTenants) {
       this.tenants.values().findAll { it instanceof OkapiTenantConsortia && !it.isCentralConsortiaTenant }
         .each { tenant ->
-          tenant.okapiConfig.resetPasswordLink = centralConsortiaTenant.okapiConfig.resetPasswordLink
+          // Apply config from all central tenants (last one wins if overlap)
+          centralConsortiaTenants.each { centralTenant ->
+            tenant.okapiConfig.resetPasswordLink = centralTenant.okapiConfig.resetPasswordLink
+          }
         }
     }
   }
 
-  private OkapiTenantConsortia findCentralConsortiaTenant() {
-    this.tenants.values().find { it instanceof OkapiTenantConsortia && it.isCentralConsortiaTenant }
+  private List<OkapiTenantConsortia> findCentralConsortiaTenants() {
+    this.tenants.values().findAll { it instanceof OkapiTenantConsortia && it.isCentralConsortiaTenant } as List<OkapiTenantConsortia>
   }
 
   /**

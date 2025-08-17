@@ -124,6 +124,7 @@ class Tenants extends Kong{
    */
   Tenants enableApplications(EurekaTenant tenant, List<String> appIds, boolean skipExistence = false) {
     logger.info("Enable (entitle) applications with ids: ${appIds} on tenant ${tenant.tenantId} with ${tenant.uuid}...")
+    logger.info("TenantParameters: ${tenant.getInstallRequestParams()?.toQueryString() ?: ''}")
 
     if (!appIds)
       return this
@@ -162,7 +163,8 @@ class Tenants extends Kong{
             Response content:
             ${contentStr}""")
             def parts = kongUrl.split("\\.")
-            context.kubectl.ermEntitlementFix(parts[0].split("-")[2], tenant.tenantId, "${parts[0].split("-")[0]}-${parts[0].split("-")[1]}", matchedModule)
+            def properNamespace = parts[0].split("-").length > 4 ? parts[0].split("-")[2..3].join("-") : parts[0].split("-")[2]
+            context.kubectl.ermEntitlementFix(properNamespace, tenant.tenantId, "${parts[0].split("-")[0]}-${parts[0].split("-")[1]}", matchedModule)
           throw new Exception("Build failed: because of erm entitlement fix done for ${matchedModule} module, need to re-run the entitlement process")
         } else {
           logger.error("Enabling application for tenant failed: ${contentStr}")

@@ -24,7 +24,7 @@ properties([
     folioParameters.configType(),
     booleanParam(name: 'SC_NATIVE', defaultValue: false, description: '(Optional) Set true to use previously built SC image'),
     folioParameters.groupParameters("Environment features"
-      , ["LOAD_REFERENCE", "LOAD_SAMPLE", "BUILD_UI", "CONSORTIA", "LINKED_DATA", "MARC_MIGRATIONS", "SPLIT_FILES"
+      , ["LOAD_REFERENCE", "LOAD_SAMPLE", "BUILD_UI", "CONSORTIA", "CONSORTIA_EXTRA", "LINKED_DATA", "MARC_MIGRATIONS", "SPLIT_FILES"
          , "RW_SPLIT", "ECS_CCL", "GREENMAIL", "MOCK_SERVER", "RTR", "DATASET", "TYPE"
          , "HAS_SECURE_TENANT", "SECURE_TENANT"
     ]),
@@ -32,6 +32,7 @@ properties([
     folioParameters.loadSample(),
     booleanParam(name: 'BUILD_UI', defaultValue: true, description: '(Optional) Set true to include UI'),
     booleanParam(name: 'CONSORTIA', defaultValue: true, description: '(Optional) Set true to create consortium'),
+    booleanParam(name: 'CONSORTIA_EXTRA', defaultValue: false, description: '(Optional) Set true to create 2nd consortium'),
     booleanParam(name: 'HAS_SECURE_TENANT', defaultValue: true, description: '(Optional) Set true to enable secure tenant on one of the consortia institutional tenant'),
     folioParameters.consortiaSecureMemberTenant(),
     booleanParam(name: 'LINKED_DATA', defaultValue: true, description: '(Optional) Set true to deploy LinkedData'),
@@ -100,6 +101,7 @@ CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builde
   .loadReference(params.LOAD_REFERENCE)
   .loadSample(params.LOAD_SAMPLE)
   .consortia(params.CONSORTIA)
+  .consortiaExtra(params.CONSORTIA_EXTRA)
   .splitFiles(params.SPLIT_FILES)
   .ecsCCL(params.ECS_CCL)
   .rwSplit(params.RW_SPLIT)
