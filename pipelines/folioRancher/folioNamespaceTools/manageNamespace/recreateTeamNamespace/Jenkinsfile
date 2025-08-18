@@ -19,6 +19,7 @@ properties([
               folioParameters.cluster('PLATFORM'),
               folioParameters.namespace(),
               folioParameters.configType(),
+              booleanParam(name: 'CONSORTIA_EXTRA', defaultValue: false, description: '(Optional) Set true to include 2nd consortium'),
               folioParameters.refreshParameters()]),
   pipelineTriggers([
     parameterizedCron('''
@@ -48,6 +49,7 @@ CreateNamespaceParameters namespace = new CreateNamespaceParameters.Builder()
   .loadReference(true)
   .loadSample(true)
   .consortia(true)
+  .consortiaExtra(params.CONSORTIA_EXTRA)
   .linkedData(true)
   .rwSplit(false)
   .greenmail(false)
