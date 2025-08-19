@@ -397,7 +397,7 @@ EOF
   ]
 }
 
-resource "kubernetes_job" "adjust_rds_db" {
+resource "kubernetes_job_v1" "adjust_rds_db" {
   count      = var.setup_type == "full" && !var.pg_embedded ? 1 : 0
   depends_on = [module.rds]
   provider   = kubernetes
