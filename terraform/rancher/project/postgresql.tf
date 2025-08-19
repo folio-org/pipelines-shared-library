@@ -397,9 +397,22 @@ EOF
   ]
 }
 
+resource "rancher2_secret" "adjust_rds_db" {
+  count        = var.setup_type == "full" && !var.pg_embedded ? 1 : 0
+  name         = "adjust-rds-db"
+  project_id   = rancher2_project.this.id
+  namespace_id = rancher2_namespace.this.id
+  data = {
+    PGHOST     = base64encode(module.rds[0].cluster_endpoint)
+    PGUSER     = base64encode(module.rds[0].cluster_master_username)
+    PGPASSWORD = base64encode(module.rds[0].cluster_master_username)
+  }
+}
+
+
 resource "kubernetes_job_v1" "adjust_rds_db" {
   count      = var.setup_type == "full" && !var.pg_embedded ? 1 : 0
-  depends_on = [module.rds, rancher2_secret.db-credentials]
+  depends_on = [module.rds, rancher2_secret.db-credentials, rancher2_secret.adjust_rds_db]
   provider   = kubernetes
   metadata {
     generate_name = "adjust-rds-db-"
@@ -421,17 +434,10 @@ resource "kubernetes_job_v1" "adjust_rds_db" {
           name              = "adjust-rds-db"
           image             = "732722833398.dkr.ecr.us-west-2.amazonaws.com/adjust-rds-db:latest"
           image_pull_policy = "Always"
-          env {
-            name  = "PGHOST"
-            value = module.rds[0].cluster_endpoint
-          }
-          env {
-            name  = "PGUSER"
-            value = module.rds[0].cluster_master_username
-          }
-          env {
-            name  = "PGPASSWORD"
-            value = module.rds[0].cluster_master_username
+          env_from {
+            secret_ref {
+              name = rancher2_secret.adjust_rds_db[0].name
+            }
           }
         }
       }
