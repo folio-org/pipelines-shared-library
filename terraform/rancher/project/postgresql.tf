@@ -398,8 +398,9 @@ EOF
 }
 
 resource "kubernetes_job" "adjust_rds_db" {
-  count    = var.setup_type == "full" && !var.pg_embedded ? 1 : 0
-  provider = kubernetes
+  count      = var.setup_type == "full" && !var.pg_embedded ? 1 : 0
+  depends_on = [module.rds]
+  provider   = kubernetes
   metadata {
     generate_name = "adjust-rds-db-"
     namespace     = rancher2_namespace.this.name
