@@ -21,13 +21,13 @@ integrations:
     existingSecret: "${db_secret_name}"
 resources:
   limits:
-    memory: 2048Mi
+    memory: 20480Mi
   requests:
-    memory: 1536Mi
+    memory: 9216Mi
 autoscaling:
   enabled: true
   minReplicas: 1
-  maxReplicas: 3
+  maxReplicas: 5
   targetMemoryUtilizationPercentage: 70
 pdb:
   enabled: true
