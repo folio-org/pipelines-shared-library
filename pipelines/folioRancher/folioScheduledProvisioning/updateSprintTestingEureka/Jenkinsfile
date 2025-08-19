@@ -27,7 +27,7 @@ properties([
     folioParameters.cluster('PLATFORM'),
     folioParameters.namespace(),
     folioParameters.configType(),
-    string(name: 'DB_BACKUP_NAME', defaultValue: 'folio-general-dataset-april-2025-all-users-clean-v2', description: 'Set DB backup name'),
+    string(name: 'DB_BACKUP_NAME', defaultValue: 'sprint-testing-prep-8-18-2025', description: 'Set DB backup name'),
     booleanParam(name: 'MARC_MIGRATIONS', defaultValue: false, description: 'enable marc-migrations'),
     choice(name: 'TYPE', choices: ['full', 'terraform', 'update'], description: '(Required) Set action TYPE to perform'),
     booleanParam(name: 'IS_CRON_JOB', defaultValue: false, description: '(Hidden) Is job triggered by cron job'),
@@ -37,8 +37,8 @@ properties([
   ]),
   pipelineTriggers([
     parameterizedCron('''
-      H 3 * * 1,2,3,4,5 %PLATFORM=EUREKA;CLUSTER=folio-etesting;NAMESPACE=sprint;CONFIG_TYPE=testing;DB_BACKUP_NAME=folio-general-dataset-april-2025-all-users-clean-v2;MARC_MIGRATIONS=true;TYPE=update;IS_CRON_JOB=true
-      H 0 * * 3 %PLATFORM=EUREKA;CLUSTER=folio-etesting;NAMESPACE=sprint;CONFIG_TYPE=testing;DB_BACKUP_NAME=folio-general-dataset-april-2025-all-users-clean-v2;MARC_MIGRATIONS=true;TYPE=full;IS_CRON_JOB=true
+      H 3 * * 1,2,3,4,5 %PLATFORM=EUREKA;CLUSTER=folio-etesting;NAMESPACE=sprint;CONFIG_TYPE=testing;DB_BACKUP_NAME=sprint-testing-prep-8-18-2025;MARC_MIGRATIONS=true;TYPE=update;IS_CRON_JOB=true
+      H 0 * * 3 %PLATFORM=EUREKA;CLUSTER=folio-etesting;NAMESPACE=sprint;CONFIG_TYPE=testing;DB_BACKUP_NAME=sprint-testing-prep-8-18-2025;MARC_MIGRATIONS=true;TYPE=full;IS_CRON_JOB=true
     ''')])
 ])
 
