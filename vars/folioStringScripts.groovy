@@ -134,14 +134,14 @@ def getGithubToken(String credentialId) {
   if (!credential) {
     throw new IllegalStateException("Credential with ID '\${credentialId}' not found!")
   }
-  
+
   return credential.secret.plainText
 }
 
 def fetchAllModules(String initialUrl, String token) {
   def modules = []
   def jsonSlurper = new JsonSlurperClassic()
-  
+
   def fetchPage
   fetchPage = { url ->
   def connection = new URL(url).openConnection()
@@ -167,7 +167,7 @@ def fetchAllModules(String initialUrl, String token) {
 }
 
   fetchPage(initialUrl)
-  
+
   return modules
 }
 
@@ -227,7 +227,7 @@ if (moduleVersionList.getResponseCode().equals(200)) {
 }
 
 static String getPostgresqlVersion() {
-  return '''def versions = ["12.12", "12.14", "13.13", "14.10", "15.5", "16.1", "16.4", "16.6"]
+  return '''def versions = ["16.1", "16.4", "16.6", "16.8", "16.9", "16.10", "17.0", "17.1"]
 
 List pgVersions = versions.findAll { it != '16.1' }
 pgVersions.add(0, '16.1')

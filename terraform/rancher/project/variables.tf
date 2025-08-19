@@ -251,7 +251,7 @@ variable "secure_store_type" {
 
 variable "keycloak_version" {
   type        = string
-  default     = "25.1.0-SNAPSHOT.34"
+  default     = "latest"
   description = "Keycloak version"
 }
 
@@ -259,4 +259,10 @@ variable "kong_version" {
   type        = string
   default     = "latest"
   description = "Kong version"
+}
+
+variable "setup_type" {
+  type        = string
+  default     = "full"
+  description = "Setup type: full or update"
 }

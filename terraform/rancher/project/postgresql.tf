@@ -282,7 +282,7 @@ resource "postgresql_role" "kong" {
   name       = "kong"
   login      = true
   password   = local.pg_password
-  depends_on = [module.rds]
+  depends_on = [module.rds, kubernetes_job_v1.adjust_rds_db]
   connection {
     host     = module.rds[0].cluster_endpoint
     port     = 5432
@@ -296,7 +296,7 @@ resource "postgresql_role" "keycloak" {
   name       = "keycloak"
   login      = true
   password   = local.pg_password
-  depends_on = [module.rds]
+  depends_on = [module.rds, kubernetes_job_v1.adjust_rds_db]
   connection {
     host     = module.rds[0].cluster_endpoint
     port     = 5432
@@ -306,7 +306,7 @@ resource "postgresql_role" "keycloak" {
 }
 
 resource "postgresql_database" "eureka_kong" {
-  depends_on = [postgresql_role.kong]
+  depends_on = [postgresql_role.kong, kubernetes_job_v1.adjust_rds_db]
   count      = var.eureka && !var.pg_embedded ? 1 : 0
   name       = "kong"
   owner      = "kong"
@@ -319,7 +319,7 @@ resource "postgresql_database" "eureka_kong" {
 }
 
 resource "postgresql_database" "eureka_keycloak" {
-  depends_on = [postgresql_role.keycloak]
+  depends_on = [postgresql_role.keycloak, kubernetes_job_v1.adjust_rds_db]
   count      = var.eureka && !var.pg_embedded ? 1 : 0
   name       = "keycloak"
   owner      = "keycloak"
@@ -395,4 +395,66 @@ serverDefinitions:
 ${local.schedule_value}
 EOF
   ]
+}
+
+resource "rancher2_secret" "adjust_rds_db" {
+  count        = var.setup_type == "full" && !var.pg_embedded ? 1 : 0
+  name         = "adjust-rds-db"
+  project_id   = rancher2_project.this.id
+  namespace_id = rancher2_namespace.this.id
+  data = {
+    PGHOST     = base64encode(module.rds[0].cluster_endpoint)
+    PGUSER     = base64encode(module.rds[0].cluster_master_username)
+    PGPASSWORD = base64encode(var.pg_password)
+  }
+}
+
+
+resource "kubernetes_job_v1" "adjust_rds_db" {
+  count      = var.setup_type == "full" && !var.pg_embedded ? 1 : 0
+  depends_on = [module.rds, rancher2_secret.db-credentials, rancher2_secret.adjust_rds_db]
+  provider   = kubernetes
+  metadata {
+    generate_name = "adjust-rds-db-"
+    namespace     = rancher2_namespace.this.name
+    labels = {
+      app = "adjust-rds-db"
+    }
+  }
+  spec {
+    template {
+      metadata {
+        labels = {
+          app = "adjust-rds-db"
+        }
+      }
+      spec {
+        restart_policy = "OnFailure"
+        container {
+          name              = "adjust-rds-db"
+          image             = "732722833398.dkr.ecr.us-west-2.amazonaws.com/adjust-rds-db:latest"
+          image_pull_policy = "Always"
+          env_from {
+            secret_ref {
+              name = rancher2_secret.adjust_rds_db[0].name
+            }
+          }
+          env {
+            name  = "DBS_2_DROP"
+            value = "keycloak kong"
+          }
+          env {
+            name  = "ROLES_2_DROP"
+            value = "keycloak keycloak_admin kong kong_admin"
+          }
+        }
+      }
+    }
+    backoff_limit = 3
+  }
+  wait_for_completion = true
+  timeouts {
+    create = "5m"
+    update = "5m"
+  }
 }
