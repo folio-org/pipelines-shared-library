@@ -14,6 +14,7 @@ data "aws_iam_policy_document" "assume_role" {
 }
 
 resource "aws_iam_role" "dlm_lifecycle_role" {
+  count = var.enable_backups ? 1 : 0
   name = "${var.cluster_name}-${var.namespace_name}-dlm-lifecycle-role"
 
   assume_role_policy = data.aws_iam_policy_document.assume_role.json
@@ -64,6 +65,7 @@ data "aws_iam_policy_document" "dlm_lifecycle" {
 
 # Create an IAM policy for DLM using the policy document
 resource "aws_iam_policy" "dlm_policy" {
+  count       = var.enable_backups ? 1 : 0
   name        = "${var.cluster_name}-${var.namespace_name}-dlm-lifecycle-policy"
   description = "IAM policy for Data Lifecycle Manager to manage EBS snapshots"
   policy      = data.aws_iam_policy_document.dlm_lifecycle.json
@@ -75,8 +77,9 @@ resource "aws_iam_policy" "dlm_policy" {
 
 # Attach the IAM policies to the DLM role
 resource "aws_iam_role_policy_attachment" "dlm_policy_attachment" {
-  role       = aws_iam_role.dlm_lifecycle_role.name
-  policy_arn = aws_iam_policy.dlm_policy.arn
+  count       = var.enable_backups ? 1 : 0
+  role       = aws_iam_role.dlm_lifecycle_role[0].name
+  policy_arn = aws_iam_policy.dlm_policy[0].arn
 }
 
 # Define an IAM policy document for snapshot protection
@@ -100,6 +103,7 @@ data "aws_iam_policy_document" "snapshot_protection" {
 
 # Policy to prevent deletion of snapshots with DeleteProtection tag
 resource "aws_iam_policy" "snapshot_protection_policy" {
+  count       = var.enable_backups ? 1 : 0
   name        = "${var.cluster_name}-${var.namespace_name}-snapshot-protection-policy"
   description = "Policy to prevent deletion of EBS snapshots with DeleteProtection tag"
   policy      = data.aws_iam_policy_document.snapshot_protection.json
@@ -111,13 +115,15 @@ resource "aws_iam_policy" "snapshot_protection_policy" {
 
 // Attach the snapshot protection policy to the DLM role
 resource "aws_iam_role_policy_attachment" "snapshot_protection" {
-  role       = aws_iam_role.dlm_lifecycle_role.name
-  policy_arn = aws_iam_policy.snapshot_protection_policy.arn
+  count      = var.enable_backups ? 1 : 0
+  role       = aws_iam_role.dlm_lifecycle_role[0].name
+  policy_arn = aws_iam_policy.snapshot_protection_policy[0].arn
 }
 
 resource "aws_dlm_lifecycle_policy" "postgres_backup" {
+  count      = var.enable_backups ? 1 : 0
   description        = "DLM lifecycle policy for PostgreSQL EBS volume backups"
-  execution_role_arn = aws_iam_role.dlm_lifecycle_role.arn
+  execution_role_arn = aws_iam_role.dlm_lifecycle_role[0].arn
   state              = "ENABLED"
 
   policy_details {
