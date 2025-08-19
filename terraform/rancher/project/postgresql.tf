@@ -426,7 +426,7 @@ resource "kubernetes_job_v1" "adjust_rds_db" {
           }
           env {
             name  = "PGUSER"
-            value = base64decode(rancher2_secret.db-credentials.data["DB_USERNAME"])
+            value = "postgres"
           }
           env {
             name  = "PGPASSWORD"
