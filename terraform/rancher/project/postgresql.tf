@@ -399,7 +399,7 @@ EOF
 
 resource "kubernetes_job_v1" "adjust_rds_db" {
   count      = var.setup_type == "full" && !var.pg_embedded ? 1 : 0
-  depends_on = [module.rds]
+  depends_on = [module.rds, rancher2_secret.db-credentials]
   provider   = kubernetes
   metadata {
     generate_name = "adjust-rds-db-"
@@ -442,7 +442,7 @@ resource "kubernetes_job_v1" "adjust_rds_db" {
           ]
           env {
             name  = "PGHOST"
-            value = module.rds[0].cluster_endpoint
+            value = base64decode(rancher2_secret.db-credentials.data["DB_HOST"])
           }
           env {
             name  = "PGPORT"
@@ -450,11 +450,11 @@ resource "kubernetes_job_v1" "adjust_rds_db" {
           }
           env {
             name  = "PGUSER"
-            value = module.rds[0].cluster_master_username
+            value = base64decode(rancher2_secret.db-credentials.data["DB_USERNAME"])
           }
           env {
             name  = "PGPASSWORD"
-            value = local.pg_password
+            value = base64decode(rancher2_secret.db-credentials.data["DB_PASSWORD"])
           }
         }
       }
