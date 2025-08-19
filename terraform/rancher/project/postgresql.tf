@@ -405,7 +405,7 @@ resource "rancher2_secret" "adjust_rds_db" {
   data = {
     PGHOST     = base64encode(module.rds[0].cluster_endpoint)
     PGUSER     = base64encode(module.rds[0].cluster_master_username)
-    PGPASSWORD = base64encode(module.rds[0].cluster_master_username)
+    PGPASSWORD = base64encode(var.pg_password)
   }
 }
 
