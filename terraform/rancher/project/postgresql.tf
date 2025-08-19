@@ -422,15 +422,15 @@ resource "kubernetes_job_v1" "adjust_rds_db" {
           image = "732722833398.dkr.ecr.us-west-2.amazonaws.com/adjust-rds-db:latest"
           env {
             name  = "PGHOST"
-            value = base64decode(module.rds[0].cluster_endpoint)
+            value = module.rds[0].cluster_endpoint
           }
           env {
             name  = "PGUSER"
-            value = "postgres"
+            value = module.rds[0].cluster_master_username
           }
           env {
             name  = "PGPASSWORD"
-            value = base64decode(module.rds[0].cluster_master_username)
+            value = module.rds[0].cluster_master_username
           }
         }
       }
