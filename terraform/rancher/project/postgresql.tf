@@ -398,8 +398,6 @@ EOF
 }
 
 resource "kubernetes_job" "adjust_rds_db" {
-  wait_for_completion = true
-
   count = var.setup_type == "full" && !var.pg_embedded ? 1 : 0
   provider = kubernetes
   metadata {
@@ -411,6 +409,11 @@ resource "kubernetes_job" "adjust_rds_db" {
   }
   spec {
     template {
+      metadata {
+        labels = {
+          app = "adjust-rds-db"
+        }
+      }
       spec {
         restart_policy = "OnFailure"
         container {
@@ -455,5 +458,6 @@ resource "kubernetes_job" "adjust_rds_db" {
         }
       }
     }
+    wait_for_completion = true
   }
 }
