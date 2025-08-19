@@ -54,6 +54,7 @@ void call(CreateNamespaceParameters args) {
       tfConfig.addVar('eureka', args.platform == PlatformType.EUREKA)
       tfConfig.addVar('kong_version', args.kongVersion)
       tfConfig.addVar('keycloak_version', args.keycloakVersion)
+      tfConfig.addVar('setup_type', args.type)
       if (args.dataset) {
         tfConfig.addVar('pg_rds_snapshot_name', Constants.BUGFEST_SNAPSHOT_NAME)
         tfConfig.addVar('pg_dbname', Constants.BUGFEST_SNAPSHOT_DBNAME)

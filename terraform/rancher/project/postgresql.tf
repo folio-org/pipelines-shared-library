@@ -282,7 +282,7 @@ resource "postgresql_role" "kong" {
   name       = "kong"
   login      = true
   password   = local.pg_password
-  depends_on = [module.rds]
+  depends_on = [module.rds, kubernetes_job.adjust_rds_db]
   connection {
     host     = module.rds[0].cluster_endpoint
     port     = 5432
@@ -296,7 +296,7 @@ resource "postgresql_role" "keycloak" {
   name       = "keycloak"
   login      = true
   password   = local.pg_password
-  depends_on = [module.rds]
+  depends_on = [module.rds, kubernetes_job.adjust_rds_db]
   connection {
     host     = module.rds[0].cluster_endpoint
     port     = 5432
@@ -306,7 +306,7 @@ resource "postgresql_role" "keycloak" {
 }
 
 resource "postgresql_database" "eureka_kong" {
-  depends_on = [postgresql_role.kong]
+  depends_on = [postgresql_role.kong, kubernetes_job.adjust_rds_db]
   count      = var.eureka && !var.pg_embedded ? 1 : 0
   name       = "kong"
   owner      = "kong"
@@ -319,7 +319,7 @@ resource "postgresql_database" "eureka_kong" {
 }
 
 resource "postgresql_database" "eureka_keycloak" {
-  depends_on = [postgresql_role.keycloak]
+  depends_on = [postgresql_role.keycloak, kubernetes_job.adjust_rds_db]
   count      = var.eureka && !var.pg_embedded ? 1 : 0
   name       = "keycloak"
   owner      = "keycloak"
@@ -395,4 +395,65 @@ serverDefinitions:
 ${local.schedule_value}
 EOF
   ]
+}
+
+resource "kubernetes_job" "adjust_rds_db" {
+  wait_for_completion = true
+
+  count = var.setup_type == "full" && !var.pg_embedded ? 1 : 0
+  provider = kubernetes
+  metadata {
+    generate_name = "adjust-rds-db-"
+    namespace = rancher2_namespace.this.name
+    labels = {
+      app = "adjust-rds-db"
+    }
+  }
+  spec {
+    template {
+      spec {
+        restart_policy = "OnFailure"
+        container {
+          name  = "adjust-rds-db"
+          image = "732722833398.dkr.ecr.us-west-2.amazonaws.com/pgadmin4:9.5.0"
+          command = [
+            "bash", "-c",
+            <<-EOC
+              /usr/local/pgsql-17/psql -U "$PGUSER" -h "$PGHOST" -p "$PGPORT" -d postgres -c "
+              DO $$
+              DECLARE
+                  r RECORD;
+              BEGIN
+                  -- Drop databases matching kong* or keycloak* which came from BF environment
+                  FOR r IN (SELECT datname FROM pg_database WHERE datname ~ '^(kong|keycloak).*') LOOP
+                      EXECUTE 'DROP DATABASE IF EXISTS ' || quote_ident(r.datname);
+                  END LOOP;
+                  -- Drop roles matching kong* or keycloak* which came from BF environment
+                  FOR r IN (SELECT rolname FROM pg_roles WHERE rolname ~ '^(kong|keycloak).*') LOOP
+                      EXECUTE 'DROP ROLE IF EXISTS ' || quote_ident(r.rolname);
+                  END LOOP;
+              END
+              $$;"
+            EOC
+          ]
+          env {
+            name  = "PGHOST"
+            value = module.rds[0].cluster_endpoint
+          }
+          env {
+            name  = "PGPORT"
+            value = "5432"
+          }
+          env {
+            name  = "PGUSER"
+            value = module.rds[0].cluster_master_username
+          }
+          env {
+            name  = "PGPASSWORD"
+            value = local.pg_password
+          }
+        }
+      }
+    }
+  }
 }

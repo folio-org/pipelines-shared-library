@@ -335,7 +335,7 @@ class Constants {
 
   //RDS
   static String BUGFEST_SNAPSHOT_DBNAME = 'folio'
-  static String BUGFEST_SNAPSHOT_NAME = 'folio-general-dataset-april-2025-all-users-clean-v2'
+  static String BUGFEST_SNAPSHOT_NAME = 'sprint-testing-prep-8-18-2025'
   static String DATA_MIGRATION_SNAPSHOT_NAME = 'folio-general-dataset-april-2025-all-users-clean-v2'
 
   static Map JMX_METRICS_AVAILABLE = ['mod-bulk-operations': '2.0.0-SNAPSHOT.71']
