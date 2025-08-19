@@ -282,7 +282,7 @@ resource "postgresql_role" "kong" {
   name       = "kong"
   login      = true
   password   = local.pg_password
-  depends_on = [module.rds, kubernetes_job.adjust_rds_db]
+  depends_on = [module.rds, kubernetes_job_v1.adjust_rds_db]
   connection {
     host     = module.rds[0].cluster_endpoint
     port     = 5432
@@ -296,7 +296,7 @@ resource "postgresql_role" "keycloak" {
   name       = "keycloak"
   login      = true
   password   = local.pg_password
-  depends_on = [module.rds, kubernetes_job.adjust_rds_db]
+  depends_on = [module.rds, kubernetes_job_v1.adjust_rds_db]
   connection {
     host     = module.rds[0].cluster_endpoint
     port     = 5432
@@ -306,7 +306,7 @@ resource "postgresql_role" "keycloak" {
 }
 
 resource "postgresql_database" "eureka_kong" {
-  depends_on = [postgresql_role.kong, kubernetes_job.adjust_rds_db]
+  depends_on = [postgresql_role.kong, kubernetes_job_v1.adjust_rds_db]
   count      = var.eureka && !var.pg_embedded ? 1 : 0
   name       = "kong"
   owner      = "kong"
@@ -319,7 +319,7 @@ resource "postgresql_database" "eureka_kong" {
 }
 
 resource "postgresql_database" "eureka_keycloak" {
-  depends_on = [postgresql_role.keycloak, kubernetes_job.adjust_rds_db]
+  depends_on = [postgresql_role.keycloak, kubernetes_job_v1.adjust_rds_db]
   count      = var.eureka && !var.pg_embedded ? 1 : 0
   name       = "keycloak"
   owner      = "keycloak"
