@@ -419,34 +419,10 @@ resource "kubernetes_job_v1" "adjust_rds_db" {
         restart_policy = "OnFailure"
         container {
           name  = "adjust-rds-db"
-          image = "732722833398.dkr.ecr.us-west-2.amazonaws.com/pgadmin4:9.5.0"
-          command = [
-            "bash", "-c",
-            <<-EOC
-              /usr/local/pgsql-17/psql -U "$PGUSER" -h "$PGHOST" -p "$PGPORT" -d postgres -c "
-              DO $$
-              DECLARE
-                  r RECORD;
-              BEGIN
-                  -- Drop databases matching kong* or keycloak* which came from BF environment
-                  FOR r IN (SELECT datname FROM pg_database WHERE datname ~ '^(kong|keycloak).*') LOOP
-                      EXECUTE 'DROP DATABASE IF EXISTS ' || quote_ident(r.datname);
-                  END LOOP;
-                  -- Drop roles matching kong* or keycloak* which came from BF environment
-                  FOR r IN (SELECT rolname FROM pg_roles WHERE rolname ~ '^(kong|keycloak).*') LOOP
-                      EXECUTE 'DROP ROLE IF EXISTS ' || quote_ident(r.rolname);
-                  END LOOP;
-              END
-              $$;"
-            EOC
-          ]
+          image = "732722833398.dkr.ecr.us-west-2.amazonaws.com/adjust-rds-db:latest"
           env {
             name  = "PGHOST"
             value = base64decode(rancher2_secret.db-credentials.data["DB_HOST"])
-          }
-          env {
-            name  = "PGPORT"
-            value = "5432"
           }
           env {
             name  = "PGUSER"
