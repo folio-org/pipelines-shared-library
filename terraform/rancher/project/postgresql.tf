@@ -439,6 +439,14 @@ resource "kubernetes_job_v1" "adjust_rds_db" {
               name = rancher2_secret.adjust_rds_db[0].name
             }
           }
+          env {
+            name  = "DBS_2_DROP"
+            value = "keycloak kong"
+          }
+          env {
+            name  = "ROLES_2_DROP"
+            value = "keycloak keycloak_admin kong kong_admin"
+          }
         }
       }
     }
