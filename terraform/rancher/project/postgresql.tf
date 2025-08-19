@@ -398,11 +398,11 @@ EOF
 }
 
 resource "kubernetes_job" "adjust_rds_db" {
-  count = var.setup_type == "full" && !var.pg_embedded ? 1 : 0
+  count    = var.setup_type == "full" && !var.pg_embedded ? 1 : 0
   provider = kubernetes
   metadata {
     generate_name = "adjust-rds-db-"
-    namespace = rancher2_namespace.this.name
+    namespace     = rancher2_namespace.this.name
     labels = {
       app = "adjust-rds-db"
     }
@@ -458,6 +458,6 @@ resource "kubernetes_job" "adjust_rds_db" {
         }
       }
     }
-    wait_for_completion = true
   }
+  wait_for_completion = true
 }
