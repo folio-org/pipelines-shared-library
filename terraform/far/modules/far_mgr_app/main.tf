@@ -2,8 +2,10 @@ locals {
   helm_values = templatefile(
     "${path.module}/values.yaml.tmpl",
     {
-      domain_name    = var.domain_name,
-      db_secret_name = var.db_secret_name
+      domain_name      = var.domain_name,
+      db_secret_name   = var.db_secret_name
+      image_repository = var.image_repository,
+      image_tag        = var.image_tag
     }
   )
 }
