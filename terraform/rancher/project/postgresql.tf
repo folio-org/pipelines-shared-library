@@ -422,7 +422,7 @@ resource "kubernetes_job_v1" "adjust_rds_db" {
           image = "732722833398.dkr.ecr.us-west-2.amazonaws.com/adjust-rds-db:latest"
           env {
             name  = "PGHOST"
-            value = base64decode(rancher2_secret.db-credentials.data["DB_HOST"])
+            value = base64decode(module.rds[0].cluster_endpoint)
           }
           env {
             name  = "PGUSER"
@@ -430,11 +430,16 @@ resource "kubernetes_job_v1" "adjust_rds_db" {
           }
           env {
             name  = "PGPASSWORD"
-            value = base64decode(rancher2_secret.db-credentials.data["DB_PASSWORD"])
+            value = base64decode(module.rds[0].cluster_master_username)
           }
         }
       }
     }
+    backoff_limit = 3
   }
   wait_for_completion = true
+  timeouts {
+    create = "5m"
+    update = "5m"
+  }
 }
