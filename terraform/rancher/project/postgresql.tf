@@ -418,8 +418,9 @@ resource "kubernetes_job_v1" "adjust_rds_db" {
       spec {
         restart_policy = "OnFailure"
         container {
-          name  = "adjust-rds-db"
-          image = "732722833398.dkr.ecr.us-west-2.amazonaws.com/adjust-rds-db:latest"
+          name              = "adjust-rds-db"
+          image             = "732722833398.dkr.ecr.us-west-2.amazonaws.com/adjust-rds-db:latest"
+          image_pull_policy = "Always"
           env {
             name  = "PGHOST"
             value = module.rds[0].cluster_endpoint
