@@ -1,6 +1,6 @@
 image:
-  repository: folioorg/mgr-applications
-  tag: "3.0.2"
+  repository: ${image_repository}
+  tag: "${image_tag}"
 extraEnvVars:
   - name: FAR_MODE
     value: "true"
@@ -14,7 +14,7 @@ extraEnvVars:
     value: "false"
 extraJavaOpts:
   - "-Dlogging.level.root=DEBUG -Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties"
-  - "-XX:MaxRAMPercentage=75.0"
+  - "-XX:MaxRAMPercentage=90.0"
 integrations:
   db:
     enabled: true
@@ -28,8 +28,7 @@ autoscaling:
   enabled: true
   minReplicas: 1
   maxReplicas: 3
-  targetCPUUtilizationPercentage: 80
-  targetMemoryUtilizationPercentage: 80
+  targetMemoryUtilizationPercentage: 70
 pdb:
   enabled: true
   maxUnavailable: 1
