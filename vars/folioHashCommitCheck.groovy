@@ -38,7 +38,7 @@ boolean isInstallJsonChanged(String previousSha, String currentSha) {
   }
 }
 
-def hasFolioIntegrationTestsShaChanged(String branch = 'main', String ssmParameterName = 'FOLIO_INTEGRATION_TESTS_SHA') {
+def hasFolioIntegrationTestsShaChanged(String branch = 'master', String ssmParameterName = 'FOLIO_INTEGRATION_TESTS_SHA') {
     String repo = 'folio-integration-tests'
     String org = 'folio-org'
     String repoUrl = "https://github.com/${org}/${repo}.git"
