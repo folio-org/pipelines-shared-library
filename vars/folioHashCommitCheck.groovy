@@ -37,3 +37,26 @@ boolean isInstallJsonChanged(String previousSha, String currentSha) {
     return commitsDiff.files.any { it.filename == 'install.json' }
   }
 }
+
+def hasFolioIntegrationTestsShaChanged(String branch = 'main', String ssmParameterName = 'FOLIO_INTEGRATION_TESTS_SHA') {
+    String repo = 'folio-integration-tests'
+    String org = 'folio-org'
+    String repoUrl = "https://github.com/${org}/${repo}.git"
+    String awsRegion = Constants.AWS_REGION
+
+    String latestSha = sh(script: "git ls-remote ${repoUrl} refs/heads/${branch} | cut -f1", returnStdout: true).trim()
+
+    String previousSha = null
+    awscli.withAwsClient {
+        previousSha = awscli.getSsmParameterValue(awsRegion, ssmParameterName)
+    }
+
+    if (previousSha == latestSha) {
+        return false
+    } else {
+        awscli.withAwsClient {
+            awscli.updateSsmParameter(awsRegion, ssmParameterName, latestSha)
+        }
+        return true
+    }
+}
