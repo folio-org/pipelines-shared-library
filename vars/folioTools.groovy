@@ -196,9 +196,9 @@ void karateTenantsCleanUp(String cluster, String namespace) {
   folioPrint.colored("Karate tenants cleanup completed for cluster: ${cluster}, namespace: ${namespace}" as String, "green")
 }
 
-void karateTenantsCleanUpBF(String kongURL, String keycloakURL, String clientSecret) {
+void karateTenantsCleanUpUnified(String kongURL, String keycloakURL, String clientId, String clientSecret) {
   String url = "${keycloakURL}/realms/master/protocol/openid-connect/token"
-  String body = "grant_type=client_credentials&client_id=folio-backend-admin-client&client_secret=${clientSecret}"
+  String body = "grant_type=client_credentials&client_id=${clientId}&client_secret=${clientSecret}"
   def tokenResp = sh(script: "curl -s -X POST -d \"${body}\" \"${url}\"", returnStdout: true).trim()
   String token = readJSON(text: tokenResp).access_token
 

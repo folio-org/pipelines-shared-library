@@ -133,6 +133,12 @@ KarateRunExecutionSummary call(KarateTestsParameters args) {
               }
           }
         }
+
+        if (args.cleanupTenants) {
+          stage('Cleanup test tenants') {
+            folioTools.karateTenantsCleanUpUnified(args.okapiUrl, args.keycloakUrl, args.clientId, args.clientSecret)
+          }
+        }
       }
       return karateTestsExecutionSummary
     }
