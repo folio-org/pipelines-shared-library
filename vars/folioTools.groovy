@@ -195,3 +195,25 @@ void karateTenantsCleanUp(String cluster, String namespace) {
   }
   folioPrint.colored("Karate tenants cleanup completed for cluster: ${cluster}, namespace: ${namespace}" as String, "green")
 }
+
+void karateTenantsCleanUpBF(String kongURL, String keycloakURL, String clientSecret) {
+  String url = "${keycloakURL}/realms/master/protocol/openid-connect/token"
+  String body = "grant_type=client_credentials&client_id=folio-backend-admin-client&client_secret=${clientSecret}"
+  def tokenResp = sh(script: "curl -s -X POST -d \"${body}\" \"${url}\"", returnStdout: true).trim()
+  String token = readJSON(text: tokenResp).access_token
+
+  String tenantsUrl = "${kongURL}/tenants?limit=500"
+  def tenantsResp = sh(script: "curl -s -H 'Authorization: Bearer ${token}' '${tenantsUrl}'", returnStdout: true).trim()
+  def tenantsJson = readJSON(text: tenantsResp)
+
+  tenantsJson.tenants.each { tenantObj ->
+    String tenantName = tenantObj.name
+    String tenantId = tenantObj.id
+    if (tenantName ==~ /(university|central|college|testtenant)[0-9]+$/) {
+      println "Deleting tenant: ${tenantName} (ID: ${tenantId})"
+      String deleteUrl = "${kongURL}/tenants/${tenantId}?purge=true"
+      sh(script: "curl -s -X DELETE -H 'Authorization: Bearer ${token}' '${deleteUrl}'", returnStdout: false)
+    }
+  }
+  folioPrint.colored("Karate tenants cleanup completed for env: ${kongURL}", "green")
+}
