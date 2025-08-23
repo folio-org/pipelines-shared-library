@@ -99,8 +99,9 @@ ansiColor('xterm') {
           previousBuildSha = folioHashCommitCheck.getPreviousBuildSha()
           boolean diffFound = folioHashCommitCheck.isInstallJsonChanged(previousBuildSha, currentBuildSha)
           boolean integrationTestsShaChanged = folioHashCommitCheck.hasFolioIntegrationTestsShaChanged()
+          boolean e2eTestsShaChanged = folioHashCommitCheck.hasStripesTestingShaChanged()
 
-          if (diffFound || integrationTestsShaChanged) {
+          if (diffFound || integrationTestsShaChanged || e2eTestsShaChanged) {
             logger.info('Incoming changes found. Proceed with build stages.')
           } else {
             buildDescription 'Skipped'

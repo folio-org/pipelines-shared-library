@@ -38,9 +38,11 @@ boolean isInstallJsonChanged(String previousSha, String currentSha) {
   }
 }
 
-def hasFolioIntegrationTestsShaChanged(String branch = 'master', String ssmParameterName = 'FOLIO_INTEGRATION_TESTS_SHA') {
-    String repo = 'folio-integration-tests'
-    String org = 'folio-org'
+/**
+ * Checks if the latest commit SHA for a given GitHub repo/branch has changed compared to the value stored in SSM.
+ * If changed, updates the SSM parameter and returns true. Otherwise, returns false.
+ */
+def hasRepoShaChanged(String org, String repo, String branch = 'master', String ssmParameterName) {
     String repoUrl = "https://github.com/${org}/${repo}.git"
     String awsRegion = Constants.AWS_REGION
 
@@ -59,4 +61,12 @@ def hasFolioIntegrationTestsShaChanged(String branch = 'master', String ssmParam
         }
         return true
     }
+}
+
+def hasFolioIntegrationTestsShaChanged(String branch = 'master', String ssmParameterName = 'FOLIO_INTEGRATION_TESTS_SHA') {
+    return hasRepoShaChanged('folio-org', 'folio-integration-tests', branch, ssmParameterName)
+}
+
+def hasStripesTestingShaChanged(String branch = 'master', String ssmParameterName = 'STRIPES_TESTING_SHA') {
+    return hasRepoShaChanged('folio-org', 'stripes-testing', branch, ssmParameterName)
 }
