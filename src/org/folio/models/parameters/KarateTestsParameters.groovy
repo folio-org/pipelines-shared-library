@@ -52,6 +52,8 @@ class KarateTestsParameters {
 
   boolean lsdi = false
 
+  boolean cleanupTenants = false
+
   String timeout
 
   @NonCPS

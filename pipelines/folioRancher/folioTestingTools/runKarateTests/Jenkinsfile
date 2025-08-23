@@ -25,6 +25,7 @@ properties([
     string(name: 'PROTOTYPE_TENANT', defaultValue: 'consortium', description: 'Tenant name that will be used by tests as a prototype during test tenants creation'),
     string(name: 'THREADS_COUNT', defaultValue: '1', description: 'Number of parallel threads'),
     choice(name: 'JAVA_VERSION', choices: ['21', '17'], description: 'Java version to use for tests'),
+    booleanParam(name: 'CLEANUP_TENANTS', defaultValue: false, description: 'Do you need to delete all test tenants after tests?'),
 //    booleanParam(name: 'CREATE_CUSTOM_EDGE_TENANT', defaultValue: false, description: 'Do you need to create tenant for edge modules from edge-configuration.json file?'),
     folioParameters.refreshParameters()
   ])
@@ -55,7 +56,7 @@ karateTestsParams.prototypeTenant = params.PROTOTYPE_TENANT
 karateTestsParams.threadsCount = params.THREADS_COUNT
 karateTestsParams.javaVersion = params.JAVA_VERSION
 karateTestsParams.timeout = '24'
-
+karateTestsParams.cleanupTenants = params.CLEANUP_TENANTS
 /**
  * Pipeline
  */
