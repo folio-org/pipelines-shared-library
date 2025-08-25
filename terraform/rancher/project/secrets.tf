@@ -73,6 +73,7 @@ resource "rancher2_secret" "eureka_common" {
   project_id   = rancher2_project.this.id
   namespace_id = rancher2_namespace.this.name
   data = {
+    SECURE_STORE_ENV       = base64encode(join("-", [var.rancher_cluster_name, rancher2_namespace.this.name]))
     KC_ADMIN_CLIENT_ID     = base64encode("folio-backend-admin-client")
     KC_ADMIN_CLIENT_SECRET = base64encode("folio-backend-admin-client")
     KC_LOGIN_CLIENT_SUFFIX = base64encode("-application")
