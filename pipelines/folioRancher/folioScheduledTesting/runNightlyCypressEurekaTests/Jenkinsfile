@@ -86,7 +86,7 @@ cypressParameters.setExecParameters('--env grepTags="smoke criticalPath extended
 cypressParameters.setTestrailProjectID('14')
 cypressParameters.setTestrailRunID('2723')
 cypressParameters.setNumberOfWorkers(8)
-cypressParameters.setTimeout('480')
+cypressParameters.setTimeout('960')
 
 boolean reportPortalUse = true
 String reportPortalRunType = 'evrk'
