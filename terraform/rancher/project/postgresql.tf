@@ -72,89 +72,188 @@ resource "helm_release" "postgresql" {
   chart      = "postgresql"
   version    = "16.7.27"
   values = [<<-EOF
-global:
-  security:
-    allowInsecureImages: true
-image:
-  registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
-  repository: postgresql
-  tag: ${join(".", [var.pg_version, "0"])}
-  pullPolicy: IfNotPresent
-auth:
-  database: ${local.pg_eureka_db_name}
-  postgresPassword: ${var.pg_password}
-  replicationPassword: ${var.pg_password}
-  replicationUsername: ${var.pg_username}
-  usePasswordFiles: ${local.pg_auth}
-architecture: ${local.pg_architecture}
-primary:
-  persistence:
-    enabled: true
-    size: "${var.pg_vol_size}Gi"
-    storageClass: gp2
-  resources:
-    requests:
-      memory: 8192Mi
-    limits:
-      memory: 10240Mi
-  podSecurityContext:
-    fsGroup: 1001
-  containerSecurityContext:
-    runAsUser: 1001
-    readOnlyRootFilesystem: false
-  affinity:
-    podAffinityPreset: hard
-
-  configuration: |-
-    max_connections = ${var.pg_max_conn}
-    shared_buffers = '3096MB'
-    listen_addresses = '0.0.0.0'
-    effective_cache_size = '7680MB'
-    maintenance_work_mem = '640MB'
-    checkpoint_completion_target = '0.9'
-    wal_buffers = '16MB'
-    default_statistics_target = '100'
-    random_page_cost = '1.1'
-    effective_io_concurrency = '200'
-    work_mem = '3096kB'
-    min_wal_size = '1GB'
-    max_wal_size = '4GB'
-
-  ${indent(2, local.schedule_value)}
-  initdb:
-    scripts:
-      init.sql: |
-        ${indent(8, var.eureka ? templatefile("${path.module}/resources/eureka.db.tpl", { dbs = ["folio", "kong", "keycloak"], pg_password = var.pg_password }) : "--fail safe")}
-        CREATE DATABASE ldp;
-        CREATE USER ldpadmin PASSWORD '${var.pg_ldp_user_password}';
-        CREATE USER ldpconfig PASSWORD '${var.pg_ldp_user_password}';
-        CREATE USER ldp PASSWORD '${var.pg_ldp_user_password}';
-        ALTER DATABASE ldp OWNER TO ldpadmin;
-        ALTER DATABASE ldp SET search_path TO public;
-        REVOKE CREATE ON SCHEMA public FROM public;
-        GRANT ALL ON SCHEMA public TO ldpadmin;
-        GRANT USAGE ON SCHEMA public TO ldpconfig;
-        GRANT USAGE ON SCHEMA public TO ldp;
-volumePermissions:
-  enabled: true
+  global:
+    imageRegistry: ""
+    imagePullSecrets: []
+    defaultStorageClass: ""
+    storageClass: ""
+    security:
+      allowInsecureImages: true
+  kubeVersion: ""
+  nameOverride: ""
+  fullnameOverride: ""
+  namespaceOverride: ""
+  clusterDomain: "cluster.local"
+  extraDeploy: []
+  commonLabels: {}
+  commonAnnotations: {}
+  secretAnnotations: {}
+  diagnosticMode:
+    enabled: false
+    command:
+      - sleep
+    args:
+      - infinity
   image:
     registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
-    repository: os-shell
-    tag: 12-debian-12-r51
+    repository: postgresql
+    tag: ${var.pg_version}
+    digest: ""
     pullPolicy: IfNotPresent
-metrics:
-  enabled: false
-  resources:
-    requests:
-      memory: 1024Mi
-    limits:
-      memory: 3072Mi
-  serviceMonitor:
+    pullSecrets: []
+    debug: false
+  auth:
+    enablePostgresUser: true
+    postgresPassword: ${var.pg_password}
+    username: ""
+    password: ""
+    database: ${local.pg_eureka_db_name}
+    replicationUsername: ${var.pg_username}
+    replicationPassword: ${var.pg_password}
+    existingSecret: ""
+    secretKeys:
+      adminPasswordKey: postgres-password
+      replicationPasswordKey: replication-password
+    usePasswordFiles: ${local.pg_auth}
+  architecture: ${local.pg_architecture}
+  primary:
+    name: primary
+    configuration: ""
+    pgHbaConfiguration: ""
+    existingConfigmap: ""
+    extendedConfiguration: |-
+      max_connections = '${var.pg_max_conn}'
+      shared_buffers = '3096MB'
+      listen_addresses = '0.0.0.0'
+      effective_cache_size = '7680MB'
+      maintenance_work_mem = '640MB'
+      checkpoint_completion_target = '0.9'
+      wal_buffers = '16MB'
+      default_statistics_target = '100'
+      random_page_cost = '1.1'
+      effective_io_concurrency = '200'
+      work_mem = '3096kB'
+      min_wal_size = '1GB'
+      max_wal_size = '4GB'
+    ${indent(2, local.schedule_value)}
+    existingExtendedConfigmap: ""
+    initdb:
+      password: ""
+      scripts:
+        init.sql: |
+          ${indent(8, var.eureka ? templatefile("${path.module}/resources/eureka.db.tpl", { dbs = ["folio", "kong", "keycloak"], pg_password = var.pg_password }) : "--fail safe")}
+          CREATE DATABASE ldp;
+          CREATE USER ldpadmin PASSWORD '${var.pg_ldp_user_password}';
+          CREATE USER ldpconfig PASSWORD '${var.pg_ldp_user_password}';
+          CREATE USER ldp PASSWORD '${var.pg_ldp_user_password}';
+          ALTER DATABASE ldp OWNER TO ldpadmin;
+          ALTER DATABASE ldp SET search_path TO public;
+          REVOKE CREATE ON SCHEMA public FROM public;
+          GRANT ALL ON SCHEMA public TO ldpadmin;
+          GRANT USAGE ON SCHEMA public TO ldpconfig;
+          GRANT USAGE ON SCHEMA public TO ldp;
+    preInitDb:
+      scriptsSecret: ""
+    standby:
+      enabled: false
+      primaryPort: ""
+    extraEnvVars: []
+    extraEnvVarsCM: ""
+    extraEnvVarsSecret: ""
+    command: []
+    args: []
+    livenessProbe:
+      enabled: true
+      successThreshold: 1
+    readinessProbe:
+      enabled: true
+      successThreshold: 1
+    startupProbe:
+      enabled: false
+      successThreshold: 1
+    customLivenessProbe: {}
+    customReadinessProbe: {}
+    customStartupProbe: {}
+    lifecycleHooks: {}
+    resourcesPreset: "nano"
+    resources:
+      requests:
+        memory: 8192Mi
+      limits:
+        memory: 10240Mi
+    podSecurityContext:
+      enabled: true
+      fsGroup: 1001
+    containerSecurityContext:
+      enabled: true
+      runAsUser: 1001
+      readOnlyRootFilesystem: false
+    automountServiceAccountToken: false
+    hostAliases: []
+    hostNetwork: false
+    hostIPC: false
+    labels: {}
+    annotations: {}
+    podLabels: {}
+    podAnnotations: {}
+    podAffinityPreset: ""
+    podAntiAffinityPreset: soft
+    nodeAffinityPreset:
+      values: []
+    affinity: {}
+    nodeSelector: {}
+    tolerations: []
+    topologySpreadConstraints: []
+    priorityClassName: ""
+    schedulerName: ""
+    terminationGracePeriodSeconds: ""
+    updateStrategy:
+      type: RollingUpdate
+      rollingUpdate: {}
+    extraVolumeMounts: []
+    extraVolumes: []
+    sidecars: []
+    initContainers: []
+    pdb:
+      create: true
+      maxUnavailable: ""
+    extraPodSpec: {}
+    networkPolicy:
+      ingressNSPodMatchLabels: {}
+    service:
+      # Add service config if needed
+    persistence:
+      enabled: true
+      size: "${var.pg_vol_size}Gi"
+      storageClass: gp2
+      dataSource: {}
+    persistentVolumeClaimRetentionPolicy:
+      whenDeleted: Retain
+  volumePermissions:
     enabled: true
-    namespace: monitoring
-    interval: 30s
-    scrapeTimeout: 30s
-EOF
+    image:
+      registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
+      repository: os-shell
+      tag: 12-debian-12-r51
+      pullPolicy: IfNotPresent
+      pullSecrets: []
+    resourcesPreset: "nano"
+    resources: {}
+    containerSecurityContext:
+      seLinuxOptions: {}
+  metrics:
+    enabled: false
+    resources:
+      requests:
+        memory: 1024Mi
+      limits:
+        memory: 3072Mi
+    serviceMonitor:
+      enabled: true
+      namespace: monitoring
+      interval: 30s
+      scrapeTimeout: 30s
+      EOF
   ]
 }
 
