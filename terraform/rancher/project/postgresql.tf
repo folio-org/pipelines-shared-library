@@ -106,7 +106,7 @@ primary:
     podAffinityPreset: hard
 
   configuration: |-
-    max_connections = '${var.pg_max_conn}'
+    max_connections = ${var.pg_max_conn}
     shared_buffers = '3096MB'
     listen_addresses = '0.0.0.0'
     effective_cache_size = '7680MB'
