@@ -67,21 +67,24 @@ resource "helm_release" "postgresql" {
   name       = "postgresql-${var.rancher_project_name}"
   repository = local.catalogs.bitnami
   chart      = "postgresql"
-  version    = "13.2.19"
+  version    = "16.7.27"
   values = [<<-EOF
-architecture: ${local.pg_architecture}
-readReplicas:
-  replicaCount: 1
+primary:
+  persistence:
+    enabled: true
+    size: "${var.pg_vol_size}Gi"
+    storageClass: gp2
   resources:
     requests:
       memory: 8192Mi
     limits:
       memory: 10240Mi
-  podAffinityPreset: hard
-  persistence:
-    enabled: true
-    size: '${var.pg_vol_size}Gi'
-    storageClass: gp2
+  podSecurityContext:
+    fsGroup: 1001
+  containerSecurityContext:
+    runAsUser: 1001
+  affinity:
+    podAffinityPreset: hard
   extendedConfiguration: |-
     shared_buffers = '3096MB'
     max_connections = '${var.pg_max_conn}'
@@ -97,18 +100,11 @@ readReplicas:
     min_wal_size = '1GB'
     max_wal_size = '4GB'
   ${indent(2, local.schedule_value)}
-image:
-  registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
-  repository: postgresql
-  tag: ${join(".", [var.pg_version, "0"])}
-  pullPolicy: IfNotPresent
-auth:
-  database: ${local.pg_eureka_db_name}
-  postgresPassword: ${var.pg_password}
-  replicationPassword: ${var.pg_password}
-  replicationUsername: ${var.pg_username}
-  usePasswordFiles: ${local.pg_auth}
-primary:
+  image:
+    registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
+    repository: postgresql
+    tag: ${join(".", [var.pg_version, "0"])}
+    pullPolicy: IfNotPresent
   initdb:
     scripts:
       init.sql: |
@@ -123,35 +119,12 @@ primary:
         GRANT ALL ON SCHEMA public TO ldpadmin;
         GRANT USAGE ON SCHEMA public TO ldpconfig;
         GRANT USAGE ON SCHEMA public TO ldp;
-  persistence:
-    enabled: true
-    size: '${var.pg_vol_size}Gi'
-    storageClass: gp2
-  resources:
-    requests:
-      memory: 8192Mi
-    limits:
-      memory: 10240Mi
-  podSecurityContext:
-    fsGroup: 1001
-  containerSecurityContext:
-    runAsUser: 1001
-  podAffinityPreset: hard
-  extendedConfiguration: |-
-    shared_buffers = '3096MB'
-    max_connections = '${var.pg_max_conn}'
-    listen_addresses = '0.0.0.0'
-    effective_cache_size = '7680MB'
-    maintenance_work_mem = '640MB'
-    checkpoint_completion_target = '0.9'
-    wal_buffers = '16MB'
-    default_statistics_target = '100'
-    random_page_cost = '1.1'
-    effective_io_concurrency = '200'
-    work_mem = '3096kB'
-    min_wal_size = '1GB'
-    max_wal_size = '4GB'
-  ${indent(2, local.schedule_value)}
+auth:
+  database: ${local.pg_eureka_db_name}
+  postgresPassword: ${var.pg_password}
+  replicationPassword: ${var.pg_password}
+  replicationUsername: ${var.pg_username}
+  usePasswordFiles: ${local.pg_auth}
 volumePermissions:
   enabled: true
   image:
