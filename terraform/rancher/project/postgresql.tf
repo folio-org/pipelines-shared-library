@@ -75,7 +75,7 @@ global:
 image:
   registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
   repository: postgresql
-  tag: "16.8.0"
+  tag: ${var.pg_version}
   pullPolicy: IfNotPresent
 auth:
   database: ${local.pg_eureka_db_name}
