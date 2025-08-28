@@ -72,11 +72,11 @@ resource "helm_release" "postgresql" {
 global:
   security:
     allowInsecureImages: true
-image:
-  registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
-  repository: postgresql
-  tag: ${join(".", [var.pg_version, "0"])}
-  pullPolicy: IfNotPresent
+  image:
+    registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
+    repository: postgresql
+    tag: ${join(".", [var.pg_version, "0"])}
+    pullPolicy: IfNotPresent
 primary:
   persistence:
     enabled: true
