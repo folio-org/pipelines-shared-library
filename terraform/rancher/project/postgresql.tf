@@ -96,8 +96,18 @@ resource "helm_release" "postgresql" {
     podSecurityContext:
       fsGroup: 1001
     containerSecurityContext:
+      enabled: true
+      seLinuxOptions: {}
       runAsUser: 1001
+      runAsGroup: 1001
+      runAsNonRoot: true
+      privileged: false
       readOnlyRootFilesystem: false
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop: ["ALL"]
+      seccompProfile:
+        type: "RuntimeDefault"
     affinity:
       podAffinityPreset: hard
     extendedConfiguration: |-
