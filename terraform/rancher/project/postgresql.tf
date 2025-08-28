@@ -131,10 +131,21 @@ resource "helm_release" "postgresql" {
   volumePermissions:
     enabled: true
     image:
-      registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
-      repository: os-shell
-      tag: 11-debian-11-r91
+      registry: docker.io
+      repository: 732722833398.dkr.ecr.us-west-2.amazonaws.com/os-shell
+      tag: 12-debian-12-r51
       pullPolicy: IfNotPresent
+      pullSecrets: []
+      digest: ""
+    resourcesPreset: "nano"
+    resources: {}
+    containerSecurityContext:
+      seLinuxOptions: {}
+      runAsUser: 0
+      runAsGroup: 0
+      runAsNonRoot: false
+      seccompProfile:
+        type: RuntimeDefault
   metrics:
     enabled: false
     resources:
