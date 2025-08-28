@@ -72,6 +72,11 @@ resource "helm_release" "postgresql" {
 global:
   security:
     allowInsecureImages: true
+image:
+  registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
+  repository: postgresql
+  tag: ${join(".", [var.pg_version, "0"])}
+  pullPolicy: IfNotPresent
 primary:
   persistence:
     enabled: true
@@ -103,11 +108,6 @@ primary:
     min_wal_size = '1GB'
     max_wal_size = '4GB'
   ${indent(2, local.schedule_value)}
-  image:
-    registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
-    repository: postgresql
-    tag: ${join(".", [var.pg_version, "0"])}
-    pullPolicy: IfNotPresent
   initdb:
     scripts:
       init.sql: |
@@ -122,31 +122,31 @@ primary:
         GRANT ALL ON SCHEMA public TO ldpadmin;
         GRANT USAGE ON SCHEMA public TO ldpconfig;
         GRANT USAGE ON SCHEMA public TO ldp;
-auth:
-  database: ${local.pg_eureka_db_name}
-  postgresPassword: ${var.pg_password}
-  replicationPassword: ${var.pg_password}
-  replicationUsername: ${var.pg_username}
-  usePasswordFiles: ${local.pg_auth}
-volumePermissions:
-  enabled: true
-  image:
-    registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
-    repository: os-shell
-    tag: 11-debian-11-r91
-    pullPolicy: IfNotPresent
-metrics:
-  enabled: false
-  resources:
-    requests:
-      memory: 1024Mi
-    limits:
-      memory: 3072Mi
-  serviceMonitor:
+  auth:
+    database: ${local.pg_eureka_db_name}
+    postgresPassword: ${var.pg_password}
+    replicationPassword: ${var.pg_password}
+    replicationUsername: ${var.pg_username}
+    usePasswordFiles: ${local.pg_auth}
+  volumePermissions:
     enabled: true
-    namespace: monitoring
-    interval: 30s
-    scrapeTimeout: 30s
+    image:
+      registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
+      repository: os-shell
+      tag: 11-debian-11-r91
+      pullPolicy: IfNotPresent
+  metrics:
+    enabled: false
+    resources:
+      requests:
+        memory: 1024Mi
+      limits:
+        memory: 3072Mi
+    serviceMonitor:
+      enabled: true
+      namespace: monitoring
+      interval: 30s
+      scrapeTimeout: 30s
 EOF
   ]
 }
