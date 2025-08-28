@@ -77,8 +77,6 @@ resource "helm_release" "postgresql" {
     imagePullSecrets: []
     defaultStorageClass: ""
     storageClass: ""
-    security:
-      allowInsecureImages: true
   kubeVersion: ""
   nameOverride: ""
   fullnameOverride: ""
@@ -121,20 +119,20 @@ resource "helm_release" "postgresql" {
     configuration: ""
     pgHbaConfiguration: ""
     existingConfigmap: ""
-    extendedConfiguration: |-
-      max_connections = '${var.pg_max_conn}'
-      shared_buffers = '3096MB'
-      listen_addresses = '0.0.0.0'
-      effective_cache_size = '7680MB'
-      maintenance_work_mem = '640MB'
-      checkpoint_completion_target = '0.9'
-      wal_buffers = '16MB'
-      default_statistics_target = '100'
-      random_page_cost = '1.1'
-      effective_io_concurrency = '200'
-      work_mem = '3096kB'
-      min_wal_size = '1GB'
-      max_wal_size = '4GB'
+        extendedConfiguration: |-
+          max_connections = ${var.pg_max_conn}
+          shared_buffers = '3096MB'
+          listen_addresses = '0.0.0.0'
+          effective_cache_size = '7680MB'
+          maintenance_work_mem = '640MB'
+          checkpoint_completion_target = '0.9'
+          wal_buffers = '16MB'
+          default_statistics_target = '100'
+          random_page_cost = '1.1'
+          effective_io_concurrency = '200'
+          work_mem = '3096kB'
+          min_wal_size = '1GB'
+          max_wal_size = '4GB'
     ${indent(2, local.schedule_value)}
     existingExtendedConfigmap: ""
     initdb:
