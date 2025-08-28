@@ -85,9 +85,7 @@ auth:
   usePasswordFiles: ${local.pg_auth}
 architecture: ${local.pg_architecture}
 primary:
-  extraEnvVars:
-    - name: POSTGRESQL_MAX_CONNECTIONS
-      value: '${var.pg_max_conn}'
+      value: ${join(".", [var.pg_version, "0"])}
   persistence:
     enabled: true
     size: "${var.pg_vol_size}Gi"
@@ -104,7 +102,8 @@ primary:
     readOnlyRootFilesystem: false
   affinity:
     podAffinityPreset: hard
-  extendedConfiguration: |-
+  extendedConfiguration: |
+    max_connections = '${var.pg_max_conn}'
     shared_buffers = '3096MB'
     listen_addresses = '0.0.0.0'
     effective_cache_size = '7680MB'
