@@ -69,46 +69,51 @@ resource "helm_release" "postgresql" {
   chart      = "postgresql"
   version    = "16.7.27"
   values = [<<-EOF
-global:
-  security:
-    allowInsecureImages: true
+  global:
+    security:
+      allowInsecureImages: true
   image:
     registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
     repository: postgresql
     tag: ${join(".", [var.pg_version, "0"])}
     pullPolicy: IfNotPresent
-primary:
-  persistence:
-    enabled: true
-    size: "${var.pg_vol_size}Gi"
-    storageClass: gp2
-  resources:
-    requests:
-      memory: 8192Mi
-    limits:
-      memory: 10240Mi
-  podSecurityContext:
-    fsGroup: 1001
-  containerSecurityContext:
-    runAsUser: 1001
-  affinity:
-    podAffinityPreset: hard
-  extendedConfiguration: |-
-    shared_buffers = '3096MB'
-    max_connections = '${var.pg_max_conn}'
-    listen_addresses = '0.0.0.0'
-    effective_cache_size = '7680MB'
-    maintenance_work_mem = '640MB'
-    checkpoint_completion_target = '0.9'
-    wal_buffers = '16MB'
-    default_statistics_target = '100'
-    random_page_cost = '1.1'
-    effective_io_concurrency = '200'
-    work_mem = '3096kB'
-    min_wal_size = '1GB'
-    max_wal_size = '4GB'
-  ${indent(2, local.schedule_value)}
+  auth:
+    database: ${local.pg_eureka_db_name}
+    postgresPassword: ${var.pg_password}
+    replicationPassword: ${var.pg_password}
+    replicationUsername: ${var.pg_username}
+    usePasswordFiles: ${local.pg_auth}
   primary:
+    persistence:
+      enabled: true
+      size: "${var.pg_vol_size}Gi"
+      storageClass: gp2
+    resources:
+      requests:
+        memory: 8192Mi
+      limits:
+        memory: 10240Mi
+    podSecurityContext:
+      fsGroup: 1001
+    containerSecurityContext:
+      runAsUser: 1001
+    affinity:
+      podAffinityPreset: hard
+    extendedConfiguration: |-
+      shared_buffers = '3096MB'
+      max_connections = '${var.pg_max_conn}'
+      listen_addresses = '0.0.0.0'
+      effective_cache_size = '7680MB'
+      maintenance_work_mem = '640MB'
+      checkpoint_completion_target = '0.9'
+      wal_buffers = '16MB'
+      default_statistics_target = '100'
+      random_page_cost = '1.1'
+      effective_io_concurrency = '200'
+      work_mem = '3096kB'
+      min_wal_size = '1GB'
+      max_wal_size = '4GB'
+    ${indent(2, local.schedule_value)}
     initdb:
       scripts:
         init.sql: |
@@ -123,11 +128,6 @@ primary:
           GRANT ALL ON SCHEMA public TO ldpadmin;
           GRANT USAGE ON SCHEMA public TO ldpconfig;
           GRANT USAGE ON SCHEMA public TO ldp;
-    database: ${local.pg_eureka_db_name}
-    postgresPassword: ${var.pg_password}
-    replicationPassword: ${var.pg_password}
-    replicationUsername: ${var.pg_username}
-    usePasswordFiles: ${local.pg_auth}
   volumePermissions:
     enabled: true
     image:
@@ -147,7 +147,7 @@ primary:
       namespace: monitoring
       interval: 30s
       scrapeTimeout: 30s
-EOF
+  EOF
   ]
 }
 
