@@ -108,21 +108,26 @@ primary:
     min_wal_size = '1GB'
     max_wal_size = '4GB'
   ${indent(2, local.schedule_value)}
-  initdb:
-    scripts:
-      init.sql: |
-        ${indent(8, var.eureka ? templatefile("${path.module}/resources/eureka.db.tpl", { dbs = ["folio", "kong", "keycloak"], pg_password = var.pg_password }) : "--fail safe")}
-        CREATE DATABASE ldp;
-        CREATE USER ldpadmin PASSWORD '${var.pg_ldp_user_password}';
-        CREATE USER ldpconfig PASSWORD '${var.pg_ldp_user_password}';
-        CREATE USER ldp PASSWORD '${var.pg_ldp_user_password}';
-        ALTER DATABASE ldp OWNER TO ldpadmin;
-        ALTER DATABASE ldp SET search_path TO public;
-        REVOKE CREATE ON SCHEMA public FROM public;
-        GRANT ALL ON SCHEMA public TO ldpadmin;
-        GRANT USAGE ON SCHEMA public TO ldpconfig;
-        GRANT USAGE ON SCHEMA public TO ldp;
-  auth:
+  image:
+    registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
+    repository: postgresql
+    tag: ${join(".", [var.pg_version, "0"])}
+    pullPolicy: IfNotPresent
+  primary:
+    initdb:
+      scripts:
+        init.sql: |
+          ${indent(8, var.eureka ? templatefile("${path.module}/resources/eureka.db.tpl", { dbs = ["folio", "kong", "keycloak"], pg_password = var.pg_password }) : "--fail safe")}
+          CREATE DATABASE ldp;
+          CREATE USER ldpadmin PASSWORD '${var.pg_ldp_user_password}';
+          CREATE USER ldpconfig PASSWORD '${var.pg_ldp_user_password}';
+          CREATE USER ldp PASSWORD '${var.pg_ldp_user_password}';
+          ALTER DATABASE ldp OWNER TO ldpadmin;
+          ALTER DATABASE ldp SET search_path TO public;
+          REVOKE CREATE ON SCHEMA public FROM public;
+          GRANT ALL ON SCHEMA public TO ldpadmin;
+          GRANT USAGE ON SCHEMA public TO ldpconfig;
+          GRANT USAGE ON SCHEMA public TO ldp;
     database: ${local.pg_eureka_db_name}
     postgresPassword: ${var.pg_password}
     replicationPassword: ${var.pg_password}
