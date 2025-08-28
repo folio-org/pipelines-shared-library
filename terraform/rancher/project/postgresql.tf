@@ -223,7 +223,7 @@ resource "helm_release" "postgresql" {
     service:
       type: ClusterIP
       ports:
-        - 5432
+        postgresql: 5432
       annotations: {}
       labels: {}
     persistence:
