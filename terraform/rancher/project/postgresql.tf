@@ -69,6 +69,9 @@ resource "helm_release" "postgresql" {
   chart      = "postgresql"
   version    = "16.7.27"
   values = [<<-EOF
+global:
+  security:
+    allowInsecureImages: true
 primary:
   persistence:
     enabled: true
