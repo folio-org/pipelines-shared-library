@@ -221,7 +221,13 @@ resource "helm_release" "postgresql" {
     networkPolicy:
       ingressNSPodMatchLabels: {}
     service:
-      # Add service config if needed
+      type: ClusterIP
+      ports:
+      - name: postgresql
+        port: 5432
+        targetPort: 5432
+      annotations: {}
+      labels: {}
     persistence:
       enabled: true
       size: "${var.pg_vol_size}Gi"
@@ -415,6 +421,7 @@ resource "postgresql_database" "eureka_keycloak" {
 
 # pgAdmin service deployment
 resource "helm_release" "pgadmin" {
+  depends_on = [helm_release.postgresql, module.rds]
   count      = var.pgadmin4 ? 1 : 0
   namespace  = rancher2_namespace.this.name
   repository = local.catalogs.runix
