@@ -87,7 +87,7 @@ architecture: ${local.pg_architecture}
 primary:
   extraEnvVars:
     - name: POSTGRESQL_MAX_CONNECTIONS
-      value: ${var.pg_max_conn}
+      value: '${var.pg_max_conn}'
   persistence:
     enabled: true
     size: "${var.pg_vol_size}Gi"
