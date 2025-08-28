@@ -108,11 +108,6 @@ primary:
     min_wal_size = '1GB'
     max_wal_size = '4GB'
   ${indent(2, local.schedule_value)}
-  image:
-    registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
-    repository: postgresql
-    tag: ${join(".", [var.pg_version, "0"])}
-    pullPolicy: IfNotPresent
   primary:
     initdb:
       scripts:
