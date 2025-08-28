@@ -70,7 +70,7 @@ resource "helm_release" "postgresql" {
   name       = "postgresql-${var.rancher_project_name}"
   repository = local.catalogs.bitnami
   chart      = "postgresql"
-  version    = "16.7."
+  version    = "16.7.27"
   values = [<<-EOF
 global:
   security:
