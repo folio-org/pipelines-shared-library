@@ -93,7 +93,7 @@ variable "pgadmin_password" {
 
 variable "pg_max_conn" {
   type    = number
-  default = 5000
+  default = 10000
 }
 
 variable "pg_version" {
