@@ -75,7 +75,7 @@ global:
 image:
   registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
   repository: postgresql
-  tag: ${var.pg_version}
+  tag: ${join(".", [var.pg_version, "0"])}
   pullPolicy: IfNotPresent
 auth:
   database: ${local.pg_eureka_db_name}
@@ -85,7 +85,6 @@ auth:
   usePasswordFiles: ${local.pg_auth}
 architecture: ${local.pg_architecture}
 primary:
-      value: ${join(".", [var.pg_version, "0"])}
   persistence:
     enabled: true
     size: "${var.pg_vol_size}Gi"
