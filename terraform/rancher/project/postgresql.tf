@@ -102,7 +102,7 @@ primary:
     readOnlyRootFilesystem: false
   affinity:
     podAffinityPreset: hard
-  extendedConfiguration: |
+  extendedConfiguration: |-
     max_connections = '${var.pg_max_conn}'
     shared_buffers = '3096MB'
     listen_addresses = '0.0.0.0'
