@@ -97,6 +97,7 @@ resource "helm_release" "postgresql" {
       fsGroup: 1001
     containerSecurityContext:
       runAsUser: 1001
+      readOnlyRootFilesystem: false
     affinity:
       podAffinityPreset: hard
     extendedConfiguration: |-
