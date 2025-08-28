@@ -131,8 +131,8 @@ resource "helm_release" "postgresql" {
   volumePermissions:
     enabled: true
     image:
-      registry: docker.io
-      repository: 732722833398.dkr.ecr.us-west-2.amazonaws.com/os-shell
+      registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
+      repository: os-shell
       tag: 12-debian-12-r51
       pullPolicy: IfNotPresent
       pullSecrets: []
