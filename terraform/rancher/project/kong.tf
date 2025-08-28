@@ -232,7 +232,7 @@ resource "kubernetes_service" "kong_admin_api" {
     type = "ClusterIP"
   }
   lifecycle {
-    ignore_changes = metadata
+    ignore_changes = [metadata]
   }
 }
 
@@ -256,7 +256,7 @@ resource "kubernetes_service" "kong_admin_api_external" {
     type = "NodePort"
   }
   lifecycle {
-    ignore_changes = metadata
+    ignore_changes = [metadata]
   }
 }
 
@@ -280,7 +280,7 @@ resource "kubernetes_service" "kong_admin_ui" {
     type = "NodePort"
   }
   lifecycle {
-    ignore_changes = metadata
+    ignore_changes = [metadata]
   }
 }
 
@@ -334,6 +334,6 @@ resource "kubernetes_ingress_v1" "kong-ui" {
     }
   }
   lifecycle {
-    ignore_changes = metadata
+    ignore_changes = [metadata]
   }
 }
