@@ -47,7 +47,7 @@ CreateNamespaceParameters namespaceBaseParams = new CreateNamespaceParameters.Bu
   .greenmail(false)
   .mockServer(false)
   .pgType('built-in')
-  .pgVersion('16.1')
+  .pgVersion('16.8')
   .kafkaType('aws')
   .opensearchType('aws')
   .s3Type('built-in')

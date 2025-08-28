@@ -98,7 +98,7 @@ variable "pg_max_conn" {
 
 variable "pg_version" {
   type        = string
-  default     = "16.1"
+  default     = "16.8"
   description = "Postgres version"
 }
 
