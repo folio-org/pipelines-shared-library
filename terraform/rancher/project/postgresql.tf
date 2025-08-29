@@ -99,22 +99,29 @@ primary:
       memory: 4Gi
     limits:
       memory: 8Gi
+  extraEnvVars:
+    - name: POSTGRESQL_MAX_CONNECTIONS
+      value: "${var.pg_max_conn}"
+    - name: POSTGRESQL_SHARED_BUFFERS
+      value: "3096MB"
+    - name: POSTGRESQL_EFFECTIVE_CACHE_SIZE
+      value: "7680MB"
+    - name: POSTGRESQL_MAINTENANCE_WORK_MEM
+      value: "640MB"
+    - name: POSTGRESQL_WAL_BUFFERS
+      value: "16MB"
+    - name: POSTGRESQL_WORK_MEM
+      value: "3096kB"
+    - name: POSTGRESQL_SHARED_PRELOAD_LIBRARIES
+      value: "pgaudit"
   configuration: |-
-    include_dir = '/bitnami/postgresql/conf/conf.d'
-    max_connections = ${var.pg_max_conn}
-    shared_buffers = 3096MB
     listen_addresses = '0.0.0.0'
-    effective_cache_size = 7680MB
-    maintenance_work_mem = 640MB
     checkpoint_completion_target = 0.9
-    wal_buffers = 16MB
     default_statistics_target = 100
     random_page_cost = 1.1
     effective_io_concurrency = 200
-    work_mem = 3096kB
     min_wal_size = 1GB
     max_wal_size = 4GB
-    shared_preload_libraries = 'pgaudit'
   containerSecurityContext:
     enabled: true
     runAsUser: 1001
