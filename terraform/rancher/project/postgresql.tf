@@ -116,6 +116,7 @@ primary:
     shared_preload_libraries = 'pgaudit'
   extendedConfiguration: |-
     max_connections = ${var.pg_max_conn}
+    
   containerSecurityContext:
     enabled: true
     runAsUser: 1001
