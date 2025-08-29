@@ -101,6 +101,7 @@ primary:
       memory: 8Gi
   configuration: |-
     include_dir = '/bitnami/postgresql/conf/conf.d'
+    max_connections = 5000
     shared_buffers = 3096MB
     listen_addresses = '0.0.0.0'
     effective_cache_size = 7680MB
@@ -114,9 +115,6 @@ primary:
     min_wal_size = 1GB
     max_wal_size = 4GB
     shared_preload_libraries = 'pgaudit'
-  extendedConfiguration: |-
-    max_connections = ${var.pg_max_conn}
-    
   containerSecurityContext:
     enabled: true
     runAsUser: 1001
