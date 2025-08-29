@@ -99,7 +99,8 @@ primary:
       memory: 4Gi
     limits:
       memory: 8Gi
-  configuration: |-
+  extendedConfiguration: |-
+    max_connections = ${var.pg_max_conn}
     shared_buffers = 3096MB
     listen_addresses = '0.0.0.0'
     effective_cache_size = 7680MB
@@ -110,7 +111,6 @@ primary:
     random_page_cost = 1.1
     effective_io_concurrency = 200
     work_mem = 3096kB
-    max_connections = ${var.pg_max_conn}
     min_wal_size = 1GB
     max_wal_size = 4GB
     shared_preload_libraries = 'pgaudit'
