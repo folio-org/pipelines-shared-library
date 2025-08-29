@@ -99,8 +99,10 @@ primary:
       memory: 4Gi
     limits:
       memory: 8Gi
+  extraEnvVars:
+    - name: POSTGRESQL_MAX_CONNECTIONS
+      value: "${var.pg_max_conn}"
   configuration: |-
-    max_connections = ${var.pg_max_conn}
     shared_buffers = 3096MB
     listen_addresses = '0.0.0.0'
     effective_cache_size = 7680MB
