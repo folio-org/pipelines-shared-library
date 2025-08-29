@@ -95,6 +95,11 @@ architecture: ${local.pg_architecture}
 primary:
   existingExtendedConfigmap: ""
   name: main
+  resources:
+    requests:
+      memory: 4Gi
+    limits:
+      memory: 8Gi
   extendedConfiguration: |-
     max_connections = ${var.pg_max_conn}
     shared_buffers = '3096MB'
