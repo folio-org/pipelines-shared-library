@@ -72,60 +72,77 @@ resource "helm_release" "postgresql" {
 global:
   security:
     allowInsecureImages: true
-  postgresql:
-    auth:
-      postgresPassword: ${base64decode(rancher2_secret.db-credentials.data.DB_PASSWORD)}
-      username: ${base64decode(rancher2_secret.db-credentials.data.DB_USERNAME)}
-      password: ${base64decode(rancher2_secret.db-credentials.data.DB_PASSWORD)}
-      database: ${base64decode(rancher2_secret.db-credentials.data.DB_DATABASE)}
-    service:
-      ports:
-        postgresql: "5432"
-clusterDomain: cluster.local
+kubeVersion: ""
+nameOverride: ""
+fullnameOverride: ""
+namespaceOverride: ""
+clusterDomain: "cluster.local"
 image:
   registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
   repository: postgresql
   tag: ${join(".", [var.pg_version, "0"])}
   pullPolicy: IfNotPresent
+auth:
+  enablePostgresUser: true
+  postgresPassword: ${base64decode(rancher2_secret.db-credentials.data.DB_PASSWORD)}
+  username: ${base64decode(rancher2_secret.db-credentials.data.DB_USERNAME)}
+  password: ${base64decode(rancher2_secret.db-credentials.data.DB_PASSWORD)}
+  database: ${base64decode(rancher2_secret.db-credentials.data.DB_DATABASE)}
+  replicationUsername: ${var.pg_username}
+  replicationPassword: ${var.pg_password}
+  usePasswordFiles: ${local.pg_auth}
 architecture: ${local.pg_architecture}
+primary:
+  name: main
+  extendedConfiguration: |-
+    max_connections = ${var.pg_max_conn}
+    shared_buffers = '3096MB'
+    listen_addresses = '0.0.0.0'
+    effective_cache_size = '7680MB'
+    maintenance_work_mem = '640MB'
+    checkpoint_completion_target = '0.9'
+    wal_buffers = '16MB'
+    default_statistics_target = '100'
+    random_page_cost = '1.1'
+    effective_io_concurrency = '200'
+    work_mem = '3096kB'
+    min_wal_size = '1GB'
+    max_wal_size = '4GB'
+    shared_preload_libraries = 'pgaudit'
+  initdb:
+    scripts:
+      init.sql: |
+        ${indent(8, var.eureka ? templatefile("${path.module}/resources/eureka.db.tpl", { dbs = ["kong", "keycloak"], pg_password = var.pg_password }) : "--fail safe")}
+        CREATE DATABASE ldp;
+        CREATE USER ldpadmin PASSWORD '${var.pg_ldp_user_password}';
+        CREATE USER ldpconfig PASSWORD '${var.pg_ldp_user_password}';
+        CREATE USER ldp PASSWORD '${var.pg_ldp_user_password}';
+        ALTER DATABASE ldp OWNER TO ldpadmin;
+        ALTER DATABASE ldp SET search_path TO public;
+        REVOKE CREATE ON SCHEMA public FROM public;
+        GRANT ALL ON SCHEMA public TO ldpadmin;
+        GRANT USAGE ON SCHEMA public TO ldpconfig;
+        GRANT USAGE ON SCHEMA public TO ldp;
 volumePermissions:
+  enabled: true
   image:
     registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
     repository: bitnami/os-shell
     tag: 12-debian-12-r51
     pullPolicy: IfNotPresent
   resourcesPreset: "nano"
-primary:
-  name: main
-    extendedConfiguration: |-
-      max_connections = ${var.pg_max_conn}
-      shared_buffers = '3096MB'
-      listen_addresses = '0.0.0.0'
-      effective_cache_size = '7680MB'
-      maintenance_work_mem = '640MB'
-      checkpoint_completion_target = '0.9'
-      wal_buffers = '16MB'
-      default_statistics_target = '100'
-      random_page_cost = '1.1'
-      effective_io_concurrency = '200'
-      work_mem = '3096kB'
-      min_wal_size = '1GB'
-      max_wal_size = '4GB'
-      shared_preload_libraries = 'pgaudit'
-    initdb:
-      scripts:
-        init.sql: |
-          ${indent(8, var.eureka ? templatefile("${path.module}/resources/eureka.db.tpl", { dbs = ["kong", "keycloak"], pg_password = var.pg_password }) : "--fail safe")}
-          CREATE DATABASE ldp;
-          CREATE USER ldpadmin PASSWORD '${var.pg_ldp_user_password}';
-          CREATE USER ldpconfig PASSWORD '${var.pg_ldp_user_password}';
-          CREATE USER ldp PASSWORD '${var.pg_ldp_user_password}';
-          ALTER DATABASE ldp OWNER TO ldpadmin;
-          ALTER DATABASE ldp SET search_path TO public;
-          REVOKE CREATE ON SCHEMA public FROM public;
-          GRANT ALL ON SCHEMA public TO ldpadmin;
-          GRANT USAGE ON SCHEMA public TO ldpconfig;
-          GRANT USAGE ON SCHEMA public TO ldp;
+metrics:
+  enabled: false
+  resources:
+    requests:
+      memory: 1024Mi
+    limits:
+      memory: 3072Mi
+  serviceMonitor:
+    enabled: true
+    namespace: monitoring
+    interval: 30s
+    scrapeTimeout: 30s
 EOF
   ]
 }
@@ -288,6 +305,7 @@ resource "postgresql_database" "eureka_keycloak" {
 
 # pgAdmin service deployment
 resource "helm_release" "pgadmin" {
+  depends_on = [helm_release.postgresql, module.rds]
   count      = var.pgadmin4 ? 1 : 0
   namespace  = rancher2_namespace.this.name
   repository = local.catalogs.runix
