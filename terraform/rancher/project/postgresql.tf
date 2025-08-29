@@ -127,7 +127,7 @@ volumePermissions:
   enabled: true
   image:
     registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
-    repository: bitnami/os-shell
+    repository: os-shell
     tag: 12-debian-12-r51
     pullPolicy: IfNotPresent
   resourcesPreset: "nano"
