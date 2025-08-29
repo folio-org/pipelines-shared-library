@@ -67,110 +67,65 @@ resource "helm_release" "postgresql" {
   name       = "postgresql-${var.rancher_project_name}"
   repository = local.catalogs.bitnami
   chart      = "postgresql"
-  version    = "13.2.19"
+  version    = "16.7.27"
   values = [<<-EOF
-architecture: ${local.pg_architecture}
-readReplicas:
-  replicaCount: 1
-  resources:
-    requests:
-      memory: 8192Mi
-    limits:
-      memory: 10240Mi
-  podAffinityPreset: hard
-  persistence:
-    enabled: true
-    size: '${var.pg_vol_size}Gi'
-    storageClass: gp2
-  extendedConfiguration: |-
-    shared_buffers = '3096MB'
-    max_connections = '${var.pg_max_conn}'
-    listen_addresses = '0.0.0.0'
-    effective_cache_size = '7680MB'
-    maintenance_work_mem = '640MB'
-    checkpoint_completion_target = '0.9'
-    wal_buffers = '16MB'
-    default_statistics_target = '100'
-    random_page_cost = '1.1'
-    effective_io_concurrency = '200'
-    work_mem = '3096kB'
-    min_wal_size = '1GB'
-    max_wal_size = '4GB'
-  ${indent(2, local.schedule_value)}
+global:
+  security:
+    allowInsecureImages: true
+  postgresql:
+    auth:
+      postgresPassword: ${base64decode(rancher2_secret.db-credentials.data.DB_PASSWORD)}
+      username: ${base64decode(rancher2_secret.db-credentials.data.DB_USERNAME)}
+      password: ${base64decode(rancher2_secret.db-credentials.data.DB_PASSWORD)}
+      database: ${base64decode(rancher2_secret.db-credentials.data.DB_DATABASE)}
+    service:
+      ports:
+        postgresql: "5432"
+clusterDomain: cluster.local
 image:
   registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
   repository: postgresql
   tag: ${join(".", [var.pg_version, "0"])}
   pullPolicy: IfNotPresent
-auth:
-  database: ${local.pg_eureka_db_name}
-  postgresPassword: ${var.pg_password}
-  replicationPassword: ${var.pg_password}
-  replicationUsername: ${var.pg_username}
-  usePasswordFiles: ${local.pg_auth}
-primary:
-  initdb:
-    scripts:
-      init.sql: |
-        ${indent(8, var.eureka ? templatefile("${path.module}/resources/eureka.db.tpl", { dbs = ["folio", "kong", "keycloak"], pg_password = var.pg_password }) : "--fail safe")}
-        CREATE DATABASE ldp;
-        CREATE USER ldpadmin PASSWORD '${var.pg_ldp_user_password}';
-        CREATE USER ldpconfig PASSWORD '${var.pg_ldp_user_password}';
-        CREATE USER ldp PASSWORD '${var.pg_ldp_user_password}';
-        ALTER DATABASE ldp OWNER TO ldpadmin;
-        ALTER DATABASE ldp SET search_path TO public;
-        REVOKE CREATE ON SCHEMA public FROM public;
-        GRANT ALL ON SCHEMA public TO ldpadmin;
-        GRANT USAGE ON SCHEMA public TO ldpconfig;
-        GRANT USAGE ON SCHEMA public TO ldp;
-  persistence:
-    enabled: true
-    size: '${var.pg_vol_size}Gi'
-    storageClass: gp2
-  resources:
-    requests:
-      memory: 8192Mi
-    limits:
-      memory: 10240Mi
-  podSecurityContext:
-    fsGroup: 1001
-  containerSecurityContext:
-    runAsUser: 1001
-  podAffinityPreset: hard
-  extendedConfiguration: |-
-    shared_buffers = '3096MB'
-    max_connections = '${var.pg_max_conn}'
-    listen_addresses = '0.0.0.0'
-    effective_cache_size = '7680MB'
-    maintenance_work_mem = '640MB'
-    checkpoint_completion_target = '0.9'
-    wal_buffers = '16MB'
-    default_statistics_target = '100'
-    random_page_cost = '1.1'
-    effective_io_concurrency = '200'
-    work_mem = '3096kB'
-    min_wal_size = '1GB'
-    max_wal_size = '4GB'
-  ${indent(2, local.schedule_value)}
+architecture: ${local.pg_architecture}
 volumePermissions:
-  enabled: true
   image:
     registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
-    repository: os-shell
-    tag: 11-debian-11-r91
+    repository: bitnami/os-shell
+    tag: 12-debian-12-r51
     pullPolicy: IfNotPresent
-metrics:
-  enabled: false
-  resources:
-    requests:
-      memory: 1024Mi
-    limits:
-      memory: 3072Mi
-  serviceMonitor:
-    enabled: true
-    namespace: monitoring
-    interval: 30s
-    scrapeTimeout: 30s
+  resourcesPreset: "nano"
+primary:
+  name: main
+    extendedConfiguration: |-
+      max_connections = ${var.pg_max_conn}
+      shared_buffers = '3096MB'
+      listen_addresses = '0.0.0.0'
+      effective_cache_size = '7680MB'
+      maintenance_work_mem = '640MB'
+      checkpoint_completion_target = '0.9'
+      wal_buffers = '16MB'
+      default_statistics_target = '100'
+      random_page_cost = '1.1'
+      effective_io_concurrency = '200'
+      work_mem = '3096kB'
+      min_wal_size = '1GB'
+      max_wal_size = '4GB'
+      shared_preload_libraries = 'pgaudit'
+    initdb:
+      scripts:
+        init.sql: |
+          ${indent(8, var.eureka ? templatefile("${path.module}/resources/eureka.db.tpl", { dbs = ["kong", "keycloak"], pg_password = var.pg_password }) : "--fail safe")}
+          CREATE DATABASE ldp;
+          CREATE USER ldpadmin PASSWORD '${var.pg_ldp_user_password}';
+          CREATE USER ldpconfig PASSWORD '${var.pg_ldp_user_password}';
+          CREATE USER ldp PASSWORD '${var.pg_ldp_user_password}';
+          ALTER DATABASE ldp OWNER TO ldpadmin;
+          ALTER DATABASE ldp SET search_path TO public;
+          REVOKE CREATE ON SCHEMA public FROM public;
+          GRANT ALL ON SCHEMA public TO ldpadmin;
+          GRANT USAGE ON SCHEMA public TO ldpconfig;
+          GRANT USAGE ON SCHEMA public TO ldp;
 EOF
   ]
 }

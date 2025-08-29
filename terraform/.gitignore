@@ -40,3 +40,6 @@ tfplan
 
 #
 outputs
+
+# psql_backup
+postgresql_backup.tf
