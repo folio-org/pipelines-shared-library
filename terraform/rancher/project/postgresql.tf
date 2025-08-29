@@ -99,6 +99,8 @@ primary:
       memory: 4Gi
     limits:
       memory: 8Gi
+  configuration: |-
+    include_dir = '/bitnami/postgresql/conf/conf.d'
   extendedConfiguration: |-
     max_connections = ${var.pg_max_conn}
     shared_buffers = 3096MB
