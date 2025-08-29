@@ -93,7 +93,7 @@ auth:
   usePasswordFiles: ${local.pg_auth}
 architecture: ${local.pg_architecture}
 primary:
-  existingExtendedConfigmap: "postgresql-${var.rancher_project_name}-configuration"
+  existingExtendedConfigmap: ""
   name: main
   extendedConfiguration: |-
     max_connections = ${var.pg_max_conn}
