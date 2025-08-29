@@ -99,9 +99,6 @@ primary:
       memory: 4Gi
     limits:
       memory: 8Gi
-  extraEnvVars:
-    - name: POSTGRESQL_MAX_CONNECTIONS
-      value: "${var.pg_max_conn}"
   configuration: |-
     shared_buffers = 3096MB
     listen_addresses = '0.0.0.0'
@@ -113,6 +110,7 @@ primary:
     random_page_cost = 1.1
     effective_io_concurrency = 200
     work_mem = 3096kB
+    max_connections = ${var.pg_max_conn}
     min_wal_size = 1GB
     max_wal_size = 4GB
     shared_preload_libraries = 'pgaudit'
