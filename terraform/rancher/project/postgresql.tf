@@ -109,6 +109,10 @@ primary:
     min_wal_size = '1GB'
     max_wal_size = '4GB'
     shared_preload_libraries = 'pgaudit'
+  containerSecurityContext:
+    enabled: true
+    runAsUser: 1001
+    readOnlyRootFilesystem: false
   initdb:
     scripts:
       init.sql: |
