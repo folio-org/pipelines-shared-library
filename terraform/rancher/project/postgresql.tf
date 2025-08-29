@@ -99,10 +99,7 @@ primary:
       memory: 4Gi
     limits:
       memory: 8Gi
-  command:
-    - /opt/bitnami/scripts/postgresql/entrypoint.sh
   args:
-    - postgres
     - -c
     - max_connections=${var.pg_max_conn}
     - -c
