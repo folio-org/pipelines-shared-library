@@ -67,52 +67,42 @@ resource "helm_release" "postgresql" {
   name       = "postgresql-${var.rancher_project_name}"
   repository = local.catalogs.bitnami
   chart      = "postgresql"
-  version    = "13.2.19"
+  version    = "16.7.27"
   values = [<<-EOF
-architecture: ${local.pg_architecture}
-readReplicas:
-  replicaCount: 1
-  resources:
-    requests:
-      memory: 8192Mi
-    limits:
-      memory: 10240Mi
-  podAffinityPreset: hard
-  persistence:
-    enabled: true
-    size: '${var.pg_vol_size}Gi'
-    storageClass: gp2
-  extendedConfiguration: |-
-    shared_buffers = '3096MB'
-    max_connections = '${var.pg_max_conn}'
-    listen_addresses = '0.0.0.0'
-    effective_cache_size = '7680MB'
-    maintenance_work_mem = '640MB'
-    checkpoint_completion_target = '0.9'
-    wal_buffers = '16MB'
-    default_statistics_target = '100'
-    random_page_cost = '1.1'
-    effective_io_concurrency = '200'
-    work_mem = '3096kB'
-    min_wal_size = '1GB'
-    max_wal_size = '4GB'
-  ${indent(2, local.schedule_value)}
+global:
+  security:
+    allowInsecureImages: true
+kubeVersion: ""
+nameOverride: ""
+fullnameOverride: ""
+namespaceOverride: ""
+clusterDomain: "cluster.local"
 image:
   registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
   repository: postgresql
   tag: ${join(".", [var.pg_version, "0"])}
   pullPolicy: IfNotPresent
 auth:
-  database: ${local.pg_eureka_db_name}
-  postgresPassword: ${var.pg_password}
-  replicationPassword: ${var.pg_password}
+  enablePostgresUser: true
+  postgresPassword: ${base64decode(rancher2_secret.db-credentials.data.DB_PASSWORD)}
+  username: ${base64decode(rancher2_secret.db-credentials.data.DB_USERNAME)}
+  password: ${base64decode(rancher2_secret.db-credentials.data.DB_PASSWORD)}
+  database: ${base64decode(rancher2_secret.db-credentials.data.DB_DATABASE)}
   replicationUsername: ${var.pg_username}
+  replicationPassword: ${var.pg_password}
   usePasswordFiles: ${local.pg_auth}
+architecture: ${local.pg_architecture}
 primary:
+  name: main
+  resources:
+    requests:
+      memory: 4Gi
+    limits:
+      memory: 8Gi
   initdb:
     scripts:
       init.sql: |
-        ${indent(8, var.eureka ? templatefile("${path.module}/resources/eureka.db.tpl", { dbs = ["kong", "keycloak"], pg_password = var.pg_password }) : "--fail safe")}
+        ${indent(8, var.eureka ? templatefile("${path.module}/resources/eureka.db.tpl", { dbs = [local.pg_eureka_db_name, "kong", "keycloak"], pg_password = var.pg_password }) : "--fail safe")}
         CREATE DATABASE ldp;
         CREATE USER ldpadmin PASSWORD '${var.pg_ldp_user_password}';
         CREATE USER ldpconfig PASSWORD '${var.pg_ldp_user_password}';
@@ -123,42 +113,26 @@ primary:
         GRANT ALL ON SCHEMA public TO ldpadmin;
         GRANT USAGE ON SCHEMA public TO ldpconfig;
         GRANT USAGE ON SCHEMA public TO ldp;
-  persistence:
-    enabled: true
-    size: '${var.pg_vol_size}Gi'
-    storageClass: gp2
-  resources:
-    requests:
-      memory: 8192Mi
-    limits:
-      memory: 10240Mi
-  podSecurityContext:
-    fsGroup: 1001
+      configure-postgres.sh: |
+        #!/bin/bash
+        echo "Configuring PostgreSQL settings..."
+        sed -i "s/#*max_connections = .*/max_connections = ${var.pg_max_conn}/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*shared_buffers = .*/shared_buffers = 3096MB/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*effective_cache_size = .*/effective_cache_size = 7680MB/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*maintenance_work_mem = .*/maintenance_work_mem = 640MB/" /bitnami/postgresql/data/postgresql.conf
+        echo "PostgreSQL configuration updated"
   containerSecurityContext:
+    enabled: true
     runAsUser: 1001
-  podAffinityPreset: hard
-  extendedConfiguration: |-
-    shared_buffers = '3096MB'
-    max_connections = '${var.pg_max_conn}'
-    listen_addresses = '0.0.0.0'
-    effective_cache_size = '7680MB'
-    maintenance_work_mem = '640MB'
-    checkpoint_completion_target = '0.9'
-    wal_buffers = '16MB'
-    default_statistics_target = '100'
-    random_page_cost = '1.1'
-    effective_io_concurrency = '200'
-    work_mem = '3096kB'
-    min_wal_size = '1GB'
-    max_wal_size = '4GB'
-  ${indent(2, local.schedule_value)}
+    readOnlyRootFilesystem: false
 volumePermissions:
   enabled: true
   image:
     registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
     repository: os-shell
-    tag: 11-debian-11-r91
+    tag: 12-debian-12-r51
     pullPolicy: IfNotPresent
+  resourcesPreset: "nano"
 metrics:
   enabled: false
   resources:
@@ -333,6 +307,7 @@ resource "postgresql_database" "eureka_keycloak" {
 
 # pgAdmin service deployment
 resource "helm_release" "pgadmin" {
+  depends_on = [helm_release.postgresql, module.rds]
   count      = var.pgadmin4 ? 1 : 0
   namespace  = rancher2_namespace.this.name
   repository = local.catalogs.runix
@@ -341,7 +316,7 @@ resource "helm_release" "pgadmin" {
   version    = "1.10.1"
   values = [<<-EOF
 image:
-  tag: 9.5.0
+  tag: 9.7.0
   registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
   repository: pgadmin4
   pullPolicy: IfNotPresent
