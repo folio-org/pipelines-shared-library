@@ -14,10 +14,14 @@ import java.time.temporal.ChronoUnit
 @Field final String createNamespaceJobName = Constants.JENKINS_CREATE_NAMESPACE_FROM_BRANCH_JOB
 @Field final String deleteNamespaceJobName = Constants.JENKINS_DELETE_NAMESPACE_JOB
 
-@Field final LocalDate sprintStartRecreationDate = LocalDate.parse('2025-05-14')
-@Field final boolean isSecondWednesday =
-  LocalDate.now().getDayOfWeek() == DayOfWeek.WEDNESDAY &&
-  ChronoUnit.WEEKS.between(sprintStartRecreationDate, LocalDate.now()) == 1
+@Field final LocalDate today = LocalDate.now()
+@Field final LocalDate thisWednesday = today.with(java.time.temporal.TemporalAdjusters.nextOrSame(DayOfWeek.WEDNESDAY))
+@Field final LocalDate lastWednesday = thisWednesday.minusWeeks(1)
+@Field final LocalDate nextWednesday = thisWednesday.plusWeeks(1)
+
+@Field final int weeksSinceEpoch = (int)(java.time.temporal.ChronoUnit.WEEKS.between(LocalDate.of(2025, 1, 1), thisWednesday))
+@Field final boolean isSecondWednesday = 
+  today.getDayOfWeek() == DayOfWeek.WEDNESDAY && (weeksSinceEpoch % 2 == 1)
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
@@ -50,12 +54,15 @@ if (params.REFRESH_PARAMETERS) {
 
 if (params.IS_CRON_JOB) {
   if (isSecondWednesday && params.TYPE != 'full') {
+    echo "REASON: Second Wednesday but TYPE is '${params.TYPE}' (expected 'full')"
     currentBuild.result = 'ABORTED'
     return
   } else if (!isSecondWednesday && params.TYPE != 'update') {
+    echo "REASON: Not second Wednesday but TYPE is '${params.TYPE}' (expected 'update')"
     currentBuild.result = 'ABORTED'
     return
   }
+  echo "Proceeding with execution - conditions met"
 }
 
 CreateNamespaceParameters namespace = new CreateNamespaceParameters.Builder()
