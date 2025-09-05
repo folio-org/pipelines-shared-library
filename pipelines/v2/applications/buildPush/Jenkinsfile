@@ -12,7 +12,7 @@ import org.folio.utilities.Logger
 import org.jenkinsci.plugins.pipeline.modeldefinition.Utils
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library@app-generator-tmp-workaround') _
+@Library('pipelines-shared-library') _
 
 List defaultInstallJson = new GitHubUtility(this).getEnableList('platform-complete', 'snapshot')
 defaultInstallJson.addAll(new GitHubUtility(this).getEurekaList('platform-complete', 'snapshot'))
