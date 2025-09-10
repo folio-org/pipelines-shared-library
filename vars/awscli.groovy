@@ -47,7 +47,11 @@ void createEcrRepo(String region, String repo_name) {
 }
 
 String listEcrImages(String region, String repo_name) {
+  if (repo_name == 'folio-module-sidecar') {
+    return sh(script: """aws ecr describe-images --region ${region} --repository-name ${repo_name} --query 'sort_by(imageDetails, &imagePushedAt)[*].imageTags[0]' --output json | grep native | tail -1""", returnStdout: true).trim()
+  } else {
   return sh(script: "aws ecr describe-images --region ${region} --repository-name ${repo_name} --query 'sort_by(imageDetails,& imagePushedAt)[-1].imageTags[0]' --output json", returnStdout: true).trim()
+  }
 }
 
 void deleteEcrImage(String region, String repo_name, String image_tag) {
