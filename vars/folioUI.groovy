@@ -70,13 +70,16 @@ void build(String okapiUrl, OkapiTenant tenant, boolean isEureka = false, String
             , text: make_tpl(readFile(file: 'stripes.config.js', encoding: "UTF-8") as String, binding)
             , encoding: 'UTF-8')
 
-          List eurekaCustomUiModules = ["folio_authorization-policies",
-                                        "folio_authorization-roles",
-                                        "folio_plugin-select-application"]
-          eurekaCustomUiModules.each { moduleName ->
+          // R1-2025 specific versions for Eureka UI modules
+          Map eurekaCustomUiModules = [
+            "folio_authorization-policies": "2.0.0",
+            "folio_authorization-roles": "2.0.3",
+            "folio_plugin-select-application": "2.0.0"
+          ]
+          eurekaCustomUiModules.each { moduleName, moduleVersion ->
             FolioModule uiModule = new FolioModule()
             uiModule.setName(moduleName)
-            uiModule.setVersion(">=1.0.0")
+            uiModule.setVersion(moduleVersion)
             tenantUi.customUiModules.add(uiModule)
           }
         }

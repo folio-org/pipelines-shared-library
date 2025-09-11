@@ -81,7 +81,7 @@ class Constants {
   public static final List<Map<String, ?>> APPLICATION_COMPLETE = [
     [
       name: "app-platform-minimal"
-      , branch: "snapshot"
+      , branch: "master"  // For R1-2025 test
       , consortia: false
       , core     : true
       , byDefault: true
@@ -89,7 +89,7 @@ class Constants {
     ],
     [
       name: "app-platform-complete"
-      , branch: "snapshot"
+      , branch: "master"  // For R1-2025 test
       , consortia: false
       , core     : false
       , byDefault: true
@@ -97,7 +97,7 @@ class Constants {
     ],
     [
       name: "app-consortia"
-      , branch: "snapshot"
+      , branch: "master"  // For R1-2025 test
       , consortia: true
       , core     : false
       , byDefault: true
@@ -105,7 +105,7 @@ class Constants {
     ],
     [
       name: "app-consortia-manager"
-      , branch: "snapshot"
+      , branch: "master"  // For R1-2025 test
       , consortia: true
       , core     : false
       , byDefault: true
@@ -113,7 +113,7 @@ class Constants {
     ],
     [
       name: "app-linked-data"
-      , branch: "snapshot"
+      , branch: "master"  // For R1-2025 test
       , consortia: false
       , core     : false
       , byDefault: true
@@ -121,7 +121,7 @@ class Constants {
     ],
     [
       name: "app-acquisitions"
-      , branch: "snapshot"
+      , branch: "master"  // For R1-2025 test
       , consortia: false
       , core: false
       , byDefault: true
@@ -132,7 +132,7 @@ class Constants {
       , branch: "snapshot"
       , consortia: false
       , core: false
-      , byDefault: true
+      , byDefault: false  // Not in R1-2025
       , dependsOn: ["app-platform-minimal", "app-platform-complete", "app-acquisitions"]
     ],
     [
@@ -140,7 +140,7 @@ class Constants {
       , branch: "snapshot"
       , consortia: false
       , core: false
-      , byDefault: true
+      , byDefault: false  // Not in R1-2025
       , dependsOn: ["app-platform-minimal", "app-platform-complete", "app-acquisitions"]
     ],
     [
@@ -148,7 +148,7 @@ class Constants {
       , branch: "snapshot"
       , consortia: false
       , core: false
-      , byDefault: true
+      , byDefault: false  // Not in R1-2025
       , dependsOn: ["app-platform-minimal", "app-platform-complete", "app-acquisitions"]
     ],
     [
@@ -156,7 +156,7 @@ class Constants {
       , branch: "snapshot"
       , consortia: false
       , core: false
-      , byDefault: true
+      , byDefault: false  // Not in R1-2025
       , dependsOn: ["app-platform-minimal", "app-platform-complete", "app-acquisitions"]
     ],
     [
@@ -164,7 +164,7 @@ class Constants {
       , branch: "snapshot"
       , consortia: false
       , core     : false
-      , byDefault: true
+      , byDefault: false  // Not in R1-2025
       , dependsOn: ["app-platform-minimal"]
     ],
     [
@@ -172,7 +172,7 @@ class Constants {
       , branch: "snapshot"
       , consortia: false
       , core     : false
-      , byDefault: true
+      , byDefault: false  // Not in R1-2025
       , dependsOn: ["app-platform-minimal"]
     ],
     [
@@ -180,7 +180,7 @@ class Constants {
       , branch: "snapshot"
       , consortia: false
       , core     : false
-      , byDefault: true
+      , byDefault: false  // Not in R1-2025
       , dependsOn: ["app-platform-minimal", "app-licenses"]
     ],
     [
@@ -188,7 +188,7 @@ class Constants {
       , branch: "snapshot"
       , consortia: false
       , core     : false
-      , byDefault: true
+      , byDefault: false  // Not in R1-2025
       , dependsOn: ["app-platform-minimal"]
     ],
     [
@@ -196,12 +196,12 @@ class Constants {
       , branch: "snapshot"
       , consortia: false
       , core     : false
-      , byDefault: true
+      , byDefault: false  // Not in R1-2025
       , dependsOn: ["app-platform-minimal", "app-service-interaction"]
     ],
     [
       name: "app-dcb"
-      , branch: "snapshot"
+      , branch: "master"  // For R1-2025 test
       , consortia: true
       , core     : false
       , byDefault: true
@@ -209,7 +209,7 @@ class Constants {
     ],
     [
       name: "app-edge-complete"
-      , branch: "snapshot"
+      , branch: "master"  // For R1-2025 test
       , consortia: false
       , core     : false
       , byDefault: true
@@ -217,7 +217,7 @@ class Constants {
     ],
     [
       name: "app-reading-room"
-      , branch: "snapshot"
+      , branch: "master"  // For R1-2025 test
       , consortia: false
       , core: false
       , byDefault: true
@@ -225,7 +225,7 @@ class Constants {
     ],
     [
       name: "app-erm-usage"
-      , branch: "snapshot"
+      , branch: "master"  // For R1-2025 test
       , consortia: false
       , core: false
       , byDefault: true
@@ -233,7 +233,7 @@ class Constants {
     ],
     [
       name: "app-inn-reach"
-      , branch: "snapshot"
+      , branch: "master"  // For R1-2025 test
       , consortia: false
       , core: false
       , byDefault: true
@@ -241,7 +241,7 @@ class Constants {
     ],
     [
       name: "app-fqm"
-      , branch: "snapshot"
+      , branch: "master"  // For R1-2025 test
       , consortia: false
       , core: false
       , byDefault: true
@@ -252,7 +252,7 @@ class Constants {
       , branch: "snapshot"
       , consortia: false
       , core: false
-      , byDefault: true
+      , byDefault: false  // Not in R1-2025
       , dependsOn: ["app-platform-minimal", "app-platform-complete", "app-acquisitions", "app-fqm"]
     ],
     [
@@ -260,7 +260,7 @@ class Constants {
       , branch: "snapshot"
       , consortia: true
       , core: false
-      , byDefault: true
+      , byDefault: false  // Not in R1-2025
       , dependsOn: ["app-platform-minimal", "app-platform-complete", "app-dcb"]
     ],
     [
@@ -268,7 +268,7 @@ class Constants {
       , branch: "snapshot"
       , consortia: true
       , core: false
-      , byDefault: true
+      , byDefault: false  // Not in R1-2025
       , dependsOn: ["app-platform-minimal", "app-platform-complete", "app-requests-mediated-ui"]
     ],
     [
@@ -276,15 +276,15 @@ class Constants {
       , branch: "snapshot"
       , consortia: true
       , core: false
-      , byDefault: true
+      , byDefault: false  // Not in R1-2025
       , dependsOn: ["app-platform-minimal", "app-platform-complete", "app-requests-mediated"]
     ],
     [
       name: "app-marc-migrations"
-      , branch: "snapshot"
+      , branch: "master"  // For R1-2025 test
       , consortia: false
       , core: false
-      , byDefault: false
+      , byDefault: true  // Available in R1-2025
       , dependsOn: ["app-platform-minimal", "app-platform-complete"]
     ],
     [
@@ -300,12 +300,12 @@ class Constants {
       , branch: "snapshot"
       , consortia: false
       , core: false
-      , byDefault: true
+      , byDefault: false  // Not in R1-2025
       , dependsOn: ["app-platform-minimal"]
     ],
     [
       name: "app-oai-pmh"
-      , branch: "snapshot"
+      , branch: "master"  // For R1-2025 test
       , consortia: false
       , core: false
       , byDefault: true
@@ -313,7 +313,7 @@ class Constants {
     ],
     [
       name: "app-bulk-edit"
-      , branch: "snapshot"
+      , branch: "master"  // For R1-2025 test
       , consortia: false
       , core: false
       , byDefault: true
@@ -324,7 +324,7 @@ class Constants {
       , branch: "snapshot"
       , consortia: false
       , core: false
-      , byDefault: true
+      , byDefault: false  // Not in R1-2025
       , dependsOn: ["app-platform-minimal"]
     ]
   ]
