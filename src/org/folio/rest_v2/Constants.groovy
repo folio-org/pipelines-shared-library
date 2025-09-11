@@ -209,7 +209,7 @@ class Constants {
     ],
     [
       name: "app-edge-complete"
-      , branch: "master"  // For R1-2025 test
+      , branch: "RANCHER-2537-fix-r1-2025"  // Fixed branch without edge-fqm conflict
       , consortia: false
       , core     : false
       , byDefault: true
