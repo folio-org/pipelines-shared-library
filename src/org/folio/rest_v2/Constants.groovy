@@ -225,7 +225,7 @@ class Constants {
     ],
     [
       name: "app-erm-usage"
-      , branch: "master"  // For R1-2025 test
+      , branch: "RANCHER-2537-fix-dependency"  // Fixed to use caret version
       , consortia: false
       , core: false
       , byDefault: true
