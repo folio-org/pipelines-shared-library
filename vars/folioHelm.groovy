@@ -304,7 +304,9 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
         break
 
       case 'mgr-tenant-entitlements':
-          moduleConfig['extraEnvVars'] +=  ns.getNamespaceName() == 'cikarate' ? [
+          // Temporarily disable interface integrity validation for all environments
+          // TODO: This is a workaround for R1-2025 where some interfaces are incorrectly marked as required
+          moduleConfig['extraEnvVars'] += [
             [
               name : 'VALIDATION_INTERFACE_INTEGRITY_ENABLED',
               value: 'false'
@@ -313,17 +315,7 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
               name : 'FLOW_ENGINE_PRINT_FLOW_RESULTS',
               value: 'true'
             ]
-          ] : []
-          moduleConfig['extraEnvVars'] +=  ns.getNamespaceName() == 'dojo' ? [
-            [
-              name : 'VALIDATION_INTERFACE_INTEGRITY_ENABLED',
-              value: 'false'
-            ],
-            [
-              name : 'FLOW_ENGINE_PRINT_FLOW_RESULTS',
-              value: 'true'
-            ]
-          ] : []
+          ]
 //          moduleConfig['extraEnvVars'] +=  ns.getNamespaceName() == 'cikarate' ? [
 //            name : 'FLOW_ENGINE_THREADS_NUM',
 //            value: '1'
