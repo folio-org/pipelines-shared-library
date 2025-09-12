@@ -24,3 +24,15 @@ variable "dependencies" {
   type        = list(any)
   default     = []
 }
+
+variable "image_repository" {
+  description = "Docker repository for the mgr-applications image"
+  type        = string
+  default     = "folioorg/mgr-applications"
+}
+
+variable "image_tag" {
+  description = "Docker tag for the mgr-applications image"
+  type        = string
+  default     = "3.0.2"
+}

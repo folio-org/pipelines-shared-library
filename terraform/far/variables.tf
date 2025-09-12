@@ -74,3 +74,27 @@ variable "snapshot_id" {
   type        = string
   default     = null
 }
+
+variable "mgr_app_image_repository" {
+  description = "Docker repository for the mgr-applications image"
+  type        = string
+  default     = "folioorg/mgr-applications"
+}
+
+variable "mgr_app_image_tag" {
+  description = "Docker tag for the mgr-applications image"
+  type        = string
+  default     = "3.0.2"
+}
+
+variable "existing_secret_name" {
+  description = "Name of existing AWS Secrets Manager secret containing database credentials (use when restoring from snapshot)"
+  type        = string
+  default     = null
+}
+
+variable "enable_backups" {
+  description = "Enable automated EBS volume backups using AWS Data Lifecycle Manager"
+  type        = bool
+  default     = true
+}
