@@ -130,7 +130,16 @@ Map generateFromRepository(String repoName, FolioInstallJson moduleList, String 
       logger.info("Using project version: ${projectVersion} (from pom version: ${pomVersion})")
       
       // Set the version in pom.xml using versions plugin
-      sh "mvn versions:set -DnewVersion=${projectVersion} -DgenerateBackupPoms=false"
+      withMaven(
+        jdk: Constants.JAVA_TOOL_NAME,
+        maven: Constants.MAVEN_TOOL_NAME,
+        mavenOpts: '-XX:MaxRAMPercentage=85',
+        mavenLocalRepo: "${new PodTemplates(this).WORKING_DIR}/.m2/repository",
+        traceability: false,
+        options: [artifactsPublisher(disabled: true)]
+      ) {
+        sh "mvn versions:set -DnewVersion=${projectVersion} -DgenerateBackupPoms=false"
+      }
     }
 
     return _generate(repoName, debug,"org.folio:folio-application-generator:generateFromJson"
