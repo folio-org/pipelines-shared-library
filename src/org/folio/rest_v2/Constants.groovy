@@ -113,7 +113,7 @@ class Constants {
     ],
     [
       name: "app-linked-data"
-      , branch: "master"  // For R1-2025 test
+      , branch: "RANCHER-2537-fix-dependency"  // Fixed dependency version
       , consortia: false
       , core     : false
       , byDefault: true
