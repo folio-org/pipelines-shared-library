@@ -74,7 +74,8 @@ void build(String okapiUrl, OkapiTenant tenant, boolean isEureka = false, String
           Map eurekaCustomUiModules = [
             "folio_authorization-policies": "2.0.0",
             "folio_authorization-roles": "2.0.3",
-            "folio_plugin-select-application": "2.0.0"
+            "folio_plugin-select-application": "2.0.0",
+            "folio_inn-reach": "6.0.1"
           ]
           eurekaCustomUiModules.each { moduleName, moduleVersion ->
             FolioModule uiModule = new FolioModule()
