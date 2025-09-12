@@ -121,8 +121,18 @@ Map generateFromRepository(String repoName, FolioInstallJson moduleList, String 
       writeJSON file: repoName + ".template.json", json: updatedTemplate
     }
 
+    // Read pom.xml to get the version and remove SNAPSHOT suffix for release builds
+    String projectVersion = ""
+    if (fileExists('pom.xml')) {
+      def pom = readMavenPom file: 'pom.xml'
+      String pomVersion = pom.getVersion()
+      // Remove -SNAPSHOT suffix for release versions
+      projectVersion = pomVersion.replace('-SNAPSHOT', '')
+      logger.info("Using project version: ${projectVersion} (from pom version: ${pomVersion})")
+    }
+
     return _generate(repoName, debug,"org.folio:folio-application-generator:generateFromJson"
-      , "-Dfolio-application-generator.version=1.1.0")
+      , "-Dfolio-application-generator.version=1.1.0${projectVersion ? ' -Dproject.version=' + projectVersion : ''}")
   }
 }
 

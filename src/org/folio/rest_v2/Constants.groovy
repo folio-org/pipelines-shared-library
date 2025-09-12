@@ -89,7 +89,7 @@ class Constants {
     ],
     [
       name: "app-platform-complete"
-      , branch: "RANCHER-2537-fix-r1-2025"  // Fixed dependency version for R1-2025
+      , branch: "master"  // For R1-2025 test
       , consortia: false
       , core     : false
       , byDefault: true
