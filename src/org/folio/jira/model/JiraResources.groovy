@@ -14,13 +14,12 @@ class JiraResources {
 
   static final String ISSUE_COMMENT = "comment"
 
-  static final String SEARCH = "search"
+  static final String SEARCH = "search/jql"
 
   static final String FIELD = "field"
 
   static final String STATUS = "status"
 
   static final String PRIORITY = "priority"
-
 
 }
