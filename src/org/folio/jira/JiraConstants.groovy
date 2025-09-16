@@ -9,6 +9,7 @@ class JiraConstants {
   static final String API_URL = "${JiraConstants.URL}${API_URL_PART}"
 
   static final String ISSUE_URL = "${API_URL}${JiraResources.ISSUE}/"
+  static final String SEARCH_URL = "${API_URL}search/jql"
   static final String ISSUES_VIEW_URL = "${URL}/issues"
   static final String FILTERED_ISSUES_VIEW_URL = "${ISSUES_VIEW_URL}/?jql="
 
