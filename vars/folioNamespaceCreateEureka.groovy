@@ -120,7 +120,7 @@ void call(CreateNamespaceParameters args) {
         String tag = (awscli.listEcrImages(Constants.AWS_REGION, 'folio-module-sidecar')).replaceAll('"', '')
         logger.info("Previously built SC image is 'CUSTOM/NATIVE'. Using it for Eureka env.\nImage tag: ${tag}")
         installJson.removeAll { module -> module.id =~ /folio-module-sidecar-.*/ }
-        installJson.add([id: "folio-module-sidecar-${tag}", action: 'enable'])
+        installJson.add([id: "folio-module-sidecar-${tag.replace(",", "")}", action: 'enable'])
         writeJSON(file: 'used-install.json', json: installJson, pretty: 4)
         archiveArtifacts 'used-install.json' // Archive used modules version for review
       }
