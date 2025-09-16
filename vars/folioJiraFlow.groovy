@@ -33,7 +33,7 @@ void createJiraTicket(String summary, String DevTeamId, String type) {
 
 def searchForExistingJiraTickets(String jql) {
   def issuesData
-  String search_url = "${JiraConstants.API_URL}search?jql=${jql}"
+  String search_url = "${JiraConstants.SEARCH_URL}?jql=${jql}"
   withCredentials([string(credentialsId: 'JiraFlow', variable: 'JiraToken')]) {
     Map headers = [
       "Content-Type" : "application/json",
