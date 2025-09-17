@@ -49,6 +49,10 @@ List<ChangelogEntry> call(String previousSha, String currentSha) {
     switch (module.type) {
       case ModuleType.BACKEND:
       case ModuleType.EDGE:
+      case ModuleType.MGR:
+      case ModuleType.SIDECAR:
+      case ModuleType.KONG:
+      case ModuleType.KEYCLOAK:
         repositoryName = module.name
         try {
           changeLogEntry.sha = getJenkinsBuildSha(repositoryName, module.buildId.toInteger())
@@ -78,6 +82,11 @@ List<ChangelogEntry> call(String previousSha, String currentSha) {
           echo "Error getting workflow run SHA for ${repositoryName} build #${module.buildId}: ${e.getMessage()}"
           changeLogEntry.sha = 'Unknown'
         }
+        break
+      default:
+        echo "Warning: Unknown module type ${module.type} for module ${module.name}. Skipping SHA lookup."
+        repositoryName = module.name
+        changeLogEntry.sha = 'Unknown'
         break
     }
 
