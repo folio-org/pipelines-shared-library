@@ -89,7 +89,13 @@ List<ChangelogEntry> call(String previousSha, String currentSha) {
     }
 
     changeLogEntry.author = commitInfo?.commit?.author?.name ?: 'Unknown author'
-    changeLogEntry.commitMessage = commitInfo?.commit?.message?.split('\n', 2)?.getAt(0) ?: "Unable to fetch commit info for ${module.name} (build: ${module.buildId})"
+    
+    if (changeLogEntry.sha == 'Unknown') {
+      changeLogEntry.commitMessage = "Unable to find build ${module.buildId} for ${module.name} in Jenkins"
+    } else {
+      changeLogEntry.commitMessage = commitInfo?.commit?.message?.split('\n', 2)?.getAt(0) ?: "Unable to fetch commit info for ${module.name} (build: ${module.buildId})"
+    }
+    
     changeLogEntry.commitLink = commitInfo?.html_url ?: null
 
     changeLogEntriesList << changeLogEntry
@@ -114,15 +120,16 @@ String getJenkinsBuildSha(String moduleName, int moduleBuildId) {
   }
 
   try {
-    Job moduleJob = Jenkins.instance.getItemByFullName("/folio-org/${moduleName}/master")
+    String jobPath = "/folio-org/${moduleName}/master"
+    Job moduleJob = Jenkins.instance.getItemByFullName(jobPath)
     if (moduleJob == null) {
-      logger.warning("Job not found for module: ${moduleName}")
+      logger.warning("Jenkins job not found at path: ${jobPath}")
       return null
     }
 
     Run moduleBuild = moduleJob.getBuildByNumber(moduleBuildId)
     if (moduleBuild == null) {
-      logger.warning("Build not found for module: ${moduleName} with Build ID: ${moduleBuildId}")
+      logger.warning("Build #${moduleBuildId} not found for job: ${jobPath}")
       return null
     }
 
@@ -130,19 +137,22 @@ String getJenkinsBuildSha(String moduleName, int moduleBuildId) {
       action.getRemoteUrls()?.size() > 0 && action.getRemoteUrls()[0] == "https://github.com/folio-org/${moduleName}.git"
     }
     if (moduleBuildAction == null) {
-      logger.warning("Build data not found for module: ${moduleName} build #${moduleBuildId}")
+      logger.warning("No BuildData action found with GitHub remote URL for ${jobPath} build #${moduleBuildId}")
+      logger.warning("Available BuildData actions: ${moduleBuild.getActions(BuildData).collect { it.getRemoteUrls() }}")
       return null
     }
 
     String sha = moduleBuildAction.getLastBuiltRevision()?.sha1?.name
     if (!sha) {
-      logger.warning("SHA not found in build data for module: ${moduleName} build #${moduleBuildId}")
+      logger.warning("No SHA found in BuildData for ${jobPath} build #${moduleBuildId}")
       return null
     }
 
+    logger.info("Successfully retrieved SHA ${sha} for ${jobPath} build #${moduleBuildId}")
     return sha
   } catch (Exception e) {
     logger.warning("Exception getting build SHA for ${moduleName} build #${moduleBuildId}: ${e.getMessage()}")
+    logger.warning("Exception stack trace: ${e.getStackTrace()}")
     return null
   }
 }
