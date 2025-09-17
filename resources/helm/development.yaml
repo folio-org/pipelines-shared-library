@@ -820,6 +820,8 @@ mod-circulation:
     value: '50000'
   - name: REPLICATION_FACTOR
     value: '1'
+  - name: ENABLE_FOR_USE_AT_LOCATION
+    value: 'true'
   integrations:
     kafka:
       enabled: true
