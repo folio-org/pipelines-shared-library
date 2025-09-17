@@ -50,23 +50,46 @@ List<ChangelogEntry> call(String previousSha, String currentSha) {
       case ModuleType.BACKEND:
       case ModuleType.EDGE:
         repositoryName = module.name
-        changeLogEntry.sha = getJenkinsBuildSha(repositoryName, module.buildId.toInteger())
+        try {
+          changeLogEntry.sha = getJenkinsBuildSha(repositoryName, module.buildId.toInteger())
+          if (!changeLogEntry.sha) {
+            echo "Warning: Could not find Jenkins build SHA for ${repositoryName} build #${module.buildId}"
+            changeLogEntry.sha = 'Unknown'
+          }
+        } catch (Exception e) {
+          echo "Error getting Jenkins build SHA for ${repositoryName} build #${module.buildId}: ${e.getMessage()}"
+          changeLogEntry.sha = 'Unknown'
+        }
         break
       case ModuleType.FRONTEND:
         repositoryName = module.name.replace('folio_', 'ui-')
-        changeLogEntry.sha = gitHubClient.getWorkflowRunByNumber(repositoryName, 'build-npm.yml', module.buildId)?.head_sha ?: null
+        try {
+          def workflowRun = gitHubClient.getWorkflowRunByNumber(repositoryName, 'build-npm.yml', module.buildId)
+          changeLogEntry.sha = workflowRun?.head_sha ?: null
+          if (!changeLogEntry.sha) {
+            echo "Warning: Could not find workflow run SHA for ${repositoryName} build #${module.buildId}"
+            changeLogEntry.sha = 'Unknown'
+          }
+        } catch (Exception e) {
+          echo "Error getting workflow run SHA for ${repositoryName} build #${module.buildId}: ${e.getMessage()}"
+          changeLogEntry.sha = 'Unknown'
+        }
         break
     }
 
     Map commitInfo = [:]
-    if (changeLogEntry.sha) {
-      commitInfo = gitHubClient.getCommitInfo(changeLogEntry.sha, repositoryName)
-    } else {
-      changeLogEntry.sha = 'Unknown'
+    try {
+      if (changeLogEntry.sha && changeLogEntry.sha != 'Unknown') {
+        commitInfo = gitHubClient.getCommitInfo(changeLogEntry.sha, repositoryName)
+      } else {
+        echo "Warning: SHA is null or 'Unknown' for module ${module.name} (${module.type}). Build ID: ${module.buildId}"
+      }
+    } catch (Exception e) {
+      echo "Error fetching commit info for SHA: ${changeLogEntry.sha}, repository: ${repositoryName}. Error: ${e.getMessage()}"
     }
 
-    changeLogEntry.author = commitInfo?.commit?.author?.name ?: null
-    changeLogEntry.commitMessage = commitInfo?.commit?.message?.split('\n', 2)?.getAt(0) ?: 'Unable to fetch commit info'
+    changeLogEntry.author = commitInfo?.commit?.author?.name ?: 'Unknown author'
+    changeLogEntry.commitMessage = commitInfo?.commit?.message?.split('\n', 2)?.getAt(0) ?: "Unable to fetch commit info for ${module.name} (build: ${module.buildId})"
     changeLogEntry.commitLink = commitInfo?.html_url ?: null
 
     changeLogEntriesList << changeLogEntry
@@ -85,31 +108,43 @@ static List getUpdatedModulesList(Map commitInfo) {
 String getJenkinsBuildSha(String moduleName, int moduleBuildId) {
   Logger logger = new Logger(this, 'getJenkinsBuildSha')
 
-  if (!moduleBuildId) {
-    logger.warning("Module id is null or empty!")
+  if (!moduleBuildId || moduleBuildId <= 0) {
+    logger.warning("Invalid module build ID: ${moduleBuildId} for module: ${moduleName}")
     return null
   }
 
-  Job moduleJob = Jenkins.instance.getItemByFullName("/folio-org/${moduleName}/master")
-  if (moduleJob == null) {
-    logger.warning("Job not found for module: ${moduleName}")
+  try {
+    Job moduleJob = Jenkins.instance.getItemByFullName("/folio-org/${moduleName}/master")
+    if (moduleJob == null) {
+      logger.warning("Job not found for module: ${moduleName}")
+      return null
+    }
+
+    Run moduleBuild = moduleJob.getBuildByNumber(moduleBuildId)
+    if (moduleBuild == null) {
+      logger.warning("Build not found for module: ${moduleName} with Build ID: ${moduleBuildId}")
+      return null
+    }
+
+    Action moduleBuildAction = moduleBuild.getActions(BuildData).find { action -> 
+      action.getRemoteUrls()?.size() > 0 && action.getRemoteUrls()[0] == "https://github.com/folio-org/${moduleName}.git"
+    }
+    if (moduleBuildAction == null) {
+      logger.warning("Build data not found for module: ${moduleName} build #${moduleBuildId}")
+      return null
+    }
+
+    String sha = moduleBuildAction.getLastBuiltRevision()?.sha1?.name
+    if (!sha) {
+      logger.warning("SHA not found in build data for module: ${moduleName} build #${moduleBuildId}")
+      return null
+    }
+
+    return sha
+  } catch (Exception e) {
+    logger.warning("Exception getting build SHA for ${moduleName} build #${moduleBuildId}: ${e.getMessage()}")
     return null
   }
-
-  Run moduleBuild = moduleJob.getBuildByNumber(moduleBuildId)
-  if (moduleBuild == null) {
-    logger.warning("Build not found for module: ${moduleName} with Build ID: ${moduleBuildId}")
-    return null
-  }
-
-  Action moduleBuildAction = moduleBuild.getActions(BuildData).find { moduleBuildAction -> moduleBuildAction.getRemoteUrls()[0] == "https://github.com/folio-org/${moduleName}.git"
-  }
-  if (moduleBuildAction == null) {
-    logger.warning("Build data not found for module: ${moduleName}")
-    return null
-  }
-
-  return moduleBuildAction.getLastBuiltRevision()?.sha1?.name ?: null
 }
 
 @SuppressWarnings('GrMethodMayBeStatic')
