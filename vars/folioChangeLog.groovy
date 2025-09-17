@@ -24,13 +24,26 @@ List<ChangelogEntry> call(String previousSha, String currentSha) {
   List allInstallJsonChangeLogShas = gitHubClient.getFileChangeHistory(currentSha, 'install.json', platformCompleteRepositoryName)
     .collect { it['sha'] }
 
+  List allEurekaPlatformJsonChangeLogShas = gitHubClient.getFileChangeHistory(currentSha, 'eureka-platform.json', platformCompleteRepositoryName)
+    .collect { it['sha'] }
+
   List installJsonChangeLogShas = allChangeLogShas.intersect(allInstallJsonChangeLogShas)
+  List eurekaPlatformJsonChangeLogShas = allChangeLogShas.intersect(allEurekaPlatformJsonChangeLogShas)
 
 
   List updatedModulesList = []
+  
+  echo "Processing install.json changes: ${installJsonChangeLogShas.size()} commits"
   installJsonChangeLogShas.each { sha ->
-    updatedModulesList.addAll(getUpdatedModulesList(gitHubClient.getCommitInfo(sha, platformCompleteRepositoryName)))
+    updatedModulesList.addAll(getUpdatedModulesList(gitHubClient.getCommitInfo(sha, platformCompleteRepositoryName), 'install.json'))
   }
+  
+  echo "Processing eureka-platform.json changes: ${eurekaPlatformJsonChangeLogShas.size()} commits"
+  eurekaPlatformJsonChangeLogShas.each { sha ->
+    updatedModulesList.addAll(getUpdatedModulesList(gitHubClient.getCommitInfo(sha, platformCompleteRepositoryName), 'eureka-platform.json'))
+  }
+  
+  echo "Total modules found: ${updatedModulesList.size()}"
 
   List<FolioModule> updatedModulesObjectsList = []
   updatedModulesList.each { id ->
@@ -121,11 +134,21 @@ List<ChangelogEntry> call(String previousSha, String currentSha) {
   return changeLogEntriesList
 }
 
-static List getUpdatedModulesList(Map commitInfo) {
-  String pattern = /(?m)-\s+"id" : "(.*?)",\n\+\s+"id" : "(.*?)",/
-  Matcher matches = commitInfo['files'].find { it['filename'] == 'install.json' }['patch'] =~ pattern
-
-  return matches.collect { match -> match[2] }
+static List getUpdatedModulesList(Map commitInfo, String filename = 'install.json') {
+  try {
+    String pattern = /(?m)-\s+"id" : "(.*?)",\n\+\s+"id" : "(.*?)",/
+    def fileInfo = commitInfo['files']?.find { it['filename'] == filename }
+    
+    if (!fileInfo || !fileInfo['patch']) {
+      return []
+    }
+    
+    Matcher matches = fileInfo['patch'] =~ pattern
+    return matches.collect { match -> match[2] }
+  } catch (Exception e) {
+    echo "Error parsing ${filename} changes: ${e.getMessage()}"
+    return []
+  }
 }
 
 String getJenkinsBuildSha(String moduleName, int moduleBuildId) {
