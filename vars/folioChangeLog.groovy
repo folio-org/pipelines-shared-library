@@ -63,12 +63,16 @@ List<ChangelogEntry> call(String previousSha, String currentSha) {
         break
       case ModuleType.FRONTEND:
         repositoryName = module.name.replace('folio_', 'ui-')
+        echo "Looking for GitHub workflow run for repository: ${repositoryName}, workflow: build-npm.yml, build: ${module.buildId}"
         try {
           def workflowRun = gitHubClient.getWorkflowRunByNumber(repositoryName, 'build-npm.yml', module.buildId)
           changeLogEntry.sha = workflowRun?.head_sha ?: null
           if (!changeLogEntry.sha) {
             echo "Warning: Could not find workflow run SHA for ${repositoryName} build #${module.buildId}"
+            echo "Workflow run response: ${workflowRun}"
             changeLogEntry.sha = 'Unknown'
+          } else {
+            echo "Successfully found SHA ${changeLogEntry.sha} for ${repositoryName} build #${module.buildId}"
           }
         } catch (Exception e) {
           echo "Error getting workflow run SHA for ${repositoryName} build #${module.buildId}: ${e.getMessage()}"
@@ -91,7 +95,11 @@ List<ChangelogEntry> call(String previousSha, String currentSha) {
     changeLogEntry.author = commitInfo?.commit?.author?.name ?: 'Unknown author'
     
     if (changeLogEntry.sha == 'Unknown') {
-      changeLogEntry.commitMessage = "Unable to find build ${module.buildId} for ${module.name} in Jenkins"
+      if (module.type == ModuleType.FRONTEND) {
+        changeLogEntry.commitMessage = "Unable to find GitHub workflow run ${module.buildId} for ${repositoryName}"
+      } else {
+        changeLogEntry.commitMessage = "Unable to find Jenkins build ${module.buildId} for ${repositoryName}"
+      }
     } else {
       changeLogEntry.commitMessage = commitInfo?.commit?.message?.split('\n', 2)?.getAt(0) ?: "Unable to fetch commit info for ${module.name} (build: ${module.buildId})"
     }
