@@ -369,8 +369,8 @@ void generateAndPublishAllureReport(List resultPaths) {
 
   stage('[Allure] Generate report') {
     def allureHome = tool type: 'allure', name: Constants.CYPRESS_ALLURE_VERSION
-    // Set Java heap size to 2GB to prevent OutOfMemoryError during report generation reported by Ostap in RANCHER-2546
-    sh "JAVA_OPTS='-Xmx2G' ${allureHome}/bin/allure generate --clean ${resultPaths.collect { path -> "${path}/allure-results" }.join(" ")}"
+    // Set Java heap size to 4GB to prevent OutOfMemoryError during report generation with multiple test result sets
+    sh "JAVA_OPTS='-Xmx4G' ${allureHome}/bin/allure generate --clean ${resultPaths.collect { path -> "${path}/allure-results" }.join(" ")}"
   }
 
   stage('[Allure] Publish report') {
