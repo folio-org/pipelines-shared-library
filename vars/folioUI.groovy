@@ -32,13 +32,17 @@ void build(String okapiUrl, OkapiTenant tenant, boolean isEureka = false, String
           String tenantId = tenant.getTenantId()
           okapiUrl = "https://${kongDomain}"
           sh "cp -R -f eureka-tpl/* ."
+          
+          // Build tenant options based on consortia structure
+          String tenantOptionsJson = buildTenantOptionsJson(tenantId)
+          
           Map binding = [
             kongUrl          : "https://${kongDomain}",
             tenantUrl        : "https://${tenantUi.getDomain()}",
             keycloakUrl      : "https://${keycloakDomain}",
             hasAllPerms      : false,
             isSingleTenant   : true,
-            tenantOptions    : """{${tenantId}: {name: "${tenantId}", clientId: "${tenantId}-application"}}""",
+            tenantOptions    : tenantOptionsJson,
             enableEcsRequests: enableEcsRequests
           ]
 
@@ -228,4 +232,49 @@ private List<String> _updatePackageJsonFile(TenantUi tenantUi) {
 static def make_tpl(String tpl, Map data) {
   def ui_tpl = ((new StreamingTemplateEngine().createTemplate(tpl)).make(data)).toString()
   return ui_tpl
+}
+
+/**
+ * Builds tenant options JSON for consortia central tenants including all member tenants
+ */
+private String buildTenantOptionsJson(String tenantId) {
+  Map<String, Map<String, String>> tenantOptions = [:]
+  
+  switch (tenantId) {
+    case 'consortium':
+      // Central tenant + member tenants
+      tenantOptions[tenantId] = [name: tenantId, clientId: "${tenantId}-application"]
+      tenantOptions['university'] = [name: 'university', clientId: 'university-application']
+      tenantOptions['college'] = [name: 'college', clientId: 'college-application']
+      break
+      
+    case 'consortium2':
+      // Central tenant + member tenants
+      tenantOptions[tenantId] = [name: tenantId, clientId: "${tenantId}-application"]
+      tenantOptions['university2'] = [name: 'university2', clientId: 'university2-application']
+      tenantOptions['college2'] = [name: 'college2', clientId: 'college2-application']
+      break
+      
+    case 'cs00000int':
+      // Central tenant + all institutional member tenants
+      tenantOptions[tenantId] = [name: tenantId, clientId: "${tenantId}-application"]
+      (1..11).each { num ->
+        String memberTenantId = "cs00000int_${String.format('%04d', num)}"
+        tenantOptions[memberTenantId] = [name: memberTenantId, clientId: "${memberTenantId}-application"]
+      }
+      break
+      
+    default:
+      // Single tenant (non-central or member tenant)
+      tenantOptions[tenantId] = [name: tenantId, clientId: "${tenantId}-application"]
+      break
+  }
+  
+  // Convert to JSON string format
+  List<String> tenantEntries = []
+  tenantOptions.each { id, config ->
+    tenantEntries << "${id}: {name: \"${config.name}\", clientId: \"${config.clientId}\"}"
+  }
+  
+  return "{${tenantEntries.join(', ')}}"
 }
