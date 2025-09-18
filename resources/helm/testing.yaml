@@ -2617,7 +2617,9 @@ mod-licenses:
         requests:
           memory: 230Mi
 mod-linked-data:
-  extraEnvVars: []
+  extraEnvVars:
+    - name: KAFKA_PRODUCER_TENANT_COLLECTION
+      value: "ALL"
   integrations:
     db:
       enabled: true
