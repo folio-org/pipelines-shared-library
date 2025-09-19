@@ -314,7 +314,7 @@ private String buildTenantOptionsJson(String tenantId) {
       
     default:
       // Single tenant (non-central or member tenant)
-      tenantOptions[tenantId] = [name: tenantId, displayName: tenantId, clientId: "${tenantId}-application"]
+      tenantOptions[tenantId] = [name: tenantId, clientId: "${tenantId}-application"]
       break
   }
   
