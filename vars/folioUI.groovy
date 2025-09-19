@@ -276,52 +276,52 @@ private String buildTenantOptionsJson(String tenantId) {
   switch (tenantId) {
     case 'consortium':
       // Central tenant + member tenants (from consortiaTenants in folioDefault.groovy)
-      tenantOptions[tenantId] = [name: 'Consortium', clientId: "${tenantId}-application"]
-      tenantOptions['university'] = [name: 'University', clientId: 'university-application']
-      tenantOptions['college'] = [name: 'College', clientId: 'college-application']
+      tenantOptions[tenantId] = [name: tenantId, displayName: 'Consortium', clientId: "${tenantId}-application"]
+      tenantOptions['university'] = [name: 'university', displayName: 'University', clientId: 'university-application']
+      tenantOptions['college'] = [name: 'college', displayName: 'College', clientId: 'college-application']
       break
       
     case 'consortium2':
       // Central tenant + member tenants (from consortiaTenantsExtra in folioDefault.groovy)
-      tenantOptions[tenantId] = [name: 'Consortium2', clientId: "${tenantId}-application"]
-      tenantOptions['university2'] = [name: 'University2', clientId: 'university2-application']
-      tenantOptions['college2'] = [name: 'College2', clientId: 'college2-application']
+      tenantOptions[tenantId] = [name: tenantId, displayName: 'Consortium2', clientId: "${tenantId}-application"]
+      tenantOptions['university2'] = [name: 'university2', displayName: 'University2', clientId: 'university2-application']
+      tenantOptions['college2'] = [name: 'college2', displayName: 'College2', clientId: 'college2-application']
       break
       
     case 'cs00000int':
       // Central tenant + all institutional member tenants (from tenants in folioDefault.groovy)
-      tenantOptions[tenantId] = [name: 'Central', clientId: "${tenantId}-application"]
+      tenantOptions[tenantId] = [name: tenantId, displayName: 'Central tenant', clientId: "${tenantId}-application"]
       
       // Add all cs00000int member tenants with their actual names from folioDefault.groovy
-      Map memberTenantNames = [
-        'cs00000int_0001': 'Colleague',
-        'cs00000int_0002': 'Professional',
-        'cs00000int_0003': 'School',
-        'cs00000int_0004': 'Special',
-        'cs00000int_0005': 'University',
-        'cs00000int_0006': 'AQA ECS',
-        'cs00000int_0007': 'AQA2 ECS',
-        'cs00000int_0008': 'Public',
-        'cs00000int_0009': 'Medical',
-        'cs00000int_0010': 'Workflow',
-        'cs00000int_0011': 'Management Division'
+      Map memberTenantDisplayNames = [
+        'cs00000int_0001': 'Colleague tenant',
+        'cs00000int_0002': 'Professional tenant',
+        'cs00000int_0003': 'School tenant',
+        'cs00000int_0004': 'Special tenant',
+        'cs00000int_0005': 'University tenant',
+        'cs00000int_0006': 'AQA ECS tenant',
+        'cs00000int_0007': 'AQA2 ECS tenant',
+        'cs00000int_0008': 'Public tenant',
+        'cs00000int_0009': 'Medical tenant',
+        'cs00000int_0010': 'Workflow tenant',
+        'cs00000int_0011': 'Management Division tenant'
       ]
       
-      memberTenantNames.each { memberTenantId, tenantName ->
-        tenantOptions[memberTenantId] = [name: tenantName, clientId: "${memberTenantId}-application"]
+      memberTenantDisplayNames.each { memberTenantId, displayName ->
+        tenantOptions[memberTenantId] = [name: memberTenantId, displayName: displayName, clientId: "${memberTenantId}-application"]
       }
       break
       
     default:
       // Single tenant (non-central or member tenant)
-      tenantOptions[tenantId] = [name: tenantId, clientId: "${tenantId}-application"]
+      tenantOptions[tenantId] = [name: tenantId, displayName: tenantId, clientId: "${tenantId}-application"]
       break
   }
   
   // Convert to JSON string format
   List<String> tenantEntries = []
   tenantOptions.each { id, config ->
-    tenantEntries << "${id}: {name: \"${config.name}\", clientId: \"${config.clientId}\"}"
+    tenantEntries << "${id}: {name: \"${config.name}\", displayName: \"${config.displayName}\", clientId: \"${config.clientId}\"}"
   }
   
   return "{${tenantEntries.join(', ')}}"
