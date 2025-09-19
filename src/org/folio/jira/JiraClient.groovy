@@ -171,6 +171,18 @@ class JiraClient {
     }
   }
 
+  String addIssueComment(String issueId, Map commentADF) {
+    def content = JsonOutput.toJson([body: commentADF])
+
+    def response = postRequest("${JiraResources.ISSUE}/${issueId}/${JiraResources.ISSUE_COMMENT}", content)
+    if (response.status < 300) {
+      def body = pipeline.readJSON text: response.content
+      body.id
+    } else {
+      throw new AbortException("Unable to update jira ticket. Server retuned ${response.status} status code. Content: ${response.content}")
+    }
+  }
+
   List<JiraIssue> searchIssues(String jql, List<String> fields) {
     String endpoint = "${JiraResources.SEARCH}?jql=${URLEncoder.encode(jql, "UTF-8")}"
     if (fields) {
