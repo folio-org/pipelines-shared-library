@@ -268,31 +268,47 @@ static def make_tpl(String tpl, Map data) {
 
 /**
  * Builds tenant options JSON for consortia central tenants including all member tenants
+ * Uses actual tenant names from folioDefault.groovy configuration
  */
 private String buildTenantOptionsJson(String tenantId) {
   Map<String, Map<String, String>> tenantOptions = [:]
   
   switch (tenantId) {
     case 'consortium':
-      // Central tenant + member tenants
-      tenantOptions[tenantId] = [name: tenantId, clientId: "${tenantId}-application"]
-      tenantOptions['university'] = [name: 'university', clientId: 'university-application']
-      tenantOptions['college'] = [name: 'college', clientId: 'college-application']
+      // Central tenant + member tenants (from consortiaTenants in folioDefault.groovy)
+      tenantOptions[tenantId] = [name: 'Consortium', clientId: "${tenantId}-application"]
+      tenantOptions['university'] = [name: 'University', clientId: 'university-application']
+      tenantOptions['college'] = [name: 'College', clientId: 'college-application']
       break
       
     case 'consortium2':
-      // Central tenant + member tenants
-      tenantOptions[tenantId] = [name: tenantId, clientId: "${tenantId}-application"]
-      tenantOptions['university2'] = [name: 'university2', clientId: 'university2-application']
-      tenantOptions['college2'] = [name: 'college2', clientId: 'college2-application']
+      // Central tenant + member tenants (from consortiaTenantsExtra in folioDefault.groovy)
+      tenantOptions[tenantId] = [name: 'Consortium2', clientId: "${tenantId}-application"]
+      tenantOptions['university2'] = [name: 'University2', clientId: 'university2-application']
+      tenantOptions['college2'] = [name: 'College2', clientId: 'college2-application']
       break
       
     case 'cs00000int':
-      // Central tenant + all institutional member tenants
-      tenantOptions[tenantId] = [name: tenantId, clientId: "${tenantId}-application"]
-      (1..11).each { num ->
-        String memberTenantId = "cs00000int_${String.format('%04d', num)}"
-        tenantOptions[memberTenantId] = [name: memberTenantId, clientId: "${memberTenantId}-application"]
+      // Central tenant + all institutional member tenants (from tenants in folioDefault.groovy)
+      tenantOptions[tenantId] = [name: 'Central tenant', clientId: "${tenantId}-application"]
+      
+      // Add all cs00000int member tenants with their actual names from folioDefault.groovy
+      Map memberTenantNames = [
+        'cs00000int_0001': 'Colleague tenant',
+        'cs00000int_0002': 'Professional tenant', 
+        'cs00000int_0003': 'School tenant',
+        'cs00000int_0004': 'Special tenant',
+        'cs00000int_0005': 'University tenant',
+        'cs00000int_0006': 'AQA ECS tenant',
+        'cs00000int_0007': 'AQA2 ECS tenant',
+        'cs00000int_0008': 'Public tenant',
+        'cs00000int_0009': 'Medical tenant',
+        'cs00000int_0010': 'Workflow tenant',
+        'cs00000int_0011': 'Management Division tenant'
+      ]
+      
+      memberTenantNames.each { memberTenantId, tenantName ->
+        tenantOptions[memberTenantId] = [name: tenantName, clientId: "${memberTenantId}-application"]
       }
       break
       
