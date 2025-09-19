@@ -290,21 +290,21 @@ private String buildTenantOptionsJson(String tenantId) {
       
     case 'cs00000int':
       // Central tenant + all institutional member tenants (from tenants in folioDefault.groovy)
-      tenantOptions[tenantId] = [name: 'Central tenant', clientId: "${tenantId}-application"]
+      tenantOptions[tenantId] = [name: 'Central', clientId: "${tenantId}-application"]
       
       // Add all cs00000int member tenants with their actual names from folioDefault.groovy
       Map memberTenantNames = [
-        'cs00000int_0001': 'Colleague tenant',
-        'cs00000int_0002': 'Professional tenant', 
-        'cs00000int_0003': 'School tenant',
-        'cs00000int_0004': 'Special tenant',
-        'cs00000int_0005': 'University tenant',
-        'cs00000int_0006': 'AQA ECS tenant',
-        'cs00000int_0007': 'AQA2 ECS tenant',
-        'cs00000int_0008': 'Public tenant',
-        'cs00000int_0009': 'Medical tenant',
-        'cs00000int_0010': 'Workflow tenant',
-        'cs00000int_0011': 'Management Division tenant'
+        'cs00000int_0001': 'Colleague',
+        'cs00000int_0002': 'Professional',
+        'cs00000int_0003': 'School',
+        'cs00000int_0004': 'Special',
+        'cs00000int_0005': 'University',
+        'cs00000int_0006': 'AQA ECS',
+        'cs00000int_0007': 'AQA2 ECS',
+        'cs00000int_0008': 'Public',
+        'cs00000int_0009': 'Medical',
+        'cs00000int_0010': 'Workflow',
+        'cs00000int_0011': 'Management Division'
       ]
       
       memberTenantNames.each { memberTenantId, tenantName ->
