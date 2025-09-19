@@ -175,6 +175,7 @@ Map<String, OkapiTenant> tenants(
       .withTenantDescription('fs09000003 bug-fest created via Jenkins')
       .withAdminUser(adminOkapiUser('folio-aqa', 'Folio-aqa1'))
       .withConfiguration(new OkapiConfig().withSmtp(smtp).withKbApiKey(kbApiKey)),
+      
     cs00000int     : new OkapiTenantConsortia('cs00000int', true)
       .withTenantCode('CEN')
       .withConsortiaName('CONSORTIA')
