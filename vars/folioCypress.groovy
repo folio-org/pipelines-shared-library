@@ -374,12 +374,32 @@ void generateAndPublishAllureReport(List resultPaths) {
   }
 
   stage('[Allure] Publish report') {
-    allure([includeProperties: false,
-            jdk              : '',
-            commandline      : Constants.CYPRESS_ALLURE_VERSION,
-            properties       : [],
-            reportBuildPolicy: 'ALWAYS',
-            results          : resultPaths.collect { path -> [path: "${path}/allure-results"] }])
+    // Process reports in smaller batches to avoid OOM during Jenkins plugin execution
+    int batchSize = 3 // Process max 3 result paths at a time
+    resultPaths.collate(batchSize).eachWithIndex { batch, batchIndex ->
+      echo "Publishing Allure batch ${batchIndex + 1}/${Math.ceil(resultPaths.size() / batchSize)}: ${batch.size()} reports"
+      
+      try {
+        // Set JAVA_TOOL_OPTIONS for the Jenkins plugin as well
+        withEnv(["JAVA_TOOL_OPTIONS=-Xmx6G -Xms2G -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp -XX:MaxDirectMemorySize=1G -Djava.util.concurrent.ForkJoinPool.common.parallelism=2"]) {
+          allure([includeProperties: false,
+                  jdk              : '',
+                  commandline      : Constants.CYPRESS_ALLURE_VERSION,
+                  properties       : [],
+                  reportBuildPolicy: batchIndex == 0 ? 'ALWAYS' : 'UNSTABLE', // Only overwrite on first batch
+                  results          : batch.collect { path -> [path: "${path}/allure-results"] }])
+        }
+        
+        // Small delay between batches to allow memory cleanup
+        if (batchIndex < Math.ceil(resultPaths.size() / batchSize) - 1) {
+          sleep(time: 3, unit: 'SECONDS')
+        }
+        
+      } catch (Exception e) {
+        echo "Error publishing batch ${batchIndex + 1}: ${e.getMessage()}"
+        // Continue with next batch instead of failing completely
+      }
+    }
   }
 }
 
