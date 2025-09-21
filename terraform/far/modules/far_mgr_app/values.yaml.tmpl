@@ -13,22 +13,23 @@ extraEnvVars:
   - name: SECURITY_ENABLED
     value: "false"
 extraJavaOpts:
-  - "-Dlogging.level.root=DEBUG -Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties"
-  - "-XX:MaxRAMPercentage=90.0"
+%{ for opt in extra_java_opts ~}
+  - "${opt}"
+%{ endfor ~}
 integrations:
   db:
     enabled: true
     existingSecret: "${db_secret_name}"
 resources:
   limits:
-    memory: 20480Mi
+    memory: ${memory_limit}
   requests:
-    memory: 9216Mi
+    memory: ${memory_request}
 autoscaling:
-  enabled: true
-  minReplicas: 1
-  maxReplicas: 5
-  targetMemoryUtilizationPercentage: 70
+  enabled: ${autoscaling_enabled}
+  minReplicas: ${autoscaling_min_replicas}
+  maxReplicas: ${autoscaling_max_replicas}
+  targetMemoryUtilizationPercentage: ${autoscaling_target_memory_utilization}
 pdb:
   enabled: true
   maxUnavailable: 1

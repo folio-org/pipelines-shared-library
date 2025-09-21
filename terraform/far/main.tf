@@ -42,10 +42,17 @@ module "far_mgr_app_helm" {
 
   dependencies = [module.far_postgres_helm]
 
-  chart_version     = var.mgr_chart_version
-  namespace_id      = rancher2_namespace.this.id
-  domain_name       = var.domain_name
-  db_secret_name    = module.far_postgres_helm.db_secret_name
-  image_repository  = var.mgr_app_image_repository
-  image_tag         = var.mgr_app_image_tag
+  chart_version                         = var.mgr_chart_version
+  namespace_id                          = rancher2_namespace.this.id
+  domain_name                           = var.domain_name
+  db_secret_name                        = module.far_postgres_helm.db_secret_name
+  image_repository                      = var.mgr_app_image_repository
+  image_tag                             = var.mgr_app_image_tag
+  memory_limit                          = var.mgr_app_memory_limit
+  memory_request                        = var.mgr_app_memory_request
+  autoscaling_enabled                   = var.mgr_app_autoscaling_enabled
+  autoscaling_min_replicas              = var.mgr_app_autoscaling_min_replicas
+  autoscaling_max_replicas              = var.mgr_app_autoscaling_max_replicas
+  autoscaling_target_memory_utilization = var.mgr_app_autoscaling_target_memory_utilization
+  extra_java_opts                       = var.mgr_app_extra_java_opts
 }

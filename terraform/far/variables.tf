@@ -98,3 +98,48 @@ variable "enable_backups" {
   type        = bool
   default     = true
 }
+
+variable "mgr_app_memory_limit" {
+  description = "Memory limit for the mgr-applications pod"
+  type        = string
+  default     = "2048Mi"
+}
+
+variable "mgr_app_memory_request" {
+  description = "Memory request for the mgr-applications pod"
+  type        = string
+  default     = "1536Mi"
+}
+
+variable "mgr_app_autoscaling_enabled" {
+  description = "Enable horizontal pod autoscaling for mgr-applications"
+  type        = bool
+  default     = true
+}
+
+variable "mgr_app_autoscaling_min_replicas" {
+  description = "Minimum number of pod replicas for mgr-applications autoscaling"
+  type        = number
+  default     = 1
+}
+
+variable "mgr_app_autoscaling_max_replicas" {
+  description = "Maximum number of pod replicas for mgr-applications autoscaling"
+  type        = number
+  default     = 5
+}
+
+variable "mgr_app_autoscaling_target_memory_utilization" {
+  description = "Target memory utilization percentage for mgr-applications autoscaling"
+  type        = number
+  default     = 50
+}
+
+variable "mgr_app_extra_java_opts" {
+  description = "List of additional Java options for the mgr-applications"
+  type        = list(string)
+  default = [
+    "-Dlogging.level.root=DEBUG -Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties",
+    "-XX:MaxRAMPercentage=70.0"
+  ]
+}
