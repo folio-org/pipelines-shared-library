@@ -126,7 +126,7 @@ void syncJiraIssues(KarateRunExecutionSummary karateTestsExecutionSummary, TeamA
         // Jira issue exists
       } else if (issuesMap.containsKey(featureName)) {
         JiraIssue issue = issuesMap[featureName]
-        def description = getIssueDescription(featureSummary)
+        Map description = getIssueDescriptionADF(featureSummary)
         try {
           jiraClient.addIssueComment(issue.id, description)
           echo "Add comment to jira ticket '${issue.getKey()}' for ${moduleSummary.name} '${featureSummary.name}'"
@@ -173,7 +173,7 @@ String toSearchableSummary(String summary) {
 void createFailedFeatureJiraIssue(KarateModuleExecutionSummary moduleSummary, KarateFeatureExecutionSummary featureSummary,
                                   Map<String, Team> teamByModule, JiraClient jiraClient) {
   def summary = "${KarateConstants.ISSUE_SUMMARY_PREFIX} ${featureSummary.displayName}"
-  String description = getIssueDescription(featureSummary)
+  Map description = getIssueDescriptionADF(featureSummary)
 
   def fields = [
     Summary    : summary,
@@ -219,6 +219,149 @@ private String getIssueDescription(KarateFeatureExecutionSummary featureSummary)
   description
     .replaceAll("\\{", "&#123;")
     .replaceAll("\\{", "&#125;")
+}
+
+/**
+ * Get issue description in Atlassian Document Format (ADF) for Jira API v3
+ * @param featureSummary KarateFeatureExecutionSummary object
+ * @return Map representing ADF document structure
+ */
+private Map getIssueDescriptionADF(KarateFeatureExecutionSummary featureSummary) {
+  def titleText
+  if (featureSummary.failed) {
+    titleText = "${featureSummary.failedCount} of ${featureSummary.scenarioCount} scenarios have failed for '${featureSummary.name}' feature."
+  } else {
+    titleText = "No failures of ${featureSummary.scenarioCount} scenarios for '${featureSummary.name}' feature."
+  }
+  
+  return [
+    version: 1,
+    type: "doc",
+    content: [
+      [
+        type: "paragraph",
+        content: [
+          [
+            type: "text",
+            text: titleText
+          ]
+        ]
+      ],
+      [
+        type: "paragraph",
+        content: [
+          [
+            type: "text",
+            text: "Name: ",
+            marks: [
+              [type: "strong"]
+            ]
+          ],
+          [
+            type: "text",
+            text: featureSummary.displayName
+          ]
+        ]
+      ],
+      [
+        type: "paragraph",
+        content: [
+          [
+            type: "text",
+            text: "Feature path: ",
+            marks: [
+              [type: "strong"]
+            ]
+          ],
+          [
+            type: "text",
+            text: featureSummary.relativePath
+          ]
+        ]
+      ],
+      [
+        type: "paragraph",
+        content: [
+          [
+            type: "text",
+            text: "Jenkins job: ",
+            marks: [
+              [type: "strong"]
+            ]
+          ],
+          [
+            type: "text",
+            text: "${env.JOB_NAME} #${env.BUILD_NUMBER} (",
+            marks: []
+          ],
+          [
+            type: "text",
+            text: env.BUILD_URL,
+            marks: [
+              [
+                type: "link",
+                attrs: [
+                  href: env.BUILD_URL
+                ]
+              ]
+            ]
+          ],
+          [
+            type: "text",
+            text: ")"
+          ]
+        ]
+      ],
+      [
+        type: "paragraph",
+        content: [
+          [
+            type: "text",
+            text: "Cucumber overview report: ",
+            marks: [
+              [type: "strong"]
+            ]
+          ],
+          [
+            type: "text",
+            text: "overview-features.html",
+            marks: [
+              [
+                type: "link",
+                attrs: [
+                  href: "${env.BUILD_URL}cucumber-html-reports/overview-features.html"
+                ]
+              ]
+            ]
+          ]
+        ]
+      ],
+      [
+        type: "paragraph", 
+        content: [
+          [
+            type: "text",
+            text: "Cucumber feature report: ",
+            marks: [
+              [type: "strong"]
+            ]
+          ],
+          [
+            type: "text",
+            text: featureSummary.cucumberReportFile ?: "N/A",
+            marks: featureSummary.cucumberReportFile ? [
+              [
+                type: "link",
+                attrs: [
+                  href: "${env.BUILD_URL}cucumber-html-reports/${featureSummary.cucumberReportFile}"
+                ]
+              ]
+            ] : []
+          ]
+        ]
+      ]
+    ]
+  ]
 }
 
 def getJiraIssuesByTeam(String team, String timeFilter) {

@@ -36,15 +36,16 @@ The infrastructure consists of:
 
 ## Required Variables
 
-| Variable             | Description                         | Type   | Required                           |
-|----------------------|-------------------------------------|--------|------------------------------------|
-| `cluster_name`       | EKS cluster name                    | string | Yes                                |
-| `namespace_name`     | Kubernetes namespace name           | string | Yes                                |
-| `domain_name`        | Domain name for the application     | string | No, defaults to `far.ci.folio.org` |
-| `aws_region`         | AWS region for resources            | string | Yes                                |
-| `rancher_server_url` | Rancher API URL                     | string | Yes                                |
-| `rancher_token_key`  | Rancher API token                   | string | Yes                                |
-| `chart_version`      | MGR Applications Helm chart version | string | Yes                                |
+| Variable                 | Description                                        | Type   | Default                         |
+|--------------------------|----------------------------------------------------|--------|---------------------------------|
+| `cluster_name`           | EKS cluster name                                   | string | rancher                         |
+| `project_name`           | Kubernetes namespace name and Rancher project name | string | folio-applications-registry     |
+| `domain_name`            | Domain name for the application                    | string | far.ci.folio.org                |
+| `aws_region`             | AWS region for resources                           | string | us-west-2'                      |
+| `rancher_server_url`     | Rancher API URL                                    | string | https://rancher.ci.folio.org/v3 |
+| `rancher_token_key`      | Rancher API token                                  | string |                                 |
+| `postgres_chart_version` | PostgreSQL Helm chart version                      | string | 16.7.21                         |
+| `mgr_chart_version`      | MGR Applications Helm chart version                | string | 0.0.15                          |
 
 For a complete list of variables, see the `variables.tf` file.
 
@@ -59,12 +60,11 @@ For a complete list of variables, see the `variables.tf` file.
    Create a `terraform.tfvars` file:
    ```hcl
    cluster_name      = "my-eks-cluster"
-   namespace_name    = "far"
+   project_name    = "far"
    domain_name       = "far.ci.folio.org"
    aws_region        = "us-west-2"
    rancher_server_url = "https://rancher.example.com"
    rancher_token_key = "token-xxxxx"
-   chart_version     = "3.0.2"
    ```
 
 3. **Review Plan**

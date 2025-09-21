@@ -820,6 +820,8 @@ mod-circulation:
     value: '50000'
   - name: REPLICATION_FACTOR
     value: '1'
+  - name: ENABLE_FOR_USE_AT_LOCATION
+    value: 'true'
   integrations:
     kafka:
       enabled: true
@@ -1928,7 +1930,9 @@ mod-licenses:
     enabled: true
     maxUnavailable: 1
 mod-linked-data:
-  extraEnvVars: []
+  extraEnvVars:
+    - name: KAFKA_PRODUCER_TENANT_COLLECTION
+      value: "ALL"
   integrations:
     db:
       enabled: true

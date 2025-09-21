@@ -171,6 +171,18 @@ class JiraClient {
     }
   }
 
+  String addIssueComment(String issueId, Map commentADF) {
+    def content = JsonOutput.toJson([body: commentADF])
+
+    def response = postRequest("${JiraResources.ISSUE}/${issueId}/${JiraResources.ISSUE_COMMENT}", content)
+    if (response.status < 300) {
+      def body = pipeline.readJSON text: response.content
+      body.id
+    } else {
+      throw new AbortException("Unable to update jira ticket. Server retuned ${response.status} status code. Content: ${response.content}")
+    }
+  }
+
   List<JiraIssue> searchIssues(String jql, List<String> fields) {
     String endpoint = "${JiraResources.SEARCH}?jql=${URLEncoder.encode(jql, "UTF-8")}"
     if (fields) {
@@ -178,7 +190,7 @@ class JiraClient {
     }
 
     def retVal = []
-    withPagedResponse(endpoint,
+    withPagedResponseV3(endpoint,
       { response, body ->
         body.issues.each { issue ->
           retVal.add(JiraParser.parseIssue(issue))
@@ -259,6 +271,29 @@ class JiraClient {
         } else {
           startAt = -1
         }
+      } else {
+        throw new AbortException("${errorMessage}. Server retuned ${response.status} status code. Content: ${response.content}")
+      }
+    }
+  }
+
+  private withPagedResponseV3(endpoint, successClosure, errorMessage, int pageSize = 100) {
+    String nextPageToken = null
+    boolean isLast = false
+
+    while (!isLast) {
+      String requestUrl = "${endpoint}&maxResults=${pageSize}"
+      if (nextPageToken) {
+        requestUrl += "&nextPageToken=${nextPageToken}"
+      }
+      
+      def response = getRequest(requestUrl)
+
+      if (response.status < 300) {
+        def body = pipeline.readJSON text: response.content
+        successClosure(response, body)
+        isLast = body.isLast ?: true
+        nextPageToken = body.nextPageToken
       } else {
         throw new AbortException("${errorMessage}. Server retuned ${response.status} status code. Content: ${response.content}")
       }

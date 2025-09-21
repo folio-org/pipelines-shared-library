@@ -491,13 +491,10 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
 static String determineModulePlacement(String moduleName, String moduleVersion, boolean customModule = false){
   String repository = ""
 
-  if (customModule || moduleName == 'ui-bundle') {
+  if (customModule || moduleName == 'ui-bundle' || moduleVersion.contains("native")) {
     repository = Constants.ECR_FOLIO_REPOSITORY
   } else {
     switch (moduleVersion) {
-      case ~/^\d{1,3}\.\d{1,3}\.\d{1,3}-native\.[\d\w]{5,}$/:
-        repository = Constants.ECR_FOLIO_REPOSITORY
-        break
       case ~/^\d{1,3}\.\d{1,3}\.\d{1,3}$/:
         repository = "folioorg"
         break

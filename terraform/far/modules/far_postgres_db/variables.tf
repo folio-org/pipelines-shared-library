@@ -137,3 +137,15 @@ variable "snapshot_id" {
   type        = string
   default     = null
 }
+
+variable "existing_secret_name" {
+  description = "Name of existing AWS Secrets Manager secret containing database credentials. If provided, will use existing secret instead of creating new one."
+  type        = string
+  default     = null
+}
+
+variable "enable_backups" {
+  description = "Enable automated EBS volume backups using AWS Data Lifecycle Manager"
+  type        = bool
+  default     = true
+}

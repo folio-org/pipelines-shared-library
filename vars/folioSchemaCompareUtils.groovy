@@ -108,10 +108,11 @@ def createSchemaDiffJiraIssue(schemaName, schemaDiff, resultMap, teamAssignment)
   def summary = "${moduleName} from ${srcVersion} to ${dstVersion} version"
 
   String description = getIssueDescription(schemaName, schemaDiff, srcVersion, dstVersion)
+  Map descriptionADF = getIssueDescriptionADF(schemaName, schemaDiff, srcVersion, dstVersion)
 
   def fields = [
     Summary    : "${Constants.DM_ISSUE_SUMMARY_PREFIX} ${summary}",
-    Description: description,
+    Description: descriptionADF,
     Priority   : Constants.DM_JIRA_ISSUE_PRIORITY,
     Labels     : [Constants.DM_ISSUE_LABEL]
   ]
@@ -136,7 +137,8 @@ def createSchemaDiffJiraIssue(schemaName, schemaDiff, resultMap, teamAssignment)
     if (issuesMap.containsKey(summary.toString())) {
       JiraIssue issue = issuesMap[summary]
       println "Update jira ticket for ${moduleName}, team '${teamName}'"
-      jiraClient.addIssueComment(issue.id, description)
+      Map commentADF = getIssueDescriptionADF(schemaName, schemaDiff, srcVersion, dstVersion)
+      jiraClient.addIssueComment(issue.id, commentADF)
     } else {
       println "Create jira ticket for ${moduleName}, team '${teamName}'"
       def issueId = jiraClient.createJiraTicket Constants.DM_JIRA_PROJECT, Constants.DM_JIRA_ISSUE_TYPE, fields
@@ -160,6 +162,145 @@ def getIssueDescription(schemaName, schemaDiff, srcVersion, dstVersion) {
   description
     .replaceAll("\\{", "&#123;")
     .replaceAll("\\{", "&#125;")
+}
+
+/**
+ * Get issue description in Atlassian Document Format (ADF) for Jira API v3
+ * @param schemaName Schema name
+ * @param schemaDiff Schema diff details
+ * @param srcVersion Source version
+ * @param dstVersion Destination version
+ * @return Map representing ADF document structure
+ */
+def getIssueDescriptionADF(schemaName, schemaDiff, srcVersion, dstVersion) {
+  return [
+    version: 1,
+    type: "doc", 
+    content: [
+      [
+        type: "paragraph",
+        content: [
+          [
+            type: "text",
+            text: "Schema Name: ",
+            marks: [
+              [type: "strong"]
+            ]
+          ],
+          [
+            type: "text",
+            text: schemaName
+          ]
+        ]
+      ],
+      [
+        type: "paragraph",
+        content: [
+          [
+            type: "text", 
+            text: "Schema diff: ",
+            marks: [
+              [type: "strong"]
+            ]
+          ],
+          [
+            type: "text",
+            text: schemaDiff
+          ]
+        ]
+      ],
+      [
+        type: "paragraph",
+        content: [
+          [
+            type: "text",
+            text: "Upgraded from: ",
+            marks: [
+              [type: "strong"]
+            ]
+          ],
+          [
+            type: "text",
+            text: "${srcVersion} ",
+            marks: [
+              [type: "strong"]
+            ]
+          ],
+          [
+            type: "text",
+            text: "to",
+            marks: [
+              [type: "strong"]
+            ]
+          ],
+          [
+            type: "text",
+            text: " ${dstVersion} module version",
+            marks: [
+              [type: "strong"]
+            ]
+          ]
+        ]
+      ],
+      [
+        type: "paragraph",
+        content: [
+          [
+            type: "text",
+            text: "Build: ",
+            marks: [
+              [type: "strong"]
+            ]
+          ],
+          [
+            type: "text",
+            text: "${env.JOB_NAME} #${env.BUILD_NUMBER} (",
+            marks: []
+          ],
+          [
+            type: "text",
+            text: env.BUILD_URL,
+            marks: [
+              [
+                type: "link",
+                attrs: [
+                  href: env.BUILD_URL
+                ]
+              ]
+            ]
+          ],
+          [
+            type: "text",
+            text: ")"
+          ]
+        ]
+      ],
+      [
+        type: "paragraph",
+        content: [
+          [
+            type: "text",
+            text: "Schema Diff Report: ",
+            marks: [
+              [type: "strong"]
+            ]
+          ],
+          [
+            type: "text",
+            text: "View Report",
+            marks: [
+              [
+                type: "link",
+                attrs: [
+                  href: "${env.BUILD_URL}Schemas_20Diff/"
+                ]
+              ]
+            ]
+          ]
+        ]
+      ]
+    ]
+  ]
 }
 
 

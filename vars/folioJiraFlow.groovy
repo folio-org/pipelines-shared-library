@@ -17,11 +17,29 @@ void createJiraTicket(String summary, String DevTeamId, String type) {
       "Content-Type" : "application/json",
       "Authorization": "Bearer ${env.JiraToken}"
     ]
+    
+    // Create ADF format for description
+    Map descriptionADF = [
+      version: 1,
+      type: "doc",
+      content: [
+        [
+          type: "paragraph",
+          content: [
+            [
+              type: "text",
+              text: "Automatic Jira ticket created via Jenkins"
+            ]
+          ]
+        ]
+      ]
+    ]
+    
     String body = """{
     "fields": {
       "project": {"key": "${Constants.DM_JIRA_PROJECT}"},
       "summary": "${summary}",
-      "description": "Automatic Jira ticket created via Jenkins",
+      "description": ${groovy.json.JsonOutput.toJson(descriptionADF)},
       "customfield_10501": {"id":"${DevTeamId}"},
       "issuetype": {"name": "${type}"}
         }
@@ -33,7 +51,7 @@ void createJiraTicket(String summary, String DevTeamId, String type) {
 
 def searchForExistingJiraTickets(String jql) {
   def issuesData
-  String search_url = "${JiraConstants.API_URL}search?jql=${jql}"
+  String search_url = "${JiraConstants.SEARCH_URL}?jql=${jql}"
   withCredentials([string(credentialsId: 'JiraFlow', variable: 'JiraToken')]) {
     Map headers = [
       "Content-Type" : "application/json",
@@ -52,11 +70,29 @@ void addJiraComment(String ticketNumber, String comment) {
       "Content-Type" : "application/json",
       "Authorization": "Bearer ${env.JiraToken}"
     ]
-    String body = """
-      body: ${comment}
-      """
+    
+    // Create ADF format for comment
+    Map commentADF = [
+      version: 1,
+      type: "doc",
+      content: [
+        [
+          type: "paragraph",
+          content: [
+            [
+              type: "text",
+              text: comment
+            ]
+          ]
+        ]
+      ]
+    ]
+    
+    String body = """{
+      "body": ${groovy.json.JsonOutput.toJson(commentADF)}
+    }"""
     def comment_body = new JsonSlurperClassic().parseText(body)
-    new RestClient(this).post(commentUrl, headers, comment_body)
+    new RestClient(this).post(commentUrl, comment_body, headers)
   }
 }
 

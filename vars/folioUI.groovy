@@ -32,13 +32,17 @@ void build(String okapiUrl, OkapiTenant tenant, boolean isEureka = false, String
           String tenantId = tenant.getTenantId()
           okapiUrl = "https://${kongDomain}"
           sh "cp -R -f eureka-tpl/* ."
+          
+          // Build tenant options based on consortia structure
+          String tenantOptionsJson = buildTenantOptionsJson(tenantId)
+          
           Map binding = [
             kongUrl          : "https://${kongDomain}",
             tenantUrl        : "https://${tenantUi.getDomain()}",
             keycloakUrl      : "https://${keycloakDomain}",
             hasAllPerms      : false,
             isSingleTenant   : true,
-            tenantOptions    : """{${tenantId}: {name: "${tenantId}", clientId: "${tenantId}-application"}}""",
+            tenantOptions    : tenantOptionsJson,
             enableEcsRequests: enableEcsRequests
           ]
 
@@ -120,28 +124,60 @@ void build(String okapiUrl, OkapiTenant tenant, boolean isEureka = false, String
         String token = response['access_token']
         headers.put("Authorization", "Bearer ${token}")
 
-        String getRealmUrl = "https://${keycloakDomain}/admin/realms/${tenantId}/clients?clientId=${tenantId}-application"
-        def realm = client.get(getRealmUrl, headers).body
+        // Determine all tenants that need Keycloak configuration based on consortia structure
+        List<String> tenantsToUpdate = []
+        switch (tenantId) {
+          case 'consortium':
+            // Central tenant + member tenants
+            tenantsToUpdate = [tenantId, 'university', 'college']
+            break
+          case 'consortium2':
+            // Central tenant + member tenants
+            tenantsToUpdate = [tenantId, 'university2', 'college2']
+            break
+          case 'cs00000int':
+            // Central tenant + all institutional member tenants
+            tenantsToUpdate = [tenantId]
+            (1..11).each { num ->
+              tenantsToUpdate << "cs00000int_${String.format('%04d', num)}"
+            }
+            break
+          default:
+            // Single tenant (non-central or member tenant)
+            tenantsToUpdate = [tenantId]
+            break
+        }
 
-        String updateRealmUrl = "https://${keycloakDomain}/admin/realms/${tenantId}/clients/${realm['id'].get(0)}"
-        headers['Content-Type'] = 'application/json'
-        String tenantUrl = "https://${tenantUi.getDomain()}"
-        def updateContent = [
-          rootUrl                     : tenantUrl,
-          baseUrl                     : tenantUrl,
-          adminUrl                    : tenantUrl,
-          redirectUris                : ["${tenantUrl}/*", "http://localhost:3000/*", "http://localhost:3001/*", "https://eureka-snapshot-${tenantId}.${Constants.CI_ROOT_DOMAIN}/*"], //Requested by AQA Team
-          webOrigins                  : ["/*"],
-          authorizationServicesEnabled: true,
-          serviceAccountsEnabled      : true,
-          attributes                  : ['post.logout.redirect.uris': "/*##${tenantUrl}/*", login_theme: 'custom-theme']
-        ]
-        def ssoUpdates = [
-          resetPasswordAllowed: true
-        ]
+        // Update Keycloak configuration for all relevant tenants
+        tenantsToUpdate.each { currentTenantId ->
+          String getRealmUrl = "https://${keycloakDomain}/admin/realms/${currentTenantId}/clients?clientId=${currentTenantId}-application"
+          def realm = client.get(getRealmUrl, headers).body
 
-        client.put(updateRealmUrl, writeJSON(json: updateContent, returnText: true), headers)
-        client.put("https://${keycloakDomain}/admin/realms/${tenantId}", writeJSON(json: ssoUpdates, returnText: true), headers)
+          if (realm && !realm.isEmpty()) {
+            String updateRealmUrl = "https://${keycloakDomain}/admin/realms/${currentTenantId}/clients/${realm['id'].get(0)}"
+            headers['Content-Type'] = 'application/json'
+            String tenantUrl = "https://${tenantUi.getDomain()}"
+            def updateContent = [
+              rootUrl                     : tenantUrl,
+              baseUrl                     : tenantUrl,
+              adminUrl                    : tenantUrl,
+              redirectUris                : ["${tenantUrl}/*", "http://localhost:3000/*", "http://localhost:3001/*", "https://eureka-snapshot-${currentTenantId}.${Constants.CI_ROOT_DOMAIN}/*"], //Requested by AQA Team
+              webOrigins                  : ["/*"],
+              authorizationServicesEnabled: true,
+              serviceAccountsEnabled      : true,
+              attributes                  : ['post.logout.redirect.uris': "/*##${tenantUrl}/*", login_theme: 'custom-theme']
+            ]
+            def ssoUpdates = [
+              resetPasswordAllowed: true
+            ]
+
+            client.put(updateRealmUrl, writeJSON(json: updateContent, returnText: true), headers)
+            client.put("https://${keycloakDomain}/admin/realms/${currentTenantId}", writeJSON(json: ssoUpdates, returnText: true), headers)
+            echo "Updated Keycloak configuration for tenant: ${currentTenantId}"
+          } else {
+            echo "Warning: No Keycloak client found for tenant: ${currentTenantId}"
+          }
+        }
       }
     }
   }
@@ -232,4 +268,65 @@ private List<String> _updatePackageJsonFile(TenantUi tenantUi) {
 static def make_tpl(String tpl, Map data) {
   def ui_tpl = ((new StreamingTemplateEngine().createTemplate(tpl)).make(data)).toString()
   return ui_tpl
+}
+
+/**
+ * Builds tenant options JSON for consortia central tenants including all member tenants
+ * Uses actual tenant names from folioDefault.groovy configuration
+ */
+private String buildTenantOptionsJson(String tenantId) {
+  Map<String, Map<String, String>> tenantOptions = [:]
+  
+  switch (tenantId) {
+    case 'consortium':
+      // Central tenant + member tenants (from consortiaTenants in folioDefault.groovy)
+      tenantOptions[tenantId] = [name: tenantId, displayName: 'Consortium', clientId: "${tenantId}-application"]
+      tenantOptions['university'] = [name: 'university', displayName: 'University', clientId: 'university-application']
+      tenantOptions['college'] = [name: 'college', displayName: 'College', clientId: 'college-application']
+      break
+      
+    case 'consortium2':
+      // Central tenant + member tenants (from consortiaTenantsExtra in folioDefault.groovy)
+      tenantOptions[tenantId] = [name: tenantId, displayName: 'Consortium2', clientId: "${tenantId}-application"]
+      tenantOptions['university2'] = [name: 'university2', displayName: 'University2', clientId: 'university2-application']
+      tenantOptions['college2'] = [name: 'college2', displayName: 'College2', clientId: 'college2-application']
+      break
+      
+    case 'cs00000int':
+      // Central tenant + all institutional member tenants (from tenants in folioDefault.groovy)
+      tenantOptions[tenantId] = [name: tenantId, displayName: 'Central tenant', clientId: "${tenantId}-application"]
+      
+      // Add all cs00000int member tenants with their actual names from folioDefault.groovy
+      Map memberTenantDisplayNames = [
+        'cs00000int_0001': 'Colleague tenant',
+        'cs00000int_0002': 'Professional tenant',
+        'cs00000int_0003': 'School tenant',
+        'cs00000int_0004': 'Special tenant',
+        'cs00000int_0005': 'University tenant',
+        'cs00000int_0006': 'AQA ECS tenant',
+        'cs00000int_0007': 'AQA2 ECS tenant',
+        'cs00000int_0008': 'Public tenant',
+        'cs00000int_0009': 'Medical tenant',
+        'cs00000int_0010': 'Workflow tenant',
+        'cs00000int_0011': 'Management Division tenant'
+      ]
+      
+      memberTenantDisplayNames.each { memberTenantId, displayName ->
+        tenantOptions[memberTenantId] = [name: memberTenantId, displayName: displayName, clientId: "${memberTenantId}-application"]
+      }
+      break
+      
+    default:
+      // Single tenant (non-central or member tenant)
+      tenantOptions[tenantId] = [name: tenantId, clientId: "${tenantId}-application"]
+      break
+  }
+  
+  // Convert to JSON string format
+  List<String> tenantEntries = []
+  tenantOptions.each { id, config ->
+    tenantEntries << "${id}: {name: \"${config.name}\", displayName: \"${config.displayName}\", clientId: \"${config.clientId}\"}"
+  }
+  
+  return "{${tenantEntries.join(', ')}}"
 }

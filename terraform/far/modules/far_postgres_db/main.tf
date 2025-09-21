@@ -6,23 +6,13 @@ data "aws_subnet" "this" {
   id = tolist(data.aws_eks_cluster.this.vpc_config[0].subnet_ids)[0]
 }
 
-resource "random_password" "postgres" {
-  length           = var.password_length
-  special          = true
-  override_special = var.password_override_special
-
-  keepers = {
-    namespace = var.namespace_name
-  }
-}
-
 locals {
   helm_values = templatefile(
     "${path.module}/values.yaml.tmpl",
     {
-      db_user     = var.db_username,
-      db_password = random_password.postgres.result,
-      db_name     = var.db_name,
+      db_user     = local.secret_data.DB_USERNAME,
+      db_password = local.secret_data.DB_PASSWORD,
+      db_name     = local.secret_data.DB_DATABASE,
       pvc_name    = kubernetes_persistent_volume_claim.postgres.metadata[0].name
     }
   )
@@ -35,54 +25,18 @@ resource "rancher2_secret_v2" "postgres_credentials" {
   namespace  = var.namespace_id
 
   data = {
-    DB_HOST         = local.postgresql_service_name
-    DB_PORT         = tostring(var.db_port)
-    DB_DATABASE     = var.db_name
-    DB_USERNAME     = var.db_username
-    DB_PASSWORD     = random_password.postgres.result
-    DB_MAXPOOLSIZE  = var.db_max_connections
-    DB_CHARSET      = var.db_charset
-    DB_QUERYTIMEOUT = var.db_query_timeout
+    DB_HOST         = local.secret_data.DB_HOST
+    DB_PORT         = local.secret_data.DB_PORT
+    DB_DATABASE     = local.secret_data.DB_DATABASE
+    DB_USERNAME     = local.secret_data.DB_USERNAME
+    DB_PASSWORD     = local.secret_data.DB_PASSWORD
+    DB_MAXPOOLSIZE  = local.secret_data.DB_MAXPOOLSIZE
+    DB_CHARSET      = local.secret_data.DB_CHARSET
+    DB_QUERYTIMEOUT = local.secret_data.DB_QUERYTIMEOUT
   }
 
   lifecycle {
     ignore_changes = [data]
-  }
-}
-
-resource "aws_secretsmanager_secret" "postgres_credentials" {
-  name        = "/${var.cluster_name}/${var.namespace_name}/postgres-credentials"
-  description = "PostgreSQL credentials for ${var.namespace_name} in ${var.cluster_name} cluster"
-
-  tags = merge(
-    var.tags,
-    {
-      Name        = "${var.cluster_name}-${var.namespace_name}-postgres-credentials"
-      Application = "MGR-FAR"
-      Terraform   = "true"
-    }
-  )
-
-  lifecycle {
-    prevent_destroy = true
-  }
-}
-
-resource "aws_secretsmanager_secret_version" "postgres_credentials" {
-  secret_id = aws_secretsmanager_secret.postgres_credentials.id
-  secret_string = jsonencode({
-    DB_HOST         = local.postgresql_service_name
-    DB_PORT         = tostring(var.db_port)
-    DB_DATABASE     = var.db_name
-    DB_USERNAME     = var.db_username
-    DB_PASSWORD     = random_password.postgres.result
-    DB_MAXPOOLSIZE  = var.db_max_connections
-    DB_CHARSET      = var.db_charset
-    DB_QUERYTIMEOUT = var.db_query_timeout
-  })
-
-  lifecycle {
-    prevent_destroy = true
   }
 }
 
