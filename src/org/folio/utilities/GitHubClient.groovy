@@ -109,13 +109,59 @@ class GitHubClient {
     }
   }
 
-  Map getWorkflowRunByNumber(String repository, String runName, String runNumber, String perPage = '10') {
+  Map getWorkflowRunByNumber(String repository, String runName, String runNumber, String perPage = '100') {
     try {
-      def workflowRuns = getWorkflowRuns(repository, runName, perPage)
-      return workflowRuns['workflow_runs']?.find { it['run_number'] == runNumber.toInteger() }
+      int targetRunNumber = runNumber.toInteger()
+      int page = 1
+      int maxPages = 50 // Safety limit to prevent infinite loops
+      
+      while (page <= maxPages) {
+        def workflowRuns = getWorkflowRunsPaginated(repository, runName, perPage, page.toString())
+        def runs = workflowRuns['workflow_runs']
+        
+        if (!runs || runs.isEmpty()) {
+          // No more runs available
+          break
+        }
+        
+        // Check if target run is in this page
+        def targetRun = runs.find { it['run_number'] == targetRunNumber }
+        if (targetRun) {
+          return targetRun
+        }
+        
+        // Check if we've gone past the target run number (runs are in descending order)
+        def minRunNumber = runs.min { it['run_number'] }['run_number']
+        if (minRunNumber < targetRunNumber) {
+          // We've gone past the target run number, it doesn't exist
+          break
+        }
+        
+        page++
+      }
+      
+      return null
     } catch (Exception e) {
       logger.warning("Failed to get workflow run by number for ${repository}/${runName}#${runNumber}: ${e.getMessage()}")
       return null
+    }
+  }
+
+  Map getWorkflowRunsPaginated(String repository, String runName, String perPage = '30', String page = '1') {
+    String url = "${Constants.FOLIO_GITHUB_REPOS_URL}/${repository}/actions/workflows/${runName}/runs?per_page=${perPage}&page=${page}"
+    Map<String, String> headers = authorizedHeaders()
+
+    try {
+      def response = restClient.get(url, headers)
+      if (response.responseCode >= 200 && response.responseCode < 300) {
+        return response.body ?: [workflow_runs: []]
+      } else {
+        logger.warning("GitHub API returned ${response.responseCode} for workflow runs: ${url}")
+        return [workflow_runs: []]
+      }
+    } catch (Exception e) {
+      logger.warning("Failed to get workflow runs for ${repository}/${runName}: ${e.getMessage()}")
+      return [workflow_runs: []]
     }
   }
 
