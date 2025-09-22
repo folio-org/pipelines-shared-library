@@ -129,10 +129,10 @@ class Constants {
     ],
     [
       name: "app-mosaic"
-      , branch: "snapshot"
+      , branch: "master" // For R1-2025 test
       , consortia: false
       , core: false
-      , byDefault: false  // Not in R1-2025
+      , byDefault: true  // Not in R1-2025
       , dependsOn: ["app-platform-minimal", "app-platform-complete", "app-acquisitions"]
     ],
     [
