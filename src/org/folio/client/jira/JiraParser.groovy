@@ -15,14 +15,14 @@ class JiraParser {
     }
 
     JiraIssue parseIssue(def json) {
-        def fixVersionsString = json.fields.fixVersions?.collect { it.name }?.join(', ') ?: ''
-        new JiraIssue(id: json.id,
-            key: json.key,
-            summary: json.fields.summary,
-            description: json.fields.description,
-            project: json.fields.project?.name,
+        def fixVersionsString = json.fields?.fixVersions?.collect { it?.name ?: '' }?.join(', ') ?: ''
+        new JiraIssue(id: json?.id,
+            key: json?.key,
+            summary: json.fields?.summary,
+            description: json.fields?.description,
+            project: json.fields?.project?.name,
             fixVersions: fixVersionsString,
-            status: json.fields.status?.name)
+            status: json.fields?.status?.name)
     }
 
     JiraIssue parseIssueKarateTest(def json) {

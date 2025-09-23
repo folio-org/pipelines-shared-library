@@ -283,8 +283,13 @@ class JiraClient {
             if (response.status < 300) {
                 def body = pipeline.readJSON text: response.content
                 successClosure(response, body)
-                if (body.startAt + body.maxResults < body.total) {
-                    startAt += body.maxResults
+                
+                def startAtVal = body.startAt ?: 0
+                def maxResultsVal = body.maxResults ?: 0
+                def totalVal = body.total ?: 0
+                
+                if (startAtVal + maxResultsVal < totalVal) {
+                    startAt += maxResultsVal
                 } else {
                     startAt = -1
                 }
@@ -342,8 +347,13 @@ class JiraClient {
             if (response.status < 300) {
                 def body = pipeline.readJSON text: response.content
                 successClosure(response, body)
-                if (body.startAt + body.maxResults < body.total) {
-                    startAt += body.maxResults
+                
+                def startAtVal = body.startAt ?: 0
+                def maxResultsVal = body.maxResults ?: 0
+                def totalVal = body.total ?: 0
+                
+                if (startAtVal + maxResultsVal < totalVal) {
+                    startAt += maxResultsVal
                 } else {
                     startAt = -1
                 }
