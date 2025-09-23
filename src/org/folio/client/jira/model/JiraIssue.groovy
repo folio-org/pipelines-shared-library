@@ -16,4 +16,17 @@ class JiraIssue {
 
     String fixVersions
 
+    @Override
+    String toString() {
+        return "JiraIssue{" +
+                "id='" + (id ?: 'null') + '\'' +
+                ", key='" + (key ?: 'null') + '\'' +
+                ", summary='" + (summary ?: 'null') + '\'' +
+                ", description='" + (description ?: 'null') + '\'' +
+                ", status='" + (status ?: 'null') + '\'' +
+                ", project='" + (project ?: 'null') + '\'' +
+                ", fixVersions='" + (fixVersions ?: 'null') + '\'' +
+                '}'
+    }
+
 }

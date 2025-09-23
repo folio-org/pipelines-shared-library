@@ -63,9 +63,15 @@ ansiColor('xterm') {
                 }
             }
             stage('Search Jira tasks') {
-                List<JiraIssue> issues = jiraClient.searchIssues(search_pattern,
-                    ["key", "status", "fixVersions", "project"])
-                list_of_found_jira_tasks = SortJiraTickersByVersion(issues)
+                try {
+                    List<JiraIssue> issues = jiraClient.searchIssues(search_pattern,
+                        ["key", "status", "fixVersions", "project"])
+                    list_of_found_jira_tasks = SortJiraTickersByVersion(issues)
+                    println "Found ${list_of_found_jira_tasks?.size() ?: 0} valid Jira issues"
+                } catch (Exception e) {
+                    println "Error in Search Jira tasks stage: ${e.message}"
+                    throw e
+                }
             }
             stage('Get map with services from bugfest') {
                 try {
@@ -167,7 +173,7 @@ private static SortJiraTickersByVersion(List<JiraIssue> list_of_jira_maps) {
     for (i in list_maps_with_empty_params) {
         list_of_jira_maps.remove(i)
     }
-    return list_of_jira_maps as Object
+    return list_of_jira_maps
 }
 
 private getRequest(String host, String tenant) {
