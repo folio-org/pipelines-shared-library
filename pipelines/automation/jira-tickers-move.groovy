@@ -116,7 +116,7 @@ ansiColor('xterm') {
                             service_version_list = service_version.replace(".", "").split(",").collect { it.trim() }
                             jira_service_version_list = jira_service_version.replace(".", "").split(",").collect { it.trim() }
 
-                            if (service_version_list.length == jira_service_version_list.length) {
+                            if (service_version_list.size() == jira_service_version_list.size()) {
                                 for (j = 0; j < jira_service_version_list.size(); j++) {
                                     //Compare jira and bugfest versions
                                     if (jira_service_version_list[j].toInteger() <= service_version_list[j].toInteger()) {
