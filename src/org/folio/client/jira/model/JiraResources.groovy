@@ -16,6 +16,8 @@ class JiraResources {
 
     static final String SEARCH = "search"
 
+    static final String SEARCH_JQL = "search/jql"
+
     static final String FIELD = "field"
 
     static final String STATUS = "status"

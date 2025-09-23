@@ -38,7 +38,7 @@ class KarateTestsUtils extends AbstractScriptTest {
         Map<String, List<Object>> issuesModification = [:]
         helper.registerAllowedMethod("httpRequest", [Map], { parameters ->
             def content
-            if (parameters.url.contains("/search")) {
+            if (parameters.url.contains("/search/jql") || parameters.url.contains("/search")) {
                 content = getResourceContent("karateTestUtils/searchIssuesResponse.json")
             } else if (parameters.url.contains("/comment")) {
                 def issueId = parameters.url.split("/")[7]

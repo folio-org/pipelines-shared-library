@@ -176,13 +176,13 @@ class JiraClient {
 
 
     List<JiraIssue> searchIssuesKarate(String jql, List<String> fields) {
-        String endpoint = "${JiraResources.SEARCH}?jql=${java.net.URLEncoder.encode(jql, "UTF-8")}"
+        String endpoint = "${JiraResources.SEARCH_JQL}?jql=${java.net.URLEncoder.encode(jql, "UTF-8")}"
         if (fields) {
             endpoint += "&fields=${fields.join(',')}"
         }
 
         def retVal = []
-        withPagedResponse(endpoint,
+        withPagedResponseV3(endpoint,
             { response, body ->
                 body.issues.each { issue ->
                     retVal.add(parser.parseIssueKarateTest(issue))
@@ -196,13 +196,13 @@ class JiraClient {
     }
 
     List<JiraIssue> searchIssues(String jql, List<String> fields) {
-        String endpoint = "${JiraResources.SEARCH}?jql=${java.net.URLEncoder.encode(jql, "UTF-8")}"
+        String endpoint = "${JiraResources.SEARCH_JQL}?jql=${java.net.URLEncoder.encode(jql, "UTF-8")}"
         if (fields) {
             endpoint += "&fields=${fields.join(',')}"
         }
 
         def retVal = []
-        withPagedResponse(endpoint,
+        withPagedResponseV3(endpoint,
             { response, body ->
                 body.issues.each { issue ->
                     retVal.add(parser.parseIssue(issue))
@@ -328,6 +328,35 @@ class JiraClient {
             contentType: "APPLICATION_JSON",
             customHeaders: [[name: HttpHeaders.AUTHORIZATION, value: "Basic ${authToken}"]],
             requestBody: contents,
+            validResponseCodes: "100:599"
+    }
+
+    // API v3 methods for search endpoints that have been migrated
+    private withPagedResponseV3(endpoint, successClosure, errorMessage) {
+        def startAt = 0
+        def pageSize = 50
+
+        while (startAt != -1) {
+            def response = getRequestV3("${endpoint}&startAt=${startAt}&maxResults=${pageSize}")
+
+            if (response.status < 300) {
+                def body = pipeline.readJSON text: response.content
+                successClosure(response, body)
+                if (body.startAt + body.maxResults < body.total) {
+                    startAt += body.maxResults
+                } else {
+                    startAt = -1
+                }
+            } else {
+                throw new AbortException("${errorMessage}. Server retuned ${response.status} status code. Content: ${response.content}")
+            }
+        }
+    }
+
+    private getRequestV3(String endpoint) {
+        pipeline.httpRequest url: "${url}/rest/api/3/${endpoint}",
+            contentType: "APPLICATION_JSON",
+            customHeaders: [[name: HttpHeaders.AUTHORIZATION, value: "Basic ${authToken}"]],
             validResponseCodes: "100:599"
     }
 
