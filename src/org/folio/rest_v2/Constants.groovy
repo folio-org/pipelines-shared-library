@@ -89,7 +89,7 @@ class Constants {
     ],
     [
       name: "app-platform-complete"
-      , branch: "snapshot"
+      , branch: "MODSER-129"
       , consortia: false
       , core     : false
       , byDefault: true
