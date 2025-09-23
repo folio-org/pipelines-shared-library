@@ -120,7 +120,7 @@ ansiColor('xterm') {
                     jiraClient.addIssueComment(i.id, Comment)
                     jiraClient.issueTransition(i.id, NextJiraTaskStatus)
                     println "Jira ticket '${i.key}' status changed to '${NextJiraTaskStatus}'"
-                    println "Jira ticket version '${i.fixVersions}' bugfest version'${bugfest_map[i.project]}'"
+                    println "Jira ticket version '${i.fixVersions ?: 'null'}' bugfest version '${bugfest_map[i.project] ?: 'null'}'"
                 }
             }
         } catch (exception) {

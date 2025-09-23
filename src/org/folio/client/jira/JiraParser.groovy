@@ -20,7 +20,7 @@ class JiraParser {
             key: json.key,
             summary: json.fields.summary,
             description: json.fields.description,
-            project: json.fields.project.name,
+            project: json.fields.project?.name,
             fixVersions: fixVersionsString,
             status: json.fields.status?.name)
     }
