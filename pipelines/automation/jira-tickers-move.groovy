@@ -91,11 +91,11 @@ ansiColor('xterm') {
                     check_is_less = false
                     try {
                         service_version = bugfest_map[i.project]
-                        jira_service_version = i.fixVersions.substring(1, i.fixVersions.length() - 1)
-                        if (service_version != null) {
+                        jira_service_version = i.fixVersions
+                        if (service_version != null && jira_service_version != null && jira_service_version != '') {
                             check_is_less = false
-                            service_version_list = service_version.replace(".", "").split(",")
-                            jira_service_version_list = jira_service_version.replace(".", "").split(",")
+                            service_version_list = service_version.replace(".", "").split(",").collect { it.trim() }
+                            jira_service_version_list = jira_service_version.replace(".", "").split(",").collect { it.trim() }
 
                             if (service_version_list.length == jira_service_version_list.length) {
                                 for (j = 0; j < jira_service_version_list.size(); j++) {
@@ -145,7 +145,7 @@ private JiraClient getJiraClient(String url, String credentialsId) {
 private static SortJiraTickersByVersion(List<JiraIssue> list_of_jira_maps) {
     ArrayList list_maps_with_empty_params = []
     for (i in list_of_jira_maps) {
-        if ((i.key == null) || (i.status == null) || (i.fixVersions == "[]") || (!i.fixVersions.contains(".")) || (i.project == null)) {
+        if ((i.key == null) || (i.status == null) || (i.fixVersions == null) || (i.fixVersions == "") || (!i.fixVersions.contains(".")) || (i.project == null)) {
             list_maps_with_empty_params.add(i)
         }
     }
