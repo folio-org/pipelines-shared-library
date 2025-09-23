@@ -68,22 +68,35 @@ ansiColor('xterm') {
                 list_of_found_jira_tasks = SortJiraTickersByVersion(issues)
             }
             stage('Get map with services from bugfest') {
-                String host = host_map[BugfestEnv]
-                def response = getRequest(host, tenant)
-                def json = new JsonSlurper().parseText(response)
+                try {
+                    String host = host_map[BugfestEnv]
+                    def response = getRequest(host, tenant)
+                    def json = new JsonSlurper().parseText(response)
 
-                json.each { i ->
-                    list_key_value = "${i}".split(':')
-                    value = list_key_value[-1].substring(0, list_key_value[-1].length() - 1)
+                    json.each { i ->
+                        if (i != null) {
+                            try {
+                                list_key_value = "${i}".split(':')
+                                value = list_key_value[-1].substring(0, list_key_value[-1].length() - 1)
 
-                    if (value.contains("folio_")) {
-                        value = value.replace("folio_", "ui-")
+                                if (value?.contains("folio_")) {
+                                    value = value.replace("folio_", "ui-")
+                                }
+                                pattern = "-[0-9]"
+                                key = "${value}".split(pattern)[0]
+                                value = "${value}".split("${key}-")[-1]
+
+                                if (key != null && value != null) {
+                                    bugfest_map.put(key, value)
+                                }
+                            } catch (Exception e) {
+                                println "Error processing bugfest entry: ${e.message}"
+                            }
+                        }
                     }
-                    pattern = "-[0-9]"
-                    key = "${value}".split(pattern)[0]
-                    value = "${value}".split("${key}-")[-1]
-
-                    bugfest_map.put(key, value)
+                } catch (Exception e) {
+                    println "Error in bugfest stage: ${e.message}"
+                    throw e
                 }
             }
             stage('Compare versions of modules') {
@@ -145,7 +158,8 @@ private JiraClient getJiraClient(String url, String credentialsId) {
 private static SortJiraTickersByVersion(List<JiraIssue> list_of_jira_maps) {
     ArrayList list_maps_with_empty_params = []
     for (i in list_of_jira_maps) {
-        if ((i.key == null) || (i.status == null) || (i.fixVersions == null) || (i.fixVersions == "") || (!i.fixVersions.contains(".")) || (i.project == null)) {
+        if ((i.key == null) || (i.status == null) || (i.project == null) || 
+            (i.fixVersions == null) || (i.fixVersions == "") || (!i.fixVersions.contains("."))) {
             list_maps_with_empty_params.add(i)
         }
     }
