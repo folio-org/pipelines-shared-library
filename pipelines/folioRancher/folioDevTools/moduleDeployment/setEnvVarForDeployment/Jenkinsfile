@@ -40,7 +40,7 @@ ansiColor('xterm') {
       checkout scm
     }
 
-    stage('[FIX] module DB schema by reinstall') {
+    stage('[Set Env Var]') {
       folioHelm.withKubeConfig(params.CLUSTER) {
           logger.info("Setting env var for ${params.MODULE_NAME} deployment")
           sh(script: "kubectl set env deployment/${params.MODULE_NAME} ${params.ENV_VAR_NAME.trim()}=${params.ENV_VAR_VALUE.trim()} --namespace ${params.NAMESPACE}", returnStdout: true)
