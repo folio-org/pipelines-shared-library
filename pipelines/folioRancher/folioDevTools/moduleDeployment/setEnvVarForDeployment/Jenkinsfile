@@ -32,8 +32,8 @@ Logger logger = new Logger(this, env.JOB_BASE_NAME)
 ansiColor('xterm') {
   podTemplates.rancherAgent {
     stage('Ini') {
-      buildName "${params.MODULE_NAME}-${params.CLUSTER}-${params.NAMESPACE}\n${params.ENV_VAR_NAME}=${params.ENV_VAR_VALUE}"
-      buildDescription "${params.CLUSTER}-${params.NAMESPACE}"
+      buildName "${params.CLUSTER}-${params.NAMESPACE}"
+      buildDescription "${params.MODULE_NAME}: ${params.ENV_VAR_NAME}=${params.ENV_VAR_VALUE}"
     }
 
     stage('Checkout') {
