@@ -1,0 +1,50 @@
+#!groovy
+package folioRancher.folioDevTools.moduleDeployment.setEnvVarForDeployment
+
+import org.folio.Constants
+import org.folio.jenkins.PodTemplates
+import org.folio.utilities.Logger
+import org.jenkinsci.plugins.workflow.libs.Library
+
+@Library('pipelines-shared-library@RANCHER-2559') _
+
+properties([
+  buildDiscarder(logRotator(numToKeepStr: '30')),
+  disableConcurrentBuilds(),
+  parameters([
+          folioParameters.cluster(),
+          folioParameters.namespace(),
+          folioParameters.moduleName(),
+          string(name: 'ENV_VAR_NAME', defaultValue: '', description: 'Environment variable name to set for the deployment'),
+          string(name: 'ENV_VAR_VALUE', defaultValue: '', description: 'Environment variable value to set for the deployment'),
+          folioParameters.refreshParameters()
+  ])
+])
+
+if (params.REFRESH_PARAMETERS) {
+  currentBuild.result = 'ABORTED'
+  return
+}
+
+PodTemplates podTemplates = new PodTemplates(this)
+Logger logger = new Logger(this, env.JOB_BASE_NAME)
+
+ansiColor('xterm') {
+  podTemplates.rancherAgent {
+    stage('Ini') {
+      buildName "${params.MODULE_NAME}-${params.CLUSTER}-${params.NAMESPACE}\n${params.ENV_VAR_NAME}=${params.ENV_VAR_VALUE}"
+      buildDescription "${params.CLUSTER}-${params.NAMESPACE}"
+    }
+
+    stage('Checkout') {
+      checkout scm
+    }
+
+    stage('[FIX] module DB schema by reinstall') {
+      folioHelm.withKubeConfig(params.CLUSTER) {
+          logger.info("Setting env var for ${params.MODULE_NAME} deployment")
+          sh(script: "kubectl set env deployment/${params.MODULE_NAME} ${params.ENV_VAR_NAME.trim()}=${params.ENV_VAR_VALUE.trim()} --namespace ${params.NAMESPACE}", returnStdout: true)
+      }
+    }
+  }
+}
