@@ -9,7 +9,7 @@ import org.folio.rest_v2.Constants as RestConstants
 import org.folio.rest_v2.PlatformType
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library@RANCHER-2555') _
+@Library('pipelines-shared-library') _
 
 /**
  * Job properties and parameters
@@ -114,7 +114,7 @@ ansiColor('xterm') {
     }
 
     stage('[Flow] Execute tests') {
-      sleep time: 30, unit: 'MINUTES' // wait for services to be ready
+      sleep time: 15, unit: 'MINUTES' // wait for services to be ready
       folioKarateFlow.call(karateTestsParams)
     }
 
