@@ -326,6 +326,14 @@ class Constants {
       , core: false
       , byDefault: true
       , dependsOn: ["app-platform-minimal"]
+    ],
+    [
+      name: "app-serials-management"
+      , branch: "snapshot"
+      , consortia: false
+      , core: false
+      , byDefault: true
+      , dependsOn: ["app-platform-minimal"]
     ]
   ]
 
