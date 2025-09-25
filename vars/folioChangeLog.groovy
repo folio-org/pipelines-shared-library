@@ -35,15 +35,20 @@ List<ChangelogEntry> call(String previousSha, String currentSha) {
   
   echo "Processing install.json changes: ${installJsonChangeLogShas.size()} commits"
   installJsonChangeLogShas.each { sha ->
-    updatedModulesList.addAll(getUpdatedModulesList(gitHubClient.getCommitInfo(sha, platformCompleteRepositoryName), 'install.json'))
+    def installModules = getUpdatedModulesList(gitHubClient.getCommitInfo(sha, platformCompleteRepositoryName), 'install.json')
+    echo "Found ${installModules.size()} install.json modules in commit ${sha}: ${installModules}"
+    updatedModulesList.addAll(installModules)
   }
   
   echo "Processing eureka-platform.json changes: ${eurekaPlatformJsonChangeLogShas.size()} commits"
   eurekaPlatformJsonChangeLogShas.each { sha ->
-    updatedModulesList.addAll(getUpdatedModulesList(gitHubClient.getCommitInfo(sha, platformCompleteRepositoryName), 'eureka-platform.json'))
+    def eurekaModules = getUpdatedModulesList(gitHubClient.getCommitInfo(sha, platformCompleteRepositoryName), 'eureka-platform.json')
+    echo "Found ${eurekaModules.size()} eureka-platform.json modules in commit ${sha}: ${eurekaModules}"
+    updatedModulesList.addAll(eurekaModules)
   }
   
   echo "Total modules found: ${updatedModulesList.size()}"
+  echo "All modules: ${updatedModulesList}"
 
   List<FolioModule> updatedModulesObjectsList = []
   updatedModulesList.each { id ->
@@ -68,10 +73,27 @@ List<ChangelogEntry> call(String previousSha, String currentSha) {
       case ModuleType.KEYCLOAK:
         repositoryName = module.name
         try {
+          // First try to get SHA from Jenkins build
           changeLogEntry.sha = getJenkinsBuildSha(repositoryName, module.buildId.toInteger())
           if (!changeLogEntry.sha) {
             echo "Warning: Could not find Jenkins build SHA for ${repositoryName} build #${module.buildId}"
-            changeLogEntry.sha = 'Unknown'
+            // For Eureka modules, try GitHub workflow runs as fallback
+            echo "Attempting GitHub workflow fallback for ${repositoryName} build #${module.buildId}"
+            try {
+              GitHubClient gitHubClient = new GitHubClient(this)
+              def workflowRun = gitHubClient.getWorkflowRunByNumber(repositoryName, 'build.yml', module.buildId)
+              if (!workflowRun) {
+                // Try alternative workflow names for backend modules
+                workflowRun = gitHubClient.getWorkflowRunByNumber(repositoryName, 'build-snapshot.yml', module.buildId)
+              }
+              changeLogEntry.sha = workflowRun?.head_sha ?: 'Unknown'
+              if (changeLogEntry.sha != 'Unknown') {
+                echo "Successfully found GitHub workflow SHA ${changeLogEntry.sha} for ${repositoryName} build #${module.buildId}"
+              }
+            } catch (Exception ghException) {
+              echo "GitHub workflow fallback also failed for ${repositoryName}: ${ghException.getMessage()}"
+              changeLogEntry.sha = 'Unknown'
+            }
           }
         } catch (Exception e) {
           echo "Error getting Jenkins build SHA for ${repositoryName} build #${module.buildId}: ${e.getMessage()}"
@@ -120,7 +142,13 @@ List<ChangelogEntry> call(String previousSha, String currentSha) {
       if (module.type == ModuleType.FRONTEND) {
         changeLogEntry.commitMessage = "Unable to find GitHub workflow run ${module.buildId} for ${repositoryName}"
       } else {
-        changeLogEntry.commitMessage = "Unable to find Jenkins build ${module.buildId} for ${repositoryName}"
+        // For backend modules, provide more detailed error information
+        def jobExists = checkJenkinsJobExists(repositoryName)
+        if (!jobExists) {
+          changeLogEntry.commitMessage = "Jenkins job not found at /folio-org/${repositoryName}/master - possible Eureka-only module"
+        } else {
+          changeLogEntry.commitMessage = "Jenkins build ${module.buildId} not found for ${repositoryName} - build may not exist"
+        }
       }
     } else {
       changeLogEntry.commitMessage = commitInfo?.commit?.message?.split('\n', 2)?.getAt(0) ?: "Unable to fetch commit info for ${module.name} (build: ${module.buildId})"
@@ -148,6 +176,17 @@ static List getUpdatedModulesList(Map commitInfo, String filename = 'install.jso
   } catch (Exception e) {
     echo "Error parsing ${filename} changes: ${e.getMessage()}"
     return []
+  }
+}
+
+boolean checkJenkinsJobExists(String moduleName) {
+  try {
+    String jobPath = "/folio-org/${moduleName}/master"
+    Job moduleJob = Jenkins.instance.getItemByFullName(jobPath)
+    return moduleJob != null
+  } catch (Exception e) {
+    echo "Error checking Jenkins job existence for ${moduleName}: ${e.getMessage()}"
+    return false
   }
 }
 
