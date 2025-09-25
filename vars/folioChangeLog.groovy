@@ -80,7 +80,6 @@ List<ChangelogEntry> call(String previousSha, String currentSha) {
             // For Eureka modules, try GitHub workflow runs as fallback
             echo "Attempting GitHub workflow fallback for ${repositoryName} build #${module.buildId}"
             try {
-              GitHubClient gitHubClient = new GitHubClient(this)
               def workflowRun = gitHubClient.getWorkflowRunByNumber(repositoryName, 'build.yml', module.buildId)
               if (!workflowRun) {
                 // Try alternative workflow names for backend modules
