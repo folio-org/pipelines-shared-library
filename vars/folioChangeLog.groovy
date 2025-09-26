@@ -73,21 +73,50 @@ List<ChangelogEntry> call(String previousSha, String currentSha) {
       case ModuleType.KEYCLOAK:
         repositoryName = module.name
         try {
-          // First try to get SHA from Jenkins build
+          // First try to get SHA from Jenkins build in the current instance
           changeLogEntry.sha = getJenkinsBuildSha(repositoryName, module.buildId.toInteger())
           if (!changeLogEntry.sha) {
-            echo "Warning: Could not find Jenkins build SHA for ${repositoryName} build #${module.buildId}"
+            echo "Warning: Could not find Jenkins build SHA for ${repositoryName} build #${module.buildId} in current Jenkins instance"
+            // Try to get SHA from external Jenkins instance (jenkins-aws.indexdata.com)
+            echo "Attempting to get SHA from external Jenkins via REST API for ${repositoryName} build #${module.buildId}"
+            try {
+              changeLogEntry.sha = getExternalJenkinsBuildSha(repositoryName, module.buildId.toInteger())
+              if (changeLogEntry.sha && changeLogEntry.sha != 'Unknown') {
+                echo "Successfully found SHA from external Jenkins: ${changeLogEntry.sha} for ${repositoryName} build #${module.buildId}"
+              } else {
+                echo "Could not find SHA in external Jenkins for ${repositoryName} build #${module.buildId}"
+              }
+            } catch (Exception extJenkinsException) {
+              echo "External Jenkins lookup failed for ${repositoryName}: ${extJenkinsException.getMessage()}"
+            }
+          }
+          
+          if (!changeLogEntry.sha || changeLogEntry.sha == 'Unknown') {
             // For Eureka modules, try GitHub workflow runs as fallback
             echo "Attempting GitHub workflow fallback for ${repositoryName} build #${module.buildId}"
             try {
-              def workflowRun = gitHubClient.getWorkflowRunByNumber(repositoryName, 'build.yml', module.buildId)
-              if (!workflowRun) {
-                // Try alternative workflow names for backend modules
-                workflowRun = gitHubClient.getWorkflowRunByNumber(repositoryName, 'build-snapshot.yml', module.buildId)
+              // Try different common workflow names for backend modules
+              def workflowNames = ['build.yml', 'ci.yml', 'build-snapshot.yml', 'maven.yml', 'java.yml']
+              def workflowRun = null
+              
+              for (String workflowName : workflowNames) {
+                try {
+                  echo "Trying workflow: ${workflowName} for ${repositoryName} build #${module.buildId}"
+                  workflowRun = gitHubClient.getWorkflowRunByNumber(repositoryName, workflowName, module.buildId)
+                  if (workflowRun?.head_sha) {
+                    echo "Found workflow run in ${workflowName} for ${repositoryName} build #${module.buildId}"
+                    break
+                  }
+                } catch (Exception wfException) {
+                  echo "Workflow ${workflowName} not found or failed for ${repositoryName}: ${wfException.getMessage()}"
+                }
               }
+              
               changeLogEntry.sha = workflowRun?.head_sha ?: 'Unknown'
               if (changeLogEntry.sha != 'Unknown') {
                 echo "Successfully found GitHub workflow SHA ${changeLogEntry.sha} for ${repositoryName} build #${module.buildId}"
+              } else {
+                echo "Could not find workflow run in any of: ${workflowNames} for ${repositoryName} build #${module.buildId}"
               }
             } catch (Exception ghException) {
               echo "GitHub workflow fallback also failed for ${repositoryName}: ${ghException.getMessage()}"
@@ -101,13 +130,28 @@ List<ChangelogEntry> call(String previousSha, String currentSha) {
         break
       case ModuleType.FRONTEND:
         repositoryName = module.name.replace('folio_', 'ui-')
-        echo "Looking for GitHub workflow run for repository: ${repositoryName}, workflow: build-npm.yml, build: ${module.buildId}"
+        echo "Looking for GitHub workflow run for repository: ${repositoryName}, build: ${module.buildId}"
         try {
-          def workflowRun = gitHubClient.getWorkflowRunByNumber(repositoryName, 'build-npm.yml', module.buildId)
+          // Try different common workflow names for UI modules
+          def workflowNames = ['ui.yml', 'build-npm.yml', 'build.yml', 'ci.yml']
+          def workflowRun = null
+          
+          for (String workflowName : workflowNames) {
+            try {
+              echo "Trying workflow: ${workflowName} for ${repositoryName} build #${module.buildId}"
+              workflowRun = gitHubClient.getWorkflowRunByNumber(repositoryName, workflowName, module.buildId)
+              if (workflowRun?.head_sha) {
+                echo "Found workflow run in ${workflowName} for ${repositoryName} build #${module.buildId}"
+                break
+              }
+            } catch (Exception wfException) {
+              echo "Workflow ${workflowName} not found or failed for ${repositoryName}: ${wfException.getMessage()}"
+            }
+          }
+          
           changeLogEntry.sha = workflowRun?.head_sha ?: null
           if (!changeLogEntry.sha) {
-            echo "Warning: Could not find workflow run SHA for ${repositoryName} build #${module.buildId}"
-            echo "Workflow run response: ${workflowRun}"
+            echo "Warning: Could not find workflow run SHA for ${repositoryName} build #${module.buildId} in any of: ${workflowNames}"
             changeLogEntry.sha = 'Unknown'
           } else {
             echo "Successfully found SHA ${changeLogEntry.sha} for ${repositoryName} build #${module.buildId}"
@@ -143,10 +187,11 @@ List<ChangelogEntry> call(String previousSha, String currentSha) {
       } else {
         // For backend modules, provide more detailed error information
         def jobExists = checkJenkinsJobExists(repositoryName)
+        String jenkinsBaseUrl = env.BUILD_URL ? env.BUILD_URL.replaceAll(/\/job\/.*$/, '') : 'current Jenkins instance'
         if (!jobExists) {
-          changeLogEntry.commitMessage = "Jenkins job not found at /folio-org/${repositoryName}/master - possible Eureka-only module"
+          changeLogEntry.commitMessage = "Jenkins job not found at ${jenkinsBaseUrl}/job/folio-org/job/${repositoryName}/job/master/ - possible Eureka-only module"
         } else {
-          changeLogEntry.commitMessage = "Jenkins build ${module.buildId} not found for ${repositoryName} - build may not exist"
+          changeLogEntry.commitMessage = "Jenkins build ${module.buildId} not found for ${repositoryName} at ${jenkinsBaseUrl} - build may not exist"
         }
       }
     } else {
@@ -181,11 +226,63 @@ static List getUpdatedModulesList(Map commitInfo, String filename = 'install.jso
 boolean checkJenkinsJobExists(String moduleName) {
   try {
     String jobPath = "/folio-org/${moduleName}/master"
+    String jenkinsBaseUrl = env.BUILD_URL ? env.BUILD_URL.replaceAll(/\/job\/.*$/, '') : 'Jenkins instance'
+    String fullJobUrl = "${jenkinsBaseUrl}/job/folio-org/job/${moduleName}/job/master/"
+    
     Job moduleJob = Jenkins.instance.getItemByFullName(jobPath)
+    if (moduleJob == null) {
+      echo "Jenkins job not found - checked path: ${jobPath} (${fullJobUrl})"
+    }
     return moduleJob != null
   } catch (Exception e) {
     echo "Error checking Jenkins job existence for ${moduleName}: ${e.getMessage()}"
     return false
+  }
+}
+
+String getExternalJenkinsBuildSha(String moduleName, int moduleBuildId) {
+  Logger logger = new Logger(this, 'getExternalJenkinsBuildSha')
+  
+  if (!moduleBuildId || moduleBuildId <= 0) {
+    logger.warning("Invalid module build ID: ${moduleBuildId} for module: ${moduleName}")
+    return 'Unknown'
+  }
+  
+  try {
+    String jenkinsBaseUrl = "https://jenkins-aws.indexdata.com"
+    String buildApiUrl = "${jenkinsBaseUrl}/job/folio-org/job/${moduleName}/job/master/${moduleBuildId}/api/json"
+    
+    logger.info("Attempting to get build info from external Jenkins: ${buildApiUrl}")
+    
+    def response = sh(
+      script: "curl -s -f '${buildApiUrl}'",
+      returnStdout: true
+    ).trim()
+    
+    if (!response) {
+      logger.warning("Empty response from external Jenkins API for ${moduleName} build #${moduleBuildId}")
+      return 'Unknown'
+    }
+    
+    def buildInfo = readJSON text: response
+    
+    // Look for Git-related actions in the build
+    def gitAction = buildInfo.actions?.find { action ->
+      action._class?.contains('BuildData') || action.lastBuiltRevision?.SHA1
+    }
+    
+    if (gitAction?.lastBuiltRevision?.SHA1) {
+      String sha = gitAction.lastBuiltRevision.SHA1
+      logger.info("Successfully retrieved SHA ${sha} from external Jenkins for ${moduleName} build #${moduleBuildId}")
+      return sha
+    } else {
+      logger.warning("No Git SHA found in external Jenkins build data for ${moduleName} build #${moduleBuildId}")
+      return 'Unknown'
+    }
+    
+  } catch (Exception e) {
+    logger.warning("Exception getting build SHA from external Jenkins for ${moduleName} build #${moduleBuildId}: ${e.getMessage()}")
+    return 'Unknown'
   }
 }
 
@@ -199,9 +296,13 @@ String getJenkinsBuildSha(String moduleName, int moduleBuildId) {
 
   try {
     String jobPath = "/folio-org/${moduleName}/master"
+    String jenkinsBaseUrl = env.BUILD_URL ? env.BUILD_URL.replaceAll(/\/job\/.*$/, '') : 'Jenkins instance'
+    String fullJobUrl = "${jenkinsBaseUrl}/job/folio-org/job/${moduleName}/job/master/"
+    
     Job moduleJob = Jenkins.instance.getItemByFullName(jobPath)
     if (moduleJob == null) {
       logger.warning("Jenkins job not found at path: ${jobPath}")
+      logger.warning("Full job URL would be: ${fullJobUrl}")
       return null
     }
 
