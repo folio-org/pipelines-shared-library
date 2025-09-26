@@ -396,6 +396,24 @@ spec:
   }
 
   /**
+   * Defines a Rancher CLI agent with Java pre-installed.
+   *
+   * @param body Pipeline steps to execute inside this agent.
+   */
+  void rancherJavaAgentExtended(Closure body) {
+    createTemplate(new PodTemplateConfig(
+      label: JenkinsAgentLabel.RANCHER_JAVA_AGENT.getLabel(),
+      containers: [
+        buildJavaContainer(Constants.JAVA_LATEST_VERSION, [], '4096Mi', '8192Mi')
+      ]
+    )) {
+      steps.node(JenkinsAgentLabel.RANCHER_JAVA_AGENT.getLabel()) {
+        body.call()
+      }
+    }
+  }
+
+  /**
    * Defines a minimal Kaniko agent for container builds only.
    *
    * @param body Pipeline steps to execute inside this agent.

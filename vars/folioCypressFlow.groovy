@@ -159,7 +159,7 @@ CypressRunExecutionSummary call(String ciBuildId, List<CypressTestsParameters> t
     echo("Error executing tests: ${e.getMessage()}")
     throw e // Rethrow the exception for further handling if necessary
   } finally {
-    podTemplates.rancherJavaAgent {
+    podTemplates.rancherJavaAgentExtended {
       if (reportPortalUse && reportPortalClient != null) {
         folioCypress.finalizeReportPortal(reportPortalClient)
       }
