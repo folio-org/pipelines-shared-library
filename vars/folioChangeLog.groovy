@@ -171,12 +171,20 @@ List<ChangelogEntry> call(String previousSha, String currentSha) {
     Map commitInfo = [:]
     try {
       if (changeLogEntry.sha && changeLogEntry.sha != 'Unknown') {
+        echo "Fetching commit info for SHA: ${changeLogEntry.sha} from repository: ${repositoryName}"
         commitInfo = gitHubClient.getCommitInfo(changeLogEntry.sha, repositoryName)
+        if (commitInfo?.commit?.author?.name) {
+          echo "Successfully fetched commit info for ${repositoryName} SHA ${changeLogEntry.sha}: ${commitInfo.commit.message?.split('\n', 2)?.getAt(0)} by ${commitInfo.commit.author.name}"
+        } else {
+          echo "Warning: Commit info returned but missing expected fields for ${repositoryName} SHA ${changeLogEntry.sha}"
+        }
       } else {
         echo "Warning: SHA is null or 'Unknown' for module ${module.name} (${module.type}). Build ID: ${module.buildId}"
       }
     } catch (Exception e) {
       echo "Error fetching commit info for SHA: ${changeLogEntry.sha}, repository: ${repositoryName}. Error: ${e.getMessage()}"
+      echo "This could be due to: 1) SHA not existing in GitHub repo, 2) Network issues, 3) API rate limits, 4) Repository access issues"
+      // Don't fail the entire process, just continue with limited info
     }
 
     changeLogEntry.author = commitInfo?.commit?.author?.name ?: 'Unknown author'
@@ -195,7 +203,13 @@ List<ChangelogEntry> call(String previousSha, String currentSha) {
         }
       }
     } else {
-      changeLogEntry.commitMessage = commitInfo?.commit?.message?.split('\n', 2)?.getAt(0) ?: "Unable to fetch commit info for ${module.name} (build: ${module.buildId})"
+      // We have a SHA, try to get commit message
+      if (commitInfo?.commit?.message) {
+        changeLogEntry.commitMessage = commitInfo.commit.message.split('\n', 2)?.getAt(0)
+      } else {
+        // We have SHA but no commit info - this is the case you're seeing
+        changeLogEntry.commitMessage = "Build ${module.buildId} (SHA: ${changeLogEntry.sha.take(7)}) - unable to fetch commit details from GitHub"
+      }
     }
     
     changeLogEntry.commitLink = commitInfo?.html_url ?: null
