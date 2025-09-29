@@ -80,7 +80,19 @@ List<ChangelogEntry> call(String previousSha, String currentSha) {
             // Try to get SHA from external Jenkins instance (jenkins-aws.indexdata.com)
             echo "Attempting to get SHA from external Jenkins via REST API for ${repositoryName} build #${module.buildId}"
             try {
-              changeLogEntry.sha = getExternalJenkinsBuildSha(repositoryName, module.buildId.toInteger())
+              String externalResult = getExternalJenkinsBuildSha(repositoryName, module.buildId.toInteger())
+              
+              // Check if we got a corrected repository name along with the SHA
+              if (externalResult && externalResult.contains('|')) {
+                def parts = externalResult.split('\\|')
+                changeLogEntry.sha = parts[0]
+                String correctedRepoName = parts[1]
+                echo "🔄 Using corrected repository name '${correctedRepoName}' instead of '${repositoryName}' for GitHub API calls"
+                repositoryName = correctedRepoName // Update repository name for subsequent GitHub calls
+              } else {
+                changeLogEntry.sha = externalResult
+              }
+              
               if (changeLogEntry.sha && changeLogEntry.sha != 'Unknown') {
                 echo "Successfully found SHA from external Jenkins: ${changeLogEntry.sha} for ${repositoryName} build #${module.buildId}"
               } else {
@@ -264,6 +276,31 @@ boolean checkJenkinsJobExists(String moduleName) {
   }
 }
 
+String extractRepoNameFromGitUrl(String gitUrl) {
+  try {
+    if (!gitUrl || gitUrl == 'Unknown') {
+      return null
+    }
+    
+    // Handle both SSH and HTTPS Git URLs
+    // https://github.com/folio-org/jenkins-pipeline-libs.git -> jenkins-pipeline-libs
+    // git@github.com:folio-org/jenkins-pipeline-libs.git -> jenkins-pipeline-libs
+    
+    def match = gitUrl =~ /\/folio-org\/([^\/]+?)(?:\.git)?\/?$/
+    if (match) {
+      String repoName = match[0][1]
+      echo "📋 Extracted repository name '${repoName}' from Git URL: ${gitUrl}"
+      return repoName
+    }
+    
+    echo "⚠️ Could not extract repository name from Git URL: ${gitUrl}"
+    return null
+  } catch (Exception e) {
+    echo "Error extracting repository name from Git URL ${gitUrl}: ${e.getMessage()}"
+    return null
+  }
+}
+
 boolean verifyGitHubCommitExists(String repositoryName, String sha) {
   try {
     echo "Verifying if SHA ${sha} exists in GitHub repository: ${repositoryName}"
@@ -343,6 +380,14 @@ String getExternalJenkinsBuildSha(String moduleName, int moduleBuildId) {
       if (gitUrl != expectedUrl && gitUrl != 'Unknown') {
         logger.warning("⚠️ Git URL mismatch! Expected: ${expectedUrl}, Found: ${gitUrl}")
         logger.warning("This might explain why SHA ${sha} is not found in GitHub repository ${moduleName}")
+        
+        // Try to extract the actual repository name from the Git URL
+        String actualRepoName = extractRepoNameFromGitUrl(gitUrl)
+        if (actualRepoName && actualRepoName != moduleName) {
+          logger.info("🔄 Extracted actual repository name '${actualRepoName}' from Git URL")
+          // Return both SHA and the corrected repository name
+          return "${sha}|${actualRepoName}"
+        }
       }
       
       return sha
