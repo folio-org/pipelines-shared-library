@@ -172,11 +172,21 @@ List<ChangelogEntry> call(String previousSha, String currentSha) {
     try {
       if (changeLogEntry.sha && changeLogEntry.sha != 'Unknown') {
         echo "Fetching commit info for SHA: ${changeLogEntry.sha} from repository: ${repositoryName}"
-        commitInfo = gitHubClient.getCommitInfo(changeLogEntry.sha, repositoryName)
-        if (commitInfo?.commit?.author?.name) {
-          echo "Successfully fetched commit info for ${repositoryName} SHA ${changeLogEntry.sha}: ${commitInfo.commit.message?.split('\n', 2)?.getAt(0)} by ${commitInfo.commit.author.name}"
+        
+        // First verify the SHA exists in GitHub
+        boolean shaExists = verifyGitHubCommitExists(repositoryName, changeLogEntry.sha)
+        
+        if (shaExists) {
+          echo "SHA verified in GitHub, proceeding to fetch full commit info..."
+          commitInfo = gitHubClient.getCommitInfo(changeLogEntry.sha, repositoryName)
+          if (commitInfo?.commit?.author?.name) {
+            echo "✅ Successfully fetched commit info for ${repositoryName} SHA ${changeLogEntry.sha}: ${commitInfo.commit.message?.split('\n', 2)?.getAt(0)} by ${commitInfo.commit.author.name}"
+          } else {
+            echo "⚠️ Commit info returned but missing expected fields for ${repositoryName} SHA ${changeLogEntry.sha}"
+          }
         } else {
-          echo "Warning: Commit info returned but missing expected fields for ${repositoryName} SHA ${changeLogEntry.sha}"
+          echo "❌ SHA ${changeLogEntry.sha} does not exist in GitHub repository ${repositoryName}"
+          echo "This suggests the SHA from Jenkins belongs to a different repository or branch"
         }
       } else {
         echo "Warning: SHA is null or 'Unknown' for module ${module.name} (${module.type}). Build ID: ${module.buildId}"
@@ -254,6 +264,37 @@ boolean checkJenkinsJobExists(String moduleName) {
   }
 }
 
+boolean verifyGitHubCommitExists(String repositoryName, String sha) {
+  try {
+    echo "Verifying if SHA ${sha} exists in GitHub repository: ${repositoryName}"
+    
+    // Try to get just the commit without full details first
+    def response = sh(
+      script: "curl -s -o /dev/null -w '%{http_code}' 'https://api.github.com/repos/folio-org/${repositoryName}/commits/${sha}'",
+      returnStdout: true
+    ).trim()
+    
+    echo "GitHub API response code for ${repositoryName}/commits/${sha}: ${response}"
+    
+    if (response == '200') {
+      echo "✅ SHA ${sha} exists in repository ${repositoryName}"
+      return true
+    } else if (response == '404') {
+      echo "❌ SHA ${sha} not found in repository ${repositoryName} (HTTP 404)"
+      return false
+    } else if (response == '403') {
+      echo "⚠️ Access denied to repository ${repositoryName} or rate limited (HTTP 403)"
+      return false
+    } else {
+      echo "⚠️ Unexpected response ${response} when checking ${repositoryName}/commits/${sha}"
+      return false
+    }
+  } catch (Exception e) {
+    echo "Error verifying GitHub commit existence: ${e.getMessage()}"
+    return false
+  }
+}
+
 String getExternalJenkinsBuildSha(String moduleName, int moduleBuildId) {
   Logger logger = new Logger(this, 'getExternalJenkinsBuildSha')
   
@@ -287,10 +328,27 @@ String getExternalJenkinsBuildSha(String moduleName, int moduleBuildId) {
     
     if (gitAction?.lastBuiltRevision?.SHA1) {
       String sha = gitAction.lastBuiltRevision.SHA1
-      logger.info("Successfully retrieved SHA ${sha} from external Jenkins for ${moduleName} build #${moduleBuildId}")
+      
+      // Also try to get the Git repository URL for debugging
+      String gitUrl = 'Unknown'
+      if (gitAction.remoteUrls) {
+        gitUrl = gitAction.remoteUrls[0] ?: 'Unknown'
+      }
+      
+      logger.info("✅ Successfully retrieved SHA ${sha} from external Jenkins for ${moduleName} build #${moduleBuildId}")
+      logger.info("📍 Git repository URL from Jenkins: ${gitUrl}")
+      
+      // Validate that the Git URL matches what we expect
+      String expectedUrl = "https://github.com/folio-org/${moduleName}.git"
+      if (gitUrl != expectedUrl && gitUrl != 'Unknown') {
+        logger.warning("⚠️ Git URL mismatch! Expected: ${expectedUrl}, Found: ${gitUrl}")
+        logger.warning("This might explain why SHA ${sha} is not found in GitHub repository ${moduleName}")
+      }
+      
       return sha
     } else {
       logger.warning("No Git SHA found in external Jenkins build data for ${moduleName} build #${moduleBuildId}")
+      logger.warning("Available actions: ${buildInfo.actions?.collect { it._class }}")
       return 'Unknown'
     }
     
