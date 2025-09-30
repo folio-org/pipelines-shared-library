@@ -72,6 +72,68 @@ List<ChangelogEntry> call(String previousSha, String currentSha) {
       case ModuleType.KONG:
       case ModuleType.KEYCLOAK:
         repositoryName = module.name
+        echo "Processing Eureka-specific module: ${repositoryName} (${module.type})"
+        try {
+          // For Eureka modules, skip current Jenkins and go directly to external Jenkins
+          echo "Attempting to get SHA from external Jenkins for Eureka module ${repositoryName} build #${module.buildId}"
+          try {
+            String externalResult = getExternalJenkinsBuildSha(repositoryName, module.buildId.toInteger())
+            
+            // Check if we got a corrected repository name along with the SHA
+            if (externalResult && externalResult.contains('|')) {
+              def parts = externalResult.split('\\|')
+              changeLogEntry.sha = parts[0]
+              String correctedRepoName = parts[1]
+              echo "Using corrected repository name '${correctedRepoName}' instead of '${repositoryName}' for GitHub API calls"
+              repositoryName = correctedRepoName // Update repository name for subsequent GitHub calls
+            } else {
+              changeLogEntry.sha = externalResult
+            }
+            
+            if (changeLogEntry.sha && changeLogEntry.sha != 'Unknown') {
+              echo "Successfully found SHA from external Jenkins: ${changeLogEntry.sha} for Eureka module ${repositoryName} build #${module.buildId}"
+            } else {
+              echo "Could not find SHA in external Jenkins for Eureka module ${repositoryName} build #${module.buildId}"
+              // Try GitHub workflow runs as fallback for Eureka modules
+              echo "Attempting GitHub workflow fallback for Eureka module ${repositoryName} build #${module.buildId}"
+              try {
+                def workflowNames = ['build.yml', 'ci.yml', 'docker-build.yml', 'release.yml', 'main.yml']
+                def workflowRun = null
+                
+                for (String workflowName : workflowNames) {
+                  try {
+                    echo "Trying workflow: ${workflowName} for Eureka module ${repositoryName} build #${module.buildId}"
+                    workflowRun = gitHubClient.getWorkflowRunByNumber(repositoryName, workflowName, module.buildId)
+                    if (workflowRun?.head_sha) {
+                      echo "Found workflow run in ${workflowName} for Eureka module ${repositoryName} build #${module.buildId}"
+                      break
+                    }
+                  } catch (Exception wfException) {
+                    echo "Workflow ${workflowName} not found for Eureka module ${repositoryName}: ${wfException.getMessage()}"
+                  }
+                }
+                
+                changeLogEntry.sha = workflowRun?.head_sha ?: 'Unknown'
+                if (changeLogEntry.sha != 'Unknown') {
+                  echo "Successfully found GitHub workflow SHA ${changeLogEntry.sha} for Eureka module ${repositoryName} build #${module.buildId}"
+                } else {
+                  echo "Could not find workflow run in any of: ${workflowNames} for Eureka module ${repositoryName} build #${module.buildId}"
+                }
+              } catch (Exception ghException) {
+                echo "GitHub workflow fallback failed for Eureka module ${repositoryName}: ${ghException.getMessage()}"
+                changeLogEntry.sha = 'Unknown'
+              }
+            }
+          } catch (Exception extJenkinsException) {
+            echo "External Jenkins lookup failed for Eureka module ${repositoryName}: ${extJenkinsException.getMessage()}"
+            changeLogEntry.sha = 'Unknown'
+          }
+        } catch (Exception e) {
+          echo "Error getting build SHA for Eureka module ${repositoryName} build #${module.buildId}: ${e.getMessage()}"
+          changeLogEntry.sha = 'Unknown'
+        }
+        break
+        repositoryName = module.name
         try {
           // First try to get SHA from Jenkins build in the current instance
           changeLogEntry.sha = getJenkinsBuildSha(repositoryName, module.buildId.toInteger())
@@ -214,6 +276,9 @@ List<ChangelogEntry> call(String previousSha, String currentSha) {
     if (changeLogEntry.sha == 'Unknown') {
       if (module.type == ModuleType.FRONTEND) {
         changeLogEntry.commitMessage = "Unable to find GitHub workflow run ${module.buildId} for ${repositoryName}"
+      } else if (module.type in [ModuleType.SIDECAR, ModuleType.KONG, ModuleType.KEYCLOAK]) {
+        // Special handling for Eureka modules
+        changeLogEntry.commitMessage = "Unable to find build ${module.buildId} for Eureka module ${repositoryName} - checked external Jenkins and GitHub workflows"
       } else {
         // For backend modules, provide more detailed error information
         def jobExists = checkJenkinsJobExists(repositoryName)
