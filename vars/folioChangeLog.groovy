@@ -87,7 +87,7 @@ List<ChangelogEntry> call(String previousSha, String currentSha) {
                 def parts = externalResult.split('\\|')
                 changeLogEntry.sha = parts[0]
                 String correctedRepoName = parts[1]
-                echo "🔄 Using corrected repository name '${correctedRepoName}' instead of '${repositoryName}' for GitHub API calls"
+                echo "Using corrected repository name '${correctedRepoName}' instead of '${repositoryName}' for GitHub API calls"
                 repositoryName = correctedRepoName // Update repository name for subsequent GitHub calls
               } else {
                 changeLogEntry.sha = externalResult
@@ -192,12 +192,12 @@ List<ChangelogEntry> call(String previousSha, String currentSha) {
           echo "SHA verified in GitHub, proceeding to fetch full commit info..."
           commitInfo = gitHubClient.getCommitInfo(changeLogEntry.sha, repositoryName)
           if (commitInfo?.commit?.author?.name) {
-            echo "✅ Successfully fetched commit info for ${repositoryName} SHA ${changeLogEntry.sha}: ${commitInfo.commit.message?.split('\n', 2)?.getAt(0)} by ${commitInfo.commit.author.name}"
+            echo "Successfully fetched commit info for ${repositoryName} SHA ${changeLogEntry.sha}: ${commitInfo.commit.message?.split('\n', 2)?.getAt(0)} by ${commitInfo.commit.author.name}"
           } else {
-            echo "⚠️ Commit info returned but missing expected fields for ${repositoryName} SHA ${changeLogEntry.sha}"
+            echo "Commit info returned but missing expected fields for ${repositoryName} SHA ${changeLogEntry.sha}"
           }
         } else {
-          echo "❌ SHA ${changeLogEntry.sha} does not exist in GitHub repository ${repositoryName}"
+          echo "SHA ${changeLogEntry.sha} does not exist in GitHub repository ${repositoryName}"
           echo "This suggests the SHA from Jenkins belongs to a different repository or branch"
         }
       } else {
@@ -289,11 +289,11 @@ String extractRepoNameFromGitUrl(String gitUrl) {
     def match = gitUrl =~ /\/folio-org\/([^\/]+?)(?:\.git)?\/?$/
     if (match) {
       String repoName = match[0][1]
-      echo "📋 Extracted repository name '${repoName}' from Git URL: ${gitUrl}"
+      echo "Extracted repository name '${repoName}' from Git URL: ${gitUrl}"
       return repoName
     }
     
-    echo "⚠️ Could not extract repository name from Git URL: ${gitUrl}"
+    echo "Could not extract repository name from Git URL: ${gitUrl}"
     return null
   } catch (Exception e) {
     echo "Error extracting repository name from Git URL ${gitUrl}: ${e.getMessage()}"
@@ -314,16 +314,16 @@ boolean verifyGitHubCommitExists(String repositoryName, String sha) {
     echo "GitHub API response code for ${repositoryName}/commits/${sha}: ${response}"
     
     if (response == '200') {
-      echo "✅ SHA ${sha} exists in repository ${repositoryName}"
+      echo "SHA ${sha} exists in repository ${repositoryName}"
       return true
     } else if (response == '404') {
-      echo "❌ SHA ${sha} not found in repository ${repositoryName} (HTTP 404)"
+      echo "SHA ${sha} not found in repository ${repositoryName} (HTTP 404)"
       return false
     } else if (response == '403') {
-      echo "⚠️ Access denied to repository ${repositoryName} or rate limited (HTTP 403)"
+      echo "Access denied to repository ${repositoryName} or rate limited (HTTP 403)"
       return false
     } else {
-      echo "⚠️ Unexpected response ${response} when checking ${repositoryName}/commits/${sha}"
+      echo "Unexpected response ${response} when checking ${repositoryName}/commits/${sha}"
       return false
     }
   } catch (Exception e) {
@@ -372,19 +372,19 @@ String getExternalJenkinsBuildSha(String moduleName, int moduleBuildId) {
         gitUrl = gitAction.remoteUrls[0] ?: 'Unknown'
       }
       
-      logger.info("✅ Successfully retrieved SHA ${sha} from external Jenkins for ${moduleName} build #${moduleBuildId}")
-      logger.info("📍 Git repository URL from Jenkins: ${gitUrl}")
+      logger.info("Successfully retrieved SHA ${sha} from external Jenkins for ${moduleName} build #${moduleBuildId}")
+      logger.info("Git repository URL from Jenkins: ${gitUrl}")
       
       // Validate that the Git URL matches what we expect
       String expectedUrl = "https://github.com/folio-org/${moduleName}.git"
       if (gitUrl != expectedUrl && gitUrl != 'Unknown') {
-        logger.warning("⚠️ Git URL mismatch! Expected: ${expectedUrl}, Found: ${gitUrl}")
+        logger.warning("Git URL mismatch! Expected: ${expectedUrl}, Found: ${gitUrl}")
         logger.warning("This might explain why SHA ${sha} is not found in GitHub repository ${moduleName}")
         
         // Try to extract the actual repository name from the Git URL
         String actualRepoName = extractRepoNameFromGitUrl(gitUrl)
         if (actualRepoName && actualRepoName != moduleName) {
-          logger.info("🔄 Extracted actual repository name '${actualRepoName}' from Git URL")
+          logger.info("Extracted actual repository name '${actualRepoName}' from Git URL")
           // Return both SHA and the corrected repository name
           return "${sha}|${actualRepoName}"
         }
