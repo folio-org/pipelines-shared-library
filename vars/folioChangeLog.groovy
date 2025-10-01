@@ -153,6 +153,8 @@ String getGitHubWorkflowSha(String repositoryName, int buildId, ModuleType modul
     return 'Unknown'
   }
   
+  echo "Searching for GitHub workflow run #${buildId} in repository ${repositoryName}"
+  
   // Define workflow names based on module type
   def workflowNames = []
   switch (moduleType) {
@@ -165,20 +167,15 @@ String getGitHubWorkflowSha(String repositoryName, int buildId, ModuleType modul
       workflowNames = ['build.yml', 'ci.yml', 'maven.yml', 'java.yml', 'build-snapshot.yml']
       break
     case ModuleType.SIDECAR:
-      // folio-module-sidecar doesn't seem to have GitHub workflows
       workflowNames = ['build.yml', 'ci.yml', 'main.yml']
       break
     case ModuleType.KONG:
-      // folio-kong uses: do-docker.yml, test.yml
       workflowNames = ['do-docker.yml', 'test.yml', 'build.yml', 'ci.yml']
       break
     case ModuleType.KEYCLOAK:
-      // folio-keycloak uses: do-docker.yml
-      // mod-*-keycloak modules might use different workflows
       if (repositoryName == 'folio-keycloak') {
         workflowNames = ['do-docker.yml', 'build.yml', 'ci.yml']
       } else {
-        // For mod-*-keycloak modules
         workflowNames = ['build.yml', 'ci.yml', 'maven.yml', 'do-docker.yml']
       }
       break
@@ -186,23 +183,26 @@ String getGitHubWorkflowSha(String repositoryName, int buildId, ModuleType modul
       workflowNames = ['build.yml', 'ci.yml', 'main.yml']
   }
   
-  echo "Searching for GitHub workflow run #${buildId} in repository ${repositoryName}"
   echo "Trying workflow files: ${workflowNames}"
   
   for (String workflowName : workflowNames) {
     try {
-      echo "Checking workflow: ${workflowName}"
-      def workflowRun = gitHubClient.getWorkflowRunByNumber(repositoryName, workflowName, buildId)
+      echo "Checking workflow file: ${workflowName} for run #${buildId}"
+      def workflowRun = gitHubClient.getWorkflowRunByNumber(repositoryName, workflowName, buildId.toString())
       if (workflowRun?.head_sha) {
-        echo "Found workflow run #${buildId} in ${workflowName}: SHA ${workflowRun.head_sha}"
+        echo "Found workflow run #${buildId} in ${workflowName}: SHA ${workflowRun.head_sha} (run_id: ${workflowRun.id})"
         return workflowRun.head_sha
+      } else if (workflowRun == null) {
+        echo "No workflow run #${buildId} found in ${workflowName}"
+      } else {
+        echo "Workflow run #${buildId} found in ${workflowName} but missing head_sha: ${workflowRun}"
       }
     } catch (Exception e) {
       echo "Workflow ${workflowName} check failed: ${e.getMessage()}"
     }
   }
   
-  echo "No workflow run found for build #${buildId} in any of: ${workflowNames}"
+  echo "No workflow run found for build #${buildId} in any workflow files: ${workflowNames}"
   return 'Unknown'
 }
 
