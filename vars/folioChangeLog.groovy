@@ -188,6 +188,12 @@ String getGitHubWorkflowSha(String repositoryName, int buildId, ModuleType modul
   for (String workflowName : workflowNames) {
     try {
       echo "Checking workflow file: ${workflowName} for run #${buildId}"
+      
+      // First, let's check if the workflow exists by getting some runs
+      echo "Getting workflow runs for ${repositoryName}/${workflowName} to check if workflow exists"
+      def workflowRunsCheck = gitHubClient.getWorkflowRuns(repositoryName, workflowName, '5')
+      echo "Workflow runs check result: ${workflowRunsCheck}"
+      
       def workflowRun = gitHubClient.getWorkflowRunByNumber(repositoryName, workflowName, buildId.toString())
       if (workflowRun?.head_sha) {
         echo "Found workflow run #${buildId} in ${workflowName}: SHA ${workflowRun.head_sha} (run_id: ${workflowRun.id})"
@@ -199,6 +205,7 @@ String getGitHubWorkflowSha(String repositoryName, int buildId, ModuleType modul
       }
     } catch (Exception e) {
       echo "Workflow ${workflowName} check failed: ${e.getMessage()}"
+      echo "Exception details: ${e.getClass().getName()}: ${e.getMessage()}"
     }
   }
   

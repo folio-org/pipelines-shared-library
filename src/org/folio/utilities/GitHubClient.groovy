@@ -115,31 +115,44 @@ class GitHubClient {
       int page = 1
       int maxPages = 50 // Safety limit to prevent infinite loops
       
+      logger.info("Looking for workflow run #${targetRunNumber} in ${repository}/${runName}")
+      
       while (page <= maxPages) {
         def workflowRuns = getWorkflowRunsPaginated(repository, runName, perPage, page.toString())
         def runs = workflowRuns['workflow_runs']
         
         if (!runs || runs.isEmpty()) {
-          // No more runs available
+          logger.info("No runs found on page ${page}")
           break
         }
+        
+        logger.info("Page ${page}: Found ${runs.size()} runs")
+        def runNumbers = runs.collect { it['run_number'] }
+        logger.info("Run numbers on page ${page}: ${runNumbers}")
         
         // Check if target run is in this page
         def targetRun = runs.find { it['run_number'] == targetRunNumber }
         if (targetRun) {
+          logger.info("Found target run #${targetRunNumber}: ${targetRun}")
           return targetRun
         }
         
         // Check if we've gone past the target run number (runs are in descending order)
-        def minRunNumber = runs.min { it['run_number'] }['run_number']
-        if (minRunNumber < targetRunNumber) {
-          // We've gone past the target run number, it doesn't exist
-          break
+        if (!runs.isEmpty()) {
+          def minRunNumber = runs.min { it['run_number'] }['run_number']
+          def maxRunNumber = runs.max { it['run_number'] }['run_number']
+          logger.info("Page ${page}: run number range ${minRunNumber} - ${maxRunNumber}")
+          
+          if (minRunNumber < targetRunNumber) {
+            logger.info("Gone past target run number ${targetRunNumber}, stopping search")
+            break
+          }
         }
         
         page++
       }
       
+      logger.info("Workflow run #${targetRunNumber} not found in ${repository}/${runName}")
       return null
     } catch (Exception e) {
       logger.warning("Failed to get workflow run by number for ${repository}/${runName}#${runNumber}: ${e.getMessage()}")
