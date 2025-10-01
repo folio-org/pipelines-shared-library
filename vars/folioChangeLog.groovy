@@ -67,12 +67,24 @@ List<ChangelogEntry> call(String previousSha, String currentSha) {
     echo "Processing module: ${module.name} (${module.type}) -> Repository: ${repositoryName}"
 
     try {
-      // Get SHA from GitHub workflows only - no Jenkins dependency
+      // First try GitHub workflows (for modules that use GitHub Actions for builds)
       changeLogEntry.sha = getGitHubWorkflowSha(repositoryName, module.buildId.toInteger(), module.type)
       
       if (changeLogEntry.sha && changeLogEntry.sha != 'Unknown') {
-        echo "Successfully found SHA ${changeLogEntry.sha} for ${repositoryName} build #${module.buildId}"
+        echo "Found SHA from GitHub workflows: ${changeLogEntry.sha} for ${repositoryName} build #${module.buildId}"
+      } else {
+        // If GitHub workflows don't have builds, try external Jenkins (for Jenkins-built modules)
+        echo "No GitHub workflow build found, trying external Jenkins for ${repositoryName} build #${module.buildId}"
+        changeLogEntry.sha = getExternalJenkinsBuildSha(repositoryName, module.buildId.toInteger())
         
+        if (changeLogEntry.sha && changeLogEntry.sha != 'Unknown') {
+          echo "Found SHA from external Jenkins: ${changeLogEntry.sha} for ${repositoryName} build #${module.buildId}"
+        } else {
+          echo "No build found in GitHub workflows or external Jenkins for ${repositoryName} build #${module.buildId}"
+        }
+      }
+      
+      if (changeLogEntry.sha && changeLogEntry.sha != 'Unknown') {
         // Get commit info from GitHub
         Map commitInfo = gitHubClient.getCommitInfo(changeLogEntry.sha, repositoryName)
         changeLogEntry.author = commitInfo?.commit?.author?.name ?: 'Unknown author'
@@ -81,10 +93,10 @@ List<ChangelogEntry> call(String previousSha, String currentSha) {
         
         echo "Commit: ${changeLogEntry.commitMessage} by ${changeLogEntry.author}"
       } else {
-        echo "Warning: Could not find workflow run for ${repositoryName} build #${module.buildId}"
+        echo "Warning: Could not find build for ${repositoryName} build #${module.buildId}"
         changeLogEntry.sha = 'Unknown'
         changeLogEntry.author = 'Unknown author'
-        changeLogEntry.commitMessage = "Unable to find GitHub workflow run ${module.buildId} for ${repositoryName}"
+        changeLogEntry.commitMessage = "Unable to find build ${module.buildId} for ${repositoryName} - checked GitHub workflows and external Jenkins"
         changeLogEntry.commitLink = null
       }
     } catch (Exception e) {
@@ -193,6 +205,74 @@ String getGitHubWorkflowSha(String repositoryName, int buildId, ModuleType modul
   echo "No workflow run found for build #${buildId} in any of: ${workflowNames}"
   return 'Unknown'
 }
+
+String getExternalJenkinsBuildSha(String moduleName, int moduleBuildId) {
+  if (!moduleBuildId || moduleBuildId <= 0) {
+    echo "Invalid module build ID: ${moduleBuildId} for module: ${moduleName}"
+    return 'Unknown'
+  }
+  
+  try {
+    String jenkinsBaseUrl = "https://jenkins-aws.indexdata.com"
+    String buildApiUrl = "${jenkinsBaseUrl}/job/folio-org/job/${moduleName}/job/master/${moduleBuildId}/api/json"
+    
+    echo "Checking external Jenkins: ${buildApiUrl}"
+    
+    def response = sh(
+      script: "curl -s -f '${buildApiUrl}'",
+      returnStdout: true
+    ).trim()
+    
+    if (!response) {
+      echo "Empty response from external Jenkins API for ${moduleName} build #${moduleBuildId}"
+      return 'Unknown'
+    }
+    
+    def buildInfo = readJSON text: response
+    
+    // Look for Git-related actions in the build
+    def gitAction = buildInfo.actions?.find { action ->
+      action._class?.contains('BuildData') || action.lastBuiltRevision?.SHA1
+    }
+    
+    if (gitAction?.lastBuiltRevision?.SHA1) {
+      String sha = gitAction.lastBuiltRevision.SHA1
+      
+      // Check the Git repository URL to avoid jenkins-pipeline-libs pollution
+      String gitUrl = 'Unknown'
+      if (gitAction.remoteUrls) {
+        gitUrl = gitAction.remoteUrls[0] ?: 'Unknown'
+      }
+      
+      echo "External Jenkins SHA: ${sha}, Git URL: ${gitUrl}"
+      
+      // Reject if it's from jenkins-pipeline-libs (the source of our previous issues)
+      if (gitUrl.contains('jenkins-pipeline-libs')) {
+        echo "Rejecting SHA from jenkins-pipeline-libs to avoid incorrect commit info"
+        return 'Unknown'
+      }
+      
+      // Validate that the Git URL matches the expected module repository
+      String expectedUrl = "https://github.com/folio-org/${moduleName}.git"
+      if (gitUrl == expectedUrl || gitUrl == 'Unknown') {
+        echo "Successfully retrieved SHA ${sha} from external Jenkins for ${moduleName}"
+        return sha
+      } else {
+        echo "Git URL mismatch - Expected: ${expectedUrl}, Found: ${gitUrl}"
+        return 'Unknown'
+      }
+    } else {
+      echo "No Git SHA found in external Jenkins build data for ${moduleName} build #${moduleBuildId}"
+      return 'Unknown'
+    }
+    
+  } catch (Exception e) {
+    echo "Exception getting build SHA from external Jenkins for ${moduleName} build #${moduleBuildId}: ${e.getMessage()}"
+    return 'Unknown'
+  }
+}
+
+@SuppressWarnings('GrMethodMayBeStatic')
 
 static List getUpdatedModulesList(Map commitInfo, String filename = 'install.json') {
   try {
