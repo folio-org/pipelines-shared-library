@@ -166,10 +166,6 @@ String getGitHubWorkflowSha(String repositoryName, int buildId, ModuleType modul
     case ModuleType.MGR:
       workflowNames = ['build.yml', 'ci.yml', 'maven.yml', 'java.yml', 'build-snapshot.yml']
       break
-    case ModuleType.OKAPI:
-      // Okapi has specific workflow files
-      workflowNames = ['postgres.yml', 'api-doc.yml', 'api-lint.yml', 'api-schema-lint.yml', 'build.yml', 'ci.yml']
-      break
     case ModuleType.SIDECAR:
       workflowNames = ['build.yml', 'ci.yml', 'main.yml']
       break
