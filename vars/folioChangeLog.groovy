@@ -153,9 +153,22 @@ String getGitHubWorkflowSha(String repositoryName, int buildId, ModuleType modul
       workflowNames = ['build.yml', 'ci.yml', 'maven.yml', 'java.yml', 'build-snapshot.yml']
       break
     case ModuleType.SIDECAR:
+      // folio-module-sidecar doesn't seem to have GitHub workflows
+      workflowNames = ['build.yml', 'ci.yml', 'main.yml']
+      break
     case ModuleType.KONG:
+      // folio-kong uses: do-docker.yml, test.yml
+      workflowNames = ['do-docker.yml', 'test.yml', 'build.yml', 'ci.yml']
+      break
     case ModuleType.KEYCLOAK:
-      workflowNames = ['build.yml', 'ci.yml', 'docker-build.yml', 'release.yml', 'main.yml', 'maven.yml']
+      // folio-keycloak uses: do-docker.yml
+      // mod-*-keycloak modules might use different workflows
+      if (repositoryName == 'folio-keycloak') {
+        workflowNames = ['do-docker.yml', 'build.yml', 'ci.yml']
+      } else {
+        // For mod-*-keycloak modules
+        workflowNames = ['build.yml', 'ci.yml', 'maven.yml', 'do-docker.yml']
+      }
       break
     default:
       workflowNames = ['build.yml', 'ci.yml', 'main.yml']
