@@ -306,6 +306,7 @@ class Eureka extends Base {
     Map<String, String> updatedAppInfoMap = [:]
 
     appWithDescriptors.each { app ->
+      logger.debug("Updating Application Descriptor for application: ${app.name}, id: ${app.id}, version: ${app.version}, build: ${app.build}")
 
       String incrementalNumber = app.build.toInteger() + 1
 
