@@ -113,38 +113,40 @@ class GitHubClient {
     try {
       int targetRunNumber = runNumber.toInteger()
       int page = 1
-      int maxPages = 50 // Safety limit to prevent infinite loops
+      int maxPages = 20 // Reduced for performance
       
-      logger.info("Looking for workflow run #${targetRunNumber} in ${repository}/${runName}")
+      logger.info("Searching for workflow run #${targetRunNumber} in ${repository}/${runName}")
       
       while (page <= maxPages) {
         def workflowRuns = getWorkflowRunsPaginated(repository, runName, perPage, page.toString())
         def runs = workflowRuns['workflow_runs']
         
         if (!runs || runs.isEmpty()) {
-          logger.info("No runs found on page ${page}")
+          logger.info("No more runs found on page ${page} - stopping search")
           break
         }
         
-        logger.info("Page ${page}: Found ${runs.size()} runs")
         def runNumbers = runs.collect { it['run_number'] }
-        logger.info("Run numbers on page ${page}: ${runNumbers}")
+        logger.info("Page ${page}: Found ${runs.size()} runs with numbers: ${runNumbers.take(10)}${runNumbers.size() > 10 ? '...' : ''}")
         
         // Check if target run is in this page
         def targetRun = runs.find { it['run_number'] == targetRunNumber }
         if (targetRun) {
-          logger.info("Found target run #${targetRunNumber}: ${targetRun}")
+          logger.info("SUCCESS: Found workflow run #${targetRunNumber} with SHA: ${targetRun.head_sha}")
           return targetRun
         }
         
-        // Check if we've gone past the target run number (runs are in descending order)
+        // Check if we've gone past the target run number (GitHub returns runs in descending order)
         if (!runs.isEmpty()) {
           def minRunNumber = runs.min { it['run_number'] }['run_number']
           def maxRunNumber = runs.max { it['run_number'] }['run_number']
-          logger.info("Page ${page}: run number range ${minRunNumber} - ${maxRunNumber}")
           
-          if (minRunNumber < targetRunNumber) {
-            logger.info("Gone past target run number ${targetRunNumber}, stopping search")
+          if (maxRunNumber < targetRunNumber) {
+            logger.info("Current page max run #${maxRunNumber} is less than target #${targetRunNumber} - target may not exist")
+          }
+          
+          if (minRunNumber < targetRunNumber && maxRunNumber < targetRunNumber) {
+            logger.info("All runs on page ${page} are older than target #${targetRunNumber} - stopping search")
             break
           }
         }
@@ -152,10 +154,10 @@ class GitHubClient {
         page++
       }
       
-      logger.info("Workflow run #${targetRunNumber} not found in ${repository}/${runName}")
+      logger.warning("Workflow run #${targetRunNumber} not found in ${repository}/${runName} after checking ${page-1} pages")
       return null
     } catch (Exception e) {
-      logger.warning("Failed to get workflow run by number for ${repository}/${runName}#${runNumber}: ${e.getMessage()}")
+      logger.warning("Failed to search for workflow run ${repository}/${runName}#${runNumber}: ${e.getMessage()}")
       return null
     }
   }

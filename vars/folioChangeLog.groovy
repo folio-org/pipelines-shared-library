@@ -153,65 +153,78 @@ String getGitHubWorkflowSha(String repositoryName, int buildId, ModuleType modul
     return 'Unknown'
   }
   
-  echo "Searching for GitHub workflow run #${buildId} in repository ${repositoryName}"
+  echo "Searching for GitHub workflow run #${buildId} in repository ${repositoryName} (type: ${moduleType})"
   
-  // Define workflow names based on module type
+  // Define comprehensive workflow names based on module type and common patterns
   def workflowNames = []
   switch (moduleType) {
     case ModuleType.FRONTEND:
-      workflowNames = ['ui.yml', 'build-npm.yml', 'build.yml', 'ci.yml', 'node.yml']
+      // UI modules - prioritize ui.yml which is most common for FOLIO UI modules
+      workflowNames = ['ui.yml', 'build-npm.yml', 'build.yml', 'ci.yml', 'node.yml', 'npm.yml', 'frontend.yml']
       break
     case ModuleType.BACKEND:
     case ModuleType.EDGE:
     case ModuleType.MGR:
-      workflowNames = ['build.yml', 'ci.yml', 'maven.yml', 'java.yml', 'build-snapshot.yml']
+      // Backend modules - maven/java builds are most common
+      workflowNames = ['build.yml', 'maven.yml', 'ci.yml', 'java.yml', 'build-snapshot.yml', 'backend.yml']
       break
     case ModuleType.SIDECAR:
-      workflowNames = ['build.yml', 'ci.yml', 'main.yml']
+      workflowNames = ['build.yml', 'ci.yml', 'main.yml', 'sidecar.yml']
       break
     case ModuleType.KONG:
-      workflowNames = ['do-docker.yml', 'test.yml', 'build.yml', 'ci.yml']
+      workflowNames = ['do-docker.yml', 'build.yml', 'ci.yml', 'test.yml', 'docker.yml']
       break
     case ModuleType.KEYCLOAK:
       if (repositoryName == 'folio-keycloak') {
-        workflowNames = ['do-docker.yml', 'build.yml', 'ci.yml']
+        workflowNames = ['do-docker.yml', 'build.yml', 'ci.yml', 'docker.yml']
       } else {
-        // For mod-*-keycloak modules (including consortia-related ones)
-        workflowNames = ['build.yml', 'ci.yml', 'maven.yml', 'do-docker.yml']
+        // For mod-*-keycloak modules
+        workflowNames = ['build.yml', 'maven.yml', 'ci.yml', 'do-docker.yml', 'java.yml']
       }
       break
     default:
-      // More comprehensive default patterns for unknown/Eureka modules
-      workflowNames = ['build.yml', 'ci.yml', 'main.yml', 'maven.yml', 'ui.yml', 'do-docker.yml']
+      // Comprehensive default for unknown modules and Eureka-specific modules
+      workflowNames = ['ui.yml', 'build.yml', 'maven.yml', 'ci.yml', 'main.yml', 'do-docker.yml', 'java.yml', 'npm.yml']
   }
   
-  echo "Trying workflow files: ${workflowNames}"
+  echo "Trying ${workflowNames.size()} workflow files: ${workflowNames}"
   
   for (String workflowName : workflowNames) {
     try {
-      echo "Checking workflow file: ${workflowName} for run #${buildId}"
+      echo "[${workflowName}] Checking for run #${buildId} in ${repositoryName}"
       
-      // First, let's check if the workflow exists by getting some runs
-      echo "Getting workflow runs for ${repositoryName}/${workflowName} to check if workflow exists"
-      def workflowRunsCheck = gitHubClient.getWorkflowRuns(repositoryName, workflowName, '5')
-      echo "Workflow runs check result: ${workflowRunsCheck}"
+      // First verify workflow exists by getting recent runs
+      def workflowRunsCheck = gitHubClient.getWorkflowRuns(repositoryName, workflowName, '3')
+      def availableRuns = workflowRunsCheck?.workflow_runs ?: []
       
+      if (availableRuns.isEmpty()) {
+        echo "[${workflowName}] No workflow runs found - workflow may not exist or be inactive"
+        continue
+      }
+      
+      echo "[${workflowName}] Found ${availableRuns.size()} recent runs, checking for run #${buildId}"
+      
+      // Now search for specific run number
       def workflowRun = gitHubClient.getWorkflowRunByNumber(repositoryName, workflowName, buildId.toString())
+      
       if (workflowRun?.head_sha) {
-        echo "Found workflow run #${buildId} in ${workflowName}: SHA ${workflowRun.head_sha} (run_id: ${workflowRun.id})"
+        echo "SUCCESS: Found run #${buildId} in ${workflowName} - SHA: ${workflowRun.head_sha}"
         return workflowRun.head_sha
       } else if (workflowRun == null) {
-        echo "No workflow run #${buildId} found in ${workflowName}"
+        echo "[${workflowName}] Run #${buildId} not found in available runs"
       } else {
-        echo "Workflow run #${buildId} found in ${workflowName} but missing head_sha: ${workflowRun}"
+        echo "[${workflowName}] Run #${buildId} found but missing head_sha: ${workflowRun.keySet()}"
       }
+      
     } catch (Exception e) {
-      echo "Workflow ${workflowName} check failed: ${e.getMessage()}"
-      echo "Exception details: ${e.getClass().getName()}: ${e.getMessage()}"
+      echo "[${workflowName}] ERROR: ${e.getMessage()}"
+      if (e.getMessage().contains('404')) {
+        echo "[${workflowName}] Workflow file does not exist"
+      }
     }
   }
   
-  echo "No workflow run found for build #${buildId} in any workflow files: ${workflowNames}"
+  echo "FAILURE: No workflow run #${buildId} found in any of ${workflowNames.size()} workflow files for ${repositoryName}"
   return 'Unknown'
 }
 
