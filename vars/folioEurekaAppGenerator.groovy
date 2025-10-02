@@ -121,8 +121,7 @@ Map generateFromRepository(String repoName, FolioInstallJson moduleList, String 
       writeJSON file: repoName + ".template.json", json: updatedTemplate
     }
 
-    return _generate(repoName, debug,"org.folio:folio-application-generator:generateFromJson"
-      , "-Dfolio-application-generator.version=1.1.0")
+    return _generate(repoName, debug)
   }
 }
 
