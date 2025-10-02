@@ -1,6 +1,7 @@
 # Build\Cache
 .terraform/
 .gradle/
+.github/
 
 # IntelliJ related
 *.iml
