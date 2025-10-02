@@ -310,6 +310,8 @@ class Eureka extends Base {
 
       String incrementalNumber = app.build.toInteger() + 1
 
+      logger.debug("Incremental build number for new Application Version: ${incrementalNumber}")
+
       Map updatedAppDescriptor = getUpdatedApplicationDescriptor(app.descriptor, module, incrementalNumber)
 
       Applications.get(kong).registerApplication(updatedAppDescriptor)
