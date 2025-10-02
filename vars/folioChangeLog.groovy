@@ -222,17 +222,66 @@ String getExternalJenkinsBuildSha(String moduleName, int moduleBuildId) {
     
     echo "Checking external Jenkins: ${buildApiUrl}"
     
-    def response = sh(
-      script: "curl -s -f '${buildApiUrl}'",
+    // First check if the job exists at all
+    String jobApiUrl = "${jenkinsBaseUrl}/job/folio-org/job/${moduleName}/api/json"
+    echo "Verifying job exists: ${jobApiUrl}"
+    
+    def jobResponse = sh(
+      script: "curl -s -w '%{http_code}' '${jobApiUrl}'",
       returnStdout: true
     ).trim()
     
-    if (!response) {
-      echo "Empty response from external Jenkins API for ${moduleName} build #${moduleBuildId}"
+    def jobHttpCode = jobResponse[-3..-1]
+    echo "Job check HTTP response code: ${jobHttpCode}"
+    
+    if (jobHttpCode != '200') {
+      echo "Jenkins job does not exist for ${moduleName} (HTTP ${jobHttpCode})"
       return 'Unknown'
     }
     
-    def buildInfo = readJSON text: response
+    // Now check the specific build
+    def response = sh(
+      script: "curl -s -w '%{http_code}' '${buildApiUrl}'",
+      returnStdout: true
+    ).trim()
+    
+    def httpCode = response[-3..-1]
+    def responseBody = response[0..-4]
+    
+    echo "Build check HTTP response code: ${httpCode}"
+    
+    if (httpCode != '200') {
+      echo "Jenkins build #${moduleBuildId} does not exist for ${moduleName} (HTTP ${httpCode})"
+      
+      // Try alternative Jenkins job structure (some modules might not use /job/master/)
+      String altBuildApiUrl = "${jenkinsBaseUrl}/job/folio-org/job/${moduleName}/${moduleBuildId}/api/json"
+      echo "Trying alternative Jenkins structure: ${altBuildApiUrl}"
+      
+      def altResponse = sh(
+        script: "curl -s -w '%{http_code}' '${altBuildApiUrl}'",
+        returnStdout: true
+      ).trim()
+      
+      def altHttpCode = altResponse[-3..-1]
+      def altResponseBody = altResponse[0..-4]
+      
+      echo "Alternative build check HTTP response code: ${altHttpCode}"
+      
+      if (altHttpCode != '200') {
+        echo "Alternative Jenkins build structure also failed (HTTP ${altHttpCode})"
+        return 'Unknown'
+      }
+      
+      responseBody = altResponseBody
+      echo "Using alternative Jenkins job structure for ${moduleName}"
+    }
+    
+    if (!responseBody) {
+      echo "Empty response body from external Jenkins API for ${moduleName} build #${moduleBuildId}"
+      return 'Unknown'
+    }
+    
+    def buildInfo = readJSON text: responseBody
     
     // Look for Git-related actions in the build
     def gitAction = buildInfo.actions?.find { action ->
