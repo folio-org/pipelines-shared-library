@@ -155,39 +155,21 @@ String getGitHubWorkflowSha(String repositoryName, int buildId, ModuleType modul
   
   echo "Searching for GitHub workflow run #${buildId} in repository ${repositoryName} (type: ${moduleType})"
   
-  // Define comprehensive workflow names based on module type and common patterns
+  // Define workflow names based on actual FOLIO repository patterns
   def workflowNames = []
-  switch (moduleType) {
-    case ModuleType.FRONTEND:
-      // UI modules - prioritize ui.yml which is most common for FOLIO UI modules
-      workflowNames = ['ui.yml', 'build-npm.yml', 'build.yml', 'ci.yml', 'node.yml', 'npm.yml', 'frontend.yml']
-      break
-    case ModuleType.BACKEND:
-    case ModuleType.EDGE:
-    case ModuleType.MGR:
-      // Backend modules - maven/java builds are most common
-      workflowNames = ['build.yml', 'maven.yml', 'ci.yml', 'java.yml', 'build-snapshot.yml', 'backend.yml']
-      break
-    case ModuleType.SIDECAR:
-      workflowNames = ['build.yml', 'ci.yml', 'main.yml', 'sidecar.yml']
-      break
-    case ModuleType.KONG:
-      workflowNames = ['do-docker.yml', 'build.yml', 'ci.yml', 'test.yml', 'docker.yml']
-      break
-    case ModuleType.KEYCLOAK:
-      if (repositoryName == 'folio-keycloak') {
-        workflowNames = ['do-docker.yml', 'build.yml', 'ci.yml', 'docker.yml']
-      } else {
-        // For mod-*-keycloak modules
-        workflowNames = ['build.yml', 'maven.yml', 'ci.yml', 'do-docker.yml', 'java.yml']
-      }
-      break
-    default:
-      // Comprehensive default for unknown modules and Eureka-specific modules
-      workflowNames = ['ui.yml', 'build.yml', 'maven.yml', 'ci.yml', 'main.yml', 'do-docker.yml', 'java.yml', 'npm.yml']
+  
+  if (repositoryName.startsWith('ui-')) {
+    // UI modules use ui.yml (confirmed from ui-inventory)
+    workflowNames = ['ui.yml']
+  } else if (repositoryName in ['folio-kong', 'folio-keycloak']) {
+    // Special infrastructure modules (confirmed from folio-kong)
+    workflowNames = ['do-docker.yml', 'test.yml']
+  } else {
+    // Most FOLIO backend modules use Jenkins, but check common GitHub workflow patterns
+    workflowNames = ['build.yml', 'maven.yml', 'ci.yml']
   }
   
-  echo "Trying ${workflowNames.size()} workflow files: ${workflowNames}"
+  echo "Checking ${workflowNames.size()} workflow pattern(s) for ${repositoryName}: ${workflowNames}"
   
   for (String workflowName : workflowNames) {
     try {
@@ -224,7 +206,7 @@ String getGitHubWorkflowSha(String repositoryName, int buildId, ModuleType modul
     }
   }
   
-  echo "FAILURE: No workflow run #${buildId} found in any of ${workflowNames.size()} workflow files for ${repositoryName}"
+  echo "No GitHub workflow run #${buildId} found in ${repositoryName} - most FOLIO modules use Jenkins builds"
   return 'Unknown'
 }
 
