@@ -6,7 +6,6 @@ import org.folio.slack.SlackHelper
 import org.folio.utilities.GitHubClient
 import org.folio.utilities.Logger
 import org.folio.utilities.RestClient
-
 import java.util.regex.Matcher
 
 List<ChangelogEntry> call(String previousSha, String currentSha) {
@@ -259,7 +258,7 @@ String renderChangelogSection(List<ChangelogEntry> changeLogEntriesList) {
   return section
 }
 
-String getPlainText(List<ChangelogEntry> changeLogEntriesList){
+String getPlainText(List<ChangelogEntry> changeLogEntriesList) {
   StringBuilder plainTextBuilder = new StringBuilder()
 
   changeLogEntriesList.each { entry ->
