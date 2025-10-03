@@ -59,8 +59,6 @@ List<ChangelogEntry> call(String previousSha, String currentSha) {
       case ModuleType.EDGE:
       case ModuleType.MGR:
       case ModuleType.SIDECAR:
-      case ModuleType.KONG:
-      case ModuleType.KEYCLOAK:
         repositoryName = module.name
         try {
           changeLogEntry.sha = getJenkinsBuildSha(repositoryName, module.buildId.toInteger())
@@ -70,6 +68,26 @@ List<ChangelogEntry> call(String previousSha, String currentSha) {
           }
         } catch (Exception e) {
           echo "Error getting Jenkins build SHA for ${repositoryName} build #${module.buildId}: ${e.getMessage()}"
+          changeLogEntry.sha = 'Unknown'
+        }
+        break
+      case ModuleType.KONG:
+      case ModuleType.KEYCLOAK:
+        repositoryName = module.name
+        def workflowFile = 'do-docker.yml'
+        echo "Looking for GitHub workflow run for repository: ${repositoryName}, workflow: ${workflowFile}, build: ${module.buildId}"
+        try {
+          def workflowRun = gitHubClient.getWorkflowRunByNumber(repositoryName, workflowFile, module.buildId)
+          changeLogEntry.sha = workflowRun?.head_sha ?: null
+          if (!changeLogEntry.sha) {
+            echo "Warning: Could not find workflow run SHA for ${repositoryName} build #${module.buildId}"
+            echo "Workflow run response: ${workflowRun}"
+            changeLogEntry.sha = 'Unknown'
+          } else {
+            echo "Successfully found SHA ${changeLogEntry.sha} for ${repositoryName} build #${module.buildId}"
+          }
+        } catch (Exception e) {
+          echo "Error getting workflow run SHA for ${repositoryName} build #${module.buildId}: ${e.getMessage()}"
           changeLogEntry.sha = 'Unknown'
         }
         break
