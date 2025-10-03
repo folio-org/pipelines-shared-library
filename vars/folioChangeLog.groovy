@@ -32,17 +32,17 @@ List<ChangelogEntry> call(String previousSha, String currentSha) {
 
 
   List updatedModulesList = []
-  
+
   echo "Processing install.json changes: ${installJsonChangeLogShas.size()} commits"
   installJsonChangeLogShas.each { sha ->
     updatedModulesList.addAll(getUpdatedModulesList(gitHubClient.getCommitInfo(sha, platformCompleteRepositoryName), 'install.json'))
   }
-  
+
   echo "Processing eureka-platform.json changes: ${eurekaPlatformJsonChangeLogShas.size()} commits"
   eurekaPlatformJsonChangeLogShas.each { sha ->
     updatedModulesList.addAll(getUpdatedModulesList(gitHubClient.getCommitInfo(sha, platformCompleteRepositoryName), 'eureka-platform.json'))
   }
-  
+
   echo "Total modules found: ${updatedModulesList.size()}"
 
   List<FolioModule> updatedModulesObjectsList = []
@@ -80,9 +80,9 @@ List<ChangelogEntry> call(String previousSha, String currentSha) {
         break
       case ModuleType.FRONTEND:
         repositoryName = module.name.replace('folio_', 'ui-')
-        echo "Looking for GitHub workflow run for repository: ${repositoryName}, workflow: build-npm.yml, build: ${module.buildId}"
+        echo "Looking for GitHub workflow run for repository: ${repositoryName}, workflow: ui.yml, build: ${module.buildId}"
         try {
-          def workflowRun = gitHubClient.getWorkflowRunByNumber(repositoryName, 'build-npm.yml', module.buildId)
+          def workflowRun = gitHubClient.getWorkflowRunByNumber(repositoryName, 'ui.yml', module.buildId)
           changeLogEntry.sha = workflowRun?.head_sha ?: null
           if (!changeLogEntry.sha) {
             echo "Warning: Could not find workflow run SHA for ${repositoryName} build #${module.buildId}"
@@ -115,7 +115,7 @@ List<ChangelogEntry> call(String previousSha, String currentSha) {
     }
 
     changeLogEntry.author = commitInfo?.commit?.author?.name ?: 'Unknown author'
-    
+
     if (changeLogEntry.sha == 'Unknown') {
       if (module.type == ModuleType.FRONTEND) {
         changeLogEntry.commitMessage = "Unable to find GitHub workflow run ${module.buildId} for ${repositoryName}"
@@ -125,7 +125,7 @@ List<ChangelogEntry> call(String previousSha, String currentSha) {
     } else {
       changeLogEntry.commitMessage = commitInfo?.commit?.message?.split('\n', 2)?.getAt(0) ?: "Unable to fetch commit info for ${module.name} (build: ${module.buildId})"
     }
-    
+
     changeLogEntry.commitLink = commitInfo?.html_url ?: null
 
     changeLogEntriesList << changeLogEntry
@@ -138,11 +138,11 @@ static List getUpdatedModulesList(Map commitInfo, String filename = 'install.jso
   try {
     String pattern = /(?m)-\s+"id" : "(.*?)",\n\+\s+"id" : "(.*?)",/
     def fileInfo = commitInfo['files']?.find { it['filename'] == filename }
-    
+
     if (!fileInfo || !fileInfo['patch']) {
       return []
     }
-    
+
     Matcher matches = fileInfo['patch'] =~ pattern
     return matches.collect { match -> match[2] }
   } catch (Exception e) {
@@ -160,10 +160,9 @@ String getJenkinsBuildSha(String moduleName, int moduleBuildId) {
   }
 
   try {
-    String jobPath = "/folio-org/${moduleName}/master"
-    Job moduleJob = Jenkins.instance.getItemByFullName(jobPath)
+    Job moduleJob = "https://jenkins-aws.indexdata.com/job/folio-org/job/${moduleName}/job/master"
     if (moduleJob == null) {
-      logger.warning("Jenkins job not found at path: ${jobPath}")
+      logger.warning("Jenkins job for module: ${moduleName} not found at URL: ${moduleJob}")
       return null
     }
 
@@ -173,7 +172,7 @@ String getJenkinsBuildSha(String moduleName, int moduleBuildId) {
       return null
     }
 
-    Action moduleBuildAction = moduleBuild.getActions(BuildData).find { action -> 
+    Action moduleBuildAction = moduleBuild.getActions(BuildData).find { action ->
       action.getRemoteUrls()?.size() > 0 && action.getRemoteUrls()[0] == "https://github.com/folio-org/${moduleName}.git"
     }
     if (moduleBuildAction == null) {
