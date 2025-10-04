@@ -176,7 +176,7 @@ String getJenkinsBuildSha(String moduleName, int moduleBuildId) {
     String jobPath = "https://jenkins-aws.indexdata.com/job/folio-org/job/${moduleName}/job/master"
     logger.info("Checking build at ${jobPath}")
 
-    def buildUrl = "${jobPath}/${moduleBuildId}-master/api/json"
+    def buildUrl = "${jobPath}/${moduleBuildId}/api/json"
     try {
       logger.info("Fetching build info from URL: ${buildUrl}")
       def buildResponse = new RestClient(this).get(buildUrl)
