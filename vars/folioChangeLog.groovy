@@ -181,13 +181,19 @@ String getJenkinsBuildSha(String moduleName, int moduleBuildId) {
       logger.info("Fetching build info from URL: ${buildUrl}")
       def buildResponse = new RestClient(this).get(buildUrl)
 
+      logger.info("Response status: ${buildResponse.responseCode}")
 
-      if (buildResponse.status == 404) {
+      if (buildResponse.responseCode == 404) {
         logger.warning("Build not found at ${jobPath}")
         return null
       }
 
-      def buildInfo = readJSON text: buildResponse.content
+      if (!buildResponse.body) {
+        logger.warning("Empty response body from ${buildUrl}")
+        return null
+      }
+
+      def buildInfo = readJSON text: buildResponse.body
 
       def actions = buildInfo.actions
       def gitAction = actions.find { action ->
