@@ -1507,6 +1507,49 @@ mod-data-import:
           memory: 400Mi
         requests:
           memory: 290Mi
+mod-linked-data-import:
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
+    s3:
+      enabled: true
+      existingSecret: s3-mod-linked-data-import-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1536Mi
+    requests:
+      memory: 1024Mi
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+  - -Xss4m
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+        - name: JAVA_OPTS
+          value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms160m -Xmx160m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+      resources:
+        limits:
+          memory: 400Mi
+        requests:
+          memory: 290Mi
 mod-di-converter-storage:
   extraEnvVars: []
   integrations:

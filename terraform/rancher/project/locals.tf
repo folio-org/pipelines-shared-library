@@ -20,7 +20,7 @@ locals {
   ]
 
   s3_integrated_modules = ["mod-data-export", "mod-data-export-worker", "mod-data-import", "mod-lists",
-    "mod-bulk-operations", "mod-oai-pmh", "mod-marc-migrations", "mod-agreements", "mod-licenses"
+    "mod-bulk-operations", "mod-oai-pmh", "mod-marc-migrations", "mod-agreements", "mod-licenses", "mod-linked-data-import"
   ]
 
   s3_buckets_map = { for module in local.s3_integrated_modules :
