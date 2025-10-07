@@ -15,7 +15,7 @@ import org.jenkinsci.plugins.workflow.libs.Library
  * Job properties and parameters
  */
 properties([
-pipelineTriggers([cron('H 7 * * 1-5')]),
+pipelineTriggers([cron('H 18 * * 1-5')]),
 buildDiscarder(logRotator(numToKeepStr: '30')),
 disableConcurrentBuilds(),
 parameters([
@@ -114,7 +114,7 @@ ansiColor('xterm') {
     }
 
     stage('[Flow] Execute tests') {
-      sleep time: 15, unit: 'MINUTES' // wait for services to be ready
+      sleep time: 5, unit: 'MINUTES' // wait for stable state
       folioKarateFlow.call(karateTestsParams)
     }
 
