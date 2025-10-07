@@ -82,6 +82,7 @@ CreateNamespaceParameters namespaceFromBranchParams = namespaceBaseParams.toBuil
   .splitFiles(true)
   .ecsCCL(false)
   .rtr(false)
+  .scNative(true)
   .applicationSet('Complete')
   .applications(RestConstants.APPLICATION_BRANCH('Complete'))
   .hasSecureTenant(true)

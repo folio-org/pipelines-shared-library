@@ -74,6 +74,7 @@ ansiColor('xterm') {
       .mockServer(true)
       .consortia(true)
       .splitFiles(true)
+      .scNative(true)
       .rtr(false)
       .applicationSet('Complete')
       .applications(org.folio.rest_v2.Constants.APPLICATION_BRANCH('Complete'))
