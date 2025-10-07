@@ -9,13 +9,13 @@ import org.folio.rest_v2.Constants as RestConstants
 import org.folio.rest_v2.PlatformType
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library@RANCHER-2546') _
+@Library('pipelines-shared-library') _
 
 /**
  * Job properties and parameters
  */
 properties([
-pipelineTriggers([cron('H 7 * * 1-5')]),
+pipelineTriggers([cron('H 18 * * 1-5')]),
 buildDiscarder(logRotator(numToKeepStr: '30')),
 disableConcurrentBuilds(),
 parameters([
@@ -43,8 +43,8 @@ String okapiVersion = folioTools.eval(folioStringScripts.getOkapiVersions(), ['F
 
 CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builder()
   .platform(PlatformType.EUREKA)
-  .clusterName('folio-tmp')
-  .namespaceName('test')
+  .clusterName('folio-etesting')
+  .namespaceName('lsdi')
   .folioBranch('snapshot')
   .okapiVersion(okapiVersion)
   .configType('testing')
@@ -94,7 +94,7 @@ karateTestsParams.sendSlackNotification = true
 karateTestsParams.syncWithJira = true
 karateTestsParams.timeout = '2'
 karateTestsParams.lsdi = true
-karateTestsParams.karateConfig = "folio-tmp-test"
+karateTestsParams.karateConfig = "etesting-lsdi"
 
 /**
  * Pipeline
@@ -114,7 +114,7 @@ ansiColor('xterm') {
     }
 
     stage('[Flow] Execute tests') {
-      sleep time: 15, unit: 'MINUTES' // wait for services to be ready
+      sleep time: 5, unit: 'MINUTES' // wait for stable state
       folioKarateFlow.call(karateTestsParams)
     }
 
