@@ -66,6 +66,7 @@ CreateNamespaceParameters namespaceFromBranchParams = namespaceBaseParams.toBuil
   .linkedData(true)
   .consortia(true)
   .rtr(false)
+  .scNative(true)
   .applicationSet('Complete')
   .applications(org.folio.rest_v2.Constants.APPLICATION_BRANCH('Complete'))
   .hasSecureTenant(true)

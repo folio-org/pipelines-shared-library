@@ -67,6 +67,7 @@ CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builde
   .kafkaType('built-in')
   .opensearchType('aws')
   .s3Type('built-in')
+  .scNative(true)
   .members('folijet')
   .uiBuild(true)
   .worker('rancher')
