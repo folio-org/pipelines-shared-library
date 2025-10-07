@@ -3239,6 +3239,9 @@ mod-dcb:
     systemuser:
       enabled: true
       existingSecret: mod-dcb-systemuser
+    locations:
+      enabled: true
+      existingSecret: mod-dcb-shadow-locations
   replicaCount: 1
   resources:
     limits:
