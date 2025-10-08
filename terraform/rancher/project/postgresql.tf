@@ -33,7 +33,7 @@ resource "rancher2_secret" "db-credentials" {
 }
 
 resource "rancher2_secret" "db-credentials-cikarate" {
-  count        = var.rancher_project_name == "cikarate" ? 1 : 0
+  count        = contains(["cikarate", "lsdi", "cicypress", "cypress", "karate"], var.rancher_project_name) ? 1 : 0
   name         = "db-credentials-cikarate"
   project_id   = rancher2_project.this.id
   namespace_id = rancher2_namespace.this.id
@@ -173,7 +173,7 @@ EOF
 
 resource "helm_release" "postgresql_cikarate" {
   depends_on = [rancher2_secret.s3-postgres-backups-credentials, rancher2_secret.db-credentials-cikarate]
-  count      = var.pg_embedded && var.rancher_project_name == "cikarate" ? 1 : 0
+  count      = var.pg_embedded && contains(["cikarate", "lsdi", "cicypress", "cypress", "karate"], var.rancher_project_name) ? 1 : 0
   namespace  = rancher2_namespace.this.name
   name       = "postgresql-cikarate-tests"
   repository = local.catalogs.bitnami

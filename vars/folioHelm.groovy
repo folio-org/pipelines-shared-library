@@ -265,7 +265,7 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
                                     tag       : moduleVersion],
                    podAnnotations: [creationTimestamp: "\"${LocalDateTime.now().withNano(0).toString()}\""]]
 
-  if (ns.getNamespaceName() == 'cikarate' && moduleName.startsWith('mgr-') && moduleConfig.integrations?.db?.existingSecret == 'db-credentials') {
+  if (['cikarate', 'lsdi', 'cicypress', 'cypress', 'karate'].contains(ns.getNamespaceName()) && moduleName.startsWith('mgr-') && moduleConfig.integrations?.db?.existingSecret == 'db-credentials') {
     moduleConfig.integrations.db.existingSecret = 'db-credentials-cikarate'
   }
 
@@ -308,7 +308,7 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
         break
 
       case 'mgr-tenant-entitlements':
-          moduleConfig['extraEnvVars'] +=  ns.getNamespaceName() == 'cikarate' ? [
+          moduleConfig['extraEnvVars'] +=  ['cikarate', 'lsdi', 'cicypress', 'cypress', 'karate'].contains(ns.getNamespaceName()) ? [
             [
               name : 'VALIDATION_INTERFACE_INTEGRITY_ENABLED',
               value: 'false'
@@ -385,7 +385,7 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
         break
 
       case 'mod-fqm-manager':
-        ns.namespaceName == 'cikarate' ? moduleConfig['extraEnvVars'] += [
+        ['cikarate', 'lsdi', 'cicypress', 'cypress', 'karate'].contains(ns.namespaceName) ? moduleConfig['extraEnvVars'] += [
           name: 'mod-fqm-manager.entity-type-cache-timeout-seconds',
           value: '0'
         ] : []
@@ -435,7 +435,7 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
   }
 
   //Toleration and NodeSelector
-  if ((['folio-testing', 'folio-etesting'].contains(ns.getClusterName())) && (['cicypress', 'cikarate'].contains(ns.getNamespaceName()))) {
+  if ((['folio-testing', 'folio-etesting'].contains(ns.getClusterName())) && (['cicypress', 'cikarate', 'lsdi', 'cypress', 'karate'].contains(ns.getNamespaceName()))) {
     moduleConfig['nodeSelector'] = ["folio.org/qualitygate": ns.getNamespaceName()]
     moduleConfig['tolerations'] = [[key     : "folio.org/qualitygate",
                                     operator: "Equal",
