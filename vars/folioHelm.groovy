@@ -385,7 +385,7 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
         break
 
       case 'mod-fqm-manager':
-        ['cikarate', 'lsdi', 'cicypress', 'cypress', 'karate'].contains(ns.namespaceName) ? moduleConfig['extraEnvVars'] += [
+        moduleConfig['extraEnvVars'] += [
           name: 'mod-fqm-manager.entity-type-cache-timeout-seconds',
           value: '0'
         ] : []
@@ -435,7 +435,7 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
   }
 
   //Toleration and NodeSelector
-  if ((['folio-testing', 'folio-etesting'].contains(ns.getClusterName())) && (['cicypress', 'cikarate', 'lsdi', 'cypress', 'karate'].contains(ns.getNamespaceName()))) {
+  if ((['folio-testing', 'folio-etesting'].contains(ns.getClusterName())) && (['cicypress', 'cikarate'].contains(ns.getNamespaceName()))) {
     moduleConfig['nodeSelector'] = ["folio.org/qualitygate": ns.getNamespaceName()]
     moduleConfig['tolerations'] = [[key     : "folio.org/qualitygate",
                                     operator: "Equal",
