@@ -703,9 +703,9 @@ mod-agreements:
         value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
       resources:
         limits:
-          memory: 400Mi
+          memory: 256Mi
         requests:
-          memory: 230Mi
+          memory: 128Mi
 mod-audit:
   extraEnvVars: []
   integrations:
@@ -747,9 +747,9 @@ mod-audit:
           value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
       resources:
         limits:
-          memory: 400Mi
+          memory: 256Mi
         requests:
-          memory: 230Mi
+          memory: 128Mi
 mod-authtoken:
   extraEnvVars: []
   extraJavaOpts:
@@ -823,9 +823,9 @@ mod-batch-print:
           value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
       resources:
         limits:
-          memory: 400Mi
+          memory: 256Mi
         requests:
-          memory: 230Mi
+          memory: 128Mi
 mod-bulk-operations:
   jmx:
     enabled: true
@@ -884,9 +884,9 @@ mod-bulk-operations:
           value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
       resources:
         limits:
-          memory: 400Mi
+          memory: 256Mi
         requests:
-          memory: 260Mi
+          memory: 128Mi
 mod-calendar:
   extraEnvVars: []
   integrations:
@@ -925,9 +925,9 @@ mod-calendar:
           value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
       resources:
         limits:
-          memory: 400Mi
+          memory: 256Mi
         requests:
-          memory: 230Mi
+          memory: 128Mi
 mod-camunda:
   extraEnvVars:
     - name: SPRING_JERSEY_APPLICATIONPATH
@@ -1009,9 +1009,9 @@ mod-circulation:
           value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms256m -Xmx256m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
       resources:
         limits:
-          memory: 500Mi
+          memory: 256Mi
         requests:
-          memory: 390Mi
+          memory: 128Mi
 mod-circulation-bff:
   extraEnvVars: []
   integrations:
@@ -1053,9 +1053,9 @@ mod-circulation-bff:
           value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
       resources:
         limits:
-          memory: 400Mi
+          memory: 256Mi
         requests:
-          memory: 230Mi
+          memory: 128Mi
 mod-circulation-storage:
   extraEnvVars:
   - name: REPLICATION_FACTOR
@@ -1099,9 +1099,9 @@ mod-circulation-storage:
           value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms256m -Xmx256m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
       resources:
         limits:
-          memory: 500Mi
+          memory: 256Mi
         requests:
-          memory: 390Mi
+          memory: 128Mi
 mod-codex-ekb:
   extraEnvVars: []
   integrations: {}
@@ -1203,9 +1203,9 @@ mod-configuration:
           value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms256m -Xmx256m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
       resources:
         limits:
-          memory: 500Mi
+          memory: 256Mi
         requests:
-          memory: 390Mi
+          memory: 128Mi
 mod-consortia:
   extraEnvVars: []
   integrations:
@@ -1284,9 +1284,9 @@ mod-copycat:
           value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
       resources:
         limits:
-          memory: 400Mi
+          memory: 256Mi
         requests:
-          memory: 260Mi
+          memory: 128Mi
 mod-courses:
   extraEnvVars: []
   integrations:
@@ -1325,9 +1325,9 @@ mod-courses:
           value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
       resources:
         limits:
-          memory: 400Mi
+          memory: 256Mi
         requests:
-          memory: 260Mi
+          memory: 128Mi
 mod-data-export:
   extraEnvVars: []
   integrations:
@@ -1367,9 +1367,9 @@ mod-data-export:
           value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
       resources:
         limits:
-          memory: 400Mi
+          memory: 256Mi
         requests:
-          memory: 260Mi
+          memory: 128Mi
 mod-data-export-spring:
   extraEnvVars: []
   integrations:
@@ -1412,9 +1412,9 @@ mod-data-export-spring:
           value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
       resources:
         limits:
-          memory: 400Mi
+          memory: 256Mi
         requests:
-          memory: 260Mi
+          memory: 128Mi
 mod-data-export-worker:
   extraEnvVars: []
   integrations:
@@ -1459,9 +1459,9 @@ mod-data-export-worker:
           value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
       resources:
         limits:
-          memory: 400Mi
+          memory: 256Mi
         requests:
-          memory: 260Mi
+          memory: 128Mi
 mod-data-import:
   extraEnvVars: []
   integrations:
@@ -1504,9 +1504,9 @@ mod-data-import:
           value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms160m -Xmx160m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
       resources:
         limits:
-          memory: 400Mi
+          memory: 256Mi
         requests:
-          memory: 290Mi
+          memory: 128Mi
 mod-linked-data-import:
   extraEnvVars: []
   integrations:
@@ -1547,9 +1547,9 @@ mod-linked-data-import:
           value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms160m -Xmx160m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
       resources:
         limits:
-          memory: 400Mi
+          memory: 256Mi
         requests:
-          memory: 290Mi
+          memory: 128Mi
 mod-di-converter-storage:
   extraEnvVars: []
   integrations:
@@ -1588,9 +1588,9 @@ mod-di-converter-storage:
           value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
       resources:
         limits:
-          memory: 400Mi
+          memory: 256Mi
         requests:
-          memory: 260Mi
+          memory: 128Mi
 mod-ebsconet:
   extraEnvVars: []
   integrations: {}
@@ -1626,9 +1626,9 @@ mod-ebsconet:
           value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
       resources:
         limits:
-          memory: 400Mi
+          memory: 256Mi
         requests:
-          memory: 230Mi
+          memory: 128Mi
 mod-email:
   extraEnvVars: []
   integrations:
@@ -1667,9 +1667,9 @@ mod-email:
           value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
       resources:
         limits:
-          memory: 400Mi
+          memory: 256Mi
         requests:
-          memory: 260Mi
+          memory: 128Mi
 mod-entities-links:
   extraEnvVars:
   - name: INSTANCE_STORAGE_QUERY_BATCH_SIZE
@@ -1728,9 +1728,9 @@ mod-entities-links:
           value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
       resources:
         limits:
-          memory: 400Mi
+          memory: 256Mi
         requests:
-          memory: 260Mi
+          memory: 128Mi
 mod-erm-usage:
   extraEnvVars: []
   integrations:
@@ -1769,9 +1769,9 @@ mod-erm-usage:
           value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
       resources:
         limits:
-          memory: 400Mi
+          memory: 256Mi
         requests:
-          memory: 230Mi
+          memory: 128Mi
 mod-erm-usage-harvester:
   extraEnvVars: []
   integrations:
@@ -1816,9 +1816,9 @@ mod-erm-usage-harvester:
           value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms160m -Xmx160m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
       resources:
         limits:
-          memory: 400Mi
+          memory: 256Mi
         requests:
-          memory: 290Mi
+          memory: 128Mi
 mod-eusage-reports:
   extraEnvVars: []
   integrations:
@@ -1857,9 +1857,9 @@ mod-eusage-reports:
           value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
       resources:
         limits:
-          memory: 400Mi
+          memory: 256Mi
         requests:
-          memory: 230Mi
+          memory: 128Mi
 mod-event-config:
   extraEnvVars: []
   integrations:
@@ -1898,9 +1898,9 @@ mod-event-config:
           value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
       resources:
         limits:
-          memory: 400Mi
+          memory: 256Mi
         requests:
-          memory: 230Mi
+          memory: 128Mi
 mod-feesfines:
   extraEnvVars: []
   integrations:
@@ -1939,9 +1939,9 @@ mod-feesfines:
           value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms160m -Xmx160m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
       resources:
         limits:
-          memory: 400Mi
+          memory: 256Mi
         requests:
-          memory: 290Mi
+          memory: 128Mi
 mod-finc-config:
   extraEnvVars:
   - name: EZB_DOWNLOAD_URL
@@ -1985,9 +1985,9 @@ mod-finc-config:
           value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms160m -Xmx160m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
       resources:
         limits:
-          memory: 400Mi
+          memory: 256Mi
         requests:
-          memory: 290Mi
+          memory: 128Mi
 mod-finance:
   extraEnvVars: []
   integrations: {}
@@ -2023,9 +2023,9 @@ mod-finance:
           value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms160m -Xmx160m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
       resources:
         limits:
-          memory: 400Mi
+          memory: 256Mi
         requests:
-          memory: 290Mi
+          memory: 128Mi
 mod-finance-storage:
   extraEnvVars: []
   integrations:
@@ -2064,9 +2064,9 @@ mod-finance-storage:
           value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
       resources:
         limits:
-          memory: 400Mi
+          memory: 256Mi
         requests:
-          memory: 260Mi
+          memory: 128Mi
 mod-fqm-manager:
   extraEnvVars:
   - name: QUERY_RETENTION_DURATION
@@ -2109,9 +2109,9 @@ mod-fqm-manager:
           value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
       resources:
         limits:
-          memory: 400Mi
+          memory: 256Mi
         requests:
-          memory: 260Mi
+          memory: 128Mi
 mod-gobi:
   extraEnvVars: []
   integrations: {}
@@ -2147,9 +2147,9 @@ mod-gobi:
           value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
       resources:
         limits:
-          memory: 400Mi
+          memory: 256Mi
         requests:
-          memory: 230Mi
+          memory: 128Mi
 mod-graphql:
   extraEnvVars: []
   integrations: {}
@@ -2185,9 +2185,9 @@ mod-graphql:
           value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
       resources:
         limits:
-          memory: 400Mi
+          memory: 256Mi
         requests:
-          memory: 230Mi
+          memory: 128Mi
 mod-inn-reach:
   extraEnvVars:
   - name: INNREACH_TENANTS
@@ -2237,9 +2237,9 @@ mod-inn-reach:
           value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
       resources:
         limits:
-          memory: 400Mi
+          memory: 256Mi
         requests:
-          memory: 230Mi
+          memory: 128Mi
 mod-inventory:
   extraEnvVars:
     - name: DI_INVENTORY_INSTANCE_CREATED_PARTITIONS
@@ -2325,9 +2325,9 @@ mod-inventory:
           value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms256m -Xmx256m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
       resources:
         limits:
-          memory: 500Mi
+          memory: 256Mi
         requests:
-          memory: 390Mi
+          memory: 128Mi
 mod-inventory-storage:
   extraEnvVars:
   - name: REPLICATION_FACTOR
@@ -2376,9 +2376,9 @@ mod-inventory-storage:
           value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms256m -Xmx256m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
       resources:
         limits:
-          memory: 500Mi
+          memory: 256Mi
         requests:
-          memory: 390Mi
+          memory: 128Mi
 mod-inventory-update:
   extraEnvVars: []
   integrations: {}
@@ -2414,9 +2414,9 @@ mod-inventory-update:
           value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
       resources:
         limits:
-          memory: 400Mi
+          memory: 256Mi
         requests:
-          memory: 230Mi
+          memory: 128Mi
 mod-invoice:
   extraEnvVars:
   - name: dataimport.consumer.verticle.mandatory
@@ -2465,9 +2465,9 @@ mod-invoice:
           value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
       resources:
         limits:
-          memory: 400Mi
+          memory: 256Mi
         requests:
-          memory: 260Mi
+          memory: 128Mi
 mod-invoice-storage:
   extraEnvVars: []
   integrations:
@@ -2509,9 +2509,9 @@ mod-invoice-storage:
           value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
       resources:
         limits:
-          memory: 400Mi
+          memory: 256Mi
         requests:
-          memory: 260Mi
+          memory: 128Mi
 mod-kb-ebsco-java:
   extraEnvVars: []
   integrations:
@@ -2550,9 +2550,9 @@ mod-kb-ebsco-java:
           value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
       resources:
         limits:
-          memory: 400Mi
+          memory: 256Mi
         requests:
-          memory: 230Mi
+          memory: 128Mi
 mod-ldp:
   extraEnvVars: []
   integrations:
@@ -2656,9 +2656,9 @@ mod-licenses:
           value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
       resources:
         limits:
-          memory: 400Mi
+          memory: 256Mi
         requests:
-          memory: 230Mi
+          memory: 128Mi
 mod-linked-data:
   extraEnvVars:
     - name: KAFKA_PRODUCER_TENANT_COLLECTION
@@ -2753,9 +2753,9 @@ mod-lists:
           value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
       resources:
         limits:
-          memory: 400Mi
+          memory: 256Mi
         requests:
-          memory: 230Mi
+          memory: 128Mi
 mod-login:
   extraEnvVars: []
   integrations:
@@ -2869,9 +2869,9 @@ mod-marc-migrations:
           value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
       resources:
         limits:
-          memory: 400Mi
+          memory: 256Mi
         requests:
-          memory: 230Mi
+          memory: 128Mi
 mod-marccat:
   extraEnvVars: []
   integrations:
@@ -2988,9 +2988,9 @@ mod-notes:
           value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
       resources:
         limits:
-          memory: 400Mi
+          memory: 256Mi
         requests:
-          memory: 260Mi
+          memory: 128Mi
 mod-notify:
   extraEnvVars: []
   integrations:
@@ -3029,9 +3029,9 @@ mod-notify:
           value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
       resources:
         limits:
-          memory: 400Mi
+          memory: 256Mi
         requests:
-          memory: 230Mi
+          memory: 128Mi
 mod-oa:
   extraEnvVars: []
   integrations:
@@ -3073,9 +3073,9 @@ mod-oa:
           value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
       resources:
         limits:
-          memory: 400Mi
+          memory: 256Mi
         requests:
-          memory: 230Mi
+          memory: 128Mi
 mod-oai-pmh:
   extraEnvVars:
   - name: CLEAN_UP_ERROR_LOGS_INTERVAL
@@ -3120,9 +3120,9 @@ mod-oai-pmh:
           value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
       resources:
         limits:
-          memory: 400Mi
+          memory: 256Mi
         requests:
-          memory: 230Mi
+          memory: 128Mi
 mod-orders:
   extraEnvVars:
     - name: DI_ORDER_CREATED_READY_FOR_POST_PROCESSING_PARTITIONS
@@ -3173,9 +3173,9 @@ mod-orders:
           value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms160m -Xmx160m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
       resources:
         limits:
-          memory: 400Mi
+          memory: 256Mi
         requests:
-          memory: 290Mi
+          memory: 128Mi
 mod-orders-storage:
   extraEnvVars:
   - name: consumer.verticle.mandatory
@@ -3219,9 +3219,9 @@ mod-orders-storage:
           value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms256m -Xmx256m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
       resources:
         limits:
-          memory: 500Mi
+          memory: 256Mi
         requests:
-          memory: 390Mi
+          memory: 128Mi
 mod-dcb:
   extraEnvVars:
   - name: consumer.verticle.mandatory
@@ -3274,9 +3274,9 @@ mod-dcb:
           value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
       resources:
         limits:
-          memory: 400Mi
+          memory: 256Mi
         requests:
-          memory: 230Mi
+          memory: 128Mi
 mod-circulation-item:
   extraEnvVars:
   - name: consumer.verticle.mandatory
@@ -3320,9 +3320,9 @@ mod-circulation-item:
           value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
       resources:
         limits:
-          memory: 400Mi
+          memory: 256Mi
         requests:
-          memory: 230Mi
+          memory: 128Mi
 mod-organizations:
   extraEnvVars: []
   integrations: {}
@@ -3358,9 +3358,9 @@ mod-organizations:
           value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
       resources:
         limits:
-          memory: 400Mi
+          memory: 256Mi
         requests:
-          memory: 260Mi
+          memory: 128Mi
 mod-organizations-storage:
   extraEnvVars: []
   integrations:
@@ -3402,9 +3402,9 @@ mod-organizations-storage:
           value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
       resources:
         limits:
-          memory: 400Mi
+          memory: 256Mi
         requests:
-          memory: 260Mi
+          memory: 128Mi
 mod-password-validator:
   extraEnvVars: []
   integrations:
@@ -3443,9 +3443,9 @@ mod-password-validator:
           value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
       resources:
         limits:
-          memory: 400Mi
+          memory: 256Mi
         requests:
-          memory: 230Mi
+          memory: 128Mi
 mod-patron:
   extraEnvVars: []
   integrations: {}
@@ -3481,9 +3481,9 @@ mod-patron:
           value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
       resources:
         limits:
-          memory: 400Mi
+          memory: 256Mi
         requests:
-          memory: 230Mi
+          memory: 128Mi
 mod-patron-blocks:
   extraEnvVars: []
   integrations:
@@ -3522,9 +3522,9 @@ mod-patron-blocks:
           value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms160m -Xmx160m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
       resources:
         limits:
-          memory: 400Mi
+          memory: 256Mi
         requests:
-          memory: 290Mi
+          memory: 128Mi
 mod-permissions:
   extraEnvVars: []
   integrations:
@@ -3563,9 +3563,9 @@ mod-permissions:
           value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
       resources:
         limits:
-          memory: 400Mi
+          memory: 256Mi
         requests:
-          memory: 260Mi
+          memory: 128Mi
 mod-pubsub:
   extraEnvVars: []
   integrations:
@@ -3613,9 +3613,9 @@ mod-pubsub:
           value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
       resources:
         limits:
-          memory: 400Mi
+          memory: 256Mi
         requests:
-          memory: 260Mi
+          memory: 128Mi
 mod-quick-marc:
   extraEnvVars:
   - name: REPLICATION_FACTOR
@@ -3656,9 +3656,9 @@ mod-quick-marc:
           value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
       resources:
         limits:
-          memory: 400Mi
+          memory: 256Mi
         requests:
-          memory: 260Mi
+          memory: 128Mi
 mod-reading-room:
   extraEnvVars: []
   integrations:
@@ -3697,9 +3697,9 @@ mod-reading-room:
           value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
       resources:
         limits:
-          memory: 400Mi
+          memory: 256Mi
         requests:
-          memory: 230Mi
+          memory: 128Mi
 mod-record-specifications:
   extraEnvVars: []
   integrations:
@@ -3740,9 +3740,9 @@ mod-record-specifications:
           value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
       resources:
         limits:
-          memory: 400Mi
+          memory: 256Mi
         requests:
-          memory: 230Mi
+          memory: 128Mi
 mod-remote-storage:
   extraEnvVars: []
   integrations:
@@ -3790,9 +3790,9 @@ mod-remote-storage:
           value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
       resources:
         limits:
-          memory: 400Mi
+          memory: 256Mi
         requests:
-          memory: 260Mi
+          memory: 128Mi
 mod-requests-mediated:
   extraEnvVars: []
   integrations:
@@ -3840,9 +3840,9 @@ mod-requests-mediated:
           value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
       resources:
         limits:
-          memory: 400Mi
+          memory: 256Mi
         requests:
-          memory: 230Mi
+          memory: 128Mi
 mod-rtac:
   extraEnvVars: []
   integrations: {}
@@ -3878,9 +3878,9 @@ mod-rtac:
           value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
       resources:
         limits:
-          memory: 400Mi
+          memory: 256Mi
         requests:
-          memory: 230Mi
+          memory: 128Mi
 mod-search:
   extraEnvVars:
   - name: INSTANCE_SUBJECTS_INDEXING_RETRY_ATTEMPTS
@@ -3971,9 +3971,9 @@ mod-search:
           value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms160m -Xmx160m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
       resources:
         limits:
-          memory: 400Mi
+          memory: 256Mi
         requests:
-          memory: 290Mi
+          memory: 128Mi
 mod-sender:
   extraEnvVars: []
   integrations: {}
@@ -4009,9 +4009,9 @@ mod-sender:
           value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
       resources:
         limits:
-          memory: 400Mi
+          memory: 256Mi
         requests:
-          memory: 230Mi
+          memory: 128Mi
 mod-serials-management:
   extraEnvVars:
   - name: DB_MAXPOOLSIZE
@@ -4055,9 +4055,9 @@ mod-serials-management:
           value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
       resources:
         limits:
-          memory: 400Mi
+          memory: 256Mi
         requests:
-          memory: 230Mi
+          memory: 128Mi
 mod-service-interaction:
   extraEnvVars:
   - name: DB_MAXPOOLSIZE
@@ -4101,9 +4101,9 @@ mod-service-interaction:
           value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
       resources:
         limits:
-          memory: 400Mi
+          memory: 256Mi
         requests:
-          memory: 230Mi
+          memory: 128Mi
 mod-settings:
   extraEnvVars: []
   integrations:
@@ -4142,9 +4142,9 @@ mod-settings:
           value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
       resources:
         limits:
-          memory: 400Mi
+          memory: 256Mi
         requests:
-          memory: 260Mi
+          memory: 128Mi
 mod-source-record-manager:
   extraEnvVars:
     - name: DI_COMPLETED_PARTITIONS
@@ -4211,9 +4211,9 @@ mod-source-record-manager:
           value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms192m -Xmx192m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
       resources:
         limits:
-          memory: 400Mi
+          memory: 256Mi
         requests:
-          memory: 330Mi
+          memory: 128Mi
 mod-source-record-storage:
   extraEnvVars:
     - name: DI_PARSED_RECORDS_CHUNK_SAVED_PARTITIONS
@@ -4297,9 +4297,9 @@ mod-source-record-storage:
           value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms160m -Xmx160m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
       resources:
         limits:
-          memory: 400Mi
+          memory: 256Mi
         requests:
-          memory: 290Mi
+          memory: 128Mi
 mod-tags:
   extraEnvVars: []
   integrations:
@@ -4338,9 +4338,9 @@ mod-tags:
           value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
       resources:
         limits:
-          memory: 400Mi
+          memory: 256Mi
         requests:
-          memory: 260Mi
+          memory: 128Mi
 mod-template-engine:
   extraEnvVars: []
   integrations:
@@ -4379,9 +4379,9 @@ mod-template-engine:
           value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
       resources:
         limits:
-          memory: 400Mi
+          memory: 256Mi
         requests:
-          memory: 230Mi
+          memory: 128Mi
 mod-tlr:
   extraEnvVars: []
   integrations:
@@ -4429,9 +4429,9 @@ mod-tlr:
           value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
       resources:
         limits:
-          memory: 400Mi
+          memory: 256Mi
         requests:
-          memory: 260Mi
+          memory: 128Mi
 mod-user-import:
   extraEnvVars: []
   integrations: {}
@@ -4467,9 +4467,9 @@ mod-user-import:
           value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
       resources:
         limits:
-          memory: 400Mi
+          memory: 256Mi
         requests:
-          memory: 230Mi
+          memory: 128Mi
 mod-users:
   extraEnvVars: []
   integrations:
@@ -4511,9 +4511,9 @@ mod-users:
           value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms256m -Xmx256m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
       resources:
         limits:
-          memory: 500Mi
+          memory: 256Mi
         requests:
-          memory: 390Mi
+          memory: 128Mi
 mod-users-bl:
   extraEnvVars: []
   integrations: {}
@@ -4546,9 +4546,9 @@ mod-users-bl:
           value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms256m -Xmx256m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
       resources:
         limits:
-          memory: 500Mi
+          memory: 256Mi
         requests:
-          memory: 390Mi
+          memory: 128Mi
   pdb:
     enabled: true
     maxUnavailable: 1
@@ -4769,9 +4769,9 @@ mod-consortia-keycloak:
           value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms160m -Xmx160m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
       resources:
         limits:
-          memory: 400Mi
+          memory: 256Mi
         requests:
-          memory: 290Mi
+          memory: 128Mi
 mod-login-keycloak:
   extraEnvVars:
     - name: KC_ADMIN_TOKEN_TTL
@@ -4803,9 +4803,9 @@ mod-login-keycloak:
           value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
       resources:
         limits:
-          memory: 400Mi
+          memory: 256Mi
         requests:
-          memory: 230Mi
+          memory: 128Mi
 mod-roles-keycloak:
   extraEnvVars:
     - name: KAFKA_CAPABILITIES_TOPIC_PATTERN
@@ -4840,9 +4840,9 @@ mod-roles-keycloak:
           value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms160m -Xmx160m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
       resources:
         limits:
-          memory: 400Mi
+          memory: 256Mi
         requests:
-          memory: 290Mi
+          memory: 128Mi
 mod-users-keycloak:
   extraEnvVars:
     - name: MOD_USERS_URL
@@ -4889,9 +4889,9 @@ mod-users-keycloak:
           value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms256m -Xmx256m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
       resources:
         limits:
-          memory: 500Mi
+          memory: 256Mi
         requests:
-          memory: 390Mi
+          memory: 128Mi
 mod-scheduler:
   extraEnvVars:
     - name: KC_IMPERSONATION_CLIENT
@@ -4938,9 +4938,9 @@ mod-scheduler:
           value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms256m -Xmx256m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
       resources:
         limits:
-          memory: 500Mi
+          memory: 256Mi
         requests:
-          memory: 390Mi
+          memory: 128Mi
 mod-okapi-facade:
   extraEnvVars:
     - name: AM_TLS_ENABLED
@@ -4974,9 +4974,9 @@ mod-okapi-facade:
           value: "-Dquarkus.log.level=DEBUG -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
       resources:
         limits:
-          memory: 400Mi
+          memory: 256Mi
         requests:
-          memory: 230Mi
+          memory: 128Mi
 okapi:
   args:
   - cluster
