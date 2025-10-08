@@ -265,7 +265,7 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
                                     tag       : moduleVersion],
                    podAnnotations: [creationTimestamp: "\"${LocalDateTime.now().withNano(0).toString()}\""]]
 
-  if (['cikarate', 'lsdi', 'cicypress', 'cypress', 'karate'].contains(ns.getNamespaceName()) && moduleName.startsWith('mgr-') && moduleConfig.integrations?.db?.existingSecret == 'db-credentials') {
+  if (['cikarate', 'cicypress', 'cypress', 'karate'].contains(ns.getNamespaceName()) && moduleName.startsWith('mgr-') && moduleConfig.integrations?.db?.existingSecret == 'db-credentials') {
     moduleConfig.integrations.db.existingSecret = "db-credentials-${ns.getNamespaceName()}-tests"
   }
 
@@ -308,7 +308,7 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
         break
 
       case 'mgr-tenant-entitlements':
-          moduleConfig['extraEnvVars'] +=  ['cikarate', 'lsdi', 'cicypress', 'cypress', 'karate'].contains(ns.getNamespaceName()) ? [
+          moduleConfig['extraEnvVars'] +=  ['cikarate', 'cicypress', 'cypress', 'karate'].contains(ns.getNamespaceName()) ? [
             [
               name : 'VALIDATION_INTERFACE_INTEGRITY_ENABLED',
               value: 'false'
@@ -385,7 +385,7 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
         break
 
       case 'mod-fqm-manager':
-        if (['cikarate', 'lsdi', 'cicypress', 'cypress', 'karate'].contains(ns.namespaceName)) {
+        if (['cikarate', 'cicypress', 'cypress', 'karate'].contains(ns.namespaceName)) {
           moduleConfig['extraEnvVars'] += [
             name: 'mod-fqm-manager.entity-type-cache-timeout-seconds',
             value: '0'
