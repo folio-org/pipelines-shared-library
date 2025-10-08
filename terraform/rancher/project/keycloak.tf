@@ -106,9 +106,9 @@ extraEnvVars:
 
 resources:
   requests:
-    memory: 4096Mi
-  limits:
     memory: 5120Mi
+  limits:
+    memory: 8192Mi
 
 postgresql:
   enabled: false
