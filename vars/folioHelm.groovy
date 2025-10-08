@@ -388,7 +388,7 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
         moduleConfig['extraEnvVars'] += [
           name: 'mod-fqm-manager.entity-type-cache-timeout-seconds',
           value: '0'
-        ] : []
+        ]
         break
     }
   }
