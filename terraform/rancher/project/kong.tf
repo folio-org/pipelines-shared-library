@@ -48,7 +48,7 @@ database: postgresql
 postgresql:
   enabled: false
   external:
-    host: ${var.pg_embedded ? (contains(["cikarate", "lsdi", "cicypress", "cypress", "karate"], var.rancher_project_name) ? "postgresql-cikarate-tests" : local.pg_service_writer) : module.rds[0].cluster_endpoint}
+    host: ${var.pg_embedded ? (contains(["cikarate", "lsdi", "cicypress", "cypress", "karate"], var.rancher_project_name) ? "postgresql-${var.rancher_project_name}-tests" : local.pg_service_writer) : module.rds[0].cluster_endpoint}
     port: 5432
     user: kong
     password: ""
