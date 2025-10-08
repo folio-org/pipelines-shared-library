@@ -17,7 +17,7 @@ resource "rancher2_secret" "kong-credentials" {
 resource "helm_release" "kong" {
   count      = var.eureka ? 1 : 0
   chart      = "kong"
-  depends_on = [rancher2_secret.db-credentials, rancher2_secret.db-credentials-tests, helm_release.postgresql, helm_release.postgresql_qg, rancher2_secret.kong-credentials, module.rds.cluster_instances, postgresql_database.eureka_kong]
+  depends_on = [rancher2_secret.db-credentials, rancher2_secret.db-credentials-eureka-components, helm_release.postgresql, helm_release.postgresql_qg, rancher2_secret.kong-credentials, module.rds.cluster_instances, postgresql_database.eureka_kong]
   name       = "kong-${var.rancher_project_name}"
   namespace  = rancher2_namespace.this.id
   version    = "12.0.11"

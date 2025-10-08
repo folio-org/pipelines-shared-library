@@ -266,7 +266,7 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
                    podAnnotations: [creationTimestamp: "\"${LocalDateTime.now().withNano(0).toString()}\""]]
 
   if (['cikarate', 'cicypress', 'cypress', 'karate'].contains(ns.getNamespaceName()) && moduleName.startsWith('mgr-') && moduleConfig.integrations?.db?.existingSecret == 'db-credentials') {
-    moduleConfig.integrations.db.existingSecret = "db-credentials-${ns.getNamespaceName()}-tests"
+    moduleConfig.integrations.db.existingSecret = "db-credentials-${ns.getNamespaceName()}-eureka"
   }
 
 /**
