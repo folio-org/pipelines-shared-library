@@ -640,7 +640,7 @@ mod-aes:
     limits:
       memory: 480Mi
     requests:
-      memory: 384Mi
+      memory: 128Mi
   startupProbe:
     httpGet:
       path: /admin/health
@@ -947,7 +947,7 @@ mod-camunda:
     limits:
       memory: 256Mi
     requests:
-      memory: 402Mi
+      memory: 128Mi
   startupProbe:
     httpGet:
       path: /admin/health
@@ -1026,7 +1026,7 @@ mod-circulation-bff:
     limits:
       memory: 256Mi
     requests:
-      memory: 384Mi
+      memory: 128Mi
   autoscaling:
     enabled: true
     minReplicas: 1
@@ -1956,9 +1956,9 @@ mod-finc-config:
   replicaCount: 1
   resources:
     limits:
-      memory: 384Mi
-    requests:
       memory: 256Mi
+    requests:
+      memory: 128Mi
   autoscaling:
     enabled: true
     minReplicas: 1
@@ -2592,7 +2592,7 @@ mod-reporting:
     limits:
       memory: 512Mi
     requests:
-      memory: 384Mi
+      memory: 128Mi
   autoscaling:
     enabled: false
     minReplicas: 1
@@ -3670,7 +3670,7 @@ mod-reading-room:
     limits:
       memory: 256Mi
     requests:
-      memory: 384Mi
+      memory: 128Mi
   autoscaling:
     enabled: true
     minReplicas: 1
@@ -3813,7 +3813,7 @@ mod-requests-mediated:
     limits:
       memory: 256Mi
     requests:
-      memory: 384Mi
+      memory: 128Mi
   autoscaling:
     enabled: true
     minReplicas: 1
@@ -4402,7 +4402,7 @@ mod-tlr:
     limits:
       memory: 256Mi
     requests:
-      memory: 384Mi
+      memory: 128Mi
   autoscaling:
     enabled: true
     minReplicas: 1
@@ -4573,7 +4573,7 @@ mod-workflow:
     limits:
       memory: 256Mi
     requests:
-      memory: 384Mi
+      memory: 128Mi
   startupProbe:
     httpGet:
       path: /admin/health
