@@ -385,10 +385,12 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
         break
 
       case 'mod-fqm-manager':
-        moduleConfig['extraEnvVars'] += [
-          name: 'mod-fqm-manager.entity-type-cache-timeout-seconds',
-          value: '0'
-        ]
+        if (['cikarate', 'lsdi', 'cicypress', 'cypress', 'karate'].contains(ns.namespaceName)) {
+          moduleConfig['extraEnvVars'] += [
+            name: 'mod-fqm-manager.entity-type-cache-timeout-seconds',
+            value: '0'
+          ]
+        }
         break
     }
   }
