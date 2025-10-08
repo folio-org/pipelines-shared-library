@@ -265,6 +265,10 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
                                     tag       : moduleVersion],
                    podAnnotations: [creationTimestamp: "\"${LocalDateTime.now().withNano(0).toString()}\""]]
 
+  if (ns.getNamespaceName() == 'cikarate' && moduleName.startsWith('mgr-') && moduleConfig.integrations?.db?.existingSecret == 'db-credentials') {
+    moduleConfig.integrations.db.existingSecret = 'db-credentials-cikarate'
+  }
+
 /**
  * Modules feature switcher*/
 
