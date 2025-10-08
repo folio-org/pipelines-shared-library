@@ -1,7 +1,7 @@
 resource "rancher2_secret" "kong-credentials" {
   data = {
     KONG_PG_USER     = base64encode("kong")
-    KONG_PG_HOST     = base64encode(var.pg_embedded ? (contains(["cikarate", "lsdi", "cicypress", "cypress", "karate"], var.rancher_project_name) ? "postgresql-${var.rancher_project_name}-tests" : local.pg_service_writer) : module.rds[0].cluster_endpoint)
+    KONG_PG_HOST     = base64encode(var.pg_embedded ? (contains(["cikarate", "cicypress", "cypress", "karate"], var.rancher_project_name) ? "postgresql-${var.rancher_project_name}-tests" : local.pg_service_writer) : module.rds[0].cluster_endpoint)
     KONG_PG_PASSWORD = base64encode(local.pg_password)
     KONG_PG_PORT     = base64encode("5432")
     KONG_PG_DATABASE = base64encode("kong")
@@ -48,7 +48,7 @@ database: postgresql
 postgresql:
   enabled: false
   external:
-    host: ${var.pg_embedded ? (contains(["cikarate", "lsdi", "cicypress", "cypress", "karate"], var.rancher_project_name) ? "postgresql-${var.rancher_project_name}-tests" : local.pg_service_writer) : module.rds[0].cluster_endpoint}
+    host: ${var.pg_embedded ? (contains(["cikarate", "cicypress", "cypress", "karate"], var.rancher_project_name) ? "postgresql-${var.rancher_project_name}-tests" : local.pg_service_writer) : module.rds[0].cluster_endpoint}
     port: 5432
     user: kong
     password: ""
