@@ -21,10 +21,7 @@ properties([
   pipelineTriggers([parameterizedCron('''
     50 22 * * 5 %ACTION=stop;CLUSTER=folio-etesting;NAMESPACE=sprint
     50 23 * * 0 %ACTION=start;CLUSTER=folio-etesting;NAMESPACE=sprint
-    50 22 * * 5 %ACTION=stop;CLUSTER=folio-testing;NAMESPACE=ecs-snapshot
-    50 23 * * 0 %ACTION=start;CLUSTER=folio-testing;NAMESPACE=ecs-snapshot
     0 0 * * 1-5 %ACTION=stop;CLUSTER=folio-testing;NAMESPACE=ecs-snapshot
-    0 9 * * 1-5 %ACTION=start;CLUSTER=folio-testing;NAMESPACE=ecs-snapshot
     0 0 * * * %ACTION=stop;CLUSTER=folio-perf;NAMESPACE=corsair
     55 21 * * * %ACTION=stop;CLUSTER=folio-perf;NAMESPACE=firebird
     5 22 * * * %ACTION=stop;CLUSTER=folio-perf;NAMESPACE=folijet
