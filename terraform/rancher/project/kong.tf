@@ -1,7 +1,7 @@
 resource "rancher2_secret" "kong-credentials" {
   data = {
     KONG_PG_USER     = base64encode("kong")
-    KONG_PG_HOST     = base64encode(var.pg_embedded ? (contains(["cikarate", "lsdi", "cicypress", "cypress", "karate"], var.rancher_project_name) ? "postgresql-cikarate-tests" : local.pg_service_writer) : module.rds[0].cluster_endpoint)
+    KONG_PG_HOST     = base64encode(var.pg_embedded ? (contains(["cikarate", "lsdi", "cicypress", "cypress", "karate"], var.rancher_project_name) ? "postgresql-${var.rancher_project_name}-tests" : local.pg_service_writer) : module.rds[0].cluster_endpoint)
     KONG_PG_PASSWORD = base64encode(local.pg_password)
     KONG_PG_PORT     = base64encode("5432")
     KONG_PG_DATABASE = base64encode("kong")
@@ -17,7 +17,7 @@ resource "rancher2_secret" "kong-credentials" {
 resource "helm_release" "kong" {
   count      = var.eureka ? 1 : 0
   chart      = "kong"
-  depends_on = [rancher2_secret.db-credentials, rancher2_secret.db-credentials-cikarate, helm_release.postgresql, helm_release.postgresql_cikarate, rancher2_secret.kong-credentials, module.rds.cluster_instances, postgresql_database.eureka_kong]
+  depends_on = [rancher2_secret.db-credentials, rancher2_secret.db-credentials-tests, helm_release.postgresql, helm_release.postgresql_qg, rancher2_secret.kong-credentials, module.rds.cluster_instances, postgresql_database.eureka_kong]
   name       = "kong-${var.rancher_project_name}"
   namespace  = rancher2_namespace.this.id
   version    = "12.0.11"

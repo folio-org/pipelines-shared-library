@@ -32,14 +32,14 @@ resource "rancher2_secret" "db-credentials" {
   } : {})
 }
 
-resource "rancher2_secret" "db-credentials-cikarate" {
+resource "rancher2_secret" "db-credentials-tests" {
   count        = contains(["cikarate", "lsdi", "cicypress", "cypress", "karate"], var.rancher_project_name) ? 1 : 0
-  name         = "db-credentials-cikarate"
+  name         = "db-credentials-${var.rancher_project_name}-tests"
   project_id   = rancher2_project.this.id
   namespace_id = rancher2_namespace.this.id
   data = merge({
     ENV             = base64encode(local.env_name)
-    DB_HOST         = base64encode("postgresql-cikarate-tests")
+    DB_HOST         = base64encode("postgresql-${var.rancher_project_name}-tests")
     DB_PORT         = base64encode("5432")
     DB_USERNAME     = base64encode(var.pg_username)
     DB_PASSWORD     = base64encode(var.pg_password == "" ? random_password.pg_password.result : var.pg_password)
@@ -49,7 +49,7 @@ resource "rancher2_secret" "db-credentials-cikarate" {
     DB_QUERYTIMEOUT = base64encode("60000")
     },
     var.enable_rw_split ? {
-      DB_HOST_READER = base64encode("postgresql-cikarate-tests-read")
+      DB_HOST_READER = base64encode("postgresql-${var.rancher_project_name}-tests-read")
       DB_PORT_READER = base64encode("5432")
   } : {})
 }
@@ -180,11 +180,11 @@ EOF
   ]
 }
 
-resource "helm_release" "postgresql_cikarate" {
-  depends_on = [rancher2_secret.s3-postgres-backups-credentials, rancher2_secret.db-credentials-cikarate]
+resource "helm_release" "postgresql_qg" {
+  depends_on = [rancher2_secret.s3-postgres-backups-credentials, rancher2_secret.db-credentials-tests]
   count      = var.pg_embedded && contains(["cikarate", "lsdi", "cicypress", "cypress", "karate"], var.rancher_project_name) ? 1 : 0
   namespace  = rancher2_namespace.this.name
-  name       = "postgresql-cikarate-tests"
+  name       = "postgresql-${var.rancher_project_name}-tests"
   repository = local.catalogs.bitnami
   chart      = "postgresql"
   version    = "16.7.27"
@@ -204,10 +204,10 @@ image:
   pullPolicy: IfNotPresent
 auth:
   enablePostgresUser: true
-  postgresPassword: ${base64decode(rancher2_secret.db-credentials-cikarate[0].data.DB_PASSWORD)}
-  username: ${base64decode(rancher2_secret.db-credentials-cikarate[0].data.DB_USERNAME)}
-  password: ${base64decode(rancher2_secret.db-credentials-cikarate[0].data.DB_PASSWORD)}
-  database: ${base64decode(rancher2_secret.db-credentials-cikarate[0].data.DB_DATABASE)}
+  postgresPassword: ${base64decode(rancher2_secret.db-credentials-tests[0].data.DB_PASSWORD)}
+  username: ${base64decode(rancher2_secret.db-credentials-tests[0].data.DB_USERNAME)}
+  password: ${base64decode(rancher2_secret.db-credentials-tests[0].data.DB_PASSWORD)}
+  database: ${base64decode(rancher2_secret.db-credentials-tests[0].data.DB_DATABASE)}
   replicationUsername: ${var.pg_username}
   replicationPassword: ${var.pg_password}
   usePasswordFiles: ${var.enable_rw_split ? "false" : "true"}
