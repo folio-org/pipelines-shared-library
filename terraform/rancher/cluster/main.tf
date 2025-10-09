@@ -1,37 +1,37 @@
-#Creating a cloud credential in Rancher.
-resource "rancher2_cloud_credential" "aws" {
-  depends_on  = [module.eks_cluster.eks_managed_node_groups]
-  count       = var.register_in_rancher ? 1 : 0
-  name        = module.eks_cluster.cluster_name
-  description = "AWS EKS Cluster"
-  amazonec2_credential_config {
-    access_key = var.aws_access_key_id
-    secret_key = var.aws_secret_access_key
-  }
-}
+# #Creating a cloud credential in Rancher.
+# resource "rancher2_cloud_credential" "aws" {
+#   depends_on  = [module.eks_cluster.eks_managed_node_groups]
+#   count       = var.register_in_rancher ? 1 : 0
+#   name        = module.eks_cluster.cluster_name
+#   description = "AWS EKS Cluster"
+#   amazonec2_credential_config {
+#     access_key = var.aws_access_key_id
+#     secret_key = var.aws_secret_access_key
+#   }
+# }
 
-#Creating a Rancher2 cluster object.
-resource "rancher2_cluster" "this" {
-  depends_on  = [module.eks_cluster.eks_managed_node_groups]
-  count       = var.register_in_rancher ? 1 : 0
-  name        = module.eks_cluster.cluster_name
-  description = "Terraform EKS Cluster"
-  eks_config_v2 {
-    cloud_credential_id = rancher2_cloud_credential.aws[0].id
-    name                = module.eks_cluster.cluster_name
-    region              = var.aws_region
-    imported            = true
-  }
-}
+# #Creating a Rancher2 cluster object.
+# resource "rancher2_cluster" "this" {
+#   depends_on  = [module.eks_cluster.eks_managed_node_groups]
+#   count       = var.register_in_rancher ? 1 : 0
+#   name        = module.eks_cluster.cluster_name
+#   description = "Terraform EKS Cluster"
+#   eks_config_v2 {
+#     cloud_credential_id = rancher2_cloud_credential.aws[0].id
+#     name                = module.eks_cluster.cluster_name
+#     region              = var.aws_region
+#     imported            = true
+#   }
+# }
 
-#Syncing the cluster with Rancher.
-resource "rancher2_cluster_sync" "this" {
-  depends_on = [module.eks_cluster.eks_managed_node_groups]
-  count      = var.register_in_rancher ? 1 : 0
-  cluster_id = rancher2_cluster.this[0].id
-  timeouts {
-    create = "60m"
-    update = "60m"
-    delete = "60m"
-  }
-}
+# #Syncing the cluster with Rancher.
+# resource "rancher2_cluster_sync" "this" {
+#   depends_on = [module.eks_cluster.eks_managed_node_groups]
+#   count      = var.register_in_rancher ? 1 : 0
+#   cluster_id = rancher2_cluster.this[0].id
+#   timeouts {
+#     create = "60m"
+#     update = "60m"
+#     delete = "60m"
+#   }
+# }

@@ -1,143 +1,143 @@
-# Folio helm charts catalog
-resource "rancher2_catalog_v2" "folio-helm" {
-  depends_on = [module.eks_cluster.eks_managed_node_groups]
-  count      = var.register_in_rancher ? 1 : 0
-  cluster_id = rancher2_cluster_sync.this[0].id
-  name       = "folio-helm"
-  url        = "https://folio-org.github.io/folio-helm"
-}
+# # Folio helm charts catalog
+# resource "rancher2_catalog_v2" "folio-helm" {
+#   depends_on = [module.eks_cluster.eks_managed_node_groups]
+#   count      = var.register_in_rancher ? 1 : 0
+#   cluster_id = rancher2_cluster_sync.this[0].id
+#   name       = "folio-helm"
+#   url        = "https://folio-org.github.io/folio-helm"
+# }
 
-# Folio service helm charts catalog
-resource "rancher2_catalog_v2" "folio-helm-service" {
-  depends_on = [module.eks_cluster.eks_managed_node_groups]
-  count      = var.register_in_rancher ? 1 : 0
-  cluster_id = rancher2_cluster_sync.this[0].id
-  name       = "folio-helm-service"
-  url        = "https://repository.folio.org/repository/helm-hosted"
-}
+# # Folio service helm charts catalog
+# resource "rancher2_catalog_v2" "folio-helm-service" {
+#   depends_on = [module.eks_cluster.eks_managed_node_groups]
+#   count      = var.register_in_rancher ? 1 : 0
+#   cluster_id = rancher2_cluster_sync.this[0].id
+#   name       = "folio-helm-service"
+#   url        = "https://repository.folio.org/repository/helm-hosted"
+# }
 
-# OpenSearch helm charts catalog
-resource "rancher2_catalog_v2" "opensearch" {
-  depends_on = [module.eks_cluster.eks_managed_node_groups]
-  count      = var.register_in_rancher ? 1 : 0
-  cluster_id = rancher2_cluster_sync.this[0].id
-  name       = "opensearch"
-  url        = "https://opensearch-project.github.io/helm-charts"
-}
+# # OpenSearch helm charts catalog
+# resource "rancher2_catalog_v2" "opensearch" {
+#   depends_on = [module.eks_cluster.eks_managed_node_groups]
+#   count      = var.register_in_rancher ? 1 : 0
+#   cluster_id = rancher2_cluster_sync.this[0].id
+#   name       = "opensearch"
+#   url        = "https://opensearch-project.github.io/helm-charts"
+# }
 
-# Bitnami helm charts catalog
-resource "rancher2_catalog_v2" "bitnami" {
-  depends_on = [module.eks_cluster.eks_managed_node_groups]
-  count      = var.register_in_rancher ? 1 : 0
-  cluster_id = rancher2_cluster_sync.this[0].id
-  name       = "bitnami"
-  url        = "https://repository.folio.org/repository/helm-bitnami-proxy"
-}
+# # Bitnami helm charts catalog
+# resource "rancher2_catalog_v2" "bitnami" {
+#   depends_on = [module.eks_cluster.eks_managed_node_groups]
+#   count      = var.register_in_rancher ? 1 : 0
+#   cluster_id = rancher2_cluster_sync.this[0].id
+#   name       = "bitnami"
+#   url        = "https://repository.folio.org/repository/helm-bitnami-proxy"
+# }
 
-# AWS ebs csi driver charts catalog
-resource "rancher2_catalog_v2" "aws-ebs-csi-driver" {
-  depends_on = [module.eks_cluster.eks_managed_node_groups]
-  count      = var.register_in_rancher ? 1 : 0
-  cluster_id = rancher2_cluster_sync.this[0].id
-  name       = "aws-ebs-csi-driver"
-  url        = "https://kubernetes-sigs.github.io/aws-ebs-csi-driver"
-}
+# # AWS ebs csi driver charts catalog
+# resource "rancher2_catalog_v2" "aws-ebs-csi-driver" {
+#   depends_on = [module.eks_cluster.eks_managed_node_groups]
+#   count      = var.register_in_rancher ? 1 : 0
+#   cluster_id = rancher2_cluster_sync.this[0].id
+#   name       = "aws-ebs-csi-driver"
+#   url        = "https://kubernetes-sigs.github.io/aws-ebs-csi-driver"
+# }
 
-# Helm charts catalog
-resource "rancher2_catalog_v2" "helm" {
-  depends_on = [module.eks_cluster.eks_managed_node_groups]
-  count      = var.register_in_rancher ? 1 : 0
-  cluster_id = rancher2_cluster_sync.this[0].id
-  name       = "helm"
-  url        = "https://charts.helm.sh/stable"
-}
+# # Helm charts catalog
+# resource "rancher2_catalog_v2" "helm" {
+#   depends_on = [module.eks_cluster.eks_managed_node_groups]
+#   count      = var.register_in_rancher ? 1 : 0
+#   cluster_id = rancher2_cluster_sync.this[0].id
+#   name       = "helm"
+#   url        = "https://charts.helm.sh/stable"
+# }
 
-# Helm incubator charts catalog
-resource "rancher2_catalog_v2" "helm-incubator" {
-  depends_on = [module.eks_cluster.eks_managed_node_groups]
-  count      = var.register_in_rancher ? 1 : 0
-  cluster_id = rancher2_cluster_sync.this[0].id
-  name       = "helm-incubator"
-  url        = "https://charts.helm.sh/incubator"
-}
+# # Helm incubator charts catalog
+# resource "rancher2_catalog_v2" "helm-incubator" {
+#   depends_on = [module.eks_cluster.eks_managed_node_groups]
+#   count      = var.register_in_rancher ? 1 : 0
+#   cluster_id = rancher2_cluster_sync.this[0].id
+#   name       = "helm-incubator"
+#   url        = "https://charts.helm.sh/incubator"
+# }
 
-# Influx charts catalog
-resource "rancher2_catalog_v2" "influx" {
-  depends_on = [module.eks_cluster.eks_managed_node_groups]
-  count      = var.register_in_rancher ? 1 : 0
-  cluster_id = rancher2_cluster_sync.this[0].id
-  name       = "influx"
-  url        = "https://helm.influxdata.com"
-}
+# # Influx charts catalog
+# resource "rancher2_catalog_v2" "influx" {
+#   depends_on = [module.eks_cluster.eks_managed_node_groups]
+#   count      = var.register_in_rancher ? 1 : 0
+#   cluster_id = rancher2_cluster_sync.this[0].id
+#   name       = "influx"
+#   url        = "https://helm.influxdata.com"
+# }
 
-# Grafana charts catalog
-resource "rancher2_catalog_v2" "grafana" {
-  depends_on = [module.eks_cluster.eks_managed_node_groups]
-  count      = var.register_in_rancher ? 1 : 0
-  cluster_id = rancher2_cluster_sync.this[0].id
-  name       = "grafana"
-  url        = "https://grafana.github.io/helm-charts"
-}
+# # Grafana charts catalog
+# resource "rancher2_catalog_v2" "grafana" {
+#   depends_on = [module.eks_cluster.eks_managed_node_groups]
+#   count      = var.register_in_rancher ? 1 : 0
+#   cluster_id = rancher2_cluster_sync.this[0].id
+#   name       = "grafana"
+#   url        = "https://grafana.github.io/helm-charts"
+# }
 
-# Runix charts catalog
-resource "rancher2_catalog_v2" "runix" {
-  depends_on = [module.eks_cluster.eks_managed_node_groups]
-  count      = var.register_in_rancher ? 1 : 0
-  cluster_id = rancher2_cluster_sync.this[0].id
-  name       = "runix"
-  url        = "https://helm.runix.net"
-}
+# # Runix charts catalog
+# resource "rancher2_catalog_v2" "runix" {
+#   depends_on = [module.eks_cluster.eks_managed_node_groups]
+#   count      = var.register_in_rancher ? 1 : 0
+#   cluster_id = rancher2_cluster_sync.this[0].id
+#   name       = "runix"
+#   url        = "https://helm.runix.net"
+# }
 
-# Kubecost charts catalog
-resource "rancher2_catalog_v2" "kubecost" {
-  depends_on = [module.eks_cluster.eks_managed_node_groups]
-  count      = var.register_in_rancher ? 1 : 0
-  cluster_id = rancher2_cluster_sync.this[0].id
-  name       = "cost-analyzer"
-  url        = "https://kubecost.github.io/cost-analyzer"
-}
+# # Kubecost charts catalog
+# resource "rancher2_catalog_v2" "kubecost" {
+#   depends_on = [module.eks_cluster.eks_managed_node_groups]
+#   count      = var.register_in_rancher ? 1 : 0
+#   cluster_id = rancher2_cluster_sync.this[0].id
+#   name       = "cost-analyzer"
+#   url        = "https://kubecost.github.io/cost-analyzer"
+# }
 
-# Provectus charts catalog, for Kafka_ui
-resource "rancher2_catalog_v2" "provectus" {
-  depends_on = [module.eks_cluster.eks_managed_node_groups]
-  count      = var.register_in_rancher ? 1 : 0
-  cluster_id = rancher2_cluster_sync.this[0].id
-  name       = "provectus"
-  url        = "https://provectus.github.io/kafka-ui-charts"
-}
+# # Provectus charts catalog, for Kafka_ui
+# resource "rancher2_catalog_v2" "provectus" {
+#   depends_on = [module.eks_cluster.eks_managed_node_groups]
+#   count      = var.register_in_rancher ? 1 : 0
+#   cluster_id = rancher2_cluster_sync.this[0].id
+#   name       = "provectus"
+#   url        = "https://provectus.github.io/kafka-ui-charts"
+# }
 
-# Prometheus Community charts catalog, for prometheus
-resource "rancher2_catalog_v2" "prometheus-community" {
-  depends_on = [module.eks_cluster.eks_managed_node_groups]
-  count      = var.register_in_rancher ? 1 : 0
-  cluster_id = rancher2_cluster_sync.this[0].id
-  name       = "prometheus-community"
-  url        = "https://prometheus-community.github.io/helm-charts"
-}
+# # Prometheus Community charts catalog, for prometheus
+# resource "rancher2_catalog_v2" "prometheus-community" {
+#   depends_on = [module.eks_cluster.eks_managed_node_groups]
+#   count      = var.register_in_rancher ? 1 : 0
+#   cluster_id = rancher2_cluster_sync.this[0].id
+#   name       = "prometheus-community"
+#   url        = "https://prometheus-community.github.io/helm-charts"
+# }
 
-# Kubernetes-sigs chart catalog, for metrics-server
-resource "rancher2_catalog_v2" "metrics-server" {
-  depends_on = [module.eks_cluster.eks_managed_node_groups]
-  count      = var.register_in_rancher ? 1 : 0
-  cluster_id = rancher2_cluster_sync.this[0].id
-  name       = "metrics-server"
-  url        = "https://kubernetes-sigs.github.io/metrics-server"
-}
+# # Kubernetes-sigs chart catalog, for metrics-server
+# resource "rancher2_catalog_v2" "metrics-server" {
+#   depends_on = [module.eks_cluster.eks_managed_node_groups]
+#   count      = var.register_in_rancher ? 1 : 0
+#   cluster_id = rancher2_cluster_sync.this[0].id
+#   name       = "metrics-server"
+#   url        = "https://kubernetes-sigs.github.io/metrics-server"
+# }
 
-# Sorry Cypress charts catalog
-resource "rancher2_catalog_v2" "sorry-cypress" {
-  depends_on = [module.eks_cluster.eks_managed_node_groups]
-  count      = var.register_in_rancher ? 1 : 0
-  cluster_id = rancher2_cluster_sync.this[0].id
-  name       = "sorry-cypress"
-  url        = "https://sorry-cypress.github.io/charts"
-}
+# # Sorry Cypress charts catalog
+# resource "rancher2_catalog_v2" "sorry-cypress" {
+#   depends_on = [module.eks_cluster.eks_managed_node_groups]
+#   count      = var.register_in_rancher ? 1 : 0
+#   cluster_id = rancher2_cluster_sync.this[0].id
+#   name       = "sorry-cypress"
+#   url        = "https://sorry-cypress.github.io/charts"
+# }
 
-# MockServer charts catalog
-resource "rancher2_catalog_v2" "mock-server" {
-  depends_on = [module.eks_cluster.eks_managed_node_groups]
-  count      = var.register_in_rancher ? 1 : 0
-  cluster_id = rancher2_cluster_sync.this[0].id
-  name       = "mock-server"
-  url        = "http://www.mock-server.com"
-}
+# # MockServer charts catalog
+# resource "rancher2_catalog_v2" "mock-server" {
+#   depends_on = [module.eks_cluster.eks_managed_node_groups]
+#   count      = var.register_in_rancher ? 1 : 0
+#   cluster_id = rancher2_cluster_sync.this[0].id
+#   name       = "mock-server"
+#   url        = "http://www.mock-server.com"
+# }
