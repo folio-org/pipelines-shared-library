@@ -19,6 +19,7 @@ properties([
               folioParameters.cluster('PLATFORM'),
               folioParameters.namespace(),
               folioParameters.configType(),
+              booleanParam(name: 'SC_NATIVE', defaultValue: true, description: '(Optional) Set false to use Java based SC image'),
               booleanParam(name: 'CONSORTIA_EXTRA', defaultValue: false, description: '(Optional) Set true to include 2nd consortium'),
               folioParameters.refreshParameters()]),
   pipelineTriggers([
@@ -66,6 +67,7 @@ CreateNamespaceParameters namespace = new CreateNamespaceParameters.Builder()
   .pgVersion('16.8')
   .kafkaType('built-in')
   .opensearchType('aws')
+  .scNative(params.SC_NATIVE)
   .s3Type('built-in')
   .uiBuild(true)
   .runSanityCheck(true)
