@@ -1,6 +1,6 @@
 resource "rancher2_secret" "keycloak-credentials" {
   data = {
-    KC_DB_URL_HOST                  = base64encode(var.pg_embedded ? (contains(["cikarate", "cicypress", "cypress", "karate"], var.rancher_project_name) ? "postgresql-${var.rancher_project_name}-tests" : local.pg_service_writer) : module.rds[0].cluster_endpoint)
+    KC_DB_URL_HOST                  = base64encode(var.pg_embedded ? (contains(["cikarate", "cicypress", "cypress", "karate"], var.rancher_project_name) ? "postgresql-${var.rancher_project_name}-eureka" : local.pg_service_writer) : module.rds[0].cluster_endpoint)
     KC_DB_URL_PORT                  = base64encode("5432")
     KC_DB_URL_DATABASE              = base64encode("keycloak")
     KC_DB_USERNAME                  = base64encode("keycloak")
