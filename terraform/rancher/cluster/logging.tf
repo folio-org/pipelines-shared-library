@@ -128,74 +128,74 @@ resource "rancher2_app_v2" "elasticsearch" {
 }
 
 # Create Elasticsearch manifest
-resource "kubectl_manifest" "elasticsearch_output" {
-  depends_on         = [module.eks_cluster.eks_managed_node_groups]
-  count              = var.register_in_rancher && var.enable_logging ? 1 : 0
-  provider           = kubectl
-  override_namespace = rancher2_namespace.logging[0].name
-  yaml_body          = <<YAML
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: elasticsearch-output
-data:
-  fluentd.conf: |
+# resource "kubectl_manifest" "elasticsearch_output" {
+#   depends_on         = [module.eks_cluster.eks_managed_node_groups]
+#   count              = var.register_in_rancher && var.enable_logging ? 1 : 0
+#   provider           = kubectl
+#   override_namespace = rancher2_namespace.logging[0].name
+#   yaml_body          = <<YAML
+# apiVersion: v1
+# kind: ConfigMap
+# metadata:
+#   name: elasticsearch-output
+# data:
+#   fluentd.conf: |
 
-    # Ignore fluentd own events
-    <label @FLUENT_LOG>
-      <match fluent.**>
-        @type null
-        @id ignore_fluent_logs
-      </match>
-    </label>
+#     # Ignore fluentd own events
+#     <label @FLUENT_LOG>
+#       <match fluent.**>
+#         @type null
+#         @id ignore_fluent_logs
+#       </match>
+#     </label>
 
-    # TCP input to receive logs from the forwarders
-    <source>
-      @type forward
-      bind 0.0.0.0
-      port 24224
-    </source>
+#     # TCP input to receive logs from the forwarders
+#     <source>
+#       @type forward
+#       bind 0.0.0.0
+#       port 24224
+#     </source>
 
-    # HTTP input for the liveness and readiness probes
-    <source>
-      @type http
-      bind 0.0.0.0
-      port 9880
-    </source>
+#     # HTTP input for the liveness and readiness probes
+#     <source>
+#       @type http
+#       bind 0.0.0.0
+#       port 9880
+#     </source>
 
-    # Throw the healthcheck to the standard output instead of forwarding it
-    <match fluentd.healthcheck>
-      @type stdout
-    </match>
+#     # Throw the healthcheck to the standard output instead of forwarding it
+#     <match fluentd.healthcheck>
+#       @type stdout
+#     </match>
 
-    # Send the logs to the standard output
-    <match **>
-      @type elasticsearch_dynamic
-      include_tag_key true
-      host "#{ENV['ELASTICSEARCH_HOST']}"
-      port "#{ENV['ELASTICSEARCH_PORT']}"
-      scheme http
-      logstash_format true
-      suppress_type_name true
-      reconnect_on_error true
-      reload_on_failure true
-      reload_connections false
-      request_timeout 120s
-      logstash_prefix logstash-$${record["kubernetes"]["namespace_name"]}
-      <buffer>
-        @type file
-        retry_forever false
-        retry_max_times 3
-        retry_wait 10
-        retry_max_interval 300
-        path /opt/bitnami/fluentd/logs/buffers/logs.buffer
-        flush_thread_count 4
-        flush_interval 15s
-        chunk_limit_size 80M
-      </buffer>
-    </match>
-  YAML
-}
+#     # Send the logs to the standard output
+#     <match **>
+#       @type elasticsearch_dynamic
+#       include_tag_key true
+#       host "#{ENV['ELASTICSEARCH_HOST']}"
+#       port "#{ENV['ELASTICSEARCH_PORT']}"
+#       scheme http
+#       logstash_format true
+#       suppress_type_name true
+#       reconnect_on_error true
+#       reload_on_failure true
+#       reload_connections false
+#       request_timeout 120s
+#       logstash_prefix logstash-$${record["kubernetes"]["namespace_name"]}
+#       <buffer>
+#         @type file
+#         retry_forever false
+#         retry_max_times 3
+#         retry_wait 10
+#         retry_max_interval 300
+#         path /opt/bitnami/fluentd/logs/buffers/logs.buffer
+#         flush_thread_count 4
+#         flush_interval 15s
+#         chunk_limit_size 80M
+#       </buffer>
+#     </match>
+#   YAML
+# }
 
 # Create rancher2 Elasticsearch app in logging namespace
 resource "rancher2_app_v2" "fluentd" {
