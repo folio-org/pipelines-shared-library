@@ -154,6 +154,9 @@ primary:
         sed -i "s/#*work_mem = .*/work_mem = 6MB/" /bitnami/postgresql/data/postgresql.conf
         sed -i "s/#*min_wal_size = .*/min_wal_size = 2GB/" /bitnami/postgresql/data/postgresql.conf
         sed -i "s/#*max_wal_size = .*/max_wal_size = 8GB/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*synchronous_commit = .*/synchronous_commit = off/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*wal_sync_method = .*/wal_sync_method = fdatasync/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*full_page_writes = .*/full_page_writes = off/" /bitnami/postgresql/data/postgresql.conf
         echo "PostgreSQL configuration updated"
   containerSecurityContext:
     enabled: true
