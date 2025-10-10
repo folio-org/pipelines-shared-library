@@ -43,8 +43,8 @@ String okapiVersion = folioTools.eval(folioStringScripts.getOkapiVersions(), ['F
 
 CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builder()
   .platform(PlatformType.EUREKA)
-  .clusterName('folio-etesting')
-  .namespaceName('lsdi')
+  .clusterName('folio-tmp')
+  .namespaceName('test')
   .folioBranch('snapshot')
   .okapiVersion(okapiVersion)
   .configType('testing')
@@ -95,7 +95,7 @@ karateTestsParams.sendSlackNotification = true
 karateTestsParams.syncWithJira = true
 karateTestsParams.timeout = '2'
 karateTestsParams.lsdi = true
-karateTestsParams.karateConfig = "etesting-lsdi"
+karateTestsParams.karateConfig = "folio-tmp-test"
 
 /**
  * Pipeline
