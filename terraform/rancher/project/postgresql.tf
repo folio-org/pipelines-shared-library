@@ -237,6 +237,7 @@ primary:
         #!/bin/bash
         echo "Configuring PostgreSQL settings..."
         sed -i "s/#*max_connections = .*/max_connections = ${var.pg_max_conn}/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*max_parallel_workers_per_gather = .*/max_parallel_workers_per_gather = 0/" /bitnami/postgresql/data/postgresql.conf
         sed -i "s/#*shared_buffers = .*/shared_buffers = 1024MB/" /bitnami/postgresql/data/postgresql.conf
         sed -i "s/#*listen_addresses = .*/listen_addresses = '0.0.0.0'/" /bitnami/postgresql/data/postgresql.conf
         sed -i "s/#*effective_cache_size = .*/effective_cache_size = 3072MB/" /bitnami/postgresql/data/postgresql.conf
