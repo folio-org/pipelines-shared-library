@@ -157,6 +157,14 @@ primary:
         sed -i "s/#*synchronous_commit = .*/synchronous_commit = off/" /bitnami/postgresql/data/postgresql.conf
         sed -i "s/#*wal_sync_method = .*/wal_sync_method = fdatasync/" /bitnami/postgresql/data/postgresql.conf
         sed -i "s/#*full_page_writes = .*/full_page_writes = off/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*wal_compression = .*/wal_compression = on/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*wal_init_zero = .*/wal_init_zero = off/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*wal_recycle = .*/wal_recycle = off/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*checkpoint_flush_after = .*/checkpoint_flush_after = 32MB/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*bgwriter_delay = .*/bgwriter_delay = 10ms/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*bgwriter_lru_maxpages = .*/bgwriter_lru_maxpages = 1000/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*bgwriter_lru_multiplier = .*/bgwriter_lru_multiplier = 10.0/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*bgwriter_flush_after = .*/bgwriter_flush_after = 64MB/" /bitnami/postgresql/data/postgresql.conf
         echo "PostgreSQL configuration updated"
   containerSecurityContext:
     enabled: true
