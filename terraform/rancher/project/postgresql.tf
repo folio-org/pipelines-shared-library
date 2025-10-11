@@ -157,13 +157,20 @@ primary:
         sed -i "s/#*default_statistics_target = .*/default_statistics_target = 500/" /bitnami/postgresql/data/postgresql.conf
         sed -i "s/#*random_page_cost = .*/random_page_cost = 1.0/" /bitnami/postgresql/data/postgresql.conf
         sed -i "s/#*effective_io_concurrency = .*/effective_io_concurrency = 1000/" /bitnami/postgresql/data/postgresql.conf
-        sed -i "s/#*work_mem = .*/work_mem = 48MB/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*work_mem = .*/work_mem = 64MB/" /bitnami/postgresql/data/postgresql.conf
         sed -i "s/#*min_wal_size = .*/min_wal_size = 4GB/" /bitnami/postgresql/data/postgresql.conf
         sed -i "s/#*max_wal_size = .*/max_wal_size = 16GB/" /bitnami/postgresql/data/postgresql.conf
         sed -i "s/#*parallel_tuple_cost = .*/parallel_tuple_cost = 0.005/" /bitnami/postgresql/data/postgresql.conf
         sed -i "s/#*parallel_setup_cost = .*/parallel_setup_cost = 500.0/" /bitnami/postgresql/data/postgresql.conf
         sed -i "s/#*commit_delay = .*/commit_delay = 100/" /bitnami/postgresql/data/postgresql.conf
         sed -i "s/#*commit_siblings = .*/commit_siblings = 10/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*seq_page_cost = .*/seq_page_cost = 1.0/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*cpu_tuple_cost = .*/cpu_tuple_cost = 0.005/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*cpu_index_tuple_cost = .*/cpu_index_tuple_cost = 0.0025/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*cpu_operator_cost = .*/cpu_operator_cost = 0.0015/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*synchronous_commit = .*/synchronous_commit = off/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*wal_writer_delay = .*/wal_writer_delay = 50ms/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*wal_writer_flush_after = .*/wal_writer_flush_after = 1MB/" /bitnami/postgresql/data/postgresql.conf
         echo "PostgreSQL configuration updated"
   containerSecurityContext:
     enabled: true
