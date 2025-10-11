@@ -14,7 +14,7 @@ CREATE DATABASE ${db} WITH
   LC_COLLATE='en_US.utf8' 
   LC_CTYPE='en_US.utf8' 
   TEMPLATE=template0;
-CREATE USER ${db} WITH PASSWORD '${pg_password}' CREATEDB;
+CREATE USER ${db} WITH PASSWORD '${pg_password}';
 ALTER DATABASE ${db} OWNER TO ${db};
 %{ endfor ~}
 
@@ -23,7 +23,7 @@ COMMIT;
 -- Configure each database separately (faster than in transaction)
 %{ for db in dbs ~}
 \c ${db}
-SET search_path TO public;
+ALTER DATABASE ${db} SET search_path TO public;
 REVOKE CREATE ON SCHEMA public FROM public;
 GRANT ALL ON SCHEMA public TO ${db};
 GRANT USAGE ON SCHEMA public TO ${db};
