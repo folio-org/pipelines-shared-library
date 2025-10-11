@@ -65,7 +65,7 @@ CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builde
   .pgType('built-in')
   .pgVersion('16.8')
   .kafkaType('built-in')
-  .opensearchType('aws')
+  .opensearchType('built-in')
   .s3Type('built-in')
   .scNative(true)
   .members('folijet')
