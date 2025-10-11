@@ -139,6 +139,29 @@ primary:
         GRANT ALL ON SCHEMA public TO ldpadmin;
         GRANT USAGE ON SCHEMA public TO ldpconfig;
         GRANT USAGE ON SCHEMA public TO ldp;
+      fix-user-passwords.sql: |
+        -- Fix user passwords for existing databases (runs every startup)
+        DO $$
+        BEGIN
+          -- Fix keycloak user password
+          IF EXISTS (SELECT 1 FROM pg_user WHERE usename = 'keycloak') THEN
+            EXECUTE 'ALTER USER keycloak WITH PASSWORD ''' || '${local.pg_password}' || '''';
+            RAISE NOTICE 'Updated keycloak user password';
+          END IF;
+          
+          -- Fix kong user password  
+          IF EXISTS (SELECT 1 FROM pg_user WHERE usename = 'kong') THEN
+            EXECUTE 'ALTER USER kong WITH PASSWORD ''' || '${local.pg_password}' || '''';
+            RAISE NOTICE 'Updated kong user password';
+          END IF;
+          
+          -- Fix folio user password (if exists)
+          IF EXISTS (SELECT 1 FROM pg_user WHERE usename = '${local.pg_eureka_db_name}') THEN
+            EXECUTE 'ALTER USER ${local.pg_eureka_db_name} WITH PASSWORD ''' || '${local.pg_password}' || '''';
+            RAISE NOTICE 'Updated ${local.pg_eureka_db_name} user password';
+          END IF;
+        END
+        $$;
       configure-postgres.sh: |
         #!/bin/bash
         echo "Configuring PostgreSQL settings..."

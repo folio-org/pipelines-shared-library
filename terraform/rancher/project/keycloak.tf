@@ -69,7 +69,7 @@ extraEnvVars:
         name: keycloak-credentials
         key: KC_HTTPS_KEY_STORE_PASSWORD
   - name: KC_LOG_LEVEL
-    value: "DEBUG"
+    value: "INFO"
   - name: KC_HOSTNAME_DEBUG
     value: "true"
   - name: KC_DB_PASSWORD
