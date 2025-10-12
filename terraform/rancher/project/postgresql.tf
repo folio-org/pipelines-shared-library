@@ -151,9 +151,9 @@ primary:
         sed -i "s/#*effective_cache_size = .*/effective_cache_size = 7680MB/" /bitnami/postgresql/data/postgresql.conf
         sed -i "s/#*maintenance_work_mem = .*/maintenance_work_mem = 512MB/" /bitnami/postgresql/data/postgresql.conf
         sed -i "s/#*checkpoint_completion_target = .*/checkpoint_completion_target = 0.9/" /bitnami/postgresql/data/postgresql.conf
-        sed -i "s/#*checkpoint_timeout = .*/checkpoint_timeout = 10min/" /bitnami/postgresql/data/postgresql.conf
-        sed -i "s/#*checkpoint_warning = .*/checkpoint_warning = 300s/" /bitnami/postgresql/data/postgresql.conf
-        sed -i "s/#*wal_buffers = .*/wal_buffers = 64MB/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*checkpoint_timeout = .*/checkpoint_timeout = 3min/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*checkpoint_warning = .*/checkpoint_warning = 180s/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*wal_buffers = .*/wal_buffers = 128MB/" /bitnami/postgresql/data/postgresql.conf
         sed -i "s/#*default_statistics_target = .*/default_statistics_target = 500/" /bitnami/postgresql/data/postgresql.conf
         sed -i "s/#*random_page_cost = .*/random_page_cost = 1.0/" /bitnami/postgresql/data/postgresql.conf
         sed -i "s/#*effective_io_concurrency = .*/effective_io_concurrency = 1000/" /bitnami/postgresql/data/postgresql.conf
@@ -170,7 +170,11 @@ primary:
         sed -i "s/#*cpu_operator_cost = .*/cpu_operator_cost = 0.0015/" /bitnami/postgresql/data/postgresql.conf
         sed -i "s/#*synchronous_commit = .*/synchronous_commit = off/" /bitnami/postgresql/data/postgresql.conf
         sed -i "s/#*wal_writer_delay = .*/wal_writer_delay = 50ms/" /bitnami/postgresql/data/postgresql.conf
-        sed -i "s/#*wal_writer_flush_after = .*/wal_writer_flush_after = 1MB/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*wal_writer_flush_after = .*/wal_writer_flush_after = 2MB/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*wal_compression = .*/wal_compression = on/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*bgwriter_delay = .*/bgwriter_delay = 50ms/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*bgwriter_lru_maxpages = .*/bgwriter_lru_maxpages = 200/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*bgwriter_lru_multiplier = .*/bgwriter_lru_multiplier = 4.0/" /bitnami/postgresql/data/postgresql.conf
         echo "PostgreSQL configuration updated"
   containerSecurityContext:
     enabled: true
