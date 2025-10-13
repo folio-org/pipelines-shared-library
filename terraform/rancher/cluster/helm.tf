@@ -5,7 +5,7 @@ resource "helm_release" "alb_controller" {
   namespace  = "kube-system"
   repository = "https://aws.github.io/eks-charts"
   chart      = "aws-load-balancer-controller"
-  version    = "1.8.3"
+  version    = "1.10.0"
   set {
     name  = "region"
     value = var.aws_region
@@ -43,7 +43,7 @@ resource "helm_release" "external_dns" {
   namespace  = "kube-system"
   repository = "https://charts.bitnami.com/bitnami"
   chart      = "external-dns"
-  version    = "6.16.0"
+  version    = "8.0.0"
   set {
     name  = "provider"
     value = "aws"

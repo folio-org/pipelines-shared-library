@@ -1,6 +1,6 @@
 module "load_balancer_controller_irsa_role" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
-  version = "~>5.44.0"
+  version = "~>5.47.0"
 
   role_name                              = join("-", [terraform.workspace, "load-balancer-controller-role"])
   attach_load_balancer_controller_policy = true
@@ -22,7 +22,7 @@ module "load_balancer_controller_irsa_role" {
 
 module "vpc_cni_irsa_role" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
-  version = "~>5.16.0"
+  version = "~>5.47.0"
 
   role_name             = join("-", [terraform.workspace, "vpc-cni-role"])
   attach_vpc_cni_policy = true
@@ -45,7 +45,7 @@ module "vpc_cni_irsa_role" {
 
 module "ebs_csi_irsa_role" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
-  version = "~>5.16.0"
+  version = "~>5.47.0"
 
   role_name             = join("-", [terraform.workspace, "ebs-csi-role"])
   attach_ebs_csi_policy = true
@@ -67,7 +67,7 @@ module "ebs_csi_irsa_role" {
 
 module "efs_csi_irsa_role" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
-  version = "~>5.16.0"
+  version = "~>5.47.0"
 
   role_name             = join("-", [terraform.workspace, "efs-csi-role"])
   attach_efs_csi_policy = true
@@ -89,7 +89,7 @@ module "efs_csi_irsa_role" {
 
 module "external_dns_irsa_role" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
-  version = "~>5.16.0"
+  version = "~>5.47.0"
 
   role_name                     = join("-", [terraform.workspace, "external-dns-role"])
   attach_external_dns_policy    = true
@@ -112,7 +112,7 @@ module "external_dns_irsa_role" {
 
 module "cluster_autoscaler_role" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
-  version = "~>5.16.0"
+  version = "~>5.47.0"
 
   role_name                        = join("-", [terraform.workspace, "cluster-autoscaler"])
   attach_cluster_autoscaler_policy = true

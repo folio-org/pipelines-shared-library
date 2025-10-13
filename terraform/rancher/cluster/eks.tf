@@ -35,10 +35,10 @@ locals {
 
 module "eks_cluster" {
   source  = "terraform-aws-modules/eks/aws"
-  version = "~>19.12.0"
+  version = "~>20.0"
 
   cluster_name      = terraform.workspace
-  cluster_version   = "1.31"
+  cluster_version   = "1.32"
   cluster_ip_family = "ipv4"
 
   cluster_endpoint_private_access = false
@@ -79,9 +79,12 @@ module "eks_cluster" {
   # Switch off cloudwatch log group
   create_cloudwatch_log_group = false
   cluster_enabled_log_types   = []
-  # aws-auth configmap
-  manage_aws_auth_configmap = true
-  aws_auth_users            = local.admin_users_map
+
+  # Authentication mode - using API_AND_CONFIG_MAP for easier migration
+  authentication_mode = "API_AND_CONFIG_MAP"
+
+  # Enable cluster creator admin permissions via access entries
+  enable_cluster_creator_admin_permissions = true
 
   cluster_security_group_additional_rules = {
     ingress_nodes_ephemeral_ports_tcp = {
@@ -117,10 +120,9 @@ module "eks_cluster" {
 
   eks_managed_node_groups = merge({
     eks_node_group = {
-      cluster_name = terraform.workspace
-      name         = terraform.workspace
-      description  = "EKS managed node group"
-      ami_type     = "AL2_x86_64"
+      name        = terraform.workspace
+      description = "EKS managed node group"
+      ami_type    = "AL2023_x86_64_STANDARD"
 
       capacity_type  = var.eks_nodes_type
       disk_size      = 50
@@ -141,10 +143,9 @@ module "eks_cluster" {
     },
     terraform.workspace == local.testing_cluster || terraform.workspace == local.etesting_cluster ? {
       eks_node_group_cicypress = {
-        cluster_name = terraform.workspace
-        name         = "cicypress"
-        description  = "EKS managed node group for CI Cypress env"
-        ami_type     = "AL2_x86_64"
+        name        = "cicypress"
+        description = "EKS managed node group for CI Cypress env"
+        ami_type    = "AL2023_x86_64_STANDARD"
 
         iam_role_additional_policies = {
           AmazonSSMFullAccess = "arn:aws:iam::aws:policy/AmazonSSMFullAccess"
@@ -160,13 +161,13 @@ module "eks_cluster" {
         max_size     = 7
         desired_size = 1
 
-        taints = {
-          qualitygate = {
+        taints = [
+          {
             key    = "folio.org/qualitygate"
             value  = "cicypress"
             effect = "NO_SCHEDULE"
           }
-        }
+        ]
 
         labels = {
           "folio.org/qualitygate" = "cicypress"
@@ -181,10 +182,9 @@ module "eks_cluster" {
         # For future schedule https://registry.terraform.io/modules/terraform-aws-modules/eks/aws/latest/submodules/eks-managed-node-group#input_schedules
       },
       eks_node_group_cikarate = {
-        cluster_name = terraform.workspace
-        name         = "cikarate"
-        description  = "EKS managed node group for CI Karate env"
-        ami_type     = "AL2_x86_64"
+        name        = "cikarate"
+        description = "EKS managed node group for CI Karate env"
+        ami_type    = "AL2023_x86_64_STANDARD"
 
         iam_role_additional_policies = {
           AmazonSSMFullAccess = "arn:aws:iam::aws:policy/AmazonSSMFullAccess"
@@ -200,13 +200,13 @@ module "eks_cluster" {
         max_size     = 7
         desired_size = 1
 
-        taints = {
-          qualitygate = {
+        taints = [
+          {
             key    = "folio.org/qualitygate"
             value  = "cikarate"
             effect = "NO_SCHEDULE"
           }
-        }
+        ]
 
         labels = {
           "folio.org/qualitygate" = "cikarate"
@@ -228,4 +228,18 @@ module "eks_cluster" {
     {
       kubernetes_cluster = terraform.workspace
   })
+}
+
+# AWS Auth ConfigMap management moved to separate module in v20.x
+module "eks_aws_auth" {
+  source  = "terraform-aws-modules/eks/aws//modules/aws-auth"
+  version = "~> 20.0"
+
+  manage_aws_auth_configmap = true
+
+  aws_auth_users = local.admin_users_map
+
+  depends_on = [
+    module.eks_cluster,
+  ]
 }
