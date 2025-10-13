@@ -155,6 +155,12 @@ primary:
         sed -i "s/#*work_mem = .*/work_mem = 3096kB/" /bitnami/postgresql/data/postgresql.conf
         sed -i "s/#*min_wal_size = .*/min_wal_size = 1GB/" /bitnami/postgresql/data/postgresql.conf
         sed -i "s/#*max_wal_size = .*/max_wal_size = 4GB/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*shared_preload_libraries = .*/shared_preload_libraries = 'auto_explain'/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*auto_explain.log_min_duration = .*/auto_explain.log_min_duration = '1s'/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*auto_explain.log_analyze = .*/auto_explain.log_analyze = on/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*auto_explain.log_buffers = .*/auto_explain.log_buffers = on/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*auto_explain.log_timing = .*/auto_explain.log_timing = on/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*auto_explain.log_verbose = .*/auto_explain.log_verbose = on/" /bitnami/postgresql/data/postgresql.conf
         echo "PostgreSQL configuration updated"
   containerSecurityContext:
     enabled: true
