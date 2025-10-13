@@ -24,7 +24,7 @@ resource "rancher2_project" "kubecost" {
   provider                  = rancher2
   name                      = "kubecost"
   cluster_id                = rancher2_cluster_sync.this[0].cluster_id
-  enable_project_monitoring = false
+  # enable_project_monitoring = false
   container_resource_limit {
     limits_memory   = "512Mi"
     requests_memory = "256Mi"

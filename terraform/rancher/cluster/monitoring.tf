@@ -5,7 +5,7 @@ resource "rancher2_project" "monitoring" {
   provider                  = rancher2
   name                      = "monitoring"
   cluster_id                = rancher2_cluster_sync.this[0].id
-  enable_project_monitoring = false
+  # enable_project_monitoring = false
   container_resource_limit {
     limits_memory   = "512Mi"
     requests_memory = "256Mi"
