@@ -1,10 +1,10 @@
 #Creating a new project in Rancher.
 resource "rancher2_project" "logging" {
-  depends_on                = [module.eks_cluster.eks_managed_node_groups]
-  count                     = var.register_in_rancher && var.enable_logging ? 1 : 0
-  provider                  = rancher2
-  name                      = "logging"
-  cluster_id                = rancher2_cluster_sync.this[0].id
+  depends_on = [module.eks_cluster.eks_managed_node_groups]
+  count      = var.register_in_rancher && var.enable_logging ? 1 : 0
+  provider   = rancher2
+  name       = "logging"
+  cluster_id = rancher2_cluster_sync.this[0].id
   # enable_project_monitoring = false
   container_resource_limit {
     limits_memory   = "1024Mi"
