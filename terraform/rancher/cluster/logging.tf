@@ -83,11 +83,9 @@ resource "rancher2_app_v2" "opensearch" {
       type: NodePort
     ingress:
       enabled: true
+      ingressClassName: alb
       hosts:
-        - host: "${module.eks_cluster.cluster_name}-opensearch.${var.root_domain}"
-          paths:
-            - path: /
-              pathType: Prefix
+        - "${module.eks_cluster.cluster_name}-opensearch.${var.root_domain}"
       annotations:
         kubernetes.io/ingress.class: alb
         alb.ingress.kubernetes.io/scheme: internet-facing
@@ -129,11 +127,9 @@ resource "rancher2_app_v2" "opensearch_dashboards" {
       type: NodePort
     ingress:
       enabled: true
+      ingressClassName: alb
       hosts:
-        - host: "${module.eks_cluster.cluster_name}-dashboards.${var.root_domain}"
-          paths:
-            - path: /
-              pathType: Prefix
+        - "${module.eks_cluster.cluster_name}-dashboards.${var.root_domain}"
       annotations:
         kubernetes.io/ingress.class: alb
         alb.ingress.kubernetes.io/scheme: internet-facing
