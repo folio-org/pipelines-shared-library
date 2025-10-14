@@ -281,7 +281,7 @@ spec:
       serviceAccountName: fluentd
       containers:
       - name: fluentd
-        image: 732722833398.dkr.ecr.us-west-2.amazonaws.com/fluentd:v1.16.0-debian-1.0
+        image: 732722833398.dkr.ecr.us-west-2.amazonaws.com/fluentd:1.16.0-debian-11-r1
         env:
         - name: OPENSEARCH_HOST
           value: "opensearch-cluster-master"
