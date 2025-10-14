@@ -318,38 +318,3 @@ subjects:
   namespace: logging
   YAML
 }
-
-// OpenSearch index management - commented out as elasticstack provider doesn't support OpenSearch
-/*
-// Create an index lifecycle policy
-resource "elasticstack_elasticsearch_index_lifecycle" "index_policy" {
-  count      = var.register_in_rancher && var.enable_logging ? 1 : 0
-  name       = var.index_policy_name
-  depends_on = [rancher2_app_v2.opensearch, kubectl_manifest.opensearch_output, kubectl_manifest.fluentd_daemonset]
-  hot {
-    min_age = "0ms"
-    set_priority {
-      priority = 100
-    }
-  }
-
-  delete {
-    min_age = "7d"
-    delete {}
-  }
-
-}
-
-// Create an index template for the policy
-resource "elasticstack_elasticsearch_index_template" "index_template" {
-  count          = var.register_in_rancher && var.enable_logging ? 1 : 0
-  name           = var.index_template_name
-  index_patterns = ["logstash*"]
-
-  template {
-    settings = jsonencode({
-      "lifecycle.name" = elasticstack_elasticsearch_index_lifecycle.index_policy[0].name
-    })
-  }
-}
-*/
