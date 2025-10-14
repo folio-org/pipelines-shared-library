@@ -251,13 +251,79 @@ data:
   YAML
 }
 
-# Create rancher2 Elasticsearch app in logging namespace
+# Create fluentd ServiceAccount
+resource "kubectl_manifest" "fluentd_serviceaccount" {
+  depends_on = [
+    module.eks_cluster.eks_managed_node_groups,
+    rancher2_app_v2.opensearch
+  ]
+  count              = var.register_in_rancher && var.enable_logging ? 1 : 0
+  provider           = kubectl
+  override_namespace = rancher2_namespace.logging[0].name
+  yaml_body          = <<YAML
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: fluentd
+  namespace: logging
+  YAML
+}
+
+# Create fluentd ClusterRole
+resource "kubectl_manifest" "fluentd_clusterrole" {
+  depends_on = [module.eks_cluster.eks_managed_node_groups]
+  count      = var.register_in_rancher && var.enable_logging ? 1 : 0
+  provider   = kubectl
+  yaml_body  = <<YAML
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: fluentd
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  - namespaces
+  verbs:
+  - get
+  - list
+  - watch
+  YAML
+}
+
+# Create fluentd ClusterRoleBinding
+resource "kubectl_manifest" "fluentd_clusterrolebinding" {
+  depends_on = [
+    kubectl_manifest.fluentd_serviceaccount,
+    kubectl_manifest.fluentd_clusterrole
+  ]
+  count     = var.register_in_rancher && var.enable_logging ? 1 : 0
+  provider  = kubectl
+  yaml_body = <<YAML
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: fluentd
+roleRef:
+  kind: ClusterRole
+  name: fluentd
+  apiGroup: rbac.authorization.k8s.io
+subjects:
+- kind: ServiceAccount
+  name: fluentd
+  namespace: logging
+  YAML
+}
+
 # Create fluentd DaemonSet directly via kubectl
 resource "kubectl_manifest" "fluentd_daemonset" {
   depends_on = [
     module.eks_cluster.eks_managed_node_groups,
     rancher2_app_v2.opensearch,
-    kubectl_manifest.opensearch_output
+    kubectl_manifest.opensearch_output,
+    kubectl_manifest.fluentd_serviceaccount,
+    kubectl_manifest.fluentd_clusterrolebinding
   ]
   count              = var.register_in_rancher && var.enable_logging ? 1 : 0
   provider           = kubectl
@@ -313,38 +379,5 @@ spec:
       - name: config
         configMap:
           name: opensearch-output
----
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: fluentd
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRole
-metadata:
-  name: fluentd
-rules:
-- apiGroups:
-  - ""
-  resources:
-  - pods
-  - namespaces
-  verbs:
-  - get
-  - list
-  - watch
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
-metadata:
-  name: fluentd
-roleRef:
-  kind: ClusterRole
-  name: fluentd
-  apiGroup: rbac.authorization.k8s.io
-subjects:
-- kind: ServiceAccount
-  name: fluentd
-  namespace: logging
   YAML
 }
