@@ -157,10 +157,13 @@ resource "rancher2_app_v2" "opensearch_dashboards" {
       enabled: true
       ingressClassName: alb
       hosts:
-        - "${module.eks_cluster.cluster_name}-kibana.${var.root_domain}"
-      pathType: Prefix
-      serviceName: opensearch-dashboards
-      servicePort: 5601
+        - host: "${module.eks_cluster.cluster_name}-kibana.${var.root_domain}"
+          paths:
+            - path: /
+              pathType: Prefix
+              backend:
+                serviceName: opensearch-dashboards
+                servicePort: 5601
       annotations:
         kubernetes.io/ingress.class: alb
         alb.ingress.kubernetes.io/scheme: internet-facing
