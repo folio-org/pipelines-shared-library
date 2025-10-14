@@ -64,7 +64,7 @@ resource "rancher2_app_v2" "elasticsearch" {
   name          = "elasticsearch"
   repo_name     = rancher2_catalog_v2.bitnami[0].name
   chart_name    = "elasticsearch"
-  chart_version = "19.1.4" #"19.1.4"
+  chart_version = "22.1.7" # Updated to current Bitnami version
   values        = <<-EOT
     global:
       kibanaEnabled: true
@@ -72,7 +72,7 @@ resource "rancher2_app_v2" "elasticsearch" {
     image:
       registry: "732722833398.dkr.ecr.us-west-2.amazonaws.com"
       repository: "elasticsearch"
-      tag: "8.3.3-debian-11-r0"
+      tag: "9.1.2-debian-12-r0"  # Updated to match chart v22.1.7
     extraConfig:
       http:
         max_content_length: 200mb
@@ -111,7 +111,7 @@ resource "rancher2_app_v2" "elasticsearch" {
       image:
         registry: "732722833398.dkr.ecr.us-west-2.amazonaws.com"
         repository: "kibana"
-        tag: "8.3.2-debian-11-r0"
+        tag: "9.1.2-debian-12-r0"  # Updated to match Elasticsearch version
       resources:
         requests:
           memory: 768Mi
@@ -223,12 +223,12 @@ resource "rancher2_app_v2" "fluentd" {
   name          = "fluentd"
   repo_name     = rancher2_catalog_v2.bitnami[0].name
   chart_name    = "fluentd"
-  chart_version = "5.6.3"
+  chart_version = "7.2.6" # Updated to current Bitnami version
   values        = <<-EOT
     image:
       registry: "732722833398.dkr.ecr.us-west-2.amazonaws.com"
       repository: "fluentd"
-      tag: "1.16.0-debian-11-r1"
+      tag: "1.19.0-debian-12-r1"  # Updated to match chart v7.2.6
     forwarder:
       startupProbe:
         enabled: true
