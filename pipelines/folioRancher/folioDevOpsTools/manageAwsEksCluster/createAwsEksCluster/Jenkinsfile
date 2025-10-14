@@ -3,7 +3,7 @@ import org.folio.Constants
 import org.folio.jenkins.PodTemplates
 import org.folio.models.TerraformConfig
 
-@Library('pipelines-shared-library@RANCHER-2479') _
+@Library('pipelines-shared-library') _
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '20')),
