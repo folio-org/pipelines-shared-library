@@ -1,11 +1,11 @@
 #Creating a sorry-cypress project in Rancher.
 resource "rancher2_project" "sorry-cypress" {
-  depends_on                = [module.eks_cluster.eks_managed_node_groups]
-  count                     = var.deploy_sorry_cypress ? 1 : 0
-  provider                  = rancher2
-  name                      = "sorry-cypress"
-  cluster_id                = rancher2_cluster_sync.this[0].cluster_id
-  enable_project_monitoring = false
+  depends_on = [module.eks_cluster.eks_managed_node_groups]
+  count      = var.deploy_sorry_cypress ? 1 : 0
+  provider   = rancher2
+  name       = "sorry-cypress"
+  cluster_id = rancher2_cluster_sync.this[0].cluster_id
+  # enable_project_monitoring = false
   container_resource_limit {
     limits_memory   = "512Mi"
     requests_memory = "256Mi"
@@ -36,6 +36,10 @@ resource "rancher2_app_v2" "sorry-cypress" {
   chart_version = "1.9.0"
   values        = <<-EOT
     api:
+      image:
+        registry: "732722833398.dkr.ecr.us-west-2.amazonaws.com"
+        repository: "sorry-cypress-api"
+        tag: "2.5.1"
       replicas: 2
       enabled: true
       resources:
@@ -62,6 +66,10 @@ resource "rancher2_app_v2" "sorry-cypress" {
           - host: "${module.eks_cluster.cluster_name}-sc-api.${var.root_domain}"
             path: /
     dashboard:
+      image:
+        registry: "732722833398.dkr.ecr.us-west-2.amazonaws.com"
+        repository: "sorry-cypress-dashboard"
+        tag: "2.5.1"
       replicas: 2
       enabled: true
       resources:
@@ -91,6 +99,10 @@ resource "rancher2_app_v2" "sorry-cypress" {
           - host: "${module.eks_cluster.cluster_name}-sc-dashboard.${var.root_domain}"
             path: /
     director:
+      image:
+        registry: "732722833398.dkr.ecr.us-west-2.amazonaws.com"
+        repository: "sorry-cypress-director"
+        tag: "2.5.1"
       serviceAccount:
         name: sc-service-account
         create: true

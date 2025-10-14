@@ -1,11 +1,11 @@
 #Creating a monitoring project in Rancher.
 resource "rancher2_project" "monitoring" {
-  depends_on                = [module.eks_cluster.eks_managed_node_groups]
-  count                     = var.register_in_rancher && var.enable_monitoring ? 1 : 0
-  provider                  = rancher2
-  name                      = "monitoring"
-  cluster_id                = rancher2_cluster_sync.this[0].id
-  enable_project_monitoring = false
+  depends_on = [module.eks_cluster.eks_managed_node_groups]
+  count      = var.register_in_rancher && var.enable_monitoring ? 1 : 0
+  provider   = rancher2
+  name       = "monitoring"
+  cluster_id = rancher2_cluster_sync.this[0].id
+  # enable_project_monitoring = false
   container_resource_limit {
     limits_memory   = "512Mi"
     requests_memory = "256Mi"
@@ -34,7 +34,7 @@ resource "rancher2_app_v2" "metrics-server" {
   name          = "metrics-server"
   repo_name     = rancher2_catalog_v2.metrics-server[0].name
   chart_name    = "metrics-server"
-  chart_version = "3.8.2"
+  chart_version = "3.12.1"
 }
 
 # Create prometheus app in monitoring namespace
@@ -46,7 +46,7 @@ resource "rancher2_app_v2" "prometheus" {
   name          = "kube-prometheus-stack"
   repo_name     = rancher2_catalog_v2.prometheus-community[0].name
   chart_name    = "kube-prometheus-stack"
-  chart_version = "60.5.0"
+  chart_version = "65.0.0"
   force_upgrade = "true"
   values        = <<-EOT
     cleanPrometheusOperatorObjectNames: true

@@ -1,11 +1,11 @@
 #Creating a new project in Rancher.
 resource "rancher2_project" "logging" {
-  depends_on                = [module.eks_cluster.eks_managed_node_groups]
-  count                     = var.register_in_rancher && var.enable_logging ? 1 : 0
-  provider                  = rancher2
-  name                      = "logging"
-  cluster_id                = rancher2_cluster_sync.this[0].id
-  enable_project_monitoring = false
+  depends_on = [module.eks_cluster.eks_managed_node_groups]
+  count      = var.register_in_rancher && var.enable_logging ? 1 : 0
+  provider   = rancher2
+  name       = "logging"
+  cluster_id = rancher2_cluster_sync.this[0].id
+  # enable_project_monitoring = false
   container_resource_limit {
     limits_memory   = "1024Mi"
     requests_memory = "256Mi"
@@ -64,6 +64,11 @@ resource "rancher2_app_v2" "elasticsearch" {
   values        = <<-EOT
     global:
       kibanaEnabled: true
+      imageRegistry: "732722833398.dkr.ecr.us-west-2.amazonaws.com"
+    image:
+      registry: "732722833398.dkr.ecr.us-west-2.amazonaws.com"
+      repository: "elasticsearch"
+      tag: "8.3.3-debian-11-r0"
     extraConfig:
       http:
         max_content_length: 200mb
@@ -99,6 +104,10 @@ resource "rancher2_app_v2" "elasticsearch" {
         limits:
           memory: 2560Mi
     kibana:
+      image:
+        registry: "732722833398.dkr.ecr.us-west-2.amazonaws.com"
+        repository: "kibana"
+        tag: "8.3.2-debian-11-r0"
       resources:
         requests:
           memory: 768Mi
@@ -209,7 +218,9 @@ resource "rancher2_app_v2" "fluentd" {
   chart_version = "5.6.3"
   values        = <<-EOT
     image:
-      tag: 1.16.0-debian-11-r1
+      registry: "732722833398.dkr.ecr.us-west-2.amazonaws.com"
+      repository: "fluentd"
+      tag: "1.16.0-debian-11-r1"
     forwarder:
       startupProbe:
         enabled: true
