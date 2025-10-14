@@ -115,7 +115,7 @@ ansiColor('xterm') {
     }
 
     stage('[Flow] Execute tests') {
-      // folioKarateFlow.call(karateTestsParams)
+      folioKarateFlow.call(karateTestsParams)
     }
 
     if (params.DESTROY_AFTER) {
