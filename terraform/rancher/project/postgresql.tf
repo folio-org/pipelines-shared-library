@@ -141,26 +141,71 @@ primary:
         GRANT USAGE ON SCHEMA public TO ldp;
       configure-postgres.sh: |
         #!/bin/bash
-        echo "Configuring PostgreSQL settings..."
+        echo "Configuring PostgreSQL settings optimized for JSONB operations..."
+        # Memory settings optimized for JSONB
         sed -i "s/#*shared_buffers = .*/shared_buffers = 3096MB/" /bitnami/postgresql/data/postgresql.conf
         sed -i "s/#*max_connections = .*/max_connections = 5000/" /bitnami/postgresql/data/postgresql.conf
         sed -i "s/#*listen_addresses = .*/listen_addresses = '0.0.0.0'/" /bitnami/postgresql/data/postgresql.conf
         sed -i "s/#*effective_cache_size = .*/effective_cache_size = 7680MB/" /bitnami/postgresql/data/postgresql.conf
-        sed -i "s/#*maintenance_work_mem = .*/maintenance_work_mem = 640MB/" /bitnami/postgresql/data/postgresql.conf
-        sed -i "s/#*checkpoint_completion_target = .*/checkpoint_completion_target = 0.9/" /bitnami/postgresql/data/postgresql.conf
-        sed -i "s/#*wal_buffers = .*/wal_buffers = 16MB/" /bitnami/postgresql/data/postgresql.conf
-        sed -i "s/#*default_statistics_target = .*/default_statistics_target = 100/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*maintenance_work_mem = .*/maintenance_work_mem = 1GB/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*work_mem = .*/work_mem = 8MB/" /bitnami/postgresql/data/postgresql.conf
+        
+        # I/O and storage settings optimized for JSONB
         sed -i "s/#*random_page_cost = .*/random_page_cost = 1.1/" /bitnami/postgresql/data/postgresql.conf
-        sed -i "s/#*effective_io_concurrency = .*/effective_io_concurrency = 64/" /bitnami/postgresql/data/postgresql.conf
-        sed -i "s/#*work_mem = .*/work_mem = 3096kB/" /bitnami/postgresql/data/postgresql.conf
-        sed -i "s/#*min_wal_size = .*/min_wal_size = 1GB/" /bitnami/postgresql/data/postgresql.conf
-        sed -i "s/#*max_wal_size = .*/max_wal_size = 4GB/" /bitnami/postgresql/data/postgresql.conf
-        sed -i "s/#*shared_preload_libraries = .*/shared_preload_libraries = 'auto_explain'/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*seq_page_cost = .*/seq_page_cost = 1.0/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*effective_io_concurrency = .*/effective_io_concurrency = 200/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*maintenance_io_concurrency = .*/maintenance_io_concurrency = 200/" /bitnami/postgresql/data/postgresql.conf
+        
+        # WAL settings for better write performance with JSONB
+        sed -i "s/#*wal_buffers = .*/wal_buffers = 32MB/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*min_wal_size = .*/min_wal_size = 2GB/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*max_wal_size = .*/max_wal_size = 8GB/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*wal_compression = .*/wal_compression = on/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*checkpoint_completion_target = .*/checkpoint_completion_target = 0.9/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*checkpoint_timeout = .*/checkpoint_timeout = 15min/" /bitnami/postgresql/data/postgresql.conf
+        
+        # Query planner settings optimized for JSONB
+        sed -i "s/#*default_statistics_target = .*/default_statistics_target = 1000/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*cpu_tuple_cost = .*/cpu_tuple_cost = 0.01/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*cpu_index_tuple_cost = .*/cpu_index_tuple_cost = 0.005/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*cpu_operator_cost = .*/cpu_operator_cost = 0.0025/" /bitnami/postgresql/data/postgresql.conf
+        
+        # Background writer settings for better I/O
+        sed -i "s/#*bgwriter_delay = .*/bgwriter_delay = 200ms/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*bgwriter_lru_maxpages = .*/bgwriter_lru_maxpages = 100/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*bgwriter_lru_multiplier = .*/bgwriter_lru_multiplier = 2.0/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*bgwriter_flush_after = .*/bgwriter_flush_after = 512kB/" /bitnami/postgresql/data/postgresql.conf
+        
+        # JSONB-specific optimizations
+        sed -i "s/#*gin_fuzzy_search_limit = .*/gin_fuzzy_search_limit = 0/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*gin_pending_list_limit = .*/gin_pending_list_limit = 8MB/" /bitnami/postgresql/data/postgresql.conf
+        
+        # Parallel processing for JSONB operations
+        sed -i "s/#*max_parallel_workers_per_gather = .*/max_parallel_workers_per_gather = 4/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*max_parallel_workers = .*/max_parallel_workers = 8/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*max_parallel_maintenance_workers = .*/max_parallel_maintenance_workers = 4/" /bitnami/postgresql/data/postgresql.conf
+        
+        # Vacuum and autovacuum settings for JSONB tables
+        sed -i "s/#*autovacuum_vacuum_scale_factor = .*/autovacuum_vacuum_scale_factor = 0.1/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*autovacuum_analyze_scale_factor = .*/autovacuum_analyze_scale_factor = 0.05/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*autovacuum_vacuum_cost_limit = .*/autovacuum_vacuum_cost_limit = 2000/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*autovacuum_max_workers = .*/autovacuum_max_workers = 6/" /bitnami/postgresql/data/postgresql.conf
+        
+        # Monitoring and logging
+        sed -i "s/#*shared_preload_libraries = .*/shared_preload_libraries = 'auto_explain,pg_stat_statements'/" /bitnami/postgresql/data/postgresql.conf
         sed -i "s/#*auto_explain.log_min_duration = .*/auto_explain.log_min_duration = '1s'/" /bitnami/postgresql/data/postgresql.conf
         sed -i "s/#*auto_explain.log_analyze = .*/auto_explain.log_analyze = on/" /bitnami/postgresql/data/postgresql.conf
         sed -i "s/#*auto_explain.log_buffers = .*/auto_explain.log_buffers = on/" /bitnami/postgresql/data/postgresql.conf
         sed -i "s/#*auto_explain.log_timing = .*/auto_explain.log_timing = on/" /bitnami/postgresql/data/postgresql.conf
         sed -i "s/#*auto_explain.log_verbose = .*/auto_explain.log_verbose = on/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*pg_stat_statements.track = .*/pg_stat_statements.track = all/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*pg_stat_statements.max = .*/pg_stat_statements.max = 10000/" /bitnami/postgresql/data/postgresql.conf
+        
+        # JIT compilation for complex JSONB queries (PostgreSQL 11+)
+        sed -i "s/#*jit = .*/jit = on/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*jit_above_cost = .*/jit_above_cost = 100000/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*jit_inline_above_cost = .*/jit_inline_above_cost = 500000/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*jit_optimize_above_cost = .*/jit_optimize_above_cost = 500000/" /bitnami/postgresql/data/postgresql.conf
         echo "PostgreSQL configuration updated"
   containerSecurityContext:
     enabled: true

@@ -63,7 +63,7 @@ CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builde
   .hasSecureTenant(true)
   .secureTenantId(folioDefault.consortiaTenants().get('university').getTenantId())
   .pgType('built-in')
-  .pgVersion('17.6')
+  .pgVersion('18.0')
   .kafkaType('built-in')
   .opensearchType('built-in')
   .s3Type('built-in')
