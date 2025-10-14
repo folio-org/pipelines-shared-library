@@ -31,7 +31,7 @@ resource "rancher2_catalog_v2" "bitnami" {
   count      = var.register_in_rancher ? 1 : 0
   cluster_id = rancher2_cluster_sync.this[0].id
   name       = "bitnami"
-  url        = "https://repository.folio.org/repository/helm-bitnami-proxy"
+  url        = "https://repo.broadcom.com/bitnami-files"
 }
 
 # Wait for catalog to be ready
