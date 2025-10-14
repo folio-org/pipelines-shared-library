@@ -45,6 +45,18 @@ resource "helm_release" "external_dns" {
   chart      = "external-dns"
   version    = "8.0.0"
   set {
+    name  = "image.registry"
+    value = "732722833398.dkr.ecr.us-west-2.amazonaws.com"
+  }
+  set {
+    name  = "image.repository"
+    value = "external-dns"
+  }
+  set {
+    name  = "image.tag"
+    value = "latest"
+  }
+  set {
     name  = "provider"
     value = "aws"
   }
