@@ -51,45 +51,43 @@ resource "aws_cognito_user_pool_domain" "kibana_cognito_domain" {
   user_pool_id = aws_cognito_user_pool.kibana_user_pool.id
 }
 
-# Create rancher2 Elasticsearch app in logging namespace
-resource "rancher2_app_v2" "elasticsearch" {
+# Create rancher2 OpenSearch app in logging namespace
+resource "rancher2_app_v2" "opensearch" {
   depends_on = [
     module.eks_cluster.eks_managed_node_groups,
-    rancher2_catalog_v2.bitnami,
+    rancher2_catalog_v2.opensearch,
     time_sleep.catalog_propagation
   ]
   count         = var.register_in_rancher && var.enable_logging ? 1 : 0
   cluster_id    = rancher2_cluster_sync.this[0].cluster_id
   namespace     = rancher2_namespace.logging[0].name
-  name          = "elasticsearch"
-  repo_name     = rancher2_catalog_v2.bitnami[0].name
-  chart_name    = "elasticsearch"
-  chart_version = "22.1.6" # Available version from Broadcom repository
+  name          = "opensearch"
+  repo_name     = rancher2_catalog_v2.opensearch[0].name
+  chart_name    = "opensearch"
+  chart_version = "2.26.0" # Latest stable version
   values        = <<-EOT
-    global:
-      kibanaEnabled: true
-      imageRegistry: "732722833398.dkr.ecr.us-west-2.amazonaws.com"
     image:
-      registry: "732722833398.dkr.ecr.us-west-2.amazonaws.com"
-      repository: "elasticsearch"
-      tag: "9.1.2-debian-12-r0"  # Matches chart v22.1.6
-    extraConfig:
-      http:
-        max_content_length: 200mb
-    master:
-      heapSize: 2560m
-      replicaCount: 2
-      resources:
-        requests:
-          memory: 512Mi
-        limits:
-          memory: 3096Mi
+      repository: "732722833398.dkr.ecr.us-west-2.amazonaws.com/opensearch"
+      tag: "2.18.0"
+    opensearchJavaOpts: "-Xmx2g -Xms2g"
+    resources:
+      requests:
+        memory: "2Gi"
+        cpu: "500m"
+      limits:
+        memory: "3Gi"
+        cpu: "1000m"
+    persistence:
+      size: 100Gi
     service:
       type: NodePort
     ingress:
       enabled: true
-      hostname: "${module.eks_cluster.cluster_name}-elasticsearch.${var.root_domain}"
-      path: "/*"
+      hosts:
+        - host: "${module.eks_cluster.cluster_name}-opensearch.${var.root_domain}"
+          paths:
+            - path: /
+              pathType: Prefix
       annotations:
         kubernetes.io/ingress.class: alb
         alb.ingress.kubernetes.io/scheme: internet-facing
@@ -98,50 +96,63 @@ resource "rancher2_app_v2" "elasticsearch" {
         alb.ingress.kubernetes.io/success-codes: 200-399
         alb.ingress.kubernetes.io/healthcheck-path: /
         alb.ingress.kubernetes.io/load-balancer-attributes: idle_timeout.timeout_seconds=4000
-    data:
-      heapSize: 1536m
-      persistence:
-        size: 100Gi
-      resources:
-        requests:
-          memory: 1536Mi
-        limits:
-          memory: 2560Mi
-    kibana:
-      image:
-        registry: "732722833398.dkr.ecr.us-west-2.amazonaws.com"
-        repository: "kibana"
-        tag: "9.1.2-debian-12-r0"  # Matches Elasticsearch and chart dependencies
-      resources:
-        requests:
-          memory: 768Mi
-        limits:
-          memory: 1024Mi
-      service:
-        type: NodePort
-      ingress:
-        enabled: true
-        hostname: "${module.eks_cluster.cluster_name}-kibana.${var.root_domain}"
-        path: "/*"
-        annotations:
-          kubernetes.io/ingress.class: alb
-          alb.ingress.kubernetes.io/scheme: internet-facing
-          alb.ingress.kubernetes.io/group.name: ${module.eks_cluster.cluster_name}
-          alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
-          alb.ingress.kubernetes.io/success-codes: 200-399
-          alb.ingress.kubernetes.io/healthcheck-path: /
-          alb.ingress.kubernetes.io/load-balancer-attributes: idle_timeout.timeout_seconds=4000
-          alb.ingress.kubernetes.io/auth-idp-cognito: '{"UserPoolArn":"${aws_cognito_user_pool.kibana_user_pool.arn}","UserPoolClientId":"${aws_cognito_user_pool_client.kibana_userpool_client.id}", "UserPoolDomain":"${module.eks_cluster.cluster_name}-kibana"}'
-          alb.ingress.kubernetes.io/auth-on-unauthenticated-request: authenticate
-          alb.ingress.kubernetes.io/auth-scope: openid
-          alb.ingress.kubernetes.io/auth-session-cookie: AWSELBAuthSessionCookie
-          alb.ingress.kubernetes.io/auth-session-timeout: "3600"
-          alb.ingress.kubernetes.io/auth-type: cognito
   EOT
 }
 
-# Create Elasticsearch manifest
-resource "kubectl_manifest" "elasticsearch_output" {
+# Create rancher2 OpenSearch Dashboards app in logging namespace
+resource "rancher2_app_v2" "opensearch_dashboards" {
+  depends_on = [
+    module.eks_cluster.eks_managed_node_groups,
+    rancher2_catalog_v2.opensearch,
+    rancher2_app_v2.opensearch
+  ]
+  count         = var.register_in_rancher && var.enable_logging ? 1 : 0
+  cluster_id    = rancher2_cluster_sync.this[0].cluster_id
+  namespace     = rancher2_namespace.logging[0].name
+  name          = "opensearch-dashboards"
+  repo_name     = rancher2_catalog_v2.opensearch[0].name
+  chart_name    = "opensearch-dashboards"
+  chart_version = "2.24.0"
+  values        = <<-EOT
+    image:
+      repository: "732722833398.dkr.ecr.us-west-2.amazonaws.com/opensearch-dashboards"
+      tag: "2.18.0"
+    opensearchHosts: "http://opensearch-cluster-master:9200"
+    resources:
+      requests:
+        memory: 768Mi
+        cpu: 200m
+      limits:
+        memory: 1024Mi
+        cpu: 500m
+    service:
+      type: NodePort
+    ingress:
+      enabled: true
+      hosts:
+        - host: "${module.eks_cluster.cluster_name}-dashboards.${var.root_domain}"
+          paths:
+            - path: /
+              pathType: Prefix
+      annotations:
+        kubernetes.io/ingress.class: alb
+        alb.ingress.kubernetes.io/scheme: internet-facing
+        alb.ingress.kubernetes.io/group.name: ${module.eks_cluster.cluster_name}
+        alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+        alb.ingress.kubernetes.io/success-codes: 200-399
+        alb.ingress.kubernetes.io/healthcheck-path: /
+        alb.ingress.kubernetes.io/load-balancer-attributes: idle_timeout.timeout_seconds=4000
+        alb.ingress.kubernetes.io/auth-idp-cognito: '{"UserPoolArn":"${aws_cognito_user_pool.kibana_user_pool.arn}","UserPoolClientId":"${aws_cognito_user_pool_client.kibana_userpool_client.id}", "UserPoolDomain":"${module.eks_cluster.cluster_name}-kibana"}'
+        alb.ingress.kubernetes.io/auth-on-unauthenticated-request: authenticate
+        alb.ingress.kubernetes.io/auth-scope: openid
+        alb.ingress.kubernetes.io/auth-session-cookie: AWSELBAuthSessionCookie
+        alb.ingress.kubernetes.io/auth-session-timeout: "3600"
+        alb.ingress.kubernetes.io/auth-type: cognito
+  EOT
+}
+
+# Create OpenSearch output manifest
+resource "kubectl_manifest" "opensearch_output" {
   depends_on         = [module.eks_cluster.eks_managed_node_groups]
   count              = var.register_in_rancher && var.enable_logging ? 1 : 0
   provider           = kubectl
@@ -150,7 +161,7 @@ resource "kubectl_manifest" "elasticsearch_output" {
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: elasticsearch-output
+  name: opensearch-output
 data:
   fluentd.conf: |
 
@@ -181,12 +192,12 @@ data:
       @type stdout
     </match>
 
-    # Send the logs to the standard output
+    # Send the logs to OpenSearch
     <match **>
-      @type elasticsearch_dynamic
+      @type opensearch
       include_tag_key true
-      host "#{ENV['ELASTICSEARCH_HOST']}"
-      port "#{ENV['ELASTICSEARCH_PORT']}"
+      host "#{ENV['OPENSEARCH_HOST']}"
+      port "#{ENV['OPENSEARCH_PORT']}"
       scheme http
       logstash_format true
       suppress_type_name true
@@ -211,134 +222,110 @@ data:
 }
 
 # Create rancher2 Elasticsearch app in logging namespace
-resource "rancher2_app_v2" "fluentd" {
+# Create fluentd DaemonSet directly via kubectl
+resource "kubectl_manifest" "fluentd_daemonset" {
   depends_on = [
     module.eks_cluster.eks_managed_node_groups,
-    rancher2_catalog_v2.bitnami,
-    time_sleep.catalog_propagation
+    rancher2_app_v2.opensearch,
+    kubectl_manifest.opensearch_output
   ]
-  count         = var.register_in_rancher && var.enable_logging ? 1 : 0
-  cluster_id    = rancher2_cluster_sync.this[0].cluster_id
-  namespace     = rancher2_namespace.logging[0].name
-  name          = "fluentd"
-  repo_name     = rancher2_catalog_v2.bitnami[0].name
-  chart_name    = "fluentd"
-  chart_version = "7.2.5" # Available version from Broadcom repository
-  values        = <<-EOT
-    image:
-      registry: "732722833398.dkr.ecr.us-west-2.amazonaws.com"
-      repository: "fluentd"
-      tag: "1.19.0-debian-12-r1"  # Matches chart v7.2.5
-    forwarder:
-      startupProbe:
-        enabled: true
-        initialDelaySeconds: 60
-        periodSeconds: 20
-        timeoutSeconds: 10
-        failureThreshold: 24
-        successThreshold: 1
-      livenessProbe:
-        enabled: true
-        initialDelaySeconds: 60
-        periodSeconds: 20
-        timeoutSeconds: 10
-        failureThreshold: 8
-        successThreshold: 1
-      readinessProbe:
-        enabled: true
-        initialDelaySeconds: 5
-        periodSeconds: 20
-        timeoutSeconds: 10
-        failureThreshold: 8
-        successThreshold: 1
-      configMapFiles:
-        fluentd-inputs.conf: |
-          # HTTP input for the liveness and readiness probes
-          <source>
-            @type http
-            port 9880
-          </source>
-          # Get the logs from the containers running in the node
-          <source>
-            @type tail
-            path /var/log/containers/*.log
-            # exclude Fluentd logs
-            exclude_path /var/log/containers/*fluentd*.log
-            pos_file /opt/bitnami/fluentd/logs/buffers/fluentd-docker.pos
-            tag kubernetes.*
-            read_from_head true
-            follow_inodes true
-            <parse>
-              @type none
-            </parse>
-          </source>
-          # enrich with kubernetes metadata
-          <filter kubernetes.**>
-            @type kubernetes_metadata
-          </filter>
-        fluentd-output.conf: |
-          # Throw the healthcheck to the standard output instead of forwarding it
-          <match fluentd.healthcheck>
-            @type stdout
-          </match>
-          {{- if .Values.aggregator.enabled }}
-          # Forward all logs to the aggregators
-          <match **>
-            @type forward
-            {{- if .Values.tls.enabled }}
-            transport tls
-            tls_cert_path /opt/bitnami/fluentd/certs/out_forward/ca.crt
-            tls_client_cert_path /opt/bitnami/fluentd/certs/out_forward/tls.crt
-            tls_client_private_key_path /opt/bitnami/fluentd/certs/out_forward/tls.key
-            {{- end }}
-            {{- $fullName := (include "common.names.fullname" .) }}
-            {{- $global := . }}
-            {{- $domain := default "cluster.local" .Values.clusterDomain }}
-            {{- $port := .Values.aggregator.port | int }}
-            {{- range $i, $e := until (.Values.aggregator.replicaCount | int) }}
-            <server>
-              {{ printf "host %s-%d.%s-headless.%s.svc.%s" $fullName $i $fullName $global.Release.Namespace $domain }}
-              {{ printf "port %d" $port }}
-              {{- if ne $i 0 }}
-              standby
-              {{- end }}
-            </server>
-            {{- end }}
-            <buffer>
-              @type file
-              path /opt/bitnami/fluentd/logs/buffers/logs.buffer
-              flush_thread_count 1
-              flush_interval 10s
-              chunk_limit_size 80M
-            </buffer>
-          </match>
-          {{- else }}
-          # Send the logs to the standard output
-          <match **>
-            @type stdout
-          </match>
-          {{- end }}
-    aggregator:
-      replicaCount: 2
-      resources:
-        requests:
-          memory: 512Mi
-        limits:
-          memory: 2048Mi
-      configMap: elasticsearch-output
-      extraEnvVars:
-        - name: ELASTICSEARCH_HOST
-          value: "elasticsearch-master-hl"
-        - name: ELASTICSEARCH_PORT
+  count              = var.register_in_rancher && var.enable_logging ? 1 : 0
+  provider           = kubectl
+  override_namespace = rancher2_namespace.logging[0].name
+  yaml_body          = <<YAML
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: fluentd
+  labels:
+    app: fluentd
+spec:
+  selector:
+    matchLabels:
+      app: fluentd
+  template:
+    metadata:
+      labels:
+        app: fluentd
+    spec:
+      serviceAccountName: fluentd
+      containers:
+      - name: fluentd
+        image: 732722833398.dkr.ecr.us-west-2.amazonaws.com/fluentd:v1.16.0-debian-1.0
+        env:
+        - name: OPENSEARCH_HOST
+          value: "opensearch-cluster-master"
+        - name: OPENSEARCH_PORT
           value: "9200"
-  EOT
+        resources:
+          limits:
+            memory: 512Mi
+          requests:
+            cpu: 100m
+            memory: 200Mi
+        volumeMounts:
+        - name: varlog
+          mountPath: /var/log
+        - name: varlibdockercontainers
+          mountPath: /var/lib/docker/containers
+          readOnly: true
+        - name: config
+          mountPath: /fluentd/etc/fluent.conf
+          subPath: fluent.conf
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - name: varlog
+        hostPath:
+          path: /var/log
+      - name: varlibdockercontainers
+        hostPath:
+          path: /var/lib/docker/containers
+      - name: config
+        configMap:
+          name: opensearch-output
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: fluentd
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: fluentd
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  - namespaces
+  verbs:
+  - get
+  - list
+  - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: fluentd
+roleRef:
+  kind: ClusterRole
+  name: fluentd
+  apiGroup: rbac.authorization.k8s.io
+subjects:
+- kind: ServiceAccount
+  name: fluentd
+  namespace: logging
+  YAML
 }
 
+// OpenSearch index management - commented out as elasticstack provider doesn't support OpenSearch
+/*
 // Create an index lifecycle policy
 resource "elasticstack_elasticsearch_index_lifecycle" "index_policy" {
   count      = var.register_in_rancher && var.enable_logging ? 1 : 0
   name       = var.index_policy_name
-  depends_on = [rancher2_app_v2.elasticsearch, kubectl_manifest.elasticsearch_output, rancher2_app_v2.fluentd]
+  depends_on = [rancher2_app_v2.opensearch, kubectl_manifest.opensearch_output, kubectl_manifest.fluentd_daemonset]
   hot {
     min_age = "0ms"
     set_priority {
@@ -365,3 +352,4 @@ resource "elasticstack_elasticsearch_index_template" "index_template" {
     })
   }
 }
+*/
