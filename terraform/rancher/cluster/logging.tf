@@ -53,7 +53,11 @@ resource "aws_cognito_user_pool_domain" "kibana_cognito_domain" {
 
 # Create rancher2 Elasticsearch app in logging namespace
 resource "rancher2_app_v2" "elasticsearch" {
-  depends_on    = [module.eks_cluster.eks_managed_node_groups]
+  depends_on = [
+    module.eks_cluster.eks_managed_node_groups,
+    rancher2_catalog_v2.bitnami,
+    time_sleep.catalog_propagation
+  ]
   count         = var.register_in_rancher && var.enable_logging ? 1 : 0
   cluster_id    = rancher2_cluster_sync.this[0].cluster_id
   namespace     = rancher2_namespace.logging[0].name
@@ -208,7 +212,11 @@ data:
 
 # Create rancher2 Elasticsearch app in logging namespace
 resource "rancher2_app_v2" "fluentd" {
-  depends_on    = [module.eks_cluster.eks_managed_node_groups]
+  depends_on = [
+    module.eks_cluster.eks_managed_node_groups,
+    rancher2_catalog_v2.bitnami,
+    time_sleep.catalog_propagation
+  ]
   count         = var.register_in_rancher && var.enable_logging ? 1 : 0
   cluster_id    = rancher2_cluster_sync.this[0].cluster_id
   namespace     = rancher2_namespace.logging[0].name
