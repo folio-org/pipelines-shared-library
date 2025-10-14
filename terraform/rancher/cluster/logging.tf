@@ -105,6 +105,11 @@ resource "rancher2_app_v2" "opensearch" {
           paths:
             - path: /
               pathType: Prefix
+              backend:
+                service:
+                  name: opensearch-cluster-master
+                  port:
+                    number: 9200
       annotations:
         kubernetes.io/ingress.class: alb
         alb.ingress.kubernetes.io/scheme: internet-facing
@@ -161,6 +166,11 @@ resource "rancher2_app_v2" "opensearch_dashboards" {
           paths:
             - path: /
               pathType: Prefix
+              backend:
+                service:
+                  name: opensearch-dashboards
+                  port:
+                    number: 5601
       annotations:
         kubernetes.io/ingress.class: alb
         alb.ingress.kubernetes.io/scheme: internet-facing
