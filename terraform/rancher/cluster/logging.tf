@@ -70,6 +70,22 @@ resource "rancher2_app_v2" "opensearch" {
       repository: "732722833398.dkr.ecr.us-west-2.amazonaws.com/opensearch"
       tag: "2.18.0"
     opensearchJavaOpts: "-Xmx2g -Xms2g"
+    
+    # Disable SSL/TLS for OpenSearch
+    config:
+      opensearch.yml: |
+        cluster.name: opensearch-cluster
+        network.host: 0.0.0.0
+        plugins.security.disabled: true
+        plugins.security.ssl.transport.enforce_hostname_verification: false
+        plugins.security.ssl.http.enabled: false
+        plugins.security.ssl.transport.enabled: false
+        discovery.type: single-node
+        http.port: 9200
+        http.host: 0.0.0.0
+    
+    singleNode: true
+    
     resources:
       requests:
         memory: "2Gi"
@@ -116,6 +132,15 @@ resource "rancher2_app_v2" "opensearch_dashboards" {
       repository: "732722833398.dkr.ecr.us-west-2.amazonaws.com/opensearch-dashboards"
       tag: "2.18.0"
     opensearchHosts: "http://opensearch-cluster-master:9200"
+    
+    # Disable SSL/TLS for OpenSearch Dashboards
+    config:
+      opensearch_dashboards.yml: |
+        server.host: 0.0.0.0
+        opensearch.hosts: ["http://opensearch-cluster-master:9200"]
+        opensearch.ssl.verificationMode: none
+        opensearch.requestHeadersWhitelist: ["authorization", "securitytenant"]
+    
     resources:
       requests:
         memory: 768Mi
