@@ -34,6 +34,16 @@ resource "rancher2_catalog_v2" "bitnami" {
   url        = "https://repository.folio.org/repository/helm-bitnami-proxy"
 }
 
+# Wait for catalog to be ready
+resource "time_sleep" "catalog_propagation" {
+  count           = var.register_in_rancher ? 1 : 0
+  create_duration = "30s"
+
+  triggers = {
+    bitnami_id = rancher2_catalog_v2.bitnami[0].id
+  }
+}
+
 # AWS ebs csi driver charts catalog
 resource "rancher2_catalog_v2" "aws-ebs-csi-driver" {
   depends_on = [module.eks_cluster.eks_managed_node_groups]
