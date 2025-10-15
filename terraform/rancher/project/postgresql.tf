@@ -203,9 +203,9 @@ primary:
         
         # JIT compilation for complex JSONB queries (PostgreSQL 11+)
         sed -i "s/#*jit = .*/jit = on/" /bitnami/postgresql/data/postgresql.conf
-        sed -i "s/#*jit_above_cost = .*/jit_above_cost = 100000/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*jit_above_cost = .*/jit_above_cost = 25000000/" /bitnami/postgresql/data/postgresql.conf
         sed -i "s/#*jit_inline_above_cost = .*/jit_inline_above_cost = 500000/" /bitnami/postgresql/data/postgresql.conf
-        sed -i "s/#*jit_optimize_above_cost = .*/jit_optimize_above_cost = 500000/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*jit_optimize_above_cost = .*/jit_optimize_above_cost = 25000000/" /bitnami/postgresql/data/postgresql.conf
         echo "PostgreSQL configuration updated"
   containerSecurityContext:
     enabled: true
