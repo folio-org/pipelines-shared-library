@@ -9,7 +9,7 @@ import org.folio.rest_v2.Constants as RestConstants
 import org.folio.rest_v2.PlatformType
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library@RANCHER-2592') _
+@Library('pipelines-shared-library') _
 
 /**
  * Job properties and parameters
@@ -63,7 +63,7 @@ CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builde
   .hasSecureTenant(true)
   .secureTenantId(folioDefault.consortiaTenants().get('university').getTenantId())
   .pgType('built-in')
-  .pgVersion('18.0')
+  .pgVersion('16.8')
   .kafkaType('built-in')
   .opensearchType('built-in')
   .s3Type('built-in')

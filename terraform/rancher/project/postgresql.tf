@@ -191,16 +191,6 @@ primary:
         sed -i "s/#*autovacuum_vacuum_cost_limit = .*/autovacuum_vacuum_cost_limit = 2000/" /bitnami/postgresql/data/postgresql.conf
         sed -i "s/#*autovacuum_max_workers = .*/autovacuum_max_workers = 6/" /bitnami/postgresql/data/postgresql.conf
         
-        # Monitoring and logging
-        sed -i "s/#*shared_preload_libraries = .*/shared_preload_libraries = 'auto_explain,pg_stat_statements'/" /bitnami/postgresql/data/postgresql.conf
-        sed -i "s/#*auto_explain.log_min_duration = .*/auto_explain.log_min_duration = '1s'/" /bitnami/postgresql/data/postgresql.conf
-        sed -i "s/#*auto_explain.log_analyze = .*/auto_explain.log_analyze = on/" /bitnami/postgresql/data/postgresql.conf
-        sed -i "s/#*auto_explain.log_buffers = .*/auto_explain.log_buffers = on/" /bitnami/postgresql/data/postgresql.conf
-        sed -i "s/#*auto_explain.log_timing = .*/auto_explain.log_timing = on/" /bitnami/postgresql/data/postgresql.conf
-        sed -i "s/#*auto_explain.log_verbose = .*/auto_explain.log_verbose = on/" /bitnami/postgresql/data/postgresql.conf
-        sed -i "s/#*pg_stat_statements.track = .*/pg_stat_statements.track = all/" /bitnami/postgresql/data/postgresql.conf
-        sed -i "s/#*pg_stat_statements.max = .*/pg_stat_statements.max = 10000/" /bitnami/postgresql/data/postgresql.conf
-        
         # JIT compilation for complex JSONB queries (PostgreSQL 11+)
         sed -i "s/#*jit = .*/jit = on/" /bitnami/postgresql/data/postgresql.conf
         sed -i "s/#*jit_above_cost = .*/jit_above_cost = 25000000/" /bitnami/postgresql/data/postgresql.conf
