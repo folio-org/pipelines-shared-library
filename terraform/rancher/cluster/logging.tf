@@ -147,7 +147,6 @@ resource "rancher2_app_v2" "opensearch_dashboards" {
         opensearch.hosts: ["http://opensearch-cluster-master:9200"]
         opensearch.ssl.verificationMode: none
         opensearch.requestHeadersWhitelist: ["authorization", "securitytenant", "x-amzn-oidc-accesstoken", "x-amzn-oidc-identity", "x-amzn-oidc-data"]
-        server.basePath: ""
         server.rewriteBasePath: false
         # Since OpenSearch security is disabled, disable Dashboards security too
         opensearch_security.disabled: true
