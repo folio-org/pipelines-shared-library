@@ -140,6 +140,10 @@ resource "rancher2_app_v2" "opensearch_dashboards" {
       tag: "2.18.0"
     opensearchHosts: "http://opensearch-cluster-master:9200"
     
+    # Completely disable security plugin for OpenSearch Dashboards
+    plugins:
+      enabled: false
+    
     # Disable SSL/TLS for OpenSearch Dashboards and configure for ALB auth
     config:
       opensearch_dashboards.yml: |
@@ -148,6 +152,13 @@ resource "rancher2_app_v2" "opensearch_dashboards" {
         opensearch.ssl.verificationMode: none
         opensearch.requestHeadersWhitelist: ["authorization", "securitytenant", "x-amzn-oidc-accesstoken", "x-amzn-oidc-identity", "x-amzn-oidc-data"]
         server.rewriteBasePath: false
+    
+    # Disable security plugin via environment variables
+    extraEnvs:
+      - name: DISABLE_SECURITY_DASHBOARDS_PLUGIN
+        value: "true"
+      - name: OPENSEARCH_SECURITY_DISABLED
+        value: "true"
     
     resources:
       requests:
