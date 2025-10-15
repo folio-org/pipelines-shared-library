@@ -39,7 +39,7 @@ resource "aws_cognito_user_pool_client" "kibana_userpool_client" {
   name                                 = "${module.eks_cluster.cluster_name}-kibana"
   user_pool_id                         = aws_cognito_user_pool.kibana_user_pool.id
   generate_secret                      = true
-  callback_urls                        = ["https://${module.eks_cluster.cluster_name}-kibana.${var.root_domain}/auth/openid/callback"]
+  callback_urls                        = ["https://${module.eks_cluster.cluster_name}-kibana.${var.root_domain}/oauth2/idpresponse"]
   allowed_oauth_flows_user_pool_client = true
   allowed_oauth_flows                  = ["code"]
   allowed_oauth_scopes                 = ["openid"]
@@ -136,13 +136,15 @@ resource "rancher2_app_v2" "opensearch_dashboards" {
       tag: "2.18.0"
     opensearchHosts: "http://opensearch-cluster-master:9200"
     
-    # Disable SSL/TLS for OpenSearch Dashboards
+    # Disable SSL/TLS for OpenSearch Dashboards and configure for ALB auth
     config:
       opensearch_dashboards.yml: |
         server.host: 0.0.0.0
         opensearch.hosts: ["http://opensearch-cluster-master:9200"]
         opensearch.ssl.verificationMode: none
-        opensearch.requestHeadersWhitelist: ["authorization", "securitytenant"]
+        opensearch.requestHeadersWhitelist: ["authorization", "securitytenant", "x-amzn-oidc-accesstoken", "x-amzn-oidc-identity", "x-amzn-oidc-data"]
+        server.basePath: ""
+        server.rewriteBasePath: false
     
     resources:
       requests:
