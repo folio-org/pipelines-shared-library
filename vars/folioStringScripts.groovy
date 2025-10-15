@@ -227,7 +227,7 @@ if (moduleVersionList.getResponseCode().equals(200)) {
 }
 
 static String getPostgresqlVersion() {
-  return '''def versions = ["16.1", "16.8"]
+  return '''def versions = ["16.8", "16.9", "16.10", "17.6", "18.0"]
 
 List pgVersions = versions.findAll { it != '16.8' }
 pgVersions.add(0, '16.8')
