@@ -83,6 +83,10 @@ resource "rancher2_app_v2" "opensearch" {
         discovery.type: single-node
         http.port: 9200
         http.host: 0.0.0.0
+        # Ensure no authentication is required
+        http.cors.enabled: true
+        http.cors.allow-origin: "*"
+        http.cors.allow-headers: "*"
     
     singleNode: true
     
@@ -145,6 +149,8 @@ resource "rancher2_app_v2" "opensearch_dashboards" {
         opensearch.requestHeadersWhitelist: ["authorization", "securitytenant", "x-amzn-oidc-accesstoken", "x-amzn-oidc-identity", "x-amzn-oidc-data"]
         server.basePath: ""
         server.rewriteBasePath: false
+        # Since OpenSearch security is disabled, disable Dashboards security too
+        opensearch_security.disabled: true
     
     resources:
       requests:
