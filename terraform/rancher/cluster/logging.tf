@@ -39,7 +39,7 @@ resource "aws_cognito_user_pool_client" "kibana_userpool_client" {
   name                                 = "${module.eks_cluster.cluster_name}-kibana"
   user_pool_id                         = aws_cognito_user_pool.kibana_user_pool.id
   generate_secret                      = true
-  callback_urls                        = ["https://${module.eks_cluster.cluster_name}-kibana.${var.root_domain}/oauth2/idpresponse"]
+  callback_urls                        = ["https://${module.eks_cluster.cluster_name}-kibana.${var.root_domain}/auth/openid/callback"]
   allowed_oauth_flows_user_pool_client = true
   allowed_oauth_flows                  = ["code"]
   allowed_oauth_scopes                 = ["openid"]
