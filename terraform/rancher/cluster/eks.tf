@@ -141,7 +141,7 @@ module "eks_cluster" {
       # For future schedule https://registry.terraform.io/modules/terraform-aws-modules/eks/aws/latest/submodules/eks-managed-node-group#input_schedules
     }
     },
-    terraform.workspace == local.testing_cluster || terraform.workspace == local.etesting_cluster ? {
+    terraform.workspace == local.etesting_cluster ? {
       eks_node_group_cicypress = {
         name        = "cicypress"
         description = "EKS managed node group for CI Cypress env"
