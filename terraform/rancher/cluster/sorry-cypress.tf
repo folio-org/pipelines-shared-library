@@ -138,6 +138,10 @@ resource "rancher2_app_v2" "sorry-cypress" {
           - host: "${module.eks_cluster.cluster_name}-sc-director.${var.root_domain}"
             path: /
     mongodb:
+      image:
+        registry: "732722833398.dkr.ecr.us-west-2.amazonaws.com"
+        repository: "mongodb"
+        tag: "4.4.6-debian-10-r8"
       internal_db:
         enabled: true
       mongoDatabase: "sorry-cypress"
