@@ -7,7 +7,7 @@ import org.folio.models.TerraformConfig
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '20')),
-  disableConcurrentBuilds(),
+  // disableConcurrentBuilds(),
   parameters([
     folioParameters.cluster(),
     string(name: 'INSTANCE_SHAPE', defaultValue: 'r5a.xlarge', description: 'List of EC2 shapes to be used in cluster provisioning', trim: true),

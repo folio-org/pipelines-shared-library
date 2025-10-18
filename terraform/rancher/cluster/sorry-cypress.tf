@@ -37,8 +37,8 @@ resource "rancher2_app_v2" "sorry-cypress" {
   values        = <<-EOT
     api:
       image:
-        registry: "732722833398.dkr.ecr.us-west-2.amazonaws.com"
-        repository: "sorry-cypress-api"
+        repository: "732722833398.dkr.ecr.us-west-2.amazonaws.com/sorry-cypress-api"
+        pullPolicy: IfNotPresent
         tag: "2.5.1"
       replicas: 2
       enabled: true
@@ -67,8 +67,8 @@ resource "rancher2_app_v2" "sorry-cypress" {
             path: /
     dashboard:
       image:
-        registry: "732722833398.dkr.ecr.us-west-2.amazonaws.com"
-        repository: "sorry-cypress-dashboard"
+        repository: "732722833398.dkr.ecr.us-west-2.amazonaws.com/sorry-cypress-dashboard"
+        pullPolicy: IfNotPresent
         tag: "2.5.1"
       replicas: 2
       enabled: true
@@ -100,8 +100,8 @@ resource "rancher2_app_v2" "sorry-cypress" {
             path: /
     director:
       image:
-        registry: "732722833398.dkr.ecr.us-west-2.amazonaws.com"
-        repository: "sorry-cypress-director"
+        pullPolicy: IfNotPresent
+        repository: "732722833398.dkr.ecr.us-west-2.amazonaws.com/sorry-cypress-director"
         tag: "2.5.1"
       serviceAccount:
         name: sc-service-account
@@ -138,6 +138,11 @@ resource "rancher2_app_v2" "sorry-cypress" {
           - host: "${module.eks_cluster.cluster_name}-sc-director.${var.root_domain}"
             path: /
     mongodb:
+      image:
+        pullPolicy: IfNotPresent
+        registry: "732722833398.dkr.ecr.us-west-2.amazonaws.com"
+        repository: "mongodb"
+        tag: "4.4.6-debian-10-r8"
       internal_db:
         enabled: true
       mongoDatabase: "sorry-cypress"
@@ -153,7 +158,7 @@ resource "rancher2_app_v2" "sorry-cypress" {
           memory: 4096Mi
       persistence:
         enabled: true
-        size: 50Gi
+        size: 150Gi
       externalAccess:
         enabled: true
         service:
