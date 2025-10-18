@@ -153,7 +153,7 @@ resource "rancher2_app_v2" "sorry-cypress" {
           memory: 4096Mi
       persistence:
         enabled: true
-        size: 50Gi
+        size: 150Gi
       externalAccess:
         enabled: true
         service:
