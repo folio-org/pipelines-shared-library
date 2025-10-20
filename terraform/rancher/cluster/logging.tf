@@ -55,14 +55,14 @@ resource "aws_cognito_user_pool_domain" "kibana_cognito_domain" {
 resource "rancher2_app_v2" "elasticsearch" {
   depends_on = [
     module.eks_cluster.eks_managed_node_groups,
-    rancher2_catalog_v2.opensearch,
+    rancher2_catalog_v2.elastic,
     time_sleep.catalog_propagation
   ]
   count         = var.register_in_rancher && var.enable_logging ? 1 : 0
   cluster_id    = rancher2_cluster_sync.this[0].cluster_id
   namespace     = rancher2_namespace.logging[0].name
   name          = "elasticsearch"
-  repo_name     = rancher2_catalog_v2.opensearch[0].name
+  repo_name     = rancher2_catalog_v2.elastic[0].name
   chart_name    = "elasticsearch"
   chart_version = "7.17.3" # Compatible with Filebeat 7.17.15
   values        = <<-EOT
@@ -138,6 +138,43 @@ resource "rancher2_app_v2" "elasticsearch" {
     # Service configuration
     service:
       type: NodePort
+    
+    # Custom readiness probe for single-node setup - accept yellow status
+    readinessProbe:
+      exec:
+        command:
+        - bash
+        - -c
+        - |
+          set -e
+          # For single-node cluster, yellow status is healthy (no replicas available)
+          START_FILE=/tmp/.es_start_file
+          export NSS_SDB_USE_CACHE=no
+          
+          if [ -f "$${START_FILE}" ]; then
+            # Check if node is responding
+            HTTP_CODE=$(curl --output /dev/null -k -XGET -s -w '%%{http_code}' http://127.0.0.1:9200/)
+            if [[ $${HTTP_CODE} == "200" ]]; then
+              exit 0
+            else
+              echo "Elasticsearch health check failed with HTTP code $${HTTP_CODE}"
+              exit 1
+            fi
+          else
+            # Wait for yellow status (acceptable for single-node)
+            if curl -f -s "http://127.0.0.1:9200/_cluster/health?wait_for_status=yellow&timeout=1s" > /dev/null; then
+              touch $${START_FILE}
+              exit 0
+            else
+              echo "Cluster not yet ready for single-node (yellow status)"
+              exit 1
+            fi
+          fi
+      initialDelaySeconds: 10
+      periodSeconds: 10
+      timeoutSeconds: 5
+      successThreshold: 3
+      failureThreshold: 3
       
     # Ingress for external access
     ingress:
@@ -163,14 +200,14 @@ resource "rancher2_app_v2" "elasticsearch" {
 resource "rancher2_app_v2" "kibana" {
   depends_on = [
     module.eks_cluster.eks_managed_node_groups,
-    rancher2_catalog_v2.opensearch,
+    rancher2_catalog_v2.elastic,
     rancher2_app_v2.elasticsearch
   ]
   count         = var.register_in_rancher && var.enable_logging ? 1 : 0
   cluster_id    = rancher2_cluster_sync.this[0].cluster_id
   namespace     = rancher2_namespace.logging[0].name
   name          = "kibana"
-  repo_name     = rancher2_catalog_v2.opensearch[0].name
+  repo_name     = rancher2_catalog_v2.elastic[0].name
   chart_name    = "kibana"
   chart_version = "7.17.3"
   values        = <<-EOT
