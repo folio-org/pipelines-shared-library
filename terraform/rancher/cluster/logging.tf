@@ -231,8 +231,13 @@ resource "rancher2_app_v2" "kibana" {
         server.publicBaseUrl: "https://${module.eks_cluster.cluster_name}-kibana.${var.root_domain}"
         server.maxPayloadBytes: 1048576
         
-        # Prevent redirect loops with ALB authentication
+        # Configure for ALB with Cognito authentication
         server.xsrf.disableProtection: true
+        server.xsrf.whitelist: ["/oauth2/idpresponse"]
+        
+        # Trust ALB proxy
+        server.ssl.enabled: false
+        server.rewriteBasePath: false
         
         # Elasticsearch connection
         elasticsearch.hosts: ["http://elasticsearch-master:9200"]
@@ -252,7 +257,16 @@ resource "rancher2_app_v2" "kibana" {
         xpack.spaces.enabled: false
         xpack.spaces.maxSpaces: 1
         
-        # Request headers for ALB authentication
+        # Configure Kibana for first-time setup
+        kibana.index: ".kibana"
+        kibana.autocompleteTimeout: 1000
+        kibana.autocompleteTerminateAfter: 100000
+        
+        # Handle ALB Cognito authentication properly
+        server.defaultRoute: "/app/discover"
+        server.auth.providers: []
+        
+        # Request headers for ALB Cognito authentication
         elasticsearch.requestHeadersWhitelist: ["authorization", "x-amzn-oidc-accesstoken", "x-amzn-oidc-identity", "x-amzn-oidc-data"]
         
         # ALB-specific settings for proper routing after authentication
