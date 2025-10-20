@@ -240,18 +240,23 @@ data:
       index: "logs-%%{+yyyy.MM.dd}"
       # OpenSearch compatibility settings
       allow_older_versions: true
+      # Disable all feature checks that cause license issues
+      api_key_checks.enabled: false
+      check_exists: false
+      # Skip template loading to avoid compatibility issues
+      template.enabled: false
+      # Disable pipeline setup
+      pipeline: ""
+      # Connection settings
+      timeout: 90
+      max_retries: 3
+      backoff.init: 1s
+      backoff.max: 60s
       
-    # Setup template configuration
-    setup.template.enabled: true
-    setup.template.name: "logs"
-    setup.template.pattern: "logs-*"
-    setup.template.settings:
-      index:
-        number_of_shards: 1
-        number_of_replicas: 0
-    
-    # Disable ILM as we're using OpenSearch ISM
+    # Disable all setup features to avoid OpenSearch compatibility issues
+    setup.template.enabled: false
     setup.ilm.enabled: false
+    setup.dashboards.enabled: false
       
     # Logging configuration
     logging.level: info
@@ -395,6 +400,13 @@ spec:
           value: "opensearch-cluster-master.logging.svc.cluster.local"
         - name: ELASTICSEARCH_PORT
           value: "9200"
+        # OpenSearch compatibility environment variables
+        - name: ELASTICSEARCH_FEATURES_WATCHER_ENABLED
+          value: "false"
+        - name: ELASTICSEARCH_FEATURES_SECURITY_ENABLED
+          value: "false"
+        - name: ELASTICSEARCH_FEATURES_MONITORING_ENABLED
+          value: "false"
         securityContext:
           runAsUser: 0
           capabilities:
