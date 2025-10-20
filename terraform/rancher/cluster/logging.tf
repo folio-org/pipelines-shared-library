@@ -209,10 +209,7 @@ kind: ConfigMap
 metadata:
   name: opensearch-output
 data:
-  fluentd.conf: |
-    @include /fluentd/etc/systemd.conf
-    @include /fluentd/etc/kubernetes.conf
-
+  fluent.conf: |
     # Ignore fluentd own events
     <label @FLUENT_LOG>
       <match fluent.**>
@@ -220,13 +217,6 @@ data:
         @id ignore_fluent_logs
       </match>
     </label>
-
-    # TCP input to receive logs from the forwarders
-    <source>
-      @type forward
-      bind 0.0.0.0
-      port 24224
-    </source>
 
     # HTTP input for the liveness and readiness probes
     <source>
@@ -244,8 +234,16 @@ data:
       tag kubernetes.*
       read_from_head true
       <parse>
-        @type json
-        time_format %Y-%m-%dT%H:%M:%S.%NZ
+        @type multi_format
+        <pattern>
+          format json
+          time_key time
+          time_format %Y-%m-%dT%H:%M:%S.%NZ
+        </pattern>
+        <pattern>
+          format /^(?<time>.+) (?<stream>stdout|stderr) [^ ]* (?<log>.*)$/
+          time_format %Y-%m-%dT%H:%M:%S.%N%:z
+        </pattern>
       </parse>
     </source>
 
@@ -253,9 +251,6 @@ data:
     <filter kubernetes.**>
       @type kubernetes_metadata
       @id filter_kube_metadata
-      kubernetes_url "#{ENV['KUBERNETES_SERVICE_HOST']}:#{ENV['KUBERNETES_SERVICE_PORT_HTTPS']}"
-      verify_ssl "#{ENV['KUBERNETES_VERIFY_SSL'] || true}"
-      ca_file "#{ENV['KUBERNETES_CA_FILE']}"
     </filter>
 
     # Throw the healthcheck to the standard output instead of forwarding it
@@ -265,7 +260,7 @@ data:
 
     # Send the logs to OpenSearch with enhanced configuration
     <match **>
-      @type opensearch
+      @type elasticsearch
       include_tag_key true
       host "#{ENV['OPENSEARCH_HOST']}"
       port "#{ENV['OPENSEARCH_PORT']}"
@@ -277,65 +272,22 @@ data:
       reload_on_failure true
       reload_connections false
       request_timeout 120s
-      logstash_prefix logstash-$${record["kubernetes"]["namespace_name"]}
-      index_name logstash-$${record["kubernetes"]["namespace_name"]}-%Y.%m.%d
-      template_name logstash-template
-      template_file /fluentd/etc/logstash-template.json
-      <buffer tag,time>
-        @type file_single
+      logstash_prefix logstash
+      <buffer>
+        @type file
         retry_forever false
-        retry_max_times 5
+        retry_max_times 3
         retry_wait 10
         retry_max_interval 300
         path /opt/bitnami/fluentd/logs/buffers/logs.buffer
-        flush_thread_count 8
-        flush_interval 30s
-        chunk_limit_size 32M
-        total_limit_size 1GB
-        overflow_action drop_oldest_chunk
-        timekey 3600
-        timekey_wait 60
+        flush_thread_count 4
+        flush_interval 15s
+        chunk_limit_size 80M
       </buffer>
     </match>
   
   # OpenSearch index template with lifecycle policy
-  logstash-template.json: |
-    {
-      "index_patterns": ["logstash-*"],
-      "template": {
-        "settings": {
-          "index": {
-            "number_of_shards": 1,
-            "number_of_replicas": 0,
-            "refresh_interval": "30s"
-          },
-          "plugins.index_state_management.policy_id": "logstash-policy"
-        },
-        "mappings": {
-          "properties": {
-            "@timestamp": {
-              "type": "date"
-            },
-            "kubernetes": {
-              "properties": {
-                "namespace_name": {
-                  "type": "keyword"
-                },
-                "pod_name": {
-                  "type": "keyword"
-                },
-                "container_name": {
-                  "type": "keyword"
-                }
-              }
-            },
-            "log": {
-              "type": "text"
-            }
-          }
-        }
-      }
-    }
+  
   
   # Kubernetes log parsing configuration
   kubernetes.conf: |
@@ -509,6 +461,10 @@ spec:
           value: disable
         - name: FLUENTD_PROMETHEUS_CONF
           value: disable
+        - name: FLUENTD_CONF
+          value: fluent.conf
+        command: ["/opt/bitnami/scripts/fluentd/run.sh"]
+        args: ["--config", "/fluentd/etc/fluent.conf"]
         resources:
           limits:
             memory: 512Mi
