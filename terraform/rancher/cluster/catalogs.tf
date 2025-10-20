@@ -21,7 +21,7 @@ resource "rancher2_catalog_v2" "opensearch" {
   depends_on = [module.eks_cluster.eks_managed_node_groups]
   count      = var.register_in_rancher ? 1 : 0
   cluster_id = rancher2_cluster_sync.this[0].id
-  name       = "elastic"
+  name       = "opensearch"
   url        = "https://helm.elastic.co"
 }
 
