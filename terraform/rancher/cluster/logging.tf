@@ -197,8 +197,8 @@ resource "rancher2_app_v2" "opensearch_dashboards" {
   EOT
 }
 
-# Create OpenSearch output manifest
-resource "kubectl_manifest" "opensearch_output" {
+# Create Filebeat configuration
+resource "kubectl_manifest" "filebeat_config" {
   depends_on         = [module.eks_cluster.eks_managed_node_groups]
   count              = var.register_in_rancher && var.enable_logging ? 1 : 0
   provider           = kubectl
@@ -207,97 +207,70 @@ resource "kubectl_manifest" "opensearch_output" {
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: opensearch-output
+  name: filebeat-config
 data:
-  fluent.conf: |
-    # Ignore fluentd own events
-    <label @FLUENT_LOG>
-      <match fluent.**>
-        @type null
-      </match>
-    </label>
-
-    # HTTP input for health checks
-    <source>
-      @type http
-      bind 0.0.0.0
-      port 9880
-    </source>
-
-    # Lightweight container logs input
-    <source>
-      @type tail
-      path /var/log/containers/*.log
-      pos_file /opt/bitnami/fluentd/logs/buffers/containers.pos
-      tag kubernetes.*
-      read_from_head false
-      refresh_interval 30
-      <parse>
-        @type regexp
-        expression /^(?<time>[^\s]+) (?<stream>stdout|stderr) [^\s]* (?<log>.*)$/
-        time_format %Y-%m-%dT%H:%M:%S.%N%:z
-      </parse>
-    </source>
-
-    # Minimal Kubernetes metadata - only essential fields
-    <filter kubernetes.**>
-      @type kubernetes_metadata
-      cache_size 1000
-      cache_ttl 60
-      skip_labels false
-      skip_container_metadata false
-      skip_master_url false
-      skip_namespace_metadata true
-    </filter>
-
-    # Health check output
-    <match fluentd.healthcheck>
-      @type stdout
-    </match>
-
-    # Output to OpenSearch using elasticsearch plugin with forced compatibility
-    <match **>
-      @type elasticsearch
-      host opensearch-cluster-master.logging.svc.cluster.local
-      port 9200
-      scheme http
-      index_name logs-%Y.%m.%d
-      type_name _doc
-      include_timestamp true
-      logstash_format false
-      suppress_type_name true
-      default_elasticsearch_version 7
-      <template>
-        name logs
-        pattern logs-*
-        settings {
-          "number_of_shards": 1,
-          "number_of_replicas": 0,
-          "index.lifecycle.name": "logs-policy",
-          "index.lifecycle.rollover_alias": "logs"
-        }
-      </template>
-      <buffer time>
-        @type memory
-        timekey 86400
-        timekey_wait 10
-        chunk_limit_size 8m
-        chunk_limit_records 1000
-        flush_mode interval
-        flush_interval 30s
-        flush_thread_count 1
-        retry_type exponential_backoff
-        retry_max_interval 30
-        retry_forever false
-        retry_max_times 5
-        overflow_action drop_oldest_chunk
-      </buffer>
-    </match>
+  filebeat.yml: |
+    filebeat.inputs:
+    - type: container
+      paths:
+        - /var/log/containers/*.log
+      processors:
+      - add_kubernetes_metadata:
+          host: $${NODE_NAME}
+          matchers:
+          - logs_path:
+              logs_path: "/var/log/containers/"
+      - drop_fields:
+          fields: ["host", "agent", "ecs", "input"]
+      - decode_json_fields:
+          fields: ["message"]
+          target: ""
+          overwrite_keys: true
+      
+    # Enable HTTP endpoint for health checks
+    http:
+      enabled: true
+      host: 0.0.0.0
+      port: 5066
+    
+    # Output to OpenSearch
+    output.elasticsearch:
+      hosts: ["opensearch-cluster-master.logging.svc.cluster.local:9200"]
+      protocol: "http"
+      index: "logs-%%{+yyyy.MM.dd}"
+      template.enabled: true
+      template.pattern: "logs-*"
+      template.settings:
+        index:
+          number_of_shards: 1
+          number_of_replicas: 0
+          lifecycle:
+            name: "logs-policy"
+            rollover_alias: "logs"
+      
+    # Logging configuration
+    logging.level: info
+    logging.to_files: true
+    logging.files:
+      path: /usr/share/filebeat/logs
+      name: filebeat
+      keepfiles: 7
+      permissions: 0644
+    
+    # Performance tuning
+    queue.mem:
+      events: 4096
+      flush.min_events: 512
+      flush.timeout: 5s
+    
+    processors:
+    - add_host_metadata:
+        when.not.contains.tags: forwarded
   YAML
 }
 
-# Create fluentd ServiceAccount
-resource "kubectl_manifest" "fluentd_serviceaccount" {
+# Create filebeat ServiceAccount
+resource "kubectl_manifest" "filebeat_serviceaccount" {
   depends_on = [
     module.eks_cluster.eks_managed_node_groups,
     rancher2_app_v2.opensearch
@@ -309,13 +282,13 @@ resource "kubectl_manifest" "fluentd_serviceaccount" {
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: fluentd
+  name: filebeat
   namespace: logging
   YAML
 }
 
-# Create fluentd ClusterRole
-resource "kubectl_manifest" "fluentd_clusterrole" {
+# Create filebeat ClusterRole
+resource "kubectl_manifest" "filebeat_clusterrole" {
   depends_on = [module.eks_cluster.eks_managed_node_groups]
   count      = var.register_in_rancher && var.enable_logging ? 1 : 0
   provider   = kubectl
@@ -323,13 +296,22 @@ resource "kubectl_manifest" "fluentd_clusterrole" {
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: fluentd
+  name: filebeat
 rules:
 - apiGroups:
   - ""
   resources:
   - pods
   - namespaces
+  - nodes
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - "apps"
+  resources:
+  - replicasets
   verbs:
   - get
   - list
@@ -337,11 +319,11 @@ rules:
   YAML
 }
 
-# Create fluentd ClusterRoleBinding
-resource "kubectl_manifest" "fluentd_clusterrolebinding" {
+# Create filebeat ClusterRoleBinding
+resource "kubectl_manifest" "filebeat_clusterrolebinding" {
   depends_on = [
-    kubectl_manifest.fluentd_serviceaccount,
-    kubectl_manifest.fluentd_clusterrole
+    kubectl_manifest.filebeat_serviceaccount,
+    kubectl_manifest.filebeat_clusterrole
   ]
   count     = var.register_in_rancher && var.enable_logging ? 1 : 0
   provider  = kubectl
@@ -349,26 +331,26 @@ resource "kubectl_manifest" "fluentd_clusterrolebinding" {
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: fluentd
+  name: filebeat
 roleRef:
   kind: ClusterRole
-  name: fluentd
+  name: filebeat
   apiGroup: rbac.authorization.k8s.io
 subjects:
 - kind: ServiceAccount
-  name: fluentd
+  name: filebeat
   namespace: logging
   YAML
 }
 
-# Create fluentd DaemonSet directly via kubectl
-resource "kubectl_manifest" "fluentd_daemonset" {
+# Create filebeat DaemonSet directly via kubectl
+resource "kubectl_manifest" "filebeat_daemonset" {
   depends_on = [
     module.eks_cluster.eks_managed_node_groups,
     rancher2_app_v2.opensearch,
-    kubectl_manifest.opensearch_output,
-    kubectl_manifest.fluentd_serviceaccount,
-    kubectl_manifest.fluentd_clusterrolebinding
+    kubectl_manifest.filebeat_config,
+    kubectl_manifest.filebeat_serviceaccount,
+    kubectl_manifest.filebeat_clusterrolebinding
   ]
   count              = var.register_in_rancher && var.enable_logging ? 1 : 0
   provider           = kubectl
@@ -377,96 +359,94 @@ resource "kubectl_manifest" "fluentd_daemonset" {
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
-  name: fluentd
+  name: filebeat
   labels:
-    app: fluentd
+    app: filebeat
 spec:
   selector:
     matchLabels:
-      app: fluentd
+      app: filebeat
   template:
     metadata:
       labels:
-        app: fluentd
+        app: filebeat
     spec:
-      serviceAccountName: fluentd
+      serviceAccountName: filebeat
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
       containers:
-      - name: fluentd
-        image: 732722833398.dkr.ecr.us-west-2.amazonaws.com/fluentd:1.16.0-debian-11-r1
+      - name: filebeat
+        image: docker.elastic.co/beats/filebeat:8.11.0
+        args: [
+          "-c", "/etc/filebeat.yml",
+          "-e"
+        ]
         env:
-        - name: OPENSEARCH_HOST
-          value: "opensearch-cluster-master"
-        - name: OPENSEARCH_PORT
-          value: "9200"
-        - name: FLUENTD_SYSTEMD_CONF
-          value: disable
-        - name: FLUENTD_PROMETHEUS_CONF
-          value: disable
-        - name: FLUENTD_CONF
-          value: /fluentd/etc/fluent.conf
-        - name: K8S_NODE_NAME
+        - name: NODE_NAME
           valueFrom:
             fieldRef:
               fieldPath: spec.nodeName
-        - name: RUBY_GC_HEAP_GROWTH_FACTOR
-          value: "1.1"
-        - name: RUBY_GC_MALLOC_LIMIT
-          value: "16000000"
-        - name: RUBY_GC_OLDMALLOC_LIMIT
-          value: "16000000"
-        - name: SUPPRESS_TYPE_NAME
-          value: "true"
-        - name: ES_VERSION
-          value: "7.10.0"
-        command: ["/opt/bitnami/scripts/fluentd/entrypoint.sh"]
-        args: ["fluentd", "-c", "/fluentd/etc/fluent.conf", "-p", "/opt/bitnami/fluentd/plugins", "--log-rotate-size", "10485760"]
+        - name: ELASTICSEARCH_HOST
+          value: "opensearch-cluster-master.logging.svc.cluster.local"
+        - name: ELASTICSEARCH_PORT
+          value: "9200"
+        securityContext:
+          runAsUser: 0
+          capabilities:
+            add:
+            - DAC_READ_SEARCH
         resources:
           limits:
-            memory: 768Mi
-            cpu: 300m
+            memory: 512Mi
+            cpu: 200m
           requests:
             cpu: 50m
-            memory: 256Mi
+            memory: 128Mi
         volumeMounts:
-        - name: varlog
-          mountPath: /var/log
+        - name: config
+          mountPath: /etc/filebeat.yml
+          subPath: filebeat.yml
+          readOnly: true
+        - name: data
+          mountPath: /usr/share/filebeat/data
         - name: varlibdockercontainers
           mountPath: /var/lib/docker/containers
           readOnly: true
-        - name: config
-          mountPath: /fluentd/etc/fluent.conf
-          subPath: fluent.conf
-        - name: fluentd-buffer
-          mountPath: /opt/bitnami/fluentd/logs/buffers
+        - name: varlog
+          mountPath: /var/log
+          readOnly: true
         livenessProbe:
           httpGet:
-            path: /fluentd.healthcheck?json=%7B%22log%22%3A+%22health+check%22%7D
-            port: 9880
+            path: /
+            port: 5066
           initialDelaySeconds: 30
           periodSeconds: 30
           timeoutSeconds: 10
           failureThreshold: 3
         readinessProbe:
           httpGet:
-            path: /fluentd.healthcheck?json=%7B%22log%22%3A+%22health+check%22%7D
-            port: 9880
+            path: /
+            port: 5066
           initialDelaySeconds: 15
           periodSeconds: 10
           timeoutSeconds: 5
           failureThreshold: 3
       terminationGracePeriodSeconds: 30
       volumes:
-      - name: varlog
-        hostPath:
-          path: /var/log
+      - name: config
+        configMap:
+          defaultMode: 0640
+          name: filebeat-config
       - name: varlibdockercontainers
         hostPath:
           path: /var/lib/docker/containers
-      - name: config
-        configMap:
-          name: opensearch-output
-      - name: fluentd-buffer
-        emptyDir: {}
+      - name: varlog
+        hostPath:
+          path: /var/log
+      - name: data
+        hostPath:
+          path: /var/lib/filebeat-data
+          type: DirectoryOrCreate
   YAML
 }
 
@@ -488,7 +468,7 @@ data:
   policy.json: |
     {
       "policy": {
-        "policy_id": "logstash-policy",
+        "policy_id": "logs-policy",
         "description": "Log retention policy for 2-3 days",
         "last_updated_time": 1609459200000,
         "schema_version": 1,
@@ -580,14 +560,14 @@ spec:
           done
           
           # Apply ISM policy
-          curl -X PUT "http://opensearch-cluster-master:9200/_plugins/_ism/policies/logstash-policy" \
+          curl -X PUT "http://opensearch-cluster-master:9200/_plugins/_ism/policies/logs-policy" \
             -H 'Content-Type: application/json' \
             -d @/policy/policy.json
           
           # Apply policy to existing indices
-          curl -X POST "http://opensearch-cluster-master:9200/_plugins/_ism/add/logstash-*" \
+          curl -X POST "http://opensearch-cluster-master:9200/_plugins/_ism/add/logs-*" \
             -H 'Content-Type: application/json' \
-            -d '{"policy_id": "logstash-policy"}'
+            -d '{"policy_id": "logs-policy"}'
             
           echo "ISM policy applied successfully"
         volumeMounts:
