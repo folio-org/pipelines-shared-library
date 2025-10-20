@@ -66,9 +66,10 @@ resource "rancher2_app_v2" "elasticsearch" {
   chart_name    = "elasticsearch"
   chart_version = "7.17.3" # Compatible with Filebeat 7.17.15
   values        = <<-EOT
-    image:
-      repository: "docker.elastic.co/elasticsearch/elasticsearch"
-      tag: "7.17.15"
+    # Use the default image (Elasticsearch 7.17.3 from official chart)
+    image: "docker.elastic.co/elasticsearch/elasticsearch"
+    imageTag: "7.17.15"
+    
     esJavaOpts: "-Xmx2g -Xms2g"
     
     # Single node configuration
@@ -149,9 +150,9 @@ resource "rancher2_app_v2" "kibana" {
   chart_name    = "kibana"
   chart_version = "7.17.3"
   values        = <<-EOT
-    image:
-      repository: "docker.elastic.co/kibana/kibana"
-      tag: "7.17.15"
+    # Use the default image (Kibana 7.17.3 from official chart)
+    image: "docker.elastic.co/kibana/kibana"
+    imageTag: "7.17.15"
     
     elasticsearchHosts: "http://elasticsearch-master:9200"
     
