@@ -462,9 +462,9 @@ spec:
         - name: FLUENTD_PROMETHEUS_CONF
           value: disable
         - name: FLUENTD_CONF
-          value: fluent.conf
-        command: ["/opt/bitnami/scripts/fluentd/run.sh"]
-        args: ["--config", "/fluentd/etc/fluent.conf"]
+          value: /fluentd/etc/fluent.conf
+        command: ["/opt/bitnami/scripts/fluentd/entrypoint.sh"]
+        args: ["fluentd", "-c", "/fluentd/etc/fluent.conf", "-p", "/opt/bitnami/fluentd/plugins"]
         resources:
           limits:
             memory: 512Mi
@@ -481,15 +481,6 @@ spec:
         - name: config
           mountPath: /fluentd/etc/fluent.conf
           subPath: fluent.conf
-        - name: config
-          mountPath: /fluentd/etc/kubernetes.conf
-          subPath: kubernetes.conf
-        - name: config
-          mountPath: /fluentd/etc/systemd.conf
-          subPath: systemd.conf
-        - name: config
-          mountPath: /fluentd/etc/logstash-template.json
-          subPath: logstash-template.json
         - name: fluentd-buffer
           mountPath: /opt/bitnami/fluentd/logs/buffers
         livenessProbe:
