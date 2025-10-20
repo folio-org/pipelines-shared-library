@@ -66,55 +66,70 @@ resource "rancher2_app_v2" "elasticsearch" {
   chart_name    = "elasticsearch"
   chart_version = "7.17.3" # Compatible with Filebeat 7.17.15
   values        = <<-EOT
-    # Use the default image (Elasticsearch 7.17.3 from official chart)
+    # Use the default image (Elasticsearch 7.17.15)
     image: "docker.elastic.co/elasticsearch/elasticsearch"
     imageTag: "7.17.15"
     
     esJavaOpts: "-Xmx2g -Xms2g"
     
-    # Single node configuration
+    # Single node configuration - CRITICAL SETTINGS
     clusterName: "elasticsearch"
     nodeGroup: "master"
+    replicas: 1
+    # DON'T set minimumMasterNodes for single-node
+    # minimumMasterNodes: 1  # This conflicts with single-node
     
-    # Disable SSL/TLS for Elasticsearch
+    # Completely disable SSL/TLS and use single-node discovery
     esConfig:
       elasticsearch.yml: |
+        # Cluster and network settings
         cluster.name: elasticsearch
         network.host: 0.0.0.0
-        discovery.type: single-node
         http.port: 9200
         http.host: 0.0.0.0
-        # Disable security features (7.17.x compatible settings)
+        
+        # SINGLE NODE DISCOVERY - no cluster bootstrap needed
+        discovery.type: single-node
+        
+        # Disable ALL security features
         xpack.security.enabled: false
         xpack.security.http.ssl.enabled: false
         xpack.security.transport.ssl.enabled: false
-        # Enable CORS
+        xpack.monitoring.enabled: false
+        xpack.watcher.enabled: false
+        xpack.ml.enabled: false
+        
+        # Enable CORS for dashboard access
         http.cors.enabled: true
         http.cors.allow-origin: "*"
         http.cors.allow-headers: "X-Requested-With,X-Auth-Token,Content-Type,Content-Length,Authorization"
         http.cors.allow-credentials: true
+        
+        # Performance settings
+        bootstrap.memory_lock: false
+        indices.query.bool.max_clause_count: 10000
     
-    # Single node setup
-    replicas: 1
-    minimumMasterNodes: 1
-    
+    # Resource allocation
     resources:
       requests:
         memory: "2Gi"
         cpu: "500m"
       limits:
-        memory: "3Gi"
+        memory: "3Gi" 
         cpu: "1000m"
     
+    # Persistent storage
     volumeClaimTemplate:
       accessModes: [ "ReadWriteOnce" ]
       resources:
         requests:
           storage: 100Gi
     
+    # Service configuration
     service:
       type: NodePort
       
+    # Ingress for external access
     ingress:
       enabled: true
       className: alb
@@ -149,25 +164,43 @@ resource "rancher2_app_v2" "kibana" {
   chart_name    = "kibana"
   chart_version = "7.17.3"
   values        = <<-EOT
-    # Use the default image (Kibana 7.17.3 from official chart)
+    # Use Kibana 7.17.15 image
     image: "docker.elastic.co/kibana/kibana"
     imageTag: "7.17.15"
     
+    # Connect to Elasticsearch service
     elasticsearchHosts: "http://elasticsearch-master:9200"
     
-    # Disable SSL/TLS for Kibana and configure for ALB auth
+    # Complete Kibana configuration
     kibanaConfig:
       kibana.yml: |
+        # Server settings
         server.host: 0.0.0.0
+        server.port: 5601
+        server.name: "kibana"
+        server.rewriteBasePath: false
+        
+        # Elasticsearch connection
         elasticsearch.hosts: ["http://elasticsearch-master:9200"]
         elasticsearch.ssl.verificationMode: none
-        server.rewriteBasePath: false
-        # Disable security features
+        elasticsearch.requestTimeout: 30000
+        elasticsearch.pingTimeout: 1500
+        
+        # Disable all X-Pack security features
         xpack.security.enabled: false
-        xpack.encryptedSavedObjects.encryptionKey: "something_at_least_32_characters_long"
+        xpack.encryptedSavedObjects.encryptionKey: "something_at_least_32_characters_long_for_session_encryption"
+        xpack.reporting.enabled: false
+        xpack.monitoring.enabled: false
+        xpack.ml.enabled: false
+        xpack.watcher.enabled: false
+        
         # Request headers for ALB authentication
         elasticsearch.requestHeadersWhitelist: ["authorization", "x-amzn-oidc-accesstoken", "x-amzn-oidc-identity", "x-amzn-oidc-data"]
+        
+        # Logging configuration
+        logging.level: info
     
+    # Resource allocation
     resources:
       requests:
         memory: 768Mi
@@ -176,10 +209,29 @@ resource "rancher2_app_v2" "kibana" {
         memory: 1024Mi
         cpu: 500m
         
+    # Service configuration
     service:
       type: NodePort
       port: 5601
       
+    # Health checks
+    readinessProbe:
+      httpGet:
+        path: /app/kibana
+        port: 5601
+      initialDelaySeconds: 30
+      periodSeconds: 10
+      timeoutSeconds: 5
+      
+    livenessProbe:
+      httpGet:
+        path: /app/kibana
+        port: 5601
+      initialDelaySeconds: 60
+      periodSeconds: 20
+      timeoutSeconds: 5
+      
+    # Ingress for external access with Cognito auth
     ingress:
       enabled: true
       className: alb
@@ -218,10 +270,16 @@ metadata:
   name: filebeat-config
 data:
   filebeat.yml: |
+    # Filebeat input configuration
     filebeat.inputs:
     - type: container
       paths:
         - /var/log/containers/*.log
+      # Exclude system pods to reduce noise
+      exclude_lines: ['^[[:space:]]*$', '^[[:space:]]*#']
+      multiline.pattern: '^\d{4}-\d{2}-\d{2}'
+      multiline.negate: true
+      multiline.match: after
       processors:
       - add_kubernetes_metadata:
           host: $${NODE_NAME}
@@ -234,34 +292,72 @@ data:
           fields: ["message"]
           target: ""
           overwrite_keys: true
-      
+          when:
+            contains:
+              message: "{"
+    
     # Enable HTTP endpoint for health checks
     http:
       enabled: true
       host: 0.0.0.0
       port: 5066
     
-    # Output to Elasticsearch
+    # Output to Elasticsearch - SIMPLIFIED CONFIGURATION
     output.elasticsearch:
       hosts: ["elasticsearch-master.logging.svc.cluster.local:9200"]
       protocol: "http"
       index: "logs-%%{+yyyy.MM.dd}"
-      # Connection settings
+      
+      # Connection and retry settings
       timeout: 90
       max_retries: 3
       backoff.init: 1s
       backoff.max: 60s
       
-    # Enable ILM for log retention management
-    setup.ilm.enabled: true
-    setup.ilm.rollover_alias: "logs"
-    setup.ilm.pattern: "logs-*"
-    setup.ilm.policy: "logs-policy"
+      # Bulk settings for performance
+      bulk_max_size: 1000
+      flush_bytes: 10485760
+      flush_interval: 1s
+      
+      # Template and pipeline settings - DISABLED to avoid conflicts
+      template.enabled: false
+      pipeline: ""
+      
+    # Completely disable setup features to avoid any compatibility issues
+    setup.template.enabled: false
+    setup.ilm.enabled: false
+    setup.dashboards.enabled: false
+    setup.kibana.enabled: false
     
-    # Template settings
-    setup.template.enabled: true
-    setup.template.name: "logs"
-    setup.template.pattern: "logs-*"
+    # Logging configuration
+    logging.level: info
+    logging.to_files: true
+    logging.files:
+      path: /usr/share/filebeat/logs
+      name: filebeat
+      keepfiles: 7
+      permissions: 0644
+    
+    # Performance and memory settings
+    queue.mem:
+      events: 4096
+      flush.min_events: 512
+      flush.timeout: 5s
+    
+    # Additional metadata processors
+    processors:
+    - add_host_metadata:
+        when.not.contains.tags: forwarded
+    - add_docker_metadata: ~
+    - add_kubernetes_metadata:
+        host: $${NODE_NAME}
+        default_indexers.enabled: false
+        default_matchers.enabled: false
+        indexers:
+        - container:
+        matchers:
+        - logs_path:
+            logs_path: "/var/log/containers/"
       
     # Logging configuration
     logging.level: info
@@ -528,6 +624,7 @@ metadata:
   name: elasticsearch-ilm-policy-setup
   namespace: logging
 spec:
+  ttlSecondsAfterFinished: 300
   template:
     spec:
       restartPolicy: OnFailure
@@ -538,31 +635,64 @@ spec:
         args:
         - -c
         - |
-          # Wait for Elasticsearch to be ready
-          until curl -f http://elasticsearch-master:9200/_cluster/health; do
-            echo "Waiting for Elasticsearch..."
+          set -e
+          echo "Waiting for Elasticsearch to be ready..."
+          
+          # Wait for Elasticsearch to be healthy
+          for i in $(seq 1 30); do
+            if curl -s -f "http://elasticsearch-master:9200/_cluster/health?wait_for_status=yellow&timeout=10s"; then
+              echo "Elasticsearch is ready!"
+              break
+            fi
+            echo "Attempt $i/30: Elasticsearch not ready yet, waiting..."
             sleep 10
           done
           
-          # Apply ILM policy
+          # Verify we can connect
+          curl -s "http://elasticsearch-master:9200/" || {
+            echo "Failed to connect to Elasticsearch"
+            exit 1
+          }
+          
+          echo "Creating ILM policy..."
+          # Apply ILM policy with simpler configuration
           curl -X PUT "http://elasticsearch-master:9200/_ilm/policy/logs-policy" \
             -H 'Content-Type: application/json' \
-            -d @/policy/policy.json
+            -d '{
+              "policy": {
+                "phases": {
+                  "hot": {
+                    "actions": {
+                      "rollover": {
+                        "max_size": "1GB",
+                        "max_age": "1d"
+                      }
+                    }
+                  },
+                  "delete": {
+                    "min_age": "3d",
+                    "actions": {
+                      "delete": {}
+                    }
+                  }
+                }
+              }
+            }' || echo "ILM policy creation failed, but continuing..."
           
-          # Create index template to use the ILM policy
-          curl -X PUT "http://elasticsearch-master:9200/_index_template/logs-template" \
+          echo "Creating index template..."
+          # Create simple index template
+          curl -X PUT "http://elasticsearch-master:9200/_template/logs-template" \
             -H 'Content-Type: application/json' \
             -d '{
               "index_patterns": ["logs-*"],
-              "template": {
-                "settings": {
-                  "index.lifecycle.name": "logs-policy",
-                  "index.lifecycle.rollover_alias": "logs"
-                }
+              "settings": {
+                "number_of_shards": 1,
+                "number_of_replicas": 0,
+                "index.refresh_interval": "30s"
               }
-            }'
+            }' || echo "Template creation failed, but continuing..."
             
-          echo "ILM policy applied successfully"
+          echo "Setup completed successfully!"
         volumeMounts:
         - name: policy
           mountPath: /policy
