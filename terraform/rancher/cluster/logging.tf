@@ -283,9 +283,12 @@ data:
         retry_wait 10
         retry_max_interval 300
         path /opt/bitnami/fluentd/logs/buffers/logs.buffer
-        flush_thread_count 4
-        flush_interval 15s
-        chunk_limit_size 80M
+        flush_thread_count 2
+        flush_interval 10s
+        chunk_limit_size 32M
+        total_limit_size 512M
+        flush_at_shutdown true
+        compress gzip
       </buffer>
     </match>
   YAML
@@ -407,11 +410,11 @@ spec:
         args: ["fluentd", "-c", "/fluentd/etc/fluent.conf", "-p", "/opt/bitnami/fluentd/plugins"]
         resources:
           limits:
-            memory: 512Mi
+            memory: 1Gi
             cpu: 500m
           requests:
             cpu: 100m
-            memory: 200Mi
+            memory: 512Mi
         volumeMounts:
         - name: varlog
           mountPath: /var/log
