@@ -224,22 +224,8 @@ resource "rancher2_app_v2" "kibana" {
       type: NodePort
       port: 5601
       
-    # Health checks
-    readinessProbe:
-      httpGet:
-        path: /app/kibana
-        port: 5601
-      initialDelaySeconds: 30
-      periodSeconds: 10
-      timeoutSeconds: 5
-      
-    livenessProbe:
-      httpGet:
-        path: /app/kibana
-        port: 5601
-      initialDelaySeconds: 60
-      periodSeconds: 20
-      timeoutSeconds: 5
+    # Health checks - use chart defaults with custom settings
+    healthCheckPath: "/app/kibana"
       
     # Ingress for external access with Cognito auth
     ingress:
@@ -368,25 +354,6 @@ data:
         matchers:
         - logs_path:
             logs_path: "/var/log/containers/"
-      
-    # Logging configuration
-    logging.level: info
-    logging.to_files: true
-    logging.files:
-      path: /usr/share/filebeat/logs
-      name: filebeat
-      keepfiles: 7
-      permissions: 0644
-    
-    # Performance tuning
-    queue.mem:
-      events: 4096
-      flush.min_events: 512
-      flush.timeout: 5s
-    
-    processors:
-    - add_host_metadata:
-        when.not.contains.tags: forwarded
   YAML
 }
 
