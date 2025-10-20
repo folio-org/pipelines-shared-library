@@ -76,8 +76,9 @@ resource "rancher2_app_v2" "elasticsearch" {
     clusterName: "elasticsearch"
     nodeGroup: "master"
     replicas: 1
-    # DON'T set minimumMasterNodes for single-node
-    # minimumMasterNodes: 1  # This conflicts with single-node
+    
+    # OVERRIDE: Disable cluster bootstrap for single-node
+    masterService: ""
     
     # Completely disable SSL/TLS and use single-node discovery
     esConfig:
@@ -108,6 +109,15 @@ resource "rancher2_app_v2" "elasticsearch" {
         # Performance settings
         bootstrap.memory_lock: false
         indices.query.bool.max_clause_count: 10000
+    
+    # CRITICAL: Override environment variables that conflict with single-node
+    extraEnvs:
+      - name: discovery.type
+        value: single-node
+      - name: cluster.initial_master_nodes
+        value: ""
+      - name: discovery.seed_hosts
+        value: ""
     
     # Resource allocation
     resources:
