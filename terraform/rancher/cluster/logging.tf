@@ -84,9 +84,8 @@ resource "rancher2_app_v2" "elasticsearch" {
         discovery.type: single-node
         http.port: 9200
         http.host: 0.0.0.0
-        # Disable security features
+        # Disable security features (7.17.x compatible settings)
         xpack.security.enabled: false
-        xpack.security.enrollment.enabled: false
         xpack.security.http.ssl.enabled: false
         xpack.security.transport.ssl.enabled: false
         # Enable CORS
