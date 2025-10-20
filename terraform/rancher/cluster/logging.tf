@@ -359,6 +359,23 @@ data:
           matchers:
           - logs_path:
               logs_path: "/var/log/containers/"
+      # Filter to include only cypress, karate, cikarate, cicypress, snapshot, and sprint namespace logs
+      - drop_event:
+          when:
+            not:
+              or:
+                - contains:
+                    kubernetes.namespace: "cypress"
+                - contains:
+                    kubernetes.namespace: "karate"
+                - contains:
+                    kubernetes.namespace: "cikarate"
+                - contains:
+                    kubernetes.namespace: "cicypress"
+                - contains:
+                    kubernetes.namespace: "snapshot"
+                - contains:
+                    kubernetes.namespace: "sprint"
       - drop_fields:
           fields: ["host", "agent", "ecs", "input"]
       - decode_json_fields:
