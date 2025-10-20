@@ -237,7 +237,6 @@ resource "rancher2_app_v2" "kibana" {
         
         # Trust ALB proxy
         server.ssl.enabled: false
-        server.rewriteBasePath: false
         
         # Elasticsearch connection
         elasticsearch.hosts: ["http://elasticsearch-master:9200"]
@@ -264,7 +263,6 @@ resource "rancher2_app_v2" "kibana" {
         
         # Handle ALB Cognito authentication properly
         server.defaultRoute: "/app/discover"
-        server.auth.providers: []
         
         # Request headers for ALB Cognito authentication
         elasticsearch.requestHeadersWhitelist: ["authorization", "x-amzn-oidc-accesstoken", "x-amzn-oidc-identity", "x-amzn-oidc-data"]
