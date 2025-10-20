@@ -238,15 +238,18 @@ data:
       hosts: ["opensearch-cluster-master.logging.svc.cluster.local:9200"]
       protocol: "http"
       index: "logs-%%{+yyyy.MM.dd}"
-      template.enabled: true
-      template.pattern: "logs-*"
-      template.settings:
-        index:
-          number_of_shards: 1
-          number_of_replicas: 0
-          lifecycle:
-            name: "logs-policy"
-            rollover_alias: "logs"
+      
+    # Setup template configuration
+    setup.template.enabled: true
+    setup.template.name: "logs"
+    setup.template.pattern: "logs-*"
+    setup.template.settings:
+      index:
+        number_of_shards: 1
+        number_of_replicas: 0
+        lifecycle:
+          name: "logs-policy"
+          rollover_alias: "logs"
       
     # Logging configuration
     logging.level: info
