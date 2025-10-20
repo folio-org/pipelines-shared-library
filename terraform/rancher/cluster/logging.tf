@@ -207,8 +207,16 @@ resource "rancher2_app_v2" "kibana" {
         # Request headers for ALB authentication
         elasticsearch.requestHeadersWhitelist: ["authorization", "x-amzn-oidc-accesstoken", "x-amzn-oidc-identity", "x-amzn-oidc-data"]
         
-        # Logging configuration
-        logging.level: info
+        # Correct logging configuration for Kibana 7.17.x
+        logging:
+          appenders:
+            default:
+              type: console
+              layout:
+                type: pattern
+                pattern: "[%date] [%level] [%logger] %message"
+          root:
+            level: info
     
     # Resource allocation
     resources:
