@@ -273,6 +273,9 @@ data:
       reload_connections false
       request_timeout 120s
       logstash_prefix logstash
+      verify_es_version_at_startup false
+      default_elasticsearch_version 7
+      suppress_doc_type_deprecation_warning true
       <buffer>
         @type file
         retry_forever false
