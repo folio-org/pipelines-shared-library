@@ -232,8 +232,7 @@ resource "rancher2_app_v2" "kibana" {
         server.maxPayloadBytes: 1048576
         
         # Prevent redirect loops with ALB authentication
-        server.xsrf.disableProtection: false
-        server.xsrf.allowlist: ["https://${module.eks_cluster.cluster_name}-kibana.${var.root_domain}"]
+        server.xsrf.disableProtection: true
         
         # Elasticsearch connection
         elasticsearch.hosts: ["http://elasticsearch-master:9200"]
