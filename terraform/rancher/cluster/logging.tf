@@ -255,12 +255,43 @@ data:
       @type stdout
     </match>
 
-    # Simple stdout output for testing - bypass OpenSearch compatibility issues
+    # Output to OpenSearch using elasticsearch plugin with forced compatibility
     <match **>
-      @type stdout
-      <format>
-        @type json
-      </format>
+      @type elasticsearch
+      host opensearch-cluster-master.logging.svc.cluster.local
+      port 9200
+      scheme http
+      index_name logs-%Y.%m.%d
+      type_name _doc
+      include_timestamp true
+      logstash_format false
+      suppress_type_name true
+      default_elasticsearch_version 7
+      <template>
+        name logs
+        pattern logs-*
+        settings {
+          "number_of_shards": 1,
+          "number_of_replicas": 0,
+          "index.lifecycle.name": "logs-policy",
+          "index.lifecycle.rollover_alias": "logs"
+        }
+      </template>
+      <buffer time>
+        @type memory
+        timekey 86400
+        timekey_wait 10
+        chunk_limit_size 8m
+        chunk_limit_records 1000
+        flush_mode interval
+        flush_interval 30s
+        flush_thread_count 1
+        retry_type exponential_backoff
+        retry_max_interval 30
+        retry_forever false
+        retry_max_times 5
+        overflow_action drop_oldest_chunk
+      </buffer>
     </match>
   YAML
 }
