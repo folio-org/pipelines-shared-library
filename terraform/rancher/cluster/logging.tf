@@ -230,7 +230,7 @@ data:
       @type tail
       @id in_tail_container_logs
       path /var/log/containers/*.log
-      pos_file /var/log/fluentd-containers.log.pos
+      pos_file /opt/bitnami/fluentd/logs/buffers/fluentd-containers.log.pos
       tag kubernetes.*
       read_from_head true
       <parse>
@@ -288,73 +288,6 @@ data:
         chunk_limit_size 80M
       </buffer>
     </match>
-  
-  # OpenSearch index template with lifecycle policy
-  
-  
-  # Kubernetes log parsing configuration
-  kubernetes.conf: |
-    <source>
-      @type tail
-      @id in_tail_container_logs
-      path /var/log/containers/*.log
-      pos_file /var/log/fluentd-containers.log.pos
-      tag raw.kubernetes.*
-      read_from_head true
-      <parse>
-        @type multi_format
-        <pattern>
-          format json
-          time_key time
-          time_format %Y-%m-%dT%H:%M:%S.%NZ
-        </pattern>
-        <pattern>
-          format /^(?<time>.+) (?<stream>stdout|stderr) [^ ]* (?<log>.*)$/
-          time_format %Y-%m-%dT%H:%M:%S.%N%:z
-        </pattern>
-      </parse>
-    </source>
-
-    <match raw.kubernetes.**>
-      @id raw.kubernetes
-      @type detect_exceptions
-      remove_tag_prefix raw
-      message log
-      stream stream
-      multiline_flush_interval 5
-      max_bytes 500000
-      max_lines 1000
-    </match>
-  
-  # System logs configuration
-  systemd.conf: |
-    <source>
-      @type systemd
-      @id in_systemd_kubelet
-      matches [{ "_SYSTEMD_UNIT": "kubelet.service" }]
-      <storage>
-        @type local
-        persistent true
-        path /var/log/fluentd-journald-kubelet-cursor.json
-      </storage>
-      <entry>
-        fields_strip_underscores true
-      </entry>
-    </source>
-
-    <source>
-      @type systemd
-      @id in_systemd_docker
-      matches [{ "_SYSTEMD_UNIT": "docker.service" }]
-      <storage>
-        @type local
-        persistent true
-        path /var/log/fluentd-journald-docker-cursor.json
-      </storage>
-      <entry>
-        fields_strip_underscores true
-      </entry>
-    </source>
   YAML
 }
 
@@ -466,6 +399,10 @@ spec:
           value: disable
         - name: FLUENTD_CONF
           value: /fluentd/etc/fluent.conf
+        - name: K8S_NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
         command: ["/opt/bitnami/scripts/fluentd/entrypoint.sh"]
         args: ["fluentd", "-c", "/fluentd/etc/fluent.conf", "-p", "/opt/bitnami/fluentd/plugins"]
         resources:
