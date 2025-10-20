@@ -51,8 +51,8 @@ resource "aws_cognito_user_pool_domain" "kibana_cognito_domain" {
   user_pool_id = aws_cognito_user_pool.kibana_user_pool.id
 }
 
-# Create rancher2 OpenSearch app in logging namespace
-resource "rancher2_app_v2" "opensearch" {
+# Create rancher2 Elasticsearch app in logging namespace
+resource "rancher2_app_v2" "elasticsearch" {
   depends_on = [
     module.eks_cluster.eks_managed_node_groups,
     rancher2_catalog_v2.opensearch,
@@ -61,34 +61,42 @@ resource "rancher2_app_v2" "opensearch" {
   count         = var.register_in_rancher && var.enable_logging ? 1 : 0
   cluster_id    = rancher2_cluster_sync.this[0].cluster_id
   namespace     = rancher2_namespace.logging[0].name
-  name          = "opensearch"
+  name          = "elasticsearch"
   repo_name     = rancher2_catalog_v2.opensearch[0].name
-  chart_name    = "opensearch"
-  chart_version = "2.26.0" # Latest stable version
+  chart_name    = "elasticsearch"
+  chart_version = "7.17.3" # Compatible with Filebeat 7.17.15
   values        = <<-EOT
     image:
-      repository: "732722833398.dkr.ecr.us-west-2.amazonaws.com/opensearch"
-      tag: "2.18.0"
-    opensearchJavaOpts: "-Xmx2g -Xms2g"
+      repository: "docker.elastic.co/elasticsearch/elasticsearch"
+      tag: "7.17.15"
+    esJavaOpts: "-Xmx2g -Xms2g"
     
-    # Disable SSL/TLS for OpenSearch
-    config:
-      opensearch.yml: |
-        cluster.name: opensearch-cluster
+    # Single node configuration
+    clusterName: "elasticsearch"
+    nodeGroup: "master"
+    
+    # Disable SSL/TLS for Elasticsearch
+    esConfig:
+      elasticsearch.yml: |
+        cluster.name: elasticsearch
         network.host: 0.0.0.0
-        plugins.security.disabled: true
-        plugins.security.ssl.transport.enforce_hostname_verification: false
-        plugins.security.ssl.http.enabled: false
-        plugins.security.ssl.transport.enabled: false
         discovery.type: single-node
         http.port: 9200
         http.host: 0.0.0.0
-        # Ensure no authentication is required
+        # Disable security features
+        xpack.security.enabled: false
+        xpack.security.enrollment.enabled: false
+        xpack.security.http.ssl.enabled: false
+        xpack.security.transport.ssl.enabled: false
+        # Enable CORS
         http.cors.enabled: true
         http.cors.allow-origin: "*"
-        http.cors.allow-headers: "*"
+        http.cors.allow-headers: "X-Requested-With,X-Auth-Token,Content-Type,Content-Length,Authorization"
+        http.cors.allow-credentials: true
     
-    singleNode: true
+    # Single node setup
+    replicas: 1
+    minimumMasterNodes: 1
     
     resources:
       requests:
@@ -97,18 +105,24 @@ resource "rancher2_app_v2" "opensearch" {
       limits:
         memory: "3Gi"
         cpu: "1000m"
-    persistence:
-      size: 100Gi
+    
+    volumeClaimTemplate:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 100Gi
+    
     service:
       type: NodePort
+      
     ingress:
       enabled: true
-      ingressClassName: alb
+      className: alb
       hosts:
-        - "${module.eks_cluster.cluster_name}-opensearch.${var.root_domain}"
-      pathType: Prefix
-      serviceName: opensearch-cluster-master
-      servicePort: 9200
+        - host: "${module.eks_cluster.cluster_name}-elasticsearch.${var.root_domain}"
+          paths:
+            - path: /
+              pathType: Prefix
       annotations:
         kubernetes.io/ingress.class: alb
         alb.ingress.kubernetes.io/scheme: internet-facing
@@ -120,45 +134,39 @@ resource "rancher2_app_v2" "opensearch" {
   EOT
 }
 
-# Create rancher2 OpenSearch Dashboards app in logging namespace
-resource "rancher2_app_v2" "opensearch_dashboards" {
+# Create rancher2 Kibana app in logging namespace
+resource "rancher2_app_v2" "kibana" {
   depends_on = [
     module.eks_cluster.eks_managed_node_groups,
     rancher2_catalog_v2.opensearch,
-    rancher2_app_v2.opensearch
+    rancher2_app_v2.elasticsearch
   ]
   count         = var.register_in_rancher && var.enable_logging ? 1 : 0
   cluster_id    = rancher2_cluster_sync.this[0].cluster_id
   namespace     = rancher2_namespace.logging[0].name
-  name          = "opensearch-dashboards"
+  name          = "kibana"
   repo_name     = rancher2_catalog_v2.opensearch[0].name
-  chart_name    = "opensearch-dashboards"
-  chart_version = "2.24.0"
+  chart_name    = "kibana"
+  chart_version = "7.17.3"
   values        = <<-EOT
     image:
-      repository: "732722833398.dkr.ecr.us-west-2.amazonaws.com/opensearch-dashboards"
-      tag: "2.18.0"
-    opensearchHosts: "http://opensearch-cluster-master:9200"
+      repository: "docker.elastic.co/kibana/kibana"
+      tag: "7.17.15"
     
-    # Completely disable security plugin for OpenSearch Dashboards
-    plugins:
-      enabled: false
+    elasticsearchHosts: "http://elasticsearch-master:9200"
     
-    # Disable SSL/TLS for OpenSearch Dashboards and configure for ALB auth
-    config:
-      opensearch_dashboards.yml: |
+    # Disable SSL/TLS for Kibana and configure for ALB auth
+    kibanaConfig:
+      kibana.yml: |
         server.host: 0.0.0.0
-        opensearch.hosts: ["http://opensearch-cluster-master:9200"]
-        opensearch.ssl.verificationMode: none
-        opensearch.requestHeadersWhitelist: ["authorization", "securitytenant", "x-amzn-oidc-accesstoken", "x-amzn-oidc-identity", "x-amzn-oidc-data"]
+        elasticsearch.hosts: ["http://elasticsearch-master:9200"]
+        elasticsearch.ssl.verificationMode: none
         server.rewriteBasePath: false
-    
-    # Disable security plugin via environment variables
-    extraEnvs:
-      - name: DISABLE_SECURITY_DASHBOARDS_PLUGIN
-        value: "true"
-      - name: OPENSEARCH_SECURITY_DISABLED
-        value: "true"
+        # Disable security features
+        xpack.security.enabled: false
+        xpack.encryptedSavedObjects.encryptionKey: "something_at_least_32_characters_long"
+        # Request headers for ALB authentication
+        elasticsearch.requestHeadersWhitelist: ["authorization", "x-amzn-oidc-accesstoken", "x-amzn-oidc-identity", "x-amzn-oidc-data"]
     
     resources:
       requests:
@@ -167,26 +175,26 @@ resource "rancher2_app_v2" "opensearch_dashboards" {
       limits:
         memory: 1024Mi
         cpu: 500m
+        
     service:
       type: NodePort
+      port: 5601
+      
     ingress:
       enabled: true
-      ingressClassName: alb
+      className: alb
       hosts:
         - host: "${module.eks_cluster.cluster_name}-kibana.${var.root_domain}"
           paths:
             - path: /
               pathType: Prefix
-              backend:
-                serviceName: opensearch-dashboards
-                servicePort: 5601
       annotations:
         kubernetes.io/ingress.class: alb
         alb.ingress.kubernetes.io/scheme: internet-facing
         alb.ingress.kubernetes.io/group.name: ${module.eks_cluster.cluster_name}
         alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
         alb.ingress.kubernetes.io/success-codes: 200-399
-        alb.ingress.kubernetes.io/healthcheck-path: /
+        alb.ingress.kubernetes.io/healthcheck-path: /app/kibana
         alb.ingress.kubernetes.io/load-balancer-attributes: idle_timeout.timeout_seconds=4000
         alb.ingress.kubernetes.io/auth-idp-cognito: '{"UserPoolArn":"${aws_cognito_user_pool.kibana_user_pool.arn}","UserPoolClientId":"${aws_cognito_user_pool_client.kibana_userpool_client.id}", "UserPoolDomain":"${module.eks_cluster.cluster_name}-kibana"}'
         alb.ingress.kubernetes.io/auth-on-unauthenticated-request: authenticate
@@ -233,30 +241,27 @@ data:
       host: 0.0.0.0
       port: 5066
     
-    # Output to OpenSearch using elasticsearch output (compatible with 7.17.x)
+    # Output to Elasticsearch
     output.elasticsearch:
-      hosts: ["opensearch-cluster-master.logging.svc.cluster.local:9200"]
+      hosts: ["elasticsearch-master.logging.svc.cluster.local:9200"]
       protocol: "http"
       index: "logs-%%{+yyyy.MM.dd}"
-      # OpenSearch compatibility settings
-      allow_older_versions: true
-      # Disable all feature checks that cause license issues
-      api_key_checks.enabled: false
-      check_exists: false
-      # Skip template loading to avoid compatibility issues
-      template.enabled: false
-      # Disable pipeline setup
-      pipeline: ""
       # Connection settings
       timeout: 90
       max_retries: 3
       backoff.init: 1s
       backoff.max: 60s
       
-    # Disable all setup features to avoid OpenSearch compatibility issues
-    setup.template.enabled: false
-    setup.ilm.enabled: false
-    setup.dashboards.enabled: false
+    # Enable ILM for log retention management
+    setup.ilm.enabled: true
+    setup.ilm.rollover_alias: "logs"
+    setup.ilm.pattern: "logs-*"
+    setup.ilm.policy: "logs-policy"
+    
+    # Template settings
+    setup.template.enabled: true
+    setup.template.name: "logs"
+    setup.template.pattern: "logs-*"
       
     # Logging configuration
     logging.level: info
@@ -283,7 +288,7 @@ data:
 resource "kubectl_manifest" "filebeat_serviceaccount" {
   depends_on = [
     module.eks_cluster.eks_managed_node_groups,
-    rancher2_app_v2.opensearch
+    rancher2_app_v2.elasticsearch
   ]
   count              = var.register_in_rancher && var.enable_logging ? 1 : 0
   provider           = kubectl
@@ -357,7 +362,7 @@ subjects:
 resource "kubectl_manifest" "filebeat_daemonset" {
   depends_on = [
     module.eks_cluster.eks_managed_node_groups,
-    rancher2_app_v2.opensearch,
+    rancher2_app_v2.elasticsearch,
     kubectl_manifest.filebeat_config,
     kubectl_manifest.filebeat_serviceaccount,
     kubectl_manifest.filebeat_clusterrolebinding
@@ -397,16 +402,9 @@ spec:
             fieldRef:
               fieldPath: spec.nodeName
         - name: ELASTICSEARCH_HOST
-          value: "opensearch-cluster-master.logging.svc.cluster.local"
+          value: "elasticsearch-master.logging.svc.cluster.local"
         - name: ELASTICSEARCH_PORT
           value: "9200"
-        # OpenSearch compatibility environment variables
-        - name: ELASTICSEARCH_FEATURES_WATCHER_ENABLED
-          value: "false"
-        - name: ELASTICSEARCH_FEATURES_SECURITY_ENABLED
-          value: "false"
-        - name: ELASTICSEARCH_FEATURES_MONITORING_ENABLED
-          value: "false"
         securityContext:
           runAsUser: 0
           capabilities:
@@ -467,11 +465,11 @@ spec:
   YAML
 }
 
-# Create OpenSearch Index State Management (ISM) policy for log retention
-resource "kubectl_manifest" "opensearch_ism_policy" {
+# Create Elasticsearch ILM policy for log retention
+resource "kubectl_manifest" "elasticsearch_ilm_policy" {
   depends_on = [
     module.eks_cluster.eks_managed_node_groups,
-    rancher2_app_v2.opensearch
+    rancher2_app_v2.elasticsearch
   ]
   count     = var.register_in_rancher && var.enable_logging ? 1 : 0
   provider  = kubectl
@@ -479,77 +477,47 @@ resource "kubectl_manifest" "opensearch_ism_policy" {
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: opensearch-ism-policy
+  name: elasticsearch-ilm-policy
   namespace: logging
 data:
   policy.json: |
     {
       "policy": {
-        "policy_id": "logs-policy",
-        "description": "Log retention policy for 2-3 days",
-        "last_updated_time": 1609459200000,
-        "schema_version": 1,
-        "error_notification": null,
-        "default_state": "hot",
-        "states": [
-          {
-            "name": "hot",
-            "actions": [
-              {
-                "rollover": {
-                  "min_size": "50gb",
-                  "min_doc_count": 2000000,
-                  "min_index_age": "1d"
-                }
+        "phases": {
+          "hot": {
+            "actions": {
+              "rollover": {
+                "max_size": "50gb",
+                "max_docs": 2000000,
+                "max_age": "1d"
               }
-            ],
-            "transitions": [
-              {
-                "state_name": "warm",
-                "conditions": {
-                  "min_index_age": "1d"
-                }
-              }
-            ]
+            }
           },
-          {
-            "name": "warm",
-            "actions": [
-              {
-                "replica_count": {
-                  "number_of_replicas": 0
-                }
+          "warm": {
+            "min_age": "1d",
+            "actions": {
+              "allocate": {
+                "number_of_replicas": 0
               }
-            ],
-            "transitions": [
-              {
-                "state_name": "delete",
-                "conditions": {
-                  "min_index_age": "3d"
-                }
-              }
-            ]
+            }
           },
-          {
-            "name": "delete",
-            "actions": [
-              {
-                "delete": {}
-              }
-            ],
-            "transitions": []
+          "delete": {
+            "min_age": "3d",
+            "actions": {
+              "delete": {}
+            }
           }
-        ]
+        }
       }
     }
 YAML
 }
 
-# Job to apply ISM policy to OpenSearch
-resource "kubectl_manifest" "opensearch_ism_policy_job" {
+# Job to apply ILM policy to Elasticsearch
+resource "kubectl_manifest" "elasticsearch_ilm_policy_job" {
   depends_on = [
-    kubectl_manifest.opensearch_ism_policy,
-    rancher2_app_v2.opensearch
+    kubectl_manifest.elasticsearch_ilm_policy,
+    rancher2_app_v2.elasticsearch
   ]
   count     = var.register_in_rancher && var.enable_logging ? 1 : 0
   provider  = kubectl
@@ -557,7 +525,7 @@ resource "kubectl_manifest" "opensearch_ism_policy_job" {
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: opensearch-ism-policy-setup
+  name: elasticsearch-ilm-policy-setup
   namespace: logging
 spec:
   template:
@@ -570,29 +538,37 @@ spec:
         args:
         - -c
         - |
-          # Wait for OpenSearch to be ready
-          until curl -f http://opensearch-cluster-master:9200/_cluster/health; do
-            echo "Waiting for OpenSearch..."
+          # Wait for Elasticsearch to be ready
+          until curl -f http://elasticsearch-master:9200/_cluster/health; do
+            echo "Waiting for Elasticsearch..."
             sleep 10
           done
           
-          # Apply ISM policy
-          curl -X PUT "http://opensearch-cluster-master:9200/_plugins/_ism/policies/logs-policy" \
+          # Apply ILM policy
+          curl -X PUT "http://elasticsearch-master:9200/_ilm/policy/logs-policy" \
             -H 'Content-Type: application/json' \
             -d @/policy/policy.json
           
-          # Apply policy to existing indices
-          curl -X POST "http://opensearch-cluster-master:9200/_plugins/_ism/add/logs-*" \
+          # Create index template to use the ILM policy
+          curl -X PUT "http://elasticsearch-master:9200/_index_template/logs-template" \
             -H 'Content-Type: application/json' \
-            -d '{"policy_id": "logs-policy"}'
+            -d '{
+              "index_patterns": ["logs-*"],
+              "template": {
+                "settings": {
+                  "index.lifecycle.name": "logs-policy",
+                  "index.lifecycle.rollover_alias": "logs"
+                }
+              }
+            }'
             
-          echo "ISM policy applied successfully"
+          echo "ILM policy applied successfully"
         volumeMounts:
         - name: policy
           mountPath: /policy
       volumes:
       - name: policy
         configMap:
-          name: opensearch-ism-policy
+          name: elasticsearch-ilm-policy
 YAML
 }
