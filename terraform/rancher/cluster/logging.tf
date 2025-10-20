@@ -226,7 +226,11 @@ resource "rancher2_app_v2" "kibana" {
         server.port: 5601
         server.name: "kibana"
         server.rewriteBasePath: false
-        server.defaultRoute: "/app/home"
+        server.defaultRoute: "/app/discover"
+        
+        # ALB and proxy configuration
+        server.publicBaseUrl: "https://${module.eks_cluster.cluster_name}-kibana.${var.root_domain}"
+        server.maxPayloadBytes: 1048576
         
         # Elasticsearch connection
         elasticsearch.hosts: ["http://elasticsearch-master:9200"]
