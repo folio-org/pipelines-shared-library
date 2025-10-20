@@ -227,7 +227,6 @@ resource "rancher2_app_v2" "kibana" {
         server.name: "kibana"
         server.rewriteBasePath: false
         server.defaultRoute: "/app/home"
-        server.basePath: ""
         
         # Elasticsearch connection
         elasticsearch.hosts: ["http://elasticsearch-master:9200"]
