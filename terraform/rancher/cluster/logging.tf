@@ -214,81 +214,64 @@ data:
     <label @FLUENT_LOG>
       <match fluent.**>
         @type null
-        @id ignore_fluent_logs
       </match>
     </label>
 
-    # HTTP input for the liveness and readiness probes
+    # HTTP input for health checks
     <source>
       @type http
       bind 0.0.0.0
       port 9880
     </source>
 
-    # Kubernetes container logs input
+    # Lightweight container logs input
     <source>
       @type tail
-      @id in_tail_container_logs
       path /var/log/containers/*.log
-      pos_file /opt/bitnami/fluentd/logs/buffers/fluentd-containers.log.pos
+      pos_file /opt/bitnami/fluentd/logs/buffers/containers.pos
       tag kubernetes.*
-      read_from_head true
+      read_from_head false
+      refresh_interval 30
       <parse>
-        @type multi_format
-        <pattern>
-          format json
-          time_key time
-          time_format %Y-%m-%dT%H:%M:%S.%NZ
-        </pattern>
-        <pattern>
-          format /^(?<time>.+) (?<stream>stdout|stderr) [^ ]* (?<log>.*)$/
-          time_format %Y-%m-%dT%H:%M:%S.%N%:z
-        </pattern>
+        @type regexp
+        expression /^(?<time>[^\s]+) (?<stream>stdout|stderr) [^\s]* (?<log>.*)$/
+        time_format %Y-%m-%dT%H:%M:%S.%N%:z
       </parse>
     </source>
 
-    # Parse Kubernetes metadata
+    # Minimal Kubernetes metadata - only essential fields
     <filter kubernetes.**>
       @type kubernetes_metadata
-      @id filter_kube_metadata
+      cache_size 1000
+      cache_ttl 60
+      skip_labels false
+      skip_container_metadata false
+      skip_master_url false
+      skip_namespace_metadata true
     </filter>
 
-    # Throw the healthcheck to the standard output instead of forwarding it
+    # Health check output
     <match fluentd.healthcheck>
       @type stdout
     </match>
 
-    # Send the logs to OpenSearch with enhanced configuration
+    # Lightweight OpenSearch output
     <match **>
       @type elasticsearch
-      include_tag_key true
       host "#{ENV['OPENSEARCH_HOST']}"
       port "#{ENV['OPENSEARCH_PORT']}"
       scheme http
       logstash_format true
-      logstash_dateformat %Y.%m.%d
-      suppress_type_name true
-      reconnect_on_error true
-      reload_on_failure true
-      reload_connections false
-      request_timeout 120s
       logstash_prefix logstash
       verify_es_version_at_startup false
       default_elasticsearch_version 7
-      suppress_doc_type_deprecation_warning true
       <buffer>
-        @type file
-        retry_forever false
-        retry_max_times 3
-        retry_wait 10
-        retry_max_interval 300
-        path /opt/bitnami/fluentd/logs/buffers/logs.buffer
-        flush_thread_count 2
-        flush_interval 10s
-        chunk_limit_size 32M
-        total_limit_size 512M
-        flush_at_shutdown true
-        compress gzip
+        @type memory
+        flush_interval 5s
+        chunk_limit_size 8M
+        flush_thread_count 1
+        retry_max_times 2
+        retry_wait 5
       </buffer>
     </match>
   YAML
@@ -406,15 +389,21 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: spec.nodeName
+        - name: RUBY_GC_HEAP_GROWTH_FACTOR
+          value: "1.1"
+        - name: RUBY_GC_MALLOC_LIMIT
+          value: "16000000"
+        - name: RUBY_GC_OLDMALLOC_LIMIT
+          value: "16000000"
         command: ["/opt/bitnami/scripts/fluentd/entrypoint.sh"]
-        args: ["fluentd", "-c", "/fluentd/etc/fluent.conf", "-p", "/opt/bitnami/fluentd/plugins"]
+        args: ["fluentd", "-c", "/fluentd/etc/fluent.conf", "-p", "/opt/bitnami/fluentd/plugins", "--log-rotate-size", "10485760"]
         resources:
           limits:
-            memory: 1Gi
-            cpu: 500m
+            memory: 768Mi
+            cpu: 300m
           requests:
-            cpu: 100m
-            memory: 512Mi
+            cpu: 50m
+            memory: 256Mi
         volumeMounts:
         - name: varlog
           mountPath: /var/log
@@ -430,14 +419,18 @@ spec:
           httpGet:
             path: /fluentd.healthcheck?json=%7B%22log%22%3A+%22health+check%22%7D
             port: 9880
-          initialDelaySeconds: 5
+          initialDelaySeconds: 30
+          periodSeconds: 30
           timeoutSeconds: 10
+          failureThreshold: 3
         readinessProbe:
           httpGet:
             path: /fluentd.healthcheck?json=%7B%22log%22%3A+%22health+check%22%7D
             port: 9880
-          initialDelaySeconds: 5
-          timeoutSeconds: 10
+          initialDelaySeconds: 15
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
       terminationGracePeriodSeconds: 30
       volumes:
       - name: varlog
