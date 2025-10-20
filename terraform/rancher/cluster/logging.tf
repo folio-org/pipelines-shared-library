@@ -255,24 +255,12 @@ data:
       @type stdout
     </match>
 
-    # Lightweight OpenSearch output
+    # Simple stdout output for testing - bypass OpenSearch compatibility issues
     <match **>
-      @type elasticsearch
-      host "#{ENV['OPENSEARCH_HOST']}"
-      port "#{ENV['OPENSEARCH_PORT']}"
-      scheme http
-      logstash_format true
-      logstash_prefix logstash
-      verify_es_version_at_startup false
-      default_elasticsearch_version 7
-      <buffer>
-        @type memory
-        flush_interval 5s
-        chunk_limit_size 8M
-        flush_thread_count 1
-        retry_max_times 2
-        retry_wait 5
-      </buffer>
+      @type stdout
+      <format>
+        @type json
+      </format>
     </match>
   YAML
 }
@@ -395,6 +383,10 @@ spec:
           value: "16000000"
         - name: RUBY_GC_OLDMALLOC_LIMIT
           value: "16000000"
+        - name: SUPPRESS_TYPE_NAME
+          value: "true"
+        - name: ES_VERSION
+          value: "7.10.0"
         command: ["/opt/bitnami/scripts/fluentd/entrypoint.sh"]
         args: ["fluentd", "-c", "/fluentd/etc/fluent.conf", "-p", "/opt/bitnami/fluentd/plugins", "--log-rotate-size", "10485760"]
         resources:
