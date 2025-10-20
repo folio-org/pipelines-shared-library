@@ -210,6 +210,8 @@ metadata:
   name: opensearch-output
 data:
   fluentd.conf: |
+    @include /fluentd/etc/systemd.conf
+    @include /fluentd/etc/kubernetes.conf
 
     # Ignore fluentd own events
     <label @FLUENT_LOG>
@@ -233,12 +235,35 @@ data:
       port 9880
     </source>
 
+    # Kubernetes container logs input
+    <source>
+      @type tail
+      @id in_tail_container_logs
+      path /var/log/containers/*.log
+      pos_file /var/log/fluentd-containers.log.pos
+      tag kubernetes.*
+      read_from_head true
+      <parse>
+        @type json
+        time_format %Y-%m-%dT%H:%M:%S.%NZ
+      </parse>
+    </source>
+
+    # Parse Kubernetes metadata
+    <filter kubernetes.**>
+      @type kubernetes_metadata
+      @id filter_kube_metadata
+      kubernetes_url "#{ENV['KUBERNETES_SERVICE_HOST']}:#{ENV['KUBERNETES_SERVICE_PORT_HTTPS']}"
+      verify_ssl "#{ENV['KUBERNETES_VERIFY_SSL'] || true}"
+      ca_file "#{ENV['KUBERNETES_CA_FILE']}"
+    </filter>
+
     # Throw the healthcheck to the standard output instead of forwarding it
     <match fluentd.healthcheck>
       @type stdout
     </match>
 
-    # Send the logs to OpenSearch
+    # Send the logs to OpenSearch with enhanced configuration
     <match **>
       @type opensearch
       include_tag_key true
@@ -246,24 +271,135 @@ data:
       port "#{ENV['OPENSEARCH_PORT']}"
       scheme http
       logstash_format true
+      logstash_dateformat %Y.%m.%d
       suppress_type_name true
       reconnect_on_error true
       reload_on_failure true
       reload_connections false
       request_timeout 120s
       logstash_prefix logstash-$${record["kubernetes"]["namespace_name"]}
-      <buffer>
-        @type file
+      index_name logstash-$${record["kubernetes"]["namespace_name"]}-%Y.%m.%d
+      template_name logstash-template
+      template_file /fluentd/etc/logstash-template.json
+      <buffer tag,time>
+        @type file_single
         retry_forever false
-        retry_max_times 3
+        retry_max_times 5
         retry_wait 10
         retry_max_interval 300
         path /opt/bitnami/fluentd/logs/buffers/logs.buffer
-        flush_thread_count 4
-        flush_interval 15s
-        chunk_limit_size 80M
+        flush_thread_count 8
+        flush_interval 30s
+        chunk_limit_size 32M
+        total_limit_size 1GB
+        overflow_action drop_oldest_chunk
+        timekey 3600
+        timekey_wait 60
       </buffer>
     </match>
+  
+  # OpenSearch index template with lifecycle policy
+  logstash-template.json: |
+    {
+      "index_patterns": ["logstash-*"],
+      "template": {
+        "settings": {
+          "index": {
+            "number_of_shards": 1,
+            "number_of_replicas": 0,
+            "refresh_interval": "30s"
+          },
+          "plugins.index_state_management.policy_id": "logstash-policy"
+        },
+        "mappings": {
+          "properties": {
+            "@timestamp": {
+              "type": "date"
+            },
+            "kubernetes": {
+              "properties": {
+                "namespace_name": {
+                  "type": "keyword"
+                },
+                "pod_name": {
+                  "type": "keyword"
+                },
+                "container_name": {
+                  "type": "keyword"
+                }
+              }
+            },
+            "log": {
+              "type": "text"
+            }
+          }
+        }
+      }
+    }
+  
+  # Kubernetes log parsing configuration
+  kubernetes.conf: |
+    <source>
+      @type tail
+      @id in_tail_container_logs
+      path /var/log/containers/*.log
+      pos_file /var/log/fluentd-containers.log.pos
+      tag raw.kubernetes.*
+      read_from_head true
+      <parse>
+        @type multi_format
+        <pattern>
+          format json
+          time_key time
+          time_format %Y-%m-%dT%H:%M:%S.%NZ
+        </pattern>
+        <pattern>
+          format /^(?<time>.+) (?<stream>stdout|stderr) [^ ]* (?<log>.*)$/
+          time_format %Y-%m-%dT%H:%M:%S.%N%:z
+        </pattern>
+      </parse>
+    </source>
+
+    <match raw.kubernetes.**>
+      @id raw.kubernetes
+      @type detect_exceptions
+      remove_tag_prefix raw
+      message log
+      stream stream
+      multiline_flush_interval 5
+      max_bytes 500000
+      max_lines 1000
+    </match>
+  
+  # System logs configuration
+  systemd.conf: |
+    <source>
+      @type systemd
+      @id in_systemd_kubelet
+      matches [{ "_SYSTEMD_UNIT": "kubelet.service" }]
+      <storage>
+        @type local
+        persistent true
+        path /var/log/fluentd-journald-kubelet-cursor.json
+      </storage>
+      <entry>
+        fields_strip_underscores true
+      </entry>
+    </source>
+
+    <source>
+      @type systemd
+      @id in_systemd_docker
+      matches [{ "_SYSTEMD_UNIT": "docker.service" }]
+      <storage>
+        @type local
+        persistent true
+        path /var/log/fluentd-journald-docker-cursor.json
+      </storage>
+      <entry>
+        fields_strip_underscores true
+      </entry>
+    </source>
   YAML
 }
 
@@ -369,9 +505,14 @@ spec:
           value: "opensearch-cluster-master"
         - name: OPENSEARCH_PORT
           value: "9200"
+        - name: FLUENTD_SYSTEMD_CONF
+          value: disable
+        - name: FLUENTD_PROMETHEUS_CONF
+          value: disable
         resources:
           limits:
             memory: 512Mi
+            cpu: 500m
           requests:
             cpu: 100m
             memory: 200Mi
@@ -384,6 +525,29 @@ spec:
         - name: config
           mountPath: /fluentd/etc/fluent.conf
           subPath: fluent.conf
+        - name: config
+          mountPath: /fluentd/etc/kubernetes.conf
+          subPath: kubernetes.conf
+        - name: config
+          mountPath: /fluentd/etc/systemd.conf
+          subPath: systemd.conf
+        - name: config
+          mountPath: /fluentd/etc/logstash-template.json
+          subPath: logstash-template.json
+        - name: fluentd-buffer
+          mountPath: /opt/bitnami/fluentd/logs/buffers
+        livenessProbe:
+          httpGet:
+            path: /fluentd.healthcheck?json=%7B%22log%22%3A+%22health+check%22%7D
+            port: 9880
+          initialDelaySeconds: 5
+          timeoutSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /fluentd.healthcheck?json=%7B%22log%22%3A+%22health+check%22%7D
+            port: 9880
+          initialDelaySeconds: 5
+          timeoutSeconds: 10
       terminationGracePeriodSeconds: 30
       volumes:
       - name: varlog
@@ -395,5 +559,137 @@ spec:
       - name: config
         configMap:
           name: opensearch-output
+      - name: fluentd-buffer
+        emptyDir: {}
   YAML
+}
+
+# Create OpenSearch Index State Management (ISM) policy for log retention
+resource "kubectl_manifest" "opensearch_ism_policy" {
+  depends_on = [
+    module.eks_cluster.eks_managed_node_groups,
+    rancher2_app_v2.opensearch
+  ]
+  count     = var.register_in_rancher && var.enable_logging ? 1 : 0
+  provider  = kubectl
+  yaml_body = <<YAML
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opensearch-ism-policy
+  namespace: logging
+data:
+  policy.json: |
+    {
+      "policy": {
+        "policy_id": "logstash-policy",
+        "description": "Log retention policy for 2-3 days",
+        "last_updated_time": 1609459200000,
+        "schema_version": 1,
+        "error_notification": null,
+        "default_state": "hot",
+        "states": [
+          {
+            "name": "hot",
+            "actions": [
+              {
+                "rollover": {
+                  "min_size": "50gb",
+                  "min_doc_count": 2000000,
+                  "min_index_age": "1d"
+                }
+              }
+            ],
+            "transitions": [
+              {
+                "state_name": "warm",
+                "conditions": {
+                  "min_index_age": "1d"
+                }
+              }
+            ]
+          },
+          {
+            "name": "warm",
+            "actions": [
+              {
+                "replica_count": {
+                  "number_of_replicas": 0
+                }
+              }
+            ],
+            "transitions": [
+              {
+                "state_name": "delete",
+                "conditions": {
+                  "min_index_age": "3d"
+                }
+              }
+            ]
+          },
+          {
+            "name": "delete",
+            "actions": [
+              {
+                "delete": {}
+              }
+            ],
+            "transitions": []
+          }
+        ]
+      }
+    }
+YAML
+}
+
+# Job to apply ISM policy to OpenSearch
+resource "kubectl_manifest" "opensearch_ism_policy_job" {
+  depends_on = [
+    kubectl_manifest.opensearch_ism_policy,
+    rancher2_app_v2.opensearch
+  ]
+  count     = var.register_in_rancher && var.enable_logging ? 1 : 0
+  provider  = kubectl
+  yaml_body = <<YAML
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: opensearch-ism-policy-setup
+  namespace: logging
+spec:
+  template:
+    spec:
+      restartPolicy: OnFailure
+      containers:
+      - name: curl
+        image: curlimages/curl:latest
+        command: ["/bin/sh"]
+        args:
+        - -c
+        - |
+          # Wait for OpenSearch to be ready
+          until curl -f http://opensearch-cluster-master:9200/_cluster/health; do
+            echo "Waiting for OpenSearch..."
+            sleep 10
+          done
+          
+          # Apply ISM policy
+          curl -X PUT "http://opensearch-cluster-master:9200/_plugins/_ism/policies/logstash-policy" \
+            -H 'Content-Type: application/json' \
+            -d @/policy/policy.json
+          
+          # Apply policy to existing indices
+          curl -X POST "http://opensearch-cluster-master:9200/_plugins/_ism/add/logstash-*" \
+            -H 'Content-Type: application/json' \
+            -d '{"policy_id": "logstash-policy"}'
+            
+          echo "ISM policy applied successfully"
+        volumeMounts:
+        - name: policy
+          mountPath: /policy
+      volumes:
+      - name: policy
+        configMap:
+          name: opensearch-ism-policy
+YAML
 }
