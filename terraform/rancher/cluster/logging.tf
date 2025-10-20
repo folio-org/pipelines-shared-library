@@ -226,11 +226,14 @@ resource "rancher2_app_v2" "kibana" {
         server.port: 5601
         server.name: "kibana"
         server.rewriteBasePath: false
-        server.defaultRoute: "/"
         
         # ALB and proxy configuration  
         server.publicBaseUrl: "https://${module.eks_cluster.cluster_name}-kibana.${var.root_domain}"
         server.maxPayloadBytes: 1048576
+        
+        # Prevent redirect loops with ALB authentication
+        server.xsrf.disableProtection: false
+        server.xsrf.allowlist: ["https://${module.eks_cluster.cluster_name}-kibana.${var.root_domain}"]
         
         # Elasticsearch connection
         elasticsearch.hosts: ["http://elasticsearch-master:9200"]
@@ -256,9 +259,6 @@ resource "rancher2_app_v2" "kibana" {
         # ALB-specific settings for proper routing after authentication
         server.compression.enabled: true
         server.cors.enabled: false
-        server.customResponseHeaders:
-          "X-Frame-Options": "SAMEORIGIN"
-          "Content-Security-Policy": "script-src 'self' 'unsafe-eval' 'unsafe-inline'; worker-src blob: 'self'; style-src 'unsafe-inline' 'self'"
         
         # Correct logging configuration for Kibana 7.17.x
         logging:
