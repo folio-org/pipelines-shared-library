@@ -261,6 +261,9 @@ resource "rancher2_app_v2" "kibana" {
         kibana.autocompleteTimeout: 1000
         kibana.autocompleteTerminateAfter: 100000
         
+        # Internationalization settings - fix i18n locale error
+        i18n.locale: "en"
+        
         # Handle ALB Cognito authentication properly
         server.defaultRoute: "/app/discover"
         
@@ -306,8 +309,8 @@ resource "rancher2_app_v2" "kibana" {
       hosts:
         - host: "${module.eks_cluster.cluster_name}-kibana.${var.root_domain}"
           paths:
-            - path: /
-              pathType: Prefix
+            - path: /*
+              pathType: ImplementationSpecific
       annotations:
         kubernetes.io/ingress.class: alb
         alb.ingress.kubernetes.io/scheme: internet-facing
