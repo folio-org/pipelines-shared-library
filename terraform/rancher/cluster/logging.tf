@@ -233,11 +233,13 @@ data:
       host: 0.0.0.0
       port: 5066
     
-    # Output to OpenSearch
+    # Output to OpenSearch using elasticsearch output (compatible with 7.17.x)
     output.elasticsearch:
       hosts: ["opensearch-cluster-master.logging.svc.cluster.local:9200"]
       protocol: "http"
       index: "logs-%%{+yyyy.MM.dd}"
+      # OpenSearch compatibility settings
+      allow_older_versions: true
       
     # Setup template configuration
     setup.template.enabled: true
@@ -247,9 +249,9 @@ data:
       index:
         number_of_shards: 1
         number_of_replicas: 0
-        lifecycle:
-          name: "logs-policy"
-          rollover_alias: "logs"
+    
+    # Disable ILM as we're using OpenSearch ISM
+    setup.ilm.enabled: false
       
     # Logging configuration
     logging.level: info
@@ -379,7 +381,7 @@ spec:
       dnsPolicy: ClusterFirstWithHostNet
       containers:
       - name: filebeat
-        image: docker.elastic.co/beats/filebeat:8.11.0
+        image: docker.elastic.co/beats/filebeat:7.17.15
         args: [
           "-c", "/etc/filebeat.yml",
           "-e"
