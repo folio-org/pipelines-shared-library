@@ -226,6 +226,8 @@ resource "rancher2_app_v2" "kibana" {
         server.port: 5601
         server.name: "kibana"
         server.rewriteBasePath: false
+        server.defaultRoute: "/app/home"
+        server.basePath: ""
         
         # Elasticsearch connection
         elasticsearch.hosts: ["http://elasticsearch-master:9200"]
@@ -240,6 +242,10 @@ resource "rancher2_app_v2" "kibana" {
         xpack.monitoring.enabled: false
         xpack.ml.enabled: false
         xpack.watcher.enabled: false
+        
+        # Disable spaces to prevent /spaces/enter redirect
+        xpack.spaces.enabled: false
+        xpack.spaces.maxSpaces: 1
         
         # Request headers for ALB authentication
         elasticsearch.requestHeadersWhitelist: ["authorization", "x-amzn-oidc-accesstoken", "x-amzn-oidc-identity", "x-amzn-oidc-data"]
@@ -269,8 +275,8 @@ resource "rancher2_app_v2" "kibana" {
       type: NodePort
       port: 5601
       
-    # Health checks - use chart defaults with custom settings
-    healthCheckPath: "/app/kibana"
+    # Health checks - use API status endpoint
+    healthCheckPath: "/api/status"
       
     # Ingress for external access with Cognito auth
     ingress:
@@ -287,7 +293,7 @@ resource "rancher2_app_v2" "kibana" {
         alb.ingress.kubernetes.io/group.name: ${module.eks_cluster.cluster_name}
         alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
         alb.ingress.kubernetes.io/success-codes: 200-399
-        alb.ingress.kubernetes.io/healthcheck-path: /app/kibana
+        alb.ingress.kubernetes.io/healthcheck-path: /api/status
         alb.ingress.kubernetes.io/load-balancer-attributes: idle_timeout.timeout_seconds=4000
         alb.ingress.kubernetes.io/auth-idp-cognito: '{"UserPoolArn":"${aws_cognito_user_pool.kibana_user_pool.arn}","UserPoolClientId":"${aws_cognito_user_pool_client.kibana_userpool_client.id}", "UserPoolDomain":"${module.eks_cluster.cluster_name}-kibana"}'
         alb.ingress.kubernetes.io/auth-on-unauthenticated-request: authenticate
