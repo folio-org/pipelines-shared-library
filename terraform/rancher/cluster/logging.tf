@@ -133,7 +133,7 @@ resource "rancher2_app_v2" "elasticsearch" {
       accessModes: [ "ReadWriteOnce" ]
       resources:
         requests:
-          storage: 100Gi
+          storage: 400Gi
     
     # Service configuration
     service:
