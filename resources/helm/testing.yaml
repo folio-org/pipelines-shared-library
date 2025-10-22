@@ -4659,6 +4659,8 @@ mgr-tenants:
       value: 'true'
     - name: SECURITY_ENABLED
       value: 'true'
+    - name: MTE_URL
+      value: "http://mgr-tenant-entitlements"  
   extraJavaOpts:
     - "-Dlogging.level.root=DEBUG -Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties"
     - -XX:MaxRAMPercentage=75.0
