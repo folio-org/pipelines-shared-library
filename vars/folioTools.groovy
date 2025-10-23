@@ -34,17 +34,15 @@ void stsKafkaLag(String cluster, String namespace, String tenantId) {
     Logger logger = new Logger(this, 'CapabilitiesChecker')
     String kafka_host = kubectl.getSecretValue(namespace, 'kafka-credentials', 'KAFKA_HOST')
     String kafka_port = kubectl.getSecretValue(namespace, 'kafka-credentials', 'KAFKA_PORT')
-    String lag = "kafka-consumer-groups.sh --bootstrap-server ${kafka_host}:${kafka_port} --describe --group ${cluster}-${namespace}-mod-roles-keycloak-capability-group | awk '\$6 ~ /^[0-9]+\$/ {print \$6}' "
+    String lag = "kafka-consumer-groups.sh --bootstrap-server ${kafka_host}:${kafka_port} --describe --group ${cluster}-${namespace}-mod-roles-keycloak-capability-group | awk '\$6 ~ /^[0-9]+\$/ {sum += \$6} END {print sum}'"
     def status = sh(script: "kubectl get pod kafka-sh --ignore-not-found=true --namespace ${namespace}", returnStdout: true).trim()
     if (status == '') {
       kubectl.runPodWithCommand("${namespace}", 'kafka-sh', Constants.ECR_FOLIO_REPOSITORY + '/kafka:3.5.0', 'sleep 60m')
       kubectl.waitPodIsRunning("${namespace}", 'kafka-sh')
     }
+    
     def check = kubectl.execCommand("${namespace}", 'kafka-sh', "${lag}")
-    if (check.contains("0\n0")) {
-      check = check.tokenize()[0]
-    }
-    // Check if the result is a valid number (0 or any other digits)
+  
     if (check ==~ /^\d+$/) {
       while (check.toInteger() != 0) {
         logger.debug("Waiting for capabilities to be propagated on tenant: ${tenantId}")
