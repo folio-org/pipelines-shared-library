@@ -34,39 +34,26 @@ void stsKafkaLag(String cluster, String namespace, String tenantId) {
     Logger logger = new Logger(this, 'CapabilitiesChecker')
     String kafka_host = kubectl.getSecretValue(namespace, 'kafka-credentials', 'KAFKA_HOST')
     String kafka_port = kubectl.getSecretValue(namespace, 'kafka-credentials', 'KAFKA_PORT')
-    String lag = "kafka-consumer-groups.sh --bootstrap-server ${kafka_host}:${kafka_port} --describe --group ${cluster}-${namespace}-mod-roles-keycloak-capability-group | grep ${tenantId} | awk '" + '''{print $6}''' + "'"
-    String lag2 = "kafka-consumer-groups.sh --bootstrap-server ${kafka_host}:${kafka_port} --describe --group ${cluster}-${namespace}.ALL.mgr-tenant-entitlements.capability | grep ${tenantId} | awk '" + '''{print $6}''' + "'"
+    String lag = "kafka-consumer-groups.sh --bootstrap-server ${kafka_host}:${kafka_port} --describe --group ${cluster}-${namespace}-mod-roles-keycloak-capability-group | awk '\$6 ~ /^[0-9]+\$/ {sum += \$6} END {print sum}'"
     def status = sh(script: "kubectl get pod kafka-sh --ignore-not-found=true --namespace ${namespace}", returnStdout: true).trim()
     if (status == '') {
       kubectl.runPodWithCommand("${namespace}", 'kafka-sh', Constants.ECR_FOLIO_REPOSITORY + '/kafka:3.5.0', 'sleep 60m')
       kubectl.waitPodIsRunning("${namespace}", 'kafka-sh')
     }
+
     def check = kubectl.execCommand("${namespace}", 'kafka-sh', "${lag}")
-    def check2 = kubectl.execCommand("${namespace}", 'kafka-sh', "${lag2}")
-    
-    if (check.contains("0\n0")) {
-      check = check.tokenize()[0]
-    }
-    if (check2.contains("0\n0")) {
-      check2 = check2.tokenize()[0]
-    }
-    
-    if (check.isInteger() || check2.isInteger()){
-      while ((check.isInteger() && check.toInteger() != 0) || (check2.isInteger() && check2.toInteger() != 0)) {
-        logger.debug("Waiting for capabilities to be propagated on tenant: ${tenantId} (mod-roles-keycloak lag: ${check}, mgr-tenant-entitlements lag: ${check2})")
+  
+    if (check ==~ /^\d+$/) {
+      while (check.toInteger() != 0) {
+        logger.debug("Waiting for capabilities to be propagated on tenant: ${tenantId}\nCurrent lag: ${check}")
         sleep time: 30, unit: 'SECONDS'
         check = kubectl.execCommand("${namespace}", 'kafka-sh', "${lag}")
-        check2 = kubectl.execCommand("${namespace}", 'kafka-sh', "${lag2}")
-        
         if (check.contains("0\n0")) {
           check = check.tokenize()[0]
         }
-        if (check2.contains("0\n0")) {
-          check2 = check2.tokenize()[0]
-        }
       }
     } else {
-      logger.debug("Kafka lag values are wrong - mod-roles-keycloak: ${check}, mgr-tenant-entitlements: ${check2}")
+      logger.debug("Kafka lag value is not a valid number: ${check}")
       kubectl.deletePod("${namespace}", 'kafka-sh', false)
       stsKafkaLag(cluster, namespace, tenantId)
     }
