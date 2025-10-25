@@ -24,7 +24,7 @@ private static def cypressStash(String key = null) {
  * Executes the Cypress test flow.
  *
  * This function validates the input parameters, sets up the Report Portal client if required,
- * and orchestrates the Cypress tests execution workflow. It performs the following steps:
+ * and orchestrates the Cypress tests execution workflow using the new parallel runner. It performs the following steps:
  *
  *   1. Validates required parameters.
  *   2. Initializes a Report Portal client (if reporting is enabled) and configures execution parameters.
@@ -33,7 +33,7 @@ private static def cypressStash(String key = null) {
  *   5. Archives the tests and stashes the archive for parallel execution.
  *   6. Configures parallel workers to:
  *       - Unstash and extract the archived tests.
- *       - Execute the tests with specified timeout settings.
+ *       - Execute the tests using the new parallel runner (node runTests.js) with specified timeout settings.
  *       - Archive the test results.
  *   7. Merges results from all workers.
  *   8. Finalizes Report Portal reporting (if enabled), unpacks the Allure report,
@@ -97,23 +97,20 @@ CypressRunExecutionSummary call(String ciBuildId, List<CypressTestsParameters> t
           }
 
           stage('[Stash] Archive tests') {
-            // Archive tests for parallel
             sh """
             touch ${cypressStash('archive')}
             tar --exclude=${cypressStash('archive')} -zcf ${cypressStash('archive')} .
             md5sum ${cypressStash('archive')} > ${cypressStash('checksum')}
           """.stripIndent()
-            // Stash tests for parallel
             stash(name: cypressStash('name'),
               includes: "${cypressStash('archive')},${cypressStash('checksum')}")
           }
-          // Set up parallel workers for executing tests
+          
           def workers = [failFast: false]
           String runId = folioCypress.generateRandomId(3)
           testParams.ciBuildId = "${ciBuildId}-${runId}"
-          // Use a local list to collect Allure results per test to avoid concurrent modification issues
           List localAllureResults = []
-          // Run tests in parallel with the specified number of workers and timeout for each worker
+          
           testParams.numberOfWorkers.times { int workerIndex ->
             String workerId = "${runId}${workerIndex}"
             workers["Worker#${workerId}"] = {
@@ -129,27 +126,23 @@ CypressRunExecutionSummary call(String ciBuildId, List<CypressTestsParameters> t
                   }
 
                   timeout(time: testParams.timeout, unit: 'MINUTES') {
-                    // Set up common environment variables
                     folioCypress.setupCommonEnvironmentVariables(testParams.tenantUrl,
                       testParams.okapiUrl,
                       testParams.tenant.tenantId,
                       testParams.tenant.adminUser.username,
                       testParams.tenant.adminUser.getPasswordPlainText())
-                    // Execute tests with Cypress runner
                     folioCypress.executeTests(testParams.ciBuildId,
                       testParams.browserName,
                       testParams.execParameters,
                       testParams.testrailProjectID,
                       testParams.testrailRunID)
                   }
-                  // Archive test results for each worker and add to local list for merging later
                   localAllureResults.add(folioCypress.archiveTestResults(workerId))
                 }
               }
             }
           }
 
-          // Run all workers in parallel and merge their results
           parallel(workers)
           allureResultsList.addAll(localAllureResults)
         }
