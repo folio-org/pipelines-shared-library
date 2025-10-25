@@ -320,6 +320,14 @@ class Constants {
       , dependsOn: ["app-platform-minimal", "app-platform-complete", "app-fqm"]
     ],
     [
+      name: "app-data-export"
+      , branch: "snapshot"
+      , consortia: false
+      , core: false
+      , byDefault: true
+      , dependsOn: ["app-platform-minimal", "app-platform-complete"]
+    ],
+    [
       name: "app-eholdings"
       , branch: "snapshot"
       , consortia: false
