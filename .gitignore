@@ -15,6 +15,7 @@
 # Ignore user-specific AI/development tool artifacts
 .cursor/
 .claude/
+.codex/
 .mcp.json
 .cursor*
 claude*
