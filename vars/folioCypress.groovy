@@ -117,17 +117,14 @@ void compileCypressTests() {
       yarn config set @folio:registry ${Constants.FOLIO_NPM_REPO_URL}
       yarn install --network-timeout 300000
       yarn add -D cypress-testrail-simple@${readPackageJsonDependencyVersion('./package.json', 'cypress-testrail-simple')}
-      yarn global add cypress-cloud@${readPackageJsonDependencyVersion('./package.json', 'cypress-cloud')}
     """.stripIndent()
-    // Uncomment to add Report Portal agent for Cypress
-    // sh "yarn add @reportportal/agent-js-cypress@latest"
   }
 }
 
 /**
- * Executes the Cypress tests.
+ * Executes the Cypress tests using the parallel runner.
  *
- * This function runs the Cypress tests using the specified parameters.
+ * This function runs the Cypress tests using the new parallel runner (node runTests.js) with specified parameters.
  *
  * @param ciBuildId The name of the custom build. Must not be null or empty.
  * @param browserName The name of the browser to run tests on. Must not be null or empty.
@@ -154,7 +151,7 @@ void executeTests(String ciBuildId, String browserName, String execParameters,
 /**
  * Creates the command string for executing Cypress tests.
  *
- * This function generates the command string for running Cypress tests.
+ * This function generates the command string for running Cypress tests using the parallel runner.
  *
  * @param browserName The name of the browser to run tests on. Must not be null or empty.
  * @param ciBuildId The name of the custom build. Must not be null or empty.
@@ -166,7 +163,6 @@ String createExecString(String ciBuildId, String browserName, String execParamet
   validateParameter(browserName, "Browser name")
   validateParameter(execParameters, "Execution parameters")
 
-  // Generate a random screen ID for Xvfb
   String screenId = (new Random().nextInt(90) + 10).toString()
   return """export HOME=\$(pwd)
     export CYPRESS_CACHE_FOLDER=\$(pwd)/cache
@@ -174,7 +170,7 @@ String createExecString(String ciBuildId, String browserName, String execParamet
 
     mkdir -p /tmp/.X11-unix
     Xvfb \$DISPLAY -screen 0 1920x1080x24 &
-    npx cypress-cloud run --parallel --record --browser ${browserName} --ci-build-id ${ciBuildId} ${execParameters}
+    node runTests.js --browser ${browserName} --ci-build-id ${ciBuildId} ${execParameters}
     pkill Xvfb
   """.stripIndent()
 }
