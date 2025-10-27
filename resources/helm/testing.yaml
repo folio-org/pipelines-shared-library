@@ -2114,7 +2114,10 @@ mod-fqm-manager:
           memory: 128Mi
 mod-gobi:
   extraEnvVars: []
-  integrations: {}
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
   replicaCount: 1
   resources:
     limits:
