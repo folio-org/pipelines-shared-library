@@ -4667,12 +4667,6 @@ mod-settings:
     db:
       enabled: true
       existingSecret: db-credentials
-  configMaps:
-    log4j:
-      enabled: true
-      fileName: log4j2.properties
-      mountPath: /etc/log4j
-      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
