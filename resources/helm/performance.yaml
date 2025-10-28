@@ -27,6 +27,7 @@ edge-caiasoft:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -60,6 +61,7 @@ edge-connexion:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -111,6 +113,7 @@ edge-courses:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -154,6 +157,7 @@ edge-dcb:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -197,6 +201,7 @@ edge-dematic:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -235,6 +240,7 @@ edge-erm:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -278,6 +284,7 @@ edge-fqm:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -319,6 +326,7 @@ edge-inn-reach:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -367,6 +375,7 @@ edge-inventory:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -408,6 +417,7 @@ edge-users:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -444,6 +454,7 @@ edge-ncip:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -487,6 +498,7 @@ edge-oai-pmh:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -566,6 +578,7 @@ edge-orders:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -609,6 +622,7 @@ edge-patron:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -652,6 +666,7 @@ edge-rtac:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -682,6 +697,7 @@ edge-sip2:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -703,6 +719,7 @@ mod-aes:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -744,6 +761,7 @@ mod-agreements:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -793,6 +811,7 @@ mod-audit:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -845,6 +864,7 @@ mod-authtoken:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -879,6 +899,7 @@ mod-batch-print:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -939,6 +960,7 @@ mod-bulk-operations:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -985,6 +1007,7 @@ mod-calendar:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -1039,6 +1062,7 @@ mod-camunda:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -1079,6 +1103,7 @@ mod-circulation:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -1128,6 +1153,7 @@ mod-circulation-bff:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -1179,6 +1205,7 @@ mod-circulation-storage:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -1222,6 +1249,7 @@ mod-codex-ekb:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -1248,6 +1276,7 @@ mod-codex-inventory:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -1274,6 +1303,7 @@ mod-codex-mux:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -1303,6 +1333,7 @@ mod-configuration:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -1358,6 +1389,7 @@ mod-consortia:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -1394,6 +1426,7 @@ mod-copycat:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -1440,6 +1473,7 @@ mod-courses:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -1492,6 +1526,7 @@ mod-data-export:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -1542,6 +1577,7 @@ mod-data-export-spring:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -1589,6 +1625,7 @@ mod-data-export-worker:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -1644,6 +1681,7 @@ mod-data-import:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -1691,6 +1729,7 @@ mod-linked-data-import:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -1733,6 +1772,7 @@ mod-di-converter-storage:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -1776,6 +1816,7 @@ mod-ebsconet:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -1822,6 +1863,7 @@ mod-email:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -1888,6 +1930,7 @@ mod-entities-links:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -1934,6 +1977,7 @@ mod-erm-usage:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -1986,6 +2030,7 @@ mod-erm-usage-harvester:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -2032,6 +2077,7 @@ mod-eusage-reports:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -2078,6 +2124,7 @@ mod-event-config:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -2124,6 +2171,7 @@ mod-feesfines:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -2175,6 +2223,7 @@ mod-finc-config:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -2218,6 +2267,7 @@ mod-finance:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -2264,6 +2314,7 @@ mod-finance-storage:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -2314,6 +2365,7 @@ mod-fqm-manager:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -2360,6 +2412,7 @@ mod-gobi:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -2403,6 +2456,7 @@ mod-graphql:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -2460,6 +2514,7 @@ mod-inn-reach:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -2552,6 +2607,7 @@ mod-inventory:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -2606,6 +2662,7 @@ mod-inventory-storage:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -2649,6 +2706,7 @@ mod-inventory-update:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -2705,6 +2763,7 @@ mod-invoice:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -2754,6 +2813,7 @@ mod-invoice-storage:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -2800,6 +2860,7 @@ mod-kb-ebsco-java:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -2846,6 +2907,7 @@ mod-ldp:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -2879,6 +2941,7 @@ mod-reporting:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -2921,6 +2984,7 @@ mod-licenses:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -2975,6 +3039,7 @@ mod-linked-data:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -3027,6 +3092,7 @@ mod-lists:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -3073,6 +3139,7 @@ mod-login:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -3111,6 +3178,7 @@ mod-login-saml:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -3156,6 +3224,7 @@ mod-marc-migrations:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -3202,6 +3271,7 @@ mod-marccat:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -3231,6 +3301,7 @@ mod-mosaic:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -3259,6 +3330,7 @@ mod-ncip:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -3295,6 +3367,7 @@ mod-notes:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -3341,6 +3414,7 @@ mod-notify:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -3390,6 +3464,7 @@ mod-oa:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -3441,6 +3516,7 @@ mod-oai-pmh:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -3500,6 +3576,7 @@ mod-orders:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -3551,6 +3628,7 @@ mod-orders-storage:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -3608,6 +3686,7 @@ mod-dcb:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -3659,6 +3738,7 @@ mod-circulation-item:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -3702,6 +3782,7 @@ mod-organizations:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -3751,6 +3832,7 @@ mod-organizations-storage:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -3797,6 +3879,7 @@ mod-password-validator:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -3840,6 +3923,7 @@ mod-patron:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -3886,6 +3970,7 @@ mod-patron-blocks:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -3932,6 +4017,7 @@ mod-permissions:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -3987,6 +4073,7 @@ mod-pubsub:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -4040,6 +4127,7 @@ mod-quick-marc:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -4081,6 +4169,7 @@ mod-reading-room:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -4179,6 +4268,7 @@ mod-remote-storage:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -4234,6 +4324,7 @@ mod-requests-mediated:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -4277,6 +4368,7 @@ mod-rtac:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -4375,6 +4467,7 @@ mod-search:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -4418,6 +4511,7 @@ mod-sender:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -4469,6 +4563,7 @@ mod-serials-management:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -4520,6 +4615,7 @@ mod-service-interaction:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -4566,6 +4662,7 @@ mod-settings:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -4638,6 +4735,7 @@ mod-source-record-manager:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -4726,6 +4824,7 @@ mod-source-record-storage:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -4777,6 +4876,7 @@ mod-tags:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -4823,6 +4923,7 @@ mod-template-engine:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -4878,6 +4979,7 @@ mod-tlr:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -4921,6 +5023,7 @@ mod-user-import:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -4970,6 +5073,7 @@ mod-users:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -5013,6 +5117,7 @@ mod-users-bl:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -5069,6 +5174,7 @@ mod-workflow:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -5097,6 +5203,7 @@ mod-z3950:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -5141,6 +5248,7 @@ mgr-applications:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -5187,6 +5295,7 @@ mgr-tenants:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -5243,6 +5352,7 @@ mgr-tenant-entitlements:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -5284,6 +5394,7 @@ mod-consortia-keycloak:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -5323,6 +5434,7 @@ mod-login-keycloak:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -5365,6 +5477,7 @@ mod-roles-keycloak:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -5419,6 +5532,7 @@ mod-users-keycloak:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -5473,6 +5587,7 @@ mod-scheduler:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -5514,6 +5629,7 @@ mod-okapi-facade:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -5556,6 +5672,7 @@ okapi:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
@@ -5606,6 +5723,7 @@ ui-bundle:
     log4j:
       enabled: true
       fileName: log4j2.properties
+      mountPath: /etc/log4j
       existingConfig: log4j-config
   replicaCount: 1
   resources:
