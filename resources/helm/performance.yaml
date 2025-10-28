@@ -24,6 +24,11 @@ edge-caiasoft:
     ephemeral:
       fileName: edge-caiasoft-ephemeral-properties
       existingConfig: edge-caiasoft-ephemeral-properties
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -53,6 +58,11 @@ edge-connexion:
     ephemeral:
       fileName: edge-connexion-ephemeral-properties
       existingConfig: edge-connexion-ephemeral-properties
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -100,6 +110,11 @@ edge-courses:
     ephemeral:
       fileName: edge-courses-ephemeral-properties
       existingConfig: edge-courses-ephemeral-properties
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -139,6 +154,11 @@ edge-dcb:
     ephemeral:
       fileName: edge-dcb-ephemeral-properties
       existingConfig: edge-dcb-ephemeral-properties
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -178,6 +198,11 @@ edge-dematic:
     ephemeral:
       fileName: edge-dematic-ephemeral-properties
       existingConfig: edge-dematic-ephemeral-properties
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -212,6 +237,11 @@ edge-erm:
     ephemeral:
       fileName: edge-erm-ephemeral-properties
       existingConfig: edge-erm-ephemeral-properties
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -251,6 +281,11 @@ edge-fqm:
     ephemeral:
       fileName: edge-fqm-ephemeral-properties
       existingConfig: edge-fqm-ephemeral-properties
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -288,6 +323,11 @@ edge-inn-reach:
     ephemeral:
       fileName: edge-inn-reach-ephemeral-properties
       existingConfig: edge-inn-reach-ephemeral-properties
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -332,6 +372,11 @@ edge-inventory:
     ephemeral:
       fileName: edge-inventory-ephemeral-properties
       existingConfig: edge-inventory-ephemeral-properties
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -369,6 +414,11 @@ edge-users:
     ephemeral:
       fileName: edge-users-ephemeral-properties
       existingConfig: edge-users-ephemeral-properties
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -401,6 +451,11 @@ edge-ncip:
     ephemeral:
       fileName: edge-ncip-ephemeral-properties
       existingConfig: edge-ncip-ephemeral-properties
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -440,6 +495,11 @@ edge-oai-pmh:
     ephemeral:
       fileName: edge-oai-pmh-ephemeral-properties
       existingConfig: edge-oai-pmh-ephemeral-properties
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -515,6 +575,11 @@ edge-orders:
     ephemeral:
       fileName: edge-orders-ephemeral-properties
       existingConfig: edge-orders-ephemeral-properties
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -554,6 +619,11 @@ edge-patron:
     ephemeral:
       fileName: edge-patron-ephemeral-properties
       existingConfig: edge-patron-ephemeral-properties
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -593,6 +663,11 @@ edge-rtac:
     ephemeral:
       fileName: edge-rtac-ephemeral-properties
       existingConfig: edge-rtac-ephemeral-properties
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -619,6 +694,11 @@ edge-sip2:
     ephemeral:
       fileName: edge-sip2-ephemeral-properties
       existingConfig: edge-sip2-ephemeral-properties
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -635,6 +715,12 @@ edge-sip2:
 mod-aes:
   extraEnvVars: []
   integrations: {}
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -671,6 +757,12 @@ mod-agreements:
     s3:
       enabled: true
       existingSecret: s3-mod-agreements-credentials
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -715,6 +807,12 @@ mod-audit:
     kafka:
       enabled: true
       existingSecret: kafka-credentials
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -762,6 +860,12 @@ mod-authtoken:
     db:
       enabled: true
       existingSecret: db-credentials
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -791,6 +895,12 @@ mod-batch-print:
     db:
       enabled: true
       existingSecret: db-credentials
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -846,6 +956,12 @@ mod-bulk-operations:
     systemuser:
       enabled: true
       existingSecret: mod-bulk-operations-systemuser
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -887,6 +1003,12 @@ mod-calendar:
     db:
       enabled: true
       existingSecret: db-credentials
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -936,6 +1058,12 @@ mod-camunda:
     kafka:
       enabled: true
       existingSecret: kafka-credentials
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -971,6 +1099,12 @@ mod-circulation:
     okapi:
       enabled: true
       existingSecret: okapi-credentials
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -1015,6 +1149,12 @@ mod-circulation-bff:
     systemuser:
       enabled: true
       existingSecret: mod-circulation-bff-systemuser
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -1061,6 +1201,12 @@ mod-circulation-storage:
     kafka:
       enabled: true
       existingSecret: kafka-credentials
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -1099,6 +1245,12 @@ mod-circulation-storage:
 mod-codex-ekb:
   extraEnvVars: []
   integrations: {}
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -1120,6 +1272,12 @@ mod-codex-ekb:
 mod-codex-inventory:
   extraEnvVars: []
   integrations: {}
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -1141,6 +1299,12 @@ mod-codex-inventory:
 mod-codex-mux:
   extraEnvVars: []
   integrations: {}
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -1165,6 +1329,12 @@ mod-configuration:
     db:
       enabled: true
       existingSecret: db-credentials
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -1215,6 +1385,12 @@ mod-consortia:
     systemuser:
       enabled: true
       existingSecret: mod-consortia-systemuser
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -1246,6 +1422,12 @@ mod-copycat:
     db:
       enabled: true
       existingSecret: db-credentials
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -1287,6 +1469,12 @@ mod-courses:
     db:
       enabled: true
       existingSecret: db-credentials
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -1334,6 +1522,12 @@ mod-data-export:
     okapi:
       enabled: true
       existingSecret: okapi-credentials
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -1379,6 +1573,12 @@ mod-data-export-spring:
     systemuser:
       enabled: true
       existingSecret: mod-data-export-spring-systemuser
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -1421,6 +1621,12 @@ mod-data-export-worker:
     s3:
       enabled: true
       existingSecret: s3-mod-data-export-worker-credentials
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -1471,6 +1677,12 @@ mod-data-import:
     okapi:
       enabled: true
       existingSecret: okapi-credentials
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -1513,6 +1725,12 @@ mod-linked-data-import:
     s3:
       enabled: true
       existingSecret: s3-mod-linked-data-import-credentials
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -1550,6 +1768,12 @@ mod-di-converter-storage:
     db:
       enabled: true
       existingSecret: db-credentials
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -1588,6 +1812,12 @@ mod-di-converter-storage:
 mod-ebsconet:
   extraEnvVars: []
   integrations: {}
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -1629,6 +1859,12 @@ mod-email:
     db:
       enabled: true
       existingSecret: db-credentials
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -1690,6 +1926,12 @@ mod-entities-links:
     s3:
       enabled: true
       existingSecret: s3-mod-marc-migrations-credentials
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -1731,6 +1973,12 @@ mod-erm-usage:
     db:
       enabled: true
       existingSecret: db-credentials
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -1778,6 +2026,12 @@ mod-erm-usage-harvester:
     systemuser:
       enabled: true
       existingSecret: mod-erm-usage-harvester-systemuser
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -1819,6 +2073,12 @@ mod-eusage-reports:
     db:
       enabled: true
       existingSecret: db-credentials
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -1860,6 +2120,12 @@ mod-event-config:
     db:
       enabled: true
       existingSecret: db-credentials
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -1901,6 +2167,12 @@ mod-feesfines:
     db:
       enabled: true
       existingSecret: db-credentials
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -1947,6 +2219,12 @@ mod-finc-config:
     db:
       enabled: true
       existingSecret: db-credentials
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -1985,6 +2263,12 @@ mod-finc-config:
 mod-finance:
   extraEnvVars: []
   integrations: {}
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -2026,6 +2310,12 @@ mod-finance-storage:
     db:
       enabled: true
       existingSecret: db-credentials
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -2071,6 +2361,12 @@ mod-fqm-manager:
     db:
       enabled: true
       existingSecret: db-credentials
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -2112,6 +2408,12 @@ mod-gobi:
     db:
       enabled: true
       existingSecret: db-credentials
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -2150,6 +2452,12 @@ mod-gobi:
 mod-graphql:
   extraEnvVars: []
   integrations: {}
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -2202,6 +2510,12 @@ mod-inn-reach:
     systemuser:
       enabled: true
       existingSecret: mod-inn-reach-systemuser
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -2289,6 +2603,12 @@ mod-inventory:
     systemuser:
       enabled: true
       existingSecret: mod-inventory-systemuser
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -2338,6 +2658,12 @@ mod-inventory-storage:
     kafka:
       enabled: true
       existingSecret: kafka-credentials
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -2376,6 +2702,12 @@ mod-inventory-storage:
 mod-inventory-update:
   extraEnvVars: []
   integrations: {}
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -2427,6 +2759,12 @@ mod-invoice:
     systemuser:
       enabled: true
       existingSecret: mod-invoice-systemuser
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -2471,6 +2809,12 @@ mod-invoice-storage:
     kafka:
       enabled: true
       existingSecret: kafka-credentials
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -2512,6 +2856,12 @@ mod-kb-ebsco-java:
     db:
       enabled: true
       existingSecret: db-credentials
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -2553,6 +2903,12 @@ mod-ldp:
     db:
       enabled: true
       existingSecret: db-credentials
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -2581,6 +2937,12 @@ mod-ldp:
 mod-reporting:
   extraEnvVars: []
   integrations: {}
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -2618,6 +2980,12 @@ mod-licenses:
     s3:
       enabled: true
       existingSecret: s3-mod-licenses-credentials
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -2667,6 +3035,12 @@ mod-linked-data:
     systemuser:
       enabled: true
       existingSecret: mod-linked-data-systemuser
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -2714,6 +3088,12 @@ mod-lists:
     systemuser:
       enabled: true
       existingSecret: mod-lists-systemuser
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -2755,6 +3135,12 @@ mod-login:
     db:
       enabled: true
       existingSecret: db-credentials
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -2788,6 +3174,12 @@ mod-login-saml:
     db:
       enabled: true
       existingSecret: db-credentials
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -2828,6 +3220,12 @@ mod-marc-migrations:
     systemuser:
       enabled: true
       existingSecret: mod-marc-migrations-systemuser
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -2869,6 +3267,12 @@ mod-marccat:
     db:
       enabled: true
       existingSecret: db-credentials
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -2893,6 +3297,12 @@ mod-mosaic:
     db:
       enabled: true
       existingSecret: db-credentials
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -2916,6 +3326,12 @@ mod-mosaic:
 mod-ncip:
   extraEnvVars: []
   integrations: {}
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -2947,6 +3363,12 @@ mod-notes:
     db:
       enabled: true
       existingSecret: db-credentials
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -2988,6 +3410,12 @@ mod-notify:
     db:
       enabled: true
       existingSecret: db-credentials
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -3032,6 +3460,12 @@ mod-oa:
     db:
       enabled: true
       existingSecret: db-credentials
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -3078,6 +3512,12 @@ mod-oai-pmh:
     s3:
       enabled: true
       existingSecret: s3-mod-oai-pmh-credentials
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -3132,6 +3572,12 @@ mod-orders:
     systemuser:
       enabled: true
       existingSecret: mod-orders-systemuser
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -3178,6 +3624,12 @@ mod-orders-storage:
     kafka:
       enabled: true
       existingSecret: kafka-credentials
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -3230,6 +3682,12 @@ mod-dcb:
     systemuser:
       enabled: true
       existingSecret: mod-dcb-systemuser
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -3276,6 +3734,12 @@ mod-circulation-item:
     db:
       enabled: true
       existingSecret: db-credentials
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -3314,6 +3778,12 @@ mod-circulation-item:
 mod-organizations:
   extraEnvVars: []
   integrations: {}
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -3358,6 +3828,12 @@ mod-organizations-storage:
     kafka:
       enabled: true
       existingSecret: kafka-credentials
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -3399,6 +3875,12 @@ mod-password-validator:
     db:
       enabled: true
       existingSecret: db-credentials
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -3437,6 +3919,12 @@ mod-password-validator:
 mod-patron:
   extraEnvVars: []
   integrations: {}
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -3478,6 +3966,12 @@ mod-patron-blocks:
     db:
       enabled: true
       existingSecret: db-credentials
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -3519,6 +4013,12 @@ mod-permissions:
     db:
       enabled: true
       existingSecret: db-credentials
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -3569,6 +4069,12 @@ mod-pubsub:
     systemuser:
       enabled: true
       existingSecret: mod-pubsub-systemuser
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -3617,6 +4123,12 @@ mod-quick-marc:
     kafka:
       enabled: true
       existingSecret: kafka-credentials
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -3653,6 +4165,12 @@ mod-reading-room:
     db:
       enabled: true
       existingSecret: db-credentials
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -3746,6 +4264,12 @@ mod-remote-storage:
     systemuser:
       enabled: true
       existingSecret: mod-remote-storage-systemuser
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -3796,6 +4320,12 @@ mod-requests-mediated:
     kafka:
       enabled: true
       existingSecret: kafka-credentials
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -3834,6 +4364,12 @@ mod-requests-mediated:
 mod-rtac:
   extraEnvVars: []
   integrations: {}
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -3927,6 +4463,12 @@ mod-search:
     systemuser:
       enabled: true
       existingSecret: mod-search-systemuser
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -3965,6 +4507,12 @@ mod-search:
 mod-sender:
   extraEnvVars: []
   integrations: {}
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -4011,6 +4559,12 @@ mod-serials-management:
     db:
       enabled: true
       existingSecret: db-credentials
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -4057,6 +4611,12 @@ mod-service-interaction:
     okapi:
       enabled: true
       existingSecret: okapi-credentials
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -4165,6 +4725,12 @@ mod-source-record-manager:
     systemuser:
       enabled: true
       existingSecret: mod-source-record-manager-systemuser
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -4248,6 +4814,12 @@ mod-source-record-storage:
     systemuser:
       enabled: true
       existingSecret: mod-source-record-storage-systemuser
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -4294,6 +4866,12 @@ mod-tags:
     db:
       enabled: true
       existingSecret: db-credentials
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -4335,6 +4913,12 @@ mod-template-engine:
     db:
       enabled: true
       existingSecret: db-credentials
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -4385,6 +4969,12 @@ mod-tlr:
     systemuser:
       enabled: true
       existingSecret: mod-tlr-systemuser
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -4423,6 +5013,12 @@ mod-tlr:
 mod-user-import:
   extraEnvVars: []
   integrations: {}
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -4467,6 +5063,12 @@ mod-users:
     kafka:
       enabled: true
       existingSecret: kafka-credentials
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -4505,6 +5107,12 @@ mod-users:
 mod-users-bl:
   extraEnvVars: []
   integrations: {}
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -4556,6 +5164,12 @@ mod-workflow:
     kafka:
       enabled: true
       existingSecret: kafka-credentials
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -4579,6 +5193,12 @@ mod-workflow:
 mod-z3950:
   extraEnvVars: []
   integrations: {}
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -4618,6 +5238,12 @@ mgr-applications:
     kafka:
       enabled: true
       existingSecret: kafka-credentials
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -4659,6 +5285,12 @@ mgr-tenants:
     kafka:
       enabled: true
       existingSecret: kafka-credentials
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -4710,6 +5342,12 @@ mgr-tenant-entitlements:
     kafka:
       enabled: true
       existingSecret: kafka-credentials
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -4746,6 +5384,12 @@ mod-consortia-keycloak:
     systemuser:
       enabled: true
       existingSecret: mod-consortia-keycloak-systemuser
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -4780,6 +5424,12 @@ mod-login-keycloak:
     okapi:
       enabled: true
       existingSecret: okapi-credentials
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -4817,6 +5467,12 @@ mod-roles-keycloak:
     systemuser:
       enabled: true
       existingSecret: mod-roles-keycloak-systemuser
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -4866,6 +5522,12 @@ mod-users-keycloak:
     systemuser:
       enabled: true
       existingSecret: mod-users-keycloak-systemuser
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -4915,6 +5577,12 @@ mod-scheduler:
     okapi:
       enabled: true
       existingSecret: okapi-credentials
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -4951,6 +5619,12 @@ mod-okapi-facade:
     db:
       enabled: true
       existingSecret: db-credentials
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -4988,6 +5662,12 @@ okapi:
         servicePort: 9130
   service:
     type: NodePort
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
@@ -5033,6 +5713,12 @@ ui-bundle:
         servicePort: 80
   service:
     type: NodePort
+  configMaps:
+    log4j:
+      enabled: true
+      fileName: log4j2.properties
+      mountPath: /etc/log4j
+      existingConfig: log4j-config
   replicaCount: 1
   resources:
     limits:
