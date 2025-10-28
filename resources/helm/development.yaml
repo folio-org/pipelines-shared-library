@@ -25,6 +25,7 @@ edge-caiasoft:
       fileName: edge-caiasoft-ephemeral-properties
       existingConfig: edge-caiasoft-ephemeral-properties
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -52,6 +53,7 @@ edge-connexion:
       fileName: edge-connexion-ephemeral-properties
       existingConfig: edge-connexion-ephemeral-properties
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -97,6 +99,7 @@ edge-courses:
       fileName: edge-courses-ephemeral-properties
       existingConfig: edge-courses-ephemeral-properties
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -134,6 +137,7 @@ edge-dcb:
       fileName: edge-dcb-ephemeral-properties
       existingConfig: edge-dcb-ephemeral-properties
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -171,6 +175,7 @@ edge-dematic:
       fileName: edge-dematic-ephemeral-properties
       existingConfig: edge-dematic-ephemeral-properties
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -208,6 +213,7 @@ edge-erm:
       fileName: edge-erm-ephemeral-properties
       existingConfig: edge-erm-ephemeral-properties
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -250,6 +256,7 @@ edge-fqm:
       fileName: edge-fqm-ephemeral-properties
       existingConfig: edge-fqm-ephemeral-properties
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -285,6 +292,7 @@ edge-inn-reach:
       fileName: edge-inn-reach-ephemeral-properties
       existingConfig: edge-inn-reach-ephemeral-properties
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -327,6 +335,7 @@ edge-inventory:
       fileName: edge-inventory-ephemeral-properties
       existingConfig: edge-inventory-ephemeral-properties
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -367,6 +376,7 @@ edge-users:
       fileName: edge-users-ephemeral-properties
       existingConfig: edge-users-ephemeral-properties
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -402,6 +412,7 @@ edge-ncip:
       fileName: edge-ncip-ephemeral-properties
       existingConfig: edge-ncip-ephemeral-properties
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -439,6 +450,7 @@ edge-oai-pmh:
       fileName: edge-oai-pmh-ephemeral-properties
       existingConfig: edge-oai-pmh-ephemeral-properties
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -512,6 +524,7 @@ edge-orders:
       fileName: edge-orders-ephemeral-properties
       existingConfig: edge-orders-ephemeral-properties
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -549,6 +562,7 @@ edge-patron:
       fileName: edge-patron-ephemeral-properties
       existingConfig: edge-patron-ephemeral-properties
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -586,6 +600,7 @@ edge-rtac:
       fileName: edge-rtac-ephemeral-properties
       existingConfig: edge-rtac-ephemeral-properties
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -610,6 +625,7 @@ edge-sip2:
       fileName: edge-sip2-ephemeral-properties
       existingConfig: edge-sip2-ephemeral-properties
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -625,6 +641,7 @@ mod-aes:
   integrations: {}
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -663,6 +680,7 @@ mod-agreements:
       existingSecret: s3-mod-agreements-credentials
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -696,6 +714,7 @@ mod-audit:
       existingSecret: kafka-credentials
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -732,6 +751,7 @@ mod-authtoken:
       existingSecret: db-credentials
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -760,6 +780,7 @@ mod-batch-print:
       existingSecret: db-credentials
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -804,6 +825,7 @@ mod-bulk-operations:
       existingSecret: mod-bulk-operations-systemuser
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -834,6 +856,7 @@ mod-calendar:
       existingSecret: db-credentials
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -872,6 +895,7 @@ mod-camunda:
       existingSecret: kafka-credentials
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -911,6 +935,7 @@ mod-circulation:
       existingSecret: okapi-credentials
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -944,6 +969,7 @@ mod-circulation-bff:
       existingSecret: mod-circulation-bff-systemuser
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -979,6 +1005,7 @@ mod-circulation-storage:
       existingSecret: kafka-credentials
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -1006,6 +1033,7 @@ mod-codex-ekb:
   integrations: {}
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -1031,6 +1059,7 @@ mod-codex-inventory:
   integrations: {}
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -1056,6 +1085,7 @@ mod-codex-mux:
   integrations: {}
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -1084,6 +1114,7 @@ mod-configuration:
       existingSecret: db-credentials
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -1123,6 +1154,7 @@ mod-consortia:
       existingSecret: mod-consortia-systemuser
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -1153,6 +1185,7 @@ mod-copycat:
       existingSecret: db-credentials
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -1183,6 +1216,7 @@ mod-courses:
       existingSecret: db-credentials
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -1219,6 +1253,7 @@ mod-data-export:
       existingSecret: okapi-credentials
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -1258,6 +1293,7 @@ mod-data-export-spring:
       existingSecret: mod-data-export-spring-systemuser
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -1294,6 +1330,7 @@ mod-data-export-worker:
       existingSecret: s3-mod-data-export-worker-credentials
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -1333,6 +1370,7 @@ mod-data-import:
       existingSecret: okapi-credentials
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -1369,6 +1407,7 @@ mod-linked-data-import:
       existingSecret: s3-mod-linked-data-import-credentials
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -1400,6 +1439,7 @@ mod-di-converter-storage:
       existingSecret: db-credentials
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -1427,6 +1467,7 @@ mod-ebsconet:
   integrations: {}
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -1457,6 +1498,7 @@ mod-email:
       existingSecret: db-credentials
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -1507,6 +1549,7 @@ mod-entities-links:
       existingSecret: s3-mod-marc-migrations-credentials
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -1537,6 +1580,7 @@ mod-erm-usage:
       existingSecret: db-credentials
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -1573,6 +1617,7 @@ mod-erm-usage-harvester:
       existingSecret: mod-erm-usage-harvester-systemuser
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -1603,6 +1648,7 @@ mod-eusage-reports:
       existingSecret: db-credentials
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -1633,6 +1679,7 @@ mod-event-config:
       existingSecret: db-credentials
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -1663,6 +1710,7 @@ mod-feesfines:
       existingSecret: db-credentials
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -1698,6 +1746,7 @@ mod-finc-config:
       existingSecret: db-credentials
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -1725,6 +1774,7 @@ mod-finance:
   integrations: {}
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -1755,6 +1805,7 @@ mod-finance-storage:
       existingSecret: db-credentials
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -1789,6 +1840,7 @@ mod-fqm-manager:
       existingSecret: db-credentials
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -1819,6 +1871,7 @@ mod-gobi:
       existingSecret: db-credentials
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -1846,6 +1899,7 @@ mod-graphql:
   integrations: {}
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -1887,6 +1941,7 @@ mod-inn-reach:
       existingSecret: mod-inn-reach-systemuser
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -1923,6 +1978,7 @@ mod-inventory:
       existingSecret: mod-inventory-systemuser
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -1960,6 +2016,7 @@ mod-inventory-storage:
       existingSecret: kafka-credentials
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -1987,6 +2044,7 @@ mod-inventory-update:
   integrations: {}
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -2027,6 +2085,7 @@ mod-invoice:
       existingSecret: mod-invoice-systemuser
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -2060,6 +2119,7 @@ mod-invoice-storage:
       existingSecret: kafka-credentials
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -2090,6 +2150,7 @@ mod-kb-ebsco-java:
       existingSecret: db-credentials
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -2120,6 +2181,7 @@ mod-ldp:
       existingSecret: db-credentials
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -2147,6 +2209,7 @@ mod-reporting:
   integrations: {}
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -2183,6 +2246,7 @@ mod-licenses:
       existingSecret: s3-mod-licenses-credentials
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -2221,6 +2285,7 @@ mod-linked-data:
       existingSecret: mod-linked-data-systemuser
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -2268,6 +2333,7 @@ mod-lists:
       existingSecret: mod-lists-systemuser
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -2298,6 +2364,7 @@ mod-login:
       existingSecret: db-credentials
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -2330,6 +2397,7 @@ mod-login-saml:
       existingSecret: db-credentials
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -2369,6 +2437,7 @@ mod-marc-migrations:
       existingSecret: mod-marc-migrations-systemuser
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -2399,6 +2468,7 @@ mod-marccat:
       existingSecret: db-credentials
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -2427,6 +2497,7 @@ mod-mosaic:
       existingSecret: db-credentials
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -2454,6 +2525,7 @@ mod-ncip:
   integrations: {}
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -2484,6 +2556,7 @@ mod-notes:
       existingSecret: db-credentials
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -2514,6 +2587,7 @@ mod-notify:
       existingSecret: db-credentials
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -2547,6 +2621,7 @@ mod-oa:
       existingSecret: db-credentials
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -2582,6 +2657,7 @@ mod-oai-pmh:
       existingSecret: s3-mod-oai-pmh-credentials
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -2619,6 +2695,7 @@ mod-orders:
       existingSecret: mod-orders-systemuser
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -2654,6 +2731,7 @@ mod-orders-storage:
       existingSecret: kafka-credentials
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -2695,6 +2773,7 @@ mod-dcb:
       existingSecret: mod-dcb-systemuser
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -2730,6 +2809,7 @@ mod-circulation-item:
       existingSecret: db-credentials
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -2757,6 +2837,7 @@ mod-organizations:
   integrations: {}
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -2790,6 +2871,7 @@ mod-organizations-storage:
       existingSecret: kafka-credentials
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -2820,6 +2902,7 @@ mod-password-validator:
       existingSecret: db-credentials
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -2847,6 +2930,7 @@ mod-patron:
   integrations: {}
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -2877,6 +2961,7 @@ mod-patron-blocks:
       existingSecret: db-credentials
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -2907,6 +2992,7 @@ mod-permissions:
       existingSecret: db-credentials
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -2946,6 +3032,7 @@ mod-pubsub:
       existingSecret: mod-pubsub-systemuser
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -2983,6 +3070,7 @@ mod-quick-marc:
       existingSecret: kafka-credentials
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -3013,6 +3101,7 @@ mod-reading-room:
       existingSecret: db-credentials
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -3080,6 +3169,7 @@ mod-remote-storage:
       existingSecret: mod-remote-storage-systemuser
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -3119,6 +3209,7 @@ mod-requests-mediated:
       existingSecret: kafka-credentials
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -3146,6 +3237,7 @@ mod-rtac:
   integrations: {}
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -3228,6 +3320,7 @@ mod-search:
       existingSecret: mod-search-systemuser
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -3255,6 +3348,7 @@ mod-sender:
   integrations: {}
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -3290,6 +3384,7 @@ mod-serials-management:
       existingSecret: db-credentials
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -3325,6 +3420,7 @@ mod-service-interaction:
       existingSecret: okapi-credentials
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -3355,6 +3451,7 @@ mod-settings:
       existingSecret: db-credentials
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -3391,6 +3488,7 @@ mod-source-record-manager:
       existingSecret: mod-source-record-manager-systemuser
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -3427,6 +3525,7 @@ mod-source-record-storage:
       existingSecret: mod-source-record-storage-systemuser
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -3457,6 +3556,7 @@ mod-tags:
       existingSecret: db-credentials
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -3487,6 +3587,7 @@ mod-template-engine:
       existingSecret: db-credentials
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -3526,6 +3627,7 @@ mod-tlr:
       existingSecret: mod-tlr-systemuser
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -3553,6 +3655,7 @@ mod-user-import:
   integrations: {}
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -3586,6 +3689,7 @@ mod-users:
       existingSecret: kafka-credentials
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -3613,6 +3717,7 @@ mod-users-bl:
   integrations: {}
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -3653,6 +3758,7 @@ mod-workflow:
       existingSecret: kafka-credentials
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -3680,6 +3786,7 @@ mod-z3950:
   integrations: {}
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -3722,6 +3829,7 @@ mgr-applications:
       existingSecret: kafka-credentials
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -3766,6 +3874,7 @@ mgr-tenants:
       existingSecret: kafka-credentials
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -3820,6 +3929,7 @@ mgr-tenant-entitlements:
       existingSecret: kafka-credentials
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -3858,6 +3968,7 @@ mod-consortia-keycloak:
       existingSecret: mod-consortia-keycloak-systemuser
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -3886,6 +3997,7 @@ mod-login-keycloak:
       existingSecret: okapi-credentials
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -3917,6 +4029,7 @@ mod-roles-keycloak:
       existingSecret: mod-roles-keycloak-systemuser
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -3960,6 +4073,7 @@ mod-users-keycloak:
       existingSecret: mod-users-keycloak-systemuser
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -4003,6 +4117,7 @@ mod-scheduler:
       existingSecret: okapi-credentials
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -4033,6 +4148,7 @@ mod-okapi-facade:
       existingSecret: db-credentials
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -4060,6 +4176,7 @@ okapi:
     type: NodePort
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
@@ -4104,6 +4221,7 @@ ui-bundle:
     type: NodePort
   configMaps:
     log4j:
+      enabled: true
       fileName: log4j2.properties
       existingConfig: log4j-config
   replicaCount: 1
