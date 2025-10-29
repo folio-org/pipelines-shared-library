@@ -90,6 +90,8 @@ heapOpts: "-XX:MaxRAMPercentage=75.0"
 extraEnvVars:
   - name: KAFKA_DELETE_TOPIC_ENABLE
     value: "true"
+  - name: KAFKA_CFG_NODE_ID
+    value: "0"  
 ${local.schedule_value}
 EOF
   ]
