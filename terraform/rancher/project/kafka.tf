@@ -19,7 +19,7 @@ resource "helm_release" "kafka" {
   version    = "21.4.6"
   values = [<<-EOF
 image:
-  tag: 3.5
+  tag: 3.7
   registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
   repository: kafka
   pullPolicy: IfNotPresent
@@ -63,13 +63,16 @@ resources:
     memory: 2Gi
   limits:
     memory: '${var.kafka_max_mem_size}Mi'
+kraft:
+  enabled: true
+  processRoles: broker,controller  
 zookeeper:
   image:
     tag: 3.7
     registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
     repository: zookeeper
     pullPolicy: IfNotPresent
-  enabled: true
+  enabled: false
   persistence:
     size: 5Gi
   resources:
