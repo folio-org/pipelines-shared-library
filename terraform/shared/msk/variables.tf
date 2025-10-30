@@ -30,7 +30,7 @@ variable "vpc_name" {
 # Kafka variables
 variable "kafka_version" {
   type        = string
-  default     = "3.5.1"
+  default     = "3.7"
   description = "Kafka version"
 }
 
