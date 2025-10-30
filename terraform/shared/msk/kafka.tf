@@ -38,6 +38,7 @@ resource "aws_msk_cluster" "this" {
   cluster_name           = var.service_name
   kafka_version          = var.kafka_version
   number_of_broker_nodes = var.kafka_number_of_broker_nodes
+  storage_mode           = "TIERED"
 
   encryption_info {
     encryption_in_transit {
