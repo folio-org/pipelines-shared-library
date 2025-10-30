@@ -149,9 +149,13 @@ kong:
   - name: KONG_NGINX_PROXY_PROXY_NEXT_UPSTREAM
     value: "error timeout http_500 http_502 http_503 http_504"
   - name: KONG_SEND_TIMEOUT
-    value: "900000"
+    value: "600000"
   - name: KONG_RECEIVE_TIMEOUT
-    value: "900000"
+    value: "600000"
+  - name: KONG_UPSTREAM_ALGORITHM
+    value: "round-robin"
+  - name: KONG_NGINX_UPSTREAM_IP_HASH
+    value: "off"
   - name: "KONG_PROXY_SEND_TIMEOUT"
     value: "600000"
   - name: "KONG_UPSTREAM_CONNECT_TIMEOUT"
@@ -159,23 +163,23 @@ kong:
   - name: "KONG_PROXY_READ_TIMEOUT"
     value: "600000"
   - name: KONG_NGINX_PROXY_SEND_TIMEOUT
-    value: "900000"
+    value: "600000"
   - name: KONG_NGINX_PROXY_READ_TIMEOUT
-    value: "900000"
+    value: "600000"
   - name: KONG_NGINX_PROXY_CONNECT_TIMEOUT
     value: "60000"
   - name: "KONG_NGINX_HTTP_KEEPALIVE_TIMEOUT"
     value: "75s"
   - name: "KONG_NGINX_UPSTREAM_KEEPALIVE"
-    value: "1"
+    value: "10"
   - name: "KONG_UPSTREAM_KEEPALIVE_IDLE_TIMEOUT"
     value: "60"
   - name: "KONG_UPSTREAM_KEEPALIVE_POOL_SIZE"
-    value: "1"
+    value: "10"
   - name: "KONG_UPSTREAM_KEEPALIVE_MAX_REQUESTS"
-    value: "1"
+    value: "100"
   - name: "KONG_NGINX_HTTP_KEEPALIVE_REQUESTS"
-    value: "1"
+    value: "100"
   - name: KONG_PG_DATABASE
     value: "kong"
   - name: KONG_NGINX_PROXY_PROXY_BUFFERS
