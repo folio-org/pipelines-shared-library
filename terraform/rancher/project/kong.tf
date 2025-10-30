@@ -138,6 +138,10 @@ kong:
        secretKeyRef:
          name: kong-credentials
          key: KONG_PASSWORD
+  - name: KONG_UPSTREAM_ALGORITHM
+    value: "round-robin"
+  - name: KONG_NGINX_UPSTREAM_IP_HASH
+    value: "off"         
   - name: KONG_UPSTREAM_TIMEOUT
     value: "600000"
   - name: KONG_UPSTREAM_SEND_TIMEOUT
