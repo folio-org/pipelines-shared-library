@@ -22,54 +22,33 @@ properties([
     50 22 * * 5 %ACTION=stop;CLUSTER=folio-etesting;NAMESPACE=sprint
     50 23 * * 0 %ACTION=start;CLUSTER=folio-etesting;NAMESPACE=sprint
     0 0 * * 1-5 %ACTION=stop;CLUSTER=folio-testing;NAMESPACE=ecs-snapshot
-    0 0 * * * %ACTION=stop;CLUSTER=folio-perf;NAMESPACE=corsair
-    55 21 * * * %ACTION=stop;CLUSTER=folio-perf;NAMESPACE=firebird
-    5 22 * * * %ACTION=stop;CLUSTER=folio-perf;NAMESPACE=folijet
-    0 0 * * * %ACTION=stop;CLUSTER=folio-perf;NAMESPACE=spitfire
-    25 22 * * * %ACTION=stop;CLUSTER=folio-perf;NAMESPACE=spitfire-2nd
-    15 22 * * * %ACTION=stop;CLUSTER=folio-perf;NAMESPACE=vega-2nd
-    20 22 * * * %ACTION=stop;CLUSTER=folio-perf;NAMESPACE=volaris
-    50 21 * * * %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=aggies
-    25 22 * * * %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=bama
-    0 2 * * * %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=citation
-    0 22 * * * %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=corsair
-    55 21 * * * %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=dreamliner
-    8 22 * * * %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=firebird
-    5 22 * * * %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=folijet
-    45 21 * * * %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=leipzig
-    11 22 * * * %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=spitfire
-    22 22 * * * %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=spitfire-2nd
-    10 22 * * * %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=thunderjet
-    15 22 * * * %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=thunderjet-2nd
-    10 22 * * * %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=vega
-    15 22 * * * %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=vega-2nd
-    20 22 * * * %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=volaris
-    0 0 * * * %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=dojo
-    20 22 * * * %ACTION=stop;CLUSTER=folio-dev;NAMESPACE=volaris-2nd
     25 22 * * * %ACTION=stop;CLUSTER=folio-tmp;NAMESPACE=test
     30 22 * * * %ACTION=stop;CLUSTER=folio-tmp;NAMESPACE=test-1
     35 22 * * * %ACTION=stop;CLUSTER=folio-tmp;NAMESPACE=test-2
+    0 0 * * * %ACTION=stop;CLUSTER=folio-eperf;NAMESPACE=corsair
+    30 23 * * * %ACTION=stop;CLUSTER=folio-eperf;NAMESPACE=spitfire     
     0 2 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=citation
     10 2 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=big-fc
     10 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=corsair
     0 1 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=eureka
     0 1 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=eureka-2nd
+    0 1 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=dreamliner
     0 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=firebird
     5 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=folijet
     11 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=spitfire
+    19 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=spitfire-2nd
     15 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=thunderjet
-    20 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=vega
+    22 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=thunderjet-2nd
+    25 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=vega
+    28 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=vega-2nd
+    15 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=volaris
     20 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=volaris-2nd
     33 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=thor
     0 0 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=dojo
-    0 0 * * * %ACTION=stop;CLUSTER=folio-eperf;NAMESPACE=corsair
     10 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=erm
     15 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=k-int
     17 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=leipzig
-    19 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=spitfire-2nd
-    21 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=vega-2nd
     23 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=bama
-    25 22 * * * %ACTION=stop;CLUSTER=folio-eperf;NAMESPACE=corsair
   ''')])
 ])
 
