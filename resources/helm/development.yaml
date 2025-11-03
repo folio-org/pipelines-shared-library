@@ -1432,7 +1432,9 @@ mod-data-import:
     enabled: true
     maxUnavailable: 1
 mod-linked-data-import:
-  extraEnvVars: []
+  extraEnvVars:
+    - name: KAFKA_PRODUCER_TENANT_COLLECTION
+      value: "ALL"
   integrations:
     db:
       enabled: true
