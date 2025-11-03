@@ -1714,7 +1714,9 @@ mod-data-import:
         requests:
           memory: 128Mi
 mod-linked-data-import:
-  extraEnvVars: []
+  extraEnvVars:
+    - name: KAFKA_PRODUCER_TENANT_COLLECTION
+      value: "ALL"
   integrations:
     db:
       enabled: true
