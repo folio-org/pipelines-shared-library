@@ -51,7 +51,7 @@ CreateNamespaceParameters namespaceBaseParams = new CreateNamespaceParameters.Bu
   .mockServer(false)
   .pgType('built-in')
   .pgVersion('16.8')
-  .kafkaType('built-in')
+  .kafkaType('aws')
   .opensearchType('aws')
   .s3Type('built-in')
   .members('')
@@ -86,8 +86,8 @@ cypressParameters.setTenant(new OkapiTenant('diku')
 cypressParameters.setExecParameters('--env grepTags="smoke criticalPath extendedPath"')
 cypressParameters.setTestrailProjectID('14')
 cypressParameters.setTestrailRunID('2723')
-cypressParameters.setNumberOfWorkers(12)
-cypressParameters.setTimeout('960')
+cypressParameters.setNumberOfWorkers(10)
+cypressParameters.setTimeout('1080')
 
 boolean reportPortalUse = true
 String reportPortalRunType = 'evrk'
