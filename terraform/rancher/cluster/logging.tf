@@ -375,7 +375,11 @@ data:
                 - contains:
                     kubernetes.namespace: "snapshot"
                 - contains:
+                    kubernetes.namespace: "snapshot2"    
+                - contains:
                     kubernetes.namespace: "sprint"
+                - contains:
+                    kubernetes.namespace: "lsdi"    
       - drop_fields:
           fields: ["host", "agent", "ecs", "input"]
       - decode_json_fields:
@@ -614,6 +618,17 @@ spec:
           timeoutSeconds: 5
           failureThreshold: 3
       terminationGracePeriodSeconds: 30
+      tolerations:
+      - effect: NoSchedule
+        operator: Exists
+      - effect: NoSchedule
+        key: folio.org/qualitygate
+        operator: Equal
+        value: cicypress
+      - effect: NoSchedule
+        key: folio.org/qualitygate
+        operator: Equal
+        value: cikarate
       volumes:
       - name: config
         configMap:
