@@ -44,9 +44,10 @@ void upgrade(String release_name, String namespace, String values_path, String c
     try {
       sh "helm upgrade --install ${release_name} --namespace=${namespace} ${valuesPathOption(values_path)} ${chart_repo}/${chart_name}"
     } catch (Exception e) {
-      println("Error: $e\nUpgrade failed for ${release_name}, attempting upgrade with --force")
-      //Without this change Headless svc will brake all existing workflows...
-      sh "helm upgrade --install ${release_name} --namespace=${namespace} ${valuesPathOption(values_path)} ${chart_repo}/${chart_name} --force"
+      println("Error: $e\nUpgrade failed for ${release_name}, attempting to remove and reinstall")
+      
+      sh "helm uninstall ${release_name} --namespace=${namespace} --wait --timeout=10m"
+      sh "helm upgrade --install ${release_name} --namespace=${namespace} ${valuesPathOption(values_path)} ${chart_repo}/${chart_name}"
     }
   }
 }
