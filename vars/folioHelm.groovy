@@ -41,7 +41,13 @@ void upgrade(String release_name, String namespace, String values_path, String c
   if (release_name.startsWith("mgr-")) {
     sh "helm upgrade --install ${release_name} --namespace=${namespace} ${valuesPathOption(values_path)} ${chart_repo}/${chart_name} --wait --timeout=15m"
   } else {
-    sh "helm upgrade --install ${release_name} --namespace=${namespace} ${valuesPathOption(values_path)} ${chart_repo}/${chart_name}"
+    try {
+      sh "helm upgrade --install ${release_name} --namespace=${namespace} ${valuesPathOption(values_path)} ${chart_repo}/${chart_name}"
+    } catch (Exception e) {
+      println("Error: $e\nUpgrade failed for ${release_name}, attempting upgrade with --force")
+      //Without this change Headless svc will brake all existing workflows...
+      sh "helm upgrade --install ${release_name} --namespace=${namespace} ${valuesPathOption(values_path)} ${chart_repo}/${chart_name} --force"
+    }
   }
 }
 
