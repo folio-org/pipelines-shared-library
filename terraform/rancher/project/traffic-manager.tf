@@ -18,6 +18,12 @@ resources:
   requests:
     cpu: 128m
     memory: 128Mi
+securityContext:
+  capabilities:
+    add: ["NET_ADMIN"]
+env:
+  - name: TELEPRESENCE_USE_IPTABLES_LEGACY
+    value: "true"
 agent:
   resources:
     requests:
