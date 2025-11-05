@@ -168,29 +168,15 @@ String createExecString(String ciBuildId, String browserName, String execParamet
 
   // Generate a random screen ID for Xvfb
   String screenId = (new Random().nextInt(90) + 10).toString()
-  String execString = """export HOME=\$(pwd)
+  return """export HOME=\$(pwd)
     export CYPRESS_CACHE_FOLDER=\$(pwd)/cache
     export DISPLAY=:${screenId}
 
-    echo "Starting Xvfb on display :${screenId}"
     mkdir -p /tmp/.X11-unix
     Xvfb \$DISPLAY -screen 0 1920x1080x24 &
-    XVFB_PID=\$!
-    echo "Xvfb started with PID: \$XVFB_PID"
-    
-    echo "Running Cypress tests with command: npx cypress-cloud run --parallel --record --browser ${browserName} --ci-build-id ${ciBuildId} ${execParameters}"
     npx cypress-cloud run --parallel --record --browser ${browserName} --ci-build-id ${ciBuildId} ${execParameters}
-    CYPRESS_EXIT_CODE=\$?
-    
-    echo "Cypress tests completed with exit code: \$CYPRESS_EXIT_CODE"
-    kill \$XVFB_PID 2>/dev/null || pkill Xvfb
-    echo "Xvfb terminated"
-    
-    exit \$CYPRESS_EXIT_CODE
+    pkill Xvfb
   """.stripIndent()
-  
-  echo("Generated execution string: ${execString}")
-  return execString
 }
 
 /**
@@ -207,12 +193,7 @@ void runTests(String execString) {
     sh execString
   } catch (Exception e) {
     echo("Error executing tests: ${e.getMessage()}")
-    echo("Exit code details: ${e.toString()}")
-    // Log the actual command that failed for debugging
-    echo("Failed command: ${execString}")
     currentBuild.result = 'UNSTABLE'
-    // Re-throw to preserve the original error for upstream handling
-    throw e
   }
 }
 
@@ -235,7 +216,6 @@ void runTestsWithTestRail(String testrailProjectID, String testrailRunID, String
     export TESTRAIL_PROJECTID=${testrailProjectID}
     export TESTRAIL_RUN_ID=${testrailRunID}
     export CYPRESS_allureReuseAfterSpec=true
-    
   """.stripIndent() + execString
 
   echo("Test results will be posted to TestRail.\nProjectID: ${testrailProjectID},\nRunID: ${testrailRunID}")
