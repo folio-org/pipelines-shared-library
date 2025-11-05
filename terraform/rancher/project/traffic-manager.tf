@@ -18,6 +18,9 @@ resources:
   requests:
     cpu: 128m
     memory: 128Mi
+securityContext:
+  capabilities:
+    add: ["NET_ADMIN"]
 agent:
   resources:
     requests:
