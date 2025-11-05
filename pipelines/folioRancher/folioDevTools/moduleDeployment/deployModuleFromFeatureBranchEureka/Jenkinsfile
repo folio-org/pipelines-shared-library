@@ -334,24 +334,61 @@ ansiColor('xterm') {
           }
         } catch (e) {
           logger.warning("Failed to enable (entitle) new application version: ${e}")
-          if (e.toString().contains('cannot be removed')) {
-            def errorResponse = readJSON(text: e.toString())
-            if (errorResponse.errors && errorResponse.errors[0].message.contains('installed for tenants')) {
-              def tenantMessage = errorResponse.errors[0].message
-              def tenantListMatch = tenantMessage =~ /tenants: \[([^\]]+)\]/
-              if (tenantListMatch) {
-                def tenantIds = tenantListMatch[0][1].split(', ').collect { it.trim() }
-                kubectl.updateApplicationsFix(params.NAMESPACE, params.CLUSTER, updatedAppInfoMap.values().toList(), tenantIds)
+          
+          if (e.toString().contains('Application version is same or lower than entitled')) {
+            logger.info("Application version is same or lower than entitled. This may indicate tenants have entitlements that need cleanup.")
+            
+            try {
+              logger.info("Attempting cleanup for all namespace tenants.")
+              def allTenantIds = namespace.getTenants().values().collect { it.uuid }
+              kubectl.updateApplicationsFix(params.NAMESPACE, params.CLUSTER, updatedAppInfoMap.values().toList(), allTenantIds)
               
-                namespace.getTenants().values().each { tenant ->
-                  Tenants.get(eureka.getKong()).updateApplications(tenant, updatedAppInfoMap.values().toList())
+              logger.info("Retrying application update after entitlement cleanup.")
+              namespace.getTenants().values().each { tenant ->
+                Tenants.get(eureka.getKong()).updateApplications(tenant, updatedAppInfoMap.values().toList())
+              }
+              logger.info("Successfully enabled application after entitlement cleanup.")
+            } catch (retryException) {
+              logger.warning("Retry after cleanup failed: ${retryException}")
+              eureka.removeResourcesOnFailFlow(updatedAppInfoMap, module)
+              throw retryException
+            }
+          }
+          else if (e.toString().contains('cannot be removed')) {
+            logger.info("Handling 'cannot be removed' error with tenant-specific cleanup.")
+            try {
+              def errorMessage = e.toString()
+              def responseMatch = errorMessage =~ /HTTP request failed\(\d+\) - (.+)/
+              if (responseMatch) {
+                def responseJson = responseMatch[0][1]
+                def errorResponse = readJSON(text: responseJson)
+                
+                if (errorResponse.errors && errorResponse.errors[0].message.contains('installed for tenants')) {
+                  def tenantMessage = errorResponse.errors[0].message
+                  def tenantListMatch = tenantMessage =~ /tenants: \[([^\]]+)\]/
+                  if (tenantListMatch) {
+                    def tenantIds = tenantListMatch[0][1].split(', ').collect { it.trim() }
+                    logger.info("Found tenant IDs in error message: ${tenantIds}")
+                    kubectl.updateApplicationsFix(params.NAMESPACE, params.CLUSTER, updatedAppInfoMap.values().toList(), tenantIds)
+                    
+                    namespace.getTenants().values().each { tenant ->
+                      Tenants.get(eureka.getKong()).updateApplications(tenant, updatedAppInfoMap.values().toList())
+                    }
+                    logger.info("Successfully enabled application after tenant-specific cleanup.")
+                    return
+                  }
                 }
               }
-            } else {
+              
+              eureka.removeResourcesOnFailFlow(updatedAppInfoMap, module)
+              throw e
+            } catch (parseException) {
+              logger.warning("Failed to parse 'cannot be removed' error: ${parseException}")
               eureka.removeResourcesOnFailFlow(updatedAppInfoMap, module)
               throw e
             }
-          } else {
+          } 
+          else {
             eureka.removeResourcesOnFailFlow(updatedAppInfoMap, module)
             throw e
           }
