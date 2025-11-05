@@ -9,7 +9,7 @@ import org.folio.rest_v2.Constants
 import org.folio.rest_v2.PlatformType
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-2635') _
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
@@ -26,7 +26,7 @@ properties([
     folioParameters.groupParameters("Environment features"
       , ["LOAD_REFERENCE", "LOAD_SAMPLE", "BUILD_UI", "CONSORTIA", "CONSORTIA_EXTRA", "LINKED_DATA", "MARC_MIGRATIONS", "SPLIT_FILES"
          , "RW_SPLIT", "ECS_CCL", "GREENMAIL", "MOCK_SERVER", "RTR", "DATASET", "TYPE"
-         , "HAS_SECURE_TENANT", "SECURE_TENANT"
+         , "HAS_SECURE_TENANT", "SECURE_TENANT", "FOLIO_KEYCLOAK_VERSION", "FOLIO_KONG_VERSION"
     ]),
     folioParameters.loadReference(),
     folioParameters.loadSample(),
@@ -46,6 +46,8 @@ properties([
     booleanParam(name: 'DATASET', defaultValue: false, description: '(Optional) Set true to build BF like environment'),
     choice(name: 'TYPE', choices: ['full', 'terraform', 'update'], description: '(Required) Set action TYPE to perform'),
     string(name: 'DB_BACKUP_NAME', defaultValue: org.folio.Constants.BUGFEST_SNAPSHOT_NAME, description: '(Optional) Set name of the DB backup to restore'),
+    string(name: 'FOLIO_KEYCLOAK_VERSION', defaultValue: 'latest', description: '(Optional) Set FOLIO Keycloak tag: example "21.0.1-SNAPSHOT.f959523'),
+    string(name: 'FOLIO_KONG_VERSION', defaultValue: 'latest', description: '(Optional) Set FOLIO Kong tag: example "3.10.0-SNAPSHOT.f959523'),
     folioParameters.groupParameters("Integrations"
       , ["POSTGRESQL", "DB_VERSION", "KAFKA", "OPENSEARCH", "S3_BUCKET", "DB_BACKUP_NAME"]),
     folioParameters.pgType(),
@@ -116,8 +118,8 @@ CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builde
   .opensearchType(params.OPENSEARCH)
   .s3Type(params.S3_BUCKET)
   .uiBuild(params.BUILD_UI)
-  .kongVersion('latest')
-  .keycloakVersion('latest')
+  .kongVersion(params.FOLIO_KONG_VERSION)
+  .keycloakVersion(params.FOLIO_KEYCLOAK_VERSION)
   .dataset(params.DATASET)
   .type(params.TYPE)
   .scNative(params.SC_NATIVE)

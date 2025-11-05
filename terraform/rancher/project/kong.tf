@@ -25,7 +25,7 @@ resource "helm_release" "kong" {
   values = [
     <<-EOF
 image:
-  registry: folioci
+  registry: ${var.kong_version} == 'latest' ? 'folioci' : '732722833398.dkr.ecr.us-west-2.amazonaws.com'
   repository: folio-kong
   tag: ${var.kong_version}
   pullPolicy: Always
