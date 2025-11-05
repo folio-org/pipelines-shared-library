@@ -28,7 +28,7 @@ resource "helm_release" "keycloak" {
   values = [
     <<-EOF
 image:
-  registry: ${var.keycloak_version} == 'latest' ? 'folioci' : '732722833398.dkr.ecr.us-west-2.amazonaws.com'
+  registry: ${var.keycloak_version == "latest" ? "folioci" : "732722833398.dkr.ecr.us-west-2.amazonaws.com"}
   repository: folio-keycloak
   tag: ${var.keycloak_version}
   pullPolicy: Always
