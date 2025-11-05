@@ -46,8 +46,8 @@ properties([
     booleanParam(name: 'DATASET', defaultValue: false, description: '(Optional) Set true to build BF like environment'),
     choice(name: 'TYPE', choices: ['full', 'terraform', 'update'], description: '(Required) Set action TYPE to perform'),
     string(name: 'DB_BACKUP_NAME', defaultValue: org.folio.Constants.BUGFEST_SNAPSHOT_NAME, description: '(Optional) Set name of the DB backup to restore'),
-    string(name: 'FOLIO_KEYCLOAK_VERSION', defaultValue: 'latest', description: '(Optional) Set FOLIO Keycloak tag: example "21.0.1-SNAPSHOT.f959523'),
-    string(name: 'FOLIO_KONG_VERSION', defaultValue: 'latest', description: '(Optional) Set FOLIO Kong tag: example "3.10.0-SNAPSHOT.f959523'),
+    string(name: 'FOLIO_KEYCLOAK_VERSION', defaultValue: 'latest', description: '(Optional) Set FOLIO Keycloak tag, example: 21.0.1-SNAPSHOT.f959523'),
+    string(name: 'FOLIO_KONG_VERSION', defaultValue: 'latest', description: '(Optional) Set FOLIO Kong tag, example: 3.10.0-SNAPSHOT.f959523'),
     folioParameters.groupParameters("Integrations"
       , ["POSTGRESQL", "DB_VERSION", "KAFKA", "OPENSEARCH", "S3_BUCKET", "DB_BACKUP_NAME"]),
     folioParameters.pgType(),
