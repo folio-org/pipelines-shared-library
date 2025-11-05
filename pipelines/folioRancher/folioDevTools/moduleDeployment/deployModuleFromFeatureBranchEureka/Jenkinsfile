@@ -350,7 +350,15 @@ ansiColor('xterm') {
               logger.info("Successfully enabled application after entitlement cleanup.")
             } catch (retryException) {
               logger.warning("Retry after cleanup failed: ${retryException}")
-              eureka.removeResourcesOnFailFlow(updatedAppInfoMap, module)
+              try {
+                eureka.removeResourcesOnFailFlow(updatedAppInfoMap, module)
+              } catch (cleanupException) {
+                if (cleanupException.toString().contains('cannot be removed')) {
+                  logger.warning("Cleanup failed due to active entitlements, which is expected after partial success. Continuing...")
+                } else {
+                  throw cleanupException
+                }
+              }
               throw retryException
             }
           }
@@ -380,16 +388,40 @@ ansiColor('xterm') {
                 }
               }
               
-              eureka.removeResourcesOnFailFlow(updatedAppInfoMap, module)
+              try {
+                eureka.removeResourcesOnFailFlow(updatedAppInfoMap, module)
+              } catch (cleanupException) {
+                if (cleanupException.toString().contains('cannot be removed')) {
+                  logger.warning("Cleanup failed due to active entitlements, which is expected after partial success. Continuing...")
+                } else {
+                  throw cleanupException
+                }
+              }
               throw e
             } catch (parseException) {
               logger.warning("Failed to parse 'cannot be removed' error: ${parseException}")
-              eureka.removeResourcesOnFailFlow(updatedAppInfoMap, module)
+              try {
+                eureka.removeResourcesOnFailFlow(updatedAppInfoMap, module)
+              } catch (cleanupException) {
+                if (cleanupException.toString().contains('cannot be removed')) {
+                  logger.warning("Cleanup failed due to active entitlements, which is expected after partial success. Continuing...")
+                } else {
+                  throw cleanupException
+                }
+              }
               throw e
             }
           } 
           else {
-            eureka.removeResourcesOnFailFlow(updatedAppInfoMap, module)
+            try {
+              eureka.removeResourcesOnFailFlow(updatedAppInfoMap, module)
+            } catch (cleanupException) {
+              if (cleanupException.toString().contains('cannot be removed')) {
+                logger.warning("Cleanup failed due to active entitlements, which is expected after partial success. Continuing...")
+              } else {
+                throw cleanupException
+              }
+            }
             throw e
           }
         }
