@@ -21,6 +21,9 @@ resources:
 securityContext:
   capabilities:
     add: ["NET_ADMIN"]
+env:
+  - name: TELEPRESENCE_USE_IPTABLES_LEGACY
+    value: "true"
 agent:
   resources:
     requests:
