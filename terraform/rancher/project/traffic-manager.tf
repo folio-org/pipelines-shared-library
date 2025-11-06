@@ -25,7 +25,6 @@ env:
   - name: TELEPRESENCE_USE_IPTABLES_LEGACY
     value: "true"
 agent:
-  image: tel2
   registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
   repository: tel2
   tag: 2.21.1
