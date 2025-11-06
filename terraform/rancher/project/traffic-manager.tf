@@ -18,12 +18,6 @@ resources:
   requests:
     cpu: 128m
     memory: 128Mi
-securityContext:
-  capabilities:
-    add: ["NET_ADMIN"]
-env:
-  - name: TELEPRESENCE_USE_IPTABLES_LEGACY
-    value: "true"
 agent:
   image:
   registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
