@@ -8,7 +8,7 @@ resource "helm_release" "traffic-manager" {
     <<-EOF
 image:
   registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
-  repository: tel2
+  repository: telepresence
   tag: 2.21.1
   pullPolicy: IfNotPresent
 resources:
@@ -25,6 +25,11 @@ env:
   - name: TELEPRESENCE_USE_IPTABLES_LEGACY
     value: "true"
 agent:
+  image:
+  registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
+  repository: tel2
+  tag: 2.21.1
+  pullPolicy: IfNotPresent
   resources:
     requests:
       cpu: 128m
