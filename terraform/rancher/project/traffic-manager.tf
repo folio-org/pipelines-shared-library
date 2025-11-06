@@ -1,7 +1,7 @@
 resource "helm_release" "traffic-manager" {
   count     = 1
   namespace = rancher2_namespace.this.name
-  name      = "traffic-manager-${rancher2_namespace.this.name}"
+  name      = "traffic-manager"
   chart     = "oci://ghcr.io/telepresenceio/telepresence-oss"
   version   = "2.21.1"
   values = [
@@ -18,12 +18,17 @@ resources:
   requests:
     cpu: 128m
     memory: 128Mi
+securityContext:
+  capabilities:
+    add: ["NET_ADMIN"]
+env:
+  - name: TELEPRESENCE_USE_IPTABLES_LEGACY
+    value: "true"
 agent:
   image:
   registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
   repository: tel2
   tag: 2.21.1
-  pullPolicy: IfNotPresent
   resources:
     requests:
       cpu: 128m
