@@ -24,6 +24,8 @@ securityContext:
 env:
   - name: TELEPRESENCE_USE_IPTABLES_LEGACY
     value: "true"
+  - name: XDG_CACHE_HOME
+    value: /tmp/.cache  
 agent:
   image:
     registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
