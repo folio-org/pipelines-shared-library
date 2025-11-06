@@ -38,6 +38,8 @@ managerRbac:
   namespaced: true
   namespaces:
   - ${rancher2_namespace.this.name}
+compatibility:
+ version: 2.20.1  
     EOF
   ]
 }
