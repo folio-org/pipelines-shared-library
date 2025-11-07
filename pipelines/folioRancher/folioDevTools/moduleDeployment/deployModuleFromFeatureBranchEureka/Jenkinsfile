@@ -31,6 +31,7 @@ properties([
     booleanParam(name: 'FORCE_MVN_CACHE_REFRESH', defaultValue: false, description: 'Force Maven cache refresh'),
     booleanParam(name: 'CLEANUP_ENV', defaultValue: true, description: 'Delete karate tests tenants before deployment'),
     booleanParam(name: 'SIMPLIFIED', defaultValue: false, description: 'Use simplified deployment process'),
+    booleanParam(name: 'INVOKE_TENANT_API', defaultValue: true, description: 'Invoke /tenant API POST calls (only applicable when SIMPLIFIED is enabled)'),
     folioParameters.refreshParameters(),
   ])
 ])
@@ -267,24 +268,26 @@ ansiColor('xterm') {
           folioHelm.checkDeploymentsRunning(namespace.getNamespaceName(), namespace.getModules().getBackendModules())
         }
       }
-      stage('[Invoke] /tenant API POST calls') {
-        RestClient restClient = new RestClient(this)
-        def tenants = restClient.get("https://${namespace.generateDomain("kong")}/tenants?limit=500").body.tenants
-        def apps = restClient.get("https://${namespace.generateDomain("kong")}/applications?limit=500").body.applicationDescriptors
-        Keycloak keycloak = new Keycloak(this, namespace.generateDomain("keycloak"), false)
-        tenants.each { tenant ->
-          Map body = [
-            tenantId: tenant.id,
-            applications: apps.findAll { it.modules*.name.contains(module.name) }*.id
-          ]
-          Map headers = [
-            'Content-Type': 'application/json',
-            'Authorization': "Bearer ${keycloak.getAuthMasterTenantToken()}",
-          ]
-          folioPrint.colored("Invoking /tenant API for tenant: ${tenant.name} with applications: ${body.applications}", 'green')
-          restClient.post("https://${namespace.generateDomain("kong")}/reinstall/applications", writeJSON(json: body, returnText: true), headers)
-          folioPrint.colored("Invokation for tenant: ${tenant.name} is complete", 'green')
-          sleep time: 30, unit: 'SECONDS'
+      if (params.INVOKE_TENANT_API) {
+        stage('[Invoke] /tenant API POST calls') {
+          RestClient restClient = new RestClient(this)
+          def tenants = restClient.get("https://${namespace.generateDomain("kong")}/tenants?limit=500").body.tenants
+          def apps = restClient.get("https://${namespace.generateDomain("kong")}/applications?limit=500").body.applicationDescriptors
+          Keycloak keycloak = new Keycloak(this, namespace.generateDomain("keycloak"), false)
+          tenants.each { tenant ->
+            Map body = [
+              tenantId: tenant.id,
+              applications: apps.findAll { it.modules*.name.contains(module.name) }*.id
+            ]
+            Map headers = [
+              'Content-Type': 'application/json',
+              'Authorization': "Bearer ${keycloak.getAuthMasterTenantToken()}",
+            ]
+            folioPrint.colored("Invoking /tenant API for tenant: ${tenant.name} with applications: ${body.applications}", 'green')
+            restClient.post("https://${namespace.generateDomain("kong")}/reinstall/applications", writeJSON(json: body, returnText: true), headers)
+            folioPrint.colored("Invokation for tenant: ${tenant.name} is complete", 'green')
+            sleep time: 30, unit: 'SECONDS'
+          }
         }
       }
 
