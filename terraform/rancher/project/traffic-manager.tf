@@ -75,7 +75,18 @@ resource "null_resource" "patch_traffic_manager_host_network" {
 
   provisioner "local-exec" {
     command = <<-EOF
-      kubectl patch deployment traffic-manager-${rancher2_namespace.this.name} \
+      # Wait for deployment to be ready
+      sleep 10
+      
+      # Configure kubectl for the target cluster
+      aws eks update-kubeconfig --name ${data.rancher2_cluster.this.name} --region ${var.aws_region}
+      
+      # List deployments to verify name
+      echo "Available deployments in namespace ${rancher2_namespace.this.name}:"
+      kubectl get deployments -n ${rancher2_namespace.this.name}
+      
+      # Patch the deployment
+      kubectl patch deployment traffic-manager \
         -n ${rancher2_namespace.this.name} \
         -p '{"spec":{"template":{"spec":{"dnsPolicy":"ClusterFirstWithHostNet","hostNetwork":true}}}}'
     EOF
@@ -84,6 +95,7 @@ resource "null_resource" "patch_traffic_manager_host_network" {
   triggers = {
     helm_release_version = helm_release.traffic-manager[0].version
     namespace            = rancher2_namespace.this.name
+    cluster_name         = data.rancher2_cluster.this.name
   }
 }
 
@@ -123,23 +135,6 @@ resource "kubernetes_role_binding" "port_forward_binding" {
     kind      = "User"
     name      = "rancher-port-forward"
     api_group = "rbac.authorization.k8s.io"
-  }
-  role_ref {
-    kind      = "Role"
-    name      = "port-forward-role"
-    api_group = "rbac.authorization.k8s.io"
-  }
-}
-
-resource "kubernetes_role_binding" "jenkins_deployment_binding" {
-  metadata {
-    name      = "jenkins-deployment-binding"
-    namespace = rancher2_namespace.this.id
-  }
-  subject {
-    kind      = "ServiceAccount"
-    name      = "jenkins-service-account"
-    namespace = "jenkins-agents"
   }
   role_ref {
     kind      = "Role"
