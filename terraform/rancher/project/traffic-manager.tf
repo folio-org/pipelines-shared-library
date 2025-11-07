@@ -75,17 +75,10 @@ resource "null_resource" "patch_traffic_manager_host_network" {
 
   provisioner "local-exec" {
     command = <<-EOF
-      # Wait for deployment to be ready
-      sleep 10
-      
-      # Configure kubectl for the target cluster
       aws eks update-kubeconfig --name ${data.rancher2_cluster.this.name} --region ${var.aws_region}
-      
-      # List deployments to verify name
-      echo "Available deployments in namespace ${rancher2_namespace.this.name}:"
-      kubectl get deployments -n ${rancher2_namespace.this.name}
-      
-      # Patch the deployment
+
+      sleep 10
+
       kubectl patch deployment traffic-manager \
         -n ${rancher2_namespace.this.name} \
         -p '{"spec":{"template":{"spec":{"dnsPolicy":"ClusterFirstWithHostNet","hostNetwork":true}}}}'
