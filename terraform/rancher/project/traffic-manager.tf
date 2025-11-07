@@ -95,7 +95,7 @@ resource "kubernetes_role" "port_forward_role" {
   rule {
     api_groups = ["apps"]
     resources  = ["deployments", "replicasets", "statefulsets"]
-    verbs      = ["get", "list", "watch"]
+    verbs      = ["get", "list", "watch", "patch", "update"]
   }
   rule {
     api_groups = [""]
@@ -123,6 +123,23 @@ resource "kubernetes_role_binding" "port_forward_binding" {
     kind      = "User"
     name      = "rancher-port-forward"
     api_group = "rbac.authorization.k8s.io"
+  }
+  role_ref {
+    kind      = "Role"
+    name      = "port-forward-role"
+    api_group = "rbac.authorization.k8s.io"
+  }
+}
+
+resource "kubernetes_role_binding" "jenkins_deployment_binding" {
+  metadata {
+    name      = "jenkins-deployment-binding"
+    namespace = rancher2_namespace.this.id
+  }
+  subject {
+    kind      = "ServiceAccount"
+    name      = "jenkins-service-account"
+    namespace = "jenkins-agents"
   }
   role_ref {
     kind      = "Role"
