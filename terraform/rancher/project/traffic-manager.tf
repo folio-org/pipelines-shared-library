@@ -3,13 +3,13 @@ resource "helm_release" "traffic-manager" {
   namespace = rancher2_namespace.this.name
   name      = "traffic-manager"
   chart     = "oci://ghcr.io/telepresenceio/telepresence-oss"
-  version   = "2.21.1"
+  version   = "2.23.6"
   values = [
     <<-EOF
 image:
   registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
   repository: tel2
-  tag: 2.21.1
+  tag: 2.23.6
   pullPolicy: IfNotPresent
 resources:
   limits:
