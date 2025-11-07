@@ -17,6 +17,30 @@ resources:
   requests:
     cpu: 128m
     memory: 128Mi
+agentInjector:
+  enabled: true
+  name: agent-injector
+  secret:
+    name: mutator-webhook-tls
+  certificate:
+    accessMethod: watch
+    method: helm
+    certmanager:
+      commonName: agent-injector
+      duration: 2160h0m0s
+      issuerRef:
+        name: telepresence
+        kind: Issuer
+  injectPolicy: OnDemand
+  webhook:
+    name: agent-injector-webhook
+    admissionReviewVersions: ["v1"]
+    servicePath: /traffic-agent
+    port: 443
+    failurePolicy: Ignore
+    reinvocationPolicy: IfNeeded
+    sideEffects: None
+    timeoutSeconds: 5
 agent:
   resources:
     requests:
@@ -44,6 +68,23 @@ managerRbac:
   create: true  
     EOF
   ]
+}
+
+resource "null_resource" "patch_traffic_manager_host_network" {
+  depends_on = [helm_release.traffic-manager]
+
+  provisioner "local-exec" {
+    command = <<-EOF
+      kubectl patch deployment traffic-manager-${rancher2_namespace.this.name} \
+        -n ${rancher2_namespace.this.name} \
+        -p '{"spec":{"template":{"spec":{"dnsPolicy":"ClusterFirstWithHostNet","hostNetwork":true}}}}'
+    EOF
+  }
+
+  triggers = {
+    helm_release_version = helm_release.traffic-manager[0].version
+    namespace            = rancher2_namespace.this.name
+  }
 }
 
 resource "kubernetes_role" "port_forward_role" {
