@@ -7,8 +7,7 @@ resource "helm_release" "traffic-manager" {
   values = [
     <<-EOF
 image:
-  registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
-  repository: tel2
+  registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com/tel2
   tag: 2.23.6
   pullPolicy: IfNotPresent
 resources:
@@ -34,12 +33,7 @@ hooks:
     imagePullSecrets: []
     pullPolicy: IfNotPresent
 managerRbac:
-  create: true
-  namespaced: true
-  namespaces:
-  - ${rancher2_namespace.this.name}
-compatibility:
- version: 2.20.1  
+  create: true  
     EOF
   ]
 }
