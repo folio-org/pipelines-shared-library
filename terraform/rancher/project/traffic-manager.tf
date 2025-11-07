@@ -7,7 +7,7 @@ resource "helm_release" "traffic-manager" {
   values = [
     <<-EOF
 image:
-  registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com/tel2
+  registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
   tag: 2.23.6
   pullPolicy: IfNotPresent
 resources:
@@ -25,11 +25,19 @@ agent:
     limits:
       cpu: 256m
       memory: 512Mi
+  appProtocolStrategy: http2Probe
+  port: 9900
+  mountPolicies:
+    "/tmp": Local
+  image:
+    pullPolicy: IfNotPresent
+  initContainer:
+    enabled: true      
 hooks:
   curl:
     registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
     image: "curl"
-    tag: 7.88.1
+    tag: 8.1.1
     imagePullSecrets: []
     pullPolicy: IfNotPresent
 managerRbac:
