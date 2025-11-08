@@ -49,7 +49,6 @@ agent:
     limits:
       cpu: 256m
       memory: 512Mi
-  appProtocolStrategy: http2Probe
   port: 9900
   mountPolicies:
     "/tmp": Local
