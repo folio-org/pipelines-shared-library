@@ -3077,6 +3077,8 @@ mod-lists:
     value: '1000'
   - name: spring.task.execution.pool.max-size
     value: '10'
+  - name: mod-lists.list-export.s3-startup-check.enabled
+    value: 'false'   
   integrations:
     db:
       enabled: true
