@@ -52,6 +52,25 @@ agentInjector:
         name: telepresence
         kind: Issuer
   injectPolicy: OnDemand
+  namespaceSelector:
+    matchExpressions:
+      - key: kubernetes.io/metadata.name
+        operator: NotIn
+        values:
+          - kube-system
+          - kube-node-lease
+          - cattle-system
+          - cattle-fleet-system
+          - cattle-impersonation-system
+          - default
+          - kube-node-lease
+          - kube-public
+          - kube-system
+          - kubecost
+          - local
+          - logging
+          - monitoring
+          - sorry-cypress
   webhook:
     name: agent-injector-webhook
     admissionReviewVersions: ["v1"]
@@ -61,25 +80,6 @@ agentInjector:
     reinvocationPolicy: IfNeeded
     sideEffects: None
     timeoutSeconds: 5
-    namespaceSelector:
-      matchExpressions:
-        - key: kubernetes.io/metadata.name
-          operator: NotIn
-          values:
-            - kube-system
-            - kube-node-lease
-            - cattle-system
-            - cattle-fleet-system
-            - cattle-impersonation-system
-            - default
-            - kube-node-lease
-            - kube-public
-            - kube-system
-            - kubecost
-            - local
-            - logging
-            - monitoring
-            - sorry-cypress
 agent:
   resources:
     requests:
