@@ -31,8 +31,6 @@ void call(CreateNamespaceParameters args) {
                                url          : "${Constants.FOLIO_GITHUB_URL}/pipelines-shared-library.git"]]))
       }
 
-      logger.info("Create operation parameters:\n${prettyPrint(toJson(args))}")
-
       EurekaNamespace namespace = new EurekaNamespace(args.clusterName, args.namespaceName)
       //Set terraform configuration
       TerraformConfig tfConfig = new TerraformConfig('terraform/rancher/project')
@@ -111,14 +109,10 @@ void call(CreateNamespaceParameters args) {
       boolean isRelease = args.folioBranch ==~ /^R\d-\d{4}.*/
       String commitHash = common.getLastCommitHash(folioRepository, args.folioBranch)
 
-      logger.debug("I'm in folioNamespaceCreateEureka.groovy script")
-
       List installJson = new GitHubUtility(this).getEnableList(folioRepository, args.folioBranch)
       List eurekaPlatform = new GitHubUtility(this).getEurekaList(folioRepository, args.folioBranch)
       List pinnedEurekaModules = new GitHubUtility(this).getEurekaPinnedList(folioRepository, args.folioBranch)
       installJson.addAll(eurekaPlatform)
-
-      logger.debug("Install json before modifications:\n${installJson}")
 
       if (args.scNative) {
         String tag = (awscli.listEcrImages(Constants.AWS_REGION, 'folio-module-sidecar')).replaceAll('"', '')
@@ -132,8 +126,6 @@ void call(CreateNamespaceParameters args) {
       //TODO: Temporary solution. Unused by Eureka modules have been removed.
       installJson.removeAll { module -> module.id =~ /(mod-login|mod-authtoken|mod-login-saml)-\d+\..*/ }
       installJson.removeAll { module -> module.id == 'okapi' }
-
-      logger.debug("Install json after SC and unused modules removal")
 
       pinnedEurekaModules.each { pinned ->
         if (installJson.find { it.id =~ /${pinned.module}-.*/ }) {
@@ -165,12 +157,10 @@ void call(CreateNamespaceParameters args) {
       namespace.setEnableECS_CCL(args.ecsCCL)
       namespace.addDeploymentConfig(folioTools.getPipelineBranch())
 
-      logger.debug("Namespace after ini")
-
       namespace.addTenant(
         folioDefault.tenants()[namespace.getDefaultTenantId()]
           .convertTo(EurekaTenant.class)
-          .withInstallJson(installJson, this)
+          .withInstallJson(installJson)
           .withIndex(new Index('instance', true, true))
           .withIndex(new Index('authority', true, false))
           .withIndex(new Index('location', true, false))
@@ -178,9 +168,6 @@ void call(CreateNamespaceParameters args) {
           .withTenantUi(tenantUi.clone())
           .enableFolioExtensions(this, args.folioExtensions - 'consortia-eureka' - 'consortia', isRelease)
       )
-
-      logger.debug("Namespace after main default tenant")
-      input message: "Proceed with adding additional tenants?", ok: "Yes, let's proceed!"
 
       if (args.dataset) {
         List nonECS = ['fs09000002', 'fs09000003']
@@ -198,8 +185,6 @@ void call(CreateNamespaceParameters args) {
           )
         }
       }
-
-      logger.debug("Namespace after default tenants")
 
       if (args.folioExtensions.contains('consortia-eureka')) {
         namespace.setEnableConsortia(true, isRelease)
@@ -227,8 +212,6 @@ void call(CreateNamespaceParameters args) {
           }
       }
 
-      logger.debug("Namespace after consortia tenants")
-
       //In case update environment the reindex is not needed
       if (args.type == 'update')
         namespace.getTenants().values().each { tenant -> tenant.indexes.clear() }
@@ -248,8 +231,6 @@ void call(CreateNamespaceParameters args) {
         }
       }
 
-      logger.debug("DNS propagation check passed")
-
       //Don't move from here because it increases Keycloak TTL before mgr modules to be deployed
       Eureka eureka = new Eureka(this, namespace.generateDomain('kong'), namespace.generateDomain('keycloak'))
       Boolean check = false
@@ -265,8 +246,6 @@ void call(CreateNamespaceParameters args) {
           }
         }
       }
-
-      logger.debug("Keycloak TTL increased successfully")
 
       stage('[Helm] Deploy mgr-*') {
         folioHelm.withKubeConfig(namespace.getClusterName()) {
@@ -314,8 +293,6 @@ void call(CreateNamespaceParameters args) {
           namespace.getTenants().values().each { it.assignApplications(apps)}
           namespace.withApplications(apps)
 
-          logger.debug("Let's print out namespace.applications.getInstallJson()")
-          logger.debug(namespace.applications.getInstallJson())
           eureka.registerModulesFlow(namespace.applications.getInstallJson())
         }
       }
