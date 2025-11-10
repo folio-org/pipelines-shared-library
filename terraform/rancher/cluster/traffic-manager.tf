@@ -114,7 +114,7 @@ resource "null_resource" "patch_traffic_manager_host_network" {
 
   provisioner "local-exec" {
     command = <<-EOF
-      aws eks update-kubeconfig --name ${rancher2_cluster_sync.this[0].cluster_id} --region ${var.aws_region}
+      aws eks update-kubeconfig --name ${module.eks_cluster.cluster_name} --region ${var.aws_region}
 
       sleep 10
 
@@ -127,6 +127,6 @@ resource "null_resource" "patch_traffic_manager_host_network" {
   triggers = {
     helm_release_version = helm_release.traffic-manager[0].version
     namespace            = rancher2_namespace.traffic-manager[0].name
-    cluster_name         = rancher2_cluster_sync.this[0].cluster_id
+    cluster_name         = module.eks_cluster.cluster_name
   }
 }

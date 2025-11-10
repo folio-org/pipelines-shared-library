@@ -321,7 +321,7 @@ resource "rancher2_app_v2" "kibana" {
         alb.ingress.kubernetes.io/success-codes: 200-399
         alb.ingress.kubernetes.io/healthcheck-path: /api/status
         alb.ingress.kubernetes.io/load-balancer-attributes: idle_timeout.timeout_seconds=4000
-        alb.ingress.kubernetes.io/auth-idp-cognito: '{"UserPoolArn":"${aws_cognito_user_pool.kibana_user_pool.arn}","UserPoolClientId":"${aws_cognito_user_pool_client.kibana_userpool_client.id}", "UserPoolDomain":"${module.eks_cluster.cluster_name}-kibana"}'
+        alb.ingress.kubernetes.io/auth-idp-cognito: '{"UserPoolArn":"${aws_cognito_user_pool.kibana_user_pool[0].arn}","UserPoolClientId":"${aws_cognito_user_pool_client.kibana_userpool_client[0].id}", "UserPoolDomain":"${module.eks_cluster.cluster_name}-kibana"}'
         alb.ingress.kubernetes.io/auth-on-unauthenticated-request: authenticate
         alb.ingress.kubernetes.io/auth-scope: openid
         alb.ingress.kubernetes.io/auth-session-cookie: AWSELBAuthSessionCookie
