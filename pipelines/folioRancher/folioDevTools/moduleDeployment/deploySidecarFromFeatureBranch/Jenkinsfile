@@ -23,7 +23,7 @@ properties([
   ]),
   pipelineTriggers([
     parameterizedCron('''
-      H 9 * * 2,3,4 %MODULE_BRANCH=master,NATIVE=true,FORCE_MVN_CACHE_REFRESH=false
+      H 9 7,21 * * %MODULE_BRANCH=master,NATIVE=true,FORCE_MVN_CACHE_REFRESH=false
     ''')])
 ])
 
