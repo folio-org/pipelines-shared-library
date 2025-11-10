@@ -257,26 +257,26 @@ class Constants {
     ],
     [
       name: "app-requests-ecs"
-      , branch: "snapshot"
+      , branch: "master"
       , consortia: true
       , core: false
-      , byDefault: false  // Not in R1-2025
+      , byDefault: false  // For R1-2025 test
       , dependsOn: ["app-platform-minimal", "app-platform-complete", "app-dcb"]
     ],
     [
       name: "app-requests-mediated"
-      , branch: "snapshot"
+      , branch: "master"
       , consortia: true
       , core: false
-      , byDefault: false  // Not in R1-2025
+      , byDefault: false  // For R1-2025 test
       , dependsOn: ["app-platform-minimal", "app-platform-complete", "app-requests-mediated-ui"]
     ],
     [
       name: "app-requests-mediated-ui"
-      , branch: "snapshot"
+      , branch: "master"
       , consortia: true
       , core: false
-      , byDefault: false  // Not in R1-2025
+      , byDefault: false  // For R1-2025 test
       , dependsOn: ["app-platform-minimal", "app-platform-complete", "app-requests-mediated"]
     ],
     [
