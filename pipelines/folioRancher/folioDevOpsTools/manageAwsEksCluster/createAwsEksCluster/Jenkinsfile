@@ -20,7 +20,7 @@ properties([
     booleanParam(name: 'SORRY_CYPRESS', defaultValue: false, description: 'Deploy Sorry Cypress to cluster'),
     booleanParam(name: 'ENABLE_LOGGING', defaultValue: false, description: 'Deploy ELK stack to cluster'),
     booleanParam(name: 'ENABLE_MONITORING', defaultValue: true, description: 'Deploy Prometheus to cluster'),
-    booleanParam(name: 'ENABLE_TELEPRESENCE', defaultValue: false, description: 'Enable Telepresence in cluster'),
+    booleanParam(name: 'ENABLE_TELEPRESENCE', defaultValue: false, description: 'Deploy Telepresence to cluster'),
     folioParameters.refreshParameters()
   ])
 ])
