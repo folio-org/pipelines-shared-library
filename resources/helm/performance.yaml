@@ -5340,7 +5340,9 @@ mgr-tenant-entitlements:
     - name: RETRIES_MODULE_BACKOFF_MULTIPLIER
       value: '1'
     - name: FLOW_ENGINE_MODULE_INSTALLER_THREADS
-      value: '3'      
+      value: '3'
+    - name: FLOW_ENGINE_THREADS_NUM
+      value: '3'
   integrations:
     db:
       enabled: true
