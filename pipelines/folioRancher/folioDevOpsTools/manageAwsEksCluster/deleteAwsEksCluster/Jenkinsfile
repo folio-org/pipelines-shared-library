@@ -36,6 +36,7 @@ ansiColor('xterm') {
         credentialsId: Constants.PRIVATE_GITHUB_CREDENTIALS_ID,
         poll: false)
     }
+    folioCommon.kitfoxApproval()
     folioTerraformFlow.manageCluster('destroy', tfConfig)
   }
 }
