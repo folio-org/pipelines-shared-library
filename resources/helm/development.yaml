@@ -2385,6 +2385,8 @@ mod-lists:
     value: '1000'
   - name: spring.task.execution.pool.max-size
     value: '10'
+  - name: mod-lists.list-export.s3-startup-check.enabled
+    value: 'false'
   integrations:
     db:
       enabled: true
@@ -4025,6 +4027,10 @@ mgr-tenant-entitlements:
       value: '600000'
     - name: RETRIES_MODULE_BACKOFF_MULTIPLIER
       value: '1'
+    - name: FLOW_ENGINE_MODULE_INSTALLER_THREADS
+      value: '3'
+    - name: FLOW_ENGINE_THREADS_NUM
+      value: '3'
   integrations:
     db:
       enabled: true
