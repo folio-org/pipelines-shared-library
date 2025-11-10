@@ -3,7 +3,7 @@ import org.folio.Constants
 import org.folio.jenkins.PodTemplates
 import org.folio.models.TerraformConfig
 
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-2623') _
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '20')),
@@ -20,6 +20,7 @@ properties([
     booleanParam(name: 'SORRY_CYPRESS', defaultValue: false, description: 'Deploy Sorry Cypress to cluster'),
     booleanParam(name: 'ENABLE_LOGGING', defaultValue: false, description: 'Deploy ELK stack to cluster'),
     booleanParam(name: 'ENABLE_MONITORING', defaultValue: true, description: 'Deploy Prometheus to cluster'),
+    booleanParam(name: 'ENABLE_TELEPRESENCE', defaultValue: false, description: 'Enable Telepresence in cluster'),
     folioParameters.refreshParameters()
   ])
 ])
@@ -43,6 +44,7 @@ tfConfig.addVar('deploy_kubecost', params.KUBECOST)
 tfConfig.addVar('deploy_sorry_cypress', params.SORRY_CYPRESS)
 tfConfig.addVar('enable_logging', params.ENABLE_LOGGING)
 tfConfig.addVar('enable_monitoring', params.ENABLE_MONITORING)
+tfConfig.addVar('enable_telepresence', params.ENABLE_TELEPRESENCE)
 
 ansiColor('xterm') {
   podTemplates.rancherAgent {
