@@ -3,7 +3,7 @@ resource "rancher2_project" "traffic-manager" {
   depends_on  = [module.eks_cluster.eks_managed_node_groups]
   name        = "traffic-manager"
   description = "Project for Traffic Manager in cluster"
-  cluster_id  = data.rancher2_cluster.this.id
+  cluster_id  = rancher2_cluster_sync.this[0].cluster_id
   provider    = rancher2
 }
 
@@ -11,7 +11,7 @@ resource "rancher2_namespace" "traffic-manager" {
   count       = var.enable_telepresence ? 1 : 0
   depends_on  = [module.eks_cluster.eks_managed_node_groups]
   name        = "traffic-manager"
-  project_id  = rancher2_project.traffic-manager.id
+  project_id  = rancher2_project.traffic-manager[0].id
   description = "Namespace for Traffic Manager in cluster"
   provider    = rancher2
 }
@@ -109,6 +109,7 @@ managerRbac:
 }
 
 resource "null_resource" "patch_traffic_manager_host_network" {
+  count      = var.enable_telepresence ? 1 : 0
   depends_on = [helm_release.traffic-manager]
 
   provisioner "local-exec" {
@@ -118,14 +119,14 @@ resource "null_resource" "patch_traffic_manager_host_network" {
       sleep 10
 
       kubectl patch deployment traffic-manager \
-        -n ${rancher2_namespace.this.name} \
+        -n ${rancher2_namespace.traffic-manager[0].name} \
         -p '{"spec":{"template":{"spec":{"dnsPolicy":"ClusterFirstWithHostNet","hostNetwork":true}}}}'
     EOF
   }
 
   triggers = {
     helm_release_version = helm_release.traffic-manager[0].version
-    namespace            = rancher2_namespace.this.name
-    cluster_name         = data.rancher2_cluster.this.name
+    namespace            = rancher2_namespace.traffic-manager[0].name
+    cluster_name         = rancher2_cluster_sync.this[0].cluster_id
   }
 }
