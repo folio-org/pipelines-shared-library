@@ -20,7 +20,11 @@ properties([
     booleanParam(name: 'NATIVE', defaultValue: false, description: 'Build native [SC] image'),
     booleanParam(name: 'FORCE_MVN_CACHE_REFRESH', defaultValue: false, description: 'Force Maven cache refresh'),
     folioParameters.refreshParameters(),
-  ])
+  ]),
+  pipelineTriggers([
+    parameterizedCron('''
+      H 9 * * 2,3,4 %MODULE_BRANCH=master,NATIVE=true,FORCE_MVN_CACHE_REFRESH=false
+    ''')])
 ])
 
 /** Re-read updated Jenkinsfile code */
@@ -30,7 +34,7 @@ if (params.REFRESH_PARAMETERS) {
 }
 
 if (params.NAMESPACE in Constants.RANCHER_PROTECTED_NAMESPACES) {
- folioCommon.kitfoxApproval()
+  folioCommon.kitfoxApproval()
 }
 
 /** Job variables */
@@ -43,7 +47,7 @@ String featureHash = ""
 
 /** Collect Maven arguments */
 
-def  mavenArguments = params.FORCE_MVN_CACHE_REFRESH ? '-U -DskipTests' : '-DskipTests'
+def mavenArguments = params.FORCE_MVN_CACHE_REFRESH ? '-U -DskipTests' : '-DskipTests'
 
 if (params.NATIVE) {
   mavenArguments += ' -Pnative -Dnative.march=-march=compatibility'
@@ -59,66 +63,73 @@ def sidecarVersion = ""
 /** Pipeline */
 ansiColor('xterm') {
   podTemplates.javaBuildAgent(Constants.JAVA_LATEST_VERSION) {
-    /** Directory to build Sidecar within */
-    def sidecarWorkDir = "${env.WORKSPACE}/${sidecarModuleName}"
-    stage('Ini') {
-      featureHash = new GitHubClient(this).getBranchInfo(sidecarModuleName, featureBranch).commit.sha.take(7)
+    try {
+      /** Directory to build Sidecar within */
+      def sidecarWorkDir = "${env.WORKSPACE}/${sidecarModuleName}"
+      stage('Ini') {
+        featureHash = new GitHubClient(this).getBranchInfo(sidecarModuleName, featureBranch).commit.sha.take(7)
 
-      buildName "#${sidecarModuleName}.${env.BUILD_ID}"
-      buildDescription  "isNative: ${params.NATIVE} | branch: ${featureBranch} | hash: ${featureHash}"
-    }
+        buildName "#${sidecarModuleName}.${env.BUILD_ID}"
+        buildDescription "isNative: ${params.NATIVE} | branch: ${featureBranch} | hash: ${featureHash}"
+      }
 
-    stage('[Git] Checkout') {
-      checkout(scmGit(
-        branches: [[name: "*/${featureBranch}"]],
-        extensions: [cloneOption(depth: 50, noTags: true, reference: '', shallow: true),
-                     authorInChangelog(),
-                     submodule(recursiveSubmodules: true, reference: ''),
-                     [$class: 'RelativeTargetDirectory', relativeTargetDir: sidecarModuleName]],
-        userRemoteConfigs: [[credentialsId: Constants.PRIVATE_GITHUB_CREDENTIALS_ID,
-                             url          : "${Constants.FOLIO_GITHUB_URL}/${sidecarModuleName}.git"]]))
-    }
+      stage('[Git] Checkout') {
+        checkout(scmGit(
+          branches: [[name: "*/${featureBranch}"]],
+          extensions: [cloneOption(depth: 50, noTags: true, reference: '', shallow: true),
+                       authorInChangelog(),
+                       submodule(recursiveSubmodules: true, reference: ''),
+                       [$class: 'RelativeTargetDirectory', relativeTargetDir: sidecarModuleName]],
+          userRemoteConfigs: [[credentialsId: Constants.PRIVATE_GITHUB_CREDENTIALS_ID,
+                               url          : "${Constants.FOLIO_GITHUB_URL}/${sidecarModuleName}.git"]]))
+      }
 
-    stage('[Maven] Compile') {
-      container('java') {
-        dir(sidecarWorkDir) {
-          /** Read Sidecar version from its pom.xml file PLUS the latest commit hash on branch*/
-          sidecarVersion = (readMavenPom(file: 'pom.xml').version - '-SNAPSHOT') + (params.NATIVE == true ? "-native.${featureHash}" : "-SNAPSHOT.${featureHash}")
+      stage('[Maven] Compile') {
+        container('java') {
+          dir(sidecarWorkDir) {
+            /** Read Sidecar version from its pom.xml file PLUS the latest commit hash on branch*/
+            sidecarVersion = (readMavenPom(file: 'pom.xml').version - '-SNAPSHOT') + (params.NATIVE == true ? "-native.${featureHash}" : "-SNAPSHOT.${featureHash}")
 
-          /** Build Sidecar as Maven Project */
-          withMaven(jdk: Constants.JAVA_TOOL_NAME,
-            maven: Constants.MAVEN_TOOL_NAME,
-            traceability: true,
-            options: [artifactsPublisher(disabled: true)]) {
-            sh """
+            /** Build Sidecar as Maven Project */
+            withMaven(jdk: Constants.JAVA_TOOL_NAME,
+              maven: Constants.MAVEN_TOOL_NAME,
+              traceability: true,
+              options: [artifactsPublisher(disabled: true)]) {
+              sh """
                   mvn versions:set -DnewVersion=${sidecarVersion}
                   mvn clean ${params.NATIVE == true ? "install" : "package"} ${mavenArguments}
                 """.stripIndent()
-          }
-        }
-      }
-    }
-
-    stage('[Docker] Build and Push') {
-      common.checkEcrRepoExistence(sidecarModuleName)
-      container('kaniko') {
-        withAWS(credentials: Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID, region: Constants.AWS_REGION) {
-          ecrLogin()
-          folioKaniko.dockerHubLogin()
-          // Build and push the image
-          dir(sidecarWorkDir) {
-            if (params.NATIVE) {
-              sh """/kaniko/executor --destination \
-                  ${Constants.ECR_FOLIO_REPOSITORY}/${sidecarModuleName}:${sidecarVersion} -f docker/Dockerfile.native-micro --context .""".stripIndent()
-            } else {
-              sh """/kaniko/executor --destination \
-                  ${Constants.ECR_FOLIO_REPOSITORY}/${sidecarModuleName}:${sidecarVersion} --context .""".stripIndent()
             }
           }
         }
       }
-      writeFile file: "folio-module-sidecar-${sidecarVersion}.txt", text: "folio-module-sidecar-${sidecarVersion}"
-      archiveArtifacts artifacts: "folio-module-sidecar-${sidecarVersion}.txt" , onlyIfSuccessful: true
+
+      stage('[Docker] Build and Push') {
+        common.checkEcrRepoExistence(sidecarModuleName)
+        container('kaniko') {
+          withAWS(credentials: Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID, region: Constants.AWS_REGION) {
+            ecrLogin()
+            folioKaniko.dockerHubLogin()
+            // Build and push the image
+            dir(sidecarWorkDir) {
+              if (params.NATIVE) {
+                sh """/kaniko/executor --destination \
+                  ${Constants.ECR_FOLIO_REPOSITORY}/${sidecarModuleName}:${sidecarVersion} -f docker/Dockerfile.native-micro --context .""".stripIndent()
+              } else {
+                sh """/kaniko/executor --destination \
+                  ${Constants.ECR_FOLIO_REPOSITORY}/${sidecarModuleName}:${sidecarVersion} --context .""".stripIndent()
+              }
+            }
+          }
+        }
+        writeFile file: "folio-module-sidecar-${sidecarVersion}.txt", text: "folio-module-sidecar-${sidecarVersion}"
+        archiveArtifacts artifacts: "folio-module-sidecar-${sidecarVersion}.txt", onlyIfSuccessful: true
+      }
+    } catch (Exception e) {
+      currentBuild.result = 'FAILURE'
+      currentBuild.description = "${e.message}"
+      slackSend(color: 'danger', message: 'Native SC Binaries CI build failed: ' + "${env.BUILD_URL}", channel: '#folio-eureka-support')
+      logger.error("${e.message}")
     }
   }
 }
