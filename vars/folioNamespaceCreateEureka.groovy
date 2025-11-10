@@ -170,7 +170,7 @@ void call(CreateNamespaceParameters args) {
       namespace.addTenant(
         folioDefault.tenants()[namespace.getDefaultTenantId()]
           .convertTo(EurekaTenant.class)
-          .withInstallJson(installJson)
+          .withInstallJson(installJson, this)
           .withIndex(new Index('instance', true, true))
           .withIndex(new Index('authority', true, false))
           .withIndex(new Index('location', true, false))
