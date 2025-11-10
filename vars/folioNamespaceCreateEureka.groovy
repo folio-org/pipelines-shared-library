@@ -133,6 +133,8 @@ void call(CreateNamespaceParameters args) {
       installJson.removeAll { module -> module.id =~ /(mod-login|mod-authtoken|mod-login-saml)-\d+\..*/ }
       installJson.removeAll { module -> module.id == 'okapi' }
 
+      logger.debug("Install json after SC and unused modules removal")
+
       pinnedEurekaModules.each { pinned ->
         if (installJson.find { it.id =~ /${pinned.module}-.*/ }) {
           installJson.removeAll { module -> module.id =~ /${pinned.module}-.*/ }
@@ -163,6 +165,8 @@ void call(CreateNamespaceParameters args) {
       namespace.setEnableECS_CCL(args.ecsCCL)
       namespace.addDeploymentConfig(folioTools.getPipelineBranch())
 
+      logger.debug("Namespace after ini")
+
       namespace.addTenant(
         folioDefault.tenants()[namespace.getDefaultTenantId()]
           .convertTo(EurekaTenant.class)
@@ -192,6 +196,8 @@ void call(CreateNamespaceParameters args) {
         }
       }
 
+      logger.debug("Namespace after default tenants")
+
       if (args.folioExtensions.contains('consortia-eureka')) {
         namespace.setEnableConsortia(true, isRelease)
 
@@ -218,6 +224,8 @@ void call(CreateNamespaceParameters args) {
           }
       }
 
+      logger.debug("Namespace after consortia tenants")
+
       //In case update environment the reindex is not needed
       if (args.type == 'update')
         namespace.getTenants().values().each { tenant -> tenant.indexes.clear() }
@@ -237,6 +245,8 @@ void call(CreateNamespaceParameters args) {
         }
       }
 
+      logger.debug("DNS propagation check passed")
+
       //Don't move from here because it increases Keycloak TTL before mgr modules to be deployed
       Eureka eureka = new Eureka(this, namespace.generateDomain('kong'), namespace.generateDomain('keycloak'))
       Boolean check = false
@@ -252,6 +262,8 @@ void call(CreateNamespaceParameters args) {
           }
         }
       }
+
+      logger.debug("Keycloak TTL increased successfully")
 
       stage('[Helm] Deploy mgr-*') {
         folioHelm.withKubeConfig(namespace.getClusterName()) {
