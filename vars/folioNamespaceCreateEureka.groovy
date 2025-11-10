@@ -111,10 +111,14 @@ void call(CreateNamespaceParameters args) {
       boolean isRelease = args.folioBranch ==~ /^R\d-\d{4}.*/
       String commitHash = common.getLastCommitHash(folioRepository, args.folioBranch)
 
+      logger.debug("I'm in folioNamespaceCreateEureka.groovy script")
+
       List installJson = new GitHubUtility(this).getEnableList(folioRepository, args.folioBranch)
       List eurekaPlatform = new GitHubUtility(this).getEurekaList(folioRepository, args.folioBranch)
       List pinnedEurekaModules = new GitHubUtility(this).getEurekaPinnedList(folioRepository, args.folioBranch)
       installJson.addAll(eurekaPlatform)
+
+      logger.debug("Install json before modifications:\n${installJson}")
 
       if (args.scNative) {
         String tag = (awscli.listEcrImages(Constants.AWS_REGION, 'folio-module-sidecar')).replaceAll('"', '')
