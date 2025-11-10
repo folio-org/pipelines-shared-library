@@ -292,12 +292,14 @@ void call(CreateNamespaceParameters args) {
           counter++
           eureka.registerApplications(apps)
 
-        namespace.getTenants().values().each { it.assignApplications(apps)}
-        namespace.withApplications(apps)
+          namespace.getTenants().values().each { it.assignApplications(apps)}
+          namespace.withApplications(apps)
 
-        eureka.registerModulesFlow(namespace.applications.getInstallJson())
+          logger.debug("Let's print out namespace.applications.getInstallJson()")
+          logger.debug(namespace.applications.getInstallJson())
+          eureka.registerModulesFlow(namespace.applications.getInstallJson())
+        }
       }
-    }
 
       stage('[Helm] Deploy modules') {
         folioHelm.withKubeConfig(namespace.getClusterName()) {
