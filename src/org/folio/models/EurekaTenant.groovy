@@ -157,9 +157,9 @@ class EurekaTenant extends OkapiTenant {
     //TODO: Fix DTO convert issue with transformation from FolioInstallJson<FolioModule> to FolioInstallJson<EurekaModule>
     modules = new FolioInstallJson(EurekaModule.class)
 
-    context.logger.info("Setting installJson for tenant")
+    context.println("Setting installJson for tenant")
     super.withInstallJson(installJson)
-    context.logger.info("InstallJson after super call for tenant")
+    context.println("InstallJson after super call for tenant")
 
     this.modules.removeModulesByName(['mod-consortia-keycloak', 'folio_consortia-settings'])
     return this
