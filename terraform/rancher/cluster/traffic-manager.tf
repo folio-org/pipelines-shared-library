@@ -114,7 +114,7 @@ resource "null_resource" "patch_traffic_manager_host_network" {
 
   provisioner "local-exec" {
     command = <<-EOF
-      aws eks update-kubeconfig --name ${data.rancher2_cluster.this.name} --region ${var.aws_region}
+      aws eks update-kubeconfig --name ${rancher2_cluster_sync.this[0].cluster_id} --region ${var.aws_region}
 
       sleep 10
 
