@@ -109,6 +109,9 @@ spec:
           workingDir: WORKING_DIR,
           resourceRequestMemory: '1024Mi',
           resourceLimitMemory: '1536Mi',
+          envVars: [
+            new KeyValueEnvVar('JENKINS_JAVA_OPTS', '-Dorg.jenkinsci.remoting.engine.JnlpAgentEndpointResolver.PING_INTERVAL=30 -Dorg.jenkinsci.remoting.engine.JnlpAgentEndpointResolver.PING_TIMEOUT=600')
+          ]
         )]) {
       body.call()
     }
@@ -413,4 +416,3 @@ spec:
     }
   }
 }
-
