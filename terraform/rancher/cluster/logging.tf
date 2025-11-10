@@ -27,7 +27,8 @@ resource "rancher2_namespace" "logging" {
 
 # Create Cognito user pool and client for authentication
 resource "aws_cognito_user_pool" "kibana_user_pool" {
-  name = "${module.eks_cluster.cluster_name}-kibana-user-pool"
+  count = var.enable_logging ? 1 : 0
+  name  = "${module.eks_cluster.cluster_name}-kibana-user-pool"
 
   password_policy {
     minimum_length                   = 8
@@ -36,8 +37,9 @@ resource "aws_cognito_user_pool" "kibana_user_pool" {
 }
 
 resource "aws_cognito_user_pool_client" "kibana_userpool_client" {
+  count                                = var.enable_logging ? 1 : 0
   name                                 = "${module.eks_cluster.cluster_name}-kibana"
-  user_pool_id                         = aws_cognito_user_pool.kibana_user_pool.id
+  user_pool_id                         = aws_cognito_user_pool.kibana_user_pool[0].id
   generate_secret                      = true
   callback_urls                        = ["https://${module.eks_cluster.cluster_name}-kibana.${var.root_domain}/oauth2/idpresponse"]
   allowed_oauth_flows_user_pool_client = true
@@ -48,7 +50,7 @@ resource "aws_cognito_user_pool_client" "kibana_userpool_client" {
 
 resource "aws_cognito_user_pool_domain" "kibana_cognito_domain" {
   domain       = "${module.eks_cluster.cluster_name}-kibana"
-  user_pool_id = aws_cognito_user_pool.kibana_user_pool.id
+  user_pool_id = aws_cognito_user_pool.kibana_user_pool[0].id
 }
 
 # Create rancher2 Elasticsearch app in logging namespace
