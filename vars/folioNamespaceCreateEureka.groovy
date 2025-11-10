@@ -179,6 +179,9 @@ void call(CreateNamespaceParameters args) {
           .enableFolioExtensions(this, args.folioExtensions - 'consortia-eureka' - 'consortia', isRelease)
       )
 
+      logger.debug("Namespace after main default tenant")
+      input message: "Proceed with adding additional tenants?", ok: "Yes, let's proceed!"
+
       if (args.dataset) {
         List nonECS = ['fs09000002', 'fs09000003']
         nonECS.each { tenantId ->
