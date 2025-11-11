@@ -19,6 +19,7 @@
 .mcp.json
 .cursor*
 claude*
+.github/*instructions*
 
 # Miscellaneous
 *.class
