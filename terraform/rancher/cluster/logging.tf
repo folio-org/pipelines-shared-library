@@ -27,7 +27,8 @@ resource "rancher2_namespace" "logging" {
 
 # Create Cognito user pool and client for authentication
 resource "aws_cognito_user_pool" "kibana_user_pool" {
-  name = "${module.eks_cluster.cluster_name}-kibana-user-pool"
+  count = var.enable_logging ? 1 : 0
+  name  = "${module.eks_cluster.cluster_name}-kibana-user-pool"
 
   password_policy {
     minimum_length                   = 8
@@ -36,8 +37,9 @@ resource "aws_cognito_user_pool" "kibana_user_pool" {
 }
 
 resource "aws_cognito_user_pool_client" "kibana_userpool_client" {
+  count                                = var.enable_logging ? 1 : 0
   name                                 = "${module.eks_cluster.cluster_name}-kibana"
-  user_pool_id                         = aws_cognito_user_pool.kibana_user_pool.id
+  user_pool_id                         = aws_cognito_user_pool.kibana_user_pool[0].id
   generate_secret                      = true
   callback_urls                        = ["https://${module.eks_cluster.cluster_name}-kibana.${var.root_domain}/oauth2/idpresponse"]
   allowed_oauth_flows_user_pool_client = true
@@ -47,8 +49,9 @@ resource "aws_cognito_user_pool_client" "kibana_userpool_client" {
 }
 
 resource "aws_cognito_user_pool_domain" "kibana_cognito_domain" {
+  count        = var.enable_logging ? 1 : 0
   domain       = "${module.eks_cluster.cluster_name}-kibana"
-  user_pool_id = aws_cognito_user_pool.kibana_user_pool.id
+  user_pool_id = aws_cognito_user_pool.kibana_user_pool[0].id
 }
 
 # Create rancher2 Elasticsearch app in logging namespace
@@ -319,7 +322,7 @@ resource "rancher2_app_v2" "kibana" {
         alb.ingress.kubernetes.io/success-codes: 200-399
         alb.ingress.kubernetes.io/healthcheck-path: /api/status
         alb.ingress.kubernetes.io/load-balancer-attributes: idle_timeout.timeout_seconds=4000
-        alb.ingress.kubernetes.io/auth-idp-cognito: '{"UserPoolArn":"${aws_cognito_user_pool.kibana_user_pool.arn}","UserPoolClientId":"${aws_cognito_user_pool_client.kibana_userpool_client.id}", "UserPoolDomain":"${module.eks_cluster.cluster_name}-kibana"}'
+        alb.ingress.kubernetes.io/auth-idp-cognito: '{"UserPoolArn":"${aws_cognito_user_pool.kibana_user_pool[0].arn}","UserPoolClientId":"${aws_cognito_user_pool_client.kibana_userpool_client[0].id}", "UserPoolDomain":"${module.eks_cluster.cluster_name}-kibana"}'
         alb.ingress.kubernetes.io/auth-on-unauthenticated-request: authenticate
         alb.ingress.kubernetes.io/auth-scope: openid
         alb.ingress.kubernetes.io/auth-session-cookie: AWSELBAuthSessionCookie

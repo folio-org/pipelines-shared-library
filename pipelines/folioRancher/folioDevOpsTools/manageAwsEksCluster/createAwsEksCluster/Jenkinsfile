@@ -20,6 +20,7 @@ properties([
     booleanParam(name: 'SORRY_CYPRESS', defaultValue: false, description: 'Deploy Sorry Cypress to cluster'),
     booleanParam(name: 'ENABLE_LOGGING', defaultValue: false, description: 'Deploy ELK stack to cluster'),
     booleanParam(name: 'ENABLE_MONITORING', defaultValue: true, description: 'Deploy Prometheus to cluster'),
+    booleanParam(name: 'ENABLE_TELEPRESENCE', defaultValue: false, description: 'Deploy Telepresence to cluster'),
     folioParameters.refreshParameters()
   ])
 ])
@@ -43,6 +44,7 @@ tfConfig.addVar('deploy_kubecost', params.KUBECOST)
 tfConfig.addVar('deploy_sorry_cypress', params.SORRY_CYPRESS)
 tfConfig.addVar('enable_logging', params.ENABLE_LOGGING)
 tfConfig.addVar('enable_monitoring', params.ENABLE_MONITORING)
+tfConfig.addVar('enable_telepresence', params.ENABLE_TELEPRESENCE)
 
 ansiColor('xterm') {
   podTemplates.rancherAgent {
@@ -56,7 +58,7 @@ ansiColor('xterm') {
         credentialsId: Constants.PRIVATE_GITHUB_CREDENTIALS_ID,
         poll: false)
     }
-
+    folioCommon.kitfoxApproval()
     folioTerraformFlow.manageCluster('apply', tfConfig)
   }
 }

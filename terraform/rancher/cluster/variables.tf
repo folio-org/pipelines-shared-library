@@ -144,3 +144,9 @@ variable "slack_webhook_url" {
   type        = string
   description = "Apply slack api url for slack webhook"
 }
+
+variable "enable_telepresence" {
+  type        = bool
+  default     = false
+  description = "Enable Telepresence if true"
+}
