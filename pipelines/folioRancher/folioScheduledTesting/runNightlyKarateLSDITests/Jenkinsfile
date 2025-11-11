@@ -9,7 +9,7 @@ import org.folio.rest_v2.Constants as RestConstants
 import org.folio.rest_v2.PlatformType
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library@RANCHER-2623') _
+@Library('pipelines-shared-library') _
 
 /**
  * Job properties and parameters
