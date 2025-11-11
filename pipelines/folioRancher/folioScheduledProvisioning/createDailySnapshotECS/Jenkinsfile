@@ -34,7 +34,7 @@ Logger logger = new Logger(this, env.JOB_BASE_NAME)
 String defaultTenantId = 'cs00000int'
 String installJsonS3Path = "${Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME}/ecs-snapshot/"
 List newInstallJson = []
-RancherNamespace namespace = new RancherNamespace('folio-testing', 'ecs-snapshot')
+RancherNamespace namespace = new RancherNamespace('folio-etesting', 'ecs-snapshot')
   .withDefaultTenant(defaultTenantId)
   .withDeploymentConfigType('testing')
   .withSuperTenantAdminUser()
@@ -49,7 +49,7 @@ TerraformConfig tfConfig = new TerraformConfig('terraform/rancher/project')
   .withWorkspace("${namespace.getClusterName()}-${namespace.getNamespaceName()}")
 
 CreateNamespaceParameters namespaceBaseParams = new CreateNamespaceParameters.Builder()
-  .clusterName('folio-testing')
+  .clusterName('folio-etesting')
   .namespaceName('ecs-snapshot')
   .rwSplit(false)
   .greenmail(false)
@@ -72,7 +72,7 @@ ansiColor('xterm') {
     }
 
     stage('[TF] Set variables') {
-      tfConfig.addVar('rancher_cluster_name', 'folio-testing')
+      tfConfig.addVar('rancher_cluster_name', 'folio-etesting')
       tfConfig.addVar('rancher_project_name', 'ecs-snapshot')
       tfConfig.addVar('tenant_id', defaultTenantId)
       tfConfig.addVar('pg_password', Constants.PG_ROOT_DEFAULT_PASSWORD)
@@ -109,7 +109,7 @@ ansiColor('xterm') {
         }
 
         stage('[DB and Indices] Restore') {
-          folioHelm.withKubeConfig('folio-testing') {
+          folioHelm.withKubeConfig('folio-etesting') {
             folioPrint.colored("Restoring psql ecs dump...\nEstimated duration: ~ 1-2 hours", "green")
             params.RETRY ? null : psqlDumpMethods.restoreHelmData("psql-restore", "psql-dump", "1.0.6", "roles", "ecs-snapshot", Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME, "ecs-snapshot", "ecs-snapshot")
           }
@@ -176,7 +176,7 @@ ansiColor('xterm') {
 
       stage('Build and deploy UI') {
         build job: '/folioDevTools/uiManagement/buildAndDeployUI',
-          parameters: [string(name: 'CLUSTER', value: 'folio-testing'),
+          parameters: [string(name: 'CLUSTER', value: 'folio-etesting'),
                        string(name: 'NAMESPACE', value: 'ecs-snapshot'),
                        string(name: 'FOLIO_REPOSITORY', value: 'platform-complete'),
                        string(name: 'FOLIO_BRANCH', value: 'snapshot'),
