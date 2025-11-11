@@ -20,6 +20,8 @@
 .cursor*
 claude*
 .github/*instructions*
+.github/*prompts*
+.github/*chatmodes*
 
 # Miscellaneous
 *.class
