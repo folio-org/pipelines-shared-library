@@ -130,8 +130,8 @@ void call(CreateNamespaceParameters args) {
       installJson.removeAll { module -> module.id == 'okapi' }
 
       pinnedEurekaModules.each { pinned ->
-        if (installJson.find { it.id =~ /${pinned.module}-.*/ }) {
-          installJson.removeAll { module -> module.id =~ /${pinned.module}-.*/ }
+        if (installJson.find { it.id =~ /^${pinned.module}-\d+\..*/ }) {
+          installJson.removeAll { module -> module.id =~ /^${pinned.module}-\d+\..*/ }
           installJson.add([id: "${pinned.module}-${pinned.version}", action: 'enable'])
         }
       }
