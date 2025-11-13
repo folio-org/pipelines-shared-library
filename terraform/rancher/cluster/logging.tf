@@ -281,10 +281,7 @@ resource "rancher2_app_v2" "kibana" {
         logging:
           appenders:
             default:
-              type: console
-              layout:
-                type: pattern
-                pattern: "[%date] [%level] [%logger] %message"
+              type: json
           root:
             level: info
     
@@ -362,27 +359,14 @@ data:
           matchers:
           - logs_path:
               logs_path: "/var/log/containers/"
-      # Filter to include only cypress, karate, cikarate, cicypress, snapshot, and sprint namespace logs
+      # Filter to exclude system namespaces and include all others
       - drop_event:
           when:
-            not:
-              or:
-                - contains:
-                    kubernetes.namespace: "cypress"
-                - contains:
-                    kubernetes.namespace: "karate"
-                - contains:
-                    kubernetes.namespace: "cikarate"
-                - contains:
-                    kubernetes.namespace: "cicypress"
-                - contains:
-                    kubernetes.namespace: "snapshot"
-                - contains:
-                    kubernetes.namespace: "snapshot2"    
-                - contains:
-                    kubernetes.namespace: "sprint"
-                - contains:
-                    kubernetes.namespace: "lsdi"    
+            or:
+              - regexp:
+                  kubernetes.namespace: '^kube-.*'
+              - regexp:
+                  kubernetes.namespace: '^cattle-.*'    
       - drop_fields:
           fields: ["host", "agent", "ecs", "input"]
       - decode_json_fields:
