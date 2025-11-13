@@ -403,7 +403,7 @@ data:
               - regexp:
                   kubernetes.namespace: '^sorry-cypress$'           
       - drop_fields:
-          fields: ["host", "agent", "ecs", "input", "stream"]
+          fields: ["host*", "agent*", "ecs*", "input*", "stream*"]
     
     # Enable HTTP endpoint for health checks
     http:
