@@ -366,7 +366,19 @@ data:
               - regexp:
                   kubernetes.namespace: '^kube-.*'
               - regexp:
-                  kubernetes.namespace: '^cattle-.*'    
+                  kubernetes.namespace: '^cattle-.*'
+              - regexp:
+                  kubernetes.namespace: '^logging$'
+              - regexp:
+                  kubernetes.namespace: '^kubecost$'
+              - regexp:
+                  kubernetes.namespace: '^default$'
+              - regexp:
+                  kubernetes.namespace: '^monitoring$'
+              - regexp:
+                  kubernetes.namespace: '^local$'
+              - regexp:
+                  kubernetes.namespace: '^sorry-cypress$'           
       - drop_fields:
           fields: ["host", "agent", "ecs", "input"]
       - decode_json_fields:
