@@ -359,6 +359,29 @@ data:
           matchers:
           - logs_path:
               logs_path: "/var/log/containers/"
+      # Parse container JSON logs first
+      - decode_json_fields:
+          fields: ["message"]
+          target: ""
+          overwrite_keys: true
+      # Then parse application logs if they are JSON
+      - decode_json_fields:
+          fields: ["log", "message"]
+          target: "app"
+          overwrite_keys: false
+          add_error_key: true
+          when:
+            or:
+              - contains:
+                  log: "{"
+              - contains:
+                  message: "{"
+      # Extract log level from message
+      - dissect:
+          tokenizer: "%%{timestamp} %%{level} %%{+message}"
+          field: "message"
+          target_prefix: ""
+          ignore_failure: true
       # Filter to exclude system namespaces and include all others
       - drop_event:
           when:
@@ -380,14 +403,7 @@ data:
               - regexp:
                   kubernetes.namespace: '^sorry-cypress$'           
       - drop_fields:
-          fields: ["host", "agent", "ecs", "input"]
-      - decode_json_fields:
-          fields: ["message"]
-          target: ""
-          overwrite_keys: true
-          when:
-            contains:
-              message: "{"
+          fields: ["host", "agent", "ecs", "input", "stream"]
     
     # Enable HTTP endpoint for health checks
     http:
