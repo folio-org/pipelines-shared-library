@@ -369,8 +369,8 @@ void generateAndPublishAllureReport(List resultPaths) {
 
   stage('[Allure] Generate report') {
     def allureHome = tool type: 'allure', name: Constants.CYPRESS_ALLURE_VERSION
-    // Set Java heap size to 6GB and configure ForkJoinPool to prevent OutOfMemoryError during report generation reported by Ostap in RANCHER-2546
-    sh "JAVA_TOOL_OPTIONS='-Xmx6G -Xms2G -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp -XX:MaxDirectMemorySize=1G -Djava.util.concurrent.ForkJoinPool.common.parallelism=2' ${allureHome}/bin/allure generate --clean ${resultPaths.collect { path -> "${path}/allure-results" }.join(" ")}"
+    // Set Java heap size to 12GB and configure ForkJoinPool to prevent OutOfMemoryError during report generation reported by Ostap in RANCHER-2546
+    sh "JAVA_TOOL_OPTIONS='-Xmx12G -Xms2G -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp -XX:MaxDirectMemorySize=1G -Djava.util.concurrent.ForkJoinPool.common.parallelism=2' ${allureHome}/bin/allure generate --clean ${resultPaths.collect { path -> "${path}/allure-results" }.join(" ")}"
   }
 
   stage('[Allure] Publish report') {
