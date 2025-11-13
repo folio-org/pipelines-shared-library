@@ -110,7 +110,11 @@ spec:
           resourceRequestMemory: '1024Mi',
           resourceLimitMemory: '1536Mi',
           envVars: [
-            new KeyValueEnvVar('JENKINS_JAVA_OPTS', '-Dorg.jenkinsci.remoting.engine.JnlpAgentEndpointResolver.PING_INTERVAL=30 -Dorg.jenkinsci.remoting.engine.JnlpAgentEndpointResolver.PING_TIMEOUT=600')
+            new KeyValueEnvVar('JENKINS_JAVA_OPTS',
+              '-Dorg.jenkinsci.remoting.engine.JnlpAgentEndpointResolver.PING_INTERVAL=30' +
+                ' -Dorg.jenkinsci.remoting.engine.JnlpAgentEndpointResolver.PING_TIMEOUT=600' +
+                ' -Dorg.jenkinsci.remoting.websocket.WebSocketSession.pingInterval=30'),
+            new KeyValueEnvVar('REMOTING_OPTS', '-workdir ' + WORKING_DIR + ' -retry 10 -retryInterval 30')
           ]
         )]) {
       body.call()
