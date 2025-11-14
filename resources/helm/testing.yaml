@@ -5242,7 +5242,7 @@ mgr-applications:
     - name: SECURITY_ENABLED
       value: 'true'
   extraJavaOpts:
-    - "-Dlogging.level.root=DEBUG -Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties"
+    - "-Dlogging.level.root=INFO -Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties"
     - -XX:MaxRAMPercentage=80.0
   integrations:
     db:
@@ -5253,7 +5253,7 @@ mgr-applications:
       existingSecret: kafka-credentials
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -5289,7 +5289,7 @@ mgr-tenants:
     - name: MTE_URL
       value: "http://mgr-tenant-entitlements"  
   extraJavaOpts:
-    - "-Dlogging.level.root=DEBUG -Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties"
+    - "-Dlogging.level.root=INFO -Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties"
     - -XX:MaxRAMPercentage=75.0
   integrations:
     db:
@@ -5300,7 +5300,7 @@ mgr-tenants:
       existingSecret: kafka-credentials
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -5317,7 +5317,7 @@ mgr-tenants:
     initialDelaySeconds: 20
 mgr-tenant-entitlements:
   extraJavaOpts:
-    - "-Dlogging.level.root=DEBUG -Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties"
+    - "-Dlogging.level.root=INFO -Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties"
     - -XX:MaxRAMPercentage=80.0
   extraEnvVars:
     - name: ROUTEMANAGEMENT_ENABLE
@@ -5361,7 +5361,7 @@ mgr-tenant-entitlements:
       existingSecret: kafka-credentials
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
