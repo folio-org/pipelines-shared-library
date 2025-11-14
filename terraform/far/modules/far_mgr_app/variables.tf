@@ -77,7 +77,7 @@ variable "extra_java_opts" {
   description = "List of additional Java options for the application"
   type        = list(string)
   default = [
-    "-Dlogging.level.root=DEBUG -Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties",
+    "-Dlogging.level.root=INFO -Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties",
     "-XX:MaxRAMPercentage=70.0"
   ]
 }
