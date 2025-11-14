@@ -25,7 +25,7 @@ edge-caiasoft:
       fileName: edge-caiasoft-ephemeral-properties
       existingConfig: edge-caiasoft-ephemeral-properties
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -59,7 +59,7 @@ edge-connexion:
       fileName: edge-connexion-ephemeral-properties
       existingConfig: edge-connexion-ephemeral-properties
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -111,7 +111,7 @@ edge-courses:
       fileName: edge-courses-ephemeral-properties
       existingConfig: edge-courses-ephemeral-properties
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -155,7 +155,7 @@ edge-dcb:
       fileName: edge-dcb-ephemeral-properties
       existingConfig: edge-dcb-ephemeral-properties
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -199,7 +199,7 @@ edge-dematic:
       fileName: edge-dematic-ephemeral-properties
       existingConfig: edge-dematic-ephemeral-properties
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -238,7 +238,7 @@ edge-erm:
       fileName: edge-erm-ephemeral-properties
       existingConfig: edge-erm-ephemeral-properties
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -282,7 +282,7 @@ edge-fqm:
       fileName: edge-fqm-ephemeral-properties
       existingConfig: edge-fqm-ephemeral-properties
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -324,7 +324,7 @@ edge-inn-reach:
       fileName: edge-inn-reach-ephemeral-properties
       existingConfig: edge-inn-reach-ephemeral-properties
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -373,7 +373,7 @@ edge-inventory:
       fileName: edge-inventory-ephemeral-properties
       existingConfig: edge-inventory-ephemeral-properties
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -415,7 +415,7 @@ edge-users:
       fileName: edge-users-ephemeral-properties
       existingConfig: edge-users-ephemeral-properties
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -452,7 +452,7 @@ edge-ncip:
       fileName: edge-ncip-ephemeral-properties
       existingConfig: edge-ncip-ephemeral-properties
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -496,7 +496,7 @@ edge-oai-pmh:
       fileName: edge-oai-pmh-ephemeral-properties
       existingConfig: edge-oai-pmh-ephemeral-properties
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -576,7 +576,7 @@ edge-orders:
       fileName: edge-orders-ephemeral-properties
       existingConfig: edge-orders-ephemeral-properties
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -620,7 +620,7 @@ edge-patron:
       fileName: edge-patron-ephemeral-properties
       existingConfig: edge-patron-ephemeral-properties
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -664,7 +664,7 @@ edge-rtac:
       fileName: edge-rtac-ephemeral-properties
       existingConfig: edge-rtac-ephemeral-properties
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -695,7 +695,7 @@ edge-sip2:
       fileName: edge-sip2-ephemeral-properties
       existingConfig: edge-sip2-ephemeral-properties
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -717,7 +717,7 @@ mod-aes:
   integrations: {}
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -786,7 +786,7 @@ mod-agreements:
     eureka:
       extraEnvVars:
         - name: JAVA_OPTS
-          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 256Mi
@@ -803,7 +803,7 @@ mod-audit:
       existingSecret: kafka-credentials
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -836,7 +836,7 @@ mod-audit:
     eureka:
       extraEnvVars:
         - name: JAVA_OPTS
-          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 256Mi
@@ -856,7 +856,7 @@ mod-authtoken:
       existingSecret: db-credentials
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -891,7 +891,7 @@ mod-batch-print:
       existingSecret: db-credentials
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -924,7 +924,7 @@ mod-batch-print:
     eureka:
       extraEnvVars:
         - name: JAVA_OPTS
-          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 256Mi
@@ -958,7 +958,7 @@ mod-bulk-operations:
       existingSecret: mod-bulk-operations-systemuser
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -991,7 +991,7 @@ mod-bulk-operations:
     eureka:
       extraEnvVars:
         - name: JAVA_OPTS
-          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 256Mi
@@ -1005,7 +1005,7 @@ mod-calendar:
       existingSecret: db-credentials
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -1038,7 +1038,7 @@ mod-calendar:
     eureka:
       extraEnvVars:
         - name: JAVA_OPTS
-          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 256Mi
@@ -1060,7 +1060,7 @@ mod-camunda:
       existingSecret: kafka-credentials
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -1101,7 +1101,7 @@ mod-circulation:
       existingSecret: okapi-credentials
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -1134,7 +1134,7 @@ mod-circulation:
     eureka:
       extraEnvVars:
         - name: JAVA_OPTS
-          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms256m -Xmx256m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms256m -Xmx256m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 256Mi
@@ -1151,7 +1151,7 @@ mod-circulation-bff:
       existingSecret: mod-circulation-bff-systemuser
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -1184,7 +1184,7 @@ mod-circulation-bff:
     eureka:
       extraEnvVars:
         - name: JAVA_OPTS
-          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 256Mi
@@ -1203,7 +1203,7 @@ mod-circulation-storage:
       existingSecret: kafka-credentials
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -1236,7 +1236,7 @@ mod-circulation-storage:
     eureka:
       extraEnvVars:
         - name: JAVA_OPTS
-          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms256m -Xmx256m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms256m -Xmx256m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 256Mi
@@ -1247,7 +1247,7 @@ mod-codex-ekb:
   integrations: {}
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -1274,7 +1274,7 @@ mod-codex-inventory:
   integrations: {}
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -1301,7 +1301,7 @@ mod-codex-mux:
   integrations: {}
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -1331,7 +1331,7 @@ mod-configuration:
       existingSecret: db-credentials
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -1364,7 +1364,7 @@ mod-configuration:
     eureka:
       extraEnvVars:
         - name: JAVA_OPTS
-          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms256m -Xmx256m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms256m -Xmx256m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 256Mi
@@ -1387,7 +1387,7 @@ mod-consortia:
       existingSecret: mod-consortia-systemuser
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -1424,7 +1424,7 @@ mod-copycat:
       existingSecret: db-credentials
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -1457,7 +1457,7 @@ mod-copycat:
     eureka:
       extraEnvVars:
         - name: JAVA_OPTS
-          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 256Mi
@@ -1471,7 +1471,7 @@ mod-courses:
       existingSecret: db-credentials
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -1504,7 +1504,7 @@ mod-courses:
     eureka:
       extraEnvVars:
         - name: JAVA_OPTS
-          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 256Mi
@@ -1524,7 +1524,7 @@ mod-data-export:
       existingSecret: okapi-credentials
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -1552,7 +1552,7 @@ mod-data-export:
     eureka:
       extraEnvVars:
         - name: JAVA_OPTS
-          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 256Mi
@@ -1575,7 +1575,7 @@ mod-data-export-spring:
       existingSecret: mod-data-export-spring-systemuser
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -1603,7 +1603,7 @@ mod-data-export-spring:
     eureka:
       extraEnvVars:
         - name: JAVA_OPTS
-          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 256Mi
@@ -1623,7 +1623,7 @@ mod-data-export-worker:
       existingSecret: s3-mod-data-export-worker-credentials
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -1656,7 +1656,7 @@ mod-data-export-worker:
     eureka:
       extraEnvVars:
         - name: JAVA_OPTS
-          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 256Mi
@@ -1679,7 +1679,7 @@ mod-data-import:
       existingSecret: okapi-credentials
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -1707,7 +1707,7 @@ mod-data-import:
     eureka:
       extraEnvVars:
         - name: JAVA_OPTS
-          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms160m -Xmx160m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms160m -Xmx160m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 256Mi
@@ -1729,7 +1729,7 @@ mod-linked-data-import:
       existingSecret: s3-mod-linked-data-import-credentials
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -1758,7 +1758,7 @@ mod-linked-data-import:
     eureka:
       extraEnvVars:
         - name: JAVA_OPTS
-          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms160m -Xmx160m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms160m -Xmx160m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 256Mi
@@ -1772,7 +1772,7 @@ mod-di-converter-storage:
       existingSecret: db-credentials
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -1805,7 +1805,7 @@ mod-di-converter-storage:
     eureka:
       extraEnvVars:
         - name: JAVA_OPTS
-          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 256Mi
@@ -1816,7 +1816,7 @@ mod-ebsconet:
   integrations: {}
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -1849,7 +1849,7 @@ mod-ebsconet:
     eureka:
       extraEnvVars:
         - name: JAVA_OPTS
-          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 256Mi
@@ -1863,7 +1863,7 @@ mod-email:
       existingSecret: db-credentials
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -1896,7 +1896,7 @@ mod-email:
     eureka:
       extraEnvVars:
         - name: JAVA_OPTS
-          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 256Mi
@@ -1930,7 +1930,7 @@ mod-entities-links:
       existingSecret: s3-mod-marc-migrations-credentials
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -1963,7 +1963,7 @@ mod-entities-links:
     eureka:
       extraEnvVars:
         - name: JAVA_OPTS
-          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 256Mi
@@ -1977,7 +1977,7 @@ mod-erm-usage:
       existingSecret: db-credentials
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -2010,7 +2010,7 @@ mod-erm-usage:
     eureka:
       extraEnvVars:
         - name: JAVA_OPTS
-          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 256Mi
@@ -2030,7 +2030,7 @@ mod-erm-usage-harvester:
       existingSecret: mod-erm-usage-harvester-systemuser
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -2063,7 +2063,7 @@ mod-erm-usage-harvester:
     eureka:
       extraEnvVars:
         - name: JAVA_OPTS
-          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms160m -Xmx160m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms160m -Xmx160m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 256Mi
@@ -2077,7 +2077,7 @@ mod-eusage-reports:
       existingSecret: db-credentials
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -2110,7 +2110,7 @@ mod-eusage-reports:
     eureka:
       extraEnvVars:
         - name: JAVA_OPTS
-          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 256Mi
@@ -2124,7 +2124,7 @@ mod-event-config:
       existingSecret: db-credentials
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -2157,7 +2157,7 @@ mod-event-config:
     eureka:
       extraEnvVars:
         - name: JAVA_OPTS
-          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 256Mi
@@ -2171,7 +2171,7 @@ mod-feesfines:
       existingSecret: db-credentials
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -2204,7 +2204,7 @@ mod-feesfines:
     eureka:
       extraEnvVars:
         - name: JAVA_OPTS
-          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms160m -Xmx160m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms160m -Xmx160m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 256Mi
@@ -2223,7 +2223,7 @@ mod-finc-config:
       existingSecret: db-credentials
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -2256,7 +2256,7 @@ mod-finc-config:
     eureka:
       extraEnvVars:
         - name: JAVA_OPTS
-          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms160m -Xmx160m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms160m -Xmx160m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 256Mi
@@ -2267,7 +2267,7 @@ mod-finance:
   integrations: {}
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -2300,7 +2300,7 @@ mod-finance:
     eureka:
       extraEnvVars:
         - name: JAVA_OPTS
-          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms160m -Xmx160m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms160m -Xmx160m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 256Mi
@@ -2314,7 +2314,7 @@ mod-finance-storage:
       existingSecret: db-credentials
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -2347,7 +2347,7 @@ mod-finance-storage:
     eureka:
       extraEnvVars:
         - name: JAVA_OPTS
-          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 256Mi
@@ -2365,7 +2365,7 @@ mod-fqm-manager:
       existingSecret: db-credentials
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -2398,7 +2398,7 @@ mod-fqm-manager:
     eureka:
       extraEnvVars:
         - name: JAVA_OPTS
-          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 256Mi
@@ -2412,7 +2412,7 @@ mod-gobi:
       existingSecret: db-credentials
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -2445,7 +2445,7 @@ mod-gobi:
     eureka:
       extraEnvVars:
         - name: JAVA_OPTS
-          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 256Mi
@@ -2456,7 +2456,7 @@ mod-graphql:
   integrations: {}
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -2489,7 +2489,7 @@ mod-graphql:
     eureka:
       extraEnvVars:
         - name: JAVA_OPTS
-          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 256Mi
@@ -2514,7 +2514,7 @@ mod-inn-reach:
       existingSecret: mod-inn-reach-systemuser
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -2547,7 +2547,7 @@ mod-inn-reach:
     eureka:
       extraEnvVars:
         - name: JAVA_OPTS
-          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 256Mi
@@ -2607,7 +2607,7 @@ mod-inventory:
       existingSecret: mod-inventory-systemuser
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -2641,7 +2641,7 @@ mod-inventory:
     eureka:
       extraEnvVars:
         - name: JAVA_OPTS
-          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms256m -Xmx256m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms256m -Xmx256m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 256Mi
@@ -2665,7 +2665,7 @@ mod-inventory-storage:
       existingSecret: s3-mod-marc-migrations-credentials
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -2698,7 +2698,7 @@ mod-inventory-storage:
     eureka:
       extraEnvVars:
         - name: JAVA_OPTS
-          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms256m -Xmx256m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms256m -Xmx256m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 256Mi
@@ -2709,7 +2709,7 @@ mod-inventory-update:
   integrations: {}
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -2742,7 +2742,7 @@ mod-inventory-update:
     eureka:
       extraEnvVars:
         - name: JAVA_OPTS
-          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 256Mi
@@ -2766,7 +2766,7 @@ mod-invoice:
       existingSecret: mod-invoice-systemuser
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -2799,7 +2799,7 @@ mod-invoice:
     eureka:
       extraEnvVars:
         - name: JAVA_OPTS
-          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 256Mi
@@ -2816,7 +2816,7 @@ mod-invoice-storage:
       existingSecret: kafka-credentials
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -2849,7 +2849,7 @@ mod-invoice-storage:
     eureka:
       extraEnvVars:
         - name: JAVA_OPTS
-          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 256Mi
@@ -2863,7 +2863,7 @@ mod-kb-ebsco-java:
       existingSecret: db-credentials
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -2896,7 +2896,7 @@ mod-kb-ebsco-java:
     eureka:
       extraEnvVars:
         - name: JAVA_OPTS
-          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 256Mi
@@ -2910,7 +2910,7 @@ mod-ldp:
       existingSecret: db-credentials
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -2944,7 +2944,7 @@ mod-reporting:
   integrations: {}
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -2987,7 +2987,7 @@ mod-licenses:
       existingSecret: s3-mod-licenses-credentials
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -3020,7 +3020,7 @@ mod-licenses:
     eureka:
       extraEnvVars:
         - name: JAVA_OPTS
-          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 256Mi
@@ -3042,7 +3042,7 @@ mod-linked-data:
       existingSecret: mod-linked-data-systemuser
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -3098,7 +3098,7 @@ mod-lists:
       existingSecret: mod-lists-systemuser
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -3131,7 +3131,7 @@ mod-lists:
     eureka:
       extraEnvVars:
         - name: JAVA_OPTS
-          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 256Mi
@@ -3145,7 +3145,7 @@ mod-login:
       existingSecret: db-credentials
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -3184,7 +3184,7 @@ mod-login-saml:
       existingSecret: db-credentials
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -3232,7 +3232,7 @@ mod-marc-migrations:
       existingSecret: mod-marc-migrations-systemuser
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -3265,7 +3265,7 @@ mod-marc-migrations:
     eureka:
       extraEnvVars:
         - name: JAVA_OPTS
-          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 256Mi
@@ -3279,7 +3279,7 @@ mod-marccat:
       existingSecret: db-credentials
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -3309,7 +3309,7 @@ mod-mosaic:
       existingSecret: db-credentials
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -3338,7 +3338,7 @@ mod-ncip:
   integrations: {}
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -3375,7 +3375,7 @@ mod-notes:
       existingSecret: db-credentials
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -3408,7 +3408,7 @@ mod-notes:
     eureka:
       extraEnvVars:
         - name: JAVA_OPTS
-          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 256Mi
@@ -3422,7 +3422,7 @@ mod-notify:
       existingSecret: db-credentials
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -3455,7 +3455,7 @@ mod-notify:
     eureka:
       extraEnvVars:
         - name: JAVA_OPTS
-          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 256Mi
@@ -3472,7 +3472,7 @@ mod-oa:
       existingSecret: db-credentials
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -3505,7 +3505,7 @@ mod-oa:
     eureka:
       extraEnvVars:
         - name: JAVA_OPTS
-          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 256Mi
@@ -3524,7 +3524,7 @@ mod-oai-pmh:
       existingSecret: s3-mod-oai-pmh-credentials
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -3558,7 +3558,7 @@ mod-oai-pmh:
     eureka:
       extraEnvVars:
         - name: JAVA_OPTS
-          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 256Mi
@@ -3584,7 +3584,7 @@ mod-orders:
       existingSecret: mod-orders-systemuser
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -3617,7 +3617,7 @@ mod-orders:
     eureka:
       extraEnvVars:
         - name: JAVA_OPTS
-          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms160m -Xmx160m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms160m -Xmx160m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 256Mi
@@ -3636,7 +3636,7 @@ mod-orders-storage:
       existingSecret: kafka-credentials
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -3669,7 +3669,7 @@ mod-orders-storage:
     eureka:
       extraEnvVars:
         - name: JAVA_OPTS
-          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms256m -Xmx256m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms256m -Xmx256m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 256Mi
@@ -3697,7 +3697,7 @@ mod-dcb:
       existingSecret: mod-dcb-shadow-locations
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -3730,7 +3730,7 @@ mod-dcb:
     eureka:
       extraEnvVars:
         - name: JAVA_OPTS
-          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 256Mi
@@ -3749,7 +3749,7 @@ mod-circulation-item:
       existingSecret: db-credentials
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -3782,7 +3782,7 @@ mod-circulation-item:
     eureka:
       extraEnvVars:
         - name: JAVA_OPTS
-          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 256Mi
@@ -3793,7 +3793,7 @@ mod-organizations:
   integrations: {}
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -3826,7 +3826,7 @@ mod-organizations:
     eureka:
       extraEnvVars:
         - name: JAVA_OPTS
-          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 256Mi
@@ -3843,7 +3843,7 @@ mod-organizations-storage:
       existingSecret: kafka-credentials
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -3876,7 +3876,7 @@ mod-organizations-storage:
     eureka:
       extraEnvVars:
         - name: JAVA_OPTS
-          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 256Mi
@@ -3890,7 +3890,7 @@ mod-password-validator:
       existingSecret: db-credentials
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -3923,7 +3923,7 @@ mod-password-validator:
     eureka:
       extraEnvVars:
         - name: JAVA_OPTS
-          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 256Mi
@@ -3934,7 +3934,7 @@ mod-patron:
   integrations: {}
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -3967,7 +3967,7 @@ mod-patron:
     eureka:
       extraEnvVars:
         - name: JAVA_OPTS
-          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 256Mi
@@ -3981,7 +3981,7 @@ mod-patron-blocks:
       existingSecret: db-credentials
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -4014,7 +4014,7 @@ mod-patron-blocks:
     eureka:
       extraEnvVars:
         - name: JAVA_OPTS
-          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms160m -Xmx160m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms160m -Xmx160m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 256Mi
@@ -4028,7 +4028,7 @@ mod-permissions:
       existingSecret: db-credentials
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -4061,7 +4061,7 @@ mod-permissions:
     eureka:
       extraEnvVars:
         - name: JAVA_OPTS
-          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 256Mi
@@ -4084,7 +4084,7 @@ mod-pubsub:
       existingSecret: mod-pubsub-systemuser
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -4117,7 +4117,7 @@ mod-pubsub:
     eureka:
       extraEnvVars:
         - name: JAVA_OPTS
-          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 256Mi
@@ -4138,7 +4138,7 @@ mod-quick-marc:
       existingSecret: kafka-credentials
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -4166,7 +4166,7 @@ mod-quick-marc:
     eureka:
       extraEnvVars:
         - name: JAVA_OPTS
-          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 256Mi
@@ -4180,7 +4180,7 @@ mod-reading-room:
       existingSecret: db-credentials
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -4213,7 +4213,7 @@ mod-reading-room:
     eureka:
       extraEnvVars:
         - name: JAVA_OPTS
-          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 256Mi
@@ -4256,7 +4256,7 @@ mod-record-specifications:
     eureka:
       extraEnvVars:
         - name: JAVA_OPTS
-          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 256Mi
@@ -4279,7 +4279,7 @@ mod-remote-storage:
       existingSecret: mod-remote-storage-systemuser
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -4312,7 +4312,7 @@ mod-remote-storage:
     eureka:
       extraEnvVars:
         - name: JAVA_OPTS
-          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 256Mi
@@ -4335,7 +4335,7 @@ mod-requests-mediated:
       existingSecret: kafka-credentials
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -4368,7 +4368,7 @@ mod-requests-mediated:
     eureka:
       extraEnvVars:
         - name: JAVA_OPTS
-          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 256Mi
@@ -4379,7 +4379,7 @@ mod-rtac:
   integrations: {}
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -4412,7 +4412,7 @@ mod-rtac:
     eureka:
       extraEnvVars:
         - name: JAVA_OPTS
-          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 256Mi
@@ -4478,7 +4478,7 @@ mod-search:
       existingSecret: mod-search-systemuser
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -4511,7 +4511,7 @@ mod-search:
     eureka:
       extraEnvVars:
         - name: JAVA_OPTS
-          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms160m -Xmx160m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms160m -Xmx160m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 256Mi
@@ -4522,7 +4522,7 @@ mod-sender:
   integrations: {}
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -4555,7 +4555,7 @@ mod-sender:
     eureka:
       extraEnvVars:
         - name: JAVA_OPTS
-          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 256Mi
@@ -4574,7 +4574,7 @@ mod-serials-management:
       existingSecret: db-credentials
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -4607,7 +4607,7 @@ mod-serials-management:
     eureka:
       extraEnvVars:
         - name: JAVA_OPTS
-          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 256Mi
@@ -4626,7 +4626,7 @@ mod-service-interaction:
       existingSecret: okapi-credentials
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -4659,7 +4659,7 @@ mod-service-interaction:
     eureka:
       extraEnvVars:
         - name: JAVA_OPTS
-          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 256Mi
@@ -4700,7 +4700,7 @@ mod-settings:
     eureka:
       extraEnvVars:
         - name: JAVA_OPTS
-          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 256Mi
@@ -4740,7 +4740,7 @@ mod-source-record-manager:
       existingSecret: mod-source-record-manager-systemuser
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -4775,7 +4775,7 @@ mod-source-record-manager:
     eureka:
       extraEnvVars:
         - name: JAVA_OPTS
-          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms192m -Xmx192m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms192m -Xmx192m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 256Mi
@@ -4829,7 +4829,7 @@ mod-source-record-storage:
       existingSecret: mod-source-record-storage-systemuser
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -4867,7 +4867,7 @@ mod-source-record-storage:
     eureka:
       extraEnvVars:
         - name: JAVA_OPTS
-          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms160m -Xmx160m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms160m -Xmx160m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 256Mi
@@ -4881,7 +4881,7 @@ mod-tags:
       existingSecret: db-credentials
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -4914,7 +4914,7 @@ mod-tags:
     eureka:
       extraEnvVars:
         - name: JAVA_OPTS
-          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 256Mi
@@ -4928,7 +4928,7 @@ mod-template-engine:
       existingSecret: db-credentials
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -4961,7 +4961,7 @@ mod-template-engine:
     eureka:
       extraEnvVars:
         - name: JAVA_OPTS
-          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 256Mi
@@ -4984,7 +4984,7 @@ mod-tlr:
       existingSecret: mod-tlr-systemuser
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -5017,7 +5017,7 @@ mod-tlr:
     eureka:
       extraEnvVars:
         - name: JAVA_OPTS
-          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 256Mi
@@ -5028,7 +5028,7 @@ mod-user-import:
   integrations: {}
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -5061,7 +5061,7 @@ mod-user-import:
     eureka:
       extraEnvVars:
         - name: JAVA_OPTS
-          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 256Mi
@@ -5078,7 +5078,7 @@ mod-users:
       existingSecret: kafka-credentials
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -5111,7 +5111,7 @@ mod-users:
     eureka:
       extraEnvVars:
         - name: JAVA_OPTS
-          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms256m -Xmx256m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms256m -Xmx256m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 256Mi
@@ -5122,7 +5122,7 @@ mod-users-bl:
   integrations: {}
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -5152,7 +5152,7 @@ mod-users-bl:
     eureka:
       extraEnvVars:
         - name: JAVA_OPTS
-          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms256m -Xmx256m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms256m -Xmx256m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 256Mi
@@ -5179,7 +5179,7 @@ mod-workflow:
       existingSecret: kafka-credentials
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -5208,7 +5208,7 @@ mod-z3950:
   integrations: {}
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -5253,7 +5253,7 @@ mgr-applications:
       existingSecret: kafka-credentials
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -5300,7 +5300,7 @@ mgr-tenants:
       existingSecret: kafka-credentials
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -5361,7 +5361,7 @@ mgr-tenant-entitlements:
       existingSecret: kafka-credentials
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -5403,7 +5403,7 @@ mod-consortia-keycloak:
       existingSecret: mod-consortia-keycloak-systemuser
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -5417,7 +5417,7 @@ mod-consortia-keycloak:
     eureka:
       extraEnvVars:
         - name: JAVA_OPTS
-          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms160m -Xmx160m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms160m -Xmx160m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 256Mi
@@ -5443,7 +5443,7 @@ mod-login-keycloak:
       existingSecret: okapi-credentials
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -5457,7 +5457,7 @@ mod-login-keycloak:
     eureka:
       extraEnvVars:
         - name: JAVA_OPTS
-          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 256Mi
@@ -5486,7 +5486,7 @@ mod-roles-keycloak:
       existingSecret: mod-roles-keycloak-systemuser
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -5500,7 +5500,7 @@ mod-roles-keycloak:
     eureka:
       extraEnvVars:
         - name: JAVA_OPTS
-          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms160m -Xmx160m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms160m -Xmx160m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 256Mi
@@ -5541,7 +5541,7 @@ mod-users-keycloak:
       existingSecret: mod-users-keycloak-systemuser
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -5555,7 +5555,7 @@ mod-users-keycloak:
     eureka:
       extraEnvVars:
         - name: JAVA_OPTS
-          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms256m -Xmx256m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms256m -Xmx256m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 256Mi
@@ -5596,7 +5596,7 @@ mod-scheduler:
       existingSecret: okapi-credentials
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -5610,7 +5610,7 @@ mod-scheduler:
     eureka:
       extraEnvVars:
         - name: JAVA_OPTS
-          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms256m -Xmx256m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms256m -Xmx256m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 256Mi
@@ -5638,7 +5638,7 @@ mod-okapi-facade:
       existingSecret: db-credentials
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -5652,7 +5652,7 @@ mod-okapi-facade:
     eureka:
       extraEnvVars:
         - name: JAVA_OPTS
-          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=DEBUG"
+          value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 256Mi
@@ -5725,7 +5725,7 @@ ui-bundle:
     type: NodePort
   configMaps:
     log4j:
-      enabled: true
+      enabled: false
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
