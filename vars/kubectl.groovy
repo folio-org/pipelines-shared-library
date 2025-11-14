@@ -380,3 +380,13 @@ void patchDefaultServiceAccount(String namespace) {
     new Logger(this, 'kubectl').error("Unable to patch default service account,\nError: ${e.getMessage()}")
   }
 }
+
+def checkNamespaceStatus(String namespaceName) {
+  try {
+    def status = sh(script: "kubectl get pods --namespace ${namespaceName}", returnStdout: true).trim()
+    return status
+  } catch (Exception e) {
+    println(e.getMessage())
+    return false
+  }
+}
