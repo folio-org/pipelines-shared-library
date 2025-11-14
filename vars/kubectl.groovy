@@ -381,9 +381,9 @@ void patchDefaultServiceAccount(String namespace) {
   }
 }
 
-def checkNamespaceStatus(String namespace) {
+def checkNamespaceStatus(String namespaceName) {
   try {
-    def status = sh(script: "kubectl get pods ${namespace}", returnStdout: true).trim()
+    def status = sh(script: "kubectl get pods --namespace ${namespaceName}", returnStdout: true).trim()
     return status
   } catch (Exception e) {
     println(e.getMessage())
