@@ -16,7 +16,7 @@ properties([
   parameters([
     folioParameters.cluster(),
     folioParameters.namespace(),
-    choice(name: 'TENANT', choices: ['diku', 'consortium', 'college', 'university', 'consortium2', 'college2', 'university2', 'fs09000000', 'fs09000002', 'fs09000003', 'cs00000int'], description: 'Tenant to reindex'),
+    choice(name: 'TENANT', choices: ['diku', 'consortium', 'consortium2', 'fs09000000', 'fs09000002', 'fs09000003', 'cs00000int'], description: 'Tenant to reindex'),
     folioParameters.refreshParameters()])
 ])
 
@@ -51,7 +51,21 @@ ansiColor('xterm') {
 
         if (check != '') {
 
-          def tenant = params.TENANT in ['diku', 'fs09000000', 'fs09000002', 'fs09000003', 'cs00000int'] ? folioDefault.tenants()[params.TENANT] : folioDefault.consortiaTenants()[params.TENANT]
+          switch(params.TENANT) {
+            case 'diku':
+            case 'fs09000000':
+            case 'fs09000002':
+            case 'fs09000003':
+            case 'cs00000int':
+              folioDefault.tenants()[params.TENANT]
+              break
+            case 'consortium':
+              folioDefault.consortiaTenants()[params.TENANT]
+              break
+            case 'consortium2':
+              folioDefault.consortiaTenantsExtra()[params.TENANT]
+              break
+          }
 
           def URL = "https://$params.CLUSTER-$params.NAMESPACE-kong.$Constants.CI_ROOT_DOMAIN/search/index/instance-records/reindex/full"
           def Auth_URL = "https://$params.CLUSTER-$params.NAMESPACE-kong.$Constants.CI_ROOT_DOMAIN/authn/login"
