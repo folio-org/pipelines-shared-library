@@ -376,12 +376,25 @@ data:
                   log: "{"
               - contains:
                   message: "{"
-      # Extract log level from message
+      # Parse log4j structured logs with FOLIO pattern
+      - dissect:
+          tokenizer: "%%{timestamp} [%%{folio.request_id}] [%%{folio.tenant_id}] [%%{folio.user_id}] [%%{folio.module_id}] %%{level} %%{logger} %%{message}"
+          field: "message"
+          target_prefix: ""
+          ignore_failure: true
+          when:
+            regexp:
+              message: '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}[+-]\d{4} \['
+      # Fallback: Extract basic log level and timestamp for other formats
       - dissect:
           tokenizer: "%%{timestamp} %%{level} %%{+message}"
           field: "message"
           target_prefix: ""
           ignore_failure: true
+          when:
+            not:
+              regexp:
+                message: '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}[+-]\d{4} \['
       # Filter to exclude system namespaces and include all others
       - drop_event:
           when:
