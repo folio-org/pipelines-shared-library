@@ -285,8 +285,8 @@ spec:
       label: JenkinsAgentLabel.JAVA_BUILD_AGENT.getLabel(),
       volumes: [steps.persistentVolumeClaim(claimName: MAVEN_CACHE_PVC, mountPath: "${WORKING_DIR}/.m2/repository")],
       containers: [
-        buildKanikoContainer([], '512Mi', '768Mi'),
-        buildJavaContainer(javaVersion, [new KeyValueEnvVar('DOCKER_HOST', 'tcp://localhost:2375')], '768Mi', '1024Mi'),
+        buildKanikoContainer([], '512Mi', '2048Mi'),
+        buildJavaContainer(javaVersion, [new KeyValueEnvVar('DOCKER_HOST', 'tcp://localhost:2375')], '768Mi', '2048Mi'),
         buildDindContainer([], '4096Mi', '5120Mi')
       ]
     )) {
