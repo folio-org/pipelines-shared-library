@@ -51,20 +51,15 @@ ansiColor('xterm') {
 
         if (check != '') {
 
-          switch(params.TENANT) {
-            case 'diku':
-            case 'fs09000000':
-            case 'fs09000002':
-            case 'fs09000003':
-            case 'cs00000int':
-              folioDefault.tenants()[params.TENANT]
-              break
+          switch (params.TENANT) {
             case 'consortium':
               folioDefault.consortiaTenants()[params.TENANT]
               break
             case 'consortium2':
               folioDefault.consortiaTenantsExtra()[params.TENANT]
               break
+            default:
+              folioDefault.tenants()[params.TENANT]
           }
 
           def URL = "https://$params.CLUSTER-$params.NAMESPACE-kong.$Constants.CI_ROOT_DOMAIN/search/index/instance-records/reindex/full"
