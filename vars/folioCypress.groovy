@@ -191,7 +191,7 @@ void runTests(String execString) {
 
   try {
     def numCurl = "curl https://jenkins.ci.folio.org > /dev/null 2>&1"
-    sh """nohup for i in \$(seq 1 86400); do sleep 1 && ${numCurl}; done &"""
+    sh """nohup bash -c 'for i in \$(seq 1 86400); do sleep 1 && ${numCurl}; done' &"""
     sh execString
   } catch (Exception e) {
     echo("Error executing tests: ${e.getMessage()}")
