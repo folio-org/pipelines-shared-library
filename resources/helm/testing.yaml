@@ -5253,7 +5253,7 @@ mgr-applications:
       existingSecret: kafka-credentials
   configMaps:
     log4j:
-      enabled: false
+      enabled: true
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -5300,7 +5300,7 @@ mgr-tenants:
       existingSecret: kafka-credentials
   configMaps:
     log4j:
-      enabled: false
+      enabled: true
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config
@@ -5361,7 +5361,7 @@ mgr-tenant-entitlements:
       existingSecret: kafka-credentials
   configMaps:
     log4j:
-      enabled: false
+      enabled: true
       fileName: log4j2.properties
       mountPath: /etc/log4j
       existingConfig: log4j-config

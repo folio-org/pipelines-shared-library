@@ -5233,7 +5233,7 @@ mgr-applications:
     - name: SECURITY_ENABLED
       value: 'true'
   extraJavaOpts:
-    - "-Dlogging.level.root=DEBUG -Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties"
+    - "-Dlogging.level.root=INFO -Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties"
     - -XX:MaxRAMPercentage=80.0
   integrations:
     db:
@@ -5280,7 +5280,7 @@ mgr-tenants:
     - name: MTE_URL
       value: "http://mgr-tenant-entitlements"  
   extraJavaOpts:
-    - "-Dlogging.level.root=DEBUG -Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties"
+    - "-Dlogging.level.root=INFO -Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties"
     - -XX:MaxRAMPercentage=75.0
   integrations:
     db:
@@ -5308,7 +5308,7 @@ mgr-tenants:
     initialDelaySeconds: 20
 mgr-tenant-entitlements:
   extraJavaOpts:
-    - "-Dlogging.level.root=DEBUG -Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties"
+    - "-Dlogging.level.root=INFO -Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties"
     - -XX:MaxRAMPercentage=80.0
   extraEnvVars:
     - name: ROUTEMANAGEMENT_ENABLE

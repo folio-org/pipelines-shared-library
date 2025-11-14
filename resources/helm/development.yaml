@@ -3915,7 +3915,7 @@ mgr-applications:
       value: "600s"
     - name: KONG_CONNECT_TIMEOUT
       value: "941241418"
-    - name: KONG_READ_TIMEOUT
+    - name: Dlogging.level.root=INFO
       value: "941241418"
     - name: KONG_WRITE_TIMEOUT
       value: "941241418"
@@ -3959,7 +3959,7 @@ mgr-tenants:
       value: "600s"
     - name: KONG_CONNECT_TIMEOUT
       value: "941241418"
-    - name: KONG_READ_TIMEOUT
+    - name: Dlogging.level.root=INFO
       value: "941241418"
     - name: KONG_WRITE_TIMEOUT
       value: "941241418"
@@ -4009,7 +4009,7 @@ mgr-tenant-entitlements:
       value: "600s"
     - name: KONG_CONNECT_TIMEOUT
       value: "941241418"
-    - name: KONG_READ_TIMEOUT
+    - name: Dlogging.level.root=INFO
       value: "941241418"
     - name: KONG_WRITE_TIMEOUT
       value: "941241418"
