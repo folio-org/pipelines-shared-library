@@ -281,10 +281,7 @@ resource "rancher2_app_v2" "kibana" {
         logging:
           appenders:
             default:
-              type: console
-              layout:
-                type: pattern
-                pattern: "[%date] [%level] [%logger] %message"
+              type: json
           root:
             level: info
     
@@ -362,36 +359,51 @@ data:
           matchers:
           - logs_path:
               logs_path: "/var/log/containers/"
-      # Filter to include only cypress, karate, cikarate, cicypress, snapshot, and sprint namespace logs
-      - drop_event:
-          when:
-            not:
-              or:
-                - contains:
-                    kubernetes.namespace: "cypress"
-                - contains:
-                    kubernetes.namespace: "karate"
-                - contains:
-                    kubernetes.namespace: "cikarate"
-                - contains:
-                    kubernetes.namespace: "cicypress"
-                - contains:
-                    kubernetes.namespace: "snapshot"
-                - contains:
-                    kubernetes.namespace: "snapshot2"    
-                - contains:
-                    kubernetes.namespace: "sprint"
-                - contains:
-                    kubernetes.namespace: "lsdi"    
-      - drop_fields:
-          fields: ["host", "agent", "ecs", "input"]
+      # Parse container JSON logs first
       - decode_json_fields:
           fields: ["message"]
           target: ""
           overwrite_keys: true
+      # Then parse application logs if they are JSON
+      - decode_json_fields:
+          fields: ["log", "message"]
+          target: "app"
+          overwrite_keys: false
+          add_error_key: true
           when:
-            contains:
-              message: "{"
+            or:
+              - contains:
+                  log: "{"
+              - contains:
+                  message: "{"
+      # Extract log level from message
+      - dissect:
+          tokenizer: "%%{timestamp} %%{level} %%{+message}"
+          field: "message"
+          target_prefix: ""
+          ignore_failure: true
+      # Filter to exclude system namespaces and include all others
+      - drop_event:
+          when:
+            or:
+              - regexp:
+                  kubernetes.namespace: '^kube-.*'
+              - regexp:
+                  kubernetes.namespace: '^cattle-.*'
+              - regexp:
+                  kubernetes.namespace: '^logging$'
+              - regexp:
+                  kubernetes.namespace: '^kubecost$'
+              - regexp:
+                  kubernetes.namespace: '^default$'
+              - regexp:
+                  kubernetes.namespace: '^monitoring$'
+              - regexp:
+                  kubernetes.namespace: '^local$'
+              - regexp:
+                  kubernetes.namespace: '^sorry-cypress$'           
+      - drop_fields:
+          fields: ["host*", "agent*", "ecs*", "input*", "stream*"]
     
     # Enable HTTP endpoint for health checks
     http:

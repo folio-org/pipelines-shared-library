@@ -110,7 +110,11 @@ spec:
           resourceRequestMemory: '1024Mi',
           resourceLimitMemory: '1536Mi',
           envVars: [
-            new KeyValueEnvVar('JENKINS_JAVA_OPTS', '-Dorg.jenkinsci.remoting.engine.JnlpAgentEndpointResolver.PING_INTERVAL=30 -Dorg.jenkinsci.remoting.engine.JnlpAgentEndpointResolver.PING_TIMEOUT=600')
+            new KeyValueEnvVar('JENKINS_JAVA_OPTS',
+              '-Dorg.jenkinsci.remoting.engine.JnlpAgentEndpointResolver.PING_INTERVAL=30' +
+                ' -Dorg.jenkinsci.remoting.engine.JnlpAgentEndpointResolver.PING_TIMEOUT=600' +
+                ' -Dorg.jenkinsci.remoting.websocket.WebSocketSession.pingInterval=30'),
+            new KeyValueEnvVar('REMOTING_OPTS', '-workdir ' + WORKING_DIR + ' -retry 10 -retryInterval 30')
           ]
         )]) {
       body.call()
@@ -356,7 +360,7 @@ spec:
         storageClassName: 'gp3'),
       volumes: [steps.persistentVolumeClaim(claimName: YARN_CACHE_PVC, mountPath: "${WORKING_DIR}/.yarn/cache")],
       containers: [
-        buildCypressContainer([], '3072Mi', '4096Mi'),
+        buildCypressContainer([], '3072Mi', '12288Mi'),
       ]
     )) {
       steps.node(JenkinsAgentLabel.CYPRESS_AGENT.getLabel()) {
