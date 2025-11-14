@@ -16,7 +16,7 @@ properties([
   parameters([
     folioParameters.cluster(),
     folioParameters.namespace(),
-    choice(name: 'TENANT', choices: ['diku', 'consortium', 'consortium2', 'fs09000000', 'fs09000002', 'fs09000003', 'cs00000int'], description: 'Tenant to reindex'),
+    choice(name: 'TENANT', choices: ['diku', 'consortium', 'consortium2', 'cs00000int', 'fs09000000', 'fs09000002', 'fs09000003'], description: 'Tenant to reindex'),
     folioParameters.refreshParameters()])
 ])
 
