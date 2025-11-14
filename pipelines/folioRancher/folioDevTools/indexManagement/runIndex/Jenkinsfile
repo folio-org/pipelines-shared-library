@@ -26,7 +26,7 @@ if (params.REFRESH_PARAMETERS) {
 }
 
 if (params.NAMESPACE in Constants.RANCHER_PROTECTED_NAMESPACES) {
- folioCommon.kitfoxApproval()
+  folioCommon.kitfoxApproval()
 }
 
 PodTemplates podTemplates = new PodTemplates(this)
@@ -47,32 +47,32 @@ ansiColor('xterm') {
       logger.info("Reindex on tenant: ${params.TENANT}")
       folioHelm.withKubeConfig(params.CLUSTER) {
 
-        sh(script: "kubectl delete pod -l 'app.kubernetes.io/name=mod-search' --namespace=${params.NAMESPACE}", returnStatus: true)
+        def check = kubectl.checkNamespaceStatus(params.NAMESPACE)
 
-        folioHelm.checkDeploymentsRunning(params.NAMESPACE, new FolioModule().setName('mod-search'))
+        if (check != '') {
 
-        sleep time: 1, unit: 'MINUTES'
+          def tenant = params.TENANT in ['diku', 'fs09000000', 'fs09000002', 'fs09000003', 'cs00000int'] ? folioDefault.tenants()[params.TENANT] : folioDefault.consortiaTenants()[params.TENANT]
 
-        def tenant = params.TENANT in ['diku', 'fs09000000', 'fs09000002', 'fs09000003', 'cs00000int'] ? folioDefault.tenants()[params.TENANT] : folioDefault.consortiaTenants()[params.TENANT]
+          def URL = "https://$params.CLUSTER-$params.NAMESPACE-kong.$Constants.CI_ROOT_DOMAIN/search/index/instance-records/reindex/full"
+          def Auth_URL = "https://$params.CLUSTER-$params.NAMESPACE-kong.$Constants.CI_ROOT_DOMAIN/authn/login"
 
-        def URL = "https://$params.CLUSTER-$params.NAMESPACE-kong.$Constants.CI_ROOT_DOMAIN/search/index/instance-records/reindex/full"
-        def Auth_URL = "https://$params.CLUSTER-$params.NAMESPACE-kong.$Constants.CI_ROOT_DOMAIN/authn/login"
+          Map body = ["username": tenant.getAdminUser().username,
+                      "password": tenant.getAdminUser().passwordPlainText]
 
-        Map body = ["username": tenant.getAdminUser().username,
-                    "password": tenant.getAdminUser().passwordPlainText]
+          def headers = ["Content-Type"  : "application/json",
+                         "X-Okapi-Tenant": params.TENANT]
 
-        def headers = ["Content-Type"  : "application/json",
-                       "X-Okapi-Tenant": params.TENANT]
+          def token = new RestClient(this, true).post(Auth_URL, body, headers, [200, 201, 202, 204]).body.okapiToken
 
-        def token = new RestClient(this, true).post(Auth_URL, body, headers, [200, 201, 202, 204]).body.okapiToken
+          headers.put('Authorization', "Bearer ${token}")
 
-        headers.put('Authorization', "Bearer ${token}")
+          def response = new RestClient(this, true).post(URL, null, headers, [200, 201, 202, 204])
 
-        def response = new RestClient(this, true).post(URL, null, headers, [200, 201, 202, 204])
-
-        logger.info("Reindex response: ${response}")
+          logger.info("Reindex response: ${response}")
+        } else {
+          logger.warning("Namespace ${params.NAMESPACE} is scaled down, please scale up via managePods and try again.")
+        }
       }
     }
-
   }
 }
