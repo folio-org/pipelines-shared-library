@@ -6,35 +6,25 @@ resource "kubernetes_config_map" "log4j_config" {
 
   data = {
     "log4j2.properties" = <<-EOF
-      status=error
-      name=PropertiesConfig
-      packages=org.folio.des.util
-      filters=threshold
-      filter.threshold.type=ThresholdFilter
-      filter.threshold.level=info
-      appenders=console
-      appender.console.type=Console
-      appender.console.name=STDOUT
-      appender.console.layout.type=JSONLayout
-      appender.console.layout.compact=true
-      appender.console.layout.eventEol=true
-      appender.console.layout.stacktraceAsString=true
-      appender.console.layout.includeTimeMillis=true
-      appender.console.layout.requestId.type=KeyValuePair
-      appender.console.layout.requestId.key=requestId
-      appender.console.layout.requestId.value=$${folio:requestid:-}
-      appender.console.layout.tenantId.type=KeyValuePair
-      appender.console.layout.tenantId.key=tenantId
-      appender.console.layout.tenantId.value=$${folio:tenantid:-}
-      appender.console.layout.userId.type=KeyValuePair
-      appender.console.layout.userId.key=userId
-      appender.console.layout.userId.value=$${folio:userid:-}
-      appender.console.layout.moduleId.type=KeyValuePair
-      appender.console.layout.moduleId.key=moduleId
-      appender.console.layout.moduleId.value=$${folio:moduleid:-}
-      rootLogger.level=info
-      rootLogger.appenderRefs=info
-      rootLogger.appenderRef.stdout.ref=STDOUT
+      status = error
+      name = PropertiesConfig
+      packages = org.folio.okapi.common.logging,org.folio.spring.logging
+
+      filters = threshold
+
+      filter.threshold.type = ThresholdFilter
+      filter.threshold.level = info
+
+      appenders = console
+
+      appender.console.type = Console
+      appender.console.name = STDOUT
+      appender.console.layout.type = PatternLayout
+      appender.console.layout.pattern = %d{yyyy-MM-dd'T'HH:mm:ss.SSSZ} [$${FolioLoggingContext:requestid:-$${folio:requestid:-}}] [$${FolioLoggingContext:tenantid:-$${folio:tenantid:-}}] [$${FolioLoggingContext:userid:-$${folio:userid:-}}] [$${FolioLoggingContext:moduleid:-$${folio:moduleid:-}}] %-5p %-20.20C{1} %m%n
+
+      rootLogger.level = info
+      rootLogger.appenderRefs = info
+      rootLogger.appenderRef.stdout.ref = STDOUT
     EOF
   }
 }
