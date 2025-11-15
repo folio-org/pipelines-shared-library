@@ -55,7 +55,7 @@ CreateNamespaceParameters namespaceBaseParams = new CreateNamespaceParameters.Bu
   .kafkaType('aws')
   .opensearchType('aws')
   .s3Type('built-in')
-  .members('')
+  .members('AQA')
   .build()
 
 CreateNamespaceParameters namespaceFromBranchParams = namespaceBaseParams.toBuilder()
