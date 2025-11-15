@@ -11,7 +11,7 @@ import org.folio.rest_v2.PlatformType
 import org.folio.utilities.Logger
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-2631') _
 
 /**
  * Job properties and parameters
@@ -22,6 +22,7 @@ properties([
   disableConcurrentBuilds(),
   parameters([
     string(name: 'CYPRESS_BRANCH', defaultValue: 'master', description: "(Required) Insert what 'stripes-testing' branch use for build"),
+    number(name: 'NUMBER_WORKERS', defaultValue: 15, description: "Define number of workers for Cypress tests execution"),
     folioParameters.refreshParameters()
   ])
 ])
@@ -54,7 +55,7 @@ CreateNamespaceParameters namespaceBaseParams = new CreateNamespaceParameters.Bu
   .kafkaType('aws')
   .opensearchType('aws')
   .s3Type('built-in')
-  .members('')
+  .members('AQA')
   .build()
 
 CreateNamespaceParameters namespaceFromBranchParams = namespaceBaseParams.toBuilder()
@@ -86,7 +87,7 @@ cypressParameters.setTenant(new OkapiTenant('diku')
 cypressParameters.setExecParameters('--env grepTags="smoke criticalPath extendedPath"')
 cypressParameters.setTestrailProjectID('14')
 cypressParameters.setTestrailRunID('2723')
-cypressParameters.setNumberOfWorkers(10)
+cypressParameters.setNumberOfWorkers(params.NUMBER_WORKERS)
 cypressParameters.setTimeout('1080')
 
 boolean reportPortalUse = true
