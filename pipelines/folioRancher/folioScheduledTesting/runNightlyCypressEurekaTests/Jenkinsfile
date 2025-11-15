@@ -86,7 +86,7 @@ cypressParameters.setTenant(new OkapiTenant('diku')
 cypressParameters.setExecParameters('--env grepTags="smoke criticalPath extendedPath"')
 cypressParameters.setTestrailProjectID('14')
 cypressParameters.setTestrailRunID('2723')
-cypressParameters.setNumberOfWorkers(10)
+cypressParameters.setNumberOfWorkers(12)
 cypressParameters.setTimeout('1080')
 
 boolean reportPortalUse = true
