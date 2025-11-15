@@ -191,7 +191,7 @@ spec:
    *
    * @param extraEnvVars Optional environment variables.
    * @param resourceRequestMemory Minimum memory request (default {@code 2Gi}).
-   * @param resourceLimitMemory Memory limit (default {@code 4Gi}).
+   * @param resourceLimitMemory Memory limit (default {@code 12Gi}).
    * @return Kaniko container definition.
    */
   private Object buildKanikoContainer(
@@ -337,7 +337,7 @@ spec:
         jenkins/label: "${JenkinsAgentLabel.STRIPES_AGENT.getLabel()}"
 """,
       containers: [
-        buildKanikoContainer([], '9Gi', '10Gi'),
+        buildKanikoContainer([], '9Gi', '12Gi'),
       ]
     )) {
       steps.node(JenkinsAgentLabel.STRIPES_AGENT.getLabel()) {
