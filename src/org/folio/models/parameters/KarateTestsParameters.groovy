@@ -42,6 +42,10 @@ class KarateTestsParameters {
 
   String reportPortalProjectId
 
+  String testrailProjectID
+
+  String testrailRunID
+
   TeamAssignment teamAssignment
 
   boolean syncWithJira = false
