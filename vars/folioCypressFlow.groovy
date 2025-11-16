@@ -168,9 +168,7 @@ CypressRunExecutionSummary call(String ciBuildId, List<CypressTestsParameters> t
         // Unpack Allure report
         folioCypress.unpackAllureReport(allureResultsList)
         // Generate and publish Allure report
-        container('java') {
-          folioCypress.generateAndPublishAllureReport(allureResultsList)
-        }
+        folioCypress.generateAndPublishAllureReport(allureResultsList)
       }
 
       // Analyze results after execution
