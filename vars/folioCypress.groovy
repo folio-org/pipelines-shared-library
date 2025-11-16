@@ -372,7 +372,7 @@ void generateAndPublishAllureReport(List resultPaths) {
   stage('[Allure] Generate report') {
     def allureHome = tool type: 'allure', name: Constants.CYPRESS_ALLURE_VERSION
     // Set Java heap size to Max 8GB and configure ForkJoinPool to prevent OutOfMemoryError during report generation,
-    // reported by Ostap in RANCHER-2546 && RANCHER-2631
+    // reported by Ostap in RANCHER-2546 && RANCHER-2631: Maximum allowed memory size for the report generation is 6-8GB!!!
     sh "JAVA_TOOL_OPTIONS='-Xmx8g -Xms2g -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp -XX:MaxDirectMemorySize=1G -Djava.util.concurrent.ForkJoinPool.common.parallelism=2' ${allureHome}/bin/allure generate --clean ${resultPaths.collect { path -> "${path}/allure-results" }.join(" ")}"
   }
 
