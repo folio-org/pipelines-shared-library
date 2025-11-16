@@ -22,7 +22,7 @@ properties([
   disableConcurrentBuilds(),
   parameters([
     string(name: 'CYPRESS_BRANCH', defaultValue: 'master', description: "(Required) Insert what 'stripes-testing' branch use for build"),
-    string(name: 'NUMBER_WORKERS', defaultValue: '15', description: "Define number of workers for Cypress tests execution"),
+    string(name: 'NUMBER_WORKERS', defaultValue: '15', description: "(Required) Define number of workers for Cypress tests execution"),
     folioParameters.refreshParameters()
   ])
 ])
