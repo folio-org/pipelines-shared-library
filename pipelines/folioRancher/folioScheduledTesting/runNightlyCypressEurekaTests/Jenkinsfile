@@ -97,7 +97,7 @@ String reportPortalRunType = 'evrk'
  * Pipeline
  */
 ansiColor('xterm') {
-  podTemplates.rancherAgent {
+  podTemplates.rancherJavaAgent {
     stage('Ini') {
       buildDescription "Branch: ${params.CYPRESS_BRANCH}\nConfig: ${namespaceFromBranchParams.getConfigType()}\nEnv: ${cypressParameters.tenantUrl}"
     }
@@ -125,7 +125,6 @@ ansiColor('xterm') {
         throw new Exception("Provision of the environment is failed: " + new_ex)
       }
     }
-
     folioCypressFlow.call(cypressParameters.getCiBuildId(), [cypressParameters], false, reportPortalUse, reportPortalRunType)
   }
 }
