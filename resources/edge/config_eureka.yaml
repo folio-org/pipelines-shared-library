@@ -66,6 +66,8 @@ edge-orders:
   - users.manage
   - okapi.manage
   - orders_acquisitions-units-assignments.manage
+  - mod-settings_entries.manage
+  - ui-tenant-settings_settings_addresses.manage
 edge-ncip:
   capabilitiesSet:
   - ncip.manage

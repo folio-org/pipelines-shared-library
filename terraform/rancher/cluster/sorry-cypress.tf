@@ -44,8 +44,8 @@ resource "rancher2_app_v2" "sorry-cypress" {
       enabled: true
       resources:
         limits:
-          cpu: 200m
-          memory: 256Mi
+          cpu: 256m
+          memory: 512Mi
         requests:
           cpu: 100m
           memory: 128Mi
@@ -74,8 +74,8 @@ resource "rancher2_app_v2" "sorry-cypress" {
       enabled: true
       resources:
         limits:
-          cpu: 200m
-          memory: 256Mi
+          cpu: 256m
+          memory: 512Mi
         requests:
           cpu: 100m
           memory: 128Mi
@@ -110,8 +110,8 @@ resource "rancher2_app_v2" "sorry-cypress" {
       replicas: 2
       resources:
         limits:
-          cpu: 200m
-          memory: 256Mi
+          cpu: 256m
+          memory: 1024Mi
         requests:
           cpu: 100m
           memory: 128Mi
@@ -155,10 +155,10 @@ resource "rancher2_app_v2" "sorry-cypress" {
           memory: 1024Mi
         limits:
           cpu: 2048m
-          memory: 4096Mi
+          memory: 8096Mi
       persistence:
         enabled: true
-        size: 150Gi
+        size: 250Gi
       externalAccess:
         enabled: true
         service:
