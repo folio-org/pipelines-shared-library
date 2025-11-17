@@ -155,7 +155,7 @@ resource "rancher2_app_v2" "sorry-cypress" {
           memory: 1024Mi
         limits:
           cpu: 2048m
-          memory: 8096Mi
+          memory: 12288Mi
       persistence:
         enabled: true
         size: 250Gi
