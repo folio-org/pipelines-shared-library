@@ -97,7 +97,7 @@ String reportPortalRunType = 'evrk'
  * Pipeline
  */
 ansiColor('xterm') {
-  podTemplates.rancherJavaAgent {
+  podTemplates.rancherAgent {
     stage('Ini') {
       buildDescription "Branch: ${params.CYPRESS_BRANCH}\nConfig: ${namespaceFromBranchParams.getConfigType()}\nEnv: ${cypressParameters.tenantUrl}"
     }
