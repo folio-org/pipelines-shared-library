@@ -214,7 +214,7 @@ void runTestsWithTestRail(String testrailProjectID, String testrailRunID, String
   validateParameter(execString, "Execution string")
 
   execString = """
-    export TESTRAIL_HOST=${Constants.CYPRESS_TESTRAIL_HOST}
+    export TESTRAIL_HOST=${Constants.TESTRAIL_HOST}
     export TESTRAIL_PROJECTID=${testrailProjectID}
     export TESTRAIL_RUN_ID=${testrailRunID}
     export CYPRESS_allureReuseAfterSpec=true
@@ -222,7 +222,7 @@ void runTestsWithTestRail(String testrailProjectID, String testrailRunID, String
 
   echo("Test results will be posted to TestRail.\nProjectID: ${testrailProjectID},\nRunID: ${testrailRunID}")
 
-  withCredentials([usernamePassword(credentialsId: Constants.CYPRESS_TESTRAIL_CREDENTIALS_ID,
+  withCredentials([usernamePassword(credentialsId: Constants.TESTRAIL_CREDENTIALS_ID,
     passwordVariable: 'TESTRAIL_PASSWORD',
     usernameVariable: 'TESTRAIL_USERNAME')]) {
     runTests(execString)

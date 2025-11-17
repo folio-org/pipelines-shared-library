@@ -26,6 +26,8 @@ properties([
     string(name: 'THREADS_COUNT', defaultValue: '1', description: 'Number of parallel threads'),
     choice(name: 'JAVA_VERSION', choices: ['21', '17'], description: 'Java version to use for tests'),
     booleanParam(name: 'CLEANUP_TENANTS', defaultValue: false, description: 'Do you need to delete all test tenants after tests?'),
+    string(name: 'TESTRAIL_PROJECTID', defaultValue: "", description: 'To enable TestRail integration, enter ProjectID from TestRail, ex. 22', trim: true),
+    string(name: 'TESTRAIL_RUN_ID', defaultValue: "", description: 'To enable TestRail integration, enter RunID from TestRail, ex. 2048', trim: true),
 //    booleanParam(name: 'CREATE_CUSTOM_EDGE_TENANT', defaultValue: false, description: 'Do you need to create tenant for edge modules from edge-configuration.json file?'),
     folioParameters.refreshParameters()
   ])
@@ -57,6 +59,8 @@ karateTestsParams.threadsCount = params.THREADS_COUNT
 karateTestsParams.javaVersion = params.JAVA_VERSION
 karateTestsParams.timeout = '24'
 karateTestsParams.cleanupTenants = params.CLEANUP_TENANTS
+karateTestsParams.testrailProjectID = params.TESTRAIL_PROJECTID
+karateTestsParams.testrailRunID = params.TESTRAIL_RUN_ID
 /**
  * Pipeline
  */

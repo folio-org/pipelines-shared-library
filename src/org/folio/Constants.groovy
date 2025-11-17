@@ -326,8 +326,8 @@ class Constants {
   static String CYPRESS_SC_URL = 'https://folio-testing-sc-director.ci.folio.org'
   static String CYPRESS_SC_KEY = 'secretCypressKey'
   static String CYPRESS_PROJECT = 'stripes'
-  static String CYPRESS_TESTRAIL_HOST = 'https://foliotest.testrail.io'
-  static String CYPRESS_TESTRAIL_CREDENTIALS_ID = 'cypress-testrail-credentials' // TestRail username and password credentials
+  static String TESTRAIL_HOST = 'https://foliotest.testrail.io'
+  static String TESTRAIL_CREDENTIALS_ID = 'cypress-testrail-credentials' // TestRail username and password credentials
 
   static String REPORT_PORTAL_URL = 'https://report-portal.ci.folio.org'
   static String REPORT_PORTAL_API_URL = 'https://report-portal.ci.folio.org/api/v1'
