@@ -369,16 +369,18 @@ void unpackAllureReport(List stashesList) {
 void generateAndPublishAllureReport(List resultPaths) {
   validateParameter(resultPaths, 'Result paths')
 
+  stage('[Allure] Generate report') {
+    def allureHome = tool type: 'allure', name: Constants.CYPRESS_ALLURE_VERSION
+    sh "JAVA_TOOL_OPTIONS='-Xmx2G -Xms1G -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp -XX:MaxDirectMemorySize=1G -Djava.util.concurrent.ForkJoinPool.common.parallelism=2' ${allureHome}/bin/allure generate --clean ${resultPaths.collect { path -> "${path}/allure-results" }.join(" ")}"
+  }
+
   stage('[Allure] Publish report') {
-    // Set JVM options for Allure report generation to prevent OutOfMemoryError
-    withEnv(["JAVA_TOOL_OPTIONS=-Xmx2g -Xms1g -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp -XX:MaxDirectMemorySize=1G -Djava.util.concurrent.ForkJoinPool.common.parallelism=2"]) {
-      allure([includeProperties: false,
-              jdk              : '',
-              commandline      : Constants.CYPRESS_ALLURE_VERSION,
-              properties       : [],
-              reportBuildPolicy: 'ALWAYS',
-              results          : resultPaths.collect { path -> [path: "${path}/allure-results"] }])
-    }
+    allure([includeProperties: false,
+            jdk              : '',
+            commandline      : Constants.CYPRESS_ALLURE_VERSION,
+            properties       : [],
+            reportBuildPolicy: 'ALWAYS',
+            results          : resultPaths.collect { path -> [path: "${path}/allure-results"] }])
   }
 }
 
