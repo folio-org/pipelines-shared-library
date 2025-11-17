@@ -371,7 +371,7 @@ void generateAndPublishAllureReport(List resultPaths) {
 
   stage('[Allure] Publish report') {
     // Set JVM options for Allure report generation to prevent OutOfMemoryError
-    withEnv(["JAVA_TOOL_OPTIONS=-Xmx10g -Xms4g -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp -XX:MaxDirectMemorySize=1G -Djava.util.concurrent.ForkJoinPool.common.parallelism=2"]) {
+    withEnv(["JAVA_TOOL_OPTIONS=-Xmx2g -Xms1g -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp -XX:MaxDirectMemorySize=1G -Djava.util.concurrent.ForkJoinPool.common.parallelism=2"]) {
       allure([includeProperties: false,
               jdk              : '',
               commandline      : Constants.CYPRESS_ALLURE_VERSION,
