@@ -9,9 +9,10 @@ import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-2656') _
 
-@Field final String createNamespaceJobName = Constants.JENKINS_CREATE_NAMESPACE_FROM_BRANCH_JOB
+//@Field final String createNamespaceJobName = Constants.JENKINS_CREATE_NAMESPACE_FROM_BRANCH_JOB
+@Field final String createNamespaceJobName = '/tmpFolderForDraftPipelines/Duishenaliev/createNamespaceFromBranch-Eldiiar'
 @Field final String deleteNamespaceJobName = Constants.JENKINS_DELETE_NAMESPACE_JOB
 
 @Field final LocalDate today = LocalDate.now()
@@ -20,7 +21,7 @@ import java.time.temporal.ChronoUnit
 @Field final LocalDate nextWednesday = thisWednesday.plusWeeks(1)
 
 @Field final int weeksSinceEpoch = (int)(java.time.temporal.ChronoUnit.WEEKS.between(LocalDate.of(2025, 1, 1), thisWednesday))
-@Field final boolean isSecondWednesday = 
+@Field final boolean isSecondWednesday =
   today.getDayOfWeek() == DayOfWeek.WEDNESDAY && (weeksSinceEpoch % 2 == 1)
 
 properties([
