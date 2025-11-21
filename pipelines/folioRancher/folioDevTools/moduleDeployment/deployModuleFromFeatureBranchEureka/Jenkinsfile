@@ -15,7 +15,7 @@ import org.folio.utilities.RestClient
 import org.folio.utilities.Logger
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-2655') _
 
 /** Job properties and parameters */
 properties([
@@ -333,19 +333,20 @@ ansiColor('xterm') {
       stage('[Rest] Enable New App') {
         try {
           namespace.getTenants().values().each { tenant ->
-            Tenants.get(eureka.getKong()).updateApplications(tenant, updatedAppInfoMap.values().toList())
+            Tenants.get(eureka.getKong()).getEnabledApplications(tenant)
+            Tenants.get(eureka.getKong()).updateApplications(tenant, updatedAppInfoMap.values().toList() + Tenants.get(eureka.getKong()).getEnabledApplications(tenant) as List<String>)
           }
         } catch (e) {
           logger.warning("Failed to enable (entitle) new application version: ${e}")
-          
+
           if (e.toString().contains('Application version is same or lower than entitled')) {
             logger.info("Application version is same or lower than entitled. This may indicate tenants have entitlements that need cleanup.")
-            
+
             try {
               logger.info("Attempting cleanup for all namespace tenants.")
               def allTenantIds = namespace.getTenants().values().collect { it.uuid }
               kubectl.updateApplicationsFix(params.NAMESPACE, params.CLUSTER, updatedAppInfoMap.values().toList(), allTenantIds)
-              
+
               logger.info("Retrying application update after entitlement cleanup.")
               namespace.getTenants().values().each { tenant ->
                 Tenants.get(eureka.getKong()).updateApplications(tenant, updatedAppInfoMap.values().toList())
@@ -373,7 +374,7 @@ ansiColor('xterm') {
               if (responseMatch) {
                 def responseJson = responseMatch[0][1]
                 def errorResponse = readJSON(text: responseJson)
-                
+
                 if (errorResponse.errors && errorResponse.errors[0].message.contains('installed for tenants')) {
                   def tenantMessage = errorResponse.errors[0].message
                   def tenantListMatch = tenantMessage =~ /tenants: \[([^\]]+)\]/
@@ -381,7 +382,7 @@ ansiColor('xterm') {
                     def tenantIds = tenantListMatch[0][1].split(', ').collect { it.trim() }
                     logger.info("Found tenant IDs in error message: ${tenantIds}")
                     kubectl.updateApplicationsFix(params.NAMESPACE, params.CLUSTER, updatedAppInfoMap.values().toList(), tenantIds)
-                    
+
                     namespace.getTenants().values().each { tenant ->
                       Tenants.get(eureka.getKong()).updateApplications(tenant, updatedAppInfoMap.values().toList())
                     }
@@ -390,7 +391,7 @@ ansiColor('xterm') {
                   }
                 }
               }
-              
+
               try {
                 eureka.removeResourcesOnFailFlow(updatedAppInfoMap, module)
               } catch (cleanupException) {
@@ -414,7 +415,7 @@ ansiColor('xterm') {
               }
               throw e
             }
-          } 
+          }
           else {
             try {
               eureka.removeResourcesOnFailFlow(updatedAppInfoMap, module)
