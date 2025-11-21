@@ -42,7 +42,7 @@ if (params.REFRESH_PARAMETERS) {
 }
 
 if (params.NAMESPACE in Constants.RANCHER_PROTECTED_NAMESPACES) {
- folioCommon.kitfoxApproval()
+  folioCommon.kitfoxApproval()
 }
 
 
@@ -109,10 +109,10 @@ ansiColor('xterm') {
     }
 
     stage('[Pre-condition] CleanUp Karate tenants') {
-        if (params.CLEANUP_ENV) {
-          folioTools.karateTenantsCleanUp(params.CLUSTER, params.NAMESPACE)
-        }
+      if (params.CLEANUP_ENV) {
+        folioTools.karateTenantsCleanUp(params.CLUSTER, params.NAMESPACE)
       }
+    }
 
     stage('[Maven/Gradle] Compile') {
       container('java') {
@@ -139,7 +139,7 @@ ansiColor('xterm') {
                 mavenLocalRepo: "${podTemplates.WORKING_DIR}/.m2/repository",
                 traceability: true,
                 options: [artifactsPublisher(disabled: true)]) {
-                  sh """
+                sh """
                     mvn versions:set -DnewVersion=${module.getVersion()}
                     mvn package ${mavenArguments}
                   """.stripIndent()
@@ -222,9 +222,9 @@ ansiColor('xterm') {
 
     stage('Generate context') {
       eureka.getExistedTenantsForModule("${namespace.getClusterName()}-${namespace.getNamespaceName()}", module.getName())
-        .values().each {namespace.addTenant(it) }
+        .values().each { namespace.addTenant(it) }
 
-      namespace.tenants.values().each {it.getModules().addModule(module)}
+      namespace.tenants.values().each { it.getModules().addModule(module) }
 
       if (!(namespace.tenants))
         throw new Exception("There are no tenants with the module ${module.getName()}")
@@ -276,11 +276,11 @@ ansiColor('xterm') {
           Keycloak keycloak = new Keycloak(this, namespace.generateDomain("keycloak"), false)
           tenants.each { tenant ->
             Map body = [
-              tenantId: tenant.id,
+              tenantId    : tenant.id,
               applications: apps.findAll { it.modules*.name.contains(module.name) }*.id
             ]
             Map headers = [
-              'Content-Type': 'application/json',
+              'Content-Type' : 'application/json',
               'Authorization': "Bearer ${keycloak.getAuthMasterTenantToken()}",
             ]
             folioPrint.colored("Invoking /tenant API for tenant: ${tenant.name} with applications: ${body.applications}", 'green')
@@ -292,63 +292,63 @@ ansiColor('xterm') {
       }
 
     } else {
-    // 1. Register Application Descriptor with Updated Module Version
-    stage('[Rest] Update App Descriptor') {
-      try {
-        updatedAppInfoMap = eureka.updateAppDescriptorFlow(namespace.applications, module)
-      } catch (e) {
-        logger.warning("Failed to register new application descriptor: ${e}")
-        eureka.removeResourcesOnFailFlow(updatedAppInfoMap, module)
-        throw e
-      }
-    }
-
-    // 2. Enable New Module Version (Discovery) for Application
-    stage('[Rest] Module Discovery') {
-      try {
-        eureka.registerModulesFlow(new FolioInstallJson<FolioModule>(EurekaModule.class).addModule(module))
-      } catch (e) {
-        logger.warning("Failed to perform new module discovery: ${e}")
-        eureka.removeResourcesOnFailFlow(updatedAppInfoMap, module)
-        throw e
-      }
-    }
-
-    // 3. Deploy New Module Version to Rancher Namespace via Helm
-    stage('[Helm] Deploy Module Ver') {
-      try {
-        folioHelm.withKubeConfig(namespace.clusterName) {
-          folioHelm.deployFolioModule(namespace, module.name, module.version, false, namespace.defaultTenantId)
-          echo "Module ${module.name}-${module.version} deployed to ${namespace.clusterName} namespace ${namespace.workspaceName}"
-          folioHelm.checkDeploymentsRunning(namespace.getNamespaceName(), namespace.getModules().getBackendModules())
+      // 1. Register Application Descriptor with Updated Module Version
+      stage('[Rest] Update App Descriptor') {
+        try {
+          updatedAppInfoMap = eureka.updateAppDescriptorFlow(namespace.applications, module)
+        } catch (e) {
+          logger.warning("Failed to register new application descriptor: ${e}")
+          eureka.removeResourcesOnFailFlow(updatedAppInfoMap, module)
+          throw e
         }
-      } catch (e) {
-        logger.warning("Failed to deploy new module version via Helm: ${e}")
-        eureka.removeResourcesOnFailFlow(updatedAppInfoMap, module)
-        throw e
       }
-    }
 
-    // 4. Enable Application Descriptor with Updated Module Version for Tenants in Namespace
+      // 2. Enable New Module Version (Discovery) for Application
+      stage('[Rest] Module Discovery') {
+        try {
+          eureka.registerModulesFlow(new FolioInstallJson<FolioModule>(EurekaModule.class).addModule(module))
+        } catch (e) {
+          logger.warning("Failed to perform new module discovery: ${e}")
+          eureka.removeResourcesOnFailFlow(updatedAppInfoMap, module)
+          throw e
+        }
+      }
+
+      // 3. Deploy New Module Version to Rancher Namespace via Helm
+      stage('[Helm] Deploy Module Ver') {
+        try {
+          folioHelm.withKubeConfig(namespace.clusterName) {
+            folioHelm.deployFolioModule(namespace, module.name, module.version, false, namespace.defaultTenantId)
+            echo "Module ${module.name}-${module.version} deployed to ${namespace.clusterName} namespace ${namespace.workspaceName}"
+            folioHelm.checkDeploymentsRunning(namespace.getNamespaceName(), namespace.getModules().getBackendModules())
+          }
+        } catch (e) {
+          logger.warning("Failed to deploy new module version via Helm: ${e}")
+          eureka.removeResourcesOnFailFlow(updatedAppInfoMap, module)
+          throw e
+        }
+      }
+
+      // 4. Enable Application Descriptor with Updated Module Version for Tenants in Namespace
       stage('[Rest] Enable New App') {
         try {
           namespace.getTenants().values().each { tenant ->
-            Tenants.get(eureka.getKong()).updateApplications(tenant, updatedAppInfoMap.values().toList())
+            Tenants.get(eureka.getKong()).updateApplicationsStandardEndpoint(tenant, updatedAppInfoMap.values().toList())
           }
         } catch (e) {
           logger.warning("Failed to enable (entitle) new application version: ${e}")
-          
+
           if (e.toString().contains('Application version is same or lower than entitled')) {
             logger.info("Application version is same or lower than entitled. This may indicate tenants have entitlements that need cleanup.")
-            
+
             try {
               logger.info("Attempting cleanup for all namespace tenants.")
               def allTenantIds = namespace.getTenants().values().collect { it.uuid }
               kubectl.updateApplicationsFix(params.NAMESPACE, params.CLUSTER, updatedAppInfoMap.values().toList(), allTenantIds)
-              
+
               logger.info("Retrying application update after entitlement cleanup.")
               namespace.getTenants().values().each { tenant ->
-                Tenants.get(eureka.getKong()).updateApplications(tenant, updatedAppInfoMap.values().toList())
+                Tenants.get(eureka.getKong()).updateApplicationsStandardEndpoint(tenant, updatedAppInfoMap.values().toList())
               }
               logger.info("Successfully enabled application after entitlement cleanup.")
             } catch (retryException) {
@@ -364,8 +364,7 @@ ansiColor('xterm') {
               }
               throw retryException
             }
-          }
-          else if (e.toString().contains('cannot be removed')) {
+          } else if (e.toString().contains('cannot be removed')) {
             logger.info("Handling 'cannot be removed' error with tenant-specific cleanup.")
             try {
               def errorMessage = e.toString()
@@ -373,7 +372,7 @@ ansiColor('xterm') {
               if (responseMatch) {
                 def responseJson = responseMatch[0][1]
                 def errorResponse = readJSON(text: responseJson)
-                
+
                 if (errorResponse.errors && errorResponse.errors[0].message.contains('installed for tenants')) {
                   def tenantMessage = errorResponse.errors[0].message
                   def tenantListMatch = tenantMessage =~ /tenants: \[([^\]]+)\]/
@@ -381,16 +380,16 @@ ansiColor('xterm') {
                     def tenantIds = tenantListMatch[0][1].split(', ').collect { it.trim() }
                     logger.info("Found tenant IDs in error message: ${tenantIds}")
                     kubectl.updateApplicationsFix(params.NAMESPACE, params.CLUSTER, updatedAppInfoMap.values().toList(), tenantIds)
-                    
+
                     namespace.getTenants().values().each { tenant ->
-                      Tenants.get(eureka.getKong()).updateApplications(tenant, updatedAppInfoMap.values().toList())
+                      Tenants.get(eureka.getKong()).updateApplicationsStandardEndpoint(tenant, updatedAppInfoMap.values().toList())
                     }
                     logger.info("Successfully enabled application after tenant-specific cleanup.")
                     return
                   }
                 }
               }
-              
+
               try {
                 eureka.removeResourcesOnFailFlow(updatedAppInfoMap, module)
               } catch (cleanupException) {
@@ -414,8 +413,7 @@ ansiColor('xterm') {
               }
               throw e
             }
-          } 
-          else {
+          } else {
             try {
               eureka.removeResourcesOnFailFlow(updatedAppInfoMap, module)
             } catch (cleanupException) {
@@ -433,6 +431,6 @@ ansiColor('xterm') {
 
     stage('[Rest] Remove Stale Resources') {
       eureka.removeStaleResourcesFlow(namespace.applications, updatedAppInfoMap, module)
-      }
     }
   }
+}
