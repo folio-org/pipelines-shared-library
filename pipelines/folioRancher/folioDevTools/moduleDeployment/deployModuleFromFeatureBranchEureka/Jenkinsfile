@@ -222,9 +222,9 @@ ansiColor('xterm') {
 
     stage('Generate context') {
       eureka.getExistedTenantsForModule("${namespace.getClusterName()}-${namespace.getNamespaceName()}", module.getName())
-        .values().each {namespace.addTenant(it) }
+        .values().each { namespace.addTenant(it) }
 
-      namespace.tenants.values().each {it.getModules().addModule(module)}
+      namespace.tenants.values().each { it.getModules().addModule(module) }
 
       if (!(namespace.tenants))
         throw new Exception("There are no tenants with the module ${module.getName()}")
@@ -276,11 +276,11 @@ ansiColor('xterm') {
           Keycloak keycloak = new Keycloak(this, namespace.generateDomain("keycloak"), false)
           tenants.each { tenant ->
             Map body = [
-              tenantId: tenant.id,
+              tenantId    : tenant.id,
               applications: apps.findAll { it.modules*.name.contains(module.name) }*.id
             ]
             Map headers = [
-              'Content-Type': 'application/json',
+              'Content-Type' : 'application/json',
               'Authorization': "Bearer ${keycloak.getAuthMasterTenantToken()}",
             ]
             folioPrint.colored("Invoking /tenant API for tenant: ${tenant.name} with applications: ${body.applications}", 'green')
@@ -364,8 +364,7 @@ ansiColor('xterm') {
               }
               throw retryException
             }
-          }
-          else if (e.toString().contains('cannot be removed')) {
+          } else if (e.toString().contains('cannot be removed')) {
             logger.info("Handling 'cannot be removed' error with tenant-specific cleanup.")
             try {
               def errorMessage = e.toString()
@@ -414,8 +413,7 @@ ansiColor('xterm') {
               }
               throw e
             }
-          }
-          else {
+          } else {
             try {
               eureka.removeResourcesOnFailFlow(updatedAppInfoMap, module)
             } catch (cleanupException) {
