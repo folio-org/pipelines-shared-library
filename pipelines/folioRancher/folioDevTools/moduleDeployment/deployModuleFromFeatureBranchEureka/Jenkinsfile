@@ -334,8 +334,11 @@ ansiColor('xterm') {
         try {
           namespace.getTenants().values().each { tenant ->
             def appNames = Tenants.get(eureka.getKong()).getEnabledApplications(tenant)
-            logger.info(appNames.id.toList())
-            Tenants.get(eureka.getKong()).updateApplications(tenant, updatedAppInfoMap.values().toList() + appNames.id.toList())
+            def allAppIds = updatedAppInfoMap.values().toList() + appNames.id.toList()
+            def filteredAppIds = allAppIds.groupBy { it.replaceFirst(/-\d+\.\d+\.\d+.*$/, '') }
+              .collect { name, versions -> versions.max() }
+            logger.info("Apps after dedup: ${filteredAppIds}")
+            Tenants.get(eureka.getKong()).updateApplications(tenant, filteredAppIds)
           }
         } catch (e) {
           logger.warning("Failed to enable (entitle) new application version: ${e}")
