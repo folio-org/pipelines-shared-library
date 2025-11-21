@@ -42,7 +42,7 @@ if (params.REFRESH_PARAMETERS) {
 }
 
 if (params.NAMESPACE in Constants.RANCHER_PROTECTED_NAMESPACES) {
- folioCommon.kitfoxApproval()
+  folioCommon.kitfoxApproval()
 }
 
 
@@ -109,10 +109,10 @@ ansiColor('xterm') {
     }
 
     stage('[Pre-condition] CleanUp Karate tenants') {
-        if (params.CLEANUP_ENV) {
-          folioTools.karateTenantsCleanUp(params.CLUSTER, params.NAMESPACE)
-        }
+      if (params.CLEANUP_ENV) {
+        folioTools.karateTenantsCleanUp(params.CLUSTER, params.NAMESPACE)
       }
+    }
 
     stage('[Maven/Gradle] Compile') {
       container('java') {
@@ -139,7 +139,7 @@ ansiColor('xterm') {
                 mavenLocalRepo: "${podTemplates.WORKING_DIR}/.m2/repository",
                 traceability: true,
                 options: [artifactsPublisher(disabled: true)]) {
-                  sh """
+                sh """
                     mvn versions:set -DnewVersion=${module.getVersion()}
                     mvn package ${mavenArguments}
                   """.stripIndent()
@@ -292,53 +292,48 @@ ansiColor('xterm') {
       }
 
     } else {
-    // 1. Register Application Descriptor with Updated Module Version
-    stage('[Rest] Update App Descriptor') {
-      try {
-        updatedAppInfoMap = eureka.updateAppDescriptorFlow(namespace.applications, module)
-      } catch (e) {
-        logger.warning("Failed to register new application descriptor: ${e}")
-        eureka.removeResourcesOnFailFlow(updatedAppInfoMap, module)
-        throw e
-      }
-    }
-
-    // 2. Enable New Module Version (Discovery) for Application
-    stage('[Rest] Module Discovery') {
-      try {
-        eureka.registerModulesFlow(new FolioInstallJson<FolioModule>(EurekaModule.class).addModule(module))
-      } catch (e) {
-        logger.warning("Failed to perform new module discovery: ${e}")
-        eureka.removeResourcesOnFailFlow(updatedAppInfoMap, module)
-        throw e
-      }
-    }
-
-    // 3. Deploy New Module Version to Rancher Namespace via Helm
-    stage('[Helm] Deploy Module Ver') {
-      try {
-        folioHelm.withKubeConfig(namespace.clusterName) {
-          folioHelm.deployFolioModule(namespace, module.name, module.version, false, namespace.defaultTenantId)
-          echo "Module ${module.name}-${module.version} deployed to ${namespace.clusterName} namespace ${namespace.workspaceName}"
-          folioHelm.checkDeploymentsRunning(namespace.getNamespaceName(), namespace.getModules().getBackendModules())
+      // 1. Register Application Descriptor with Updated Module Version
+      stage('[Rest] Update App Descriptor') {
+        try {
+          updatedAppInfoMap = eureka.updateAppDescriptorFlow(namespace.applications, module)
+        } catch (e) {
+          logger.warning("Failed to register new application descriptor: ${e}")
+          eureka.removeResourcesOnFailFlow(updatedAppInfoMap, module)
+          throw e
         }
-      } catch (e) {
-        logger.warning("Failed to deploy new module version via Helm: ${e}")
-        eureka.removeResourcesOnFailFlow(updatedAppInfoMap, module)
-        throw e
       }
-    }
 
-    // 4. Enable Application Descriptor with Updated Module Version for Tenants in Namespace
+      // 2. Enable New Module Version (Discovery) for Application
+      stage('[Rest] Module Discovery') {
+        try {
+          eureka.registerModulesFlow(new FolioInstallJson<FolioModule>(EurekaModule.class).addModule(module))
+        } catch (e) {
+          logger.warning("Failed to perform new module discovery: ${e}")
+          eureka.removeResourcesOnFailFlow(updatedAppInfoMap, module)
+          throw e
+        }
+      }
+
+      // 3. Deploy New Module Version to Rancher Namespace via Helm
+      stage('[Helm] Deploy Module Ver') {
+        try {
+          folioHelm.withKubeConfig(namespace.clusterName) {
+            folioHelm.deployFolioModule(namespace, module.name, module.version, false, namespace.defaultTenantId)
+            echo "Module ${module.name}-${module.version} deployed to ${namespace.clusterName} namespace ${namespace.workspaceName}"
+            folioHelm.checkDeploymentsRunning(namespace.getNamespaceName(), namespace.getModules().getBackendModules())
+          }
+        } catch (e) {
+          logger.warning("Failed to deploy new module version via Helm: ${e}")
+          eureka.removeResourcesOnFailFlow(updatedAppInfoMap, module)
+          throw e
+        }
+      }
+
+      // 4. Enable Application Descriptor with Updated Module Version for Tenants in Namespace
       stage('[Rest] Enable New App') {
         try {
           namespace.getTenants().values().each { tenant ->
-            def appNames = Tenants.get(eureka.getKong()).getEnabledApplications(tenant)
-            def allAppIds = updatedAppInfoMap.values().toList() + appNames.id.toList()
-            def filteredAppIds = allAppIds.groupBy { it.replaceFirst(/-\d+\.\d+\.\d+.*$/, '') }
-              .collect { name, versions -> versions.max() }
-            logger.info("Apps after dedup: ${filteredAppIds}")
-            Tenants.get(eureka.getKong()).updateApplications(tenant, filteredAppIds)
+            Tenants.get(eureka.getKong()).updateApplicationsStandardEndpoint(tenant, updatedAppInfoMap.values().toList())
           }
         } catch (e) {
           logger.warning("Failed to enable (entitle) new application version: ${e}")
@@ -353,7 +348,7 @@ ansiColor('xterm') {
 
               logger.info("Retrying application update after entitlement cleanup.")
               namespace.getTenants().values().each { tenant ->
-                Tenants.get(eureka.getKong()).updateApplications(tenant, updatedAppInfoMap.values().toList())
+                Tenants.get(eureka.getKong()).updateApplicationsStandardEndpoint(tenant, updatedAppInfoMap.values().toList())
               }
               logger.info("Successfully enabled application after entitlement cleanup.")
             } catch (retryException) {
@@ -438,6 +433,6 @@ ansiColor('xterm') {
 
     stage('[Rest] Remove Stale Resources') {
       eureka.removeStaleResourcesFlow(namespace.applications, updatedAppInfoMap, module)
-      }
     }
   }
+}
