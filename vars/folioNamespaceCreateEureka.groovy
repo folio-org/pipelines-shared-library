@@ -343,7 +343,7 @@ void call(CreateNamespaceParameters args) {
           , namespace.getClusterName()
           , namespace.getNamespaceName()
           , namespace.getEnableConsortia()
-          , true
+          , false
           , false // Set this option true, when users & groups migration is required.
         )
       }
