@@ -20,7 +20,7 @@ import java.time.temporal.ChronoUnit
 @Field final LocalDate nextWednesday = thisWednesday.plusWeeks(1)
 
 @Field final int weeksSinceEpoch = (int)(java.time.temporal.ChronoUnit.WEEKS.between(LocalDate.of(2025, 1, 1), thisWednesday))
-@Field final boolean isSecondWednesday = 
+@Field final boolean isSecondWednesday =
   today.getDayOfWeek() == DayOfWeek.WEDNESDAY && (weeksSinceEpoch % 2 == 1)
 
 properties([
