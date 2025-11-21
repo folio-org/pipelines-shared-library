@@ -267,7 +267,7 @@ void call(CreateNamespaceParameters args) {
 //                            'DELETE FROM public.application_flow']
 //            String pod = sh(script: "kubectl get pod -l 'app.kubernetes.io/name=pgadmin4' -o=name -n ${namespace.getNamespaceName()}", returnStdout: true).trim()
 //            sql_cmd.each { sh(script: "kubectl exec ${pod} --namespace ${namespace.getNamespaceName()} -- /usr/local/pgsql-16/psql -c '${it}'", returnStdout: true) }
-          logger.info("TESTING: This this ticket RANCHER-2656. Remove commented code after verification.")
+          logger.info("TESTING: This for the ticket RANCHER-2656. DO NOT remove commented lines, even if testing is complete.")
           }
         }
       }
