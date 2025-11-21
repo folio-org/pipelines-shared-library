@@ -9,17 +9,17 @@ import org.folio.rest_v2.eureka.Kong
 import org.folio.utilities.RequestException
 import org.folio.Constants
 
-class Tenants extends Kong {
+class Tenants extends Kong{
 
-  Tenants(def context, String kongUrl, Keycloak keycloak, boolean debug = false) {
+  Tenants(def context, String kongUrl, Keycloak keycloak, boolean debug = false){
     super(context, kongUrl, keycloak, debug)
   }
 
-  Tenants(def context, String kongUrl, String keycloakUrl, boolean debug = false) {
+  Tenants(def context, String kongUrl, String keycloakUrl, boolean debug = false){
     super(context, kongUrl, keycloakUrl, debug)
   }
 
-  Tenants(Kong kong) {
+  Tenants(Kong kong){
     this(kong.context, kong.kongUrl, kong.keycloak, kong.getDebug())
   }
 
@@ -77,15 +77,15 @@ class Tenants extends Kong {
     return EurekaTenant.getTenantFromContent(content)
   }
 
-  EurekaTenant getTenant(String tenantId) {
+  EurekaTenant getTenant(String tenantId){
     return getTenants(tenantId)[0]
   }
 
-  EurekaTenant getTenantByName(String name) {
+  EurekaTenant getTenantByName(String name){
     return getTenants("", "name==${name}")[0]
   }
 
-  List<EurekaTenant> getTenants(String tenantId = "", String query = "", int limit = 500) {
+  List<EurekaTenant> getTenants(String tenantId = "", String query = "", int limit = 500){
     logger.info("Get tenants${tenantId ? " with tenantId=${tenantId}" : ""}${query ? " with query=${query}" : ""}...")
 
     Map<String, String> headers = getMasterHttpHeaders()
@@ -156,15 +156,15 @@ class Tenants extends Kong {
           Response content:
           ${contentStr}""")
         } else if (Constants.ERM_MODULES.find { contentStr.contains(it) }) {
-          def matchedModule = Constants.ERM_MODULES.find { contentStr.contains(it) }
-          logger.info("""
+            def matchedModule = Constants.ERM_MODULES.find { contentStr.contains(it) }
+            logger.info("""
             Application(s) are already entitled on tenant, but need to fix erm entitlement.
             Status: ${ex.statusCode}
             Response content:
             ${contentStr}""")
-          def parts = kongUrl.split("\\.")
-          def properNamespace = parts[0].split("-").length > 4 ? parts[0].split("-")[2..3].join("-") : parts[0].split("-")[2]
-          context.kubectl.ermEntitlementFix(properNamespace, tenant.tenantId, "${parts[0].split("-")[0]}-${parts[0].split("-")[1]}", matchedModule)
+            def parts = kongUrl.split("\\.")
+            def properNamespace = parts[0].split("-").length > 4 ? parts[0].split("-")[2..3].join("-") : parts[0].split("-")[2]
+            context.kubectl.ermEntitlementFix(properNamespace, tenant.tenantId, "${parts[0].split("-")[0]}-${parts[0].split("-")[1]}", matchedModule)
           throw new Exception("Build failed: because of erm entitlement fix done for ${matchedModule} module, need to re-run the entitlement process")
         } else {
           logger.error("Enabling application for tenant failed: ${contentStr}")
@@ -185,7 +185,7 @@ class Tenants extends Kong {
    */
 
   Tenants updateApplicationsStandardEndpoint(EurekaTenant tenant, List<String> appIds) {
-    if (!appIds)
+    if(!appIds)
       return this
 
     logger.info("Update the following applications ${appIds} on tenant ${tenant.tenantId} with ${tenant.uuid}...")
@@ -216,7 +216,7 @@ class Tenants extends Kong {
    * @return Tenants instance.
    */
   Tenants updateApplications(EurekaTenant tenant, List<String> appIds) {
-    if (!appIds)
+    if(!appIds)
       return this
 
     logger.info("Update the following applications ${appIds} on tenant ${tenant.tenantId} with ${tenant.uuid}...")
@@ -305,10 +305,10 @@ class Tenants extends Kong {
    * @param appId Application id (e.g. app-platform-full-1.0.0-SNAPSHOT.176)
    * @return Application instance with specificId
    */
-  Application getEnabledApplicationById(EurekaTenant tenant, String appId, boolean includeModules = false) {
-    ApplicationList enabledApps = getEnabledApplications(tenant, "applicationId=${appId}", includeModules)
+  Application getEnabledApplicationById(EurekaTenant tenant, String appId, boolean includeModules = false){
+    ApplicationList enabledApps = getEnabledApplications(tenant,"applicationId=${appId}", includeModules)
 
-    return enabledApps ? enabledApps[0] : null
+    return enabledApps ? enabledApps[0]: null
   }
 
   /**
@@ -318,12 +318,12 @@ class Tenants extends Kong {
    * @param includeModules boolean flag to include modules.
    * @return ApplicationList of enabled applications.
    */
-  ApplicationList getEnabledApplicationOnTenant(EurekaTenant tenant, boolean includeModules = false) {
-    return getEnabledApplications(tenant, "tenantId=${tenant.uuid}", includeModules)
+  ApplicationList getEnabledApplicationOnTenant(EurekaTenant tenant, boolean includeModules = false){
+    return getEnabledApplications(tenant,"tenantId=${tenant.uuid}", includeModules)
   }
 
   @NonCPS
-  static Tenants get(Kong kong) {
+  static Tenants get(Kong kong){
     return new Tenants(kong)
   }
 }
