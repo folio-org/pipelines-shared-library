@@ -333,9 +333,9 @@ ansiColor('xterm') {
       stage('[Rest] Enable New App') {
         try {
           namespace.getTenants().values().each { tenant ->
-            List appNames = Tenants.get(eureka.getKong()).getEnabledApplications(tenant)
-            logger.info(appNames)
-            Tenants.get(eureka.getKong()).updateApplications(tenant, updatedAppInfoMap.values().toList() + appNames)
+            def appNames = Tenants.get(eureka.getKong()).getEnabledApplications(tenant)
+            logger.info(appNames.id.toList())
+            Tenants.get(eureka.getKong()).updateApplications(tenant, updatedAppInfoMap.values().toList() + appNames.id.toList())
           }
         } catch (e) {
           logger.warning("Failed to enable (entitle) new application version: ${e}")
