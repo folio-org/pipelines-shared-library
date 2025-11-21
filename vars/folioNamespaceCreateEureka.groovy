@@ -157,6 +157,7 @@ void call(CreateNamespaceParameters args) {
       namespace.setEnableRwSplit(args.rwSplit)
       namespace.setEnableRtr(args.rtr)
       namespace.setEnableECS_CCL(args.ecsCCL)
+      namespace.setEnableRtacCache(args.rtacCache)
       namespace.addDeploymentConfig(folioTools.getPipelineBranch())
 
       namespace.addTenant(
@@ -199,6 +200,9 @@ void call(CreateNamespaceParameters args) {
           defaultConsortiaTenants.putAll(folioDefault.consortiaTenantsExtra([], consortiaParams2 as InstallRequestParams))
         }
 
+        if(args.folioExtensions.contains('rtac-cache')) {
+          namespace.setEnableRtacCache(true, isRelease)
+        }
 
         DTO.convertMapTo(defaultConsortiaTenants, EurekaTenantConsortia.class)
           .values()
