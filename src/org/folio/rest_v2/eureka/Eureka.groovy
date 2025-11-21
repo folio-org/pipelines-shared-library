@@ -45,7 +45,7 @@ class Eureka extends Base {
 
     kong.keycloak.defineTTL(tenant.tenantId, 600)
 
-    ApplicationList entitledApps = Tenants.get(kong).getEnabledApplications(tenant)
+//    ApplicationList entitledApps = Tenants.get(kong).getEnabledApplications(tenant)
 
     Tenants.get(kong).enableApplications(
       tenant,
