@@ -86,12 +86,8 @@ class RancherNamespace {
     return enableConsortia
   }
 
-  void setEnableRtacCache(boolean enableRtacCache, boolean releaseVersion = false) {
-    if (enableRtacCache) {
+  void setEnableRtacCache(boolean releaseVersion = false) {
       this.modules.addModules([this.modules.getModuleVersion('mod-rtac-cache', releaseVersion)])
-    } else {
-      this.modules.removeModuleById('mod-rtac-cache')
-    }
   }
 
   /**

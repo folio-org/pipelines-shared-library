@@ -201,7 +201,7 @@ void call(CreateNamespaceParameters args) {
         }
 
         if(args.folioExtensions.contains('rtac-cache')) {
-          namespace.setEnableRtacCache(true, isRelease)
+          namespace.setEnableRtacCache(isRelease)
         }
 
         DTO.convertMapTo(defaultConsortiaTenants, EurekaTenantConsortia.class)
