@@ -2820,6 +2820,38 @@ mod-rtac:
   pdb:
     enabled: true
     maxUnavailable: 1
+mod-rtac-cache:
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
+    systemuser:
+      enabled: true
+      existingSecret: mod-rtac-cache-systemuser
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 173Mi
+    requests:
+      memory: 151Mi
+  extraJavaOpts:
+    - -XX:MaxRAMPercentage=85.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
 mod-search:
   extraEnvVars:
     - name: INSTANCE_SUBJECTS_INDEXING_RETRY_ATTEMPTS

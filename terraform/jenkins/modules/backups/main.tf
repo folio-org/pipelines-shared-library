@@ -98,9 +98,9 @@ resource "aws_dlm_lifecycle_policy" "ebs_snapshot_policy" {
 
       # Tags to be added to each snapshot created by this policy
       tags_to_add = {
-        Name = "${var.prefix}-jenkins-snapshot"
+        Name            = "${var.prefix}-jenkins-snapshot"
         SnapshotCreator = "DLM"
-        SnapshotType = "jenkins-backup"
+        SnapshotType    = "jenkins-backup"
       }
 
       # Define the frequency of snapshot creation

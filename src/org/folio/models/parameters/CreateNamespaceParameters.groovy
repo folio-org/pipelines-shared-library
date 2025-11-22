@@ -94,6 +94,8 @@ class CreateNamespaceParameters implements Cloneable {
 
   String type = 'full'
 
+  boolean rtacCache = false
+
   private CreateNamespaceParameters() {}
 
   @NonCPS
@@ -522,6 +524,16 @@ class CreateNamespaceParameters implements Cloneable {
      */
     Builder scNative(boolean scNative) {
       parameters.scNative = scNative
+      return this
+    }
+    /**
+     * Specifies whether RTAC cache should be enabled in the namespace.
+     * @param rtacCache `true` to enable RTAC cache; `false` otherwise.
+     * @return Builder instance for method chaining.
+     */
+
+    Builder rtacCache(boolean rtacCache) {
+      parameters.rtacCache = rtacCache
       return this
     }
 

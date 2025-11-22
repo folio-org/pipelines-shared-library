@@ -86,6 +86,10 @@ class RancherNamespace {
     return enableConsortia
   }
 
+  void setEnableRtacCache(boolean releaseVersion = false) {
+      this.modules.addModules([this.modules.getModuleVersion('mod-rtac-cache', releaseVersion)])
+  }
+
   /**
    * Adds a tenant to the RancherNamespace.
    * @param tenant the OkapiTenant to add
