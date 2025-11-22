@@ -161,7 +161,7 @@ class Constants {
     ],
     [
       name: "app-rtac-cache"
-      , branch: "snapshot"
+      , branch: "master"
       , consortia: false
       , core: false
       , byDefault: false
