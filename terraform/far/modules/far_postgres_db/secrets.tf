@@ -1,5 +1,5 @@
 resource "random_password" "postgres" {
-  count   = var.existing_secret_name == null ? 1 : 0
+  count            = var.existing_secret_name == null ? 1 : 0
   length           = var.password_length
   special          = true
   override_special = var.password_override_special
