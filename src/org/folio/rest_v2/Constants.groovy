@@ -165,7 +165,7 @@ class Constants {
       , consortia: false
       , core: false
       , byDefault: false
-      , dependsOn: ["app-platform-minimal", "app-platform-complete", "app-acquisitions"]
+      , dependsOn: ["app-rtac"]
     ],
     [
       name: "app-search"
