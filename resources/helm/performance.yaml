@@ -3878,7 +3878,7 @@ mod-rtac-cache:
   integrations:
     db:
       enabled: true
-      existingSecret:
+      existingSecret: db-credentials
     kafka:
       enabled: true
       existingSecret: kafka-credentials
