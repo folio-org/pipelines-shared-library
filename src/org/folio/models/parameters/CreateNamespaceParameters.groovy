@@ -45,6 +45,8 @@ class CreateNamespaceParameters implements Cloneable {
 
   boolean marcMigrations = false
 
+  boolean rtacCache = false
+
   boolean hasSecureTenant
 
   String secureTenantId
@@ -321,6 +323,16 @@ class CreateNamespaceParameters implements Cloneable {
      */
     Builder doMarcMigrations(boolean doMigrations) {
       parameters.marcMigrations = doMigrations
+      return this
+    }
+
+    /**
+     * Do or not rtac-cache
+     * @param doRtacCache `true` to do rtac-cache; `false` to skip.
+     * @return Builder instance for method chaining.
+     */
+    Builder doRtacCache(boolean doRtacCache) {
+      parameters.rtacCache = doRtacCache
       return this
     }
 

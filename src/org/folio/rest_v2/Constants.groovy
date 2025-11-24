@@ -160,6 +160,14 @@ class Constants {
       , dependsOn: ["app-platform-minimal", "app-platform-complete", "app-acquisitions"]
     ],
     [
+      name: "app-rtac-cache"
+      , branch: "snapshot"
+      , consortia: false
+      , core: false
+      , byDefault: false
+      , dependsOn: ["app-rtac", "app-platform-minimal", "app-platform-complete", "app-acquisitions"]
+    ],
+    [
       name: "app-search"
       , branch: "snapshot"
       , consortia: false

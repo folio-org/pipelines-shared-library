@@ -15,7 +15,7 @@ data "aws_iam_policy_document" "assume_role" {
 
 resource "aws_iam_role" "dlm_lifecycle_role" {
   count = var.enable_backups ? 1 : 0
-  name = "${var.cluster_name}-${var.namespace_name}-dlm-lifecycle-role"
+  name  = "${var.cluster_name}-${var.namespace_name}-dlm-lifecycle-role"
 
   assume_role_policy = data.aws_iam_policy_document.assume_role.json
 
@@ -77,7 +77,7 @@ resource "aws_iam_policy" "dlm_policy" {
 
 # Attach the IAM policies to the DLM role
 resource "aws_iam_role_policy_attachment" "dlm_policy_attachment" {
-  count       = var.enable_backups ? 1 : 0
+  count      = var.enable_backups ? 1 : 0
   role       = aws_iam_role.dlm_lifecycle_role[0].name
   policy_arn = aws_iam_policy.dlm_policy[0].arn
 }
@@ -121,7 +121,7 @@ resource "aws_iam_role_policy_attachment" "snapshot_protection" {
 }
 
 resource "aws_dlm_lifecycle_policy" "postgres_backup" {
-  count      = var.enable_backups ? 1 : 0
+  count              = var.enable_backups ? 1 : 0
   description        = "DLM lifecycle policy for PostgreSQL EBS volume backups"
   execution_role_arn = aws_iam_role.dlm_lifecycle_role[0].arn
   state              = "ENABLED"
