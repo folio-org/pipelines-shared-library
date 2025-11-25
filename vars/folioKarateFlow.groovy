@@ -27,7 +27,7 @@ KarateRunExecutionSummary call(KarateTestsParameters args) {
       }
 
       stage('Build karate config') {
-        args.teamAssignment = new TeamAssignment(readJSON(file: "teams-assignment.json"))
+        args.teamAssignment = new TeamAssignment(readJSON(file: 'teams-assignment.json'))
         List files = findFiles(glob: '**/karate-config.js')
         files.each { file ->
           logger.info("Updating file: ${file.path}")
@@ -51,9 +51,15 @@ KarateRunExecutionSummary call(KarateTestsParameters args) {
                         junitPublisher(disabled: true),
                         jacocoPublisher(disabled: true)]) {
               logger.debug(sh(returnStdout: true, script: 'echo $JAVA_HOME').trim())
-              String modules = args.modulesToTest ? "-pl common,testrail-integration," + args.modulesToTest : args.modulesToTest
+              String modules = args.modulesToTest ? '-pl common,testrail-integration,' + args.modulesToTest : args.modulesToTest
               catchError(stageResult: 'FAILURE') {
-                String execParams = "-DfailIfNoTests=false -Dkarate.env=${args.karateConfig}"
+                String execParams = "-DfailIfNoTests=false -Dsurefire.failIfNoSpecifiedTests=false -Dkarate.env=${args.karateConfig}"
+
+                if (args.testGroup && !args.testGroup.isEmpty()) {
+                  String testPatterns = args.testGroup.collect { "**/*${it}*" }.join(',')
+                  execParams = "$execParams -Dtest=${testPatterns}"
+                  logger.info("Applying test group filtering: -Dtest=${testPatterns}")
+                }
 
                 execParams = args.lsdi ? "$execParams -pl data-import-large-scale-tests -am -DskipTests=false" : "$execParams -T ${args.threadsCount} ${modules}"
 
@@ -72,12 +78,12 @@ KarateRunExecutionSummary call(KarateTestsParameters args) {
                     passwordVariable: 'TESTRAIL_PASSWORD',
                     usernameVariable: 'TESTRAIL_USERNAME')]) {
                     sh execString
-                  }
+                    }
                 } else {
                   sh execString
                 }
               }
-            }
+                        }
           }
         }
 
@@ -94,25 +100,25 @@ KarateRunExecutionSummary call(KarateTestsParameters args) {
         }
 
         if (args.reportPortalProjectName && args.reportPortalProjectId) {
-          stage("[ReportPortal] Finish run") {
+          stage('[ReportPortal] Finish run') {
             stopReportPortalRun(args.reportPortalProjectName, args.reportPortalProjectId)
           }
         }
 
         stage('[Report] Analyze results') {
-          karateTestsExecutionSummary = karateTestUtils.collectTestsResults("**/target/karate-reports*/karate-summary-json.txt")
+          karateTestsExecutionSummary = karateTestUtils.collectTestsResults('**/target/karate-reports*/karate-summary-json.txt')
           karateTestUtils.attachCucumberReports(karateTestsExecutionSummary)
         }
 
         stage('[Archive] Archive artifacts') {
-          zip zipFile: "cucumber.zip", glob: "**/target/karate-reports*/*.json"
-          zip zipFile: "junit.zip", glob: "**/target/karate-reports*/*.xml"
-          zip zipFile: "karate-summary.zip", glob: "**/target/karate-reports*/karate-summary-json.txt"
+          zip zipFile: 'cucumber.zip', glob: '**/target/karate-reports*/*.json'
+          zip zipFile: 'junit.zip', glob: '**/target/karate-reports*/*.xml'
+          zip zipFile: 'karate-summary.zip', glob: '**/target/karate-reports*/karate-summary-json.txt'
 
-          archiveArtifacts allowEmptyArchive: true, artifacts: "cucumber.zip", fingerprint: true, defaultExcludes: false
-          archiveArtifacts allowEmptyArchive: true, artifacts: "junit.zip", fingerprint: true, defaultExcludes: false
-          archiveArtifacts allowEmptyArchive: true, artifacts: "karate-summary.zip", fingerprint: true, defaultExcludes: false
-          archiveArtifacts allowEmptyArchive: true, artifacts: "teams-assignment.json", fingerprint: true, defaultExcludes: false
+          archiveArtifacts allowEmptyArchive: true, artifacts: 'cucumber.zip', fingerprint: true, defaultExcludes: false
+          archiveArtifacts allowEmptyArchive: true, artifacts: 'junit.zip', fingerprint: true, defaultExcludes: false
+          archiveArtifacts allowEmptyArchive: true, artifacts: 'karate-summary.zip', fingerprint: true, defaultExcludes: false
+          archiveArtifacts allowEmptyArchive: true, artifacts: 'teams-assignment.json', fingerprint: true, defaultExcludes: false
         }
 
         if (args.syncWithJira) {
@@ -127,21 +133,21 @@ KarateRunExecutionSummary call(KarateTestsParameters args) {
               .renderBuildAndTestResultMessage(
                 TestType.KARATE
                 , karateTestsExecutionSummary
-                , ""
+                , ''
                 , true
                 , "${env.BUILD_URL}cucumber-html-reports/overview-features.html"
               )
-              , channel: "#rancher_tests_notifications")
+              , channel: '#rancher_tests_notifications')
           }
         }
 
         if (args.sendTeamsSlackNotification) {
-          stage("Send slack notifications to teams") {
+          stage('Send slack notifications to teams') {
             folioSlackNotificationUtils.renderTeamsTestResultMessages(
               TestType.KARATE
               , karateTestsExecutionSummary
               , args.teamAssignment
-              , ""
+              , ''
               , true
               , "${env.BUILD_URL}cucumber-html-reports/overview-features.html")
               .each {
@@ -162,9 +168,8 @@ KarateRunExecutionSummary call(KarateTestsParameters args) {
 }
 
 String startReportPortalRun(String projectName) {
-
   if (!projectName) {
-    println("Report Portal project name is not specified. Skipping Report Portal run start.")
+    println('Report Portal project name is not specified. Skipping Report Portal run start.')
     return null
   } // If projectName is not specified, skip printing the error message, see in RANCHER-2355
 
@@ -185,13 +190,13 @@ String startReportPortalRun(String projectName) {
     Map body = [name       : "${env.JOB_BASE_NAME}: ${env.BUILD_NUMBER}",
                 description: "'${env.JOB_NAME}' Jenkins job. Build URL: ${env.BUILD_URL}",
                 startTime  : "${Instant.now()}",
-                mode       : "DEFAULT",
-                attributes : [[key: "build", value: "${env.BUILD_NUMBER}"]]
+                mode       : 'DEFAULT',
+                attributes : [[key: 'build', value: "${env.BUILD_NUMBER}"]]
     ]
 
     return new RestClient(this).post(url, body, headers).body['id']
   } catch (Exception e) {
-    println("Not able to start Report Portal run. Error: " + e.getMessage())
+    println('Not able to start Report Portal run. Error: ' + e.getMessage())
   }
 }
 
@@ -205,6 +210,6 @@ void stopReportPortalRun(String projectName, String runId) {
     Map body = [endTime: "${Instant.now()}"]
     println(new RestClient(this).put(url, body, headers).body)
   } catch (Exception e) {
-    println("Not able to stop Report Portal run. Error: " + e.getMessage())
+    println('Not able to stop Report Portal run. Error: ' + e.getMessage())
   }
 }
