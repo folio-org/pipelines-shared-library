@@ -1,11 +1,11 @@
 #Creating a sorry-cypress project in Rancher.
 resource "rancher2_project" "sorry-cypress" {
-  depends_on                = [module.eks_cluster.eks_managed_node_groups]
-  count                     = var.deploy_sorry_cypress ? 1 : 0
-  provider                  = rancher2
-  name                      = "sorry-cypress"
-  cluster_id                = rancher2_cluster_sync.this[0].cluster_id
-  enable_project_monitoring = false
+  depends_on = [module.eks_cluster.eks_managed_node_groups]
+  count      = var.deploy_sorry_cypress ? 1 : 0
+  provider   = rancher2
+  name       = "sorry-cypress"
+  cluster_id = rancher2_cluster_sync.this[0].cluster_id
+  # enable_project_monitoring = false
   container_resource_limit {
     limits_memory   = "512Mi"
     requests_memory = "256Mi"
@@ -36,12 +36,16 @@ resource "rancher2_app_v2" "sorry-cypress" {
   chart_version = "1.9.0"
   values        = <<-EOT
     api:
+      image:
+        repository: "732722833398.dkr.ecr.us-west-2.amazonaws.com/sorry-cypress-api"
+        pullPolicy: IfNotPresent
+        tag: "2.5.1"
       replicas: 2
       enabled: true
       resources:
         limits:
-          cpu: 200m
-          memory: 256Mi
+          cpu: 256m
+          memory: 512Mi
         requests:
           cpu: 100m
           memory: 128Mi
@@ -62,12 +66,16 @@ resource "rancher2_app_v2" "sorry-cypress" {
           - host: "${module.eks_cluster.cluster_name}-sc-api.${var.root_domain}"
             path: /
     dashboard:
+      image:
+        repository: "732722833398.dkr.ecr.us-west-2.amazonaws.com/sorry-cypress-dashboard"
+        pullPolicy: IfNotPresent
+        tag: "2.5.1"
       replicas: 2
       enabled: true
       resources:
         limits:
-          cpu: 200m
-          memory: 256Mi
+          cpu: 256m
+          memory: 512Mi
         requests:
           cpu: 100m
           memory: 128Mi
@@ -91,6 +99,10 @@ resource "rancher2_app_v2" "sorry-cypress" {
           - host: "${module.eks_cluster.cluster_name}-sc-dashboard.${var.root_domain}"
             path: /
     director:
+      image:
+        pullPolicy: IfNotPresent
+        repository: "732722833398.dkr.ecr.us-west-2.amazonaws.com/sorry-cypress-director"
+        tag: "2.5.1"
       serviceAccount:
         name: sc-service-account
         create: true
@@ -98,8 +110,8 @@ resource "rancher2_app_v2" "sorry-cypress" {
       replicas: 2
       resources:
         limits:
-          cpu: 200m
-          memory: 256Mi
+          cpu: 256m
+          memory: 1024Mi
         requests:
           cpu: 100m
           memory: 128Mi
@@ -126,6 +138,11 @@ resource "rancher2_app_v2" "sorry-cypress" {
           - host: "${module.eks_cluster.cluster_name}-sc-director.${var.root_domain}"
             path: /
     mongodb:
+      image:
+        pullPolicy: IfNotPresent
+        registry: "732722833398.dkr.ecr.us-west-2.amazonaws.com"
+        repository: "mongodb"
+        tag: "4.4.6-debian-10-r8"
       internal_db:
         enabled: true
       mongoDatabase: "sorry-cypress"
@@ -138,10 +155,10 @@ resource "rancher2_app_v2" "sorry-cypress" {
           memory: 1024Mi
         limits:
           cpu: 2048m
-          memory: 4096Mi
+          memory: 8096Mi
       persistence:
         enabled: true
-        size: 50Gi
+        size: 250Gi
       externalAccess:
         enabled: true
         service:

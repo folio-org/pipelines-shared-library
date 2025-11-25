@@ -29,8 +29,7 @@ class Eureka extends Base {
     return this
   }
 
-  Eureka createTenantFlow(EurekaTenant tenant, String cluster, String namespace
-                          , boolean skipExistedType = false, boolean migrate = false) {
+  Eureka createTenantFlow(EurekaTenant tenant, String cluster, String namespace, boolean migrate = false) {
     EurekaTenant createdTenant = Tenants.get(kong).createTenant(tenant)
 
     tenant.withUUID(createdTenant.getUuid())
@@ -45,13 +44,9 @@ class Eureka extends Base {
 
     kong.keycloak.defineTTL(tenant.tenantId, 600)
 
-    ApplicationList entitledApps = Tenants.get(kong).getEnabledApplications(tenant)
-
     Tenants.get(kong).enableApplications(
-      tenant
-      , tenant.applications
-              .findAll { app -> !entitledApps.any { skipExistedType ? it.name == app.name : it.id == app.id } }
-              .collect { it.id }
+      tenant,
+      tenant.applications.collect { it.id }
     )
 
     context.folioTools.stsKafkaLag(cluster, namespace, tenant.tenantId)
@@ -218,9 +213,9 @@ class Eureka extends Base {
   }
 
   Eureka initializeFromScratch(Map<String, EurekaTenant> tenants, String cluster, String namespace
-                               , boolean enableConsortia, boolean skipExistedAppType = false, boolean migrate = false) {
+                               , boolean enableConsortia, boolean migrate = false) {
     tenants.each { tenantId, tenant ->
-      createTenantFlow(tenant, cluster, namespace, skipExistedAppType, migrate)
+      createTenantFlow(tenant, cluster, namespace, migrate)
     }
 
     if (enableConsortia)
@@ -306,10 +301,9 @@ class Eureka extends Base {
     Map<String, String> updatedAppInfoMap = [:]
 
     appWithDescriptors.each { app ->
+      String newBuildNumber = app.build ? (app.build.toInteger() + 1).toString() : ""
 
-      String incrementalNumber = app.build.toInteger() + 1
-
-      Map updatedAppDescriptor = getUpdatedApplicationDescriptor(app.descriptor, module, incrementalNumber)
+      Map updatedAppDescriptor = getUpdatedApplicationDescriptor(app.descriptor, module, newBuildNumber)
 
       Applications.get(kong).registerApplication(updatedAppDescriptor)
 
@@ -323,14 +317,26 @@ class Eureka extends Base {
    * Get Updated Application Descriptor with new Module Version
    * @param appDescriptor Current Application Descriptor as a Map
    * @param module Module object to be updated
-   * @param buildNumber Build Number for new Application Version
+   * @param buildNumber Build Number for snapshot versions
    * @return Updated Application Descriptor as a Map
    */
-  //TODO: Refactoring needed
-  Map getUpdatedApplicationDescriptor(Map appDescriptor, EurekaModule module, String buildNumber) {
-    // Update Application Descriptor with incremented Application Version
+  Map getUpdatedApplicationDescriptor(Map appDescriptor, EurekaModule module, String buildNumber = "") {
     String currentAppVersion = appDescriptor.version
-    String newAppVersion = currentAppVersion.replaceFirst(/SNAPSHOT\.\d+/, "SNAPSHOT.${buildNumber}")
+    String newAppVersion
+
+    if (currentAppVersion ==~ /^\d+\.\d+\.\d+-SNAPSHOT\.\d+$/) {
+      newAppVersion = currentAppVersion.replaceFirst(/SNAPSHOT\.\d+/, "SNAPSHOT.${buildNumber}")
+      logger.info("Updated snapshot application version from ${currentAppVersion} to ${newAppVersion}")
+    } else if (currentAppVersion ==~ /^\d+\.\d+\.\d+$/) {
+      def versionParts = currentAppVersion.tokenize('.')
+      int major = versionParts[0] as int
+      int minor = versionParts[1] as int
+      int patch = versionParts[2] as int
+      newAppVersion = "${major}.${minor}.${patch + 1}"
+      logger.info("Updated release application version from ${currentAppVersion} to ${newAppVersion} (bumped patch)")
+    } else {
+      throw new IllegalArgumentException("Unsupported application version format: ${currentAppVersion}")
+    }
 
     appDescriptor.version = newAppVersion
     appDescriptor.id = "${appDescriptor.name}-${newAppVersion}"

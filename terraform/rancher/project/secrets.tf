@@ -109,3 +109,19 @@ resource "aws_ssm_parameter" "ssm_param" {
     create_before_destroy = true
   }
 }
+
+resource "rancher2_secret" "mod_dcb_shadow_locations" {
+  name         = "mod-dcb-shadow-locations"
+  project_id   = rancher2_project.this.id
+  namespace_id = rancher2_namespace.this.name
+  data = {
+    FETCH_DCB_LOCATIONS_ENABLED                   = base64encode("true")
+    DCB_LOCATIONS_BASE_URL                        = base64encode("https://${var.rancher_cluster_name}-${rancher2_namespace.this.name}-mockserver.ci.folio.org")
+    DCB_LOCATIONS_BATCH_SIZE                      = base64encode("5")
+    SECRET_STORE_TYPE                             = base64encode("AWS_SSM")
+    SECRET_STORE_AWS_SSM_REGION                   = base64encode("${var.aws_region}")
+    SECRET_STORE_AWS_SSM_USE_IAM                  = base64encode("false")
+    SECRET_STORE_AWS_SSM_ECS_CREDENTIALS_ENDPOINT = base64encode("https://${var.rancher_cluster_name}-${rancher2_namespace.this.name}-mockserver.ci.folio.org")
+    SECRET_STORE_AWS_SSM_ECS_CREDENTIALS_PATH     = base64encode("/folio_diku_dcb-hub-credentials")
+  }
+}

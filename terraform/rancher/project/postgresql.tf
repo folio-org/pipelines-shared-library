@@ -32,6 +32,28 @@ resource "rancher2_secret" "db-credentials" {
   } : {})
 }
 
+resource "rancher2_secret" "db-credentials-eureka-components" {
+  count        = contains(["cikarate", "cicypress", "cypress", "karate"], var.rancher_project_name) ? 1 : 0
+  name         = "db-credentials-${var.rancher_project_name}-eureka"
+  project_id   = rancher2_project.this.id
+  namespace_id = rancher2_namespace.this.id
+  data = merge({
+    ENV             = base64encode(local.env_name)
+    DB_HOST         = base64encode("postgresql-${var.rancher_project_name}-eureka")
+    DB_PORT         = base64encode("5432")
+    DB_USERNAME     = base64encode(var.pg_username)
+    DB_PASSWORD     = base64encode(var.pg_password == "" ? random_password.pg_password.result : var.pg_password)
+    DB_DATABASE     = base64encode(var.eureka ? "folio" : var.pg_dbname)
+    DB_MAXPOOLSIZE  = base64encode("50")
+    DB_CHARSET      = base64encode("UTF-8")
+    DB_QUERYTIMEOUT = base64encode("60000")
+    },
+    var.enable_rw_split ? {
+      DB_HOST_READER = base64encode("postgresql-${var.rancher_project_name}-eureka-read")
+      DB_PORT_READER = base64encode("5432")
+  } : {})
+}
+
 locals {
   pg_password       = var.pg_password == "" ? random_password.pg_password.result : var.pg_password
   pg_architecture   = var.enable_rw_split ? "replication" : "standalone"
@@ -96,13 +118,157 @@ primary:
   name: main
   resources:
     requests:
-      memory: 4Gi
-    limits:
       memory: 8Gi
+    limits:
+      memory: 10Gi
+  persistence:
+    enabled: true
+    size: '${var.pg_vol_size}Gi'
+    storageClass: gp2      
   initdb:
     scripts:
       init.sql: |
         ${indent(8, var.eureka ? templatefile("${path.module}/resources/eureka.db.tpl", { dbs = [local.pg_eureka_db_name, "kong", "keycloak"], pg_password = var.pg_password }) : "--fail safe")}
+        ${var.eureka ? "" : "CREATE DATABASE ${var.pg_dbname};"}
+        CREATE DATABASE ldp;
+        CREATE USER ldpadmin PASSWORD '${var.pg_ldp_user_password}';
+        CREATE USER ldpconfig PASSWORD '${var.pg_ldp_user_password}';
+        CREATE USER ldp PASSWORD '${var.pg_ldp_user_password}';
+        ALTER DATABASE ldp OWNER TO ldpadmin;
+        ALTER DATABASE ldp SET search_path TO public;
+        REVOKE CREATE ON SCHEMA public FROM public;
+        GRANT ALL ON SCHEMA public TO ldpadmin;
+        GRANT USAGE ON SCHEMA public TO ldpconfig;
+        GRANT USAGE ON SCHEMA public TO ldp;
+      configure-postgres.sh: |
+        #!/bin/bash
+        echo "Configuring PostgreSQL settings optimized for JSONB operations..."
+        # Memory settings optimized for JSONB
+        sed -i "s/#*shared_buffers = .*/shared_buffers = 3096MB/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*max_connections = .*/max_connections = 5000/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*listen_addresses = .*/listen_addresses = '0.0.0.0'/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*effective_cache_size = .*/effective_cache_size = 7680MB/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*maintenance_work_mem = .*/maintenance_work_mem = 1GB/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*work_mem = .*/work_mem = 8MB/" /bitnami/postgresql/data/postgresql.conf
+        
+        # I/O and storage settings optimized for JSONB
+        sed -i "s/#*random_page_cost = .*/random_page_cost = 1.1/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*seq_page_cost = .*/seq_page_cost = 1.0/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*effective_io_concurrency = .*/effective_io_concurrency = 200/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*maintenance_io_concurrency = .*/maintenance_io_concurrency = 200/" /bitnami/postgresql/data/postgresql.conf
+        
+        # WAL settings for better write performance with JSONB
+        sed -i "s/#*wal_buffers = .*/wal_buffers = 32MB/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*min_wal_size = .*/min_wal_size = 2GB/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*max_wal_size = .*/max_wal_size = 8GB/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*wal_compression = .*/wal_compression = on/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*checkpoint_completion_target = .*/checkpoint_completion_target = 0.9/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*checkpoint_timeout = .*/checkpoint_timeout = 15min/" /bitnami/postgresql/data/postgresql.conf
+        
+        # Query planner settings optimized for JSONB
+        sed -i "s/#*default_statistics_target = .*/default_statistics_target = 1000/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*cpu_tuple_cost = .*/cpu_tuple_cost = 0.01/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*cpu_index_tuple_cost = .*/cpu_index_tuple_cost = 0.005/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*cpu_operator_cost = .*/cpu_operator_cost = 0.0025/" /bitnami/postgresql/data/postgresql.conf
+        
+        # Background writer settings for better I/O
+        sed -i "s/#*bgwriter_delay = .*/bgwriter_delay = 200ms/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*bgwriter_lru_maxpages = .*/bgwriter_lru_maxpages = 100/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*bgwriter_lru_multiplier = .*/bgwriter_lru_multiplier = 2.0/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*bgwriter_flush_after = .*/bgwriter_flush_after = 512kB/" /bitnami/postgresql/data/postgresql.conf
+        
+        # JSONB-specific optimizations
+        sed -i "s/#*gin_fuzzy_search_limit = .*/gin_fuzzy_search_limit = 0/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*gin_pending_list_limit = .*/gin_pending_list_limit = 8MB/" /bitnami/postgresql/data/postgresql.conf
+        
+        # Parallel processing for JSONB operations
+        sed -i "s/#*max_parallel_workers_per_gather = .*/max_parallel_workers_per_gather = 4/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*max_parallel_workers = .*/max_parallel_workers = 8/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*max_parallel_maintenance_workers = .*/max_parallel_maintenance_workers = 4/" /bitnami/postgresql/data/postgresql.conf
+        
+        # Vacuum and autovacuum settings for JSONB tables
+        sed -i "s/#*autovacuum_vacuum_scale_factor = .*/autovacuum_vacuum_scale_factor = 0.1/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*autovacuum_analyze_scale_factor = .*/autovacuum_analyze_scale_factor = 0.05/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*autovacuum_vacuum_cost_limit = .*/autovacuum_vacuum_cost_limit = 2000/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*autovacuum_max_workers = .*/autovacuum_max_workers = 6/" /bitnami/postgresql/data/postgresql.conf
+        
+        # JIT compilation for complex JSONB queries (PostgreSQL 11+)
+        sed -i "s/#*jit = .*/jit = on/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*jit_above_cost = .*/jit_above_cost = 25000000/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*jit_inline_above_cost = .*/jit_inline_above_cost = 500000/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*jit_optimize_above_cost = .*/jit_optimize_above_cost = 25000000/" /bitnami/postgresql/data/postgresql.conf
+        echo "PostgreSQL configuration updated"
+  containerSecurityContext:
+    enabled: true
+    runAsUser: 1001
+    readOnlyRootFilesystem: false
+volumePermissions:
+  enabled: true
+  image:
+    registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
+    repository: os-shell
+    tag: 12-debian-12-r51
+    pullPolicy: IfNotPresent
+  resourcesPreset: "nano"
+metrics:
+  enabled: false
+  resources:
+    requests:
+      memory: 1024Mi
+    limits:
+      memory: 3072Mi
+  serviceMonitor:
+    enabled: true
+    namespace: monitoring
+    interval: 30s
+    scrapeTimeout: 30s
+EOF
+  ]
+}
+
+resource "helm_release" "postgresql_qg" {
+  depends_on = [rancher2_secret.s3-postgres-backups-credentials, rancher2_secret.db-credentials-eureka-components]
+  count      = var.pg_embedded && contains(["cikarate", "cicypress", "cypress", "karate"], var.rancher_project_name) ? 1 : 0
+  namespace  = rancher2_namespace.this.name
+  name       = "postgresql-${var.rancher_project_name}-eureka"
+  repository = local.catalogs.bitnami
+  chart      = "postgresql"
+  version    = "16.7.27"
+  values = [<<-EOF
+global:
+  security:
+    allowInsecureImages: true
+kubeVersion: ""
+nameOverride: ""
+fullnameOverride: ""
+namespaceOverride: ""
+clusterDomain: "cluster.local"
+image:
+  registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
+  repository: postgresql
+  tag: ${join(".", [var.pg_version, "0"])}
+  pullPolicy: IfNotPresent
+auth:
+  enablePostgresUser: true
+  postgresPassword: ${base64decode(rancher2_secret.db-credentials-eureka-components[0].data.DB_PASSWORD)}
+  username: ${base64decode(rancher2_secret.db-credentials-eureka-components[0].data.DB_USERNAME)}
+  password: ${base64decode(rancher2_secret.db-credentials-eureka-components[0].data.DB_PASSWORD)}
+  database: ${base64decode(rancher2_secret.db-credentials-eureka-components[0].data.DB_DATABASE)}
+  replicationUsername: ${var.pg_username}
+  replicationPassword: ${var.pg_password}
+  usePasswordFiles: ${var.enable_rw_split ? "false" : "true"}
+architecture: ${var.enable_rw_split ? "replication" : "standalone"}
+primary:
+  name: main
+  resources:
+    requests:
+      memory: 2Gi
+    limits:
+      memory: 4Gi
+  initdb:
+    scripts:
+      init.sql: |
+        ${indent(8, var.eureka ? templatefile("${path.module}/resources/eureka.db.tpl", { dbs = [var.eureka ? "folio" : var.pg_dbname, "kong", "keycloak"], pg_password = var.pg_password }) : "--fail safe")}
         CREATE DATABASE ldp;
         CREATE USER ldpadmin PASSWORD '${var.pg_ldp_user_password}';
         CREATE USER ldpconfig PASSWORD '${var.pg_ldp_user_password}';
@@ -117,9 +283,19 @@ primary:
         #!/bin/bash
         echo "Configuring PostgreSQL settings..."
         sed -i "s/#*max_connections = .*/max_connections = ${var.pg_max_conn}/" /bitnami/postgresql/data/postgresql.conf
-        sed -i "s/#*shared_buffers = .*/shared_buffers = 3096MB/" /bitnami/postgresql/data/postgresql.conf
-        sed -i "s/#*effective_cache_size = .*/effective_cache_size = 7680MB/" /bitnami/postgresql/data/postgresql.conf
-        sed -i "s/#*maintenance_work_mem = .*/maintenance_work_mem = 640MB/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*max_parallel_workers_per_gather = .*/max_parallel_workers_per_gather = 0/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*shared_buffers = .*/shared_buffers = 1024MB/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*listen_addresses = .*/listen_addresses = '0.0.0.0'/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*effective_cache_size = .*/effective_cache_size = 3072MB/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*maintenance_work_mem = .*/maintenance_work_mem = 128MB/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*checkpoint_completion_target = .*/checkpoint_completion_target = 0.9/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*wal_buffers = .*/wal_buffers = 16MB/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*default_statistics_target = .*/default_statistics_target = 100/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*random_page_cost = .*/random_page_cost = 1.1/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*effective_io_concurrency = .*/effective_io_concurrency = 200/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*work_mem = .*/work_mem = 2MB/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*min_wal_size = .*/min_wal_size = 1GB/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*max_wal_size = .*/max_wal_size = 4GB/" /bitnami/postgresql/data/postgresql.conf
         echo "PostgreSQL configuration updated"
   containerSecurityContext:
     enabled: true
@@ -316,7 +492,7 @@ resource "helm_release" "pgadmin" {
   version    = "1.10.1"
   values = [<<-EOF
 image:
-  tag: 9.7.0
+  tag: 9.9.0
   registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
   repository: pgadmin4
   pullPolicy: IfNotPresent

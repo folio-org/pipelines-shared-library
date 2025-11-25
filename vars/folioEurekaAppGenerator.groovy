@@ -128,7 +128,7 @@ Map generateFromRepository(String repoName, FolioInstallJson moduleList, String 
       // Remove -SNAPSHOT suffix for release versions
       String projectVersion = pomVersion.replace('-SNAPSHOT', '')
       logger.info("Using project version: ${projectVersion} (from pom version: ${pomVersion})")
-      
+
       // Set the version in pom.xml using versions plugin
       withMaven(
         jdk: Constants.JAVA_TOOL_NAME,

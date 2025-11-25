@@ -59,7 +59,23 @@ KarateRunExecutionSummary call(KarateTestsParameters args) {
 
                 execParams = args.reportPortalProjectId ? "$execParams -Drp.launch.uuid=${args.reportPortalProjectId}" : execParams
 
-                sh "mvn test $execParams"
+                String execString = "mvn test $execParams"
+
+                if (args.testrailProjectID && args.testrailRunID) {
+                  execString = """
+                    export TESTRAIL_HOST=${Constants.TESTRAIL_HOST}
+                    export TESTRAIL_PROJECTID=${args.testrailProjectID}
+                    export TESTRAIL_RUN_ID=${args.testrailRunID}
+                  """.stripIndent() + execString
+
+                  withCredentials([usernamePassword(credentialsId: Constants.TESTRAIL_CREDENTIALS_ID,
+                    passwordVariable: 'TESTRAIL_PASSWORD',
+                    usernameVariable: 'TESTRAIL_USERNAME')]) {
+                    sh execString
+                  }
+                } else {
+                  sh execString
+                }
               }
             }
           }

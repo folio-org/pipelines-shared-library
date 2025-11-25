@@ -1,47 +1,3 @@
-resource "helm_release" "traffic-manager" {
-  count     = 1
-  namespace = rancher2_namespace.this.name
-  name      = "traffic-manager-${rancher2_namespace.this.name}"
-  chart     = "oci://ghcr.io/telepresenceio/telepresence-oss"
-  version   = "2.21.1"
-  values = [
-    <<-EOF
-image:
-  registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
-  repository: tel2
-  tag: 2.21.1
-  pullPolicy: IfNotPresent
-resources:
-  limits:
-    cpu: 256m
-    memory: 512Mi
-  requests:
-    cpu: 128m
-    memory: 128Mi
-agent:
-  resources:
-    requests:
-      cpu: 128m
-      memory: 256Mi
-    limits:
-      cpu: 256m
-      memory: 512Mi
-hooks:
-  curl:
-    registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
-    image: "curl"
-    tag: 7.88.1
-    imagePullSecrets: []
-    pullPolicy: IfNotPresent
-managerRbac:
-  create: true
-  namespaced: true
-  namespaces:
-  - ${rancher2_namespace.this.name}
-    EOF
-  ]
-}
-
 resource "kubernetes_role" "port_forward_role" {
   metadata {
     name      = "port-forward-role"
@@ -55,17 +11,17 @@ resource "kubernetes_role" "port_forward_role" {
   rule {
     api_groups = [""]
     resources  = ["pods", "pods/log", "services"]
-    verbs      = ["get", "list", "watch", "update"]
+    verbs      = ["get", "list", "watch"]
   }
   rule {
     api_groups = [""]
     resources  = ["pods/portforward"]
-    verbs      = ["create"]
+    verbs      = ["create", "get", "list"]
   }
   rule {
     api_groups = [""]
     resources  = ["configmaps"]
-    verbs      = ["update", "get"]
+    verbs      = ["get", "list"]
   }
 }
 

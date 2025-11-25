@@ -137,8 +137,8 @@ class Tenants extends Kong{
     List responseCodes = skipExistence ? [201, 400] + (401..599).toList() : []
 
     try {
-      def response = restClient.post(
-        generateUrl("/entitlements${tenant.getInstallRequestParams()?.toQueryString() ?: ''}"),
+      def response = restClient.put(
+        generateUrl("/entitlements/state${tenant.getInstallRequestParams()?.toQueryString() ?: ''}"),
         body,
         headers,
         responseCodes
@@ -176,6 +176,37 @@ class Tenants extends Kong{
       }
     }
   }
+  /**
+   * Update applications on tenant using standard endpoint.
+   *
+   * @param tenant EurekaTenant instance.
+   * @param appIds List of application ids to be updated.
+   * @return Tenants instance.
+   */
+
+  Tenants updateApplicationsStandardEndpoint(EurekaTenant tenant, List<String> appIds) {
+    if(!appIds)
+      return this
+
+    logger.info("Update the following applications ${appIds} on tenant ${tenant.tenantId} with ${tenant.uuid}...")
+
+    Map<String, String> headers = getMasterHttpHeaders(true)
+
+    Map body = [
+      tenantId    : tenant.uuid,
+      applications: appIds
+    ]
+
+    restClient.put(
+      generateUrl("/entitlements${tenant.getInstallRequestParams()?.toQueryString() ?: ''}")
+      , body
+      , headers
+    )
+
+    logger.info("Update the following applications ${appIds} on tenant ${tenant.tenantId} with ${tenant.uuid} was finished successfully")
+
+    return this
+  }
 
   /**
    * Update applications on tenant.
@@ -198,7 +229,7 @@ class Tenants extends Kong{
     ]
 
     restClient.put(
-      generateUrl("/entitlements${tenant.getInstallRequestParams()?.toQueryString() ?: ''}")
+      generateUrl("/entitlements/state${tenant.getInstallRequestParams()?.toQueryString() ?: ''}")
       , body
       , headers
     )

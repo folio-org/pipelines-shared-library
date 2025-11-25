@@ -1,6 +1,6 @@
 resource "rancher2_secret" "keycloak-credentials" {
   data = {
-    KC_DB_URL_HOST                  = base64encode(var.pg_embedded ? local.pg_service_writer : module.rds[0].cluster_endpoint)
+    KC_DB_URL_HOST                  = base64encode(var.pg_embedded ? (contains(["cikarate", "cicypress", "cypress", "karate"], var.rancher_project_name) ? "postgresql-${var.rancher_project_name}-eureka" : local.pg_service_writer) : module.rds[0].cluster_endpoint)
     KC_DB_URL_PORT                  = base64encode("5432")
     KC_DB_URL_DATABASE              = base64encode("keycloak")
     KC_DB_USERNAME                  = base64encode("keycloak")
@@ -19,7 +19,7 @@ resource "rancher2_secret" "keycloak-credentials" {
 resource "helm_release" "keycloak" {
   count        = (var.eureka ? 1 : 0)
   chart        = "keycloak"
-  depends_on   = [rancher2_secret.keycloak-credentials, rancher2_secret.db-credentials, helm_release.postgresql, module.rds.cluster_instances, postgresql_database.eureka_keycloak]
+  depends_on   = [rancher2_secret.keycloak-credentials, rancher2_secret.db-credentials, rancher2_secret.db-credentials-eureka-components, helm_release.postgresql, helm_release.postgresql_qg, module.rds.cluster_instances, postgresql_database.eureka_keycloak]
   name         = "keycloak-${var.rancher_project_name}"
   namespace    = rancher2_namespace.this.id
   version      = "21.0.4"
@@ -28,7 +28,7 @@ resource "helm_release" "keycloak" {
   values = [
     <<-EOF
 image:
-  registry: folioci
+  registry: ${var.keycloak_version == "latest" ? "folioci" : "732722833398.dkr.ecr.us-west-2.amazonaws.com"}
   repository: folio-keycloak
   tag: ${var.keycloak_version}
   pullPolicy: Always
@@ -69,9 +69,9 @@ extraEnvVars:
         name: keycloak-credentials
         key: KC_HTTPS_KEY_STORE_PASSWORD
   - name: KC_LOG_LEVEL
-    value: "DEBUG"
+    value: "INFO"
   - name: KC_HOSTNAME_DEBUG
-    value: "true"
+    value: "false"
   - name: KC_DB_PASSWORD
     valueFrom:
       secretKeyRef:
@@ -106,9 +106,9 @@ extraEnvVars:
 
 resources:
   requests:
-    memory: 4096Mi
-  limits:
     memory: 5120Mi
+  limits:
+    memory: 8192Mi
 
 postgresql:
   enabled: false

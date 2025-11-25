@@ -15,7 +15,7 @@ import org.jenkinsci.plugins.workflow.libs.Library
  * Job properties and parameters
  */
 properties([
-pipelineTriggers([cron('H 2 * * 1-5')]),
+pipelineTriggers([cron('H 18 * * 1-5')]),
 buildDiscarder(logRotator(numToKeepStr: '30')),
 disableConcurrentBuilds(),
 parameters([
@@ -65,8 +65,9 @@ CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builde
   .pgType('built-in')
   .pgVersion('16.8')
   .kafkaType('built-in')
-  .opensearchType('aws')
+  .opensearchType('built-in')
   .s3Type('built-in')
+  .scNative(true)
   .members('folijet')
   .uiBuild(true)
   .worker('rancher')

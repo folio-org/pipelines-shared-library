@@ -1,16 +1,11 @@
 import com.cloudbees.groovy.cps.NonCPS
-import hudson.model.Action
-import hudson.model.Job
-import hudson.model.Run
-import hudson.plugins.git.util.BuildData
-import jenkins.model.Jenkins
 import org.folio.models.ChangelogEntry
 import org.folio.models.module.FolioModule
 import org.folio.models.module.ModuleType
 import org.folio.slack.SlackHelper
 import org.folio.utilities.GitHubClient
 import org.folio.utilities.Logger
-
+import org.folio.utilities.RestClient
 import java.util.regex.Matcher
 
 List<ChangelogEntry> call(String previousSha, String currentSha) {
@@ -32,17 +27,17 @@ List<ChangelogEntry> call(String previousSha, String currentSha) {
 
 
   List updatedModulesList = []
-  
+
   echo "Processing install.json changes: ${installJsonChangeLogShas.size()} commits"
   installJsonChangeLogShas.each { sha ->
     updatedModulesList.addAll(getUpdatedModulesList(gitHubClient.getCommitInfo(sha, platformCompleteRepositoryName), 'install.json'))
   }
-  
+
   echo "Processing eureka-platform.json changes: ${eurekaPlatformJsonChangeLogShas.size()} commits"
   eurekaPlatformJsonChangeLogShas.each { sha ->
     updatedModulesList.addAll(getUpdatedModulesList(gitHubClient.getCommitInfo(sha, platformCompleteRepositoryName), 'eureka-platform.json'))
   }
-  
+
   echo "Total modules found: ${updatedModulesList.size()}"
 
   List<FolioModule> updatedModulesObjectsList = []
@@ -64,8 +59,6 @@ List<ChangelogEntry> call(String previousSha, String currentSha) {
       case ModuleType.EDGE:
       case ModuleType.MGR:
       case ModuleType.SIDECAR:
-      case ModuleType.KONG:
-      case ModuleType.KEYCLOAK:
         repositoryName = module.name
         try {
           changeLogEntry.sha = getJenkinsBuildSha(repositoryName, module.buildId.toInteger())
@@ -78,11 +71,31 @@ List<ChangelogEntry> call(String previousSha, String currentSha) {
           changeLogEntry.sha = 'Unknown'
         }
         break
+      case ModuleType.KONG:
+      case ModuleType.KEYCLOAK:
+        repositoryName = module.name
+        def workflowFile = 'do-docker.yml'
+        echo "Looking for GitHub workflow run for repository: ${repositoryName}, workflow: ${workflowFile}, build: ${module.buildId}"
+        try {
+          def workflowRun = gitHubClient.getWorkflowRunByNumber(repositoryName, workflowFile, module.buildId)
+          changeLogEntry.sha = workflowRun?.head_sha ?: null
+          if (!changeLogEntry.sha) {
+            echo "Warning: Could not find workflow run SHA for ${repositoryName} build #${module.buildId}"
+            echo "Workflow run response: ${workflowRun}"
+            changeLogEntry.sha = 'Unknown'
+          } else {
+            echo "Successfully found SHA ${changeLogEntry.sha} for ${repositoryName} build #${module.buildId}"
+          }
+        } catch (Exception e) {
+          echo "Error getting workflow run SHA for ${repositoryName} build #${module.buildId}: ${e.getMessage()}"
+          changeLogEntry.sha = 'Unknown'
+        }
+        break
       case ModuleType.FRONTEND:
         repositoryName = module.name.replace('folio_', 'ui-')
-        echo "Looking for GitHub workflow run for repository: ${repositoryName}, workflow: build-npm.yml, build: ${module.buildId}"
+        echo "Looking for GitHub workflow run for repository: ${repositoryName}, workflow: ui.yml, build: ${module.buildId}"
         try {
-          def workflowRun = gitHubClient.getWorkflowRunByNumber(repositoryName, 'build-npm.yml', module.buildId)
+          def workflowRun = gitHubClient.getWorkflowRunByNumber(repositoryName, 'ui.yml', module.buildId)
           changeLogEntry.sha = workflowRun?.head_sha ?: null
           if (!changeLogEntry.sha) {
             echo "Warning: Could not find workflow run SHA for ${repositoryName} build #${module.buildId}"
@@ -115,7 +128,7 @@ List<ChangelogEntry> call(String previousSha, String currentSha) {
     }
 
     changeLogEntry.author = commitInfo?.commit?.author?.name ?: 'Unknown author'
-    
+
     if (changeLogEntry.sha == 'Unknown') {
       if (module.type == ModuleType.FRONTEND) {
         changeLogEntry.commitMessage = "Unable to find GitHub workflow run ${module.buildId} for ${repositoryName}"
@@ -125,7 +138,7 @@ List<ChangelogEntry> call(String previousSha, String currentSha) {
     } else {
       changeLogEntry.commitMessage = commitInfo?.commit?.message?.split('\n', 2)?.getAt(0) ?: "Unable to fetch commit info for ${module.name} (build: ${module.buildId})"
     }
-    
+
     changeLogEntry.commitLink = commitInfo?.html_url ?: null
 
     changeLogEntriesList << changeLogEntry
@@ -138,11 +151,11 @@ static List getUpdatedModulesList(Map commitInfo, String filename = 'install.jso
   try {
     String pattern = /(?m)-\s+"id" : "(.*?)",\n\+\s+"id" : "(.*?)",/
     def fileInfo = commitInfo['files']?.find { it['filename'] == filename }
-    
+
     if (!fileInfo || !fileInfo['patch']) {
       return []
     }
-    
+
     Matcher matches = fileInfo['patch'] =~ pattern
     return matches.collect { match -> match[2] }
   } catch (Exception e) {
@@ -160,36 +173,48 @@ String getJenkinsBuildSha(String moduleName, int moduleBuildId) {
   }
 
   try {
-    String jobPath = "/folio-org/${moduleName}/master"
-    Job moduleJob = Jenkins.instance.getItemByFullName(jobPath)
-    if (moduleJob == null) {
-      logger.warning("Jenkins job not found at path: ${jobPath}")
+    String jobPath = "https://jenkins-aws.indexdata.com/job/folio-org/job/${moduleName}/job/master"
+    logger.info("Checking build at ${jobPath}")
+
+    def buildUrl = "${jobPath}/${moduleBuildId}/api/json"
+    try {
+      logger.info("Fetching build info from URL: ${buildUrl}")
+      def buildResponse = new RestClient(this).get(buildUrl)
+
+      logger.info("Response status: ${buildResponse.responseCode}")
+
+      if (buildResponse.responseCode == 404) {
+        logger.warning("Build not found at ${jobPath}")
+        return null
+      }
+
+      if (!buildResponse.body) {
+        logger.warning("Empty response body from ${buildUrl}")
+        return null
+      }
+
+      def buildInfo = readJSON text: buildResponse.body
+
+      def actions = buildInfo.actions
+      def gitAction = actions.find { action ->
+        action._class == 'hudson.plugins.git.util.BuildData' &&
+          action.remoteUrls?.contains("https://github.com/folio-org/${moduleName}.git")
+      }
+
+      if (gitAction) {
+        String sha = gitAction.lastBuiltRevision?.SHA1
+        if (sha) {
+          logger.info("Successfully retrieved SHA ${sha} for build #${moduleBuildId}")
+          return sha
+        }
+      }
+
+      logger.warning("No git build data found for ${jobPath} build #${moduleBuildId}")
+      return null
+    } catch (Exception e) {
+      logger.warning("Error accessing build: ${e.getMessage()}")
       return null
     }
-
-    Run moduleBuild = moduleJob.getBuildByNumber(moduleBuildId)
-    if (moduleBuild == null) {
-      logger.warning("Build #${moduleBuildId} not found for job: ${jobPath}")
-      return null
-    }
-
-    Action moduleBuildAction = moduleBuild.getActions(BuildData).find { action -> 
-      action.getRemoteUrls()?.size() > 0 && action.getRemoteUrls()[0] == "https://github.com/folio-org/${moduleName}.git"
-    }
-    if (moduleBuildAction == null) {
-      logger.warning("No BuildData action found with GitHub remote URL for ${jobPath} build #${moduleBuildId}")
-      logger.warning("Available BuildData actions: ${moduleBuild.getActions(BuildData).collect { it.getRemoteUrls() }}")
-      return null
-    }
-
-    String sha = moduleBuildAction.getLastBuiltRevision()?.sha1?.name
-    if (!sha) {
-      logger.warning("No SHA found in BuildData for ${jobPath} build #${moduleBuildId}")
-      return null
-    }
-
-    logger.info("Successfully retrieved SHA ${sha} for ${jobPath} build #${moduleBuildId}")
-    return sha
   } catch (Exception e) {
     logger.warning("Exception getting build SHA for ${moduleName} build #${moduleBuildId}: ${e.getMessage()}")
     logger.warning("Exception stack trace: ${e.getStackTrace()}")
@@ -257,7 +282,7 @@ String renderChangelogSection(List<ChangelogEntry> changeLogEntriesList) {
   return section
 }
 
-String getPlainText(List<ChangelogEntry> changeLogEntriesList){
+String getPlainText(List<ChangelogEntry> changeLogEntriesList) {
   StringBuilder plainTextBuilder = new StringBuilder()
 
   changeLogEntriesList.each { entry ->

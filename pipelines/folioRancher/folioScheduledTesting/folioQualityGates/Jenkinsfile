@@ -82,6 +82,7 @@ CreateNamespaceParameters namespaceFromBranchParams = namespaceBaseParams.toBuil
   .splitFiles(true)
   .ecsCCL(false)
   .rtr(false)
+  .scNative(true)
   .applicationSet('Complete')
   .applications(RestConstants.APPLICATION_BRANCH('Complete'))
   .hasSecureTenant(true)
@@ -148,7 +149,7 @@ ansiColor('xterm') {
           karateTestsParams.adminUserName = 'super_admin'
           karateTestsParams.adminPassword = 'admin'
           karateTestsParams.threadsCount = '4'
-          karateTestsParams.reportPortalProjectName = 'junit5-integration'
+          karateTestsParams.reportPortalProjectName = 'karate-eureka'
           karateTestsParams.sendSlackNotification = false
           karateTestsParams.sendTeamsSlackNotification = false
           karateTestsParams.sendTeamsSlackNotification = true

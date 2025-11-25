@@ -22,6 +22,7 @@ properties([
   disableConcurrentBuilds(),
   parameters([
     string(name: 'CYPRESS_BRANCH', defaultValue: 'master', description: "(Required) Insert what 'stripes-testing' branch use for build"),
+    string(name: 'NUMBER_WORKERS', defaultValue: '15', description: "(Required) Define number of workers for Cypress tests execution"),
     folioParameters.refreshParameters()
   ])
 ])
@@ -51,10 +52,10 @@ CreateNamespaceParameters namespaceBaseParams = new CreateNamespaceParameters.Bu
   .mockServer(false)
   .pgType('built-in')
   .pgVersion('16.8')
-  .kafkaType('built-in')
+  .kafkaType('aws')
   .opensearchType('aws')
   .s3Type('built-in')
-  .members('')
+  .members('AQA')
   .build()
 
 CreateNamespaceParameters namespaceFromBranchParams = namespaceBaseParams.toBuilder()
@@ -66,6 +67,7 @@ CreateNamespaceParameters namespaceFromBranchParams = namespaceBaseParams.toBuil
   .linkedData(true)
   .consortia(true)
   .rtr(false)
+  .scNative(true)
   .applicationSet('Complete')
   .applications(org.folio.rest_v2.Constants.APPLICATION_BRANCH('Complete'))
   .hasSecureTenant(true)
@@ -85,8 +87,8 @@ cypressParameters.setTenant(new OkapiTenant('diku')
 cypressParameters.setExecParameters('--env grepTags="smoke criticalPath extendedPath"')
 cypressParameters.setTestrailProjectID('14')
 cypressParameters.setTestrailRunID('2723')
-cypressParameters.setNumberOfWorkers(8)
-cypressParameters.setTimeout('960')
+cypressParameters.setNumberOfWorkers(params.NUMBER_WORKERS.toInteger())
+cypressParameters.setTimeout('1080')
 
 boolean reportPortalUse = true
 String reportPortalRunType = 'evrk'
@@ -123,7 +125,6 @@ ansiColor('xterm') {
         throw new Exception("Provision of the environment is failed: " + new_ex)
       }
     }
-
     folioCypressFlow.call(cypressParameters.getCiBuildId(), [cypressParameters], false, reportPortalUse, reportPortalRunType)
   }
 }

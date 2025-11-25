@@ -41,7 +41,14 @@ void upgrade(String release_name, String namespace, String values_path, String c
   if (release_name.startsWith("mgr-")) {
     sh "helm upgrade --install ${release_name} --namespace=${namespace} ${valuesPathOption(values_path)} ${chart_repo}/${chart_name} --wait --timeout=15m"
   } else {
-    sh "helm upgrade --install ${release_name} --namespace=${namespace} ${valuesPathOption(values_path)} ${chart_repo}/${chart_name}"
+    try {
+      sh "helm upgrade --install ${release_name} --namespace=${namespace} ${valuesPathOption(values_path)} ${chart_repo}/${chart_name}"
+    } catch (Exception e) {
+      println("Error: $e\nUpgrade failed for ${release_name}, attempting to remove and reinstall")
+
+      sh "helm uninstall ${release_name} --namespace=${namespace} --wait --timeout=10m"
+      sh "helm upgrade --install ${release_name} --namespace=${namespace} ${valuesPathOption(values_path)} ${chart_repo}/${chart_name}"
+    }
   }
 }
 
@@ -265,6 +272,10 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
                                     tag       : moduleVersion],
                    podAnnotations: [creationTimestamp: "\"${LocalDateTime.now().withNano(0).toString()}\""]]
 
+  if (['cikarate', 'cicypress', 'cypress', 'karate'].contains(ns.getNamespaceName()) && moduleName.startsWith('mgr-') && moduleConfig.integrations?.db?.existingSecret == 'db-credentials') {
+    moduleConfig.integrations.db.existingSecret = "db-credentials-${ns.getNamespaceName()}-eureka"
+  }
+
 /**
  * Modules feature switcher*/
 
@@ -373,10 +384,12 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
         break
 
       case 'mod-fqm-manager':
-        ns.namespaceName == 'cikarate' ? moduleConfig['extraEnvVars'] += [
-          name: 'mod-fqm-manager.entity-type-cache-timeout-seconds',
-          value: '0'
-        ] : []
+        if (['cikarate', 'cicypress', 'cypress', 'karate'].contains(ns.namespaceName)) {
+          moduleConfig['extraEnvVars'] += [
+            name: 'mod-fqm-manager.entity-type-cache-timeout-seconds',
+            value: '0'
+          ]
+        }
         break
     }
   }

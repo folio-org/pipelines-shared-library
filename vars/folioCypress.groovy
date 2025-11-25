@@ -190,6 +190,8 @@ void runTests(String execString) {
   validateParameter(execString, "Execution string")
 
   try {
+    def numCurl = "curl https://jenkins.ci.folio.org > /dev/null 2>&1"
+    sh """nohup bash -c 'for i in \$(seq 1 86400); do sleep 1 && ${numCurl}; done' &"""
     sh execString
   } catch (Exception e) {
     echo("Error executing tests: ${e.getMessage()}")
@@ -212,7 +214,7 @@ void runTestsWithTestRail(String testrailProjectID, String testrailRunID, String
   validateParameter(execString, "Execution string")
 
   execString = """
-    export TESTRAIL_HOST=${Constants.CYPRESS_TESTRAIL_HOST}
+    export TESTRAIL_HOST=${Constants.TESTRAIL_HOST}
     export TESTRAIL_PROJECTID=${testrailProjectID}
     export TESTRAIL_RUN_ID=${testrailRunID}
     export CYPRESS_allureReuseAfterSpec=true
@@ -220,7 +222,7 @@ void runTestsWithTestRail(String testrailProjectID, String testrailRunID, String
 
   echo("Test results will be posted to TestRail.\nProjectID: ${testrailProjectID},\nRunID: ${testrailRunID}")
 
-  withCredentials([usernamePassword(credentialsId: Constants.CYPRESS_TESTRAIL_CREDENTIALS_ID,
+  withCredentials([usernamePassword(credentialsId: Constants.TESTRAIL_CREDENTIALS_ID,
     passwordVariable: 'TESTRAIL_PASSWORD',
     usernameVariable: 'TESTRAIL_USERNAME')]) {
     runTests(execString)
@@ -369,17 +371,18 @@ void generateAndPublishAllureReport(List resultPaths) {
 
   stage('[Allure] Generate report') {
     def allureHome = tool type: 'allure', name: Constants.CYPRESS_ALLURE_VERSION
-    // Set Java heap size to 6GB and configure ForkJoinPool to prevent OutOfMemoryError during report generation reported by Ostap in RANCHER-2546
-    sh "JAVA_TOOL_OPTIONS='-Xmx6G -Xms2G -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp -XX:MaxDirectMemorySize=1G -Djava.util.concurrent.ForkJoinPool.common.parallelism=2' ${allureHome}/bin/allure generate --clean ${resultPaths.collect { path -> "${path}/allure-results" }.join(" ")}"
+    sh "JAVA_TOOL_OPTIONS='-Xmx6G -Xms1G -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp -XX:MaxDirectMemorySize=1G -Djava.util.concurrent.ForkJoinPool.common.parallelism=2' ${allureHome}/bin/allure generate --clean ${resultPaths.collect { path -> "${path}/allure-results" }.join(" ")}"
   }
 
   stage('[Allure] Publish report') {
-    allure([includeProperties: false,
-            jdk              : '',
-            commandline      : Constants.CYPRESS_ALLURE_VERSION,
-            properties       : [],
-            reportBuildPolicy: 'ALWAYS',
-            results          : resultPaths.collect { path -> [path: "${path}/allure-results"] }])
+    withEnv(["JAVA_TOOL_OPTIONS=-Xmx8G -Xms1G -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp -XX:MaxDirectMemorySize=1G -Djava.util.concurrent.ForkJoinPool.common.parallelism=2"]) {
+      allure([includeProperties: false,
+              jdk              : '',
+              commandline      : Constants.CYPRESS_ALLURE_VERSION,
+              properties       : [],
+              reportBuildPolicy: 'ALWAYS',
+              results          : resultPaths.collect { path -> [path: "${path}/allure-results"] }])
+    }
   }
 }
 

@@ -1,0 +1,11 @@
+{
+  "extends": "recommended",
+  "rules": {
+    "Indentation": {
+      "enabled": false
+    },
+    "PropertyName": {
+      "staticRegex": "[A-Z][A-Z0-9_]*"
+    }
+  }
+}

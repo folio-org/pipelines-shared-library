@@ -108,7 +108,13 @@ spec:
           ttyEnabled: true,
           workingDir: WORKING_DIR,
           resourceRequestMemory: '1024Mi',
-          resourceLimitMemory: '1536Mi',
+          resourceLimitMemory: '12228Mi',
+          envVars: [
+            new KeyValueEnvVar('JENKINS_JAVA_OPTS',
+              '-Dorg.jenkinsci.remoting.engine.JnlpAgentEndpointResolver.PING_INTERVAL=30' +
+                ' -Dorg.jenkinsci.remoting.engine.JnlpAgentEndpointResolver.PING_TIMEOUT=600' +
+                ' -Dorg.jenkinsci.remoting.websocket.WebSocketSession.pingInterval=30')
+          ]
         )]) {
       body.call()
     }
@@ -133,14 +139,14 @@ spec:
    * @param javaVersion Java version tag (e.g., {@code 17}, {@code 21}).
    * @param extraEnvVars Optional extra environment variables.
    * @param resourceRequestMemory Minimum memory request (default {@code 2Gi}).
-   * @param resourceLimitMemory Memory limit (default {@code 4Gi}).
+   * @param resourceLimitMemory Memory limit (default {@code 12Gi}).
    * @return Java container definition.
    */
   private Object buildJavaContainer(
     String javaVersion,
     List<KeyValueEnvVar> extraEnvVars = [],
     String resourceRequestMemory = '2Gi',
-    String resourceLimitMemory = '4Gi'
+    String resourceLimitMemory = '12Gi'
   ) {
     return steps.containerTemplate(
       name: 'java',
@@ -168,7 +174,7 @@ spec:
   private Object buildDindContainer(
     List<KeyValueEnvVar> extraEnvVars = [],
     String resourceRequestMemory = '128Mi',
-    String resourceLimitMemory = '256Mi') {
+    String resourceLimitMemory = '12228Mi') {
     return steps.containerTemplate(
       name: 'dind',
       image: 'docker:dind',
@@ -185,13 +191,13 @@ spec:
    *
    * @param extraEnvVars Optional environment variables.
    * @param resourceRequestMemory Minimum memory request (default {@code 2Gi}).
-   * @param resourceLimitMemory Memory limit (default {@code 4Gi}).
+   * @param resourceLimitMemory Memory limit (default {@code 12Gi}).
    * @return Kaniko container definition.
    */
   private Object buildKanikoContainer(
     List<KeyValueEnvVar> extraEnvVars = [],
     String resourceRequestMemory = '2Gi',
-    String resourceLimitMemory = '4Gi'
+    String resourceLimitMemory = '12Gi'
   ) {
     return steps.containerTemplate(
       name: 'kaniko',
@@ -217,7 +223,7 @@ spec:
   private Object buildCypressContainer(
     List<KeyValueEnvVar> extraEnvVars = [],
     String resourceRequestMemory = '3072Mi',
-    String resourceLimitMemory = '3584Mi'
+    String resourceLimitMemory = '12228Mi'
   ) {
     return steps.containerTemplate(
       name: 'cypress',
@@ -279,9 +285,9 @@ spec:
       label: JenkinsAgentLabel.JAVA_BUILD_AGENT.getLabel(),
       volumes: [steps.persistentVolumeClaim(claimName: MAVEN_CACHE_PVC, mountPath: "${WORKING_DIR}/.m2/repository")],
       containers: [
-        buildKanikoContainer([], '512Mi', '768Mi'),
-        buildJavaContainer(javaVersion, [new KeyValueEnvVar('DOCKER_HOST', 'tcp://localhost:2375')], '768Mi', '1024Mi'),
-        buildDindContainer([], '4096Mi', '5120Mi')
+        buildKanikoContainer([], '512Mi', '12228Mi'),
+        buildJavaContainer(javaVersion, [new KeyValueEnvVar('DOCKER_HOST', 'tcp://localhost:2375')], '768Mi', '12228Mi'),
+        buildDindContainer([], '4096Mi', '12228Mi')
       ]
     )) {
       steps.node(JenkinsAgentLabel.JAVA_BUILD_AGENT.getLabel()) {
@@ -301,7 +307,7 @@ spec:
       label: JenkinsAgentLabel.JAVA_KARATE_AGENT.getLabel(),
       volumes: [steps.persistentVolumeClaim(claimName: MAVEN_CACHE_PVC, mountPath: "${WORKING_DIR}/.m2/repository")],
       containers: [
-        buildJavaContainer(javaVersion, [], '5120Mi', '5632Mi')
+        buildJavaContainer(javaVersion, [], '5120Mi', '12228Mi')
       ]
     )) {
       steps.node(JenkinsAgentLabel.JAVA_KARATE_AGENT.getLabel()) {
@@ -331,7 +337,7 @@ spec:
         jenkins/label: "${JenkinsAgentLabel.STRIPES_AGENT.getLabel()}"
 """,
       containers: [
-        buildKanikoContainer([], '9Gi', '10Gi'),
+        buildKanikoContainer([], '9Gi', '12Gi'),
       ]
     )) {
       steps.node(JenkinsAgentLabel.STRIPES_AGENT.getLabel()) {
@@ -353,7 +359,7 @@ spec:
         storageClassName: 'gp3'),
       volumes: [steps.persistentVolumeClaim(claimName: YARN_CACHE_PVC, mountPath: "${WORKING_DIR}/.yarn/cache")],
       containers: [
-        buildCypressContainer([], '3072Mi', '3584Mi'),
+        buildCypressContainer([], '3072Mi', '12288Mi'),
       ]
     )) {
       steps.node(JenkinsAgentLabel.CYPRESS_AGENT.getLabel()) {
@@ -386,7 +392,7 @@ spec:
     createTemplate(new PodTemplateConfig(
       label: JenkinsAgentLabel.RANCHER_JAVA_AGENT.getLabel(),
       containers: [
-        buildJavaContainer(Constants.JAVA_LATEST_VERSION, [], '2048Mi', '2560Mi')
+        buildJavaContainer(Constants.JAVA_LATEST_VERSION, [], '4096Mi', '12228Mi')
       ]
     )) {
       steps.node(JenkinsAgentLabel.RANCHER_JAVA_AGENT.getLabel()) {
@@ -413,4 +419,3 @@ spec:
     }
   }
 }
-

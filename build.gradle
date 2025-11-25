@@ -14,10 +14,6 @@ tasks {
   }
 }
 
-java {
-  sourceCompatibility = JavaVersion.VERSION_17
-}
-
 repositories.removeIf { it.name == "JenkinsPublic" }
 
 repositories {
@@ -29,6 +25,31 @@ repositories {
   maven { url = uri("https://repo.jenkins-ci.org/releases/") }
   maven { url = uri("https://repo.jenkins-ci.org/snapshots/") }
   maven { url = uri("https://repo.jenkins-ci.org/incrementals/") }
+}
+
+java {
+  sourceCompatibility = JavaVersion.VERSION_17
+  targetCompatibility = JavaVersion.VERSION_17
+
+  toolchain {
+    languageVersion = JavaLanguageVersion.of(17)
+  }
+}
+
+// Force all compile tasks to use Java 17
+tasks.withType(JavaCompile).configureEach {
+  options.release = 17
+}
+
+tasks.withType(GroovyCompile).configureEach {
+  targetCompatibility = JavaVersion.VERSION_17
+}
+
+// Force dependency resolution to use Java 17
+configurations.all {
+  attributes {
+    attribute(TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, 17)
+  }
 }
 
 dependencies {

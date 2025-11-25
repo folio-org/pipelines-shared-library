@@ -160,6 +160,22 @@ class Constants {
       , dependsOn: ["app-platform-minimal", "app-platform-complete", "app-acquisitions"]
     ],
     [
+      name: "app-rtac-cache"
+      , branch: "snapshot"
+      , consortia: false
+      , core: false
+      , byDefault: false
+      , dependsOn: ["app-rtac", "app-platform-minimal", "app-platform-complete", "app-acquisitions"]
+    ],
+    [
+      name: "app-search"
+      , branch: "snapshot"
+      , consortia: false
+      , core     : false
+      , byDefault: true
+      , dependsOn: ["app-platform-minimal"]
+    ],
+    [
       name: "app-oa"
       , branch: "snapshot"
       , consortia: false
@@ -320,11 +336,27 @@ class Constants {
       , dependsOn: ["app-platform-minimal", "app-platform-complete", "app-fqm"]
     ],
     [
+      name: "app-data-export"
+      , branch: "snapshot"
+      , consortia: false
+      , core: false
+      , byDefault: true
+      , dependsOn: ["app-platform-minimal", "app-platform-complete"]
+    ],
+    [
       name: "app-eholdings"
       , branch: "snapshot"
       , consortia: false
       , core: false
       , byDefault: false  // Not in R1-2025
+      , dependsOn: ["app-platform-minimal"]
+    ],
+    [
+      name: "app-serials-management"
+      , branch: "snapshot"
+      , consortia: false
+      , core: false
+      , byDefault: true
       , dependsOn: ["app-platform-minimal"]
     ]
   ]

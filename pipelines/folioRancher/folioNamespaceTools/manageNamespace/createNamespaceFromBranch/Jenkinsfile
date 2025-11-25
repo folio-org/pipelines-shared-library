@@ -22,11 +22,11 @@ properties([
     folioParameters.applicationSet(),
     folioParameters.applications(),
     folioParameters.configType(),
-    booleanParam(name: 'SC_NATIVE', defaultValue: false, description: '(Optional) Set true to use previously built SC image'),
+    booleanParam(name: 'SC_NATIVE', defaultValue: true, description: '(Optional) Set false to use Java based SC image'),
     folioParameters.groupParameters("Environment features"
-      , ["LOAD_REFERENCE", "LOAD_SAMPLE", "BUILD_UI", "CONSORTIA", "CONSORTIA_EXTRA", "LINKED_DATA", "MARC_MIGRATIONS", "SPLIT_FILES"
+      , ["LOAD_REFERENCE", "LOAD_SAMPLE", "BUILD_UI", "CONSORTIA", "CONSORTIA_EXTRA", "LINKED_DATA", "MARC_MIGRATIONS", "RTAC_CACHE", "SPLIT_FILES"
          , "RW_SPLIT", "ECS_CCL", "GREENMAIL", "MOCK_SERVER", "RTR", "DATASET", "TYPE"
-         , "HAS_SECURE_TENANT", "SECURE_TENANT"
+         , "HAS_SECURE_TENANT", "SECURE_TENANT", "FOLIO_KEYCLOAK_VERSION", "FOLIO_KONG_VERSION"
     ]),
     folioParameters.loadReference(),
     folioParameters.loadSample(),
@@ -37,6 +37,7 @@ properties([
     folioParameters.consortiaSecureMemberTenant(),
     booleanParam(name: 'LINKED_DATA', defaultValue: true, description: '(Optional) Set true to deploy LinkedData'),
     booleanParam(name: 'MARC_MIGRATIONS', defaultValue: false, description: '(Optional) Set true to deploy Marc-Migrations'),
+    booleanParam(name: 'RTAC_CACHE', defaultValue: false, description: '(Optional) Set true to deploy Rtac-Cache'),
     booleanParam(name: 'SPLIT_FILES', defaultValue: true, description: '(Optional) Set true to enable split-files functionality'),
     booleanParam(name: 'RW_SPLIT', defaultValue: false, description: '(Optional) Set true to Enable Read/Write split'),
     booleanParam(name: 'ECS_CCL', defaultValue: false, description: '(Optional) Set true to enable ECS Circulation + Congressional loans functionality'),
@@ -46,6 +47,8 @@ properties([
     booleanParam(name: 'DATASET', defaultValue: false, description: '(Optional) Set true to build BF like environment'),
     choice(name: 'TYPE', choices: ['full', 'terraform', 'update'], description: '(Required) Set action TYPE to perform'),
     string(name: 'DB_BACKUP_NAME', defaultValue: org.folio.Constants.BUGFEST_SNAPSHOT_NAME, description: '(Optional) Set name of the DB backup to restore'),
+    string(name: 'FOLIO_KEYCLOAK_VERSION', defaultValue: 'latest', description: '(Optional) Set FOLIO Keycloak tag, example: 21.0.1-SNAPSHOT.f959523'),
+    string(name: 'FOLIO_KONG_VERSION', defaultValue: 'latest', description: '(Optional) Set FOLIO Kong tag, example: 3.10.0-SNAPSHOT.f959523'),
     folioParameters.groupParameters("Integrations"
       , ["POSTGRESQL", "DB_VERSION", "KAFKA", "OPENSEARCH", "S3_BUCKET", "DB_BACKUP_NAME"]),
     folioParameters.pgType(),
@@ -83,7 +86,7 @@ if (params.CLUSTER != 'folio-tmp') {
   folioCommon.validateNamespace(params.NAMESPACE)
 }
 
-if (params.CLUSTER == 'folio-testing' || params.CLUSTER == 'folio-etesting' || params.DATASET) {
+if (params.CLUSTER == 'folio-etesting' || params.DATASET) {
   folioCommon.kitfoxApproval()
 }
 
@@ -116,8 +119,8 @@ CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builde
   .opensearchType(params.OPENSEARCH)
   .s3Type(params.S3_BUCKET)
   .uiBuild(params.BUILD_UI)
-  .kongVersion('latest')
-  .keycloakVersion('latest')
+  .kongVersion(params.FOLIO_KONG_VERSION)
+  .keycloakVersion(params.FOLIO_KEYCLOAK_VERSION)
   .dataset(params.DATASET)
   .type(params.TYPE)
   .scNative(params.SC_NATIVE)
@@ -136,6 +139,10 @@ if (params.LINKED_DATA) {
 
 if (params.MARC_MIGRATIONS) {
   namespaceParams.folioExtensions.add('marc-migrations')
+}
+
+if (params.RTAC_CACHE) {
+  namespaceParams.folioExtensions.add('rtac-cache')
 }
 
 RancherNamespace namespace = new RancherNamespace(namespaceParams.getClusterName(), namespaceParams.getNamespaceName())

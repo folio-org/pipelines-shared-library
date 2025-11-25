@@ -128,8 +128,8 @@ void call(CreateNamespaceParameters args) {
       installJson.removeAll { module -> module.id == 'okapi' }
 
       pinnedEurekaModules.each { pinned ->
-        if (installJson.find { it.id =~ /${pinned.module}-.*/ }) {
-          installJson.removeAll { module -> module.id =~ /${pinned.module}-.*/ }
+        if (installJson.find { it.id =~ /^${pinned.module}-\d+\..*/ }) {
+          installJson.removeAll { module -> module.id =~ /^${pinned.module}-\d+\..*/ }
           installJson.add([id: "${pinned.module}-${pinned.version}", action: 'enable'])
         }
       }
@@ -260,11 +260,12 @@ void call(CreateNamespaceParameters args) {
             Applications.get(eureka.kong).getRegisteredApplications()
           }
           if (args.type == 'update') {
-            List sql_cmd = ['DELETE FROM public.module', 'DELETE FROM public.entitlement',
-                            'DELETE FROM public.entitlement_module', 'DELETE FROM public.application',
-                            'DELETE FROM public.application_flow']
-            String pod = sh(script: "kubectl get pod -l 'app.kubernetes.io/name=pgadmin4' -o=name -n ${namespace.getNamespaceName()}", returnStdout: true).trim()
-            sql_cmd.each { sh(script: "kubectl exec ${pod} --namespace ${namespace.getNamespaceName()} -- /usr/local/pgsql-16/psql -c '${it}'", returnStdout: true) }
+//            List sql_cmd = ['DELETE FROM public.module', 'DELETE FROM public.entitlement',
+//                            'DELETE FROM public.entitlement_module', 'DELETE FROM public.application',
+//                            'DELETE FROM public.application_flow']
+//            String pod = sh(script: "kubectl get pod -l 'app.kubernetes.io/name=pgadmin4' -o=name -n ${namespace.getNamespaceName()}", returnStdout: true).trim()
+//            sql_cmd.each { sh(script: "kubectl exec ${pod} --namespace ${namespace.getNamespaceName()} -- /usr/local/pgsql-16/psql -c '${it}'", returnStdout: true) }
+          logger.info("TESTING: This for the ticket RANCHER-2656. DO NOT remove commented lines, even if testing is complete.")
           }
         }
       }
@@ -340,7 +341,6 @@ void call(CreateNamespaceParameters args) {
           , namespace.getClusterName()
           , namespace.getNamespaceName()
           , namespace.getEnableConsortia()
-          , true
           , false // Set this option true, when users & groups migration is required.
         )
       }

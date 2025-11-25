@@ -16,13 +16,13 @@ resource "rancher2_catalog_v2" "folio-helm-service" {
   url        = "https://repository.folio.org/repository/helm-hosted"
 }
 
-# OpenSearch helm charts catalog
-resource "rancher2_catalog_v2" "opensearch" {
+# Elastic helm charts catalog (for Elasticsearch and Kibana)
+resource "rancher2_catalog_v2" "elastic" {
   depends_on = [module.eks_cluster.eks_managed_node_groups]
   count      = var.register_in_rancher ? 1 : 0
   cluster_id = rancher2_cluster_sync.this[0].id
-  name       = "opensearch"
-  url        = "https://opensearch-project.github.io/helm-charts"
+  name       = "elastic"
+  url        = "https://helm.elastic.co"
 }
 
 # Bitnami helm charts catalog
@@ -31,7 +31,18 @@ resource "rancher2_catalog_v2" "bitnami" {
   count      = var.register_in_rancher ? 1 : 0
   cluster_id = rancher2_cluster_sync.this[0].id
   name       = "bitnami"
-  url        = "https://repository.folio.org/repository/helm-bitnami-proxy"
+  url        = "https://charts.bitnami.com/bitnami"
+}
+
+# Wait for catalog to be ready
+resource "time_sleep" "catalog_propagation" {
+  count           = var.register_in_rancher ? 1 : 0
+  create_duration = "30s"
+
+  triggers = {
+    bitnami_id = rancher2_catalog_v2.bitnami[0].id
+    elastic_id = rancher2_catalog_v2.elastic[0].id
+  }
 }
 
 # AWS ebs csi driver charts catalog

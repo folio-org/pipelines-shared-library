@@ -221,6 +221,26 @@ void ermEntitlementFix(String namespace = 'default', String tenantId = 'default'
   }
 }
 
+void updateApplicationsFix (String namespace = 'default', String clusterName = '', List appIds = [], List tenantIds = []) {
+  try {
+    folioHelm.withK8sClient {
+      awscli.getKubeConfig(Constants.AWS_REGION, clusterName)
+      String pod = sh(script: "kubectl get pod -l 'app.kubernetes.io/name=pgadmin4' -o=name  --ignore-not-found=true --namespace ${namespace}", returnStdout: true).trim()
+      if (pod) {
+        tenantIds.each { tenantId ->
+          appIds.each { appId ->
+            sh(script: "kubectl exec --request-timeout=10s --namespace=${namespace} ${pod} -- /usr/local/pgsql-16/psql -c \"DELETE FROM public.entitlement WHERE application_id = '${appId}' AND tenant_id = '${tenantId}'\"", returnStatus: false)
+          }
+        }
+      } else {
+        println("No pgadmin4 pod found in namespace ${namespace}.")
+      }
+    }
+  } catch (Exception e) {
+    println("Error during update applications fix: " + e.getMessage())
+  }
+}
+
 void deletePod(String namespace = 'default', String pod_name, Boolean wait = true) {
   try {
     sh "kubectl delete pod --namespace=${namespace} ${pod_name} --ignore-not-found=true --wait=${wait} --force --grace-period=0"
@@ -358,5 +378,15 @@ void patchDefaultServiceAccount(String namespace) {
     }
   } catch (Exception e) {
     new Logger(this, 'kubectl').error("Unable to patch default service account,\nError: ${e.getMessage()}")
+  }
+}
+
+def checkNamespaceStatus(String namespaceName) {
+  try {
+    def status = sh(script: "kubectl get pods --namespace ${namespaceName}", returnStdout: true).trim()
+    return status
+  } catch (Exception e) {
+    println(e.getMessage())
+    return false
   }
 }

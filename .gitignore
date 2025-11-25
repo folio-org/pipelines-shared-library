@@ -15,9 +15,13 @@
 # Ignore user-specific AI/development tool artifacts
 .cursor/
 .claude/
+.codex/
 .mcp.json
 .cursor*
 claude*
+.github/*instructions*
+.github/*prompts*
+.github/*chatmodes*
 
 # Miscellaneous
 *.class
