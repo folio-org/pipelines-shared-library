@@ -273,3 +273,8 @@ def consortiaSecureMemberTenant(
 ) {
   return _paramChoice(paramName, value, description)
 }
+
+def testGroup(String paramName = 'TEST_GROUP') {
+  String script = "return ${Constants.TEST_GROUP.inspect()}"
+  return _paramExtendedCheckboxSelect(paramName, '', script, 'Select test groups to run', false)
+}

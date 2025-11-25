@@ -14,6 +14,7 @@ properties([
   parameters([
     folioParameters.branch('TESTS_BRANCH', 'folio-integration-tests'),
     string(name: 'TESTS', defaultValue: '', description: 'Comma separated modules list to test (no spaces).\nLeave empty to launch all.'),
+    folioParameters.testGroup(),
     string(name: 'OKAPI_URL', defaultValue: 'https://folio-etesting-karate-kong.ci.folio.org', description: 'Target environment OKAPI URL'),
     string(name: 'KEYCLOAK_URL', defaultValue: 'https://folio-etesting-karate-keycloak.ci.folio.org', description: 'Target environment KEYCLOAK URL'),
     string(name: 'EDGE_URL', defaultValue: 'https://folio-etesting-karate-edge.ci.folio.org', description: 'Target environment EDGE URL'),
@@ -26,9 +27,9 @@ properties([
     string(name: 'THREADS_COUNT', defaultValue: '1', description: 'Number of parallel threads'),
     choice(name: 'JAVA_VERSION', choices: ['21', '17'], description: 'Java version to use for tests'),
     booleanParam(name: 'CLEANUP_TENANTS', defaultValue: false, description: 'Do you need to delete all test tenants after tests?'),
-    string(name: 'TESTRAIL_PROJECTID', defaultValue: "", description: 'To enable TestRail integration, enter ProjectID from TestRail, ex. 22', trim: true),
-    string(name: 'TESTRAIL_RUN_ID', defaultValue: "", description: 'To enable TestRail integration, enter RunID from TestRail, ex. 2048', trim: true),
-//    booleanParam(name: 'CREATE_CUSTOM_EDGE_TENANT', defaultValue: false, description: 'Do you need to create tenant for edge modules from edge-configuration.json file?'),
+    string(name: 'TESTRAIL_PROJECTID', defaultValue: '', description: 'To enable TestRail integration, enter ProjectID from TestRail, ex. 22', trim: true),
+    string(name: 'TESTRAIL_RUN_ID', defaultValue: '', description: 'To enable TestRail integration, enter RunID from TestRail, ex. 2048', trim: true),
+    //    booleanParam(name: 'CREATE_CUSTOM_EDGE_TENANT', defaultValue: false, description: 'Do you need to create tenant for edge modules from edge-configuration.json file?'),
     folioParameters.refreshParameters()
   ])
 ])
@@ -46,6 +47,7 @@ PodTemplates podTemplates = new PodTemplates(this)
 KarateTestsParameters karateTestsParams = new KarateTestsParameters()
 karateTestsParams.gitBranch = params.TESTS_BRANCH
 karateTestsParams.modulesToTest = params.TESTS
+karateTestsParams.testGroup = (params.TEST_GROUP as String).split(',') as List
 karateTestsParams.okapiUrl = params.OKAPI_URL
 karateTestsParams.keycloakUrl = params.KEYCLOAK_URL
 karateTestsParams.edgeUrl = params.EDGE_URL

@@ -328,6 +328,7 @@ class Constants {
   static String CYPRESS_PROJECT = 'stripes'
   static String TESTRAIL_HOST = 'https://foliotest.testrail.io'
   static String TESTRAIL_CREDENTIALS_ID = 'cypress-testrail-credentials' // TestRail username and password credentials
+  static List TEST_GROUP = ['Smoke', 'CriticalPath', 'Extended']
 
   static String REPORT_PORTAL_URL = 'https://report-portal.ci.folio.org'
   static String REPORT_PORTAL_API_URL = 'https://report-portal.ci.folio.org/api/v1'

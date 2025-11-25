@@ -4,6 +4,7 @@ import com.cloudbees.groovy.cps.NonCPS
 import org.folio.testing.teams.TeamAssignment
 
 class KarateTestsParameters {
+
   String okapiUrl
 
   String keycloakUrl
@@ -60,10 +61,12 @@ class KarateTestsParameters {
 
   String timeout
 
+  List testGroup
+
   @NonCPS
   @Override
   String toString() {
-    return "KarateTestsParameters{" +
+    return 'KarateTestsParameters{' +
       "okapiUrl='" + okapiUrl + '\'' +
       ", keycloakUrl='" + keycloakUrl + '\'' +
       ", edgeUrl='" + edgeUrl + '\'' +
@@ -83,10 +86,17 @@ class KarateTestsParameters {
       ", mavenSettings='" + mavenSettings + '\'' +
       ", reportPortalProjectName='" + reportPortalProjectName + '\'' +
       ", reportPortalProjectId='" + reportPortalProjectId + '\'' +
-      ", syncWithJira=" + syncWithJira +
-      ", sendSlackNotification=" + sendSlackNotification +
-      ", sendTeamsSlackNotification=" + sendTeamsSlackNotification +
-      ", lsdi=" + lsdi +
+      ", testrailProjectID='" + testrailProjectID + '\'' +
+      ", testrailRunID='" + testrailRunID + '\'' +
+      ', teamAssignment=' + teamAssignment +
+      ', syncWithJira=' + syncWithJira +
+      ', sendSlackNotification=' + sendSlackNotification +
+      ', sendTeamsSlackNotification=' + sendTeamsSlackNotification +
+      ', lsdi=' + lsdi +
+      ', cleanupTenants=' + cleanupTenants +
+      ", timeout='" + timeout + '\'' +
+      ', testGroup=' + testGroup +
       '}'
   }
+
 }
