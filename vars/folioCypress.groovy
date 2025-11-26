@@ -369,19 +369,31 @@ void unpackAllureReport(List stashesList) {
 void generateAndPublishAllureReport(List resultPaths) {
   validateParameter(resultPaths, 'Result paths')
 
-  stage('[Allure] Generate report') {
+  stage('[Allure] Generate and publish report') {
     def allureHome = tool type: 'allure', name: Constants.CYPRESS_ALLURE_VERSION
-    sh "JAVA_TOOL_OPTIONS='-Xmx6G -Xms1G -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp -XX:MaxDirectMemorySize=1G -Djava.util.concurrent.ForkJoinPool.common.parallelism=2' ${allureHome}/bin/allure generate --clean ${resultPaths.collect { path -> "${path}/allure-results" }.join(" ")}"
-  }
+    List allureResultPaths = resultPaths.collect { path -> "${path}/allure-results" }
+    List validPaths = allureResultPaths.findAll { path -> fileExists(path) }
 
-  stage('[Allure] Publish report') {
+    if (validPaths.isEmpty()) {
+      error("No valid allure result paths found. Cannot generate report.")
+    }
+
+    List missingPaths = allureResultPaths - validPaths
+    if (!missingPaths.isEmpty()) {
+      echo "Warning: Skipping ${missingPaths.size()} missing paths: ${missingPaths.join(', ')}"
+    }
+
+    echo "Processing ${validPaths.size()} result directories"
+
+    sh "JAVA_TOOL_OPTIONS='-Xmx6G -Xms1G -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp -XX:MaxDirectMemorySize=1G -Djava.util.concurrent.ForkJoinPool.common.parallelism=2' ${allureHome}/bin/allure generate --clean ${validPaths.join(" ")}"
+
     withEnv(["JAVA_TOOL_OPTIONS=-Xmx8G -Xms1G -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp -XX:MaxDirectMemorySize=1G -Djava.util.concurrent.ForkJoinPool.common.parallelism=2"]) {
       allure([includeProperties: false,
               jdk              : '',
               commandline      : Constants.CYPRESS_ALLURE_VERSION,
               properties       : [],
               reportBuildPolicy: 'ALWAYS',
-              results          : resultPaths.collect { path -> [path: "${path}/allure-results"] }])
+              results          : validPaths.collect { path -> [path: path] }])
     }
   }
 }
