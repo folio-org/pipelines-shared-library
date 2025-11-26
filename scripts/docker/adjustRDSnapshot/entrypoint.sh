@@ -32,7 +32,7 @@ for role in $ROLES_2_DROP; do
 	fi
 done
 
-echo "Cleaning old info..."
+echo "Cleanuping old info..."
 psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PGDATABASE" -c "TRUNCATE TABLE public.tenant CASCADE;"
 psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PGDATABASE" -c "DELETE FROM public.module;"
 psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PGDATABASE" -c "DELETE FROM public.entitlement;"
@@ -49,9 +49,9 @@ for n in $non_ecs; do
 		psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PGDATABASE" -c "DROP ROLE IF EXISTS ${n}_mod_roles_keycloak;"
 		psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PGDATABASE" -c "DROP ROLE IF EXISTS ${n}_mod_users_keycloak;"
 		psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PGDATABASE" -c "DELETE FROM ${n}_mod_users.users;"
-		psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PGDATABASE" -c "DELETE FROM ${n}_mod_email.smtp_configuration;"
-		psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PGDATABASE" -c "DELETE FROM ${n}_mod_email.settings;"
-		psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PGDATABASE" -c "DELETE FROM ${n}_mod_configuration.config_data where jsonb ->> 'module' = 'SMTP_SERVER';"
+		psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PGDATABASE" -c "DO \$\$ BEGIN IF EXISTS (SELECT FROM information_schema.tables WHERE table_schema = '${n}_mod_email' AND table_name = 'smtp_configuration') THEN DELETE FROM ${n}_mod_email.smtp_configuration; END IF; END \$\$;"
+		psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PGDATABASE" -c "DO \$\$ BEGIN IF EXISTS (SELECT FROM information_schema.tables WHERE table_schema = '${n}_mod_email' AND table_name = 'settings') THEN DELETE FROM ${n}_mod_email.settings; END IF; END \$\$;"
+		psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PGDATABASE" -c "DO \$\$ BEGIN IF EXISTS (SELECT FROM information_schema.tables WHERE table_schema = '${n}_mod_configuration' AND table_name = 'config_data') THEN DELETE FROM ${n}_mod_configuration.config_data WHERE jsonb ->> 'module' = 'SMTP_SERVER'; END IF; END \$\$;"
 	fi
 done
 
@@ -69,9 +69,9 @@ for e in $ecs; do
 		echo "Cleaning up data for consortia tenant: $e"
 		psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PGDATABASE" -c "DELETE FROM ${e}_mod_users.users;"
 		psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PGDATABASE" -c "DELETE FROM ${e}_mod_users.user_tenant;"
-		psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PGDATABASE" -c "DELETE FROM ${e}_mod_email.smtp_configuration;"
-		psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PGDATABASE" -c "DELETE FROM ${e}_mod_email.settings;"
-		psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PGDATABASE" -c "DELETE FROM ${e}_mod_configuration.config_data where jsonb ->> 'module' = 'SMTP_SERVER';"
+		psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PGDATABASE" -c "DO \$\$ BEGIN IF EXISTS (SELECT FROM information_schema.tables WHERE table_schema = '${e}_mod_email' AND table_name = 'smtp_configuration') THEN DELETE FROM ${e}_mod_email.smtp_configuration; END IF; END \$\$;"
+		psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PGDATABASE" -c "DO \$\$ BEGIN IF EXISTS (SELECT FROM information_schema.tables WHERE table_schema = '${e}_mod_email' AND table_name = 'settings') THEN DELETE FROM ${e}_mod_email.settings; END IF; END \$\$;"
+		psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PGDATABASE" -c "DO \$\$ BEGIN IF EXISTS (SELECT FROM information_schema.tables WHERE table_schema = '${e}_mod_configuration' AND table_name = 'config_data') THEN DELETE FROM ${e}_mod_configuration.config_data WHERE jsonb ->> 'module' = 'SMTP_SERVER'; END IF; END \$\$;"
 	fi
 done
 
