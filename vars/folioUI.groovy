@@ -73,6 +73,8 @@ void build(String okapiUrl, OkapiTenant tenant, boolean isEureka = false, String
             , text: make_tpl(readFile(file: 'stripes.config.js', encoding: "UTF-8") as String, binding)
             , encoding: 'UTF-8')
 
+          archiveArtifacts artifacts: 'stripes.config.js', allowEmptyArchive: false
+
           List eurekaCustomUiModules = ["folio_authorization-policies",
                                         "folio_authorization-roles",
                                         "folio_plugin-select-application"]
