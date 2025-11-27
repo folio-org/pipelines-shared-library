@@ -10,7 +10,7 @@ import org.folio.models.module.FolioModule
 import org.folio.utilities.RestClient
 
 void build(String okapiUrl, OkapiTenant tenant, boolean isEureka = false, String kongDomain = ''
-           , String keycloakDomain = '', boolean enableEcsRequests = false) {
+           , String keycloakDomain = '', boolean enableEcsRequests = false, RancherNamespace namespace = null) {
   TenantUi tenantUi = tenant.getTenantUi()
   PodTemplates podTemplates = new PodTemplates(this)
 
@@ -33,7 +33,7 @@ void build(String okapiUrl, OkapiTenant tenant, boolean isEureka = false, String
           okapiUrl = "https://${kongDomain}"
           sh "cp -R -f eureka-tpl/* ."
 
-          String tenantOptionsJson = buildTenantOptionsJson(tenantId, kongDomain)
+          String tenantOptionsJson = buildTenantOptionsJson(tenantId, namespace)
 
           Map binding = [
             kongUrl          : "https://${kongDomain}",
@@ -196,7 +196,7 @@ void deploy(RancherNamespace namespace, OkapiTenant tenant) {
 
 void buildAndDeploy(RancherNamespace namespace, OkapiTenant tenant, boolean isEureka = false, String kongDomain = ''
                     , String keycloakDomain = '', boolean enableEcsRequests = false) {
-  build("https://${namespace.getDomains()['okapi']}", tenant, isEureka, kongDomain, keycloakDomain, enableEcsRequests)
+  build("https://${namespace.getDomains()['okapi']}", tenant, isEureka, kongDomain, keycloakDomain, enableEcsRequests, namespace)
   deploy(namespace, tenant)
 }
 
@@ -269,9 +269,9 @@ static def make_tpl(String tpl, Map data) {
  * Builds tenant options JSON for consortia central tenants including all member tenants
  * Uses actual tenant names from folioDefault.groovy configuration
  */
-private String buildTenantOptionsJson(String tenantId, String kongDomain) {
+private String buildTenantOptionsJson(String tenantId, RancherNamespace namespace) {
   Map<String, Map<String, String>> tenantOptions = [:]
-  boolean isEdevCluster = kongDomain.contains('folio-edev')
+  boolean isEdevCluster = namespace?.getClusterName() == 'folio-edev'
 
   switch (tenantId) {
     case 'consortium':
