@@ -10,7 +10,7 @@ import org.folio.models.module.FolioModule
 import org.folio.utilities.RestClient
 
 void build(String okapiUrl, OkapiTenant tenant, boolean isEureka = false, String kongDomain = ''
-           , String keycloakDomain = '', boolean enableEcsRequests = false, RancherNamespace namespace = null) {
+           , String keycloakDomain = '', boolean enableEcsRequests = false, boolean singleUx = false) {
   TenantUi tenantUi = tenant.getTenantUi()
   PodTemplates podTemplates = new PodTemplates(this)
 
@@ -33,7 +33,7 @@ void build(String okapiUrl, OkapiTenant tenant, boolean isEureka = false, String
           okapiUrl = "https://${kongDomain}"
           sh "cp -R -f eureka-tpl/* ."
 
-          String tenantOptionsJson = buildTenantOptionsJson(tenantId, namespace)
+          String tenantOptionsJson = buildTenantOptionsJson(tenantId, singleUx)
 
           Map binding = [
             kongUrl          : "https://${kongDomain}",
@@ -197,8 +197,8 @@ void deploy(RancherNamespace namespace, OkapiTenant tenant) {
 }
 
 void buildAndDeploy(RancherNamespace namespace, OkapiTenant tenant, boolean isEureka = false, String kongDomain = ''
-                    , String keycloakDomain = '', boolean enableEcsRequests = false) {
-  build("https://${namespace.getDomains()['okapi']}", tenant, isEureka, kongDomain, keycloakDomain, enableEcsRequests, namespace)
+                    , String keycloakDomain = '', boolean enableEcsRequests = false, boolean singleUx = false) {
+  build("https://${namespace.getDomains()['okapi']}", tenant, isEureka, kongDomain, keycloakDomain, enableEcsRequests, singleUx)
   deploy(namespace, tenant)
 }
 
@@ -271,13 +271,12 @@ static def make_tpl(String tpl, Map data) {
  * Builds tenant options JSON for consortia central tenants including all member tenants
  * Uses actual tenant names from folioDefault.groovy configuration
  */
-private String buildTenantOptionsJson(String tenantId, RancherNamespace namespace) {
+private String buildTenantOptionsJson(String tenantId, boolean singleUx = false) {
   Map<String, Map<String, String>> tenantOptions = [:]
-  boolean isEdevCluster = namespace?.getClusterName() == 'folio-edev'
 
   switch (tenantId) {
     case 'consortium':
-      if (isEdevCluster) {
+      if (singleUx) {
         tenantOptions[tenantId] = [name: tenantId, clientId: "${tenantId}-application"]
         tenantOptions['university'] = [name: 'university', clientId: 'university-application']
         tenantOptions['college'] = [name: 'college', clientId: 'college-application']
@@ -289,7 +288,7 @@ private String buildTenantOptionsJson(String tenantId, RancherNamespace namespac
       break
 
     case 'consortium2':
-      if (isEdevCluster) {
+      if (singleUx) {
         tenantOptions[tenantId] = [name: tenantId, clientId: "${tenantId}-application"]
         tenantOptions['university2'] = [name: 'university2', clientId: 'university2-application']
         tenantOptions['college2'] = [name: 'college2', clientId: 'college2-application']
@@ -301,7 +300,7 @@ private String buildTenantOptionsJson(String tenantId, RancherNamespace namespac
       break
 
     case 'cs00000int':
-      if (isEdevCluster) {
+      if (singleUx) {
         tenantOptions[tenantId] = [name: tenantId, clientId: "${tenantId}-application"]
         (1..11).each { num ->
           String memberTenantId = "cs00000int_${String.format('%04d', num)}"
@@ -336,7 +335,7 @@ private String buildTenantOptionsJson(String tenantId, RancherNamespace namespac
   }
 
   List<String> tenantEntries = []
-  if (isEdevCluster) {
+  if (singleUx) {
     tenantOptions.each { id, config ->
       tenantEntries << "${id}: {name: \"${config.name}\", clientId: \"${config.clientId}\"}"
     }
