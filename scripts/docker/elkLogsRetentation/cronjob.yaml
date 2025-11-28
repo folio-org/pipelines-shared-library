@@ -1,0 +1,54 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: elk-cleanup
+  namespace: logging
+  labels:
+    app: elk-cleanup
+    component: maintenance
+spec:
+  schedule: "0 2 * * *"
+  timeZone: "UTC"
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app: elk-cleanup
+            component: maintenance
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: elk-cleanup
+              image: 732722833398.dkr.ecr.us-west-2.amazonaws.com/logging-cleanup:latest
+              imagePullPolicy: Always
+              env:
+                - name: ES_HOST
+                  value: "http://elasticsearch-master-headless:9200"
+                - name: PATTERN
+                  value: "logs-*"
+                - name: DAYS
+                  value: "3"
+              resources:
+                requests:
+                  memory: "64Mi"
+                  cpu: "50m"
+                limits:
+                  memory: "128Mi"
+                  cpu: "100m"
+              securityContext:
+                runAsNonRoot: true
+                runAsUser: 1001
+                runAsGroup: 1001
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: true
+                capabilities:
+                  drop:
+                    - ALL
+          securityContext:
+            fsGroup: 1001
+            seccompProfile:
+              type: RuntimeDefault
