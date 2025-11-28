@@ -153,7 +153,8 @@ void build(String okapiUrl, OkapiTenant tenant, boolean isEureka = false, String
           if (realm && !realm.isEmpty()) {
             String updateRealmUrl = "https://${keycloakDomain}/admin/realms/${currentTenantId}/clients/${realm['id'].get(0)}"
             headers['Content-Type'] = 'application/json'
-            String currentTenantUrl = (currentTenantId == tenantId) ? "https://${tenantUi.getDomain()}" : "https://eureka-snapshot-${currentTenantId}.${Constants.CI_ROOT_DOMAIN}"
+            String baseDomain = tenantUi.getDomain()
+            String currentTenantUrl = "https://${baseDomain.replace(tenantId, currentTenantId)}"
             def updateContent = [
               rootUrl                     : currentTenantUrl,
               baseUrl                     : currentTenantUrl,
