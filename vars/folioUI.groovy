@@ -155,11 +155,28 @@ void build(String okapiUrl, OkapiTenant tenant, boolean isEureka = false, String
             headers['Content-Type'] = 'application/json'
             String baseDomain = tenantUi.getDomain()
             String currentTenantUrl = "https://${baseDomain.replace(tenantId, currentTenantId)}"
+
+            List<String> redirectUrisList = []
+
+            switch (tenantId) {
+              case 'consortium':
+                redirectUrisList << "https://ecs-${kongDomain}/*"
+                break
+              case 'consortium2':
+                redirectUrisList << "https://ecs2-${kongDomain}/*"
+                break
+              case 'cs00000int':
+                redirectUrisList << "https://ecs-${kongDomain}/*"
+                break
+            }
+
+            redirectUrisList.addAll(["${currentTenantUrl}/*", "http://localhost:3000/*", "http://localhost:3001/*", "https://eureka-snapshot-${currentTenantId}.${Constants.CI_ROOT_DOMAIN}/*"])
+
             def updateContent = [
               rootUrl                     : currentTenantUrl,
               baseUrl                     : currentTenantUrl,
               adminUrl                    : currentTenantUrl,
-              redirectUris                : ["${currentTenantUrl}/*", "http://localhost:3000/*", "http://localhost:3001/*", "https://eureka-snapshot-${currentTenantId}.${Constants.CI_ROOT_DOMAIN}/*"],
+              redirectUris                : redirectUrisList,
               webOrigins                  : ["/*"],
               authorizationServicesEnabled: true,
               serviceAccountsEnabled      : true,
