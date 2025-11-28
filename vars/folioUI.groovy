@@ -10,7 +10,7 @@ import org.folio.models.module.FolioModule
 import org.folio.utilities.RestClient
 
 void build(String okapiUrl, OkapiTenant tenant, boolean isEureka = false, String kongDomain = ''
-           , String keycloakDomain = '', boolean enableEcsRequests = false) {
+           , String keycloakDomain = '', boolean enableEcsRequests = false, boolean singleUx = false) {
   TenantUi tenantUi = tenant.getTenantUi()
   PodTemplates podTemplates = new PodTemplates(this)
 
@@ -32,10 +32,9 @@ void build(String okapiUrl, OkapiTenant tenant, boolean isEureka = false, String
           String tenantId = tenant.getTenantId()
           okapiUrl = "https://${kongDomain}"
           sh "cp -R -f eureka-tpl/* ."
-          
-          // Build tenant options based on consortia structure
-          String tenantOptionsJson = buildTenantOptionsJson(tenantId)
-          
+
+          String tenantOptionsJson = buildTenantOptionsJson(tenant, singleUx)
+
           Map binding = [
             kongUrl          : "https://${kongDomain}",
             tenantUrl        : "https://${tenantUi.getDomain()}",
@@ -73,6 +72,8 @@ void build(String okapiUrl, OkapiTenant tenant, boolean isEureka = false, String
           writeFile(file: 'stripes.config.js'
             , text: make_tpl(readFile(file: 'stripes.config.js', encoding: "UTF-8") as String, binding)
             , encoding: 'UTF-8')
+
+          archiveArtifacts artifacts: 'stripes.config.js', allowEmptyArchive: false
 
           List eurekaCustomUiModules = ["folio_authorization-policies",
                                         "folio_authorization-roles",
@@ -152,16 +153,34 @@ void build(String okapiUrl, OkapiTenant tenant, boolean isEureka = false, String
           if (realm && !realm.isEmpty()) {
             String updateRealmUrl = "https://${keycloakDomain}/admin/realms/${currentTenantId}/clients/${realm['id'].get(0)}"
             headers['Content-Type'] = 'application/json'
-            String tenantUrl = "https://${tenantUi.getDomain()}"
+            String baseDomain = tenantUi.getDomain()
+            String currentTenantUrl = "https://${baseDomain.replace(tenantId, currentTenantId)}"
+
+            List<String> redirectUrisList = []
+
+            switch (tenantId) {
+              case 'consortium':
+                redirectUrisList << "https://ecs-${kongDomain}/*"
+                break
+              case 'consortium2':
+                redirectUrisList << "https://ecs2-${kongDomain}/*"
+                break
+              case 'cs00000int':
+                redirectUrisList << "https://ecs-${kongDomain}/*"
+                break
+            }
+
+            redirectUrisList.addAll(["${currentTenantUrl}/*", "http://localhost:3000/*", "http://localhost:3001/*", "https://eureka-snapshot-${currentTenantId}.${Constants.CI_ROOT_DOMAIN}/*"])
+
             def updateContent = [
-              rootUrl                     : tenantUrl,
-              baseUrl                     : tenantUrl,
-              adminUrl                    : tenantUrl,
-              redirectUris                : ["${tenantUrl}/*", "http://localhost:3000/*", "http://localhost:3001/*", "https://eureka-snapshot-${currentTenantId}.${Constants.CI_ROOT_DOMAIN}/*"], //Requested by AQA Team
+              rootUrl                     : currentTenantUrl,
+              baseUrl                     : currentTenantUrl,
+              adminUrl                    : currentTenantUrl,
+              redirectUris                : redirectUrisList,
               webOrigins                  : ["/*"],
               authorizationServicesEnabled: true,
               serviceAccountsEnabled      : true,
-              attributes                  : ['post.logout.redirect.uris': "/*##${tenantUrl}/*", login_theme: 'custom-theme']
+              attributes                  : ['post.logout.redirect.uris': "/*##${currentTenantUrl}/*", login_theme: 'custom-theme']
             ]
             def ssoUpdates = [
               resetPasswordAllowed: true
@@ -169,7 +188,7 @@ void build(String okapiUrl, OkapiTenant tenant, boolean isEureka = false, String
 
             client.put(updateRealmUrl, writeJSON(json: updateContent, returnText: true), headers)
             client.put("https://${keycloakDomain}/admin/realms/${currentTenantId}", writeJSON(json: ssoUpdates, returnText: true), headers)
-            echo "Updated Keycloak configuration for tenant: ${currentTenantId}"
+            echo "Updated Keycloak configuration for tenant: ${currentTenantId} with URL: ${currentTenantUrl}"
           } else {
             echo "Warning: No Keycloak client found for tenant: ${currentTenantId}"
           }
@@ -196,8 +215,8 @@ void deploy(RancherNamespace namespace, OkapiTenant tenant) {
 }
 
 void buildAndDeploy(RancherNamespace namespace, OkapiTenant tenant, boolean isEureka = false, String kongDomain = ''
-                    , String keycloakDomain = '', boolean enableEcsRequests = false) {
-  build("https://${namespace.getDomains()['okapi']}", tenant, isEureka, kongDomain, keycloakDomain, enableEcsRequests)
+                    , String keycloakDomain = '', boolean enableEcsRequests = false, boolean singleUx = false) {
+  build("https://${namespace.getDomains()['okapi']}", tenant, isEureka, kongDomain, keycloakDomain, enableEcsRequests, singleUx)
   deploy(namespace, tenant)
 }
 
@@ -270,59 +289,52 @@ static def make_tpl(String tpl, Map data) {
  * Builds tenant options JSON for consortia central tenants including all member tenants
  * Uses actual tenant names from folioDefault.groovy configuration
  */
-private String buildTenantOptionsJson(String tenantId) {
-  Map<String, Map<String, String>> tenantOptions = [:]
-  
+private String buildTenantOptionsJson(OkapiTenant tenant, boolean singleUx = false) {
+  String tenantId = tenant.getTenantId()
+
+  if (singleUx) {
+    return buildSingleTenantOption(tenantId, tenant.getTenantName(), singleUx)
+  }
+
+  Map<String, OkapiTenant> tenantsMap = getTenantsForConsortia(tenantId)
+
+  if (!tenantsMap) {
+    return buildSingleTenantOption(tenantId, tenant.getTenantName(), singleUx)
+  }
+
+  List<String> tenantEntries = tenantsMap.collect { id, tenantObj ->
+    buildTenantEntry(id, tenantObj.getTenantName(), singleUx)
+  }
+
+  return "{${tenantEntries.join(', ')}}"
+}
+
+private Map<String, OkapiTenant> getTenantsForConsortia(String tenantId) {
   switch (tenantId) {
     case 'consortium':
-      // Central tenant + member tenants (from consortiaTenants in folioDefault.groovy)
-      tenantOptions[tenantId] = [name: tenantId, displayName: 'Consortium', clientId: "${tenantId}-application"]
-      tenantOptions['university'] = [name: 'university', displayName: 'University', clientId: 'university-application']
-      tenantOptions['college'] = [name: 'college', displayName: 'College', clientId: 'college-application']
-      break
-      
+      return folioDefault.consortiaTenants()
     case 'consortium2':
-      // Central tenant + member tenants (from consortiaTenantsExtra in folioDefault.groovy)
-      tenantOptions[tenantId] = [name: tenantId, displayName: 'Consortium2', clientId: "${tenantId}-application"]
-      tenantOptions['university2'] = [name: 'university2', displayName: 'University2', clientId: 'university2-application']
-      tenantOptions['college2'] = [name: 'college2', displayName: 'College2', clientId: 'college2-application']
-      break
-      
+      return folioDefault.consortiaTenantsExtra()
     case 'cs00000int':
-      // Central tenant + all institutional member tenants (from tenants in folioDefault.groovy)
-      tenantOptions[tenantId] = [name: tenantId, displayName: 'Central tenant', clientId: "${tenantId}-application"]
-      
-      // Add all cs00000int member tenants with their actual names from folioDefault.groovy
-      Map memberTenantDisplayNames = [
-        'cs00000int_0001': 'Colleague tenant',
-        'cs00000int_0002': 'Professional tenant',
-        'cs00000int_0003': 'School tenant',
-        'cs00000int_0004': 'Special tenant',
-        'cs00000int_0005': 'University tenant',
-        'cs00000int_0006': 'AQA ECS tenant',
-        'cs00000int_0007': 'AQA2 ECS tenant',
-        'cs00000int_0008': 'Public tenant',
-        'cs00000int_0009': 'Medical tenant',
-        'cs00000int_0010': 'Workflow tenant',
-        'cs00000int_0011': 'Management Division tenant'
-      ]
-      
-      memberTenantDisplayNames.each { memberTenantId, displayName ->
-        tenantOptions[memberTenantId] = [name: memberTenantId, displayName: displayName, clientId: "${memberTenantId}-application"]
+      return folioDefault.tenants().findAll { key, value ->
+        key == 'cs00000int' || key.startsWith('cs00000int_')
       }
-      break
-      
     default:
-      // Single tenant (non-central or member tenant)
-      tenantOptions[tenantId] = [name: tenantId, clientId: "${tenantId}-application"]
-      break
+      return null
   }
-  
-  // Convert to JSON string format
-  List<String> tenantEntries = []
-  tenantOptions.each { id, config ->
-    tenantEntries << "${id}: {name: \"${config.name}\", displayName: \"${config.displayName}\", clientId: \"${config.clientId}\"}"
+}
+
+private String buildTenantEntry(String tenantId, String tenantName, boolean singleUx) {
+  String clientId = "${tenantId}-application"
+
+  if (singleUx || !tenantName) {
+    return "${tenantId}: {name: \"${tenantId}\", clientId: \"${clientId}\"}"
+  } else {
+    return "${tenantId}: {name: \"${tenantId}\", displayName: \"${tenantName}\", clientId: \"${clientId}\"}"
   }
-  
-  return "{${tenantEntries.join(', ')}}"
+}
+
+private String buildSingleTenantOption(String tenantId, String tenantName, boolean singleUx) {
+  String entry = buildTenantEntry(tenantId, tenantName, singleUx)
+  return "{${entry}}"
 }
