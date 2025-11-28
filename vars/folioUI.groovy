@@ -273,6 +273,11 @@ static def make_tpl(String tpl, Map data) {
  */
 private String buildTenantOptionsJson(OkapiTenant tenant, boolean singleUx = false) {
   String tenantId = tenant.getTenantId()
+
+  if (singleUx) {
+    return buildSingleTenantOption(tenantId, tenant.getTenantName(), singleUx)
+  }
+
   Map<String, OkapiTenant> tenantsMap = getTenantsForConsortia(tenantId)
 
   if (!tenantsMap) {
