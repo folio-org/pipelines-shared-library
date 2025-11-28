@@ -153,16 +153,16 @@ void build(String okapiUrl, OkapiTenant tenant, boolean isEureka = false, String
           if (realm && !realm.isEmpty()) {
             String updateRealmUrl = "https://${keycloakDomain}/admin/realms/${currentTenantId}/clients/${realm['id'].get(0)}"
             headers['Content-Type'] = 'application/json'
-            String tenantUrl = "https://${tenantUi.getDomain()}"
+            String currentTenantUrl = (currentTenantId == tenantId) ? "https://${tenantUi.getDomain()}" : "https://eureka-snapshot-${currentTenantId}.${Constants.CI_ROOT_DOMAIN}"
             def updateContent = [
-              rootUrl                     : tenantUrl,
-              baseUrl                     : tenantUrl,
-              adminUrl                    : tenantUrl,
-              redirectUris                : ["${tenantUrl}/*", "http://localhost:3000/*", "http://localhost:3001/*", "https://eureka-snapshot-${currentTenantId}.${Constants.CI_ROOT_DOMAIN}/*"], //Requested by AQA Team
+              rootUrl                     : currentTenantUrl,
+              baseUrl                     : currentTenantUrl,
+              adminUrl                    : currentTenantUrl,
+              redirectUris                : ["${currentTenantUrl}/*", "http://localhost:3000/*", "http://localhost:3001/*", "https://eureka-snapshot-${currentTenantId}.${Constants.CI_ROOT_DOMAIN}/*"],
               webOrigins                  : ["/*"],
               authorizationServicesEnabled: true,
               serviceAccountsEnabled      : true,
-              attributes                  : ['post.logout.redirect.uris': "/*##${tenantUrl}/*", login_theme: 'custom-theme']
+              attributes                  : ['post.logout.redirect.uris': "/*##${currentTenantUrl}/*", login_theme: 'custom-theme']
             ]
             def ssoUpdates = [
               resetPasswordAllowed: true
@@ -170,7 +170,7 @@ void build(String okapiUrl, OkapiTenant tenant, boolean isEureka = false, String
 
             client.put(updateRealmUrl, writeJSON(json: updateContent, returnText: true), headers)
             client.put("https://${keycloakDomain}/admin/realms/${currentTenantId}", writeJSON(json: ssoUpdates, returnText: true), headers)
-            echo "Updated Keycloak configuration for tenant: ${currentTenantId}"
+            echo "Updated Keycloak configuration for tenant: ${currentTenantId} with URL: ${currentTenantUrl}"
           } else {
             echo "Warning: No Keycloak client found for tenant: ${currentTenantId}"
           }
