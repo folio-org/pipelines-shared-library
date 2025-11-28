@@ -33,7 +33,7 @@ void build(String okapiUrl, OkapiTenant tenant, boolean isEureka = false, String
           okapiUrl = "https://${kongDomain}"
           sh "cp -R -f eureka-tpl/* ."
 
-          String tenantOptionsJson = buildTenantOptionsJson(tenantId, singleUx)
+          String tenantOptionsJson = buildTenantOptionsJson(tenant, singleUx)
 
           Map binding = [
             kongUrl          : "https://${kongDomain}",
@@ -271,83 +271,47 @@ static def make_tpl(String tpl, Map data) {
  * Builds tenant options JSON for consortia central tenants including all member tenants
  * Uses actual tenant names from folioDefault.groovy configuration
  */
-private String buildTenantOptionsJson(String tenantId, boolean singleUx = false) {
-  Map<String, Map<String, String>> tenantOptions = [:]
+private String buildTenantOptionsJson(OkapiTenant tenant, boolean singleUx = false) {
+  String tenantId = tenant.getTenantId()
+  Map<String, OkapiTenant> tenantsMap = getTenantsForConsortia(tenantId)
 
-  switch (tenantId) {
-    case 'consortium':
-      if (singleUx) {
-        tenantOptions[tenantId] = [name: tenantId, clientId: "${tenantId}-application"]
-        tenantOptions['university'] = [name: 'university', clientId: 'university-application']
-        tenantOptions['college'] = [name: 'college', clientId: 'college-application']
-      } else {
-        tenantOptions[tenantId] = [name: tenantId, displayName: 'Consortium', clientId: "${tenantId}-application"]
-        tenantOptions['university'] = [name: 'university', displayName: 'University', clientId: 'university-application']
-        tenantOptions['college'] = [name: 'college', displayName: 'College', clientId: 'college-application']
-      }
-      break
-
-    case 'consortium2':
-      if (singleUx) {
-        tenantOptions[tenantId] = [name: tenantId, clientId: "${tenantId}-application"]
-        tenantOptions['university2'] = [name: 'university2', clientId: 'university2-application']
-        tenantOptions['college2'] = [name: 'college2', clientId: 'college2-application']
-      } else {
-        tenantOptions[tenantId] = [name: tenantId, displayName: 'Consortium2', clientId: "${tenantId}-application"]
-        tenantOptions['university2'] = [name: 'university2', displayName: 'University2', clientId: 'university2-application']
-        tenantOptions['college2'] = [name: 'college2', displayName: 'College2', clientId: 'college2-application']
-      }
-      break
-
-    case 'cs00000int':
-      if (singleUx) {
-        tenantOptions[tenantId] = [name: tenantId, clientId: "${tenantId}-application"]
-        (1..11).each { num ->
-          String memberTenantId = "cs00000int_${String.format('%04d', num)}"
-          tenantOptions[memberTenantId] = [name: memberTenantId, clientId: "${memberTenantId}-application"]
-        }
-      } else {
-        tenantOptions[tenantId] = [name: tenantId, displayName: 'Central tenant', clientId: "${tenantId}-application"]
-
-        Map memberTenantDisplayNames = [
-          'cs00000int_0001': 'Colleague tenant',
-          'cs00000int_0002': 'Professional tenant',
-          'cs00000int_0003': 'School tenant',
-          'cs00000int_0004': 'Special tenant',
-          'cs00000int_0005': 'University tenant',
-          'cs00000int_0006': 'AQA ECS tenant',
-          'cs00000int_0007': 'AQA2 ECS tenant',
-          'cs00000int_0008': 'Public tenant',
-          'cs00000int_0009': 'Medical tenant',
-          'cs00000int_0010': 'Workflow tenant',
-          'cs00000int_0011': 'Management Division tenant'
-        ]
-
-        memberTenantDisplayNames.each { memberTenantId, displayName ->
-          tenantOptions[memberTenantId] = [name: memberTenantId, displayName: displayName, clientId: "${memberTenantId}-application"]
-        }
-      }
-      break
-
-    default:
-      tenantOptions[tenantId] = [name: tenantId, clientId: "${tenantId}-application"]
-      break
+  if (!tenantsMap) {
+    return buildSingleTenantOption(tenantId, tenant.getTenantName(), singleUx)
   }
 
-  List<String> tenantEntries = []
-  if (singleUx) {
-    tenantOptions.each { id, config ->
-      tenantEntries << "${id}: {name: \"${config.name}\", clientId: \"${config.clientId}\"}"
-    }
-  } else {
-    tenantOptions.each { id, config ->
-      if (config.containsKey('displayName')) {
-        tenantEntries << "${id}: {name: \"${config.name}\", displayName: \"${config.displayName}\", clientId: \"${config.clientId}\"}"
-      } else {
-        tenantEntries << "${id}: {name: \"${config.name}\", clientId: \"${config.clientId}\"}"
-      }
-    }
+  List<String> tenantEntries = tenantsMap.collect { id, tenantObj ->
+    buildTenantEntry(id, tenantObj.getTenantName(), singleUx)
   }
 
   return "{${tenantEntries.join(', ')}}"
+}
+
+private Map<String, OkapiTenant> getTenantsForConsortia(String tenantId) {
+  switch (tenantId) {
+    case 'consortium':
+      return folioDefault.consortiaTenants()
+    case 'consortium2':
+      return folioDefault.consortiaTenantsExtra()
+    case 'cs00000int':
+      return folioDefault.tenants().findAll { key, value ->
+        key == 'cs00000int' || key.startsWith('cs00000int_')
+      }
+    default:
+      return null
+  }
+}
+
+private String buildTenantEntry(String tenantId, String tenantName, boolean singleUx) {
+  String clientId = "${tenantId}-application"
+
+  if (singleUx || !tenantName) {
+    return "${tenantId}: {name: \"${tenantId}\", clientId: \"${clientId}\"}"
+  } else {
+    return "${tenantId}: {name: \"${tenantId}\", displayName: \"${tenantName}\", clientId: \"${clientId}\"}"
+  }
+}
+
+private String buildSingleTenantOption(String tenantId, String tenantName, boolean singleUx) {
+  String entry = buildTenantEntry(tenantId, tenantName, singleUx)
+  return "{${entry}}"
 }
