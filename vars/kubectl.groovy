@@ -1,4 +1,5 @@
 import org.folio.Constants
+import org.folio.models.module.FolioModule
 import org.folio.utilities.Logger
 
 def createConfigMap(String name, String namespace, files) {
