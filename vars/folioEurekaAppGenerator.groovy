@@ -170,6 +170,7 @@ private Map _generate(String appName, boolean debug = false, String command = "o
             mvn ${supressLogs} clean ${command} -U -e \
             -DbuildNumber=${BUILD_NUMBER} \
             -Dregistries='okapi::${org.folio.rest_v2.Constants.OKAPI_REGISTRY},s3::eureka-application-registry::descriptors' \
+            -DtemplatePath=application.template.json \
             ${args} -DawsRegion=us-west-2
           """.stripIndent()
     }
