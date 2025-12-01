@@ -209,7 +209,7 @@ void ermEntitlementFix(String namespace = 'default', String tenantId = 'default'
       if (pod) {
         def moduleId = moduleName.replace('-', '_')
         sh(script: "kubectl rollout restart deployment ${moduleName} --namespace=${namespace}", returnStatus: false)
-        sh(script: "kubectl exec --request-timeout=10s --namespace=${namespace} ${pod} -- /usr/local/pgsql-16/psql -c 'DROP SCHEMA IF EXISTS ${moduleId}__system CASCADE'", returnStatus: false)
+        sh(script: "kubectl exec --request-timeout=20s --namespace=${namespace} ${pod} -- /usr/local/pgsql-16/psql -c 'DROP SCHEMA IF EXISTS ${moduleId}__system CASCADE'", returnStatus: false)
         sh(script: "kubectl exec --request-timeout=10s --namespace=${namespace} ${pod} -- /usr/local/pgsql-16/psql -c 'TRUNCATE ${tenantId}_${moduleId}.tenant_changelog_lock'", returnStatus: false)
       } else {
         println("No pgadmin4 pod found in namespace ${namespace}.")
