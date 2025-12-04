@@ -126,7 +126,7 @@ class FolioModule {
 
     // Handle empty response
     if (response.isEmpty()) {
-      throw new Exception("Can not get module version for ${moduleName}")
+      throw new Exception("Can not get module version for ${moduleName}. Request URL: ${url}")
     }
 
     return response[0].id
