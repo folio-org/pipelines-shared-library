@@ -362,7 +362,7 @@ void call(CreateNamespaceParameters args) {
               branches[tenantId] = {
                 boolean isECSBff = tenant.tenantId.startsWith("c")
                 folioUI.buildAndDeploy(namespace, tenant, args.platform == PlatformType.EUREKA, namespace.getDomains()['kong'] as String
-                  , namespace.getDomains()['keycloak'] as String, isECSBff)
+                  , namespace.getDomains()['keycloak'] as String, isECSBff, args.isConsortiaSingleUi)
               }
             }
           }

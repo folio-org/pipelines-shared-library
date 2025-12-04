@@ -32,6 +32,7 @@ properties([
     folioParameters.loadSample(),
     booleanParam(name: 'BUILD_UI', defaultValue: true, description: '(Optional) Set true to include UI'),
     booleanParam(name: 'CONSORTIA', defaultValue: true, description: '(Optional) Set true to create consortium'),
+    booleanParam(name: 'CONSORTIA_SINGLE_UI', defaultValue: true, description: '(Optional) Set true to build Single UX bundle, instead of Drop down for ECS'),
     booleanParam(name: 'CONSORTIA_EXTRA', defaultValue: false, description: '(Optional) Set true to create 2nd consortium'),
     booleanParam(name: 'HAS_SECURE_TENANT', defaultValue: true, description: '(Optional) Set true to enable secure tenant on one of the consortia institutional tenant'),
     folioParameters.consortiaSecureMemberTenant(),
@@ -100,6 +101,7 @@ CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builde
   .loadReference(params.LOAD_REFERENCE)
   .loadSample(params.LOAD_SAMPLE)
   .consortia(params.CONSORTIA)
+  .isConsortiaSingleUi(params.CONSORTIA_SINGLE_UI)
   .consortiaExtra(params.CONSORTIA_EXTRA)
   .splitFiles(params.SPLIT_FILES)
   .ecsCCL(params.ECS_CCL)

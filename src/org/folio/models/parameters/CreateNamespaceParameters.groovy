@@ -96,6 +96,8 @@ class CreateNamespaceParameters implements Cloneable {
 
   String type = 'full'
 
+  boolean isConsortiaSingleUi
+
   private CreateNamespaceParameters() {}
 
   @NonCPS
@@ -534,6 +536,16 @@ class CreateNamespaceParameters implements Cloneable {
      */
     Builder scNative(boolean scNative) {
       parameters.scNative = scNative
+      return this
+    }
+
+    /**
+     * Specifies whether the consortia single UI feature should be enabled.
+     * @param isConsortiaSingleUi
+     * @return
+     */
+    Builder isConsortiaSingleUi(boolean isConsortiaSingleUi){
+      parameters.isConsortiaSingleUi = isConsortiaSingleUi
       return this
     }
 

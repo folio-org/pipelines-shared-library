@@ -10,7 +10,7 @@ import org.folio.models.module.FolioModule
 import org.folio.utilities.RestClient
 
 void build(String okapiUrl, OkapiTenant tenant, boolean isEureka = false, String kongDomain = ''
-           , String keycloakDomain = '', boolean enableEcsRequests = false, boolean singleUx = false) {
+           , String keycloakDomain = '', boolean enableEcsRequests = false, boolean singleConsortiaUI = false) {
   TenantUi tenantUi = tenant.getTenantUi()
   PodTemplates podTemplates = new PodTemplates(this)
 
@@ -31,9 +31,9 @@ void build(String okapiUrl, OkapiTenant tenant, boolean isEureka = false, String
         if (isEureka) {
           String tenantId = tenant.getTenantId()
           okapiUrl = "https://${kongDomain}"
-          sh "cp -R -f eureka-tpl/* ."
+          sh 'cp -R -f eureka-tpl/* .'
 
-          String tenantOptionsJson = buildTenantOptionsJson(tenant, singleUx)
+          String tenantOptionsJson = buildTenantOptionsJson(tenant, singleConsortiaUI)
 
           Map binding = [
             kongUrl          : "https://${kongDomain}",
@@ -70,18 +70,18 @@ void build(String okapiUrl, OkapiTenant tenant, boolean isEureka = false, String
           }
 
           writeFile(file: 'stripes.config.js'
-            , text: make_tpl(readFile(file: 'stripes.config.js', encoding: "UTF-8") as String, binding)
+            , text: make_tpl(readFile(file: 'stripes.config.js', encoding: 'UTF-8') as String, binding)
             , encoding: 'UTF-8')
 
           archiveArtifacts artifacts: 'stripes.config.js', allowEmptyArchive: false
 
-          List eurekaCustomUiModules = ["folio_authorization-policies",
-                                        "folio_authorization-roles",
-                                        "folio_plugin-select-application"]
+          List eurekaCustomUiModules = ['folio_authorization-policies',
+                                        'folio_authorization-roles',
+                                        'folio_plugin-select-application']
           eurekaCustomUiModules.each { moduleName ->
             FolioModule uiModule = new FolioModule()
             uiModule.setName(moduleName)
-            uiModule.setVersion(">=1.0.0")
+            uiModule.setVersion('>=1.0.0')
             tenantUi.customUiModules.add(uiModule)
           }
         }
@@ -90,7 +90,6 @@ void build(String okapiUrl, OkapiTenant tenant, boolean isEureka = false, String
         _updateStripesConfigJsFile(uiModulesToAdd)
       }
     }
-
 
     stage('[UI] Build and Push') {
       container('kaniko') {
@@ -115,11 +114,11 @@ void build(String okapiUrl, OkapiTenant tenant, boolean isEureka = false, String
         RestClient client = new RestClient(this, true)
         Map headers = ['Content-Type': 'application/x-www-form-urlencoded']
         String tokenUrl = "https://${keycloakDomain}/realms/master/protocol/openid-connect/token"
-        String tokenBody = "grant_type=password&username=admin&password=SecretPassword&client_id=admin-cli"
+        String tokenBody = 'grant_type=password&username=admin&password=SecretPassword&client_id=admin-cli'
 
         def response = client.post(tokenUrl, tokenBody, headers).body
         String token = response['access_token']
-        headers.put("Authorization", "Bearer ${token}")
+        headers.put('Authorization', "Bearer ${token}")
 
         // Determine all tenants that need Keycloak configuration based on consortia structure
         List<String> tenantsToUpdate = []
@@ -170,14 +169,14 @@ void build(String okapiUrl, OkapiTenant tenant, boolean isEureka = false, String
                 break
             }
 
-            redirectUrisList.addAll(["${currentTenantUrl}/*", "http://localhost:3000/*", "http://localhost:3001/*", "https://eureka-snapshot-${currentTenantId}.${Constants.CI_ROOT_DOMAIN}/*"])
+            redirectUrisList.addAll(["${currentTenantUrl}/*", 'http://localhost:3000/*', 'http://localhost:3001/*', "https://eureka-snapshot-${currentTenantId}.${Constants.CI_ROOT_DOMAIN}/*"])
 
             def updateContent = [
               rootUrl                     : currentTenantUrl,
               baseUrl                     : currentTenantUrl,
               adminUrl                    : currentTenantUrl,
               redirectUris                : redirectUrisList,
-              webOrigins                  : ["/*"],
+              webOrigins                  : ['/*'],
               authorizationServicesEnabled: true,
               serviceAccountsEnabled      : true,
               attributes                  : ['post.logout.redirect.uris': "/*##${currentTenantUrl}/*", login_theme: 'custom-theme']
@@ -196,7 +195,7 @@ void build(String okapiUrl, OkapiTenant tenant, boolean isEureka = false, String
       }
     }
   }
-}
+           }
 
 void deploy(RancherNamespace namespace, OkapiTenant tenant) {
   PodTemplates podTemplates = new PodTemplates(this)
@@ -215,10 +214,10 @@ void deploy(RancherNamespace namespace, OkapiTenant tenant) {
 }
 
 void buildAndDeploy(RancherNamespace namespace, OkapiTenant tenant, boolean isEureka = false, String kongDomain = ''
-                    , String keycloakDomain = '', boolean enableEcsRequests = false, boolean singleUx = false) {
-  build("https://${namespace.getDomains()['okapi']}", tenant, isEureka, kongDomain, keycloakDomain, enableEcsRequests, singleUx)
+                    , String keycloakDomain = '', boolean enableEcsRequests = false, boolean singleConsortiaUI = false) {
+  build("https://${namespace.getDomains()['okapi']}", tenant, isEureka, kongDomain, keycloakDomain, enableEcsRequests, singleConsortiaUI)
   deploy(namespace, tenant)
-}
+                    }
 
 private void _updateStripesConfigJsFile(List<String> uiModulesToAdd) {
   final String stripesConfigFile = 'stripes.config.js'
@@ -233,8 +232,8 @@ private void _updateStripesConfigJsFile(List<String> uiModulesToAdd) {
       echo "Module ${moduleName} added successfully!"
     } else {
       echo "Module '${moduleName}' already exists."
+      }
     }
-  }
 
   // Ensure that changes are written back to the file
   try {
@@ -243,7 +242,7 @@ private void _updateStripesConfigJsFile(List<String> uiModulesToAdd) {
     echo "Error writing to file: ${e.message}"
     throw e
   }
-}
+  }
 
 private List<String> _updatePackageJsonFile(TenantUi tenantUi) {
   final String packageJsonFile = 'package.json'
@@ -289,21 +288,21 @@ static def make_tpl(String tpl, Map data) {
  * Builds tenant options JSON for consortia central tenants including all member tenants
  * Uses actual tenant names from folioDefault.groovy configuration
  */
-private String buildTenantOptionsJson(OkapiTenant tenant, boolean singleUx = false) {
+private String buildTenantOptionsJson(OkapiTenant tenant, boolean singleConsortiaUI = false) {
   String tenantId = tenant.getTenantId()
 
-  if (singleUx) {
-    return buildSingleTenantOption(tenantId, tenant.getTenantName(), singleUx)
+  if (singleConsortiaUI) {
+    return buildSingleTenantOption(tenantId, tenant.getTenantName(), singleConsortiaUI)
   }
 
   Map<String, OkapiTenant> tenantsMap = getTenantsForConsortia(tenantId)
 
   if (!tenantsMap) {
-    return buildSingleTenantOption(tenantId, tenant.getTenantName(), singleUx)
+    return buildSingleTenantOption(tenantId, tenant.getTenantName(), singleConsortiaUI)
   }
 
   List<String> tenantEntries = tenantsMap.collect { id, tenantObj ->
-    buildTenantEntry(id, tenantObj.getTenantName(), singleUx)
+    buildTenantEntry(id, tenantObj.getTenantName(), singleConsortiaUI)
   }
 
   return "{${tenantEntries.join(', ')}}"
