@@ -337,10 +337,10 @@ class Constants {
     ],
     [
       name: "app-eholdings"
-      , branch: "snapshot"
+      , branch: "master"
       , consortia: false
       , core: false
-      , byDefault: false  // Not in R1-2025
+      , byDefault: true
       , dependsOn: ["app-platform-minimal"]
     ],
     [
