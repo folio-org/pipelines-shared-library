@@ -137,8 +137,8 @@ class Tenants extends Kong{
     List responseCodes = skipExistence ? [201, 400] + (401..599).toList() : []
 
     try {
-      def response = restClient.put(
-        generateUrl("/entitlements/state${tenant.getInstallRequestParams()?.toQueryString() ?: ''}"),
+      def response = restClient.post(
+        generateUrl("/entitlements${tenant.getInstallRequestParams()?.toQueryString() ?: ''}"),
         body,
         headers,
         responseCodes
@@ -229,7 +229,7 @@ class Tenants extends Kong{
     ]
 
     restClient.put(
-      generateUrl("/entitlements/state${tenant.getInstallRequestParams()?.toQueryString() ?: ''}")
+      generateUrl("/entitlements${tenant.getInstallRequestParams()?.toQueryString() ?: ''}")
       , body
       , headers
     )
