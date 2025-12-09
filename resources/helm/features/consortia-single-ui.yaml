@@ -1,0 +1,9 @@
+---
+mod-users-keycloak:
+  extraEnvVars:
+    - name: SINGLE_TENANT_UX
+      value: "true"
+mod-consortia-keycloak:
+  extraEnvVars:
+    - name: SINGLE_TENANT_UX
+      value: "true"

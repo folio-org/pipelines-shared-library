@@ -42,6 +42,8 @@ class RancherNamespace {
 
   public boolean enableConsortia = false
 
+  boolean isConsortiaSingleUi = false
+
   boolean enableSplitFiles = false
 
   boolean enableRtr = false
@@ -177,6 +179,10 @@ class RancherNamespace {
 
       if (this.enableSplitFiles) {
         deploymentConfig = mergeMaps(deploymentConfig, getFeatureConfig('split-files', branch))
+      }
+
+      if (this.isConsortiaSingleUi){
+        deploymentConfig = mergeMaps(deploymentConfig, getFeatureConfig('consortia-single-ui', branch))
       }
 
       this.deploymentConfig = deploymentConfig

@@ -21,9 +21,9 @@ properties([
     string(name: 'CUSTOM_HASH', defaultValue: '', description: 'Commit hash for bundle build from specific commit'),
     folioParameters.tenantId(),
     booleanParam(name: 'CONSORTIA', defaultValue: false, description: '(Optional) Enable Consortia'),
+    booleanParam(name: 'CONSORTIA_SINGLE_UI', defaultValue: true, description: '(Optional) Set true to build Single UX bundle, instead of Drop down for ECS'),
     booleanParam(name: 'LINKED_DATA', defaultValue: false, description: '(Optional) Include linked-data module in UI bundle'),
     booleanParam(name: 'ECS_CCL', defaultValue: false, description: '(Optional) Set true to enable ECS Circulation + Congressional loans functionality'),
-    booleanParam(name: 'SINGLE_UX', defaultValue: false, description: '(Optional) Set true to build Single UX bundle, instead of Drop down for ECS'),
     folioParameters.refreshParameters()])
 ])
 
@@ -81,6 +81,7 @@ ansiColor('xterm') {
 
     stage('Fetch data') {
       tenant.enableFolioExtensions(this, extensions, isRelease)
+      namespace.setIsConsortiaSingleUi(params.SINGLE_UX)
       namespace.addDeploymentConfig(folioTools.getPipelineBranch())
       namespace.addTenant(tenant)
     }
@@ -92,5 +93,5 @@ ansiColor('xterm') {
     , namespace.getDomains()['kong']
     , namespace.getDomains()['keycloak']
     , params.ECS_CCL
-    , params.SINGLE_UX)
+    , params.CONSORTIA_SINGLE_UI)
 }
