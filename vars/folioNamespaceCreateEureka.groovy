@@ -148,6 +148,7 @@ void call(CreateNamespaceParameters args) {
       def consortiaParams1 = installRequestParams.clone()
       def consortiaParams2 = installRequestParams.clone()
 
+      namespace.setIsConsortiaSingleUi(args.isConsortiaSingleUi)
       namespace.withSuperTenantAdminUser()
         .withOkapiVersion(args.okapiVersion)
         .withDefaultTenant(defaultTenantId)
@@ -362,7 +363,7 @@ void call(CreateNamespaceParameters args) {
               branches[tenantId] = {
                 boolean isECSBff = tenant.tenantId.startsWith("c")
                 folioUI.buildAndDeploy(namespace, tenant, args.platform == PlatformType.EUREKA, namespace.getDomains()['kong'] as String
-                  , namespace.getDomains()['keycloak'] as String, isECSBff)
+                  , namespace.getDomains()['keycloak'] as String, isECSBff, args.isConsortiaSingleUi)
               }
             }
           }
