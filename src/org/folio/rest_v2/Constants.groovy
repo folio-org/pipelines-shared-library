@@ -88,12 +88,20 @@ class Constants {
       , dependsOn: []
     ],
     [
+      name: "app-marc-storage"
+      , branch: "snapshot"
+      , consortia: false
+      , core     : false
+      , byDefault: true
+      , dependsOn: []
+    ],
+    [
       name: "app-platform-complete"
       , branch: "snapshot"
       , consortia: false
       , core     : false
       , byDefault: true
-      , dependsOn: ["app-platform-minimal"]
+      , dependsOn: ["app-platform-minimal", "app-marc-storage", "app-search"]
     ],
     [
       name: "app-consortia"
