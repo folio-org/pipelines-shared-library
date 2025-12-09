@@ -23,10 +23,10 @@ properties([
     folioParameters.applications(),
     folioParameters.configType(),
     booleanParam(name: 'SC_NATIVE', defaultValue: true, description: '(Optional) Set false to use Java based SC image'),
-    folioParameters.groupParameters("Environment features"
-      , ["LOAD_REFERENCE", "LOAD_SAMPLE", "BUILD_UI", "CONSORTIA", "CONSORTIA_SINGLE_UI", "CONSORTIA_EXTRA", "LINKED_DATA", "MARC_MIGRATIONS", "RTAC_CACHE", "SPLIT_FILES"
-         , "RW_SPLIT", "ECS_CCL", "GREENMAIL", "MOCK_SERVER", "RTR", "DATASET", "TYPE"
-         , "HAS_SECURE_TENANT", "SECURE_TENANT", "FOLIO_KEYCLOAK_VERSION", "FOLIO_KONG_VERSION"
+    folioParameters.groupParameters('Environment features'
+      , ['LOAD_REFERENCE', 'LOAD_SAMPLE', 'BUILD_UI', 'CONSORTIA', 'CONSORTIA_SINGLE_UI', 'CONSORTIA_EXTRA', 'LINKED_DATA', 'MARC_MIGRATIONS', 'RTAC_CACHE', 'SPLIT_FILES'
+         , 'RW_SPLIT', 'ECS_CCL', 'GREENMAIL', 'MOCK_SERVER', 'RTR', 'DATASET', 'TYPE'
+         , 'HAS_SECURE_TENANT', 'SECURE_TENANT', 'FOLIO_KEYCLOAK_VERSION', 'FOLIO_KONG_VERSION'
     ]),
     folioParameters.loadReference(),
     folioParameters.loadSample(),
@@ -50,8 +50,8 @@ properties([
     string(name: 'DB_BACKUP_NAME', defaultValue: org.folio.Constants.BUGFEST_SNAPSHOT_NAME, description: '(Optional) Set name of the DB backup to restore'),
     string(name: 'FOLIO_KEYCLOAK_VERSION', defaultValue: 'latest', description: '(Optional) Set FOLIO Keycloak tag, example: 21.0.1-SNAPSHOT.f959523'),
     string(name: 'FOLIO_KONG_VERSION', defaultValue: 'latest', description: '(Optional) Set FOLIO Kong tag, example: 3.10.0-SNAPSHOT.f959523'),
-    folioParameters.groupParameters("Integrations"
-      , ["POSTGRESQL", "DB_VERSION", "KAFKA", "OPENSEARCH", "S3_BUCKET", "DB_BACKUP_NAME"]),
+    folioParameters.groupParameters('Integrations'
+      , ['POSTGRESQL', 'DB_VERSION', 'KAFKA', 'OPENSEARCH', 'S3_BUCKET', 'DB_BACKUP_NAME']),
     folioParameters.pgType(),
     folioParameters.pgVersion(),
     folioParameters.kafkaType(),
@@ -64,31 +64,31 @@ properties([
       'EUREKA': ['OKAPI_VERSION'],
       'OKAPI' : ['APPLICATION_SET', 'APPLICATIONS', 'SC_NATIVE']
     ]
-    , "PLATFORM")
+    , 'PLATFORM')
     , folioParameters.hideParameters(
     [
       '': ['HAS_SECURE_TENANT', 'SECURE_TENANT']
     ]
-    , "CONSORTIA")
+    , 'CONSORTIA')
     , folioParameters.hideParameters(
     [
       '': ['SECURE_TENANT']
     ]
-    , "HAS_SECURE_TENANT")
+    , 'HAS_SECURE_TENANT')
   ])
 ])
 
 if (params.REFRESH_PARAMETERS) {
-  currentBuild.result = 'ABORTED'
-  return
+    currentBuild.result = 'ABORTED'
+    return
 }
 
 if (params.CLUSTER != 'folio-tmp') {
-  folioCommon.validateNamespace(params.NAMESPACE)
+    folioCommon.validateNamespace(params.NAMESPACE)
 }
 
 if (params.CLUSTER == 'folio-etesting' || params.DATASET) {
-  folioCommon.kitfoxApproval()
+    folioCommon.kitfoxApproval()
 }
 
 CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builder()
@@ -129,22 +129,24 @@ CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builde
   .build()
 
 if (params.CONSORTIA) {
-  if (namespaceParams.platform == PlatformType.EUREKA)
-    namespaceParams.folioExtensions.add('consortia-eureka')
-  else
-    namespaceParams.folioExtensions.add('consortia')
+    if (namespaceParams.platform == PlatformType.EUREKA) {
+        namespaceParams.folioExtensions.add('consortia-eureka')
+    }
+  else {
+        namespaceParams.folioExtensions.add('consortia')
+  }
 }
 
 if (params.LINKED_DATA) {
-  namespaceParams.folioExtensions.add('linked-data')
+    namespaceParams.folioExtensions.add('linked-data')
 }
 
 if (params.MARC_MIGRATIONS) {
-  namespaceParams.folioExtensions.add('marc-migrations')
+    namespaceParams.folioExtensions.add('marc-migrations')
 }
 
 if (params.RTAC_CACHE) {
-  namespaceParams.folioExtensions.add('rtac-cache')
+    namespaceParams.folioExtensions.add('rtac-cache')
 }
 
 RancherNamespace namespace = new RancherNamespace(namespaceParams.getClusterName(), namespaceParams.getNamespaceName())
@@ -161,26 +163,26 @@ cypressSanityParameters.setNumberOfWorkers(4)
 cypressSanityParameters.setTimeout('60')
 
 if (namespaceParams.platform == PlatformType.EUREKA) {
-  cypressSanityParameters.setTestsSrcBranch('master')
-  cypressSanityParameters.setOkapiUrl("https://${namespace.getDomains().kong}")
-  //TODO: Temporary exclusion of the eholdings and software-version test cases.
-  cypressSanityParameters.setExecParameters('--env grepTags="fse+sanity"')
+    cypressSanityParameters.setTestsSrcBranch('master')
+    cypressSanityParameters.setOkapiUrl("https://${namespace.getDomains().kong}")
+    //TODO: Temporary exclusion of the eholdings and software-version test cases.
+    cypressSanityParameters.setExecParameters('--env grepTags="fse+sanity"')
 } else {
-  cypressSanityParameters.setTestsSrcBranch('okapi')
-  cypressSanityParameters.setOkapiUrl("https://${namespace.getDomains().okapi}")
-  cypressSanityParameters.setExecParameters('--env grepTags="fse+sanity"')
+    cypressSanityParameters.setTestsSrcBranch('okapi')
+    cypressSanityParameters.setOkapiUrl("https://${namespace.getDomains().okapi}")
+    cypressSanityParameters.setExecParameters('--env grepTags="fse+sanity"')
 }
 
 ansiColor('xterm') {
-  if (namespaceParams.platform == PlatformType.EUREKA) {
-    folioNamespaceCreateEureka.call(namespaceParams)
+    if (namespaceParams.platform == PlatformType.EUREKA) {
+        folioNamespaceCreateEureka.call(namespaceParams)
   } else {
-    folioNamespaceCreate.call(namespaceParams)
-  }
-
-  stage('[Cypress] Run sanity check') {
-    if (params.RUN_SANITY_CHECK) {
-      folioCypressFlow.call(cypressSanityParameters.getCiBuildId(), [cypressSanityParameters])
+        folioNamespaceCreate.call(namespaceParams)
     }
-  }
+
+    stage('[Cypress] Run sanity check') {
+        if (params.RUN_SANITY_CHECK) {
+            folioCypressFlow.call(cypressSanityParameters.getCiBuildId(), [cypressSanityParameters])
+        }
+    }
 }
