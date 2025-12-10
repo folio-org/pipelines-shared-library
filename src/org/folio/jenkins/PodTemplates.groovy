@@ -40,6 +40,7 @@ import org.folio.utilities.Logger
  *}</pre>
  */
 class PodTemplates {
+
   // ===== Static Configuration =====
   private static final String CLOUD_NAME = 'folio-jenkins-agents'
   private static final String NAMESPACE = 'jenkins-agents'
@@ -48,7 +49,6 @@ class PodTemplates {
   private static final String YARN_CACHE_PVC = 'yarn-cache-pvc'
   private static final String MAVEN_CACHE_PVC = 'maven-cache-pvc'
   private static final String ECR_REPOSITORY = '732722833398.dkr.ecr.us-west-2.amazonaws.com'
-
 
   // ===== Instance State =====
   private Object steps
@@ -89,14 +89,15 @@ class PodTemplates {
       nodeUsageMode: 'EXCLUSIVE',
       showRawYaml: debug,
       yamlMergeStrategy: new Merge(),
-      yaml: """
+      yaml: '''
 spec:
   securityContext:
     fsGroup: 1000
-""",
+''',
       podRetention: podRetention,
       inheritYamlMergeStrategy: true,
-      slaveConnectTimeout: 300,
+      slaveConnectTimeout: 900,
+      idleMinutes: 1200,
       hostNetwork: false,
       workspaceVolume: steps.genericEphemeralVolume(accessModes: 'ReadWriteOnce',
         requestsSize: '5Gi',
@@ -117,7 +118,7 @@ spec:
           ]
         )]) {
       body.call()
-    }
+        }
   }
 
   /**
@@ -184,7 +185,7 @@ spec:
       resourceRequestMemory: resourceRequestMemory,
       resourceLimitMemory: resourceLimitMemory
     )
-  }
+    }
 
   /**
    * Builds a Kaniko container for Docker image builds without Docker daemon.
@@ -210,7 +211,6 @@ spec:
       resourceLimitMemory: resourceLimitMemory
     )
   }
-
 
   /**
    * Builds a Cypress test container.
@@ -257,11 +257,11 @@ spec:
           requestsSize: '5Gi',
           storageClassName: 'gp3'
         ),
-        yaml: config.yaml ?: """
+        yaml: config.yaml ?: '''
 spec:
   securityContext:
     fsGroup: 1000
-""",
+''',
         containers: config.containers ?: [],
         volumes: config.volumes ?: []
       ) {
@@ -418,4 +418,5 @@ spec:
       }
     }
   }
+
 }
