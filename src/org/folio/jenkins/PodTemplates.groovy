@@ -97,7 +97,6 @@ spec:
       podRetention: podRetention,
       inheritYamlMergeStrategy: true,
       slaveConnectTimeout: 900,
-      idleMinutes: 1200,
       hostNetwork: false,
       workspaceVolume: steps.genericEphemeralVolume(accessModes: 'ReadWriteOnce',
         requestsSize: '5Gi',
@@ -252,6 +251,7 @@ spec:
     defaultTemplate {
       steps.podTemplate(
         label: config.label ?: JenkinsAgentLabel.DEFAULT_AGENT.getLabel(),
+        idleMinutes: config.idleMinutes ?: 0,
         workspaceVolume: config.workspaceVolume ?: steps.genericEphemeralVolume(
           accessModes: 'ReadWriteOnce',
           requestsSize: '5Gi',
@@ -354,6 +354,7 @@ spec:
   void cypressAgent(Closure body) {
     createTemplate(new PodTemplateConfig(
       label: JenkinsAgentLabel.CYPRESS_AGENT.getLabel(),
+      idleMinutes: 5,
       workspaceVolume: steps.genericEphemeralVolume(accessModes: 'ReadWriteOnce',
         requestsSize: '15Gi',
         storageClassName: 'gp3'),

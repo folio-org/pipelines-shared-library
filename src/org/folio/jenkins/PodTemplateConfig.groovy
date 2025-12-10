@@ -11,6 +11,7 @@ class PodTemplateConfig {
   Object workspaceVolume
   List containers
   List volumes
+  Integer idleMinutes
 
   /**
    * Constructor for PodTemplateConfig.
