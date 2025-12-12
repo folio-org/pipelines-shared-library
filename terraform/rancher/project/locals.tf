@@ -28,7 +28,7 @@ locals {
   }
   s3_buckets_string   = join(",", values(local.s3_buckets_map))
   ssm_params          = ["master_folio-backend-admin-client"]
-  schedule_namespaces = ["cicypress", "cikarate"]
+  schedule_namespaces = ["cicypress", "cikarate", "cypress"]
   schedule_object     = <<-EOF
 nodeSelector:
   "folio.org/qualitygate": ${var.rancher_project_name}

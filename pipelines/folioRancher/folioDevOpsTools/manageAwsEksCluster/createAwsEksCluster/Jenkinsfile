@@ -67,7 +67,7 @@ private String _getClusterSize() {
   if (params.CLUSTER_MIN_SIZE.toInteger() >= params.CLUSTER_MAX_SIZE.toInteger() ||
     params.CLUSTER_MIN_SIZE.toInteger() > params.CLUSTER_DESIRED_SIZE.toInteger() ||
     params.CLUSTER_MAX_SIZE.toInteger() < params.CLUSTER_DESIRED_SIZE.toInteger()) {
-    error("Cluster size parameters are incorrect")
-  }
+    error('Cluster size parameters are incorrect')
+    }
   return writeJSON(returnText: true, json: [min_size: params.CLUSTER_MIN_SIZE, max_size: params.CLUSTER_MAX_SIZE, desired_size: params.CLUSTER_DESIRED_SIZE])
 }
