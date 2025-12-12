@@ -117,8 +117,8 @@ Map generateFromRepository(String repoName, FolioInstallJson moduleList, String 
 
   dir(repoName) {
     if (moduleList) {
-      Map updatedTemplate = updateTemplate(readJSON(file: repoName + ".template.json"), moduleList, debug)
-      writeJSON file: repoName + ".template.json", json: updatedTemplate
+      Map updatedTemplate = updateTemplate(readJSON(file: "application.template.json"), moduleList, debug)
+      writeJSON file: "application.template.json", json: updatedTemplate
     }
 
     return _generate(repoName, debug)
