@@ -657,6 +657,10 @@ spec:
         key: folio.org/qualitygate
         operator: Equal
         value: cikarate
+      - effect: NoSchedule
+        key: folio.org/qualitygate
+        operator: Equal
+        value: cypress
       volumes:
       - name: config
         configMap:

@@ -234,6 +234,10 @@ resource "rancher2_app_v2" "prometheus" {
           key: folio.org/qualitygate
           operator: Equal
           value: cikarate
+        - effect: NoSchedule
+          key: folio.org/qualitygate
+          operator: Equal
+          value: cypress
       prometheus:
         monitor:
           metricRelabelings:
