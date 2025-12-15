@@ -421,13 +421,13 @@ data:
               log: '^\[\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3}\] (INFO|WARN|ERROR|DEBUG)'
       # Parse FOLIO sidecar access logs (from sidecars in mod- pods)
       - dissect:
-          tokenizer: '%%{client_ip} - %%{upstream_target} - [%%{timestamp}] "%%{method} %%{path} %%{protocol}" %%{status_code} %%{bytes_sent} rt=%%{response_time} uct="%%{upstream_connect_time}" uht="%%{upstream_header_time}" urt="%%{upstream_response_time}" "%%{user_agent}" "%%{tenant_id}" "%%{user_id}" "%%{request_ids}"'
+          tokenizer: '%%{client_ip} - %%{upstream_target} -  [%%{timestamp}] "%%{method} %%{path} %%{protocol}" %%{status_code} %%{bytes_sent} rt=%%{response_time}  uct="%%{upstream_connect_time}"  uht="%%{upstream_header_time}"  urt="%%{upstream_response_time}"  "%%{user_agent}" "%%{tenant_id}" "%%{user_id}" "%%{request_ids}"'
           field: "log"
           target_prefix: "sidecar"
           ignore_failure: true
           when:
             regexp:
-              log: '^[^\s]+ - [^\s]+ - \[\d{2}/\d{2}/\d{4}:\d{2}:\d{2}:\d{2} GMT\] "[\w]+ /.* HTTP'
+              log: '^[\d.:.]+ - [\w.:]+:\d+ -  \[\d{2}/\d{2}/\d{4}:\d{2}:\d{2}:\d{2} GMT\] "[\w]+ /'
       # Parse FOLIO sidecar application logs (Java logs from sidecar)
       - dissect:
           tokenizer: "%%{timestamp} %%{level} [%%{logger}] (%%{thread}) %%{message}"
