@@ -348,54 +348,114 @@ data:
     - type: container
       paths:
         - /var/log/containers/*.log
-      # Exclude system pods to reduce noise
-      exclude_lines: ['^[[:space:]]*$', '^[[:space:]]*#']
-      multiline.pattern: '^\d{4}-\d{2}-\d{2}'
+      # Exclude empty lines
+      exclude_lines: ['^[[:space:]]*$']
+      # Multiline configuration to handle various log formats
+      # Match lines that start with timestamp patterns or are continuations
+      multiline.type: pattern
+      multiline.pattern: '^(\d{4}-\d{2}-\d{2}[T ]|\d{2}:\d{2}:\d{2}|\[[\d-]+\s+\d{2}:\d{2}:\d{2}|[\d.]+\s+-\s+|\{"log":)'
       multiline.negate: true
       multiline.match: after
+      multiline.max_lines: 10000
+      multiline.timeout: 10s
       processors:
       - add_kubernetes_metadata:
           host: $${NODE_NAME}
           matchers:
           - logs_path:
               logs_path: "/var/log/containers/"
-      # Parse container JSON logs first
+      # Parse container JSON logs first (Kubernetes wraps logs in JSON)
       - decode_json_fields:
           fields: ["message"]
           target: ""
           overwrite_keys: true
-      # Then parse application logs if they are JSON
+          max_depth: 2
+      # Parse application logs if they are JSON
       - decode_json_fields:
-          fields: ["log", "message"]
+          fields: ["log"]
           target: "app"
           overwrite_keys: false
-          add_error_key: true
+          add_error_key: false
           when:
-            or:
-              - contains:
-                  log: "{"
-              - contains:
-                  message: "{"
-      # Parse log4j structured logs with FOLIO pattern
+            regexp:
+              log: '^\s*\{'
+      # Parse FOLIO module logs with full context
       - dissect:
           tokenizer: "%%{timestamp} [%%{folio.request_id}] [%%{folio.tenant_id}] [%%{folio.user_id}] [%%{folio.module_id}] %%{level} %%{logger} %%{message}"
-          field: "message"
+          field: "log"
           target_prefix: ""
           ignore_failure: true
           when:
             regexp:
-              message: '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}[+-]\d{4} \['
-      # Fallback: Extract basic log level and timestamp for other formats
+              log: '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}[+-]\d{4} \['
+      # Parse FOLIO module logs without full context
       - dissect:
-          tokenizer: "%%{timestamp} %%{level} %%{+message}"
-          field: "message"
+          tokenizer: "%%{timestamp} %%{level} %%{logger} %%{message}"
+          field: "log"
           target_prefix: ""
           ignore_failure: true
           when:
-            not:
-              regexp:
-                message: '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}[+-]\d{4} \['
-      # Filter to exclude system namespaces and include all others
+            and:
+              - not:
+                  regexp:
+                    log: '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}[+-]\d{4} \['
+              - regexp:
+                  log: '^\d{2}:\d{2}:\d{2} (INFO|WARN|ERROR|DEBUG|TRACE)'
+      # Parse Keycloak logs
+      - dissect:
+          tokenizer: "%%{timestamp} %%{level} %%{+level} [%%{thread}] %%{message}"
+          field: "log"
+          target_prefix: ""
+          ignore_failure: true
+          when:
+            regexp:
+              log: '^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3} (INFO|WARN|ERROR|DEBUG)'
+      # Parse Kafka logs
+      - dissect:
+          tokenizer: "[%%{timestamp}] %%{level} [%%{logger}] %%{message}"
+          field: "log"
+          target_prefix: ""
+          ignore_failure: true
+          when:
+            regexp:
+              log: '^\[\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3}\] (INFO|WARN|ERROR|DEBUG)'
+      # Parse FOLIO sidecar access logs (from sidecars in mod- pods)
+      - dissect:
+          tokenizer: '%%{client_ip} - %%{upstream_target} - [%%{timestamp}] "%%{method} %%{path} %%{protocol}" %%{status_code} %%{bytes_sent} rt=%%{response_time} uct="%%{upstream_connect_time}" uht="%%{upstream_header_time}" urt="%%{upstream_response_time}" "%%{user_agent}" "%%{tenant_id}" "%%{user_id}" "%%{request_ids}"'
+          field: "log"
+          target_prefix: "sidecar"
+          ignore_failure: true
+          when:
+            regexp:
+              log: '^[^\s]+ - [^\s]+ - \[\d{2}/\d{2}/\d{4}:\d{2}:\d{2}:\d{2} GMT\] "[\w]+ /.* HTTP'
+      # Parse FOLIO sidecar application logs (Java logs from sidecar)
+      - dissect:
+          tokenizer: "%%{timestamp} %%{level} [%%{logger}] (%%{thread}) %%{message}"
+          field: "log"
+          target_prefix: ""
+          ignore_failure: true
+          when:
+            regexp:
+              log: '^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3} (INFO|WARN|ERROR|DEBUG) \[org\.fol\.'
+      # Parse Kong access logs
+      - dissect:
+          tokenizer: '%%{client_ip} - %%{upstream_ip} - - [%%{timestamp}] "%%{method} %%{path} %%{protocol}" %%{status_code} %%{bytes_sent} rt=%%{response_time} %%{message}'
+          field: "log"
+          target_prefix: "kong"
+          ignore_failure: true
+          when:
+            regexp:
+              log: '^[\d.]+ - [\d.]+ - - \[\d{2}/\w+/\d{4}:\d{2}:\d{2}:\d{2} [+-]\d{4}\] "[\w]+ /'
+      # Parse Kong error logs
+      - dissect:
+          tokenizer: "%%{timestamp} [%%{level}] %%{pid}#%%{tid}: %%{message}"
+          field: "log"
+          target_prefix: ""
+          ignore_failure: true
+          when:
+            regexp:
+              log: '^\d{4}/\d{2}/\d{2} \d{2}:\d{2}:\d{2} \[(warn|error|info|debug)\]'
+      # Filter to exclude system namespaces
       - drop_event:
           when:
             or:
@@ -414,9 +474,21 @@ data:
               - regexp:
                   kubernetes.namespace: '^local$'
               - regexp:
-                  kubernetes.namespace: '^sorry-cypress$'           
+                  kubernetes.namespace: '^sorry-cypress$'
+      # Drop malformed/empty sidecar log entries
+      - drop_event:
+          when:
+            regexp:
+              log: '^\s*-\s+-\s+\[\d{2}/\d{2}/\d{4}:\d{2}:\d{2}:\d{2} GMT\] "\s+" \s+ rt=\s+ uct="" uht="" urt="" "" "" "" ""'
+      # Clean up fields
       - drop_fields:
           fields: ["host*", "agent*", "ecs*", "input*", "stream*"]
+          ignore_missing: true
+      # Add log source metadata
+      - add_fields:
+          target: ''
+          fields:
+            log_source: 'filebeat'
     
     # Enable HTTP endpoint for health checks
     http:
