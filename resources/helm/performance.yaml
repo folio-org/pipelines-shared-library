@@ -3442,7 +3442,10 @@ mod-password-validator:
           memory: 128Mi
 mod-patron:
   extraEnvVars: []
-  integrations: {}
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
   replicaCount: 1
   resources:
     limits:
