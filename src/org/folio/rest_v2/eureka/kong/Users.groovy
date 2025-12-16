@@ -129,7 +129,7 @@ class Users extends Kong{
                 servicePointsIds     : servicePointsIds,
                 defaultServicePointId: servicePointsIds.first()]
 
-    restClient.post(generateUrl("/service-points-users"), body, headers, [201, 400, 422])
+    restClient.post(generateUrl("/service-points-users"), body, headers, [201, 400, 422, 404])
 
     logger.info("Service points: ${servicePointsIds.join(", ")} successfully assigned to user ${user.username}(${user.uuid})")
 
