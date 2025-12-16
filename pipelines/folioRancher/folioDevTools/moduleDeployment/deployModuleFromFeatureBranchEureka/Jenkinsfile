@@ -2,6 +2,7 @@
 import hudson.AbortException
 import org.folio.Constants
 import org.folio.jenkins.PodTemplates
+import org.folio.models.EurekaRequestParams
 import org.folio.models.FolioInstallJson
 import org.folio.models.EurekaNamespace
 import org.folio.models.module.EurekaModule
@@ -32,6 +33,8 @@ properties([
     booleanParam(name: 'CLEANUP_ENV', defaultValue: true, description: 'Delete karate tests tenants before deployment'),
     booleanParam(name: 'SIMPLIFIED', defaultValue: false, description: 'Use simplified deployment process'),
     booleanParam(name: 'INVOKE_TENANT_API', defaultValue: true, description: 'Invoke /tenant API POST calls (only applicable when SIMPLIFIED is enabled)'),
+    booleanParam(name: 'LOAD_REFERENCE_DATA', defaultValue: false, description: 'Load reference data after deployment'),
+    booleanParam(name: 'LOAD_SAMPLE_DATA', defaultValue: false, description: 'Load sample data after deployment'),
     folioParameters.refreshParameters(),
   ])
 ])
@@ -257,6 +260,8 @@ ansiColor('xterm') {
       logger.debug("Configured Tenants: ${namespace.tenants}")
       logger.debug("Configured Applications: ${namespace.applications}")
       logger.debug("Namespace modules: ${namespace.modules.installJsonObject}")
+      logger.debug("Load Sample Data: ${params.LOAD_SAMPLE_DATA}")
+      logger.debug("Load Reference Data: ${params.LOAD_REFERENCE_DATA}")
     }
 
     /** Updated Applications Info Map<AppName, AppID> */
@@ -332,7 +337,14 @@ ansiColor('xterm') {
       // 4. Enable Application Descriptor with Updated Module Version for Tenants in Namespace
       stage('[Rest] Enable New App') {
         try {
+          EurekaRequestParams requestParams = new EurekaRequestParams()
+            .doLoadReference(params.LOAD_REFERENCE_DATA)
+            .doLoadSample(params.LOAD_SAMPLE_DATA) as EurekaRequestParams
           namespace.getTenants().values().each { tenant ->
+            tenant
+              .withInstallRequestParams(requestParams)
+            logger.debug("Load reference data: ${params.LOAD_REFERENCE_DATA} for tenant: ${tenant.getTenantId()}")
+            logger.debug("Load sample data: ${params.LOAD_SAMPLE_DATA} for tenant: ${tenant.getTenantId()}")
             Tenants.get(eureka.getKong()).updateApplicationsStandardEndpoint(tenant, updatedAppInfoMap.values().toList())
           }
         } catch (e) {
