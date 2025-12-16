@@ -343,6 +343,8 @@ ansiColor('xterm') {
           namespace.getTenants().values().each { tenant ->
             tenant
               .withInstallRequestParams(requestParams)
+            logger.debug("Load reference data: ${tenant.installRequestParams.loadReferenceData} for tenant: ${tenant.getTenantId()}")
+            logger.debug("Load sample data: ${tenant.installRequestParams.loadSampleData} for tenant: ${tenant.getTenantId()}")
             Tenants.get(eureka.getKong()).updateApplicationsStandardEndpoint(tenant, updatedAppInfoMap.values().toList())
           }
         } catch (e) {
