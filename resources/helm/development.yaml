@@ -218,6 +218,12 @@ edge-fqm:
       - path: /entity-types*
         pathType: ImplementationSpecific
         servicePort: 80
+      - path: /fqm/query*
+        pathType: ImplementationSpecific
+        servicePort: 80
+      - path: /fqm/entity-types*
+        pathType: ImplementationSpecific
+        servicePort: 80
   service:
     type: NodePort
   extraEnvVars:
