@@ -265,7 +265,7 @@ class Constants {
     ],
     [
       name: "app-fqm"
-      , branch: "snapshot"
+      , branch: "modfqmmgr-977"
       , consortia: false
       , core: false
       , byDefault: true
