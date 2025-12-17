@@ -115,10 +115,10 @@ ansiColor('xterm') {
             dir(sidecarWorkDir) {
               if (params.NATIVE) {
                 sh """/kaniko/executor --destination \
-                  ${Constants.ECR_FOLIO_REPOSITORY}/${sidecarModuleName}:${sidecarVersion} -f docker/Dockerfile.native-micro --context .""".stripIndent()
+                  ${Constants.ECR_FOLIO_REPOSITORY}/${params.SC_ECR_REGISTRY}:${sidecarVersion} -f docker/Dockerfile.native-micro --context .""".stripIndent()
               } else {
                 sh """/kaniko/executor --destination \
-                  ${Constants.ECR_FOLIO_REPOSITORY}/${sidecarModuleName}:${sidecarVersion} --context .""".stripIndent()
+                  ${Constants.ECR_FOLIO_REPOSITORY}/${params.SC_ECR_REGISTRY}:${sidecarVersion} --context .""".stripIndent()
               }
             }
           }
