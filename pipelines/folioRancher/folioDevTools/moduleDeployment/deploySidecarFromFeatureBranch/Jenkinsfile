@@ -17,13 +17,14 @@ properties([
   disableConcurrentBuilds(),
   parameters([
     folioParameters.branch('MODULE_BRANCH', sidecarModuleName),
+    string(name: 'SC_ECR_REGISTRY', defaultValue: 'folio-module-sidecar', description: 'ECR registry for Sidecar images'),
     booleanParam(name: 'NATIVE', defaultValue: false, description: 'Build native [SC] image'),
     booleanParam(name: 'FORCE_MVN_CACHE_REFRESH', defaultValue: false, description: 'Force Maven cache refresh'),
     folioParameters.refreshParameters(),
   ]),
   pipelineTriggers([
     parameterizedCron('''
-      H 22 * * * %MODULE_BRANCH=master;NATIVE=true;FORCE_MVN_CACHE_REFRESH=false
+      H 22 * * * %MODULE_BRANCH=master;%SC_ECR_REGISTRY=folio-module-sidecar;NATIVE=true;FORCE_MVN_CACHE_REFRESH=false
     ''')])
 ])
 
@@ -114,10 +115,10 @@ ansiColor('xterm') {
             dir(sidecarWorkDir) {
               if (params.NATIVE) {
                 sh """/kaniko/executor --destination \
-                  ${Constants.ECR_FOLIO_REPOSITORY}/${sidecarModuleName}:${sidecarVersion} -f docker/Dockerfile.native-micro --context .""".stripIndent()
+                  ${Constants.ECR_FOLIO_REPOSITORY}/${params.SC_ECR_REGISTRY}:${sidecarVersion} -f docker/Dockerfile.native-micro --context .""".stripIndent()
               } else {
                 sh """/kaniko/executor --destination \
-                  ${Constants.ECR_FOLIO_REPOSITORY}/${sidecarModuleName}:${sidecarVersion} --context .""".stripIndent()
+                  ${Constants.ECR_FOLIO_REPOSITORY}/${params.SC_ECR_REGISTRY}:${sidecarVersion} --context .""".stripIndent()
               }
             }
           }
