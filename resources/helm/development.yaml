@@ -3257,6 +3257,11 @@ mod-users:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+      - name: QUARKUS_HTTP_LIMITS_MAX_BODY_SIZE
+        value: "25M"
 mod-users-bl:
   extraEnvVars: []
   integrations: {}

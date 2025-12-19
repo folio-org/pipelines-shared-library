@@ -174,6 +174,8 @@ kong:
     value: "16k"
   - name: KONG_NGINX_HTTP_CLIENT_HEADER_BUFFER_SIZE
     value: "16k"
+  - name: KONG_NGINX_HTTP_CLIENT_BODY_BUFFER_SIZE
+    value: "16k"
   - name: KONG_ADMIN_LISTEN
     value: "0.0.0.0:8001"
   - name: KONG_NGINX_PROXY_PROXY_BUFFER_SIZE

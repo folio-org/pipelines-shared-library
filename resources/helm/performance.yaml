@@ -4559,6 +4559,8 @@ mod-users:
   sidecarContainers:
     eureka:
       extraEnvVars:
+      - name: QUARKUS_HTTP_LIMITS_MAX_BODY_SIZE
+        value: "25M"
       - name: JAVA_OPTS
         value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms256m -Xmx256m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
