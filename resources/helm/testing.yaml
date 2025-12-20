@@ -2394,7 +2394,10 @@ mod-inventory-storage:
           memory: 128Mi
 mod-inventory-update:
   extraEnvVars: []
-  integrations: {}
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
   replicaCount: 1
   resources:
     limits:
