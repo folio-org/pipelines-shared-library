@@ -30,8 +30,12 @@ CypressRunExecutionSummary call(String ciBuildId, List<CypressTestsParameters> t
 
     container('cypress') {
       logger.info("Starting test execution flow...")
+    }
+  }
 
-
+  podTemplates.rancherJavaAgent {
+    if (reportPortalUse && reportPortalClient != null) {
+      folioCypress.finalizeReportPortal(reportPortalClient)
     }
   }
 }
