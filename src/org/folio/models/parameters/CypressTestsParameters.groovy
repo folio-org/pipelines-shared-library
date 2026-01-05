@@ -19,6 +19,9 @@ class CypressTestsParameters implements Cloneable {
   // The name of the browser to use for testing, defaults to 'chrome'
   String browserName = 'chrome'
 
+  // Parameters used during the exec batches compilation of Cypress tests
+  String compileExecParameters
+
   // Additional execution parameters for Cypress
   String execParameters
 
