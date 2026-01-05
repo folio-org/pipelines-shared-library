@@ -385,11 +385,11 @@ spec:
       label: JenkinsAgentLabel.CYPRESS_AGENT.getLabel(),
       idleMinutes: 5,
       workspaceVolume: steps.genericEphemeralVolume(accessModes: 'ReadWriteOnce',
-        requestsSize: '15Gi',
+        requestsSize: '20Gi',
         storageClassName: 'gp3'),
       volumes: [steps.persistentVolumeClaim(claimName: YARN_CACHE_PVC, mountPath: "${WORKING_DIR}/.yarn/cache")],
       containers: [
-        buildCypressContainer([], '3072Mi', '12288Mi'),
+        buildCypressContainer([], '2048Mi', '4096Mi'),
       ]
     )) {
       steps.node(JenkinsAgentLabel.CYPRESS_AGENT.getLabel()) {
