@@ -41,16 +41,23 @@ void build(String okapiUrl, OkapiTenant tenant, boolean isEureka = false, String
         withAWS(credentials: Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID, region: Constants.AWS_REGION) {
           String login = ecrLogin()
           sh login.replace('docker', 'werf cr')
-          input 'Paused for testing. Click "Proceed" to continue with the UI build and push.'
+
 
 //          folioKaniko.dockerHubLogin()
+
+          tools.copyResourceFileToWorkspace('werf/platform-complete/werf.yaml')
+          sh 'ls -al'
+          input 'Paused for testing. Click "Proceed" to continue with the UI build and push.'
           // Add YARN_CACHE_FOLDER to the Dockerfile
           sh "sed -i '/^FROM /a ENV YARN_CACHE_FOLDER=${WORKSPACE}/.cache/yarn' docker/Dockerfile"
+
+          sh "werf build --repo 732722833398.dkr.ecr.us-west-2.amazonaws.com/ui-bundle --add-custom-tag ${tenantUi.getTag()}"
+
           // Build and push the image
-          sh """/kaniko/executor --destination ${tenantUi.getImageName()} \
---build-arg OKAPI_URL=${okapiUrl} \
---build-arg TENANT_ID=${tenant.getTenantId()} \
---dockerfile docker/Dockerfile --context ."""
+//          sh """/kaniko/executor --destination ${tenantUi.getImageName()} \
+////--build-arg OKAPI_URL=${okapiUrl} \
+////--build-arg TENANT_ID=${tenant.getTenantId()} \
+////--dockerfile docker/Dockerfile --context ."""
         }
       }
     }
