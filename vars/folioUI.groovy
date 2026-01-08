@@ -51,7 +51,7 @@ void build(String okapiUrl, OkapiTenant tenant, boolean isEureka = false, String
           // Add YARN_CACHE_FOLDER to the Dockerfile
           sh "sed -i '/^FROM /a ENV YARN_CACHE_FOLDER=${WORKSPACE}/.cache/yarn' docker/Dockerfile"
 
-          sh "werf build --repo 732722833398.dkr.ecr.us-west-2.amazonaws.com/ui-bundle --add-custom-tag ${tenantUi.getTag()}"
+          sh "werf build --dev true --repo 732722833398.dkr.ecr.us-west-2.amazonaws.com/ui-bundle --add-custom-tag ${tenantUi.getTag()}"
 
           // Build and push the image
 //          sh """/kaniko/executor --destination ${tenantUi.getImageName()} \
