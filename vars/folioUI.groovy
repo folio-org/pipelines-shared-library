@@ -41,7 +41,6 @@ void build(String okapiUrl, OkapiTenant tenant, boolean isEureka = false, String
         withAWS(credentials: Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID, region: Constants.AWS_REGION) {
           def login = ecrLogin()
           println(login)
-          println(login.dump())
           println(login.getClass())
           println(login.replace('docker', 'werf cr'))
           input 'Paused for testing. Click "Proceed" to continue with the UI build and push.'
