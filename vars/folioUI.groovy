@@ -45,7 +45,7 @@ void build(String okapiUrl, OkapiTenant tenant, boolean isEureka = false, String
 
 //          folioKaniko.dockerHubLogin()
 
-          libraryResource('werf/platform-complete/werf.yaml')
+          writeFile file: 'werf.yaml', text: libraryResource('werf/platform-complete/werf.yaml')
           sh 'ls -al'
           input 'Paused for testing. Click "Proceed" to continue with the UI build and push.'
           // Add YARN_CACHE_FOLDER to the Dockerfile
