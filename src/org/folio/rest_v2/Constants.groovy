@@ -366,6 +366,14 @@ class Constants {
       , core: false
       , byDefault: true
       , dependsOn: ["app-platform-minimal"]
+    ],
+    [
+      name: "app-edge-locate"
+      , branch: "snapshot"
+      , consortia: false
+      , core: false
+      , byDefault: false
+      , dependsOn: ["app-platform-complete", "app-acquisitions"]
     ]
   ]
 

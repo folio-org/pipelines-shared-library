@@ -21,6 +21,8 @@ properties([
               folioParameters.configType(),
               booleanParam(name: 'SC_NATIVE', defaultValue: true, description: '(Optional) Set false to use Java based SC image'),
               booleanParam(name: 'CONSORTIA_EXTRA', defaultValue: false, description: '(Optional) Set true to include 2nd consortium'),
+              booleanParam(name: 'EDGE_LOCATE', defaultValue: false, description: '(Optional) Set true to enable Edge Locate'),
+              booleanParam(name: 'RTAC_CACHE', defaultValue: false, description: '(Optional) Set true to enable RTAC Cache'),
               folioParameters.refreshParameters()]),
   pipelineTriggers([
     parameterizedCron('''
@@ -58,6 +60,8 @@ CreateNamespaceParameters namespace = new CreateNamespaceParameters.Builder()
   .rtr(false)
   .splitFiles(true)
   .ecsCCL(false)
+  .edgeLocate(params.EDGE_LOCATE)
+  .rtacCache(params.RTAC_CACHE)
   .applicationSet('Complete')
   .applications(org.folio.rest_v2.Constants.APPLICATION_BRANCH('Complete'))
   .hasSecureTenant(true)
