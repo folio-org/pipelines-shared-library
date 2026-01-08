@@ -27,9 +27,9 @@ edge-caiasoft:
   replicaCount: 1
   resources:
     limits:
-      memory: 286Mi
+      memory: 328Mi
     requests:
-      memory: 249Mi
+      memory: 286Mi
   extraJavaOpts:
   - -XX:MaxRAMPercentage=85.0
 edge-connexion:
@@ -51,9 +51,9 @@ edge-connexion:
   replicaCount: 1
   resources:
     limits:
-      memory: 115Mi
+      memory: 132Mi
     requests:
-      memory: 100Mi
+      memory: 114Mi
   extraJavaOpts:
   - -XX:MaxRAMPercentage=85.0
 edge-courses:
@@ -93,9 +93,9 @@ edge-courses:
   replicaCount: 1
   resources:
     limits:
-      memory: 226Mi
+      memory: 259Mi
     requests:
-      memory: 197Mi
+      memory: 226Mi
   extraJavaOpts:
   - -XX:MaxRAMPercentage=85.0
 edge-dcb:
@@ -127,9 +127,9 @@ edge-dcb:
   replicaCount: 1
   resources:
     limits:
-      memory: 258Mi
+      memory: 296Mi
     requests:
-      memory: 225Mi
+      memory: 258Mi
   extraJavaOpts:
   - -XX:MaxRAMPercentage=85.0
 edge-dematic:
@@ -161,9 +161,9 @@ edge-dematic:
   replicaCount: 1
   resources:
     limits:
-      memory: 255Mi
+      memory: 293Mi
     requests:
-      memory: 222Mi
+      memory: 255Mi
   extraJavaOpts:
   - -XX:MaxRAMPercentage=85.0
 edge-erm:
@@ -195,9 +195,9 @@ edge-erm:
   replicaCount: 1
   resources:
     limits:
-      memory: 340Mi
+      memory: 390Mi
     requests:
-      memory: 295Mi
+      memory: 339Mi
   extraJavaOpts:
   - -XX:MaxRAMPercentage=85.0
 edge-fqm:
@@ -240,9 +240,9 @@ edge-fqm:
   replicaCount: 1
   resources:
     limits:
-      memory: 247Mi
+      memory: 284Mi
     requests:
-      memory: 215Mi
+      memory: 247Mi
 edge-inn-reach:
   ingress:
     enabled: true
@@ -272,9 +272,9 @@ edge-inn-reach:
   replicaCount: 1
   resources:
     limits:
-      memory: 241Mi
+      memory: 277Mi
     requests:
-      memory: 210Mi
+      memory: 241Mi
   extraJavaOpts:
   - -XX:MaxRAMPercentage=85.0
 edge-inventory:
@@ -311,9 +311,9 @@ edge-inventory:
   replicaCount: 1
   resources:
     limits:
-      memory: 512Mi
+      memory: 588Mi
     requests:
-      memory: 256Mi
+      memory: 294Mi
 edge-users:
   ingress:
     enabled: true
@@ -348,9 +348,9 @@ edge-users:
   replicaCount: 1
   resources:
     limits:
-      memory: 512Mi
+      memory: 588Mi
     requests:
-      memory: 256Mi
+      memory: 294Mi
 edge-ncip:
   ingress:
     enabled: true
@@ -380,9 +380,9 @@ edge-ncip:
   replicaCount: 1
   resources:
     limits:
-      memory: 115Mi
+      memory: 132Mi
     requests:
-      memory: 100Mi
+      memory: 114Mi
   extraJavaOpts:
   - -XX:MaxRAMPercentage=85.0
 edge-oai-pmh:
@@ -414,9 +414,9 @@ edge-oai-pmh:
   replicaCount: 1
   resources:
     limits:
-      memory: 141Mi
+      memory: 162Mi
     requests:
-      memory: 123Mi
+      memory: 141Mi
   extraJavaOpts:
   - -XX:MaxRAMPercentage=85.0
 edge-orders:
@@ -484,9 +484,9 @@ edge-orders:
   replicaCount: 1
   resources:
     limits:
-      memory: 115Mi
+      memory: 132Mi
     requests:
-      memory: 100Mi
+      memory: 114Mi
   extraJavaOpts:
   - -XX:MaxRAMPercentage=85.0
 edge-patron:
@@ -518,9 +518,9 @@ edge-patron:
   replicaCount: 1
   resources:
     limits:
-      memory: 117Mi
+      memory: 134Mi
     requests:
-      memory: 102Mi
+      memory: 117Mi
   extraJavaOpts:
   - -XX:MaxRAMPercentage=85.0
 edge-rtac:
@@ -552,9 +552,9 @@ edge-rtac:
   replicaCount: 1
   resources:
     limits:
-      memory: 126Mi
+      memory: 144Mi
     requests:
-      memory: 110Mi
+      memory: 126Mi
   extraJavaOpts:
   - -XX:MaxRAMPercentage=85.0
 edge-sip2:
@@ -573,9 +573,9 @@ edge-sip2:
   replicaCount: 1
   resources:
     limits:
-      memory: 131Mi
+      memory: 150Mi
     requests:
-      memory: 114Mi
+      memory: 131Mi
   extraJavaOpts:
   - -XX:MaxRAMPercentage=85.0
 mod-aes:

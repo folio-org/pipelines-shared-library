@@ -47,6 +47,8 @@ class CreateNamespaceParameters implements Cloneable {
 
   boolean rtacCache = false
 
+  boolean edgeLocate = false
+
   boolean hasSecureTenant
 
   String secureTenantId
@@ -335,6 +337,16 @@ class CreateNamespaceParameters implements Cloneable {
      */
     Builder doRtacCache(boolean doRtacCache) {
       parameters.rtacCache = doRtacCache
+      return this
+    }
+
+    /**
+     * Do or not edge-locate
+     * @param doEdgeLocate `true` to do edge-locate; `false` to skip.
+     * @return Builder instance for method chaining.
+     */
+    Builder doEdgeLocate(boolean doEdgeLocate) {
+      parameters.edgeLocate = doEdgeLocate
       return this
     }
 

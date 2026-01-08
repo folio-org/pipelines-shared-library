@@ -9,7 +9,7 @@ import org.folio.rest_v2.Constants
 import org.folio.rest_v2.PlatformType
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-2710') _
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
@@ -24,8 +24,8 @@ properties([
     folioParameters.configType(),
     booleanParam(name: 'SC_NATIVE', defaultValue: true, description: '(Optional) Set false to use Java based SC image'),
     folioParameters.groupParameters('Environment features'
-      , ['LOAD_REFERENCE', 'LOAD_SAMPLE', 'BUILD_UI', 'CONSORTIA', 'CONSORTIA_SINGLE_UI', 'CONSORTIA_EXTRA', 'LINKED_DATA', 'MARC_MIGRATIONS', 'RTAC_CACHE', 'SPLIT_FILES'
-         , 'RW_SPLIT', 'ECS_CCL', 'GREENMAIL', 'MOCK_SERVER', 'RTR', 'DATASET', 'TYPE'
+      , ['LOAD_REFERENCE', 'LOAD_SAMPLE', 'BUILD_UI', 'CONSORTIA', 'CONSORTIA_SINGLE_UI', 'CONSORTIA_EXTRA', 'LINKED_DATA', 'MARC_MIGRATIONS', 'RTAC_CACHE',  'EDGE_LOCATE'
+         , 'SPLIT_FILES', 'RW_SPLIT', 'ECS_CCL', 'GREENMAIL', 'MOCK_SERVER', 'RTR', 'DATASET', 'TYPE'
          , 'HAS_SECURE_TENANT', 'SECURE_TENANT', 'FOLIO_KEYCLOAK_VERSION', 'FOLIO_KONG_VERSION'
     ]),
     folioParameters.loadReference(),
@@ -39,6 +39,7 @@ properties([
     booleanParam(name: 'LINKED_DATA', defaultValue: true, description: '(Optional) Set true to deploy LinkedData'),
     booleanParam(name: 'MARC_MIGRATIONS', defaultValue: false, description: '(Optional) Set true to deploy Marc-Migrations'),
     booleanParam(name: 'RTAC_CACHE', defaultValue: false, description: '(Optional) Set true to deploy Rtac-Cache'),
+    booleanParam(name: 'EDGE_LOCATE', defaultValue: false, description: '(Optional) Set true to deploy Edge-Locate'),
     booleanParam(name: 'SPLIT_FILES', defaultValue: true, description: '(Optional) Set true to enable split-files functionality'),
     booleanParam(name: 'RW_SPLIT', defaultValue: false, description: '(Optional) Set true to Enable Read/Write split'),
     booleanParam(name: 'ECS_CCL', defaultValue: false, description: '(Optional) Set true to enable ECS Circulation + Congressional loans functionality'),
@@ -147,6 +148,10 @@ if (params.MARC_MIGRATIONS) {
 
 if (params.RTAC_CACHE) {
     namespaceParams.folioExtensions.add('rtac-cache')
+}
+
+if (params.EDGE_LOCATE) {
+    namespaceParams.folioExtensions.add('edge-locate')
 }
 
 RancherNamespace namespace = new RancherNamespace(namespaceParams.getClusterName(), namespaceParams.getNamespaceName())
