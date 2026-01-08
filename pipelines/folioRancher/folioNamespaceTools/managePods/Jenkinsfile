@@ -17,10 +17,6 @@ properties([
               choice(name: 'PERIOD', choices: ['night', 'weekend'], description: '(Required) Choose period to suspend'),
               booleanParam(defaultValue: false, description: 'Check this parameter, if you would like to suspend auto shutdown', name: 'SUSPEND'),
               folioParameters.refreshParameters()]),
-  /**
-    * TODO: Vega-2nd removed from schedule due to ticket RANCHER-2701. Re-add after 24 Dec 2025.
-    * 28 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=vega-2nd
-    */
   pipelineTriggers([parameterizedCron('''
     50 22 * * 5 %ACTION=stop;CLUSTER=folio-etesting;NAMESPACE=sprint
     50 23 * * 0 %ACTION=start;CLUSTER=folio-etesting;NAMESPACE=sprint
@@ -43,7 +39,7 @@ properties([
     15 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=thunderjet
     22 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=thunderjet-2nd
     25 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=vega
-
+    28 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=vega-2nd
     15 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=volaris
     20 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=volaris-2nd
     33 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=thor
