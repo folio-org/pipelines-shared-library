@@ -39,12 +39,9 @@ void build(String okapiUrl, OkapiTenant tenant, boolean isEureka = false, String
     stage('[UI] Build and Push') {
       container('werf') {
         withAWS(credentials: Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID, region: Constants.AWS_REGION) {
-          def login = ecrLogin()
-          println(login)
-          println(login.getClass())
-          println(login.replace('docker', 'werf cr'))
+          String login = ecrLogin()
+          sh login.replace('docker', 'werf cr')
           input 'Paused for testing. Click "Proceed" to continue with the UI build and push.'
-          sh "werf cr login -u username -p password registry.example.com"
 
 //          folioKaniko.dockerHubLogin()
           // Add YARN_CACHE_FOLDER to the Dockerfile
