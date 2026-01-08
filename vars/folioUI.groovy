@@ -42,6 +42,8 @@ void build(String okapiUrl, OkapiTenant tenant, boolean isEureka = false, String
           def login = ecrLogin()
           println(login)
           println(login.dump())
+          println(login.getClass())
+          println(login.replace('docker', 'werf cr'))
           input 'Paused for testing. Click "Proceed" to continue with the UI build and push.'
           sh "werf cr login -u username -p password registry.example.com"
 
