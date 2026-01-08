@@ -14,7 +14,7 @@ void build(String okapiUrl, OkapiTenant tenant, boolean isEureka = false, String
   TenantUi tenantUi = tenant.getTenantUi()
   PodTemplates podTemplates = new PodTemplates(this)
 
-  podTemplates.stripesAgent {
+  podTemplates.werfAgent {
     stage('[UI] Checkout') {
       cleanWs()
 
@@ -37,8 +37,9 @@ void build(String okapiUrl, OkapiTenant tenant, boolean isEureka = false, String
     }
 
     stage('[UI] Build and Push') {
-      container('kaniko') {
+      container('werf') {
         withAWS(credentials: Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID, region: Constants.AWS_REGION) {
+          input 'Paused for testing. Click "Proceed" to continue with the UI build and push.'
           ecrLogin()
           folioKaniko.dockerHubLogin()
           // Add YARN_CACHE_FOLDER to the Dockerfile
