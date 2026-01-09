@@ -7,7 +7,7 @@ import org.folio.rest_v2.PlatformType
 import org.jenkinsci.plugins.workflow.libs.Library
 
 //TODO remove branch before merge to master
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-2710') _
 
 @Field final String deleteNamespaceJobName = Constants.JENKINS_DELETE_NAMESPACE_JOB
 @Field final String createNamespaceJobName = Constants.JENKINS_CREATE_NAMESPACE_FROM_BRANCH_JOB
@@ -63,7 +63,18 @@ CreateNamespaceParameters namespace = new CreateNamespaceParameters.Builder()
   .doRtacCache(params.RTAC_CACHE)
   .doEdgeLocate(params.EDGE_LOCATE)
   .applicationSet('Complete')
-  .applications(org.folio.rest_v2.Constants.APPLICATION_BRANCH('Complete'))
+  .applications(org.folio.rest_v2.Constants.APPLICATION_BRANCH('Complete') +
+    (params.EDGE_LOCATE ?
+      org.folio.rest_v2.Constants.APPLICATION_COMPLETE
+        .findAll {it.name == 'app-edge-locate' }
+        .collectEntries{app -> [ app.name, app.branch ] } :
+      [:]) +
+    (params.RTAC_CACHE ?
+      org.folio.rest_v2.Constants.APPLICATION_COMPLETE
+        .findAll {it.name == 'app-rtac-cache' }
+        .collectEntries{app -> [ app.name, app.branch ] } :
+      [:])
+  )
   .hasSecureTenant(true)
   .secureTenantId(folioDefault.consortiaTenants().get('university').getTenantId())
   .dataset(false)
