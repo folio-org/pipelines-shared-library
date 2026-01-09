@@ -63,7 +63,18 @@ CreateNamespaceParameters namespace = new CreateNamespaceParameters.Builder()
   .doRtacCache(params.RTAC_CACHE)
   .doEdgeLocate(params.EDGE_LOCATE)
   .applicationSet('Complete')
-  .applications(org.folio.rest_v2.Constants.APPLICATION_BRANCH('Complete'))
+  .applications(org.folio.rest_v2.Constants.APPLICATION_BRANCH('Complete') +
+    (params.EDGE_LOCATE ?
+      org.folio.rest_v2.Constants.APPLICATION_COMPLETE
+        .findAll {it.name == 'app-edge-locate' }
+        .collectEntries{app -> [ app.name, app.branch ] } :
+      [:]) +
+    (params.RTAC_CACHE ?
+      org.folio.rest_v2.Constants.APPLICATION_COMPLETE
+        .findAll {it.name == 'app-rtac-cache' }
+        .collectEntries{app -> [ app.name, app.branch ] } :
+      [:])
+  )
   .hasSecureTenant(true)
   .secureTenantId(folioDefault.consortiaTenants().get('university').getTenantId())
   .dataset(false)
