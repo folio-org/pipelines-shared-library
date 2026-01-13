@@ -33,6 +33,8 @@ def createNamespaceFromBranch(String jobName, CreateNamespaceParameters namespac
       booleanParam(name: 'MOCK_SERVER', value: namespaceParams.getMockServer()),
       booleanParam(name: 'MARC_MIGRATIONS', value: namespaceParams.getMarcMigrations()),
       booleanParam(name: 'RTR', value: namespaceParams.getRtr()),
+      booleanParam(name: 'RTAC_CACHE', value: namespaceParams.getRtacCache()),
+      booleanParam(name: 'EDGE_LOCATE', value: namespaceParams.getEdgeLocate()),
       booleanParam(name: 'HAS_SECURE_TENANT', value: namespaceParams.getHasSecureTenant()),
       booleanParam(name: 'DATASET', value: namespaceParams.getDataset()),
       string(name: 'SECURE_TENANT', value: namespaceParams.getSecureTenantId()),
