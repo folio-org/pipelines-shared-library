@@ -552,9 +552,9 @@ edge-rtac:
   replicaCount: 1
   resources:
     limits:
-      memory: 144Mi
+      memory: 512Mi
     requests:
-      memory: 126Mi
+      memory: 256Mi
   extraJavaOpts:
   - -XX:MaxRAMPercentage=85.0
 edge-sip2:
