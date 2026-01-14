@@ -374,6 +374,14 @@ class Constants {
       , core: false
       , byDefault: false
       , dependsOn: ["app-platform-complete", "app-acquisitions"]
+    ],
+    [
+      name: "app-quick-marc"
+      , branch: "snapshot"
+      , consortia: false
+      , core: false
+      , byDefault: true
+      , dependsOn: ["app-platform-minimal", "app-marc-storage"]
     ]
   ]
 
