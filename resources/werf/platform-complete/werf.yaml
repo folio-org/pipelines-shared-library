@@ -1,0 +1,13 @@
+project: platform-complete
+configVersion: 1
+
+cleanup:
+  disable: true
+---
+image: ui-bundle
+dockerfile: docker/Dockerfile
+context: .
+
+args:
+  OKAPI_URL: '{{ env "OKAPI_URL" "http://localhost:9130" }}'
+  TENANT_ID: '{{ env "TENANT_ID" "diku" }}'
