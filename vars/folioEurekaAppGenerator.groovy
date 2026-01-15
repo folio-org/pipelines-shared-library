@@ -154,7 +154,10 @@ Map generateFromTemplate(String appName, Map template, FolioInstallJson moduleLi
   }
 }
 
-private Map _generate(String appName, boolean debug = false, String command = "org.folio:folio-application-generator:generateFromJson", String args = "") {
+private Map _generate(String appName, boolean debug = false
+                      , String command = "org.folio:folio-application-generator:generateFromJson"
+                      , String args = ""
+                      , String registries = "okapi::${org.folio.rest_v2.Constants.OKAPI_REGISTRY}") {
   String supressLogs = !debug ? "-Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn" : ""
 
   awscli.withAwsClient() {
@@ -169,7 +172,7 @@ private Map _generate(String appName, boolean debug = false, String command = "o
       sh """
             mvn ${supressLogs} clean ${command} -U -e \
             -DbuildNumber=${BUILD_NUMBER} \
-            -Dregistries='okapi::${org.folio.rest_v2.Constants.OKAPI_REGISTRY},s3::eureka-application-registry::descriptors' \
+            -Dregistries='${registries}' \
             ${args} -DawsRegion=us-west-2
           """.stripIndent()
     }
