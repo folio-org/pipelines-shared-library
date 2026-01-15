@@ -139,12 +139,12 @@ def repository() {
   return _paramChoice('FOLIO_REPOSITORY', repositoriesList(), 'Platform-complete repository, complete stripes platform consists an NPM package.json that specifies the version of @folio/stripes-core')
 }
 
-def branch(String paramName = 'FOLIO_BRANCH', String repository = 'platform-complete') {
-  return _paramExtendedSingleSelect(paramName, '', folioStringScripts.getRepositoryBranches(repository), "(Required) Select what '${repository}' branch use for build")
+def branch(String paramName = 'FOLIO_BRANCH', String repository = 'platform-complete', String reference = 'PLATFORM') {
+  return _paramExtendedSingleSelect(paramName, reference, folioStringScripts.getRepositoryBranches(repository), "(Required) Select what '${repository}' branch use for build")
 }
 
-def platformBranch(String paramName = 'PLATFORM_BRANCH', String repository = 'platform-lsp') {
-  return _paramExtendedSingleSelect(paramName, '', folioStringScripts.getRepositoryBranches(repository), "(Required) Select what '${repository}' branch use for build")
+def platformBranch(String paramName = 'PLATFORM_BRANCH', String repository = 'platform-lsp', String reference = 'PLATFORM') {
+  return _paramExtendedSingleSelect(paramName, reference, folioStringScripts.getRepositoryBranches(repository), "(Required) Select what '${repository}' branch use for build")
 }
 
 def branchWithRef(String paramName = 'FOLIO_BRANCH', String reference = "") {
