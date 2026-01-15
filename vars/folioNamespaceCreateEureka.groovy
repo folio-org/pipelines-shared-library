@@ -115,12 +115,7 @@ void call(CreateNamespaceParameters args) {
       Map platformDescriptor = new GitHubUtility(this).getJsonModulesList(platformRepository, args.platformBranch, 'platform-descriptor.json') as Map
       logger.info("Fetched platform-descriptor.json with ${platformDescriptor.applications?.required?.size() ?: 0} required and ${platformDescriptor.applications?.optional?.size() ?: 0} optional applications")
 
-      input message: "Let's stick around..."
-
       List<Map<String, String>> allPlatformApps = (platformDescriptor.applications?.required ?: [])
-
-      logger.debug(allPlatformApps)
-      input message: "Let's stick around..."
 
       List<String> appIds = args.applications.collect { appName ->
         Map<String, String> appEntry = allPlatformApps.find { it.name == appName } as Map<String, String>
@@ -134,6 +129,8 @@ void call(CreateNamespaceParameters args) {
       Far far = new Far(this)
       ApplicationList apps = far.getApplicationsByIds(appIds)
       List<Map<String, String>> installJson = apps.getInstallJson().getInstallJson()
+
+      input message: "Let's stick around..."
 
       if (args.scNative) {
         String tag = (awscli.listEcrImages(Constants.AWS_REGION, 'folio-module-sidecar')).replaceAll('"', '')
