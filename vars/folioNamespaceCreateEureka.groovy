@@ -123,7 +123,7 @@ void call(CreateNamespaceParameters args) {
       input message: "Let's stick around..."
 
       List<String> appIds = args.applications.collect { appName ->
-        Map<String, String> appEntry = allPlatformApps.find { it.name == appName }
+        Map<String, String> appEntry = allPlatformApps.find { it.name == appName } as Map<String, String>
         if (!appEntry) {
           throw new Exception("Application '${appName}' not found in platform-descriptor.json")
         }
