@@ -1,4 +1,5 @@
 import org.folio.Constants
+import org.folio.far.Far
 import org.folio.jenkins.PodTemplates
 import org.folio.models.*
 import org.folio.models.application.ApplicationList
@@ -20,7 +21,7 @@ void call(CreateNamespaceParameters args) {
     try {
       stage('Ini') {
         folioCommon.updateBuildName("#${args.clusterName}-${args.namespaceName}.${env.BUILD_ID}")
-        folioCommon.updateBuildDescription("Branch: ${args.folioBranch}\nConfig: ${args.configType}")
+        folioCommon.updateBuildDescription("Branch: ${args.platformBranch}\nConfig: ${args.configType}")
       }
 
       stage('Checkout') {
@@ -107,14 +108,29 @@ void call(CreateNamespaceParameters args) {
       }
 
       def defaultTenantId = args.dataset ? 'fs09000000' : 'diku'
-      String folioRepository = 'platform-complete'
-      boolean isRelease = args.folioBranch ==~ /^R\d-\d{4}.*/
-      String commitHash = common.getLastCommitHash(folioRepository, args.folioBranch)
+      String platformRepository = 'platform-lsp'
+      boolean isRelease = args.platformBranch ==~ /^R\d-\d{4}.*/
+      String commitHash = common.getLastCommitHash(platformRepository, args.platformBranch)
 
-      List installJson = new GitHubUtility(this).getEnableList(folioRepository, args.folioBranch)
-      List eurekaPlatform = new GitHubUtility(this).getEurekaList(folioRepository, args.folioBranch)
-      List pinnedEurekaModules = new GitHubUtility(this).getEurekaPinnedList(folioRepository, args.folioBranch)
-      installJson.addAll(eurekaPlatform)
+      Map platformDescriptor = new GitHubUtility(this).getJsonModulesList(platformRepository, args.platformBranch, 'platform-descriptor.json') as Map
+      logger.info("Fetched platform-descriptor.json with ${platformDescriptor.applications?.required?.size() ?: 0} required and ${platformDescriptor.applications?.optional?.size() ?: 0} optional applications")
+
+      List<Map<String, String>> allPlatformApps =
+        (platformDescriptor.applications?.required ?: []) +
+        (platformDescriptor.applications?.optional ?: []) as List<Map<String, String>>
+
+      List<String> appIds = args.applications.collect { appName ->
+        Map appEntry = allPlatformApps.find { it.name == appName }
+        if (!appEntry) {
+          throw new Exception("Application '${appName}' not found in platform-descriptor.json")
+        }
+
+        appEntry.name + "-" + appEntry.version
+      }
+
+      Far far = new Far(this)
+      ApplicationList apps = far.getApplicationsByIds(appIds)
+      List<Map<String, String>> installJson = apps.getInstallJson().getInstallJson()
 
       if (args.scNative) {
         String tag = (awscli.listEcrImages(Constants.AWS_REGION, 'folio-module-sidecar')).replaceAll('"', '')
@@ -122,22 +138,11 @@ void call(CreateNamespaceParameters args) {
         installJson.removeAll { module -> module.id =~ /folio-module-sidecar-.*/ }
         installJson.add([id: "folio-module-sidecar-${tag.replace(",", "")}", action: 'enable'])
         writeJSON(file: 'used-install.json', json: installJson, pretty: 4)
-        archiveArtifacts 'used-install.json' // Archive used modules version for review
-      }
-
-      //TODO: Temporary solution. Unused by Eureka modules have been removed.
-      installJson.removeAll { module -> module.id =~ /(mod-login|mod-authtoken|mod-login-saml)-\d+\..*/ }
-      installJson.removeAll { module -> module.id == 'okapi' }
-
-      pinnedEurekaModules.each { pinned ->
-        if (installJson.find { it.id =~ /^${pinned.module}-\d+\..*/ }) {
-          installJson.removeAll { module -> module.id =~ /^${pinned.module}-\d+\..*/ }
-          installJson.add([id: "${pinned.module}-${pinned.version}", action: 'enable'])
-        }
+        archiveArtifacts 'used-install.json'
       }
 
       TenantUi tenantUi = new TenantUi("${namespace.getClusterName()}-${namespace.getNamespaceName()}",
-        commitHash, args.folioBranch)
+        commitHash, args.platformBranch)
 
       EurekaRequestParams installRequestParams = new EurekaRequestParams()
         .withIgnoreErrors(true)
@@ -274,32 +279,18 @@ void call(CreateNamespaceParameters args) {
       }
 
       stage('[Rest] Preinstall') {
-        ApplicationList apps = []
-        container('java') {
-          apps = eureka.generateApplications(
-            //TODO: Refactoring is needed!!! Utilization of extension should be applied.
-            // Remove this shit with consortia and linkedData. Apps have to be taken as it is.
-            args.applications -
-              (args.consortia ? [:] : ["app-consortia": "snapshot", "app-consortia-manager": "snapshot"]) -
-              (args.consortia ? [:] : ["app-consortia": "master", "app-consortia-manager": "master"]) -
-              (args.linkedData ? [:] : ["app-linked-data": "snapshot"]) -
-              (args.linkedData ? [:] : ["app-linked-data": "master"])
-            , namespace.getModules()
-          )
-        }
-
         int counter = 0
         retry(5) {
           sleep time: (counter == 0 ? 0 : 30), unit: 'SECONDS'
           counter++
           eureka.registerApplications(apps)
 
-        namespace.getTenants().values().each { it.assignApplications(apps)}
-        namespace.withApplications(apps)
+          namespace.getTenants().values().each { it.assignApplications(apps) }
+          namespace.withApplications(apps)
 
-        eureka.registerModulesFlow(namespace.applications.getInstallJson())
+          eureka.registerModulesFlow(namespace.applications.getInstallJson())
+        }
       }
-    }
 
       stage('[Helm] Deploy modules') {
         folioHelm.withKubeConfig(namespace.getClusterName()) {
