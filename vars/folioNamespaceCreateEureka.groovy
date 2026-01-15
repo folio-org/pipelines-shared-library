@@ -117,7 +117,7 @@ void call(CreateNamespaceParameters args) {
 
       input message: "Let's stick around..."
 
-      List<Map<String, String>> allPlatformApps = platformDescriptor.applications?.required ? platformDescriptor.applications?.required : []
+      List<Map<String, String>> allPlatformApps = (platformDescriptor.applications?.required ? platformDescriptor.applications?.required : []) as List<Map<String, String>>
 
       logger.debug(allPlatformApps)
       input message: "Let's stick around..."
