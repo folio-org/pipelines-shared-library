@@ -20,6 +20,65 @@ static String getApplications(String applicationSet) {
   return "return ${RestConstants.APPLICATION_SETS_APPLICATIONS.inspect()}[${applicationSet}.trim()]"
 }
 
+static String getApplicationsFromPlatformDescriptor(String reference) {
+  return """import groovy.json.JsonSlurperClassic
+import com.cloudbees.plugins.credentials.CredentialsProvider
+import org.jenkinsci.plugins.plaincredentials.StringCredentials
+import jenkins.model.Jenkins
+
+def getGithubToken(String credentialId) {
+  def credential = CredentialsProvider.lookupCredentials(
+    StringCredentials.class,
+    Jenkins.instance,
+    null,
+    null
+  ).find { it.id == credentialId }
+
+  if (!credential) {
+    throw new IllegalStateException("Credential with ID '\${credentialId}' not found!")
+  }
+
+  return credential.secret.plainText
+}
+
+def fetchPlatformDescriptor(String branch, String token) {
+  def url = "${Constants.FOLIO_GITHUB_RAW_URL}/platform-lsp/\${branch}/platform-descriptor.json"
+  def connection = new URL(url).openConnection()
+  connection.setRequestProperty("User-Agent", "Jenkins-Groovy-Script")
+  connection.setRequestProperty("Authorization", "Bearer \${token}")
+  connection.setConnectTimeout(5000)
+  connection.setReadTimeout(10000)
+
+  if (connection.responseCode == 200) {
+    def responseText = connection.inputStream.getText('UTF-8')
+    return new JsonSlurperClassic().parseText(responseText)
+  } else {
+    throw new IOException("Failed to fetch platform-descriptor.json: HTTP \${connection.responseCode}")
+  }
+}
+
+def credentialId = "github-jenkins-service-user-token"
+
+try {
+  def token = getGithubToken(credentialId)
+  def descriptor = fetchPlatformDescriptor(${reference}, token)
+  def apps = []
+
+  descriptor.applications.required.each { app ->
+    apps.add("\${app.name}:selected")
+  }
+  descriptor.applications.optional.each { app ->
+    apps.add(app.name)
+  }
+
+  return apps
+} catch (Exception e) {
+  println "Error: \${e.message}"
+  throw e
+}
+""".stripIndent()
+}
+
 static String getRepositoryBranches(String repository) {
   return """import groovy.json.JsonSlurperClassic
 import com.cloudbees.plugins.credentials.CredentialsProvider
