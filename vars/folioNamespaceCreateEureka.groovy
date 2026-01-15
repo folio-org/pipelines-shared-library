@@ -34,6 +34,50 @@ void call(CreateNamespaceParameters args) {
 
       logger.info("Create operation parameters:\n${prettyPrint(toJson(args))}")
 
+      String platformRepository = 'platform-lsp'
+      Map platformDescriptor = new GitHubUtility(this).getJsonModulesList(platformRepository, args.platformBranch, 'platform-descriptor.json') as Map
+      logger.info("Fetched platform-descriptor.json with ${platformDescriptor.applications?.required?.size() ?: 0} required and ${platformDescriptor.applications?.optional?.size() ?: 0} optional applications")
+
+      List<Map<String, String>> allPlatformApps = platformDescriptor.applications?.required ?: []
+      allPlatformApps += platformDescriptor.applications?.optional ?: []
+
+      List<String> appIds = args.applications.collect { appName ->
+        Map<String, String> appEntry = allPlatformApps.find { it.name == appName } as Map<String, String>
+        if (!appEntry) {
+          throw new Exception("Application '${appName}' not found in platform-descriptor.json")
+        }
+        appEntry.name + "-" + appEntry.version
+      }
+
+      Far far = new Far(this)
+      ApplicationList apps = far.getApplicationsByIds(appIds)
+      FolioInstallJson appModules = apps.getInstallJson()
+
+      platformDescriptor['eureka-components']?.each { component ->
+        appModules.addModule("${component['name']}-${component['version']}", 'enable')
+      }
+      logger.info("Added ${platformDescriptor['eureka-components']?.size() ?: 0} eureka-components to installJson")
+
+      if (args.scNative) {
+        String tag = (awscli.listEcrImages(Constants.AWS_REGION, 'folio-module-sidecar')).replaceAll('"', '')
+        logger.info("Previously built SC image is 'CUSTOM/NATIVE'. Using it for Eureka env.\nImage tag: ${tag.replace(",", "")}")
+        appModules.removeModuleByName('folio-module-sidecar')
+        appModules.addModule("folio-module-sidecar-${tag.replace(",", "")}", 'enable')
+      }
+
+      String kongVersion = appModules.getKongModule()?.getVersion()
+      String keycloakVersion = appModules.getKeycloakModule()?.getVersion()
+      logger.info("Using Kong version: ${kongVersion}, Keycloak version: ${keycloakVersion}")
+
+      def defaultTenantId = args.dataset ? 'fs09000000' : 'diku'
+      boolean isRelease = args.platformBranch ==~ /^R\d-\d{4}.*/
+      String commitHash = common.getLastCommitHash(platformRepository, args.platformBranch)
+
+      List<Map<String, String>> installJson = appModules.getInstallJson()
+
+      writeJSON(file: 'used-install.json', json: installJson, pretty: 4)
+      archiveArtifacts 'used-install.json'
+
       EurekaNamespace namespace = new EurekaNamespace(args.clusterName, args.namespaceName)
       //Set terraform configuration
       TerraformConfig tfConfig = new TerraformConfig('terraform/rancher/project')
@@ -53,8 +97,8 @@ void call(CreateNamespaceParameters args) {
       tfConfig.addVar('github_team_ids', folioTools.getGitHubTeamsIds("${Constants.ENVS_MEMBERS_LIST[args.namespaceName]},${args.members}").collect { "\"${it}\"" })
       tfConfig.addVar('pg_version', args.pgVersion)
       tfConfig.addVar('eureka', args.platform == PlatformType.EUREKA)
-      tfConfig.addVar('kong_version', args.kongVersion)
-      tfConfig.addVar('keycloak_version', args.keycloakVersion)
+      tfConfig.addVar('kong_version', kongVersion)
+      tfConfig.addVar('keycloak_version', keycloakVersion)
       tfConfig.addVar('setup_type', args.type)
       if (args.dataset) {
         tfConfig.addVar('pg_rds_snapshot_name', Constants.BUGFEST_SNAPSHOT_NAME)
@@ -106,47 +150,6 @@ void call(CreateNamespaceParameters args) {
       if (args.namespaceOnly) {
         return
       }
-
-      def defaultTenantId = args.dataset ? 'fs09000000' : 'diku'
-      String platformRepository = 'platform-lsp'
-      boolean isRelease = args.platformBranch ==~ /^R\d-\d{4}.*/
-      String commitHash = common.getLastCommitHash(platformRepository, args.platformBranch)
-
-      Map platformDescriptor = new GitHubUtility(this).getJsonModulesList(platformRepository, args.platformBranch, 'platform-descriptor.json') as Map
-      logger.info("Fetched platform-descriptor.json with ${platformDescriptor.applications?.required?.size() ?: 0} required and ${platformDescriptor.applications?.optional?.size() ?: 0} optional applications")
-
-      List<Map<String, String>> allPlatformApps = platformDescriptor.applications?.required ?: []
-      allPlatformApps += platformDescriptor.applications?.optional ?: []
-
-      List<String> appIds = args.applications.collect { appName ->
-        Map<String, String> appEntry = allPlatformApps.find { it.name == appName } as Map<String, String>
-        if (!appEntry) {
-          throw new Exception("Application '${appName}' not found in platform-descriptor.json")
-        }
-
-        appEntry.name + "-" + appEntry.version
-      }
-
-      Far far = new Far(this)
-      ApplicationList apps = far.getApplicationsByIds(appIds)
-      FolioInstallJson appModules = apps.getInstallJson()
-
-      platformDescriptor['eureka-components']?.each { component ->
-        appModules.addModule("${component['name']}-${component['version']}", 'enable')
-      }
-      logger.info("Added ${platformDescriptor['eureka-components']?.size() ?: 0} eureka-components to installJson")
-
-      if (args.scNative) {
-        String tag = (awscli.listEcrImages(Constants.AWS_REGION, 'folio-module-sidecar')).replaceAll('"', '')
-        logger.info("Previously built SC image is 'CUSTOM/NATIVE'. Using it for Eureka env.\nImage tag: ${tag.replace(",", "")}")
-        appModules.removeModuleByName('folio-module-sidecar')
-        appModules.addModule("folio-module-sidecar-${tag.replace(",", "")}", 'enable')
-      }
-
-      List<Map<String, String>> installJson = appModules.getInstallJson()
-        
-      writeJSON(file: 'used-install.json', json: installJson, pretty: 4)
-      archiveArtifacts 'used-install.json'
 
       TenantUi tenantUi = new TenantUi("${namespace.getClusterName()}-${namespace.getNamespaceName()}",
         commitHash, args.platformBranch)
