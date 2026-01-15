@@ -117,13 +117,13 @@ void call(CreateNamespaceParameters args) {
 
       input message: "Let's stick around..."
 
-      List<Map<String, String>> allPlatformApps = ((platformDescriptor.applications?.required ?: []) + (platformDescriptor.applications?.optional ?: [])) as List<Map<String, String>>
+      List<Map<String, String>> allPlatformApps = (platformDescriptor.applications?.required ?: []) as List<Map<String, String>>
 
       logger.debug(allPlatformApps)
       input message: "Let's stick around..."
 
       List<String> appIds = args.applications.collect { appName ->
-        Map appEntry = allPlatformApps.find { it.name == appName }
+        Map<String, String> appEntry = allPlatformApps.find { it.name == appName }
         if (!appEntry) {
           throw new Exception("Application '${appName}' not found in platform-descriptor.json")
         }
