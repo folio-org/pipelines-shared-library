@@ -115,6 +115,10 @@ def applications(String paramName = 'APPLICATIONS', String reference = 'APPLICAT
   return _paramExtendedCheckboxSelect(paramName, reference, folioStringScripts.getApplications(reference), 'Select env applications', false)
 }
 
+def applicationsFromPlatform(String paramName = 'APPLICATIONS', String reference = 'PLATFORM_BRANCH') {
+  return _paramExtendedCheckboxSelect(paramName, reference, folioStringScripts.getApplicationsFromPlatformDescriptor(reference), 'Select env applications', false)
+}
+
 def application(String paramName = 'APPLICATION', String reference = 'APPLICATION_SET') {
   return _paramExtendedSingleSelect(paramName, reference, folioStringScripts.getApplications(reference), 'Select application')
 }
@@ -136,6 +140,10 @@ def repository() {
 }
 
 def branch(String paramName = 'FOLIO_BRANCH', String repository = 'platform-complete') {
+  return _paramExtendedSingleSelect(paramName, '', folioStringScripts.getRepositoryBranches(repository), "(Required) Select what '${repository}' branch use for build")
+}
+
+def platformBranch(String paramName = 'PLATFORM_BRANCH', String repository = 'platform-lsp') {
   return _paramExtendedSingleSelect(paramName, '', folioStringScripts.getRepositoryBranches(repository), "(Required) Select what '${repository}' branch use for build")
 }
 
