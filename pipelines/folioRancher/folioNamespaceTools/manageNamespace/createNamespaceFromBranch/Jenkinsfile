@@ -1,11 +1,12 @@
 #!groovy
+package folioRancher.folioNamespaceTools.manageNamespace.createNamespaceFromBranch
 
 import org.folio.models.OkapiTenant
 import org.folio.models.OkapiUser
 import org.folio.models.RancherNamespace
 import org.folio.models.parameters.CreateNamespaceParameters
 import org.folio.models.parameters.CypressTestsParameters
-import org.folio.rest_v2.Constants
+import org.folio.Constants
 import org.folio.rest_v2.PlatformType
 import org.jenkinsci.plugins.workflow.libs.Library
 
@@ -18,9 +19,9 @@ properties([
     folioParameters.cluster('PLATFORM'),
     folioParameters.namespace(),
     folioParameters.branch(),
+    folioParameters.platformBranch(),
     folioParameters.okapiVersion(),
-    folioParameters.applicationSet(),
-    folioParameters.applications(),
+    folioParameters.applicationsFromPlatform(),
     folioParameters.configType(),
     booleanParam(name: 'SC_NATIVE', defaultValue: true, description: '(Optional) Set false to use Java based SC image'),
     folioParameters.groupParameters('Environment features'
@@ -48,7 +49,7 @@ properties([
     booleanParam(name: 'RTR', defaultValue: false, description: '(Optional) Set true to enable RTR'),
     booleanParam(name: 'DATASET', defaultValue: false, description: '(Optional) Set true to build BF like environment'),
     choice(name: 'TYPE', choices: ['full', 'terraform', 'update'], description: '(Required) Set action TYPE to perform'),
-    string(name: 'DB_BACKUP_NAME', defaultValue: org.folio.Constants.BUGFEST_SNAPSHOT_NAME, description: '(Optional) Set name of the DB backup to restore'),
+    string(name: 'DB_BACKUP_NAME', defaultValue: Constants.BUGFEST_SNAPSHOT_NAME, description: '(Optional) Set name of the DB backup to restore'),
     string(name: 'FOLIO_KEYCLOAK_VERSION', defaultValue: 'latest', description: '(Optional) Set FOLIO Keycloak tag, example: 21.0.1-SNAPSHOT.f959523'),
     string(name: 'FOLIO_KONG_VERSION', defaultValue: 'latest', description: '(Optional) Set FOLIO Kong tag, example: 3.10.0-SNAPSHOT.f959523'),
     folioParameters.groupParameters('Integrations'
@@ -62,8 +63,8 @@ properties([
     folioParameters.refreshParameters()
     , folioParameters.hideParameters(
     [
-      'EUREKA': ['OKAPI_VERSION'],
-      'OKAPI' : ['APPLICATION_SET', 'APPLICATIONS', 'SC_NATIVE']
+      'EUREKA': ['OKAPI_VERSION', 'FOLIO_BRANCH', 'EDGE_LOCATE', 'RTAC_CACHE', 'LINKED_DATA', 'MARC_MIGRATIONS', 'FOLIO_KEYCLOAK_VERSION', 'FOLIO_KONG_VERSION'],
+      'OKAPI' : ['PLATFORM_BRANCH', 'APPLICATIONS', 'SC_NATIVE']
     ]
     , 'PLATFORM')
     , folioParameters.hideParameters(
@@ -97,6 +98,8 @@ CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builde
   .clusterName(params.CLUSTER)
   .namespaceName(params.NAMESPACE)
   .folioBranch(params.FOLIO_BRANCH)
+  .platformBranch(params.PLATFORM_BRANCH)
+  .applications((params.APPLICATIONS as String)?.split(',')?.collect { it.trim() } ?: [])
   .okapiVersion(params.OKAPI_VERSION)
   .configType(params.CONFIG_TYPE)
   .loadReference(params.LOAD_REFERENCE)
@@ -111,9 +114,6 @@ CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builde
   .greenmail(params.GREENMAIL)
   .mockServer(params.MOCK_SERVER)
   .rtr(params.RTR)
-  .applicationSet(params.APPLICATION_SET)
-  .applications(Constants.APPLICATION_BRANCH(params.APPLICATION_SET as String
-    , (params.APPLICATIONS as String).split(',') as List))
   .hasSecureTenant(params.HAS_SECURE_TENANT)
   .secureTenantId(params.SECURE_TENANT)
   .pgType(params.POSTGRESQL)
@@ -130,12 +130,7 @@ CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builde
   .build()
 
 if (params.CONSORTIA) {
-    if (namespaceParams.platform == PlatformType.EUREKA) {
-        namespaceParams.folioExtensions.add('consortia-eureka')
-    }
-  else {
-        namespaceParams.folioExtensions.add('consortia')
-  }
+    namespaceParams.folioExtensions.add('consortia')
 }
 
 if (params.LINKED_DATA) {
@@ -170,7 +165,6 @@ cypressSanityParameters.setTimeout('60')
 if (namespaceParams.platform == PlatformType.EUREKA) {
     cypressSanityParameters.setTestsSrcBranch('master')
     cypressSanityParameters.setOkapiUrl("https://${namespace.getDomains().kong}")
-    //TODO: Temporary exclusion of the eholdings and software-version test cases.
     cypressSanityParameters.setExecParameters('--env grepTags="fse+sanity"')
 } else {
     cypressSanityParameters.setTestsSrcBranch('okapi')
