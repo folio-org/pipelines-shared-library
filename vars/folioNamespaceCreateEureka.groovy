@@ -129,18 +129,24 @@ void call(CreateNamespaceParameters args) {
 
       Far far = new Far(this)
       ApplicationList apps = far.getApplicationsByIds(appIds)
-      List<Map<String, String>> installJson = apps.getInstallJson().getInstallJson()
+      FolioInstallJson appModules = apps.getInstallJson()
 
-      input message: "Let's stick around..."
+      platformDescriptor['eureka-components']?.each { component ->
+        appModules.addModule("${component['name']}-${component['version']}", 'enable')
+      }
+      logger.info("Added ${platformDescriptor['eureka-components']?.size() ?: 0} eureka-components to installJson")
 
       if (args.scNative) {
         String tag = (awscli.listEcrImages(Constants.AWS_REGION, 'folio-module-sidecar')).replaceAll('"', '')
         logger.info("Previously built SC image is 'CUSTOM/NATIVE'. Using it for Eureka env.\nImage tag: ${tag.replace(",", "")}")
-        installJson.removeAll { module -> module.id =~ /folio-module-sidecar-.*/ }
-        installJson.add([id: "folio-module-sidecar-${tag.replace(",", "")}", action: 'enable'])
-        writeJSON(file: 'used-install.json', json: installJson, pretty: 4)
-        archiveArtifacts 'used-install.json'
+        appModules.removeModuleByName('folio-module-sidecar')
+        appModules.addModule("folio-module-sidecar-${tag.replace(",", "")}", 'enable')
       }
+
+      List<Map<String, String>> installJson = appModules.getInstallJson()
+        
+      writeJSON(file: 'used-install.json', json: installJson, pretty: 4)
+      archiveArtifacts 'used-install.json'
 
       TenantUi tenantUi = new TenantUi("${namespace.getClusterName()}-${namespace.getNamespaceName()}",
         commitHash, args.platformBranch)
