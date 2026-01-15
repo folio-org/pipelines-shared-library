@@ -115,9 +115,9 @@ void call(CreateNamespaceParameters args) {
       Map platformDescriptor = new GitHubUtility(this).getJsonModulesList(platformRepository, args.platformBranch, 'platform-descriptor.json') as Map
       logger.info("Fetched platform-descriptor.json with ${platformDescriptor.applications?.required?.size() ?: 0} required and ${platformDescriptor.applications?.optional?.size() ?: 0} optional applications")
 
-      List<Map<String, String>> allPlatformApps =
-        (platformDescriptor.applications?.required ?: []) +
-        (platformDescriptor.applications?.optional ?: []) as List<Map<String, String>>
+      input message: "Let's stick around..."
+
+      List<Map<String, String>> allPlatformApps = ((platformDescriptor.applications?.required ?: []) + (platformDescriptor.applications?.optional ?: [])) as List<Map<String, String>>
 
       logger.debug(allPlatformApps)
       input message: "Let's stick around..."
