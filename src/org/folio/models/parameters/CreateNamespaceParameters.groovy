@@ -17,6 +17,8 @@ class CreateNamespaceParameters implements Cloneable {
 
   String folioBranch
 
+  String platformBranch
+
   String okapiVersion
 
   String configType
@@ -69,7 +71,7 @@ class CreateNamespaceParameters implements Cloneable {
   @Deprecated
   String applicationSet = 'Complete'
 
-  Map<String,String> applications = [:]
+  List<String> applications = []
 
   List<String> folioExtensions = []
 
@@ -177,6 +179,17 @@ class CreateNamespaceParameters implements Cloneable {
      */
     Builder folioBranch(String folioBranch) {
       parameters.folioBranch = folioBranch
+      return this
+    }
+
+    /**
+     * Specifies the platform-lsp branch for Eureka platform configuration.
+     * This determines the platform descriptor version to use for application and component versions.
+     * @param platformBranch The branch name of the platform-lsp repository.
+     * @return Builder instance for method chaining.
+     */
+    Builder platformBranch(String platformBranch) {
+      parameters.platformBranch = platformBranch
       return this
     }
 
@@ -383,12 +396,26 @@ class CreateNamespaceParameters implements Cloneable {
 
 
     /**
-     * Specifies the application list for Eureka platform
-     * @param list The list of application-branch map to entitle.
+     * Specifies the application names list for Eureka platform.
+     * Application versions are resolved from platform-descriptor.json via FAR.
+     * @param list The list of application names to deploy.
      * @return Builder instance for method chaining.
      */
+    Builder applications(List<String> list) {
+      parameters.applications = list
+      return this
+    }
+
+    /**
+     * Specifies the applications map for Eureka platform.
+     * Extracts application names from the map keys.
+     * @param map The map of application names to branches (branches are ignored, versions come from FAR).
+     * @return Builder instance for method chaining.
+     * @deprecated Use {@link #applications(List)} instead. Application versions are now resolved from FAR.
+     */
+    @Deprecated
     Builder applications(Map map) {
-      parameters.applications = map
+      parameters.applications = map.keySet().toList()
       return this
     }
 
