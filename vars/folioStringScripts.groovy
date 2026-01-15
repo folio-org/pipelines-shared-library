@@ -102,7 +102,7 @@ def fetchAllBranches(String initialUrl, String token) {
   }
 
   fetchPage(initialUrl)
-  return branches
+  return branches.sort()
 }
 
 try {
