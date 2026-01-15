@@ -119,6 +119,9 @@ void call(CreateNamespaceParameters args) {
         (platformDescriptor.applications?.required ?: []) +
         (platformDescriptor.applications?.optional ?: []) as List<Map<String, String>>
 
+      logger.debug(allPlatformApps)
+      input message: "Let's stick around..."
+
       List<String> appIds = args.applications.collect { appName ->
         Map appEntry = allPlatformApps.find { it.name == appName }
         if (!appEntry) {
