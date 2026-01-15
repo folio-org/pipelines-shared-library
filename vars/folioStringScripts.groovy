@@ -85,7 +85,7 @@ try {
 
 static String getRepositoryBranches(String repository) {
   return """${getGitHubScriptBase()}
-def fetchAllBranches(String initialUrl) {
+def fetchAllBranches(String initialUrl, String token) {
   def branches = []
 
   def fetchPage
@@ -107,7 +107,7 @@ def fetchAllBranches(String initialUrl) {
 
 try {
   def apiUrl = "${Constants.FOLIO_GITHUB_REPOS_URL}/${repository}/branches"
-  return fetchAllBranches("\${apiUrl}?per_page=100")
+  return fetchAllBranches("\${apiUrl}?per_page=100", token)
 } catch (Exception e) {
   println "Error: \${e.message}"
   throw e
