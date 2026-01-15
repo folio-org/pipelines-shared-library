@@ -72,13 +72,13 @@ try {
     apps.add(app['name'] + ':selected')
   }
   descriptor.applications.optional.each { app ->
-    apps.add(app['name'])
+    apps.add(app['name'] + ':selected')
   }
 
   return apps
 } catch (Exception e) {
-  println "Error: \${e.message}"
-  throw e
+  println "Error fetching platform-descriptor.json: \${e.message}"
+  return []
 }
 """.stripIndent()
 }
