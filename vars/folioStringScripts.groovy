@@ -20,7 +20,7 @@ static String getApplications(String applicationSet) {
   return "return ${RestConstants.APPLICATION_SETS_APPLICATIONS.inspect()}[${applicationSet}.trim()]"
 }
 
-static String getApplicationsFromPlatformDescriptor(String reference) {
+private static String getGitHubScriptBase() {
   return """import groovy.json.JsonSlurperClassic
 import com.cloudbees.plugins.credentials.CredentialsProvider
 import org.jenkinsci.plugins.plaincredentials.StringCredentials
@@ -41,8 +41,7 @@ def getGithubToken(String credentialId) {
   return credential.secret.plainText
 }
 
-def fetchPlatformDescriptor(String branch, String token) {
-  def url = "${Constants.FOLIO_GITHUB_RAW_URL}/platform-lsp/\${branch}/platform-descriptor.json"
+def fetchJson(String url, String token) {
   def connection = new URL(url).openConnection()
   connection.setRequestProperty("User-Agent", "Jenkins-Groovy-Script")
   connection.setRequestProperty("Authorization", "Bearer \${token}")
@@ -51,24 +50,29 @@ def fetchPlatformDescriptor(String branch, String token) {
 
   if (connection.responseCode == 200) {
     def responseText = connection.inputStream.getText('UTF-8')
-    return new JsonSlurperClassic().parseText(responseText)
+    return [json: new JsonSlurperClassic().parseText(responseText), headers: connection.headerFields]
   } else {
-    throw new IOException("Failed to fetch platform-descriptor.json: HTTP \${connection.responseCode}")
+    throw new IOException("Failed to fetch \${url}: HTTP \${connection.responseCode}")
   }
 }
 
 def credentialId = "github-jenkins-service-user-token"
+def token = getGithubToken(credentialId)
+"""
+}
 
+static String getApplicationsFromPlatformDescriptor(String reference) {
+  return """${getGitHubScriptBase()}
 try {
-  def token = getGithubToken(credentialId)
-  def descriptor = fetchPlatformDescriptor(${reference}, token)
+  def url = "${Constants.FOLIO_GITHUB_RAW_URL}/platform-lsp/\${${reference}}/platform-descriptor.json"
+  def descriptor = fetchJson(url, token).json
   def apps = []
 
   descriptor.applications.required.each { app ->
-    apps.add("\${app.name}:selected")
+    apps.add(app['name'] + ':selected')
   }
   descriptor.applications.optional.each { app ->
-    apps.add(app.name)
+    apps.add(app['name'])
   }
 
   return apps
@@ -80,68 +84,30 @@ try {
 }
 
 static String getRepositoryBranches(String repository) {
-  return """import groovy.json.JsonSlurperClassic
-import com.cloudbees.plugins.credentials.CredentialsProvider
-import org.jenkinsci.plugins.plaincredentials.StringCredentials
-import jenkins.model.Jenkins
-
-def getGithubToken(String credentialId) {
-  def credential = CredentialsProvider.lookupCredentials(
-    StringCredentials.class,
-    Jenkins.instance,
-    null,
-    null
-  ).find { it.id == credentialId }
-
-  if (!credential) {
-    throw new IllegalStateException("Credential with ID '\${credentialId}' not found!")
-  }
-
-  return credential.secret.plainText
-}
-
-def fetchAllBranches(String initialUrl, String token) {
+  return """${getGitHubScriptBase()}
+def fetchAllBranches(String initialUrl) {
   def branches = []
-  def jsonSlurper = new JsonSlurperClassic()
 
   def fetchPage
   fetchPage = { url ->
-    def connection = new URL(url).openConnection()
-    connection.setRequestProperty("User-Agent", "Jenkins-Groovy-Script")
-    connection.setRequestProperty("Authorization", "Bearer \${token}")
-    connection.setConnectTimeout(5000)
-    connection.setReadTimeout(10000)
+    def result = fetchJson(url, token)
+    branches.addAll(result.json.collect { it['name'] })
 
-    if (connection.responseCode == 200) {
-      def responseText = connection.inputStream.getText('UTF-8')
-      def json = jsonSlurper.parseText(responseText)
-      branches.addAll(json.collect { it.name })
+    def linkHeader = result.headers['Link']?.first()
+    def nextPageUrl = (linkHeader =~ /<([^>]+)>; rel="next"/)?.with { matcher -> matcher.find() ? matcher.group(1) : null }
 
-      def linkHeader = connection.getHeaderField('Link')
-      def nextPageUrl = (linkHeader =~ /<([^>]+)>; rel="next"/)?.with { matcher -> matcher.find() ? matcher.group(1) : null }
-
-      if (nextPageUrl) {
-        fetchPage(nextPageUrl)
-      }
-    } else {
-      throw new IOException("Failed to fetch branches: HTTP \${connection.responseCode}")
+    if (nextPageUrl) {
+      fetchPage(nextPageUrl)
     }
   }
 
   fetchPage(initialUrl)
-
   return branches
 }
 
-def apiUrl = "${Constants.FOLIO_GITHUB_REPOS_URL}/${repository}/branches"
-def perPage = 100
-def credentialId = "github-jenkins-service-user-token"
-
 try {
-  def token = getGithubToken(credentialId)
-  def branches = fetchAllBranches("\${apiUrl}?per_page=\${perPage}", token)
-
-  return branches
+  def apiUrl = "${Constants.FOLIO_GITHUB_REPOS_URL}/${repository}/branches"
+  return fetchAllBranches("\${apiUrl}?per_page=100")
 } catch (Exception e) {
   println "Error: \${e.message}"
   throw e
