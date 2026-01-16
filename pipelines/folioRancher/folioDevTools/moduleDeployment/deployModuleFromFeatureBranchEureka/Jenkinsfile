@@ -192,7 +192,7 @@ ansiColor('xterm') {
                   set -x
                   export MODULE_NAME=${module.name}
                   werf build ${module.name} --repo ${Constants.ECR_FOLIO_REPOSITORY}/${module.name} \\
-                    --add-custom-tag ${module.name}:${module.version} --loose-giterminism
+                    --add-custom-tag ${module.version} --loose-giterminism
                 """
               }
               break
