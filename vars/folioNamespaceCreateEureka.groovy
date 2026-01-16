@@ -287,21 +287,21 @@ void call(CreateNamespaceParameters args) {
 //          }
 //        }
 //      }
-//
-//      stage('[Rest] Preinstall') {
-//        int counter = 0
-//        retry(5) {
-//          sleep time: (counter == 0 ? 0 : 30), unit: 'SECONDS'
-//          counter++
-//          eureka.registerApplications(apps)
-//
-//          namespace.getTenants().values().each { it.assignApplications(apps) }
-//          namespace.withApplications(apps)
-//
+
+      stage('[Rest] Preinstall') {
+        int counter = 0
+        retry(5) {
+          sleep time: (counter == 0 ? 0 : 30), unit: 'SECONDS'
+          counter++
+          eureka.registerApplications(apps)
+
+          namespace.getTenants().values().each { it.assignApplications(apps) }
+          namespace.withApplications(apps)
+
 //          eureka.registerModulesFlow(namespace.applications.getInstallJson())
-//        }
-//      }
-//
+        }
+      }
+
 //      stage('[Helm] Deploy modules') {
 //        folioHelm.withKubeConfig(namespace.getClusterName()) {
 //          logger.info(namespace.getModules().getBackendModules())
