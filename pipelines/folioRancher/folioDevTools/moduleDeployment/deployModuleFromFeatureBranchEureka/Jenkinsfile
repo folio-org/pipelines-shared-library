@@ -191,7 +191,7 @@ ansiColor('xterm') {
                   ${login.replace('docker', 'werf cr')}
                   set -x
                   export MODULE_NAME=${module.name}
-                  werf build ${module.name} --repo ${Constants.ECR_FOLIO_REPOSITORY}}/${module.name} \\
+                  werf build ${module.name} --repo ${Constants.ECR_FOLIO_REPOSITORY}/${module.name} \\
                     --add-custom-tag ${module.name}:${module.version} --loose-giterminism
                 """
               }
