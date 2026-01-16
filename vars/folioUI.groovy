@@ -22,7 +22,7 @@ void build(String okapiUrl, OkapiTenant tenant, boolean isEureka = false, String
                 branches         : [[name: tenantUi.getHash()]],
                 extensions       : [[$class: 'CleanBeforeCheckout', deleteUntrackedNestedRepositories: true]],
                 userRemoteConfigs: [[credentialsId: Constants.PRIVATE_GITHUB_CREDENTIALS_ID,
-                                     url          : "${Constants.FOLIO_GITHUB_URL}/platform-complete.git"]]])
+                                     url          : "${Constants.FOLIO_GITHUB_URL}/platform-lsp.git"]]])
     }
 
     stage('[UI] Add folio extensions') {
