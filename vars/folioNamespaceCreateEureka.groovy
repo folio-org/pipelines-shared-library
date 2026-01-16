@@ -293,7 +293,7 @@ void call(CreateNamespaceParameters args) {
         retry(5) {
           sleep time: (counter == 0 ? 0 : 30), unit: 'SECONDS'
           counter++
-          eureka.registerApplications(apps)
+//          eureka.registerApplications(apps)
 
           namespace.getTenants().values().each { it.assignApplications(apps) }
           namespace.withApplications(apps)
@@ -324,31 +324,31 @@ void call(CreateNamespaceParameters args) {
 //        }
 //      }
 
-      stage('[Rest] Initialize') {
-        if (args.dataset) { // Prepare for large dataset reindex
-          folioHelm.withKubeConfig(namespace.getClusterName()) {
-
-            kubectl.setKubernetesResourceCount('deployment', 'mod-inventory-storage', namespace.getNamespaceName(), '4')
-            sleep(time: 10, unit: 'SECONDS')
-            kubectl.setKubernetesResourceCount('deployment', 'mod-search', namespace.getNamespaceName(), '4')
-
-            folioHelm.checkDeploymentsRunning(namespace.getNamespaceName(), namespace.getModules().getBackendModules())
-        }
-      }
-      int counter = 0
-      retry(20) {
-        sleep time: (counter == 0 ? 0 : 2), unit: 'MINUTES'
-        counter++
-
-        eureka.initializeFromScratch(
-          namespace.getTenants()
-          , namespace.getClusterName()
-          , namespace.getNamespaceName()
-          , namespace.getEnableConsortia()
-          , false // Set this option true, when users & groups migration is required.
-        )
-      }
-    }
+//      stage('[Rest] Initialize') {
+//        if (args.dataset) { // Prepare for large dataset reindex
+//          folioHelm.withKubeConfig(namespace.getClusterName()) {
+//
+//            kubectl.setKubernetesResourceCount('deployment', 'mod-inventory-storage', namespace.getNamespaceName(), '4')
+//            sleep(time: 10, unit: 'SECONDS')
+//            kubectl.setKubernetesResourceCount('deployment', 'mod-search', namespace.getNamespaceName(), '4')
+//
+//            folioHelm.checkDeploymentsRunning(namespace.getNamespaceName(), namespace.getModules().getBackendModules())
+//        }
+//      }
+//      int counter = 0
+//      retry(20) {
+//        sleep time: (counter == 0 ? 0 : 2), unit: 'MINUTES'
+//        counter++
+//
+//        eureka.initializeFromScratch(
+//          namespace.getTenants()
+//          , namespace.getClusterName()
+//          , namespace.getNamespaceName()
+//          , namespace.getEnableConsortia()
+//          , false // Set this option true, when users & groups migration is required.
+//        )
+//      }
+//    }
 
 //      stage('[Rest] Configure edge') {
 //        retry(5) {
