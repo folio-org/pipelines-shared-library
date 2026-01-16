@@ -187,7 +187,6 @@ void call(CreateNamespaceParameters args) {
           .withIndex(new Index('location', true, false))
           .withInstallRequestParams(installRequestParams.clone())
           .withTenantUi(tenantUi.clone())
-          .enableFolioExtensions(this, args.folioExtensions - 'consortia-eureka' - 'consortia')
       )
 
       if (args.dataset) {
@@ -202,12 +201,11 @@ void call(CreateNamespaceParameters args) {
               .withIndex(new Index('location', true, false))
               .withInstallRequestParams(installRequestParams.clone())
               .withTenantUi(tenantUi.clone())
-              .enableFolioExtensions(this, args.folioExtensions - 'consortia-eureka' - 'consortia')
           )
         }
       }
 
-      if (args.folioExtensions.contains('consortia-eureka')) {
+      if (args.consortia) {
         namespace.setEnableConsortia(true, isRelease)
 
         Map defaultConsortiaTenants = args.dataset ?
@@ -228,7 +226,6 @@ void call(CreateNamespaceParameters args) {
             if (tenant.getIsCentralConsortiaTenant())
               tenant.withTenantUi(tenantUi.clone())
 
-            tenant.enableFolioExtensions(this, args.folioExtensions)
             namespace.addTenant(tenant)
           }
       }
