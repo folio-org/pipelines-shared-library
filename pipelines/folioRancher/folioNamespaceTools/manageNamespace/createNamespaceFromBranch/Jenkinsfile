@@ -61,9 +61,10 @@ properties([
     folioParameters.s3Type(),
     folioParameters.runSanityCheck(),
     folioParameters.refreshParameters()
+    // TODO: Hide FOLIO_BRANCH for Eureka after UI build refactoring to use platform-lsp
     , folioParameters.hideParameters(
     [
-      'EUREKA': ['OKAPI_VERSION', 'FOLIO_BRANCH', 'EDGE_LOCATE', 'RTAC_CACHE', 'LINKED_DATA', 'MARC_MIGRATIONS', 'FOLIO_KEYCLOAK_VERSION', 'FOLIO_KONG_VERSION'],
+      'EUREKA': ['OKAPI_VERSION', 'EDGE_LOCATE', 'RTAC_CACHE', 'LINKED_DATA', 'MARC_MIGRATIONS', 'FOLIO_KEYCLOAK_VERSION', 'FOLIO_KONG_VERSION'],
       'OKAPI' : ['PLATFORM_BRANCH', 'APPLICATIONS', 'SC_NATIVE']
     ]
     , 'PLATFORM')

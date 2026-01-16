@@ -72,6 +72,8 @@ void call(CreateNamespaceParameters args) {
       def defaultTenantId = args.dataset ? 'fs09000000' : 'diku'
       boolean isRelease = args.platformBranch ==~ /^R\d-\d{4}.*/
       String commitHash = common.getLastCommitHash(platformRepository, args.platformBranch)
+      // TODO: Refactor UI build to use platform-lsp instead of platform-complete
+      String uiCommitHash = common.getLastCommitHash('platform-complete', args.folioBranch)
 
       List<Map<String, String>> installJson = appModules.getInstallJson()
 
@@ -151,8 +153,9 @@ void call(CreateNamespaceParameters args) {
         return
       }
 
+      // TODO: Refactor to use platform-lsp (uiCommitHash -> commitHash, args.folioBranch -> args.platformBranch)
       TenantUi tenantUi = new TenantUi("${namespace.getClusterName()}-${namespace.getNamespaceName()}",
-        commitHash, args.platformBranch)
+        uiCommitHash, args.folioBranch)
 
       EurekaRequestParams installRequestParams = new EurekaRequestParams()
         .withIgnoreErrors(true)
