@@ -14,7 +14,7 @@ void build(String okapiUrl, OkapiTenant tenant, boolean isEureka = false, String
   TenantUi tenantUi = tenant.getTenantUi()
   PodTemplates podTemplates = new PodTemplates(this)
 
-  podTemplates.werfAgent {
+  podTemplates.stripesAgent {
     stage('[UI] Checkout') {
       cleanWs()
 

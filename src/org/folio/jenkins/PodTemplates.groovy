@@ -186,6 +186,7 @@ spec:
     )
   }
 
+  @Deprecated
   /**
    * Builds a Kaniko container for Docker image builds without Docker daemon.
    *
@@ -211,6 +212,14 @@ spec:
     )
   }
 
+  /**
+   * Builds a Werf container for Docker image builds without Docker daemon.
+   *
+   * @param extraEnvVars Optional environment variables.
+   * @param resourceRequestMemory Minimum memory request (default {@code 2Gi}).
+   * @param resourceLimitMemory Memory limit (default {@code 12Gi}).
+   * @return Werf container definition.
+   */
   private Object buildWerfContainer(
     List<KeyValueEnvVar> extraEnvVars = [],
     String resourceRequestMemory = '2Gi',
@@ -220,7 +229,7 @@ spec:
       name: 'werf',
       image: 'registry.werf.io/werf/werf:2-stable',
       alwaysPullImage: true,
-//      envVars: [new KeyValueEnvVar('WERF_DIR', "${WORKING_DIR}/werf")] + extraEnvVars,
+      envVars: extraEnvVars,
       command: 'sleep',
       args: '99d',
       resourceRequestMemory: resourceRequestMemory,
@@ -302,7 +311,7 @@ spec:
       label: JenkinsAgentLabel.JAVA_BUILD_AGENT.getLabel(),
       volumes: [steps.persistentVolumeClaim(claimName: MAVEN_CACHE_PVC, mountPath: "${WORKING_DIR}/.m2/repository")],
       containers: [
-        buildKanikoContainer([], '512Mi', '12228Mi'),
+        buildWerfContainer([], '512Mi', '12228Mi'),
         buildJavaContainer(javaVersion, [new KeyValueEnvVar('DOCKER_HOST', 'tcp://localhost:2375')], '768Mi', '12228Mi'),
         buildDindContainer([], '4096Mi', '12228Mi')
       ]
@@ -354,7 +363,7 @@ spec:
         jenkins/label: "${JenkinsAgentLabel.STRIPES_AGENT.getLabel()}"
 """,
       containers: [
-        buildKanikoContainer([], '9Gi', '12Gi'),
+        buildWerfContainer([], '9Gi', '12Gi'),
       ]
     )) {
       steps.node(JenkinsAgentLabel.STRIPES_AGENT.getLabel()) {
@@ -419,6 +428,7 @@ spec:
     }
   }
 
+  @Deprecated
   /**
    * Defines a minimal Kaniko agent for container builds only.
    *
@@ -437,19 +447,14 @@ spec:
     }
   }
 
+  /**
+   * Defines a minimal Werf agent for container builds only.
+   *
+   * @param body Pipeline steps to execute inside this agent.
+   */
   void werfAgent(Closure body) {
     createTemplate(new PodTemplateConfig(
       label: JenkinsAgentLabel.WERF_AGENT.getLabel(),
-      yaml: """
-spec:
-  topologySpreadConstraints:
-  - maxSkew: 2
-    topologyKey: kubernetes.io/hostname
-    whenUnsatisfiable: DoNotSchedule
-    labelSelector:
-      matchLabels:
-        jenkins/label: "${JenkinsAgentLabel.WERF_AGENT.getLabel()}"
-""",
       containers: [
         buildWerfContainer()
       ]
