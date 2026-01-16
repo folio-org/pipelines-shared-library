@@ -181,6 +181,8 @@ ansiColor('xterm') {
           switch (module.buildTool) {
             case ModuleBuildTool.MAVEN:
               module.modDescriptorPath = "${module.buildDir}/target/ModuleDescriptor.json"
+              writeFile file: 'werf.yaml', text: libraryResource('werf/module/werf.yaml')
+              writeFile file: 'werf-giterminism.yaml', text: libraryResource('werf/module/werf-giterminism.yaml')
 
               withAWS(credentials: Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID, region: Constants.AWS_REGION) {
                 String login = ecrLogin()
