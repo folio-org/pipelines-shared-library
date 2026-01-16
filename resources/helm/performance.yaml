@@ -1521,6 +1521,9 @@ mod-linked-data-import:
     s3:
       enabled: true
       existingSecret: s3-mod-linked-data-import-credentials
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
   replicaCount: 1
   resources:
     limits:
@@ -2680,6 +2683,9 @@ mod-linked-data:
     systemuser:
       enabled: true
       existingSecret: mod-linked-data-systemuser
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
   replicaCount: 1
   resources:
     limits:
