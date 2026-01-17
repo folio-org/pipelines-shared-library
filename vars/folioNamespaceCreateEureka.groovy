@@ -54,7 +54,7 @@ void call(CreateNamespaceParameters args) {
       Far far = new Far(this)
       ApplicationList apps = far.getApplicationsByIds(appIds)
 
-      logger.debug("Applications: ${apps.collect { it.id }}")
+      logger.debug("Applications: ${apps}")
       input message: "let's check out applications"
 
       FolioInstallJson appModules = apps.getInstallJson()
