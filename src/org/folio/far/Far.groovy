@@ -38,6 +38,9 @@ class Far extends Base {
       throw new Exception("Multiple applications found for ID ${appId} in FAR")
     }
 
+    logger.debug("Fetched application descriptor: ${response.applicationDescriptors[0]}")
+    context.input(message: "Let's check raw descriptor")
+
     return response.applicationDescriptors[0] as Map
   }
 
