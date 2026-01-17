@@ -3,6 +3,8 @@ import org.folio.far.Far
 import org.folio.jenkins.PodTemplates
 import org.folio.models.*
 import org.folio.models.application.ApplicationList
+import org.folio.models.module.FolioModule
+import org.folio.models.module.ModuleType
 import org.folio.models.parameters.CreateNamespaceParameters
 import org.folio.rest.GitHubUtility
 import org.folio.rest_v2.PlatformType
@@ -225,6 +227,23 @@ void call(CreateNamespaceParameters args) {
 
             if (tenant.getIsCentralConsortiaTenant())
               tenant.withTenantUi(tenantUi.clone())
+
+            //TODO: Temporary workaround until UI will be refactored for platform-lsp
+            if(tenant.tenantUi){
+              FolioModule consortiaModule = tenant.modules.getModuleByName("folio_consortia-settings")
+              FolioModule linkedDataModule = tenant.modules.getModuleByName("folio_ld-folio-wrapper")
+
+              if (consortiaModule) {
+                tenant.tenantUi.customUiModules.add(consortiaModule)
+              }
+
+              if (linkedDataModule) {
+                tenant.tenantUi.customUiModules.add(linkedDataModule)
+              }
+            }
+
+            tenant.enableFolioExtensions(this, [])
+            //TODO: end of block
 
             namespace.addTenant(tenant)
           }
