@@ -53,10 +53,6 @@ void call(CreateNamespaceParameters args) {
 
       Far far = new Far(this)
       ApplicationList apps = far.getApplicationsByIds(appIds)
-
-      logger.debug("Applications: ${apps}")
-      input message: "let's check out applications"
-
       FolioInstallJson appModules = apps.getInstallJson()
 
       platformDescriptor['eureka-components']?.each { component ->
@@ -305,7 +301,7 @@ void call(CreateNamespaceParameters args) {
             tenant.assignApplications(apps)
 
             //TODO: Temporary workaround until UI will be refactored for platform-lsp
-            if(tenant.tenantUi){
+            if(tenant.tenantUi && tenant instanceof EurekaTenantConsortia){
               logger.debug("Adding consortia related modules to customUiModules for tenant: ${tenant.tenantId}")
               logger.debug("Before addition, customUiModules: ${tenant.tenantUi.customUiModules.collect { it.name }}")
 
