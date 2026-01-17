@@ -53,6 +53,10 @@ void call(CreateNamespaceParameters args) {
 
       Far far = new Far(this)
       ApplicationList apps = far.getApplicationsByIds(appIds)
+
+      logger.debug("Applications: ${apps.collect { it.id }}")
+      input message: "let's check out applications"
+
       FolioInstallJson appModules = apps.getInstallJson()
 
       platformDescriptor['eureka-components']?.each { component ->
