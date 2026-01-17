@@ -236,6 +236,10 @@ void call(CreateNamespaceParameters args) {
               FolioModule consortiaModule = tenant.modules.getModuleByName("folio_consortia-settings")
               FolioModule linkedDataModule = tenant.modules.getModuleByName("folio_ld-folio-wrapper")
 
+              logger.debug("Tenant modules: ${tenant.modules.getInstallJson().collect { it.name }}")
+
+              input message: "let's check out modules"
+
               if (consortiaModule) {
                 logger.debug("Adding folio_consortia-settings module to customUiModules for tenant: ${tenant.tenantId}")
                 tenant.tenantUi.customUiModules.add(consortiaModule)
