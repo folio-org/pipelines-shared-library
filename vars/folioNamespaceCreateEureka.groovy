@@ -302,43 +302,23 @@ void call(CreateNamespaceParameters args) {
 
             //TODO: Temporary workaround until UI will be refactored for platform-lsp
             if(tenant.tenantUi && tenant instanceof EurekaTenantConsortia){
-              logger.debug("Adding consortia related modules to customUiModules for tenant: ${tenant.tenantId}")
-              logger.debug("Before addition, customUiModules: ${tenant.tenantUi.customUiModules.collect { it.name }}")
-
               FolioModule consortiaModule = tenant.modules.getModuleByName("folio_consortia-settings")
               FolioModule linkedDataModule = tenant.modules.getModuleByName("folio_ld-folio-wrapper")
 
-              logger.debug("Tenant modules: ${tenant.getModules().getInstallJson()} for tenant: ${tenant.tenantId}")
-
-              input message: "let's check out modules"
-
               if (consortiaModule) {
-                logger.debug("Adding folio_consortia-settings module to customUiModules for tenant: ${tenant.tenantId}")
                 tenant.tenantUi.customUiModules.add(consortiaModule)
               }
 
               if (linkedDataModule) {
-                logger.debug("Adding folio_ld-folio-wrapper module to customUiModules for tenant: ${tenant.tenantId}")
                 tenant.tenantUi.customUiModules.add(linkedDataModule)
               }
-
-              logger.debug("After addition, customUiModules: ${tenant.tenantUi.customUiModules.collect { it.id }}")
             }
 
             tenant.enableFolioExtensions(this, [])
-
-            if(tenant.tenantUi)
-              logger.debug("After enableFolioExtensions, customUiModules: ${tenant.tenantUi.customUiModules.collect { it.name }}")
             //TODO: end of block
-
-            input message: "let's check out"
           }
 
           namespace.withApplications(apps)
-
-          logger.debug("Namespace modules: ${namespace.getModules().getInstallJson()}")
-
-          input message: "let's check out namespace modules"
 
 //          eureka.registerModulesFlow(namespace.applications.getInstallJson())
         }
