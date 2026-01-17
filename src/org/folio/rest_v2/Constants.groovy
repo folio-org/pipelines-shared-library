@@ -97,7 +97,7 @@ class Constants {
     ],
     [
       name: "app-platform-complete"
-      , branch: "snapshot"
+      , branch: "MODNOTIFY-150"
       , consortia: false
       , core     : false
       , byDefault: true
