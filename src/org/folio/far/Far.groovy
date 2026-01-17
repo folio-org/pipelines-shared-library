@@ -56,6 +56,9 @@ class Far extends Base {
     appIds.each { appId ->
       Map descriptor = getApplicationDescriptor(appId, true)
       apps.add(new Application().withDescriptor(descriptor))
+
+      logger.debug("APP ${appId}: ${new Application().withDescriptor(descriptor)}")
+      context.input(message: "Let's check application ${appId}")
     }
 
     logger.info("Fetched ${apps.size()} applications from FAR")
