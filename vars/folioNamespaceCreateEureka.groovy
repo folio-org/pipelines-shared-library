@@ -236,7 +236,7 @@ void call(CreateNamespaceParameters args) {
               FolioModule consortiaModule = tenant.modules.getModuleByName("folio_consortia-settings")
               FolioModule linkedDataModule = tenant.modules.getModuleByName("folio_ld-folio-wrapper")
 
-              logger.debug("Tenant modules: ${tenant.modules.getInstallJson().collect { it.name }}")
+              logger.debug("Tenant modules: ${tenant.getModules().getUiModules().each { mdl -> mdl.name }}")
 
               input message: "let's check out modules"
 
