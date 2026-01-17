@@ -15,7 +15,7 @@ class Far extends Base {
     return ["Content-Type": "application/json"]
   }
 
-  String generateUrl(String path) {
+  static String generateUrl(String path) {
     "${FAR_URL}${path}"
   }
 
@@ -33,6 +33,11 @@ class Far extends Base {
     if (response.totalRecords == 0) {
       throw new Exception("Application ${appId} not found in FAR")
     }
+
+    if (response.totalRecords > 1) {
+      throw new Exception("Multiple applications found for ID ${appId} in FAR")
+    }
+
     return response.applicationDescriptors[0] as Map
   }
 
