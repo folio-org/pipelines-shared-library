@@ -250,7 +250,7 @@ void call(CreateNamespaceParameters args) {
                 tenant.tenantUi.customUiModules.add(linkedDataModule)
               }
 
-              logger.debug("After addition, customUiModules: ${tenant.tenantUi.customUiModules.collect { it.name }}")
+              logger.debug("After addition, customUiModules: ${tenant.tenantUi.customUiModules.collect { it.id }}")
             }
 
             tenant.enableFolioExtensions(this, [])
