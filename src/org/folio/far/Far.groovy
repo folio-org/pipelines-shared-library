@@ -38,9 +38,6 @@ class Far extends Base {
       throw new Exception("Multiple applications found for ID ${appId} in FAR")
     }
 
-    logger.debug("Fetched application descriptor: ${response.applicationDescriptors[0]}")
-    context.input(message: "Let's check raw descriptor")
-
     return response.applicationDescriptors[0] as Map
   }
 
@@ -56,9 +53,6 @@ class Far extends Base {
     appIds.each { appId ->
       Map descriptor = getApplicationDescriptor(appId, true)
       apps.add(new Application().withDescriptor(descriptor))
-
-      logger.debug("APP ${appId}: ${new Application().withDescriptor(descriptor)}")
-      context.input(message: "Let's check application ${appId}")
     }
 
     logger.info("Fetched ${apps.size()} applications from FAR")
