@@ -312,6 +312,14 @@ class Constants {
       , dependsOn: ["app-platform-minimal", "app-platform-complete"]
     ],
     [
+      name: "app-notification"
+      , branch: "snapshot"
+      , consortia: false
+      , core: false
+      , byDefault: true
+      , dependsOn: ["app-platform-minimal"]
+    ],
+    [
       name: "app-finc"
       , branch: "snapshot"
       , consortia: false
