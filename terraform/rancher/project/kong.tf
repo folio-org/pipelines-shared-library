@@ -104,7 +104,7 @@ ingress:
              port:
                name: http-proxy
          path: /*
-         pathType: ImplementationSpecific      
+         pathType: ImplementationSpecific
    - host: ${join(".", [join("-", ["fs02", data.rancher2_cluster.this.name, var.rancher_project_name, "kong"]), var.root_domain])}
      http:
        paths:
