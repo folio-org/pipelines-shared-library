@@ -1,0 +1,9 @@
+project: folio-keycloak
+configVersion: 1
+
+cleanup:
+  disable: true
+---
+image: folio-keycloak
+dockerfile: Dockerfile
+context: .

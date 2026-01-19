@@ -111,12 +111,22 @@ ansiColor('xterm') {
 
     stage('[Docker] Build and push') {
       common.checkEcrRepoExistence(module.getName())
-      container('kaniko') {
+      container('werf') {
         dir(module.getName() == 'okapi' ? 'okapi/okapi-core' : module.getName()) {
+          writeFile file: 'werf.yaml', text: libraryResource('werf/module/werf.yaml')
+          writeFile file: 'werf-giterminism.yaml', text: libraryResource('werf/module/werf-giterminism.yaml')
+
           withAWS(credentials: Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID, region: Constants.AWS_REGION) {
-            ecrLogin()
-            folioKaniko.dockerHubLogin()
-            sh "/kaniko/executor --destination ${Constants.ECR_FOLIO_REPOSITORY}/${module.getName()}:${module.getVersion()} --context ."
+            String login = ecrLogin()
+            sh """
+              set -eu +x
+              ${login.replace('docker', 'werf cr')}
+              set -x
+              export MODULE_NAME=${module.getName()}
+              werf build ${module.getName()} --repo ${Constants.ECR_FOLIO_REPOSITORY}/werf-shadow \
+                --final-repo ${Constants.ECR_FOLIO_REPOSITORY}/${module.getName()} \
+                --add-custom-tag ${module.getVersion()} --loose-giterminism
+            """.stripIndent()
           }
         }
       }

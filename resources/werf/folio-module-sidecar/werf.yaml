@@ -1,0 +1,18 @@
+project: folio-module-sidecar
+configVersion: 1
+
+cleanup:
+  disable: true
+---
+image: sidecar
+dockerfile: Dockerfile
+context: .
+contextAddFiles:
+  - target
+
+---
+image: sidecar-native
+dockerfile: docker/Dockerfile.native-micro
+context: .
+contextAddFiles:
+  - target
