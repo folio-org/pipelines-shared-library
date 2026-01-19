@@ -181,10 +181,10 @@ void cleanUpFedLocks(String namespace = 'default', int timer = 0, String moduleI
           String pod = sh(script: "kubectl get pod -l 'app.kubernetes.io/name=pgadmin4' -o=name  --ignore-not-found=true --namespace ${namespace}", returnStdout: true).trim()
           try {
             if (moduleId == 'mod-pubsub') {
-              def pubsubsql = 'UPDATE pubsub_config.databasechangeloglock SET locked=false, lockgranted=null, lockedby=null WHERE id=1;'
-              sh(script: "kubectl exec --request-timeout=10s --namespace=${namespace} ${pod} -- /usr/bin/timeout 30s /usr/local/pgsql-16/psql -c $pubsubsql", returnStatus: false)
+              sh(script: "kubectl exec --request-timeout=10s --namespace=${namespace} ${pod} -- /usr/bin/timeout 30s /usr/local/pgsql-16/psql -c 'UPDATE pubsub_config.databasechangeloglock SET locked=false, lockgranted=null, lockedby=null WHERE id=1;'", returnStatus: false)
+            } else {
+              sh(script: "kubectl exec --request-timeout=10s --namespace=${namespace} ${pod} -- /usr/bin/timeout 30s /usr/local/pgsql-16/psql -c 'TRUNCATE ${moduleId.replace('-', '_')}__system.federation_lock'", returnStatus: false)
             }
-            sh(script: "kubectl exec --request-timeout=10s --namespace=${namespace} ${pod} -- /usr/bin/timeout 30s /usr/local/pgsql-16/psql -c 'TRUNCATE ${moduleId.replace('-', '_')}__system.federation_lock'", returnStatus: false)
           } catch (Exception e) {
             sh(script: "kubectl rollout restart deployment ${moduleId} --namespace=${namespace}", returnStatus: false)
             println("Unable to cleanup federation_lock table.\nError: " + e.getMessage())
@@ -230,7 +230,7 @@ void ermEntitlementFix(String namespace = 'default', String tenantId = 'default'
   }
 }
 
-void updateApplicationsFix (String namespace = 'default', String clusterName = '', List appIds = [], List tenantIds = []) {
+void updateApplicationsFix(String namespace = 'default', String clusterName = '', List appIds = [], List tenantIds = []) {
   try {
     folioHelm.withK8sClient {
       awscli.getKubeConfig(Constants.AWS_REGION, clusterName)
