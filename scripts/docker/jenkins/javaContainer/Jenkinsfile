@@ -25,7 +25,7 @@ PodTemplates podTemplates = new PodTemplates(this)
 def dockerfilePath = './scripts/docker/jenkins/javaContainer'
 
 ansiColor('xterm') {
-  podTemplates.kanikoAgent {
+  podTemplates.werfAgent {
     stage('[Git] Checkout source') {
       checkout scmGit(
         branches: [[name: "*/${env.DOCKERFILE_BRANCH}"]],
@@ -37,12 +37,18 @@ ansiColor('xterm') {
     stage('[Docker] Build and push') {
       common.checkEcrRepoExistence('amazoncorretto')
       dir(dockerfilePath) {
-        container('kaniko') {
+        container('werf') {
           withAWS(credentials: Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID, region: Constants.AWS_REGION) {
-            ecrLogin()
-            folioKaniko.dockerHubLogin()
-            sh """/kaniko/executor  --build-arg JAVA_VERSION=${env.JAVA_VERSION.trim()} \
---destination ${Constants.ECR_FOLIO_REPOSITORY}/amazoncorretto:${env.IMAGE_TAG} --dockerfile ./Dockerfile --context ."""
+            String login = ecrLogin()
+            sh """
+              set -eu +x
+              ${login.replace('docker', 'werf cr')}
+              set -x
+              export JAVA_VERSION=${env.JAVA_VERSION.trim()}
+              werf build --repo ${Constants.ECR_FOLIO_REPOSITORY}/werf-shadow \
+                --final-repo ${Constants.ECR_FOLIO_REPOSITORY}/amazoncorretto \
+                --add-custom-tag ${env.IMAGE_TAG} --loose-giterminism
+            """.stripIndent()
           }
         }
       }

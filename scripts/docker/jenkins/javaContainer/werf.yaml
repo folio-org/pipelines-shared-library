@@ -1,0 +1,12 @@
+project: amazoncorretto
+configVersion: 1
+
+cleanup:
+  disable: true
+---
+image: amazoncorretto
+dockerfile: Dockerfile
+context: .
+
+args:
+  JAVA_VERSION: '{{ env "JAVA_VERSION" "21" }}'
