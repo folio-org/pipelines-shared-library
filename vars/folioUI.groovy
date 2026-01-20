@@ -80,7 +80,7 @@ void buildAndDeploy(RancherNamespace namespace, OkapiTenant tenant, boolean isEu
                     , String keycloakDomain = '', boolean enableEcsRequests = false, boolean singleConsortiaUI = false) {
   build("https://${namespace.getDomains()['okapi']}", tenant, isEureka, kongDomain, keycloakDomain, enableEcsRequests, singleConsortiaUI)
   deploy(namespace, tenant)
-                    }
+}
 
 private void _updateStripesConfigJsFile(List<String> uiModulesToAdd) {
   final String stripesConfigFile = 'stripes.config.js'
@@ -105,7 +105,7 @@ private void _updateStripesConfigJsFile(List<String> uiModulesToAdd) {
     echo "Error writing to file: ${e.message}"
     throw e
   }
-  }
+}
 
 /**
  * Handles Eureka-specific configuration setup including template copying,
@@ -162,7 +162,7 @@ private String _handleEurekaConfiguration(OkapiTenant tenant, TenantUi tenantUi,
   _addEurekaCustomUiModules(tenantUi)
 
   return okapiUrl
-                                          }
+}
 
 /**
  * Applies tenant-specific URL overrides for special tenant configurations.
