@@ -30,6 +30,18 @@ edge-oai-pmh:
     username: test-user
     password: test
     create: true
+  - tenant: testconsortium
+    username: test_edge_admin
+    password: admin
+    create: false
+  - tenant: testuniversity
+    username: test_edge_admin
+    password: admin
+    create: false
+  - tenant: testcollege
+    username: test_edge_admin
+    password: admin
+    create: false
   capabilitiesSet:
   - oai-pmh.manage
   capabilities:
