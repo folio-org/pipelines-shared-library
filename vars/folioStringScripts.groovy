@@ -82,6 +82,14 @@ try {
   def token = getGithubToken(credentialId)
   def branches = fetchAllBranches("\${apiUrl}?per_page=\${perPage}", token)
 
+  def priorityBranches = ['snapshot', 'master', 'main']
+  def defaultBranch = priorityBranches.find { priority -> branches.contains(priority) }
+
+  if (defaultBranch) {
+    branches = branches - defaultBranch
+    branches = [defaultBranch] + branches
+  }
+
   return branches
 } catch (Exception e) {
   println "Error: \${e.message}"
