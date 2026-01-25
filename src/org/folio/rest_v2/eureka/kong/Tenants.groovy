@@ -147,7 +147,7 @@ class Tenants extends Kong{
 
       while (true) {
         def currentEntitlementStatus = restClient.get(
-          generateUrl("/entitlement-flows/${response.body.id}"),
+          generateUrl("/entitlement-flows/${response.body.flowId}"),
           headers
         )
         logger.debug("Current entitlement flow status: ${currentEntitlementStatus.body.status}")
