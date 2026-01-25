@@ -144,9 +144,25 @@ class Tenants extends Kong{
         responseCodes
       )
       logger.debug("Response from entitlements: ${response}")
-      //TODO: RANCHER-2743 implement polling to check when async entitlement is done
-      logger.info("Enabling (entitle) applications on tenant ${tenant.tenantId} with ${tenant.uuid} was finished successfully")
-      return this
+
+      while (true) {
+        def currentEntitlementStatus = restClient.get(
+          generateUrl("/entitlement-flows/${response.body.id}"),
+          headers
+        )
+        logger.debug("Current entitlement flow status: ${currentEntitlementStatus.body.status}")
+        switch (currentEntitlementStatus.body.status) {
+          case 'completed':
+            logger.info("Enabling (entitle) applications on tenant ${tenant.tenantId} with ${tenant.uuid} was finished successfully")
+            return this
+          case 'failed':
+            logger.error("Enabling (entitle) applications on tenant ${tenant.tenantId} with ${tenant.uuid} failed")
+            return this
+          default:
+            sleep time: 30, unit: 'SECONDS'
+            continue
+        }
+      }
     } catch (RequestException ex) {
       logger.error("Enabling (entitle) applications on tenant ${tenant.tenantId} with ${tenant.uuid} failed with error: ${ex.getMessage()}")
       return this
