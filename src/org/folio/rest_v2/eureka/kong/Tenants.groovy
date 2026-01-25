@@ -155,12 +155,15 @@ class Tenants extends Kong{
           case 'completed':
             logger.info("Enabling (entitle) applications on tenant ${tenant.tenantId} with ${tenant.uuid} was finished successfully")
             return this
+          case 'cancelled':
+            logger.error("Enabling (entitle) applications on tenant ${tenant.tenantId} with ${tenant.uuid} was cancelled")
+            return this
           case 'failed':
             logger.error("Enabling (entitle) applications on tenant ${tenant.tenantId} with ${tenant.uuid} failed")
             return this
-          default:
+          case 'in_progress':
+            logger.warning("Enabling (entitle) applications on tenant ${tenant.tenantId} with ${tenant.uuid} is still in progress...")
             sleep time: 30, unit: 'SECONDS'
-            continue
         }
       }
     } catch (RequestException ex) {
