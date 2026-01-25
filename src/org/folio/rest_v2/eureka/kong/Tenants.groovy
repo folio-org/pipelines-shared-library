@@ -163,7 +163,7 @@ class Tenants extends Kong{
             return this
           case 'in_progress':
             logger.warning("Enabling (entitle) applications on tenant ${tenant.tenantId} with ${tenant.uuid} is still in progress...")
-            sleep time: 30, unit: 'SECONDS'
+            sleep(30000)
         }
       }
     } catch (RequestException ex) {
