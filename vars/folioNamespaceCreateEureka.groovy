@@ -141,6 +141,7 @@ void call(CreateNamespaceParameters args) {
 
       EurekaRequestParams installRequestParams = new EurekaRequestParams()
         .withIgnoreErrors(true)
+        .withAsync(true)
         .doLoadReference(args.loadReference)
         .doLoadSample(args.loadSample) as EurekaRequestParams
 

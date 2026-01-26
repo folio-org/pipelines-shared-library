@@ -144,36 +144,35 @@ class Tenants extends Kong{
         responseCodes
       )
       logger.debug("Response from entitlements: ${response}")
-      logger.info("Enabling (entitle) applications on tenant ${tenant.tenantId} with ${tenant.uuid} was finished successfully")
-      return this
-    } catch (RequestException ex) {
-      String contentStr = ex.responseBody?.toString() ?: ex.message
-      if (ex.statusCode == 400) {
-        if (contentStr.contains("value: Entitle flow finished")) {
-          logger.info("""
-          Application(s) are already entitled on tenant, no actions needed..
-          Status: ${ex.statusCode}
-          Response content:
-          ${contentStr}""")
-        } else if (Constants.ERM_MODULES.find { contentStr.contains(it) }) {
-            def matchedModule = Constants.ERM_MODULES.find { contentStr.contains(it) }
-            logger.info("""
-            Application(s) are already entitled on tenant, but need to fix erm entitlement.
-            Status: ${ex.statusCode}
-            Response content:
-            ${contentStr}""")
-            def parts = kongUrl.split("\\.")
-            def properNamespace = parts[0].split("-").length > 4 ? parts[0].split("-")[2..3].join("-") : parts[0].split("-")[2]
-            context.kubectl.ermEntitlementFix(properNamespace, tenant.tenantId, "${parts[0].split("-")[0]}-${parts[0].split("-")[1]}", matchedModule)
-          throw new Exception("Build failed: because of erm entitlement fix done for ${matchedModule} module, need to re-run the entitlement process")
-        } else {
-          logger.error("Enabling application for tenant failed: ${contentStr}")
-          throw new Exception("Build failed: " + contentStr)
+
+      while (true) {
+        def currentEntitlementStatus = restClient.get(
+          generateUrl("/entitlement-flows/${response.body.flowId}"),
+          headers
+        )
+        logger.debug("Current entitlement flow status: ${currentEntitlementStatus.body.status}")
+        switch (currentEntitlementStatus.body.status) {
+          case 'finished':
+            logger.info("Enabling (entitle) applications on tenant ${tenant.tenantId} with ${tenant.uuid} was finished successfully")
+            return this
+          case 'cancelled':
+            logger.error("Enabling (entitle) applications on tenant ${tenant.tenantId} with ${tenant.uuid} was cancelled")
+            return this
+          case 'failed':
+            logger.error("Enabling (entitle) applications on tenant ${tenant.tenantId} with ${tenant.uuid} failed")
+            return this
+          case 'in_progress':
+            logger.warning("Enabling (entitle) applications on tenant ${tenant.tenantId} with ${tenant.uuid} is still in progress...")
+            sleep(30000)
+            break
+          default:
+            logger.error("Unknown status '${currentEntitlementStatus.body.status}' for enabling (entitle) applications on tenant ${tenant.tenantId} with ${tenant.uuid}")
+            return this
         }
-        return this
-      } else {
-        throw ex
       }
+    } catch (RequestException ex) {
+      logger.error("Enabling (entitle) applications on tenant ${tenant.tenantId} with ${tenant.uuid} failed with error: ${ex.getMessage()}")
+      return this
     }
   }
   /**
