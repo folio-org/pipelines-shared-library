@@ -336,7 +336,7 @@ void call(CreateNamespaceParameters args) {
         }
       }
       int counter = 0
-      retry(5) {
+      retry(8) {
         sleep time: (counter == 0 ? 0 : 1), unit: 'MINUTES'
         counter++
 
