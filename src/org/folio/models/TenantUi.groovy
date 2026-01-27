@@ -9,13 +9,19 @@ import org.folio.rest_v2.Constants
 class TenantUi implements Cloneable {
 
   /** Default name for the image. */
-  private static final String IMAGE_NAME = 'ui-bundle'
+  static final String IMAGE_NAME = 'ui-bundle'
 
   /** Identifier of the tenant. */
   String tenantId
 
   /** Domain of the tenant. */
   String domain
+
+  /** Kong domain of the tenant. */
+  String kongDomain
+
+  /** Keycloak domain of the tenant. */
+  String keycloakDomain
 
   /** Branch name of the tenant's repository. */
   String branch
@@ -33,6 +39,10 @@ class TenantUi implements Cloneable {
   String workspace
 
   List<FolioModule> customUiModules = []
+
+  boolean isConsortia = false
+
+  boolean isConsortiaSingleUi = false
 
   /**
    * Constructor that sets the workspace, hash, and branch for the TenantUi.
