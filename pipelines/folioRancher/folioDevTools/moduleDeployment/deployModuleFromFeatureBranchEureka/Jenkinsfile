@@ -187,18 +187,10 @@ ansiColor('xterm') {
 
               sh '''
                 if [ -f Dockerfile ]; then
-                  awk '
-                    /^ENV / {
-                      match($0, /ENV\\s+([A-Z_0-9]+)\\s*=\\s*(.*)/, arr)
-                      env[arr[1]] = arr[2]
-                    }
-                    /COPY/ && NF {
-                      for (var in env) {
-                        gsub("\\${" var "\\}", env[var])
-                      }
-                    }
-                    { print }
-                  ' Dockerfile > Dockerfile.tmp && mv Dockerfile.tmp Dockerfile
+                  grep "^ENV " Dockerfile | sed 's/ENV //' | while IFS='=' read -r var val; do
+                    val=$(echo "$val" | xargs)
+                    sed -i "s|\$\{$var\}|$val|g" Dockerfile
+                  done
                 fi
               '''
 
