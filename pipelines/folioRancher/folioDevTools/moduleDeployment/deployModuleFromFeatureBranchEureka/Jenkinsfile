@@ -185,20 +185,20 @@ ansiColor('xterm') {
               writeFile file: 'werf.yaml', text: libraryResource('werf/module/werf.yaml')
               writeFile file: 'werf-giterminism.yaml', text: libraryResource('werf/module/werf-giterminism.yaml')
 
-              sh '''
-                if [ -f Dockerfile ]; then
-                  grep "^ENV " Dockerfile | sed 's/ENV //' | while IFS='=' read -r var val; do
-                    val=$(echo "$val" | xargs)
-                    sed -i 's|\${'"$var"'}|'"$val"'|g' Dockerfile
-                  done
-                  
-                  find . -maxdepth 2 -type d -name target | while read -r target_dir; do
-                    if [ "$target_dir" != "./target" ]; then
-                      echo "  - ${target_dir#./}" >> werf.yaml
-                    fi
-                  done
-                fi
-              '''
+//              sh '''
+//                if [ -f Dockerfile ]; then
+//                  grep "^ENV " Dockerfile | sed 's/ENV //' | while IFS='=' read -r var val; do
+//                    val=$(echo "$val" | xargs)
+//                    sed -i 's|\${'"$var"'}|'"$val"'|g' Dockerfile
+//                  done
+//
+//                  find . -maxdepth 2 -type d -name target | while read -r target_dir; do
+//                    if [ "$target_dir" != "./target" ]; then
+//                      echo "  - ${target_dir#./}" >> werf.yaml
+//                    fi
+//                  done
+//                fi
+//              '''
 
               withAWS(credentials: Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID, region: Constants.AWS_REGION) {
                 String login = ecrLogin()
