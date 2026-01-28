@@ -189,7 +189,7 @@ ansiColor('xterm') {
                 if [ -f Dockerfile ]; then
                   grep "^ENV " Dockerfile | sed 's/ENV //' | while IFS='=' read -r var val; do
                     val=$(echo "$val" | xargs)
-                    sed -i "s|\$\{$var\}|$val|g" Dockerfile
+                    sed -i 's|\${'"$var"'}|'"$val"'|g' Dockerfile
                   done
                 fi
               '''
