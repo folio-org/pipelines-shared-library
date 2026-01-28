@@ -156,13 +156,15 @@ class Tenants extends Kong{
             logger.info("Enabling (entitle) applications on tenant ${tenant.tenantId} with ${tenant.uuid} was finished successfully")
             return this
           case 'cancelled':
+            logger.info("Error message: ${restClient.get(generateUrl("/entitlement-flows/${response.body.flowId}?includeStages=true"))}")
             logger.error("Enabling (entitle) applications on tenant ${tenant.tenantId} with ${tenant.uuid} was cancelled")
             return this
           case 'failed':
+            logger.info("Error message: ${restClient.get(generateUrl("/entitlement-flows/${response.body.flowId}?includeStages=true"))}")
             logger.error("Enabling (entitle) applications on tenant ${tenant.tenantId} with ${tenant.uuid} failed")
             return this
           case 'in_progress':
-            logger.warning("Enabling (entitle) applications on tenant ${tenant.tenantId} with ${tenant.uuid} is still in progress...")
+            logger.debug("Enabling (entitle) applications on tenant ${tenant.tenantId} with ${tenant.uuid} is still in progress...")
             sleep(30000)
             break
           default:
