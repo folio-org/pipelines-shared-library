@@ -233,7 +233,9 @@ spec:
       command: 'sleep',
       args: '99d',
       resourceRequestMemory: resourceRequestMemory,
-      resourceLimitMemory: resourceLimitMemory
+      resourceLimitMemory: resourceLimitMemory,
+      resourceRequestEphemeralStorage: '10Gi',
+      resourceLimitEphemeralStorage: '20Gi'
     )
   }
 
