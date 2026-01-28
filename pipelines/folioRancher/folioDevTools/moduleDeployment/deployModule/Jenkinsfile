@@ -1,12 +1,12 @@
 import hudson.AbortException
 import org.folio.Constants
+import org.folio.models.FolioInstallJson
 import org.folio.jenkins.PodTemplates
 import org.folio.models.EurekaNamespace
-import org.folio.models.FolioInstallJson
 import org.folio.models.module.EurekaModule
 import org.folio.models.module.FolioModule
-import org.folio.rest_v2.eureka.Eureka
 import org.folio.rest_v2.eureka.kong.Tenants
+import org.folio.rest_v2.eureka.Eureka
 import org.folio.utilities.GitHubClient
 import org.folio.utilities.Logger
 import org.jenkinsci.plugins.pipeline.modeldefinition.Utils
@@ -38,7 +38,7 @@ if (params.REFRESH_PARAMETERS) {
 }
 
 if (params.NAMESPACE in Constants.RANCHER_PROTECTED_NAMESPACES) {
-  folioCommon.kitfoxApproval()
+ folioCommon.kitfoxApproval()
 }
 
 
@@ -196,168 +196,149 @@ ansiColor('xterm') {
         // Check if ECR Repository exists, if not create it
         common.checkEcrRepoExistence(module.name)
         // Put Container Image to Amazon ECR
-        dir(module.buildDir) {
-          switch (module.buildTool) {
-            case 'maven':
-              container('werf') {
+        container('kaniko') {
+          dir(module.buildDir) {
+            switch (module.buildTool) {
+              case 'maven':
                 module.modDescriptorPath = "${module.buildDir}/target/ModuleDescriptor.json"
 
-                writeFile file: 'werf.yaml', text: libraryResource('werf/module/werf.yaml')
-                writeFile file: 'werf-giterminism.yaml', text: libraryResource('werf/module/werf-giterminism.yaml')
-
+                // Build and Push Container Image
                 withAWS(credentials: Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID, region: Constants.AWS_REGION) {
-                  String login = ecrLogin()
-                  sh """
-                    set -eu +x
-                    ${login.replace('docker', 'werf cr')}
-                    set -x
-                    export MODULE_NAME=${module.name}
-                    werf build ${module.name} --repo ${Constants.ECR_FOLIO_REPOSITORY}/werf-shadow \
-                      --final-repo ${Constants.ECR_FOLIO_REPOSITORY}/${module.name} \
-                      --add-custom-tag ${module.version} --loose-giterminism
-                  """.stripIndent()
+                  ecrLogin()
+                  folioKaniko.dockerHubLogin()
+                  sh "/kaniko/executor --destination ${Constants.ECR_FOLIO_REPOSITORY}/${module.name}:${module.version} --context ."
                 }
-              }
-              break
+                break
 
-            case 'gradle':
-              container('java') {
+              case 'gradle':
                 module.modDescriptorPath = "${module.buildDir}/build/resources/main/okapi/ModuleDescriptor.json"
 
                 // Build Container Image
                 String shellCmd = """
-                echo '[INFO] Build Container Image'
-                ./gradlew ${commonGradleOpts} -PdockerRepo=folioci -PappVersion=${module.version} buildImage
+                    echo '[INFO] Build Container Image'
+                    ./gradlew ${commonGradleOpts} -PdockerRepo=folioci -PappVersion=${module.version} buildImage
 
-                echo '[INFO] Get rid of BUILD_NUMBER in Module Descriptor'
-                [ -e ${module.modDescriptorPath} ] && sed -i 's#${module.version}.${env.BUILD_NUMBER}#${module.version}#g' ${module.modDescriptorPath}
-              """.stripIndent().trim()
+                    echo '[INFO] Rename Local Container Image'
+                    docker tag folioci/${module.name}:${module.version}.${env.BUILD_NUMBER} ${module.name}:${module.version}
+
+                    echo '[INFO] Get rid of BUILD_NUMBER in Module Descriptor'
+                    [ -e ${module.modDescriptorPath} ] && sed -i 's#${module.version}.${env.BUILD_NUMBER}#${module.version}#g' ${module.modDescriptorPath}
+                  """.stripIndent().trim()
 
                 sh(label: 'Build Container Image', script: shellCmd)
-              }
 
-              container('dind') {
-                sh "docker tag folioci/${module.name}:${module.version}.${env.BUILD_NUMBER} ${module.name}:${module.version}"
+                // Push Container Image to Amazon ECR
+                docker.image("${module.name}:${module.version}").push()
+                break
 
-                withAWS(credentials: Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID, region: Constants.AWS_REGION) {
-                  sh """
-                  set +x 
-                  ${ecrLogin()}
-                """
-                  docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}") {
-                    docker.image("${module.name}:${module.version}").push()
-                  }
-                }
-              }
-              break
-
-            default:
-              throw new RuntimeException("Unsupported build tool for Eureka module: ${module.buildTool}")
+              default:
+                throw new RuntimeException("Unsupported build tool for Eureka module: ${module.buildTool}")
+            }
           }
         }
+
+        // Upload Module Descriptor to Eureka Module Registry
+        sh(label: "Upload Module Descriptor to Eureka Module Registry",
+          returnStdout: false,
+          script: "[ -e ${module.modDescriptorPath} ] && curl -sS -X PUT ${Constants.EUREKA_REGISTRY_URL}${module.name}-${module.version} --upload-file ${module.modDescriptorPath}"
+        )
+
+        // Save Module Descriptor to Module instance for further usage
+        module.descriptor = [readJSON(file: module.modDescriptorPath)]
       }
-
-      // Upload Module Descriptor to Eureka Module Registry
-      sh(label: "Upload Module Descriptor to Eureka Module Registry",
-        returnStdout: false,
-        script: "[ -e ${module.modDescriptorPath} ] && curl -sS -X PUT ${Constants.EUREKA_REGISTRY_URL}${module.name}-${module.version} --upload-file ${module.modDescriptorPath}"
-      )
-
-      // Save Module Descriptor to Module instance for further usage
-      module.descriptor = [readJSON(file: module.modDescriptorPath)]
     }
-  }
 
-  stage('Generate context') {
-    eureka.getExistedTenantsForModule("${namespace.getClusterName()}-${namespace.getNamespaceName()}", module.getName())
-      .values().each { namespace.addTenant(it) }
+    stage('Generate context') {
+      eureka.getExistedTenantsForModule("${namespace.getClusterName()}-${namespace.getNamespaceName()}", module.getName())
+        .values().each {namespace.addTenant(it)}
 
-    if (!(namespace.tenants))
-      throw new Exception("There are no tenants with the module ${module.getName()}")
-  }
+      if (!(namespace.tenants))
+        throw new Exception("There are no tenants with the module ${module.getName()}")
+    }
 
-  stage("Retrieve module's sidecar") {
-    folioHelm.withKubeConfig(namespace.getClusterName()) {
-      String sidecarImage =
-        kubectl.getDeploymentContainerImageName(namespace.getNamespaceName(), module.getName(), "sidecar")
-          .replace(':', '-')
-
-      // In case updated module doesn't have Sidecar let's seek for it in other modules.
-      if (!sidecarImage) {
-        EurekaModule moduleWithSidecar = namespace.modules.getInstallJsonObject().find { fetchedModule ->
-          kubectl.getDeploymentContainerImageName(namespace.getNamespaceName(), fetchedModule.getName(), "sidecar")
+    stage("Retrieve module's sidecar") {
+      folioHelm.withKubeConfig(namespace.getClusterName()) {
+        String sidecarImage =
+          kubectl.getDeploymentContainerImageName(namespace.getNamespaceName(), module.getName(), "sidecar")
             .replace(':', '-')
+
+        // In case updated module doesn't have Sidecar let's seek for it in other modules.
+        if (!sidecarImage) {
+          EurekaModule moduleWithSidecar = namespace.modules.getInstallJsonObject().find { fetchedModule ->
+            kubectl.getDeploymentContainerImageName(namespace.getNamespaceName(), fetchedModule.getName(), "sidecar")
+              .replace(':', '-')
+          }
+
+          sidecarImage =
+            kubectl.getDeploymentContainerImageName(namespace.getNamespaceName(), moduleWithSidecar.getName(), "sidecar")
+              .replace(':', '-')
         }
 
-        sidecarImage =
-          kubectl.getDeploymentContainerImageName(namespace.getNamespaceName(), moduleWithSidecar.getName(), "sidecar")
-            .replace(':', '-')
+        if (sidecarImage)
+          namespace.modules.addModule(sidecarImage)
+        else
+          throw new AbortException('There are no modules with sidecar in the namespace')
       }
 
-      if (sidecarImage)
-        namespace.modules.addModule(sidecarImage)
-      else
-        throw new AbortException('There are no modules with sidecar in the namespace')
+      logger.debug("Configured Tenants: ${namespace.tenants}")
+      logger.debug("Configured Applications: ${namespace.applications}")
+      logger.debug("Namespace modules: ${namespace.modules.installJsonObject}")
     }
 
-    logger.debug("Configured Tenants: ${namespace.tenants}")
-    logger.debug("Configured Applications: ${namespace.applications}")
-    logger.debug("Namespace modules: ${namespace.modules.installJsonObject}")
-  }
-
-  // 1. Register Application Descriptor with Updated Module Version
-  stage('[Rest] Update App Descriptor') {
-    try {
-      updatedAppInfoMap = eureka.updateAppDescriptorFlow(namespace.applications, module)
-    } catch (e) {
-      logger.warning("Failed to register new application descriptor: ${e}")
-      eureka.removeResourcesOnFailFlow(updatedAppInfoMap, module)
-      throw e
-    }
-  }
-
-  // 2. Enable New Module Version (Discovery) for Application
-  stage('[Rest] Module Discovery') {
-    try {
-      eureka.registerModulesFlow(new FolioInstallJson<FolioModule>(EurekaModule.class).addModule(module))
-    } catch (e) {
-      logger.warning("Failed to perform new module discovery: ${e}")
-      eureka.removeResourcesOnFailFlow(updatedAppInfoMap, module)
-      throw e
-    }
-  }
-
-  // 3. Deploy New Module Version to Rancher Namespace via Helm
-  stage('[Helm] Deploy Module Ver') {
-    try {
-      folioHelm.withKubeConfig(namespace.clusterName) {
-        folioHelm.deployFolioModule(namespace, module.name, module.version, false, namespace.defaultTenantId)
-        echo "Module ${module.name}-${module.version} deployed to ${namespace.clusterName} namespace ${namespace.workspaceName}"
-        kubectl.checkDeploymentStatus(module.name, namespace.namespaceName, "300")
-        echo "Waiting another 2 minutes to get module initialized..."
-        sleep time: 2, unit: 'MINUTES'
+    // 1. Register Application Descriptor with Updated Module Version
+    stage('[Rest] Update App Descriptor') {
+      try {
+        updatedAppInfoMap = eureka.updateAppDescriptorFlow(namespace.applications, module)
+      } catch (e) {
+        logger.warning("Failed to register new application descriptor: ${e}")
+        eureka.removeResourcesOnFailFlow(updatedAppInfoMap, module)
+        throw e
       }
-    } catch (e) {
-      logger.warning("Failed to deploy new module version via Helm: ${e}")
-      eureka.removeResourcesOnFailFlow(updatedAppInfoMap, module)
-      throw e
     }
-  }
 
-  // 4. Enable Application Descriptor with Updated Module Version for Tenants in Namespace
-  stage('[Rest] Enable New App') {
-    try {
-      namespace.getTenants().values().each { tenant ->
-        Tenants.get(eureka.getKong()).updateApplications(tenant, updatedAppInfoMap.values().toList())
+      // 2. Enable New Module Version (Discovery) for Application
+      stage('[Rest] Module Discovery') {
+        try {
+          eureka.registerModulesFlow(new FolioInstallJson<FolioModule>(EurekaModule.class).addModule(module))
+        } catch (e) {
+          logger.warning("Failed to perform new module discovery: ${e}")
+          eureka.removeResourcesOnFailFlow(updatedAppInfoMap, module)
+          throw e
+        }
       }
-    } catch (e) {
-      logger.warning("Failed to enable (entitle) new application version: ${e}")
-      eureka.removeResourcesOnFailFlow(updatedAppInfoMap, module)
-      throw e
-    }
-  }
 
-  stage('[Rest] Remove Stale Resources') {
-    eureka.removeStaleResourcesFlow(namespace.applications, updatedAppInfoMap, module)
+    // 3. Deploy New Module Version to Rancher Namespace via Helm
+    stage('[Helm] Deploy Module Ver') {
+      try {
+        folioHelm.withKubeConfig(namespace.clusterName) {
+          folioHelm.deployFolioModule(namespace, module.name, module.version, false, namespace.defaultTenantId)
+          echo "Module ${module.name}-${module.version} deployed to ${namespace.clusterName} namespace ${namespace.workspaceName}"
+          kubectl.checkDeploymentStatus(module.name, namespace.namespaceName, "300")
+          echo "Waiting another 2 minutes to get module initialized..."
+          sleep time: 2, unit: 'MINUTES'
+        }
+      } catch (e) {
+        logger.warning("Failed to deploy new module version via Helm: ${e}")
+        eureka.removeResourcesOnFailFlow(updatedAppInfoMap, module)
+        throw e
+      }
+    }
+
+      // 4. Enable Application Descriptor with Updated Module Version for Tenants in Namespace
+      stage('[Rest] Enable New App') {
+        try {
+          namespace.getTenants().values().each {tenant ->
+            Tenants.get(eureka.getKong()).updateApplications(tenant, updatedAppInfoMap.values().toList())
+          }
+        } catch (e) {
+          logger.warning("Failed to enable (entitle) new application version: ${e}")
+          eureka.removeResourcesOnFailFlow(updatedAppInfoMap, module)
+          throw e
+        }
+      }
+
+    stage('[Rest] Remove Stale Resources') {
+      eureka.removeStaleResourcesFlow(namespace.applications, updatedAppInfoMap, module)
+    }
   }
 }

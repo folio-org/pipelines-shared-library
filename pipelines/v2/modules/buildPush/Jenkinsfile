@@ -170,67 +170,34 @@ def buildAndPushImage(FolioModule module, String args) {
   dir(module.buildDir) {
     switch (module.buildTool) {
       case [ModuleBuildTool.MAVEN, ModuleBuildTool.NONE]:
-        container('werf') {
-
-          String werfConfig
-          switch (module.type) {
-            case ModuleType.KONG:
-              werfConfig = 'folio-kong'
-              break
-            case ModuleType.KEYCLOAK:
-              werfConfig = 'folio-keycloak'
-              break
-            default:
-              werfConfig = 'module'
-              break
-          }
-
-          writeFile file: 'werf.yaml', text: libraryResource("werf/${werfConfig}/werf.yaml")
-          if(fileExists("werf/${werfConfig}/werf-giterminism.yaml")) {
-            writeFile file: 'werf-giterminism.yaml', text: libraryResource("werf/${werfConfig}/werf-giterminism.yaml")
-          }
-
+        container('kaniko') {
+          String buildArgs = module.type == ModuleType.KONG ? '--build-arg TARGETARCH=amd64' : ''
           withAWS(credentials: Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID, region: Constants.AWS_REGION) {
-            String login = ecrLogin()
-            sh """
-              set -eu +x
-              ${login.replace('docker', 'werf cr')}
-              set -x
-              export MODULE_NAME=${module.name}
-              werf build ${module.name} --repo ${Constants.ECR_FOLIO_REPOSITORY}/werf-shadow \
-                --final-repo ${Constants.ECR_FOLIO_REPOSITORY}/${module.name} \
-                --add-custom-tag ${module.version} --loose-giterminism
-            """.stripIndent()
+            ecrLogin()
+            folioKaniko.dockerHubLogin()
+            // Build and Push Docker Image
+            sh "/kaniko/executor --destination ${Constants.ECR_FOLIO_REPOSITORY}/${module.name}:${module.version} $buildArgs --context ."
           }
         }
         break
 
       case ModuleBuildTool.GRADLE:
-        container('java') {
+        docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}", "ecr:${Constants.AWS_REGION}:${Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID}") {
           String shellCmd = """
             echo '[INFO] Build Container Image'
             ./gradlew ${args} -PdockerRepo=folioci -PappVersion=${module.version} buildImage
-  
+
+            echo '[INFO] Rename Local Container Image'
+            docker tag folioci/${module.name}:${module.version}.${env.BUILD_NUMBER} ${module.name}:${module.version}
+
             echo '[INFO] Get rid of BUILD_NUMBER in Module Descriptor'
             [ -e ${module.modDescriptorPath} ] && sed -i 's#${module.version}.${env.BUILD_NUMBER}#${module.version}#g' ${module.modDescriptorPath}
           """.stripIndent().trim()
 
           sh(label: 'Build Container Image', script: shellCmd)
-        }
-
-        container('dind') {
-          sh "docker tag folioci/${module.name}:${module.version}.${env.BUILD_NUMBER} ${module.name}:${module.version}"
           sh "docker save ${module.name}:${module.version} | gzip > ${module.name}-${module.version}.tar.gz"
 
-          withAWS(credentials: Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID, region: Constants.AWS_REGION) {
-            sh """
-              set +x 
-              ${ecrLogin()}
-            """
-            docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}") {
-              docker.image("${module.name}:${module.version}").push()
-            }
-          }
+          docker.image("${module.name}:${module.version}").push()
         }
         break
 

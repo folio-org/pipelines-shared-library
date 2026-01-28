@@ -30,7 +30,7 @@ PodTemplates podTemplates = new PodTemplates(this, true)
 def dockerfilePath = './scripts/docker/jenkinsAgent/'
 
 ansiColor('xterm') {
-  podTemplates.werfAgent {
+  podTemplates.kanikoAgent {
     stage('[Git] Checkout source') {
       checkout scmGit(
         branches: [[name: "*/${env.DOCKERFILE_BRANCH}"]],
@@ -41,21 +41,14 @@ ansiColor('xterm') {
 
     stage('[Docker] Build and push') {
       dir(dockerfilePath) {
-        container('werf') {
+        container('kaniko') {
           withAWS(credentials: Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID, region: Constants.AWS_REGION) {
-            String login = ecrLogin()
-            sh """
-              set -eu +x
-              ${login.replace('docker', 'werf cr')}
-              set -x
-              export TERRAFORM_VERSION=${env.TERRAFORM_VER.trim()}
-              export HELM_VERSION=${env.HELM_VER.trim()}
-              export KUBECTL_VERSION=${env.KUBECTL_VER.trim()}
-              export KAFKA_VERSION=${env.KAFKA_VER.trim()}
-              werf build --repo ${Constants.ECR_FOLIO_REPOSITORY}/werf-shadow \
-                --final-repo ${Constants.ECR_FOLIO_REPOSITORY}/folio-jenkins-agent \
-                --add-custom-tag ${env.IMAGE_TAG} --loose-giterminism
-            """.stripIndent()
+            ecrLogin()
+            sh """/kaniko/executor  --build-arg TERRAFORM_VERSION=${env.TERRAFORM_VER.trim()} \
+--build-arg HELM_VERSION=${env.HELM_VER} \
+--build-arg KUBECTL_VERSION=${env.KUBECTL_VER} \
+--build-arg KAFKA_VERSION=${env.KAFKA_VER} \
+--destination folio-jenkins-agent:${env.IMAGE_TAG} --dockerfile ./Dockerfile --context ."""
           }
         }
       }

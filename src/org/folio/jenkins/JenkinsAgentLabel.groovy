@@ -53,7 +53,6 @@ enum JenkinsAgentLabel {
    */
   STRIPES_AGENT("stripes-agent"),
 
-  @Deprecated
   /**
    * Jenkins agent for kaniko(docker) builds.
    */

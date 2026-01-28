@@ -107,22 +107,19 @@ ansiColor('xterm') {
 
       stage('[Docker] Build and Push') {
         common.checkEcrRepoExistence(sidecarModuleName)
-        container('werf') {
-          dir(sidecarWorkDir) {
-            writeFile file: 'werf.yaml', text: libraryResource("werf/${sidecarModuleName}/werf.yaml")
-
-            withAWS(credentials: Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID, region: Constants.AWS_REGION) {
-              String login = ecrLogin()
-              String imageName = params.NATIVE ? 'sidecar-native' : 'sidecar'
-
-              sh """
-                set -eu +x
-                ${login.replace('docker', 'werf cr')}
-                set -x
-                werf build ${imageName} --repo ${Constants.ECR_FOLIO_REPOSITORY}/werf-shadow \
-                  --final-repo ${Constants.ECR_FOLIO_REPOSITORY}/${params.SC_ECR_REGISTRY} \
-                  --add-custom-tag ${sidecarVersion} --loose-giterminism
-              """.stripIndent()
+        container('kaniko') {
+          withAWS(credentials: Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID, region: Constants.AWS_REGION) {
+            ecrLogin()
+            folioKaniko.dockerHubLogin()
+            // Build and push the image
+            dir(sidecarWorkDir) {
+              if (params.NATIVE) {
+                sh """/kaniko/executor --destination \
+                  ${Constants.ECR_FOLIO_REPOSITORY}/${params.SC_ECR_REGISTRY}:${sidecarVersion} -f docker/Dockerfile.native-micro --context .""".stripIndent()
+              } else {
+                sh """/kaniko/executor --destination \
+                  ${Constants.ECR_FOLIO_REPOSITORY}/${params.SC_ECR_REGISTRY}:${sidecarVersion} --context .""".stripIndent()
+              }
             }
           }
         }

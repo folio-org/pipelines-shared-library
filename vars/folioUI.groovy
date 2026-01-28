@@ -14,7 +14,7 @@ void build(String okapiUrl, OkapiTenant tenant, boolean isEureka = false, String
   TenantUi tenantUi = tenant.getTenantUi()
   PodTemplates podTemplates = new PodTemplates(this)
 
-  podTemplates.stripesAgent {
+  podTemplates.werfAgent {
     stage('[UI] Checkout') {
       cleanWs()
 
@@ -54,8 +54,7 @@ void build(String okapiUrl, OkapiTenant tenant, boolean isEureka = false, String
             set -x
             export OKAPI_URL=${okapiUrl}
             export TENANT_ID=${tenant.getTenantId()}
-            werf build ${imageName} --repo ${Constants.ECR_FOLIO_REPOSITORY}/werf-shadow \
-              --final-repo ${Constants.ECR_FOLIO_REPOSITORY}}/${imageName} \
+            werf build ${imageName} --repo ${Constants.ECR_FOLIO_REPOSITORY}}/${imageName} \
               --add-custom-tag ${tenantUi.getTag()} --loose-giterminism
           """
         }

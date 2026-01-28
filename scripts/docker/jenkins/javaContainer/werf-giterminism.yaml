@@ -1,8 +1,0 @@
-giterminismConfigVersion: 1
-config:
-  goTemplateRendering:
-    allowEnvVariables:
-    - TERRAFORM_VERSION
-    - HELM_VERSION
-    - KUBECTL_VERSION
-    - KAFKA_VERSION

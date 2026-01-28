@@ -2,18 +2,18 @@
 import hudson.AbortException
 import org.folio.Constants
 import org.folio.jenkins.PodTemplates
-import org.folio.models.EurekaNamespace
 import org.folio.models.EurekaRequestParams
 import org.folio.models.FolioInstallJson
+import org.folio.models.EurekaNamespace
 import org.folio.models.module.EurekaModule
 import org.folio.models.module.FolioModule
-import org.folio.models.module.ModuleBuildTool
-import org.folio.rest_v2.eureka.Eureka
 import org.folio.rest_v2.eureka.Keycloak
 import org.folio.rest_v2.eureka.kong.Tenants
+import org.folio.models.module.ModuleBuildTool
+import org.folio.rest_v2.eureka.Eureka
 import org.folio.utilities.GitHubClient
-import org.folio.utilities.Logger
 import org.folio.utilities.RestClient
+import org.folio.utilities.Logger
 import org.jenkinsci.plugins.workflow.libs.Library
 
 @Library('pipelines-shared-library') _
@@ -175,63 +175,44 @@ ansiColor('xterm') {
     stage('[Docker] Build and push') {
       // Check if ECR Repository exists, if not create it
       common.checkEcrRepoExistence(module.name)
-
-      dir(module.buildDir) {
-        switch (module.buildTool) {
-          case ModuleBuildTool.MAVEN:
-            container('werf') {
+      // Put Docker Image to Amazon ECR
+      container('kaniko') {
+        dir(module.buildDir) {
+          switch (module.buildTool) {
+            case ModuleBuildTool.MAVEN:
               module.modDescriptorPath = "${module.buildDir}/target/ModuleDescriptor.json"
-
-              writeFile file: 'werf.yaml', text: libraryResource('werf/module/werf.yaml')
-              writeFile file: 'werf-giterminism.yaml', text: libraryResource('werf/module/werf-giterminism.yaml')
-
               withAWS(credentials: Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID, region: Constants.AWS_REGION) {
-                String login = ecrLogin()
-                sh """
-                  set -eu +x
-                  ${login.replace('docker', 'werf cr')}
-                  set -x
-                  export MODULE_NAME=${module.name}
-                  werf build ${module.name} --repo ${Constants.ECR_FOLIO_REPOSITORY}/werf-shadow \
-                    --final-repo ${Constants.ECR_FOLIO_REPOSITORY}/${module.name} \
-                    --add-custom-tag ${module.version} --loose-giterminism
-                """.stripIndent()
+                ecrLogin()
+                folioKaniko.dockerHubLogin()
+                // Build and Push Docker Image
+                sh "/kaniko/executor --destination ${Constants.ECR_FOLIO_REPOSITORY}/${module.name}:${module.version} --context ."
               }
-            }
-            break
+              break
 
-          case ModuleBuildTool.GRADLE:
-            container('java') {
+            case ModuleBuildTool.GRADLE:
               module.modDescriptorPath = "${module.buildDir}/build/resources/main/okapi/ModuleDescriptor.json"
 
+              // Build Docker Image
               String shellCmd = """
-                echo '[INFO] Build Docker Image'
-                ./gradlew ${commonGradleOpts} -PdockerRepo=folioci -PappVersion=${module.version} buildImage
+                  echo '[INFO] Build Docker Image'
+                  ./gradlew ${commonGradleOpts} -PdockerRepo=folioci -PappVersion=${module.version} buildImage
 
-                echo '[INFO] Get rid of BUILD_NUMBER in Module Descriptor'
-                [ -e ${module.modDescriptorPath} ] && sed -i 's#${module.version}.${env.BUILD_NUMBER}#${module.version}#g' ${module.modDescriptorPath}
-              """.stripIndent()
+                  echo '[INFO] Rename Local Docker Image'
+                  docker tag folioci/${module.name}:${module.version}.${env.BUILD_NUMBER} ${module.name}:${module.version}
+
+                  echo '[INFO] Get rid of BUILD_NUMBER in Module Descriptor'
+                  [ -e ${module.modDescriptorPath} ] && sed -i 's#${module.version}.${env.BUILD_NUMBER}#${module.version}#g' ${module.modDescriptorPath}
+                """.stripIndent()
 
               sh(label: 'Build Docker Image', script: shellCmd)
-            }
 
-            container('dind') {
-              sh "docker tag folioci/${module.name}:${module.version}.${env.BUILD_NUMBER} ${module.name}:${module.version}"
+              // Push Docker Image to Amazon ECR
+              docker.image("${module.name}:${module.version}").push()
+              break
 
-              withAWS(credentials: Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID, region: Constants.AWS_REGION) {
-                sh """
-                  set +x 
-                  ${ecrLogin()}
-                """
-                docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}") {
-                  docker.image("${module.name}:${module.version}").push()
-                }
-              }
-            }
-            break
-
-          default:
-            error("Unsupported build tool: ${module.buildTool}")
+            default:
+              error("Unsupported build tool: ${module.buildTool}")
+          }
         }
       }
 

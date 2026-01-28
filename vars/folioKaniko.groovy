@@ -1,6 +1,5 @@
 import org.folio.Constants
 
-@Deprecated
 /**
  * Logs in to Docker Hub using Kaniko by creating a Docker configuration file with encoded credentials.
  * <a href="https://github.com/GoogleContainerTools/kaniko/blob/main/README.md#pushing-to-docker-hub">Pushing to Docker Hub</a>
