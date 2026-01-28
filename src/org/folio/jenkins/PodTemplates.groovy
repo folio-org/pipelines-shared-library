@@ -117,7 +117,7 @@ spec:
           ]
         )]) {
       body.call()
-    }
+        }
   }
 
   /**
@@ -184,7 +184,7 @@ spec:
       resourceRequestMemory: resourceRequestMemory,
       resourceLimitMemory: resourceLimitMemory
     )
-  }
+    }
 
   /**
    * Builds a Kaniko container for Docker image builds without Docker daemon.
@@ -204,23 +204,6 @@ spec:
       image: 'gcr.io/kaniko-project/executor:debug',
       alwaysPullImage: true,
       envVars: [new KeyValueEnvVar('KANIKO_DIR', "${WORKING_DIR}/kaniko")] + extraEnvVars,
-      command: 'sleep',
-      args: '99d',
-      resourceRequestMemory: resourceRequestMemory,
-      resourceLimitMemory: resourceLimitMemory
-    )
-  }
-
-  private Object buildWerfContainer(
-    List<KeyValueEnvVar> extraEnvVars = [],
-    String resourceRequestMemory = '2Gi',
-    String resourceLimitMemory = '12Gi'
-  ) {
-    return steps.containerTemplate(
-      name: 'werf',
-      image: 'registry.werf.io/werf/werf:2-stable',
-      alwaysPullImage: true,
-//      envVars: [new KeyValueEnvVar('WERF_DIR', "${WORKING_DIR}/werf")] + extraEnvVars,
       command: 'sleep',
       args: '99d',
       resourceRequestMemory: resourceRequestMemory,
@@ -432,29 +415,6 @@ spec:
       ]
     )) {
       steps.node(JenkinsAgentLabel.KANIKO_AGENT.getLabel()) {
-        body.call()
-      }
-    }
-  }
-
-  void werfAgent(Closure body) {
-    createTemplate(new PodTemplateConfig(
-      label: JenkinsAgentLabel.WERF_AGENT.getLabel(),
-      yaml: """
-spec:
-  topologySpreadConstraints:
-  - maxSkew: 2
-    topologyKey: kubernetes.io/hostname
-    whenUnsatisfiable: DoNotSchedule
-    labelSelector:
-      matchLabels:
-        jenkins/label: "${JenkinsAgentLabel.WERF_AGENT.getLabel()}"
-""",
-      containers: [
-        buildWerfContainer()
-      ]
-    )) {
-      steps.node(JenkinsAgentLabel.WERF_AGENT.getLabel()) {
         body.call()
       }
     }

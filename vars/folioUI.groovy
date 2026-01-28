@@ -14,7 +14,7 @@ void build(String okapiUrl, OkapiTenant tenant, boolean isEureka = false, String
   TenantUi tenantUi = tenant.getTenantUi()
   PodTemplates podTemplates = new PodTemplates(this)
 
-  podTemplates.werfAgent {
+  podTemplates.stripesAgent {
     stage('[UI] Checkout') {
       cleanWs()
 
@@ -37,26 +37,17 @@ void build(String okapiUrl, OkapiTenant tenant, boolean isEureka = false, String
     }
 
     stage('[UI] Build and Push') {
-      container('werf') {
-        String imageName = 'ui-bundle'
-        writeFile file: 'werf.yaml', text: libraryResource('werf/platform-complete/werf.yaml')
-        writeFile file: 'werf-giterminism.yaml', text: libraryResource('werf/platform-complete/werf-giterminism.yaml')
-
-        // Add YARN_CACHE_FOLDER to the Dockerfile
-        sh "sed -i '/^FROM /a ENV YARN_CACHE_FOLDER=${WORKSPACE}/.cache/yarn' docker/Dockerfile"
-
+      container('kaniko') {
         withAWS(credentials: Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID, region: Constants.AWS_REGION) {
-          String login = ecrLogin()
-
-          sh """
-            set -eu +x
-            ${login.replace('docker', 'werf cr')}
-            set -x
-            export OKAPI_URL=${okapiUrl}
-            export TENANT_ID=${tenant.getTenantId()}
-            werf build ${imageName} --repo ${Constants.ECR_FOLIO_REPOSITORY}}/${imageName} \
-              --add-custom-tag ${tenantUi.getTag()} --loose-giterminism
-          """
+          ecrLogin()
+          folioKaniko.dockerHubLogin()
+          // Add YARN_CACHE_FOLDER to the Dockerfile
+          sh "sed -i '/^FROM /a ENV YARN_CACHE_FOLDER=${WORKSPACE}/.cache/yarn' docker/Dockerfile"
+          // Build and push the image
+          sh """/kaniko/executor --destination ${tenantUi.getImageName()} \
+--build-arg OKAPI_URL=${okapiUrl} \
+--build-arg TENANT_ID=${tenant.getTenantId()} \
+--dockerfile docker/Dockerfile --context ."""
         }
       }
     }
@@ -67,7 +58,7 @@ void build(String okapiUrl, OkapiTenant tenant, boolean isEureka = false, String
       }
     }
   }
-}
+           }
 
 void deploy(RancherNamespace namespace, OkapiTenant tenant) {
   PodTemplates podTemplates = new PodTemplates(this)
@@ -89,7 +80,7 @@ void buildAndDeploy(RancherNamespace namespace, OkapiTenant tenant, boolean isEu
                     , String keycloakDomain = '', boolean enableEcsRequests = false, boolean singleConsortiaUI = false) {
   build("https://${namespace.getDomains()['okapi']}", tenant, isEureka, kongDomain, keycloakDomain, enableEcsRequests, singleConsortiaUI)
   deploy(namespace, tenant)
-}
+                    }
 
 private void _updateStripesConfigJsFile(List<String> uiModulesToAdd) {
   final String stripesConfigFile = 'stripes.config.js'
@@ -104,8 +95,8 @@ private void _updateStripesConfigJsFile(List<String> uiModulesToAdd) {
       echo "Module ${moduleName} added successfully!"
     } else {
       echo "Module '${moduleName}' already exists."
+      }
     }
-  }
 
   // Ensure that changes are written back to the file
   try {
@@ -114,7 +105,7 @@ private void _updateStripesConfigJsFile(List<String> uiModulesToAdd) {
     echo "Error writing to file: ${e.message}"
     throw e
   }
-}
+  }
 
 /**
  * Handles Eureka-specific configuration setup including template copying,
@@ -171,7 +162,7 @@ private String _handleEurekaConfiguration(OkapiTenant tenant, TenantUi tenantUi,
   _addEurekaCustomUiModules(tenantUi)
 
   return okapiUrl
-}
+                                          }
 
 /**
  * Applies tenant-specific URL overrides for special tenant configurations.
@@ -353,7 +344,7 @@ private void _updateKeycloakClientConfiguration(RestClient client, Map headers, 
   } else {
     echo "Warning: No Keycloak client found for tenant: ${currentTenantId}"
   }
-}
+                                                }
 
 /**
  * Builds the list of redirect URIs for Keycloak client configuration.

@@ -63,11 +63,6 @@ enum JenkinsAgentLabel {
    */
   CYPRESS_AGENT("cypress-agent"),
 
-  /**
-   * Werf-specific agent for werf builds.
-   */
-  WERF_AGENT("werf-agent"),
-
   private final String label
 
   /**
