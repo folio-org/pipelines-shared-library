@@ -1,11 +1,11 @@
-project: {{ env "MODULE_NAME" }}
+project: { { env "MODULE_NAME" } }
 configVersion: 1
 
 cleanup:
   disable: true
 ---
-image: {{ env "MODULE_NAME" }}
+image: { { env "MODULE_NAME" } }
 dockerfile: Dockerfile
 context: .
 contextAddFiles:
-  - target
+  - target  - '*/target'
