@@ -191,6 +191,12 @@ ansiColor('xterm') {
                     val=$(echo "$val" | xargs)
                     sed -i 's|\${'"$var"'}|'"$val"'|g' Dockerfile
                   done
+                  
+                  find . -maxdepth 2 -type d -name target | while read -r target_dir; do
+                    if [ "$target_dir" != "./target" ]; then
+                      echo "  - ${target_dir#./}" >> werf.yaml
+                    fi
+                  done
                 fi
               '''
 
