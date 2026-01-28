@@ -97,7 +97,7 @@ class Constants {
     ],
     [
       name: "app-platform-complete"
-      , branch: "snapshot"
+      , branch: "APPAUTHREC-1"
       , consortia: false
       , core     : false
       , byDefault: true
@@ -121,7 +121,7 @@ class Constants {
     ],
     [
       name: "app-linked-data"
-      , branch: "snapshot"
+      , branch: "APPAUTHREC-1"
       , consortia: false
       , core     : false
       , byDefault: true
@@ -313,7 +313,7 @@ class Constants {
     ],
     [
       name: "app-marc-migrations"
-      , branch: "snapshot"
+      , branch: "APPAUTHREC-1"
       , consortia: false
       , core: false
       , byDefault: false
@@ -361,7 +361,7 @@ class Constants {
     ],
     [
       name: "app-data-export"
-      , branch: "snapshot"
+      , branch: "APPAUTHREC-1"
       , consortia: false
       , core: false
       , byDefault: true
