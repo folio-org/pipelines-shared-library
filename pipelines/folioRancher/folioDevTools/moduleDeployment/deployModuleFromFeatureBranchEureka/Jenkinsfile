@@ -185,22 +185,22 @@ ansiColor('xterm') {
               writeFile file: 'werf.yaml', text: libraryResource('werf/module/werf.yaml')
               writeFile file: 'werf-giterminism.yaml', text: libraryResource('werf/module/werf-giterminism.yaml')
 
-              sh """
+              sh '''
                 if [ -f Dockerfile ]; then
                   awk '
                     /^ENV / {
-                      match(\$0, /ENV\\s+([A-Z_0-9]+)\\s*=\\s*(.*)/, arr)
+                      match($0, /ENV\\s+([A-Z_0-9]+)\\s*=\\s*(.*)/, arr)
                       env[arr[1]] = arr[2]
                     }
                     /COPY/ && NF {
                       for (var in env) {
-                        gsub("\\$\\{" var "\\}", env[var])
+                        gsub("\\${" var "\\}", env[var])
                       }
                     }
                     { print }
                   ' Dockerfile > Dockerfile.tmp && mv Dockerfile.tmp Dockerfile
                 fi
-              """
+              '''
 
               withAWS(credentials: Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID, region: Constants.AWS_REGION) {
                 String login = ecrLogin()
