@@ -153,20 +153,22 @@ class Tenants extends Kong{
         logger.debug("Current entitlement flow status: ${currentEntitlementStatus.body.status}")
         switch (currentEntitlementStatus.body.status) {
           case 'finished':
-            logger.info("Enabling (entitle) applications on tenant ${tenant.tenantId} with ${tenant.uuid} was finished successfully")
+            logger.info("Enabling (entitle) applications on tenant ${tenant.tenantId} with ${tenant.uuid} was finished successfully.")
             return this
           case 'cancelled':
-            logger.error("Enabling (entitle) applications on tenant ${tenant.tenantId} with ${tenant.uuid} was cancelled")
+            logger.error("Enabling (entitle) applications on tenant ${tenant.tenantId} with ${tenant.uuid} was cancelled.\n" +
+              "Error message: ${restClient.get(generateUrl("/entitlement-flows/${response.body.flowId}?includeStages=true"), headers)}")
             return this
           case 'failed':
-            logger.error("Enabling (entitle) applications on tenant ${tenant.tenantId} with ${tenant.uuid} failed")
+            logger.error("Enabling (entitle) applications on tenant ${tenant.tenantId} with ${tenant.uuid} failed.\n" +
+              "Error message: ${restClient.get(generateUrl("/entitlement-flows/${response.body.flowId}?includeStages=true"), headers)}")
             return this
           case 'in_progress':
-            logger.warning("Enabling (entitle) applications on tenant ${tenant.tenantId} with ${tenant.uuid} is still in progress...")
+            logger.debug("Enabling (entitle) applications on tenant ${tenant.tenantId} with ${tenant.uuid} is still in progress...")
             sleep(30000)
             break
           default:
-            logger.error("Unknown status '${currentEntitlementStatus.body.status}' for enabling (entitle) applications on tenant ${tenant.tenantId} with ${tenant.uuid}")
+            logger.error("Unknown status '${currentEntitlementStatus.body.status}' for enabling (entitle) applications on tenant ${tenant.tenantId} with ${tenant.uuid}.")
             return this
         }
       }
