@@ -153,7 +153,7 @@ class Tenants extends Kong{
         logger.debug("Current entitlement flow status: ${currentEntitlementStatus.body.status}")
         switch (currentEntitlementStatus.body.status) {
           case 'finished':
-            logger.info("Enabling (entitle) applications on tenant ${tenant.tenantId} with ${tenant.uuid} was finished successfully")
+            logger.info("Enabling (entitle) applications on tenant ${tenant.tenantId} with ${tenant.uuid} was finished successfully.")
             return this
           case 'cancelled':
             logger.error("Enabling (entitle) applications on tenant ${tenant.tenantId} with ${tenant.uuid} was cancelled.\n" +
@@ -168,7 +168,7 @@ class Tenants extends Kong{
             sleep(30000)
             break
           default:
-            logger.error("Unknown status '${currentEntitlementStatus.body.status}' for enabling (entitle) applications on tenant ${tenant.tenantId} with ${tenant.uuid}")
+            logger.error("Unknown status '${currentEntitlementStatus.body.status}' for enabling (entitle) applications on tenant ${tenant.tenantId} with ${tenant.uuid}.")
             return this
         }
       }
