@@ -55,7 +55,7 @@ void build(String okapiUrl, OkapiTenant tenant, boolean isEureka = false, String
             export OKAPI_URL=${okapiUrl}
             export TENANT_ID=${tenant.getTenantId()}
             werf build ${imageName} --repo ${Constants.ECR_FOLIO_REPOSITORY}/werf-shadow \
-              --final-repo ${Constants.ECR_FOLIO_REPOSITORY}/${imageName} \
+              --final-repo ${Constants.ECR_FOLIO_REPOSITORY}}/${imageName} \
               --add-custom-tag ${tenantUi.getTag()} --loose-giterminism
           """
         }
