@@ -680,7 +680,7 @@ mod-agreements:
   replicaCount: 2
   resources:
     limits:
-      memory: 3072Mi
+      memory: 4096Mi
     requests:
       memory: 2048Mi
   autoscaling:
