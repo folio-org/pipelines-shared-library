@@ -618,9 +618,9 @@ mod-agreements:
   replicaCount: 1
   resources:
     limits:
-      memory: 2030Mi
+      memory: 4096Mi
     requests:
-      memory: 1491Mi
+      memory: 2048Mi
   extraJavaOpts:
   - -XX:MaxRAMPercentage=85.0
   startupProbe:

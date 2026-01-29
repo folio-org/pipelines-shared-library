@@ -220,7 +220,7 @@ ansiColor('xterm') {
 
               withAWS(credentials: Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID, region: Constants.AWS_REGION) {
                 sh """
-                  set +x 
+                  set +x
                   ${ecrLogin()}
                 """
                 docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}") {
