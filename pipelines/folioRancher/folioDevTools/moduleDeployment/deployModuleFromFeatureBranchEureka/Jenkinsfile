@@ -16,7 +16,7 @@ import org.folio.utilities.Logger
 import org.folio.utilities.RestClient
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library@RANCHER-2746') _
+@Library('pipelines-shared-library') _
 
 /** Job properties and parameters */
 properties([
@@ -220,7 +220,7 @@ ansiColor('xterm') {
 
               withAWS(credentials: Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID, region: Constants.AWS_REGION) {
                 sh """
-                  set +x 
+                  set +x
                   ${ecrLogin()}
                 """
                 docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}") {
