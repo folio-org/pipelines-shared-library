@@ -676,7 +676,7 @@ mod-agreements:
       existingSecret: db-credentials
     s3:
       enabled: true
-      existingSecret: s3-mod-agreements-credentials
+      existingSecret: s3-credentials
   replicaCount: 2
   resources:
     limits:
@@ -854,7 +854,7 @@ mod-bulk-operations:
       existingSecret: kafka-credentials
     s3:
       enabled: true
-      existingSecret: s3-mod-bulk-operations-credentials
+      existingSecret: s3-credentials
     systemuser:
       enabled: true
       existingSecret: mod-bulk-operations-systemuser
@@ -1342,7 +1342,7 @@ mod-data-export:
       existingSecret: db-credentials
     s3:
       enabled: true
-      existingSecret: s3-mod-data-export-credentials
+      existingSecret: s3-credentials
     okapi:
       enabled: true
       existingSecret: okapi-credentials
@@ -1432,7 +1432,7 @@ mod-data-export-worker:
       existingSecret: kafka-credentials
     s3:
       enabled: true
-      existingSecret: s3-mod-data-export-worker-credentials
+      existingSecret: s3-credentials
   replicaCount: 1
   resources:
     limits:
@@ -1479,7 +1479,7 @@ mod-data-import:
       existingSecret: kafka-credentials
     s3:
       enabled: true
-      existingSecret: s3-mod-data-import-credentials
+      existingSecret: s3-credentials
     okapi:
       enabled: true
       existingSecret: okapi-credentials
@@ -1526,7 +1526,7 @@ mod-linked-data-import:
       existingSecret: kafka-credentials
     s3:
       enabled: true
-      existingSecret: s3-mod-linked-data-import-credentials
+      existingSecret: s3-credentials
     okapi:
       enabled: true
       existingSecret: okapi-credentials
@@ -1706,7 +1706,7 @@ mod-entities-links:
       existingSecret: mod-entities-links-systemuser
     s3:
       enabled: true
-      existingSecret: s3-mod-marc-migrations-credentials
+      existingSecret: s3-credentials
   replicaCount: 1
   resources:
     limits:
@@ -2359,7 +2359,7 @@ mod-inventory-storage:
       existingSecret: kafka-credentials
     s3:
       enabled: true
-      existingSecret: s3-mod-marc-migrations-credentials
+      existingSecret: s3-credentials
   replicaCount: 1
   resources:
     limits:
@@ -2642,7 +2642,7 @@ mod-licenses:
       existingSecret: db-credentials
     s3:
       enabled: true
-      existingSecret: s3-mod-licenses-credentials
+      existingSecret: s3-credentials
   replicaCount: 1
   resources:
     limits:
@@ -2738,7 +2738,7 @@ mod-lists:
       existingSecret: db-credentials
     s3:
       enabled: true
-      existingSecret: s3-mod-lists-credentials
+      existingSecret: s3-credentials
     okapi:
       enabled: true
       existingSecret: okapi-credentials
@@ -2857,7 +2857,7 @@ mod-marc-migrations:
       existingSecret: okapi-credentials
     s3:
       enabled: true
-      existingSecret: s3-mod-marc-migrations-credentials
+      existingSecret: s3-credentials
     systemuser:
       enabled: true
       existingSecret: mod-marc-migrations-systemuser
@@ -3110,7 +3110,7 @@ mod-oai-pmh:
       existingSecret: db-credentials
     s3:
       enabled: true
-      existingSecret: s3-mod-oai-pmh-credentials
+      existingSecret: s3-credentials
   replicaCount: 1
   resources:
     limits:
