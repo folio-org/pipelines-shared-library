@@ -102,7 +102,16 @@ def fetchAllBranches(String initialUrl, String token) {
   }
 
   fetchPage(initialUrl)
-  return branches.sort()
+
+  def priorityBranches = ['snapshot', 'master', 'main']
+  def defaultBranch = priorityBranches.find { priority -> branches.contains(priority) }
+
+  if (defaultBranch) {
+    branches = branches - defaultBranch
+    branches = [defaultBranch] + branches
+  }
+
+  return branches
 }
 
 try {

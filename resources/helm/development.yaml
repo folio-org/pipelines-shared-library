@@ -618,9 +618,9 @@ mod-agreements:
   replicaCount: 1
   resources:
     limits:
-      memory: 2030Mi
+      memory: 4096Mi
     requests:
-      memory: 1491Mi
+      memory: 2048Mi
   extraJavaOpts:
   - -XX:MaxRAMPercentage=85.0
   startupProbe:
@@ -3424,40 +3424,43 @@ mgr-tenants:
     initialDelaySeconds: 20
 mgr-tenant-entitlements:
   extraJavaOpts:
-  - "-Dlogging.level.root=INFO -Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties"
+    - "-Dlogging.level.root=INFO -Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties"
+    - -XX:MaxRAMPercentage=80.0
   extraEnvVars:
-  - name: ROUTEMANAGEMENT_ENABLE
-    value: "false"
-  - name: MODULE_URL
-    value: "http://mgr-tenant-entitlements"
-  - name: FOLIO_CLIENT_CONNECT_TIMEOUT
-    value: "600s"
-  - name: FOLIO_CLIENT_READ_TIMEOUT
-    value: "600s"
-  - name: KONG_CONNECT_TIMEOUT
-    value: "941241418"
-  - name: KONG_READ_TIMEOUT
-    value: "941241418"
-  - name: KONG_WRITE_TIMEOUT
-    value: "941241418"
-  - name: VALIDATION_INTERFACE_COLLECTOR_MODE
-    value: "scoped"
-  - name: KC_INTEGRATION_ENABLED
-    value: "true"
-  - name: SECURITY_ENABLED
-    value: "true"
-  - name: RETRIES_MODULE_MAX
-    value: "10"
-  - name: RETRIES_MODULE_BACKOFF_DELAY
-    value: "60000"
-  - name: RETRIES_MODULE_BACKOFF_MAXDELAY
-    value: "600000"
-  - name: RETRIES_MODULE_BACKOFF_MULTIPLIER
-    value: "1"
-  - name: FLOW_ENGINE_MODULE_INSTALLER_THREADS
-    value: "3"
-  - name: FLOW_ENGINE_THREADS_NUM
-    value: "3"
+    - name: ROUTEMANAGEMENT_ENABLE
+      value: "false"
+    - name: MODULE_URL
+      value: "http://mgr-tenant-entitlements"
+    - name: FOLIO_CLIENT_CONNECT_TIMEOUT
+      value: "120s"
+    - name: FOLIO_CLIENT_READ_TIMEOUT
+      value: "120s"
+    - name: KONG_CONNECT_TIMEOUT
+      value: "180000"
+    - name: KONG_READ_TIMEOUT
+      value: "180000"
+    - name: KONG_WRITE_TIMEOUT
+      value: "180000"
+    - name: VALIDATION_INTERFACE_COLLECTOR_MODE
+      value: "scoped"
+    - name: KC_INTEGRATION_ENABLED
+      value: "true"
+    - name: SECURITY_ENABLED
+      value: "true"
+    - name: RETRIES_MODULE_MAX
+      value: "3"
+    - name: RETRIES_MODULE_BACKOFF_DELAY
+      value: "120000"
+    - name: RETRIES_MODULE_BACKOFF_MAXDELAY
+      value: "60000"
+    - name: RETRIES_MODULE_BACKOFF_MULTIPLIER
+      value: "2"
+    - name: FLOW_ENGINE_MODULE_INSTALLER_THREADS
+      value: "3"
+    - name: FLOW_ENGINE_THREADS_NUM
+      value: "3"
+    - name: FLOW_ENGINE_EXECUTION_TIMEOUT
+      value: "10m"
   integrations:
     db:
       enabled: true

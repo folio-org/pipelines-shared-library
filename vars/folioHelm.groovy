@@ -45,7 +45,7 @@ void upgrade(String release_name, String namespace, String values_path, String c
       sh "helm upgrade --install ${release_name} --namespace=${namespace} ${valuesPathOption(values_path)} ${chart_repo}/${chart_name}"
     } catch (Exception e) {
       println("Error: $e\nUpgrade failed for ${release_name}, attempting to remove and reinstall")
-      
+
       sh "helm uninstall ${release_name} --namespace=${namespace} --wait --timeout=10m"
       sh "helm upgrade --install ${release_name} --namespace=${namespace} ${valuesPathOption(values_path)} ${chart_repo}/${chart_name}"
     }
@@ -241,6 +241,7 @@ void checkDeploymentsRunning(String ns, List<FolioModule> deploymentsList) {
           unfinishedDeployments.contains('mod-serials-management') ? kubectl.cleanUpFedLocks(ns, timer, 'mod-serials-management') : println("-=No mod-serials-management fed locks to clean up=-")
           unfinishedDeployments.contains('mod-oa') ? kubectl.cleanUpFedLocks(ns, timer, 'mod-oa') : println("-=No mod-oa fed locks to clean up=-")
           unfinishedDeployments.contains('mod-licenses') ? kubectl.cleanUpFedLocks(ns, timer, 'mod-licenses') : println("-=No mod-licenses fed locks to clean up=-")
+          unfinishedDeployments.contains('mod-pubsub') ? kubectl.cleanUpFedLocks(ns, timer, 'mod-pubsub') : println("-=No mod-pubsub locks to clean up=-")
         timer += 30
       } else {
         println("All deployments are successfully updated!")

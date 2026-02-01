@@ -160,6 +160,7 @@ void call(CreateNamespaceParameters args) {
 
       EurekaRequestParams installRequestParams = new EurekaRequestParams()
         .withIgnoreErrors(true)
+        .withAsync(true)
         .doLoadReference(args.loadReference)
         .doLoadSample(args.loadSample) as EurekaRequestParams
 
@@ -357,8 +358,8 @@ void call(CreateNamespaceParameters args) {
         }
       }
       int counter = 0
-      retry(20) {
-        sleep time: (counter == 0 ? 0 : 2), unit: 'MINUTES'
+      retry(8) {
+        sleep time: (counter == 0 ? 0 : 1), unit: 'MINUTES'
         counter++
 
         eureka.initializeFromScratch(

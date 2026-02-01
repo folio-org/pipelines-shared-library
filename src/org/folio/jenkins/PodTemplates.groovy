@@ -17,7 +17,7 @@ import org.folio.utilities.Logger
  *
  * <h2>Key Features:</h2>
  * <ul>
- *   <li>Dynamic container configurations (Java, Docker-in-Docker, Cypress, Kaniko).</li>
+ *   <li>Dynamic container configurations (Java, Docker-in-Docker, Cypress, Kaniko, Werf).</li>
  *   <li>Support for workspace ephemeral storage and caching (Maven, Yarn).</li>
  *   <li>Debugging support with pod YAML dump on failure.</li>
  * </ul>
@@ -117,7 +117,7 @@ spec:
           ]
         )]) {
       body.call()
-        }
+    }
   }
 
   /**
@@ -184,8 +184,9 @@ spec:
       resourceRequestMemory: resourceRequestMemory,
       resourceLimitMemory: resourceLimitMemory
     )
-    }
+  }
 
+  @Deprecated
   /**
    * Builds a Kaniko container for Docker image builds without Docker daemon.
    *
@@ -208,6 +209,33 @@ spec:
       args: '99d',
       resourceRequestMemory: resourceRequestMemory,
       resourceLimitMemory: resourceLimitMemory
+    )
+  }
+
+  /**
+   * Builds a Werf container for Docker image builds without Docker daemon.
+   *
+   * @param extraEnvVars Optional environment variables.
+   * @param resourceRequestMemory Minimum memory request (default {@code 2Gi}).
+   * @param resourceLimitMemory Memory limit (default {@code 12Gi}).
+   * @return Werf container definition.
+   */
+  private Object buildWerfContainer(
+    List<KeyValueEnvVar> extraEnvVars = [],
+    String resourceRequestMemory = '2Gi',
+    String resourceLimitMemory = '12Gi'
+  ) {
+    return steps.containerTemplate(
+      name: 'werf',
+      image: 'registry.werf.io/werf/werf:2-stable',
+      alwaysPullImage: true,
+      envVars: extraEnvVars,
+      command: 'sleep',
+      args: '99d',
+      resourceRequestMemory: resourceRequestMemory,
+      resourceLimitMemory: resourceLimitMemory,
+      resourceRequestEphemeralStorage: '10Gi',
+      resourceLimitEphemeralStorage: '20Gi'
     )
   }
 
@@ -275,22 +303,23 @@ spec:
   /**
    * Defines a Java build agent template.
    *
-   * <p>Installs Java, Docker daemon, and Kaniko for Maven and Docker builds.</p>
+   * <p>Installs Java, Docker daemon, and Werf for Maven and Docker builds.</p>
    *
    * @param javaVersion Java version to install.
    * @param body Pipeline steps to execute inside this agent.
    */
   void javaBuildAgent(String javaVersion, Closure body) {
+    String podLabel = generatePodLabel(JenkinsAgentLabel.JAVA_BUILD_AGENT, generateRandomId(5))
     createTemplate(new PodTemplateConfig(
-      label: JenkinsAgentLabel.JAVA_BUILD_AGENT.getLabel(),
+      label: podLabel,
       volumes: [steps.persistentVolumeClaim(claimName: MAVEN_CACHE_PVC, mountPath: "${WORKING_DIR}/.m2/repository")],
       containers: [
-        buildKanikoContainer([], '512Mi', '12228Mi'),
+        buildWerfContainer([], '512Mi', '12228Mi'),
         buildJavaContainer(javaVersion, [new KeyValueEnvVar('DOCKER_HOST', 'tcp://localhost:2375')], '768Mi', '12228Mi'),
         buildDindContainer([], '4096Mi', '12228Mi')
       ]
     )) {
-      steps.node(JenkinsAgentLabel.JAVA_BUILD_AGENT.getLabel()) {
+      steps.node(podLabel) {
         body.call()
       }
     }
@@ -319,7 +348,7 @@ spec:
   /**
    * Defines a Stripes UI build agent.
    *
-   * <p>Kaniko is provided for building containerized frontend applications.</p>
+   * <p>Werf is provided for building containerized frontend applications.</p>
    *
    * @param body Pipeline steps to execute inside this agent.
    */
@@ -337,7 +366,7 @@ spec:
         jenkins/label: "${JenkinsAgentLabel.STRIPES_AGENT.getLabel()}"
 """,
       containers: [
-        buildKanikoContainer([], '9Gi', '12Gi'),
+        buildWerfContainer([], '9Gi', '12Gi'),
       ]
     )) {
       steps.node(JenkinsAgentLabel.STRIPES_AGENT.getLabel()) {
@@ -402,6 +431,7 @@ spec:
     }
   }
 
+  @Deprecated
   /**
    * Defines a minimal Kaniko agent for container builds only.
    *
@@ -420,4 +450,37 @@ spec:
     }
   }
 
+  /**
+   * Defines a minimal Werf agent for container builds only.
+   *
+   * @param body Pipeline steps to execute inside this agent.
+   */
+  void werfAgent(Closure body) {
+    createTemplate(new PodTemplateConfig(
+      label: JenkinsAgentLabel.WERF_AGENT.getLabel(),
+      containers: [
+        buildWerfContainer()
+      ]
+    )) {
+      steps.node(JenkinsAgentLabel.WERF_AGENT.getLabel()) {
+        body.call()
+      }
+    }
+  }
+
+  /**
+   * This function generates a random ID of the specified length.
+   *
+   * @param length The length of the random ID. Must be greater than 0.
+   * @return The generated random ID.
+   * @throws IllegalArgumentException if the length is less than or equal to 0.
+   */
+  static String generateRandomId(int length) {
+    // Define the character pool
+    def chars = ('a'..'z') + ('0'..'9')
+    Random random = new Random()
+
+    // Generate the random ID
+    return (1..length).collect { chars[random.nextInt(chars.size())] }.join()
+  }
 }

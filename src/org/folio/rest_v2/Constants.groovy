@@ -128,6 +128,14 @@ class Constants {
       , dependsOn: ["app-platform-minimal", "app-platform-complete"]
     ],
     [
+      name: "app-authority-records"
+      , branch: "snapshot"
+      , consortia: false
+      , core     : false
+      , byDefault: true
+      , dependsOn: ["app-platform-minimal", "app-marc-storage", "app-search", "app-quick-marc"]
+    ],
+    [
       name: "app-acquisitions"
       , branch: "snapshot"
       , consortia: false
