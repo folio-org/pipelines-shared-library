@@ -180,7 +180,11 @@ void cleanUpFedLocks(String namespace = 'default', int timer = 0, String moduleI
           println("10 minutes passed. Trying to cleanup federation_lock table.")
           String pod = sh(script: "kubectl get pod -l 'app.kubernetes.io/name=pgadmin4' -o=name  --ignore-not-found=true --namespace ${namespace}", returnStdout: true).trim()
           try {
-            sh(script: "kubectl exec --request-timeout=10s --namespace=${namespace} ${pod} -- /usr/bin/timeout 30s /usr/local/pgsql-16/psql -c 'TRUNCATE ${moduleId.replace('-', '_')}__system.federation_lock'", returnStatus: false)
+            if (moduleId == 'mod-pubsub') {
+              sh(script: "kubectl exec --request-timeout=10s --namespace=${namespace} ${pod} -- /usr/bin/timeout 30s /usr/local/pgsql-16/psql -c 'UPDATE pubsub_config.databasechangeloglock SET locked=false, lockgranted=null, lockedby=null WHERE id=1;'", returnStatus: false)
+            } else {
+              sh(script: "kubectl exec --request-timeout=10s --namespace=${namespace} ${pod} -- /usr/bin/timeout 30s /usr/local/pgsql-16/psql -c 'TRUNCATE ${moduleId.replace('-', '_')}__system.federation_lock'", returnStatus: false)
+            }
           } catch (Exception e) {
             sh(script: "kubectl rollout restart deployment ${moduleId} --namespace=${namespace}", returnStatus: false)
             println("Unable to cleanup federation_lock table.\nError: " + e.getMessage())
@@ -189,14 +193,22 @@ void cleanUpFedLocks(String namespace = 'default', int timer = 0, String moduleI
         case 600:
           println("10 minutes passed. Trying to delete $moduleId pod(s) and drop system schema.")
           String pod = sh(script: "kubectl get pod -l 'app.kubernetes.io/name=pgadmin4' -o=name  --ignore-not-found=true --namespace ${namespace}", returnStdout: true).trim()
-          sh(script: "kubectl exec --request-timeout=10s --namespace=${namespace} ${pod} -- /usr/bin/timeout 30s /usr/local/pgsql-16/psql -c 'DROP SCHEMA IF EXISTS ${moduleId.replace('-', '_')}__system CASCADE'", returnStatus: false)
+          if (moduleId == 'mod-pubsub') {
+            sh(script: "kubectl exec --request-timeout=10s --namespace=${namespace} ${pod} -- /usr/bin/timeout 30s /usr/local/pgsql-16/psql -c 'UPDATE pubsub_config.databasechangeloglock SET locked=false, lockgranted=null, lockedby=null WHERE id=1;'", returnStatus: false)
+          } else {
+            sh(script: "kubectl exec --request-timeout=10s --namespace=${namespace} ${pod} -- /usr/bin/timeout 30s /usr/local/pgsql-16/psql -c 'DROP SCHEMA IF EXISTS ${moduleId.replace('-', '_')}__system CASCADE'", returnStatus: false)
+          }
           sh(script: "kubectl rollout restart deployment ${moduleId} --namespace=${namespace}", returnStatus: false)
-          break  
+          break
         case 1200:
           println("20 minutes passed. Trying to delete $moduleId pod(s) and cleanup federation_lock table.")
           sh(script: "kubectl delete pod -l 'app.kubernetes.io/name=$moduleId' --force --namespace ${namespace}", returnStatus: false)
           String pod = sh(script: "kubectl get pod -l 'app.kubernetes.io/name=pgadmin4' -o=name  --ignore-not-found=true --namespace ${namespace}", returnStdout: true).trim()
-          sh(script: "kubectl exec --request-timeout=10s --namespace=${namespace} ${pod} -- /usr/bin/timeout 30s /usr/local/pgsql-16/psql -c 'TRUNCATE ${moduleId.replace('-', '_')}__system.federation_lock'", returnStatus: false)
+          if (moduleId == 'mod-pubsub') {
+            sh(script: "kubectl exec --request-timeout=10s --namespace=${namespace} ${pod} -- /usr/bin/timeout 30s /usr/local/pgsql-16/psql -c 'UPDATE pubsub_config.databasechangeloglock SET locked=false, lockgranted=null, lockedby=null WHERE id=1;'", returnStatus: false)
+          } else {
+            sh(script: "kubectl exec --request-timeout=10s --namespace=${namespace} ${pod} -- /usr/bin/timeout 30s /usr/local/pgsql-16/psql -c 'TRUNCATE ${moduleId.replace('-', '_')}__system.federation_lock'", returnStatus: false)
+          }
           break
         default:
           println("Did not reach the expected time yet.")
@@ -226,7 +238,7 @@ void ermEntitlementFix(String namespace = 'default', String tenantId = 'default'
   }
 }
 
-void updateApplicationsFix (String namespace = 'default', String clusterName = '', List appIds = [], List tenantIds = []) {
+void updateApplicationsFix(String namespace = 'default', String clusterName = '', List appIds = [], List tenantIds = []) {
   try {
     folioHelm.withK8sClient {
       awscli.getKubeConfig(Constants.AWS_REGION, clusterName)

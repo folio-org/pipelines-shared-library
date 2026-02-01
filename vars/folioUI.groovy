@@ -37,17 +37,27 @@ void build(String okapiUrl, OkapiTenant tenant, boolean isEureka = false, String
     }
 
     stage('[UI] Build and Push') {
-      container('kaniko') {
+      container('werf') {
+        String imageName = 'ui-bundle'
+        writeFile file: 'werf.yaml', text: libraryResource('werf/platform-complete/werf.yaml')
+        writeFile file: 'werf-giterminism.yaml', text: libraryResource('werf/platform-complete/werf-giterminism.yaml')
+
+        // Add YARN_CACHE_FOLDER to the Dockerfile
+        sh "sed -i '/^FROM /a ENV YARN_CACHE_FOLDER=${WORKSPACE}/.cache/yarn' docker/Dockerfile"
+
         withAWS(credentials: Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID, region: Constants.AWS_REGION) {
-          ecrLogin()
-          folioKaniko.dockerHubLogin()
-          // Add YARN_CACHE_FOLDER to the Dockerfile
-          sh "sed -i '/^FROM /a ENV YARN_CACHE_FOLDER=${WORKSPACE}/.cache/yarn' docker/Dockerfile"
-          // Build and push the image
-          sh """/kaniko/executor --destination ${tenantUi.getImageName()} \
---build-arg OKAPI_URL=${okapiUrl} \
---build-arg TENANT_ID=${tenant.getTenantId()} \
---dockerfile docker/Dockerfile --context ."""
+          String login = ecrLogin()
+
+          sh """
+            set -eu +x
+            ${login.replace('docker', 'werf cr')}
+            set -x
+            export OKAPI_URL=${okapiUrl}
+            export TENANT_ID=${tenant.getTenantId()}
+            werf build ${imageName} --repo ${Constants.ECR_FOLIO_REPOSITORY}/werf-shadow \
+              --final-repo ${Constants.ECR_FOLIO_REPOSITORY}/${imageName} \
+              --add-custom-tag ${tenantUi.getTag()} --loose-giterminism
+          """
         }
       }
     }
@@ -58,7 +68,7 @@ void build(String okapiUrl, OkapiTenant tenant, boolean isEureka = false, String
       }
     }
   }
-           }
+}
 
 void deploy(RancherNamespace namespace, OkapiTenant tenant) {
   PodTemplates podTemplates = new PodTemplates(this)
@@ -95,8 +105,8 @@ private void _updateStripesConfigJsFile(List<String> uiModulesToAdd) {
       echo "Module ${moduleName} added successfully!"
     } else {
       echo "Module '${moduleName}' already exists."
-      }
     }
+  }
 
   // Ensure that changes are written back to the file
   try {
@@ -344,7 +354,7 @@ private void _updateKeycloakClientConfiguration(RestClient client, Map headers, 
   } else {
     echo "Warning: No Keycloak client found for tenant: ${currentTenantId}"
   }
-                                                }
+}
 
 /**
  * Builds the list of redirect URIs for Keycloak client configuration.

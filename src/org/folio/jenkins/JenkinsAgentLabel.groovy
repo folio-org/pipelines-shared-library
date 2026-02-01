@@ -53,6 +53,7 @@ enum JenkinsAgentLabel {
    */
   STRIPES_AGENT("stripes-agent"),
 
+  @Deprecated
   /**
    * Jenkins agent for kaniko(docker) builds.
    */
@@ -62,6 +63,11 @@ enum JenkinsAgentLabel {
    * Cypress-specific agent for stripes testing.
    */
   CYPRESS_AGENT("cypress-agent"),
+
+  /**
+   * Werf-specific agent for werf builds.
+   */
+  WERF_AGENT("werf-agent"),
 
   private final String label
 

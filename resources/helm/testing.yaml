@@ -680,7 +680,7 @@ mod-agreements:
   replicaCount: 2
   resources:
     limits:
-      memory: 3072Mi
+      memory: 4096Mi
     requests:
       memory: 2048Mi
   autoscaling:
@@ -4770,15 +4770,15 @@ mgr-tenant-entitlements:
   - name: MODULE_URL
     value: "http://mgr-tenant-entitlements"
   - name: FOLIO_CLIENT_CONNECT_TIMEOUT
-    value: "600s"
+    value: "120s"
   - name: FOLIO_CLIENT_READ_TIMEOUT
-    value: "600s"
+    value: "120s"
   - name: KONG_CONNECT_TIMEOUT
-    value: "941241418"
+    value: "180000"
   - name: KONG_READ_TIMEOUT
-    value: "941241418"
+    value: "180000"
   - name: KONG_WRITE_TIMEOUT
-    value: "941241418"
+    value: "180000"
   - name: VALIDATION_INTERFACE_COLLECTOR_MODE
     value: "scoped"
   - name: KC_INTEGRATION_ENABLED
@@ -4786,17 +4786,19 @@ mgr-tenant-entitlements:
   - name: SECURITY_ENABLED
     value: "true"
   - name: RETRIES_MODULE_MAX
-    value: "10"
+    value: "3"
   - name: RETRIES_MODULE_BACKOFF_DELAY
-    value: "60000"
+    value: "120000"
   - name: RETRIES_MODULE_BACKOFF_MAXDELAY
-    value: "600000"
+    value: "60000"
   - name: RETRIES_MODULE_BACKOFF_MULTIPLIER
-    value: "1"
+    value: "2"
   - name: FLOW_ENGINE_MODULE_INSTALLER_THREADS
     value: "3"
   - name: FLOW_ENGINE_THREADS_NUM
     value: "3"
+  - name: FLOW_ENGINE_EXECUTION_TIMEOUT
+    value: "10m"
   integrations:
     db:
       enabled: true
