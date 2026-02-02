@@ -119,29 +119,6 @@ class GitHubClient {
     }
   }
 
-  /**
-   * Get raw file content from a GitHub repository (parses JSON automatically)
-   * @param repository Repository name
-   * @param branch Branch name
-   * @param filePath Path to the file
-   * @return Parsed content (Map/List for JSON files)
-   */
-  def getRepoFileContent(String repository, String branch, String filePath) {
-    String url = "${Constants.FOLIO_GITHUB_RAW_URL}/${repository}/${branch}/${filePath}"
-    Map<String, String> headers = authorizedHeaders()
-
-    try {
-      def response = restClient.get(url, headers)
-      if (response.responseCode >= 200 && response.responseCode < 300) {
-        return response.body
-      } else {
-        throw new RuntimeException("GitHub API returned ${response.responseCode} for ${url}")
-      }
-    } catch (Exception e) {
-      throw new RuntimeException("Failed to get file content for ${repository}/${branch}/${filePath}: ${e.getMessage()}", e)
-    }
-  }
-
   Map<String, String> authorizedHeaders() {
     return ['Accept'       : 'application/vnd.github+json',
             'Authorization': "Bearer ${this.gitHubToken}"]
