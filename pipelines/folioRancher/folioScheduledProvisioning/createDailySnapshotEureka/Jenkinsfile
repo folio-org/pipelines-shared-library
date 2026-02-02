@@ -106,10 +106,10 @@ ansiColor('xterm') {
       Map platformDescriptor = new GitHubUtility(this).getJsonModulesList(platformRepository, 'snapshot', 'platform-descriptor.json') as Map
       println "Fetched platform-descriptor.json with ${platformDescriptor.applications?.required?.size() ?: 0} required and ${platformDescriptor.applications?.optional?.size() ?: 0} optional applications"
 
-      List<Map<String, String>> allPlatformApps = platformDescriptor.applications?.required?.collect { it.name }
+      List<Map<String, String>> allPlatformApps = platformDescriptor.applications?.required ?: []
       allPlatformApps += platformDescriptor.applications?.optional ?: []
 
-      List<String> appNames = allPlatformApps?.collect { it.name } ?: []
+      List<String> appNames = allPlatformApps?.collect { it.name } ?: [] as List<String>
 
       namespace1.applications = appNames
       namespace2.applications = appNames
