@@ -67,7 +67,7 @@ void call(CreateNamespaceParameters args) {
 
       def defaultTenantId = args.dataset ? 'fs09000000' : 'diku'
       boolean isRelease = args.platformBranch ==~ /^R\d-\d{4}.*/
-      String commitHash = common.getLastCommitHash(platformRepository, args.platformBranch)
+      String commitHash = common.getLastCommitHash('platform-lsp', args.platformBranch)
       // TODO: Refactor UI build to use platform-lsp instead of platform-complete
       String uiCommitHash = common.getLastCommitHash('platform-complete', args.folioBranch)
 
