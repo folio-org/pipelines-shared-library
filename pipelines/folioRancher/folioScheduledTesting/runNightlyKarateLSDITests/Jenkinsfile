@@ -111,10 +111,13 @@ ansiColor('xterm') {
 
     stage('Fetch Applications') {
       Map platformDescriptor = new GitHubClient(this).getRepoFileContent('platform-lsp', 'snapshot', 'platform-descriptor.json') as Map
-      List<String> appNames = platformDescriptor.applications?.required?.collect { it.name } ?: []
+
+      List appNames = platformDescriptor.applications?.required?.collect { it.name } ?: []
       appNames += platformDescriptor.applications?.optional?.collect { it.name } ?: []
+
       println "Found ${appNames.size()} applications in platform-descriptor.json"
-      namespaceParams.applications = appNames
+
+      namespaceParams.applications = appNames as List<String>
     }
 
     stage('[Job] Provision environment') {
