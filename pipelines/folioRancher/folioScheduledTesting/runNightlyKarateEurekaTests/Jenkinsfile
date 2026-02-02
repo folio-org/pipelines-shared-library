@@ -5,6 +5,7 @@ import org.folio.models.RancherNamespace
 import org.folio.models.parameters.CreateNamespaceParameters
 import org.folio.models.parameters.KarateTestsParameters
 import org.folio.rest_v2.PlatformType
+import org.folio.utilities.GitHubClient
 import org.folio.utilities.Logger
 import org.jenkinsci.plugins.workflow.libs.Library
 
@@ -66,6 +67,7 @@ ansiColor('xterm') {
 
     CreateNamespaceParameters namespaceFromBranchParams = namespaceBaseParams.toBuilder()
       .folioBranch('snapshot')
+      .platformBranch('snapshot')
       .okapiVersion(okapiVersion)
       .configType('testing')
       .loadReference(true)
@@ -76,8 +78,6 @@ ansiColor('xterm') {
       .splitFiles(true)
       .scNative(true)
       .rtr(false)
-      .applicationSet('Complete')
-      .applications(org.folio.rest_v2.Constants.APPLICATION_BRANCH('Complete'))
       .hasSecureTenant(true)
       .secureTenantId(folioDefault.consortiaTenants().get('university').getTenantId())
       .uiBuild(true)
@@ -121,6 +121,14 @@ ansiColor('xterm') {
         } else {
           logger.warning("${namespaceBaseParams.getNamespaceName()} namespace does not exists!")
         }
+      }
+
+      stage('Fetch Applications') {
+        Map platformDescriptor = new GitHubClient(this).getRepoFileContent('platform-lsp', 'snapshot', 'platform-descriptor.json') as Map
+        List<String> appNames = platformDescriptor.applications?.required?.collect { it.name } ?: []
+        appNames += platformDescriptor.applications?.optional?.collect { it.name } ?: []
+        println "Found ${appNames.size()} applications in platform-descriptor.json"
+        namespaceFromBranchParams.applications = appNames
       }
 
       stage('[Job] Provision environment') {
