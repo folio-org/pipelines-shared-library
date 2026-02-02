@@ -4,6 +4,7 @@ import org.folio.Constants
 import org.folio.jenkins.PodTemplates
 import org.folio.models.parameters.CreateNamespaceParameters
 import org.folio.rest_v2.PlatformType
+import org.folio.utilities.GitHubClient
 import org.jenkinsci.plugins.workflow.libs.Library
 
 //TODO remove branch before merge to master
@@ -34,6 +35,7 @@ CreateNamespaceParameters namespace1 = new CreateNamespaceParameters.Builder()
   .clusterName('folio-etesting')
   .namespaceName('snapshot')
   .folioBranch('snapshot')
+  .platformBranch('snapshot')
   .okapiVersion('latest')
   .configType('testing')
   .loadReference(true)
@@ -46,8 +48,6 @@ CreateNamespaceParameters namespace1 = new CreateNamespaceParameters.Builder()
   .mockServer(false)
   .rtr(false)
   .ecsCCL(true)
-  .applicationSet('Complete')
-  .applications(org.folio.rest_v2.Constants.APPLICATION_BRANCH('Complete'))
   .hasSecureTenant(true)
   .secureTenantId(folioDefault.consortiaTenants().get('university').getTenantId())
   .dataset(false)
@@ -67,6 +67,7 @@ CreateNamespaceParameters namespace2 = new CreateNamespaceParameters.Builder()
   .clusterName('folio-etesting')
   .namespaceName('snapshot2')
   .folioBranch('snapshot')
+  .platformBranch('snapshot')
   .okapiVersion('latest')
   .configType('testing')
   .loadReference(true)
@@ -79,8 +80,6 @@ CreateNamespaceParameters namespace2 = new CreateNamespaceParameters.Builder()
   .mockServer(false)
   .rtr(false)
   .ecsCCL(true)
-  .applicationSet('Complete')
-  .applications(org.folio.rest_v2.Constants.APPLICATION_BRANCH('Complete'))
   .hasSecureTenant(true)
   .secureTenantId(folioDefault.consortiaTenants().get('university').getTenantId())
   .dataset(false)
@@ -99,6 +98,15 @@ ansiColor('xterm') {
   podTemplates.rancherAgent {
     stage('Checkout') {
       checkout scm
+    }
+
+    stage('Fetch Applications') {
+      Map platformDescriptor = new GitHubClient(this).getRepoFileContent('platform-lsp', 'snapshot', 'platform-descriptor.json') as Map
+      List<String> appNames = platformDescriptor.applications?.required?.collect { it.name } ?: []
+      appNames += platformDescriptor.applications?.optional?.collect { it.name } ?: []
+      println "Found ${appNames.size()} applications in platform-descriptor.json"
+      namespace1.applications = appNames
+      namespace2.applications = appNames
     }
 
     CreateNamespaceParameters createdEnv = namespace1
