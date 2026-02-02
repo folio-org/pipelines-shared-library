@@ -39,8 +39,6 @@ def createNamespaceFromBranch(String jobName, CreateNamespaceParameters namespac
       string(name: 'SECURE_TENANT', value: namespaceParams.getSecureTenantId()),
       string(name: 'DB_BACKUP_NAME', value: namespaceParams.getDbBackupName()),
       string(name: 'TYPE', value: namespaceParams.getType()),
-      //TODO: Remove in the future release with getApplicationSet() method
-      string(name: 'APPLICATION_SET', value: namespaceParams.getApplicationSet()),
       string(name: 'APPLICATIONS', value: namespaceParams.getApplications().join(',')),
       string(name: 'POSTGRESQL', value: namespaceParams.getPgType()),
       string(name: 'DB_VERSION', value: namespaceParams.getPgVersion()),
