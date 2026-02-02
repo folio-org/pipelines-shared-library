@@ -3,7 +3,6 @@ import groovy.transform.Field
 import org.folio.Constants
 import org.folio.models.parameters.CreateNamespaceParameters
 import org.folio.rest_v2.PlatformType
-import org.folio.utilities.GitHubClient
 import org.jenkinsci.plugins.workflow.libs.Library
 
 import java.time.DayOfWeek
@@ -77,7 +76,6 @@ CreateNamespaceParameters namespace = new CreateNamespaceParameters.Builder()
   .loadReference(false)
   .loadSample(false)
   .consortia(true)
-  .linkedData(true)
   .rwSplit(false)
   .greenmail(false)
   .mockServer(false)
@@ -103,17 +101,11 @@ CreateNamespaceParameters namespace = new CreateNamespaceParameters.Builder()
 
 ansiColor('xterm') {
   stage('Fetch Applications') {
-    Map platformDescriptor = new GitHubClient(this).getRepoFileContent('platform-lsp', 'snapshot', 'platform-descriptor.json') as Map
-
-    List appNames = platformDescriptor.applications?.required?.collect { it.name } ?: []
-    appNames += platformDescriptor.applications?.optional?.collect { it.name } ?: []
+    List<String> appNames = folioDefault.getApplicationNamesFromPlatform('snapshot')
     if (!params.MARC_MIGRATIONS) {
-      appNames.remove('app-marc-migrations')
+      appNames = appNames.findAll { it != 'app-marc-migrations' }
     }
-
-    println "Found ${appNames.size()} applications in platform-descriptor.json"
-
-    namespace.applications = appNames as List<String>
+    namespace.applications = appNames
   }
 
   stage('Update Sprint Testing') {

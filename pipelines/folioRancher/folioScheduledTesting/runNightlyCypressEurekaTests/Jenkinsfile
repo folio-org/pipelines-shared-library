@@ -8,7 +8,6 @@ import org.folio.models.RancherNamespace
 import org.folio.models.parameters.CreateNamespaceParameters
 import org.folio.models.parameters.CypressTestsParameters
 import org.folio.rest_v2.PlatformType
-import org.folio.utilities.GitHubClient
 import org.folio.utilities.Logger
 import org.jenkinsci.plugins.workflow.libs.Library
 
@@ -66,7 +65,6 @@ CreateNamespaceParameters namespaceFromBranchParams = namespaceBaseParams.toBuil
   .configType('testing')
   .loadReference(true)
   .loadSample(true)
-  .linkedData(true)
   .consortia(true)
   .rtr(false)
   .scNative(true)
@@ -103,14 +101,7 @@ ansiColor('xterm') {
     }
 
     stage('Fetch Applications') {
-      Map platformDescriptor = new GitHubClient(this).getRepoFileContent('platform-lsp', platformCompleteBranch, 'platform-descriptor.json') as Map
-
-      List appNames = platformDescriptor.applications?.required?.collect { it.name } ?: []
-      appNames += platformDescriptor.applications?.optional?.collect { it.name } ?: []
-
-      println "Found ${appNames.size()} applications in platform-descriptor.json"
-
-      namespaceFromBranchParams.applications = appNames as List<String>
+      namespaceFromBranchParams.applications = folioDefault.getApplicationNamesFromPlatform(platformCompleteBranch)
     }
 
     stage('[Job] Destroy environment') {
