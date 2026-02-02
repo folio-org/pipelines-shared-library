@@ -4,6 +4,7 @@ import org.folio.Constants
 import org.folio.jenkins.PodTemplates
 import org.folio.models.parameters.CreateNamespaceParameters
 import org.folio.rest_v2.PlatformType
+import org.folio.utilities.GitHubClient
 import org.jenkinsci.plugins.workflow.libs.Library
 
 //TODO remove branch before merge to master
@@ -18,11 +19,10 @@ properties([
   parameters([folioParameters.platform(),
               folioParameters.cluster('PLATFORM'),
               folioParameters.namespace(),
+              folioParameters.platformBranch(),
               folioParameters.configType(),
               booleanParam(name: 'SC_NATIVE', defaultValue: true, description: '(Optional) Set false to use Java based SC image'),
               booleanParam(name: 'CONSORTIA_EXTRA', defaultValue: false, description: '(Optional) Set true to include 2nd consortium'),
-              booleanParam(name: 'EDGE_LOCATE', defaultValue: false, description: '(Optional) Set true to enable Edge Locate'),
-              booleanParam(name: 'RTAC_CACHE', defaultValue: false, description: '(Optional) Set true to enable RTAC Cache'),
               folioParameters.refreshParameters()]),
   pipelineTriggers([
     parameterizedCron('''
@@ -47,6 +47,7 @@ CreateNamespaceParameters namespace = new CreateNamespaceParameters.Builder()
   .clusterName(params.CLUSTER)
   .namespaceName(params.NAMESPACE)
   .folioBranch('snapshot')
+  .platformBranch(params.PLATFORM_BRANCH)
   .okapiVersion('latest')
   .configType(params.CONFIG_TYPE)
   .loadReference(true)
@@ -60,21 +61,6 @@ CreateNamespaceParameters namespace = new CreateNamespaceParameters.Builder()
   .rtr(false)
   .splitFiles(true)
   .ecsCCL(false)
-  .doRtacCache(params.RTAC_CACHE)
-  .doEdgeLocate(params.EDGE_LOCATE)
-  .applicationSet('Complete')
-  .applications(org.folio.rest_v2.Constants.APPLICATION_BRANCH('Complete') +
-    (params.EDGE_LOCATE ?
-      org.folio.rest_v2.Constants.APPLICATION_COMPLETE
-        .findAll {it.name == 'app-edge-locate' }
-        .collectEntries{app -> [ app.name, app.branch ] } :
-      [:]) +
-    (params.RTAC_CACHE ?
-      org.folio.rest_v2.Constants.APPLICATION_COMPLETE
-        .findAll {it.name == 'app-rtac-cache' }
-        .collectEntries{app -> [ app.name, app.branch ] } :
-      [:])
-  )
   .hasSecureTenant(true)
   .secureTenantId(folioDefault.consortiaTenants().get('university').getTenantId())
   .dataset(false)
@@ -92,6 +78,14 @@ ansiColor('xterm') {
   podTemplates.rancherAgent {
     stage('Checkout') {
       checkout scm
+    }
+
+    stage('Fetch Applications') {
+      Map platformDescriptor = new GitHubClient(this).getRepoFileContent('platform-lsp', params.PLATFORM_BRANCH, 'platform-descriptor.json') as Map
+      List<String> appNames = platformDescriptor.applications?.required?.collect { it.name } ?: []
+      appNames += platformDescriptor.applications?.optional?.collect { it.name } ?: []
+      println "Found ${appNames.size()} applications in platform-descriptor.json"
+      namespace.applications = appNames
     }
 
     stage('Build name') {
