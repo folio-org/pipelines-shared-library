@@ -5,8 +5,8 @@ import org.folio.jenkins.PodTemplates
 import org.folio.models.RancherNamespace
 import org.folio.models.parameters.CreateNamespaceParameters
 import org.folio.models.parameters.KarateTestsParameters
-import org.folio.rest_v2.Constants as RestConstants
 import org.folio.rest_v2.PlatformType
+import org.folio.utilities.GitHubClient
 import org.jenkinsci.plugins.workflow.libs.Library
 
 @Library('pipelines-shared-library') _
@@ -46,6 +46,7 @@ CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builde
   .clusterName('folio-etesting')
   .namespaceName('lsdi')
   .folioBranch('snapshot')
+  .platformBranch('snapshot')
   .okapiVersion(okapiVersion)
   .configType('testing')
   .loadReference(true)
@@ -58,8 +59,6 @@ CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builde
   .greenmail(false)
   .mockServer(false)
   .rtr(false)
-  .applicationSet('Complete')
-  .applications(RestConstants.APPLICATION_BRANCH('Complete'))
   .hasSecureTenant(true)
   .secureTenantId(folioDefault.consortiaTenants().get('university').getTenantId())
   .pgType('built-in')
@@ -108,6 +107,14 @@ ansiColor('xterm') {
 
     stage('[Job] Destroy environment (before)') {
       params.RETRY_FAILED ? println('RETRY tests execution | Skip destroy stage') : folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceParams)
+    }
+
+    stage('Fetch Applications') {
+      Map platformDescriptor = new GitHubClient(this).getRepoFileContent('platform-lsp', 'snapshot', 'platform-descriptor.json') as Map
+      List<String> appNames = platformDescriptor.applications?.required?.collect { it.name } ?: []
+      appNames += platformDescriptor.applications?.optional?.collect { it.name } ?: []
+      println "Found ${appNames.size()} applications in platform-descriptor.json"
+      namespaceParams.applications = appNames
     }
 
     stage('[Job] Provision environment') {
