@@ -102,9 +102,11 @@ CreateNamespaceParameters namespace = new CreateNamespaceParameters.Builder()
 ansiColor('xterm') {
   stage('Fetch Applications') {
     List<String> appNames = folioDefault.getApplicationNamesFromPlatform('snapshot')
+
     if (!params.MARC_MIGRATIONS) {
       appNames = appNames.findAll { it != 'app-marc-migrations' }
     }
+
     namespace.applications = appNames
   }
 
