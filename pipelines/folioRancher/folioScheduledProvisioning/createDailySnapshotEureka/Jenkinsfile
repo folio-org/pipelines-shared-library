@@ -103,9 +103,8 @@ ansiColor('xterm') {
     stage('Fetch Applications') {
       Map platformDescriptor = new GitHubClient(this).getRepoFileContent('platform-lsp', 'snapshot', 'platform-descriptor.json') as Map
 
-      List<String> appNames = []
-      appNames.addAll(platformDescriptor.applications?.required?.collect { it.name } ?: [])
-      appNames.addAll(platformDescriptor.applications?.optional?.collect { it.name } ?: [])
+      List<String> appNames = (platformDescriptor.applications?.required?.collect { it.name } ?: []) +
+                              (platformDescriptor.applications?.optional?.collect { it.name } ?: [])
 
       println "Found ${appNames.size()} applications in platform-descriptor.json"
 
