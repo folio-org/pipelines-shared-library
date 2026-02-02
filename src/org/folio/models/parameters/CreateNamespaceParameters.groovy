@@ -61,12 +61,6 @@ class CreateNamespaceParameters implements Cloneable {
 
   String dbBackupName = ""
 
-  //TODO: remove after pipeline refactoring. Just utilize it. Use this only in the main pipeline for developers
-  // as a select-simplicity approach. Don't use it, and do not include it in the underlying
-  // base pipeline or step-separated pipelines.
-  @Deprecated
-  String applicationSet = 'Complete'
-
   List<String> applications = []
 
   List<String> folioExtensions = []
@@ -392,17 +386,6 @@ class CreateNamespaceParameters implements Cloneable {
     @Deprecated
     Builder applications(Map map) {
       parameters.applications = map.keySet().toList()
-      return this
-    }
-
-    /**
-     * Specifies the application set for Eureka platform
-     * @param set The name of application set.
-     * @return Builder instance for method chaining.
-     */
-    @Deprecated
-    Builder applicationSet(String set) {
-      parameters.applicationSet = set
       return this
     }
 
