@@ -5,7 +5,6 @@ import org.folio.models.*
 import org.folio.models.application.ApplicationList
 import org.folio.models.module.FolioModule
 import org.folio.models.parameters.CreateNamespaceParameters
-import org.folio.rest.GitHubUtility
 import org.folio.rest_v2.PlatformType
 import org.folio.rest_v2.eureka.Eureka
 import org.folio.rest_v2.eureka.kong.Applications
@@ -35,12 +34,8 @@ void call(CreateNamespaceParameters args) {
 
       logger.info("Create operation parameters:\n${prettyPrint(toJson(args))}")
 
-      String platformRepository = 'platform-lsp'
-      Map platformDescriptor = new GitHubUtility(this).getJsonModulesList(platformRepository, args.platformBranch, 'platform-descriptor.json') as Map
-      logger.info("Fetched platform-descriptor.json with ${platformDescriptor.applications?.required?.size() ?: 0} required and ${platformDescriptor.applications?.optional?.size() ?: 0} optional applications")
-
-      List<Map<String, String>> allPlatformApps = platformDescriptor.applications?.required ?: []
-      allPlatformApps += platformDescriptor.applications?.optional ?: []
+      Map platformDescriptor = folioDefault.getPlatformDescriptor(args.platformBranch)
+      List<Map<String, String>> allPlatformApps = folioDefault.getAllPlatformApps(args.platformBranch, platformDescriptor)
 
       List<String> appIds = args.applications.collect { appName ->
         Map<String, String> appEntry = allPlatformApps.find { it.name == appName } as Map<String, String>
