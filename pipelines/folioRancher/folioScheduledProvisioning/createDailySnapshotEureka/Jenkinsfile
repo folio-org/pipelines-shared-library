@@ -3,6 +3,7 @@ import groovy.transform.Field
 import org.folio.Constants
 import org.folio.jenkins.PodTemplates
 import org.folio.models.parameters.CreateNamespaceParameters
+import org.folio.rest.GitHubUtility
 import org.folio.rest_v2.PlatformType
 import org.folio.utilities.GitHubClient
 import org.jenkinsci.plugins.workflow.libs.Library
@@ -101,12 +102,14 @@ ansiColor('xterm') {
     }
 
     stage('Fetch Applications') {
-      Map platformDescriptor = new GitHubClient(this).getRepoFileContent('platform-lsp', 'snapshot', 'platform-descriptor.json') as Map
+      String platformRepository = 'platform-lsp'
+      Map platformDescriptor = new GitHubUtility(this).getJsonModulesList(platformRepository, 'snapshot', 'platform-descriptor.json') as Map
+      logger.info("Fetched platform-descriptor.json with ${platformDescriptor.applications?.required?.size() ?: 0} required and ${platformDescriptor.applications?.optional?.size() ?: 0} optional applications")
 
-      List<String> appNames = (platformDescriptor.applications?.required?.collect { it.name } ?: []) +
-                              (platformDescriptor.applications?.optional?.collect { it.name } ?: [])
+      List<Map<String, String>> allPlatformApps = platformDescriptor.applications?.required?.collect { it.name }
+      allPlatformApps += platformDescriptor.applications?.optional ?: []
 
-      println "Found ${appNames.size()} applications in platform-descriptor.json"
+      List<String> appNames = allPlatformApps?.collect { it.name } ?: []
 
       namespace1.applications = appNames
       namespace2.applications = appNames
