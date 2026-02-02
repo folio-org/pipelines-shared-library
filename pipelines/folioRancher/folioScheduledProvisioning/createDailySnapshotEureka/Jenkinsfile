@@ -104,7 +104,7 @@ ansiColor('xterm') {
     stage('Fetch Applications') {
       String platformRepository = 'platform-lsp'
       Map platformDescriptor = new GitHubUtility(this).getJsonModulesList(platformRepository, 'snapshot', 'platform-descriptor.json') as Map
-      logger.info("Fetched platform-descriptor.json with ${platformDescriptor.applications?.required?.size() ?: 0} required and ${platformDescriptor.applications?.optional?.size() ?: 0} optional applications")
+      println "Fetched platform-descriptor.json with ${platformDescriptor.applications?.required?.size() ?: 0} required and ${platformDescriptor.applications?.optional?.size() ?: 0} optional applications"
 
       List<Map<String, String>> allPlatformApps = platformDescriptor.applications?.required?.collect { it.name }
       allPlatformApps += platformDescriptor.applications?.optional ?: []
