@@ -3,7 +3,6 @@ import org.folio.Constants
 import org.folio.rest.model.OkapiUser
 import org.folio.rest_v2.PlatformType
 import org.folio.testing.cypress.CypressConstants
-import org.folio.rest_v2.Constants as RestConstants
 
 static List repositoriesList() {
   return ['platform-complete',
@@ -107,20 +106,12 @@ def platform(PlatformType defaultValue = null, String paramName = 'PLATFORM') {
   return _paramChoice(paramName, values, 'Select FOLIO platform')
 }
 
-def applicationSet() {
-  return _paramChoice('APPLICATION_SET', RestConstants.APPLICATION_SETS_LIST, 'Select Eureka application set')
-}
-
-def applications(String paramName = 'APPLICATIONS', String reference = 'APPLICATION_SET') {
-  return _paramExtendedCheckboxSelect(paramName, reference, folioStringScripts.getApplications(reference), 'Select env applications', false)
-}
-
 def applicationsFromPlatform(String paramName = 'APPLICATIONS', String reference = 'PLATFORM_BRANCH') {
   return _paramExtendedCheckboxSelect(paramName, reference, folioStringScripts.getApplicationsFromPlatformDescriptor(reference), 'Select env applications', false)
 }
 
-def application(String paramName = 'APPLICATION', String reference = 'APPLICATION_SET') {
-  return _paramExtendedSingleSelect(paramName, reference, folioStringScripts.getApplications(reference), 'Select application')
+def applicationFromPlatform(String paramName = 'APPLICATION', String reference = 'PLATFORM_BRANCH') {
+  return _paramExtendedSingleSelect(paramName, reference, folioStringScripts.getApplicationsFromPlatformDescriptor(reference), 'Select application')
 }
 
 def refreshParameters() {
