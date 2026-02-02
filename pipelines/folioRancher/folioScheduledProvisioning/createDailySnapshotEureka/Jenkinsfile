@@ -3,9 +3,7 @@ import groovy.transform.Field
 import org.folio.Constants
 import org.folio.jenkins.PodTemplates
 import org.folio.models.parameters.CreateNamespaceParameters
-import org.folio.rest.GitHubUtility
 import org.folio.rest_v2.PlatformType
-import org.folio.utilities.GitHubClient
 import org.jenkinsci.plugins.workflow.libs.Library
 
 //TODO remove branch before merge to master
@@ -98,15 +96,9 @@ ansiColor('xterm') {
     }
 
     stage('Fetch Applications') {
-      String platformRepository = 'platform-lsp'
-      Map platformDescriptor = new GitHubUtility(this).getJsonModulesList(platformRepository, 'snapshot', 'platform-descriptor.json') as Map
-      println "Fetched platform-descriptor.json with ${platformDescriptor.applications?.required?.size() ?: 0} required and ${platformDescriptor.applications?.optional?.size() ?: 0} optional applications"
-
-      List appNames = platformDescriptor.applications?.required?.collect { it.name } ?: []
-      appNames += platformDescriptor.applications?.optional?.collect { it.name } ?: []
-
-      namespace1.applications = appNames as List<String>
-      namespace2.applications = appNames as List<String>
+      List<String> appNames = folioDefault.getApplicationNamesFromPlatform('snapshot')
+      namespace1.applications = appNames
+      namespace2.applications = appNames
     }
 
     CreateNamespaceParameters createdEnv = namespace1
