@@ -7,9 +7,9 @@ import org.folio.models.OkapiUser
 import org.folio.models.parameters.CreateNamespaceParameters
 import org.folio.models.parameters.CypressTestsParameters
 import org.folio.models.parameters.KarateTestsParameters
-import org.folio.rest_v2.Constants as RestConstants
 import org.folio.rest_v2.PlatformType
 import org.folio.slack.SlackHelper
+import org.folio.utilities.GitHubClient
 import org.folio.testing.TestType
 import org.folio.testing.cypress.results.CypressRunExecutionSummary
 import org.folio.testing.karate.results.KarateRunExecutionSummary
@@ -72,6 +72,7 @@ CreateNamespaceParameters namespaceBaseParams = new CreateNamespaceParameters.Bu
 
 CreateNamespaceParameters namespaceFromBranchParams = namespaceBaseParams.toBuilder()
   .folioBranch(params.FOLIO_BRANCH)
+  .platformBranch(params.FOLIO_BRANCH)
   .okapiVersion(okapiVersion)
   .configType('testing')
   .loadReference(true)
@@ -83,8 +84,6 @@ CreateNamespaceParameters namespaceFromBranchParams = namespaceBaseParams.toBuil
   .ecsCCL(false)
   .rtr(false)
   .scNative(true)
-  .applicationSet('Complete')
-  .applications(RestConstants.APPLICATION_BRANCH('Complete'))
   .hasSecureTenant(true)
   .secureTenantId(folioDefault.consortiaTenants().get('university').getTenantId())
   .build()
@@ -112,6 +111,14 @@ ansiColor('xterm') {
             slackSend(attachments: folioSlackNotificationUtils.renderAbortedBuildResultMessage(), channel: globalSlackChannel)
           }
         }
+      }
+
+      stage('Fetch Applications') {
+        Map platformDescriptor = new GitHubClient(this).getRepoFileContent('platform-lsp', params.FOLIO_BRANCH, 'platform-descriptor.json') as Map
+        List<String> appNames = platformDescriptor.applications?.required?.collect { it.name } ?: []
+        appNames += platformDescriptor.applications?.optional?.collect { it.name } ?: []
+        println "Found ${appNames.size()} applications in platform-descriptor.json"
+        namespaceFromBranchParams.applications = appNames
       }
     }
 
