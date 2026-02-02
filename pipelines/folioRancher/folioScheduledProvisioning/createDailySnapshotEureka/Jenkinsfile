@@ -4,7 +4,6 @@ import org.folio.Constants
 import org.folio.jenkins.PodTemplates
 import org.folio.models.parameters.CreateNamespaceParameters
 import org.folio.rest_v2.PlatformType
-import org.folio.utilities.GitHubClient
 import org.jenkinsci.plugins.workflow.libs.Library
 
 //TODO remove branch before merge to master
@@ -18,8 +17,6 @@ properties([
   disableConcurrentBuilds(),
   parameters([folioParameters.refreshParameters()]),
   pipelineTriggers([parameterizedCron('''H 23 * * *''')])
-// Get back when the ticket is resolved https://folio-org.atlassian.net/browse/RANCHER-1546
-//            pipelineTriggers([parameterizedCron('''H 23 * * * %AGENT=rancher''')])])
 ])
 
 
@@ -41,7 +38,6 @@ CreateNamespaceParameters namespace1 = new CreateNamespaceParameters.Builder()
   .loadReference(true)
   .loadSample(true)
   .consortia(true)
-  .linkedData(true)
   .rwSplit(false)
   .splitFiles(true)
   .greenmail(false)
@@ -73,7 +69,6 @@ CreateNamespaceParameters namespace2 = new CreateNamespaceParameters.Builder()
   .loadReference(true)
   .loadSample(true)
   .consortia(true)
-  .linkedData(true)
   .rwSplit(false)
   .splitFiles(true)
   .greenmail(false)
@@ -101,15 +96,9 @@ ansiColor('xterm') {
     }
 
     stage('Fetch Applications') {
-      Map platformDescriptor = new GitHubClient(this).getRepoFileContent('platform-lsp', 'snapshot', 'platform-descriptor.json') as Map
-
-      List appNames = platformDescriptor.applications?.required?.collect { it.name } ?: []
-      appNames += platformDescriptor.applications?.optional?.collect { it.name } ?: []
-
-      println "Found ${appNames.size()} applications in platform-descriptor.json"
-
-      namespace1.applications = appNames as List<String>
-      namespace2.applications = appNames as List<String>
+      List<String> appNames = folioDefault.getApplicationNamesFromPlatform('snapshot')
+      namespace1.applications = appNames
+      namespace2.applications = appNames
     }
 
     CreateNamespaceParameters createdEnv = namespace1

@@ -6,7 +6,6 @@ import org.folio.models.RancherNamespace
 import org.folio.models.parameters.CreateNamespaceParameters
 import org.folio.models.parameters.KarateTestsParameters
 import org.folio.rest_v2.PlatformType
-import org.folio.utilities.GitHubClient
 import org.jenkinsci.plugins.workflow.libs.Library
 
 @Library('pipelines-shared-library') _
@@ -55,7 +54,6 @@ CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builde
   .splitFiles(true)
   .ecsCCL(true)
   .rwSplit(false)
-  .linkedData(true)
   .greenmail(false)
   .mockServer(false)
   .rtr(false)
@@ -110,14 +108,7 @@ ansiColor('xterm') {
     }
 
     stage('Fetch Applications') {
-      Map platformDescriptor = new GitHubClient(this).getRepoFileContent('platform-lsp', 'snapshot', 'platform-descriptor.json') as Map
-
-      List appNames = platformDescriptor.applications?.required?.collect { it.name } ?: []
-      appNames += platformDescriptor.applications?.optional?.collect { it.name } ?: []
-
-      println "Found ${appNames.size()} applications in platform-descriptor.json"
-
-      namespaceParams.applications = appNames as List<String>
+      namespaceParams.applications = folioDefault.getApplicationNamesFromPlatform('snapshot')
     }
 
     stage('[Job] Provision environment') {
