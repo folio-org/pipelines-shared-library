@@ -301,15 +301,16 @@ void call(CreateNamespaceParameters args) {
             tenant.assignApplications(apps)
 
             //TODO: Temporary workaround until UI will be refactored for platform-lsp
-            if(tenant.tenantUi && tenant instanceof EurekaTenantConsortia){
+            if(tenant.tenantUi){
+              boolean isConsortia = (tenant instanceof EurekaTenantConsortia)
               FolioModule consortiaModule = tenant.modules.getModuleByName("folio_consortia-settings")
               FolioModule linkedDataModule = tenant.modules.getModuleByName("folio_ld-folio-wrapper")
 
-              if (consortiaModule) {
+              if (consortiaModule && isConsortia) {
                 tenant.tenantUi.customUiModules.add(consortiaModule)
               }
 
-              if (linkedDataModule) {
+              if (linkedDataModule && (!isConsortia || tenant.isCentralConsortiaTenant)) {
                 tenant.tenantUi.customUiModules.add(linkedDataModule)
               }
             }
