@@ -20,6 +20,7 @@
 .cursor*
 claude*
 .github/*instructions*
+.github/*agents*
 .github/*prompts*
 .github/*chatmodes*
 

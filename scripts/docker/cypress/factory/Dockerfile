@@ -1,10 +1,19 @@
-ARG NODE_VERSION='20.8.1'
-ARG YARN_VERSION='1.22.19'
-ARG CHROME_VERSION='139.0.7258.154-1'
-ARG CYPRESS_VERSION='12.0.0'
+FROM node:20.10.0
 
-FROM cypress/factory:3.5.4
+RUN apt-get update && \
+    apt-get install -y \
+    chromium \
+    xvfb \
+    x11-utils \
+    xdg-utils \
+    fonts-liberation && \
+    rm -rf /var/lib/apt/lists/* && \
 
+    npm install -g cypress@12.0.0
+
+WORKDIR /opt/app
 COPY . /opt/app
+
+RUN yarn install
 WORKDIR /opt/app
 RUN npm install --save-dev cypress
