@@ -4,8 +4,6 @@ import org.folio.models.module.FolioModule
 import org.folio.models.module.ModuleType
 import org.folio.slack.SlackHelper
 import org.folio.utilities.GitHubClient
-import org.folio.utilities.Logger
-import org.folio.utilities.RestClient
 import java.util.regex.Matcher
 
 List<ChangelogEntry> call(String previousSha, String currentSha) {
@@ -60,14 +58,20 @@ List<ChangelogEntry> call(String previousSha, String currentSha) {
       case ModuleType.MGR:
       case ModuleType.SIDECAR:
         repositoryName = module.name
+        def backendWorkflowFile = 'maven.yml'
+        echo "Looking for GitHub workflow run for repository: ${repositoryName}, workflow: ${backendWorkflowFile}, build: ${module.buildId}"
         try {
-          changeLogEntry.sha = getJenkinsBuildSha(repositoryName, module.buildId.toInteger())
+          def workflowRun = gitHubClient.getWorkflowRunByNumber(repositoryName, backendWorkflowFile, module.buildId)
+          changeLogEntry.sha = workflowRun?.head_sha ?: null
           if (!changeLogEntry.sha) {
-            echo "Warning: Could not find Jenkins build SHA for ${repositoryName} build #${module.buildId}"
+            echo "Warning: Could not find workflow run SHA for ${repositoryName} build #${module.buildId}"
+            echo "Workflow run response: ${workflowRun}"
             changeLogEntry.sha = 'Unknown'
+          } else {
+            echo "Successfully found SHA ${changeLogEntry.sha} for ${repositoryName} build #${module.buildId}"
           }
         } catch (Exception e) {
-          echo "Error getting Jenkins build SHA for ${repositoryName} build #${module.buildId}: ${e.getMessage()}"
+          echo "Error getting workflow run SHA for ${repositoryName} build #${module.buildId}: ${e.getMessage()}"
           changeLogEntry.sha = 'Unknown'
         }
         break
@@ -130,11 +134,7 @@ List<ChangelogEntry> call(String previousSha, String currentSha) {
     changeLogEntry.author = commitInfo?.commit?.author?.name ?: 'Unknown author'
 
     if (changeLogEntry.sha == 'Unknown') {
-      if (module.type == ModuleType.FRONTEND) {
-        changeLogEntry.commitMessage = "Unable to find GitHub workflow run ${module.buildId} for ${repositoryName}"
-      } else {
-        changeLogEntry.commitMessage = "Unable to find Jenkins build ${module.buildId} for ${repositoryName}"
-      }
+      changeLogEntry.commitMessage = "Unable to find GitHub workflow run ${module.buildId} for ${repositoryName}"
     } else {
       changeLogEntry.commitMessage = commitInfo?.commit?.message?.split('\n', 2)?.getAt(0) ?: "Unable to fetch commit info for ${module.name} (build: ${module.buildId})"
     }
@@ -164,63 +164,6 @@ static List getUpdatedModulesList(Map commitInfo, String filename = 'install.jso
   }
 }
 
-String getJenkinsBuildSha(String moduleName, int moduleBuildId) {
-  Logger logger = new Logger(this, 'getJenkinsBuildSha')
-
-  if (!moduleBuildId || moduleBuildId <= 0) {
-    logger.warning("Invalid module build ID: ${moduleBuildId} for module: ${moduleName}")
-    return null
-  }
-
-  try {
-    String jobPath = "https://jenkins-aws.indexdata.com/job/folio-org/job/${moduleName}/job/master"
-    logger.info("Checking build at ${jobPath}")
-
-    def buildUrl = "${jobPath}/${moduleBuildId}/api/json"
-    try {
-      logger.info("Fetching build info from URL: ${buildUrl}")
-      def buildResponse = new RestClient(this).get(buildUrl)
-
-      logger.info("Response status: ${buildResponse.responseCode}")
-
-      if (buildResponse.responseCode == 404) {
-        logger.warning("Build not found at ${jobPath}")
-        return null
-      }
-
-      if (!buildResponse.body) {
-        logger.warning("Empty response body from ${buildUrl}")
-        return null
-      }
-
-      def buildInfo = readJSON text: buildResponse.body
-
-      def actions = buildInfo.actions
-      def gitAction = actions.find { action ->
-        action._class == 'hudson.plugins.git.util.BuildData' &&
-          action.remoteUrls?.contains("https://github.com/folio-org/${moduleName}.git")
-      }
-
-      if (gitAction) {
-        String sha = gitAction.lastBuiltRevision?.SHA1
-        if (sha) {
-          logger.info("Successfully retrieved SHA ${sha} for build #${moduleBuildId}")
-          return sha
-        }
-      }
-
-      logger.warning("No git build data found for ${jobPath} build #${moduleBuildId}")
-      return null
-    } catch (Exception e) {
-      logger.warning("Error accessing build: ${e.getMessage()}")
-      return null
-    }
-  } catch (Exception e) {
-    logger.warning("Exception getting build SHA for ${moduleName} build #${moduleBuildId}: ${e.getMessage()}")
-    logger.warning("Exception stack trace: ${e.getStackTrace()}")
-    return null
-  }
-}
 
 @SuppressWarnings('GrMethodMayBeStatic')
 List renderChangelogBlock(List<ChangelogEntry> changeLogEntriesList) {
