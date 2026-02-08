@@ -155,7 +155,7 @@ Map generateFromTemplate(String appName, Map template, FolioInstallJson moduleLi
 }
 
 private Map _generate(String appName, boolean debug = false
-                      , String command = "org.folio:folio-application-generator:generateFromJson"
+                      , String command = "org.folio:folio-application-generator:1.4.1-SNAPSHOT:generateFromJson"
                       , String args = ""
                       , String registries = "okapi::${org.folio.rest_v2.Constants.OKAPI_REGISTRY}"
                       , String fbRegistries = "s3::eureka-application-registry::descriptors") {
