@@ -15,7 +15,7 @@
     <project.description>Folio ${project.name} descriptor</project.description>
     <project.version>1.0.0-SNAPSHOT</project.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <folio-application-generator.version>1.2.0</folio-application-generator.version>
+    <folio-application-generator.version>1.4.0-SNAPSHOT</folio-application-generator.version>
     <templatePath>${basedir}/${project.name}.template.json</templatePath>
     <appDescriptorPath>${basedir}/${project.name}-${project.version}.json</appDescriptorPath>
   </properties>
