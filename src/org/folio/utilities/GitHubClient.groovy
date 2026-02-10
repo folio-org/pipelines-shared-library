@@ -111,7 +111,7 @@ class GitHubClient {
 
   Map getWorkflowRunByNumber(String repository, String runName, String runNumber) {
     try {
-      def workflowRuns = getWorkflowRuns(repository, runName, '100')
+      def workflowRuns = getWorkflowRuns(repository, runName, '10')
       return workflowRuns['workflow_runs']?.find { it['run_number'] == runNumber.toInteger() }
     } catch (Exception e) {
       logger.warning("Failed to get workflow run by number for ${repository}/${runName}#${runNumber}: ${e.getMessage()}")

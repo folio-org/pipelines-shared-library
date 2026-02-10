@@ -64,15 +64,22 @@ List<ChangelogEntry> call(String previousSha, String currentSha) {
           def workflowRun = gitHubClient.getWorkflowRunByNumber(repositoryName, backendWorkflowFile, module.buildId)
           changeLogEntry.sha = workflowRun?.head_sha ?: null
           if (!changeLogEntry.sha) {
-            echo "Warning: Could not find workflow run SHA for ${repositoryName} build #${module.buildId}"
-            echo "Workflow run response: ${workflowRun}"
-            changeLogEntry.sha = 'Unknown'
+            echo "Warning: Could not find workflow run #${module.buildId}, falling back to master branch"
+            def branchInfo = gitHubClient.getBranchInfo(repositoryName, 'master')
+            changeLogEntry.sha = branchInfo?.commit?.sha ?: 'Unknown'
           } else {
             echo "Successfully found SHA ${changeLogEntry.sha} for ${repositoryName} build #${module.buildId}"
           }
         } catch (Exception e) {
           echo "Error getting workflow run SHA for ${repositoryName} build #${module.buildId}: ${e.getMessage()}"
-          changeLogEntry.sha = 'Unknown'
+          echo "Falling back to master branch"
+          try {
+            def branchInfo = gitHubClient.getBranchInfo(repositoryName, 'master')
+            changeLogEntry.sha = branchInfo?.commit?.sha ?: 'Unknown'
+          } catch (Exception e2) {
+            echo "Error getting master branch SHA: ${e2.getMessage()}"
+            changeLogEntry.sha = 'Unknown'
+          }
         }
         break
       case ModuleType.KONG:
@@ -84,26 +91,40 @@ List<ChangelogEntry> call(String previousSha, String currentSha) {
           def workflowRun = gitHubClient.getWorkflowRunByNumber(repositoryName, workflowFile, module.buildId)
           changeLogEntry.sha = workflowRun?.head_sha ?: null
           if (!changeLogEntry.sha) {
-            echo "Warning: Could not find workflow run SHA for ${repositoryName} build #${module.buildId}"
-            echo "Workflow run response: ${workflowRun}"
-            changeLogEntry.sha = 'Unknown'
+            echo "Warning: Could not find workflow run #${module.buildId}, falling back to master branch"
+            def branchInfo = gitHubClient.getBranchInfo(repositoryName, 'master')
+            changeLogEntry.sha = branchInfo?.commit?.sha ?: 'Unknown'
           } else {
             echo "Successfully found SHA ${changeLogEntry.sha} for ${repositoryName} build #${module.buildId}"
           }
         } catch (Exception e) {
           echo "Error getting workflow run SHA for ${repositoryName} build #${module.buildId}: ${e.getMessage()}"
-          changeLogEntry.sha = 'Unknown'
+          echo "Falling back to master branch"
+          try {
+            def branchInfo = gitHubClient.getBranchInfo(repositoryName, 'master')
+            changeLogEntry.sha = branchInfo?.commit?.sha ?: 'Unknown'
+          } catch (Exception e2) {
+            echo "Error getting master branch SHA: ${e2.getMessage()}"
+            changeLogEntry.sha = 'Unknown'
+          }
         }
         break
-      case ModuleType.FRONTEND:
-        repositoryName = module.name.replace('folio_', 'ui-')
-        echo "Looking for GitHub workflow run for repository: ${repositoryName}, workflow: ui.yml, build: ${module.buildId}"
-        try {
-          def workflowRun = gitHubClient.getWorkflowRunByNumber(repositoryName, 'ui.yml', module.buildId)
-          changeLogEntry.sha = workflowRun?.head_sha ?: null
-          if (!changeLogEntry.sha) {
-            echo "Warning: Could not find workflow run SHA for ${repositoryName} build #${module.buildId}"
-            echo "Workflow run response: ${workflowRun}"
+      case ModuleType.FRONTEND:#${module.buildId}, falling back to master branch"
+            def branchInfo = gitHubClient.getBranchInfo(repositoryName, 'master')
+            changeLogEntry.sha = branchInfo?.commit?.sha ?: 'Unknown'
+          } else {
+            echo "Successfully found SHA ${changeLogEntry.sha} for ${repositoryName} build #${module.buildId}"
+          }
+        } catch (Exception e) {
+          echo "Error getting workflow run SHA for ${repositoryName} build #${module.buildId}: ${e.getMessage()}"
+          echo "Falling back to master branch"
+          try {
+            def branchInfo = gitHubClient.getBranchInfo(repositoryName, 'master')
+            changeLogEntry.sha = branchInfo?.commit?.sha ?: 'Unknown'
+          } catch (Exception e2) {
+            echo "Error getting master branch SHA: ${e2.getMessage()}"
+            changeLogEntry.sha = 'Unknown'
+          } ${workflowRun}"
             changeLogEntry.sha = 'Unknown'
           } else {
             echo "Successfully found SHA ${changeLogEntry.sha} for ${repositoryName} build #${module.buildId}"
