@@ -1,12 +1,15 @@
 #!groovy
-
-import org.folio.jenkins.PodTemplates
-import org.folio.models.*
-import org.folio.rest.GitHubUtility
-import org.jenkinsci.plugins.workflow.libs.Library
 import org.folio.Constants
+import org.folio.jenkins.PodTemplates
+import org.folio.models.EurekaNamespace
+import org.folio.models.EurekaTenant
+import org.folio.models.OkapiConfig
+import org.folio.models.TenantUi
+import org.folio.models.module.FolioModule
+import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library') _
+//TODO remove branch before merge to master
+@Library('pipelines-shared-library@RANCHER-2735') _
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
@@ -15,8 +18,7 @@ properties([
     folioParameters.cluster(),
     folioParameters.namespace(),
     folioParameters.configType(),
-    folioParameters.repository(),
-    folioParameters.branch(),
+    folioParameters.branch('FOLIO_BRANCH', 'platform-lsp'),
     string(name: 'CUSTOM_HASH', defaultValue: '', description: 'Commit hash for bundle build from specific commit'),
     folioParameters.tenantId(),
     booleanParam(name: 'CONSORTIA', defaultValue: false, description: '(Optional) Enable Consortia'),
@@ -32,31 +34,25 @@ if (params.REFRESH_PARAMETERS) {
 }
 
 if (params.NAMESPACE in Constants.RANCHER_PROTECTED_NAMESPACES) {
- folioCommon.kitfoxApproval()
+  folioCommon.kitfoxApproval()
 }
 
-List extensions = []
-if (params.CONSORTIA) {
-  extensions.add('consortia-eureka')
+List<FolioModule> removeUIComponents = []
+if (!params.CONSORTIA) {
+  removeUIComponents.add(new FolioModule().loadModuleDetails('folio_consortia-settings-0.0.0'))
 }
 
-if (params.LINKED_DATA) {
-  extensions.add('linked-data')
+if (!params.LINKED_DATA) {
+  removeUIComponents.add(new FolioModule().loadModuleDetails('folio_ld-folio-wrapper-0.0.0'))
 }
 
 /**
  * Job variables
  **/
+final String FOLIO_REPOSITORY = 'platform-lsp'
 PodTemplates podTemplates = new PodTemplates(this)
 boolean isRelease = params.FOLIO_BRANCH ==~ /^R\d-\d{4}.*/
-String commitHash = params.CUSTOM_HASH?.trim() ? params.CUSTOM_HASH : common.getLastCommitHash(params.FOLIO_REPOSITORY, params.FOLIO_BRANCH)
-List installJson = new GitHubUtility(this).getEurekaList("${params.FOLIO_REPOSITORY}", "${params.FOLIO_BRANCH}")
-
-def eurekaPlatform = new GitHubUtility(this).getEurekaList("${params.FOLIO_REPOSITORY}", "${params.FOLIO_BRANCH}")
-installJson.addAll(eurekaPlatform)
-
-//TODO: Temporary solution. Unused by Eureka modules have been removed.
-installJson.removeAll { module -> module.id =~ /(mod-login|mod-authtoken|mod-login-saml|mod-reporting)-\d+\..*/ }
+String commitHash = params.CUSTOM_HASH?.trim() ? params.CUSTOM_HASH : common.getLastCommitHash(FOLIO_REPOSITORY, params.FOLIO_BRANCH)
 
 EurekaNamespace namespace = new EurekaNamespace("${params.CLUSTER}", "${params.NAMESPACE}")
   .withDefaultTenant("${params.TENANT_ID}")
@@ -64,10 +60,15 @@ EurekaNamespace namespace = new EurekaNamespace("${params.CLUSTER}", "${params.N
 namespace.setIsConsortiaSingleUi(params.CONSORTIA_SINGLE_UI)
 
 TenantUi tenantUi = new TenantUi(namespace.getWorkspaceName(), commitHash, params.FOLIO_BRANCH as String)
+tenantUi.setKongDomain(namespace.getDomains()['kong'])
+tenantUi.setKeycloakDomain(namespace.getDomains()['keycloak'])
+if (params.CONSORTIA) {
+  tenantUi.setIsConsortia(params.CONSORTIA)
+  tenantUi.setIsConsortiaSingleUi(params.CONSORTIA_SINGLE_UI)
+}
+tenantUi.removeUIComponents = removeUIComponents
 
-OkapiTenant tenant = new OkapiTenant(params.TENANT_ID)
-  .convertTo(EurekaTenant.class)
-  .withInstallJson(installJson)
+EurekaTenant tenant = new EurekaTenant(params.TENANT_ID)
   .withTenantUi(tenantUi)
   .withConfiguration(new OkapiConfig())
 
@@ -80,17 +81,10 @@ ansiColor('xterm') {
     }
 
     stage('Fetch data') {
-      tenant.enableFolioExtensions(this, extensions, isRelease)
       namespace.addDeploymentConfig(folioTools.getPipelineBranch())
       namespace.addTenant(tenant)
     }
   }
 
-  folioUI.buildAndDeploy(namespace
-    , tenant
-    , true
-    , namespace.getDomains()['kong']
-    , namespace.getDomains()['keycloak']
-    , params.ECS_CCL
-    , params.CONSORTIA_SINGLE_UI)
+  folioUI.buildAndDeploy(namespace, tenant, params.ECS_CCL)
 }
