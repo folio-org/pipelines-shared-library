@@ -91,8 +91,8 @@ class GitHubClient {
     }
   }
 
-  Map getWorkflowRuns(String repository, String runName, String perPage = '30', String page = '1') {
-    String url = "${Constants.FOLIO_GITHUB_REPOS_URL}/${repository}/actions/workflows/${runName}/runs?per_page=${perPage}&page=${page}"
+  Map getWorkflowRuns(String repository, String runName, String perPage = '30') {
+    String url = "${Constants.FOLIO_GITHUB_REPOS_URL}/${repository}/actions/workflows/${runName}/runs?per_page=${perPage}"
     Map<String, String> headers = authorizedHeaders()
 
     try {
@@ -111,35 +111,8 @@ class GitHubClient {
 
   Map getWorkflowRunByNumber(String repository, String runName, String runNumber) {
     try {
-      int targetRunNumber = runNumber.toInteger()
-      int page = 1
-      int perPage = 100
-      int maxPages = 5
-
-      while (page <= maxPages) {
-        def workflowRuns = getWorkflowRuns(repository, runName, perPage.toString(), page.toString())
-        List runs = workflowRuns['workflow_runs']
-
-        if (!runs || runs.isEmpty()) {
-          break
-        }
-
-        def foundRun = runs.find { it['run_number'] == targetRunNumber }
-        if (foundRun) {
-          logger.info("Found workflow run #${targetRunNumber} for ${repository}/${runName} on page ${page}")
-          return foundRun
-        }
-
-        int minRunNumber = runs.collect { it['run_number'] as int }.min()
-        if (targetRunNumber > minRunNumber) {
-          page++
-        } else {
-          break
-        }
-      }
-
-      logger.warning("Workflow run #${targetRunNumber} not found for ${repository}/${runName} after checking ${page} pages")
-      return null
+      def workflowRuns = getWorkflowRuns(repository, runName, '100')
+      return workflowRuns['workflow_runs']?.find { it['run_number'] == runNumber.toInteger() }
     } catch (Exception e) {
       logger.warning("Failed to get workflow run by number for ${repository}/${runName}#${runNumber}: ${e.getMessage()}")
       return null
