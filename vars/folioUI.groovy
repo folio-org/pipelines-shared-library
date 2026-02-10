@@ -1,46 +1,37 @@
-#!groovy
 import com.cloudbees.groovy.cps.NonCPS
 import groovy.text.StreamingTemplateEngine
 import org.folio.Constants
 import org.folio.jenkins.PodTemplates
-import org.folio.models.OkapiTenant
+import org.folio.models.EurekaTenant
 import org.folio.models.RancherNamespace
 import org.folio.models.TenantUi
-import org.folio.models.module.FolioModule
+import org.folio.models.module.EurekaModule
+import org.folio.rest_v2.eureka.Keycloak
 import org.folio.utilities.RestClient
 
-void build(String okapiUrl, OkapiTenant tenant, boolean isEureka = false, String kongDomain = ''
-           , String keycloakDomain = '', boolean enableEcsRequests = false, boolean singleConsortiaUI = false) {
+import java.util.regex.Pattern
+
+// Public API methods
+void buildAndDeploy(RancherNamespace namespace, EurekaTenant tenant, boolean enableEcsRequests = false) {
+  build(tenant, enableEcsRequests)
+  deploy(namespace, tenant)
+}
+
+void build(EurekaTenant tenant, boolean enableEcsRequests) {
   TenantUi tenantUi = tenant.getTenantUi()
   PodTemplates podTemplates = new PodTemplates(this)
 
   podTemplates.stripesAgent {
-    stage('[UI] Checkout') {
-      cleanWs()
+    cleanWs(notFailBuild: true)
 
-      checkout([$class           : 'GitSCM',
-                branches         : [[name: tenantUi.getHash()]],
-                extensions       : [[$class: 'CleanBeforeCheckout', deleteUntrackedNestedRepositories: true]],
-                userRemoteConfigs: [[credentialsId: Constants.PRIVATE_GITHUB_CREDENTIALS_ID,
-                                     url          : "${Constants.FOLIO_GITHUB_URL}/platform-complete.git"]]])
-    }
+    _checkout(tenantUi.getHash())
 
-    stage('[UI] Add folio extensions') {
-      if (tenantUi.getCustomUiModules() || isEureka) {
-        if (isEureka) {
-          okapiUrl = _handleEurekaConfiguration(tenant, tenantUi, kongDomain, keycloakDomain, enableEcsRequests, singleConsortiaUI)
-        }
+    _preBuildConfigure(tenant, enableEcsRequests)
 
-        List uiModulesToAdd = _updatePackageJsonFile(tenantUi)
-        _updateStripesConfigJsFile(uiModulesToAdd)
-      }
-    }
-
-    stage('[UI] Build and Push') {
+    stage('[UI] Build and push bundle') {
       container('werf') {
-        String imageName = 'ui-bundle'
-        writeFile file: 'werf.yaml', text: libraryResource('werf/platform-complete/werf.yaml')
-        writeFile file: 'werf-giterminism.yaml', text: libraryResource('werf/platform-complete/werf-giterminism.yaml')
+        writeFile file: 'werf.yaml', text: libraryResource('werf/platform-lsp/werf.yaml')
+        writeFile file: 'werf-giterminism.yaml', text: libraryResource('werf/platform-lsp/werf-giterminism.yaml')
 
         // Add YARN_CACHE_FOLDER to the Dockerfile
         sh "sed -i '/^FROM /a ENV YARN_CACHE_FOLDER=${WORKSPACE}/.cache/yarn' docker/Dockerfile"
@@ -52,25 +43,19 @@ void build(String okapiUrl, OkapiTenant tenant, boolean isEureka = false, String
             set -eu +x
             ${login.replace('docker', 'werf cr')}
             set -x
-            export OKAPI_URL=${okapiUrl}
+            export OKAPI_URL=https://${tenantUi.getKongDomain()}
             export TENANT_ID=${tenant.getTenantId()}
-            werf build ${imageName} --repo ${Constants.ECR_FOLIO_REPOSITORY}/werf-shadow \
-              --final-repo ${Constants.ECR_FOLIO_REPOSITORY}/${imageName} \
+            werf build ${tenantUi.IMAGE_NAME} --repo ${Constants.ECR_FOLIO_REPOSITORY}/werf-shadow \
+              --final-repo ${Constants.ECR_FOLIO_REPOSITORY}/${tenantUi.IMAGE_NAME} \
               --add-custom-tag ${tenantUi.getTag()} --loose-giterminism
           """
         }
       }
     }
-
-    stage('Update keycloak redirect') {
-      if (isEureka) {
-        _updateKeycloakRedirects(keycloakDomain, tenant, tenantUi, kongDomain, singleConsortiaUI)
-      }
-    }
   }
 }
 
-void deploy(RancherNamespace namespace, OkapiTenant tenant) {
+void deploy(RancherNamespace namespace, EurekaTenant tenant) {
   PodTemplates podTemplates = new PodTemplates(this)
 
   podTemplates.rancherAgent {
@@ -83,320 +68,143 @@ void deploy(RancherNamespace namespace, OkapiTenant tenant) {
         folioHelm.deployFolioModule(namespace, 'ui-bundle', tag, false, tenantId)
       }
     }
+
+    _postDeployConfigure(tenant.getTenantUi())
   }
 }
 
-void buildAndDeploy(RancherNamespace namespace, OkapiTenant tenant, boolean isEureka = false, String kongDomain = ''
-                    , String keycloakDomain = '', boolean enableEcsRequests = false, boolean singleConsortiaUI = false) {
-  build("https://${namespace.getDomains()['okapi']}", tenant, isEureka, kongDomain, keycloakDomain, enableEcsRequests, singleConsortiaUI)
-  deploy(namespace, tenant)
+// Build workflow methods
+void _checkout(String branchOrHash) {
+  stage('[UI] Checkout') {
+    checkout(scmGit(branches: [[name: branchOrHash]],
+      extensions: [cleanBeforeCheckout(deleteUntrackedNestedRepositories: true)],
+      userRemoteConfigs: [[credentialsId: Constants.PRIVATE_GITHUB_CREDENTIALS_ID,
+                           url          : "${Constants.FOLIO_GITHUB_URL}/platform-lsp.git"]]))
+  }
 }
 
-private void _updateStripesConfigJsFile(List<String> uiModulesToAdd) {
-  final String stripesConfigFile = 'stripes.config.js'
-  String fileContent = readFile(file: stripesConfigFile)
+private void _preBuildConfigure(EurekaTenant tenant, boolean enableEcsRequests) {
+  stage('[UI] Pre-build configuration') {
+    echo "Pre-build configuration for tenant: ${tenant.getTenantId()}"
 
-  uiModulesToAdd.each { moduleName ->
-    // Check if the module already exists
-    if (!fileContent.contains(moduleName)) {
-      // Add the missing module to the modules section
-      String moduleInsertion = "    '${moduleName}' : {},"
-      fileContent = fileContent.replaceFirst(/(modules\s*:\s*\{)/, "\$1\n$moduleInsertion")
-      echo "Module ${moduleName} added successfully!"
-    } else {
-      echo "Module '${moduleName}' already exists."
+    TenantUi tenantUi = tenant.getTenantUi()
+    Map packageJson = _readPackageJsonFile()
+    String stripesConfig = _readStripesConfigFile()
+
+    if (tenantUi.getRemoveUIComponents()) {
+      _removeUIComponents(packageJson, tenantUi.getRemoveUIComponents())
+    }
+
+    if (tenantUi.getAddUIComponents()) {
+      _addUIComponents(packageJson, tenantUi.getAddUIComponents())
+    }
+
+    String renderedConfig = _renderConfig(stripesConfig, tenant, tenant.getTenantUi(), enableEcsRequests)
+
+    _writePackageJsonFile(packageJson)
+    _writeStripesConfigFile(renderedConfig)
+  }
+}
+
+private void _renderConfig(String stripesConfig, EurekaTenant tenant, TenantUi tenantUi, boolean enableEcsRequests) {
+  stage('Render Config') {
+    _overrideKongDomain(tenantUi)
+    String tenantOptionsJson = _buildTenantOptionsJson(tenant, tenantUi.getIsConsortia(), tenantUi.getIsConsortiaSingleUi())
+
+    Map tplData = [
+      kongUrl          : "https://${tenantUi.getKongDomain()}",
+      tenantUrl        : "https://${tenantUi.getDomain()}",
+      keycloakUrl      : "https://${tenantUi.getKeycloakDomain()}",
+      hasAllPerms      : false,
+      isSingleTenant   : !tenantUi.getIsConsortia(),
+      tenantOptions    : tenantOptionsJson,
+      enableEcsRequests: enableEcsRequests,
+      aboutInstallDate : String.format("'%s'", new Date().format('MMMM dd, yyyy')),
+      aboutInstallMsg  : String.format("'%s'", "Branch: ${tenantUi.getBranch()}. Commit: ${tenantUi.getHash()}")
+    ]
+
+    String renderedConfig = _makeTpl(stripesConfig, tplData)
+    return renderedConfig
+  }
+}
+
+// Deploy workflow methods
+private void _postDeployConfigure(TenantUi tenantUi) {
+  stage('[UI] Update keycloak redirects') {
+    String tenantId = tenantUi.getTenantId()
+    List<String> tenantsToRedirect = _tenantsToRedirect(tenantId)
+
+    tenantsToRedirect.each { currentTenantId ->
+      _updateKeycloakClientConfiguration(tenantUi, currentTenantId)
     }
   }
-
-  // Ensure that changes are written back to the file
-  try {
-    writeFile(file: stripesConfigFile, text: fileContent)
-  } catch (Exception e) {
-    echo "Error writing to file: ${e.message}"
-    throw e
-  }
 }
 
-/**
- * Handles Eureka-specific configuration setup including template copying,
- * binding creation, and custom UI module configuration.
- *
- * @param tenant The OkapiTenant configuration
- * @param tenantUi The TenantUi configuration
- * @param kongDomain Kong gateway domain
- * @param keycloakDomain Keycloak domain
- * @param enableEcsRequests Enable ECS-specific requests
- * @param singleConsortiaUI Use single consortia UI configuration
- * @return The updated Okapi URL for the environment
- */
-private String _handleEurekaConfiguration(OkapiTenant tenant, TenantUi tenantUi, String kongDomain,
-                                          String keycloakDomain, boolean enableEcsRequests, boolean singleConsortiaUI) {
-  String tenantId = tenant.getTenantId()
-  String okapiUrl = "https://${kongDomain}"
-
-  // Copy Eureka template files
-  sh 'cp -R -f eureka-tpl/* .'
-
-  // Build tenant options configuration
-  String tenantOptionsJson = buildTenantOptionsJson(tenant, singleConsortiaUI)
-
-  // Create base binding configuration
-  Map binding = [
-    kongUrl          : "https://${kongDomain}",
-    tenantUrl        : "https://${tenantUi.getDomain()}",
-    keycloakUrl      : "https://${keycloakDomain}",
-    hasAllPerms      : false,
-    isSingleTenant   : true,
-    tenantOptions    : tenantOptionsJson,
-    enableEcsRequests: enableEcsRequests
-  ]
-
-  // Apply consortia-specific configuration if needed
-  if (tenantUi.getCustomUiModules()*.name.contains('folio_consortia-settings')) {
-    binding.kongUrl = "https://ecs-${kongDomain}"
-    binding.isSingleTenant = false
-    okapiUrl = binding.kongUrl
-  }
-
-  // Apply tenant-specific URL overrides
-  okapiUrl = _applyTenantSpecificUrlOverrides(tenantId, kongDomain, binding, okapiUrl)
-
-  // Generate and write stripes configuration
-  writeFile(file: 'stripes.config.js',
-    text: make_tpl(readFile(file: 'stripes.config.js', encoding: 'UTF-8') as String, binding),
-    encoding: 'UTF-8')
-
-  archiveArtifacts artifacts: 'stripes.config.js', allowEmptyArchive: false
-
-  // Add Eureka-specific UI modules
-  _addEurekaCustomUiModules(tenantUi)
-
-  return okapiUrl
-}
-
-/**
- * Applies tenant-specific URL overrides for special tenant configurations.
- *
- * @param tenantId The tenant identifier
- * @param kongDomain Kong gateway domain
- * @param binding The configuration binding map to update
- * @param currentOkapiUrl The current Okapi URL
- * @return The updated Okapi URL
- */
-private String _applyTenantSpecificUrlOverrides(String tenantId, String kongDomain, Map binding, String currentOkapiUrl) {
-  String okapiUrl = currentOkapiUrl
-
-  switch (tenantId) {
-    case 'fs09000002':
-      binding.kongUrl = "https://fs02-${kongDomain}"
-      binding.isSingleTenant = true
-      okapiUrl = binding.kongUrl
-      break
-    case 'fs09000003':
-      binding.kongUrl = "https://fs03-${kongDomain}"
-      binding.isSingleTenant = true
-      okapiUrl = binding.kongUrl
-      break
-    case 'consortium2':
-      binding.kongUrl = "https://ecs2-${kongDomain}"
-      binding.isSingleTenant = false
-      okapiUrl = binding.kongUrl
-      break
-  }
-
-  return okapiUrl
-}
-
-/**
- * Adds Eureka-specific custom UI modules to the tenant configuration.
- *
- * @param tenantUi The TenantUi configuration to update
- */
-private void _addEurekaCustomUiModules(TenantUi tenantUi) {
-  List eurekaCustomUiModules = ['folio_authorization-policies',
-                                'folio_authorization-roles',
-                                'folio_plugin-select-application']
-  eurekaCustomUiModules.each { moduleName ->
-    FolioModule uiModule = new FolioModule()
-    uiModule.setName(moduleName)
-    uiModule.setVersion('>=1.0.0')
-    tenantUi.customUiModules.add(uiModule)
-  }
-}
-
-/**
- * Updates Keycloak redirect URIs and client configurations for Eureka environments.
- * Handles both single tenants and consortia tenant structures.
- *
- * @param keycloakDomain Keycloak domain
- * @param tenant The OkapiTenant configuration
- * @param tenantUi The TenantUi configuration
- * @param kongDomain Kong gateway domain
- * @param singleConsortiaUI Use single consortia UI configuration
- */
-private void _updateKeycloakRedirects(String keycloakDomain, OkapiTenant tenant, TenantUi tenantUi, String kongDomain, boolean singleConsortiaUI) {
-  String tenantId = tenant.getTenantId()
-  RestClient client = new RestClient(this, true)
-
-  // Authenticate with Keycloak master realm
-  String token = _authenticateWithKeycloak(client, keycloakDomain)
-  Map headers = ['Authorization': "Bearer ${token}"]
-
-  // Determine which tenants need Keycloak configuration updates
-  List<String> tenantsToUpdate = _determineTenantsToUpdate(tenantId)
-
-  // Update Keycloak configuration for each tenant
-  tenantsToUpdate.each { currentTenantId ->
-    _updateKeycloakClientConfiguration(client, headers, keycloakDomain, currentTenantId, tenantId, tenantUi, kongDomain, singleConsortiaUI)
-  }
-}
-
-/**
- * Authenticates with Keycloak master realm and returns access token.
- *
- * @param client RestClient instance
- * @param keycloakDomain Keycloak domain
- * @return Access token for Keycloak API calls
- */
-private String _authenticateWithKeycloak(RestClient client, String keycloakDomain) {
-  Map headers = ['Content-Type': 'application/x-www-form-urlencoded']
-  String tokenUrl = "https://${keycloakDomain}/realms/master/protocol/openid-connect/token"
-  String tokenBody = 'grant_type=password&username=admin&password=SecretPassword&client_id=admin-cli'
-
-  def response = client.post(tokenUrl, tokenBody, headers).body
-  return response['access_token']
-}
-
-/**
- * Determines which tenants need Keycloak configuration updates based on consortia structure.
- *
- * @param tenantId The primary tenant identifier
- * @return List of tenant IDs that need configuration updates
- */
-private List<String> _determineTenantsToUpdate(String tenantId) {
-  List<String> tenantsToUpdate = []
-
-  switch (tenantId) {
-    case 'consortium':
-      // Central tenant + member tenants
-      tenantsToUpdate = [tenantId, 'university', 'college']
-      break
-    case 'consortium2':
-      // Central tenant + member tenants
-      tenantsToUpdate = [tenantId, 'university2', 'college2']
-      break
-    case 'cs00000int':
-      // Central tenant + all institutional member tenants
-      tenantsToUpdate = [tenantId]
-      (1..11).each { num ->
-        tenantsToUpdate << "cs00000int_${String.format('%04d', num)}"
+// UI Component management methods
+private void _addUIComponents(Map packageJson, List<EurekaModule> addUIComponents) {
+  stage('Add UI Components') {
+    List stipesExtraList = []
+    addUIComponents.each { component ->
+      String componentName = _transformComponentName(component.getName())
+      if (!packageJson['dependencies'].containsKey(componentName)) {
+        packageJson['dependencies'][componentName] = component.getVersion()
+        echo "Added UI component: ${componentName} with version ${component.getVersion()}"
+      } else {
+        echo "UI component already exists, skipping addition: ${componentName}"
       }
-      break
-    default:
-      // Single tenant (non-central or member tenant)
-      tenantsToUpdate = [tenantId]
-      break
-  }
 
-  return tenantsToUpdate
+      stipesExtraList.add(componentName)
+    }
+
+    String stipesExtraHeader = '''/*
+DO NOT EDIT THIS FILE
+This file is auto-generated by the build process.
+Any changes made here will be overwritten.
+*/
+'''
+    String stipesExtraLines = stipesExtraList.collect { componentName -> "  '${componentName}': {}," }.join('\n')
+
+    String stripesExtraConfig = stipesExtraHeader +
+      "module.exports = {\n" + stipesExtraLines + (stipesExtraLines ? "\n" : '') + "};\n"
+
+    _writeStripesConfigFile(stripesExtraConfig, 'stripes.extra.js')
+  }
 }
 
-/**
- * Updates Keycloak client configuration for a specific tenant.
- *
- * @param client RestClient instance
- * @param headers HTTP headers with authorization
- * @param keycloakDomain Keycloak domain
- * @param currentTenantId Tenant ID being updated
- * @param originalTenantId Original tenant ID for URL generation
- * @param tenantUi TenantUi configuration
- * @param kongDomain Kong gateway domain
- * @param singleConsortiaUI Use single consortia UI configuration
- */
-private void _updateKeycloakClientConfiguration(RestClient client, Map headers, String keycloakDomain,
-                                                String currentTenantId, String originalTenantId, TenantUi tenantUi, String kongDomain, boolean singleConsortiaUI) {
-  String getRealmUrl = "https://${keycloakDomain}/admin/realms/${currentTenantId}/clients?clientId=${currentTenantId}-application"
-  def realm = client.get(getRealmUrl, headers).body
+private void _removeUIComponents(Map packageJson, List<EurekaModule> removeUIComponents) {
+  stage('Remove UI Components') {
+    String stripesModulesConfig = _readStripesConfigFile('stripes.modules.js')
 
-  if (realm && !realm.isEmpty()) {
-    String updateRealmUrl = "https://${keycloakDomain}/admin/realms/${currentTenantId}/clients/${realm['id'].get(0)}"
-    headers['Content-Type'] = 'application/json'
+    removeUIComponents.each { component ->
+      String componentName = _transformComponentName(component.getName())
+      if (packageJson['dependencies'].containsKey(componentName)) {
+        packageJson['dependencies'].remove(componentName)
+        echo "Removed UI component: ${componentName}"
+      } else {
+        echo "UI component not found, skipping removal: ${componentName}"
+      }
 
-    String baseDomain = tenantUi.getDomain()
-    String currentTenantUrl = singleConsortiaUI ?
-      "https://${baseDomain.replace(originalTenantId, currentTenantId)}" :
-      "https://${baseDomain}"
+      String escapedComponentName = Pattern.quote(componentName)
+      stripesModulesConfig = stripesModulesConfig.replaceAll(/(?m)^\s*'${escapedComponentName}'\s*:\s*\{\},?\s*\n?/, '')
+    }
 
-    // Build redirect URIs list
-    List<String> redirectUrisList = _buildRedirectUrisList(originalTenantId, kongDomain, currentTenantUrl, currentTenantId)
-
-    // Create update content
-    def updateContent = [
-      rootUrl                     : currentTenantUrl,
-      baseUrl                     : currentTenantUrl,
-      adminUrl                    : currentTenantUrl,
-      redirectUris                : redirectUrisList,
-      webOrigins                  : ['/*'],
-      authorizationServicesEnabled: true,
-      serviceAccountsEnabled      : true,
-      attributes                  : ['post.logout.redirect.uris': "/*##${currentTenantUrl}/*", login_theme: 'custom-theme']
-    ]
-
-    def ssoUpdates = [
-      resetPasswordAllowed: true
-    ]
-
-    // Apply updates
-    client.put(updateRealmUrl, writeJSON(json: updateContent, returnText: true), headers)
-    client.put("https://${keycloakDomain}/admin/realms/${currentTenantId}", writeJSON(json: ssoUpdates, returnText: true), headers)
-
-    echo "Updated Keycloak configuration for tenant: ${currentTenantId} with URL: ${currentTenantUrl}"
-  } else {
-    echo "Warning: No Keycloak client found for tenant: ${currentTenantId}"
+    _writeStripesConfigFile(stripesModulesConfig, 'stripes.modules.js')
   }
 }
 
 /**
- * Builds the list of redirect URIs for Keycloak client configuration.
- *
- * @param tenantId Original tenant ID
- * @param kongDomain Kong gateway domain
- * @param currentTenantUrl Current tenant URL
- * @param currentTenantId Current tenant ID being configured
- * @return List of redirect URIs
+ * TODO
+ * Placeholder for future implementation of UI component version updates. For deploy from feature branch.
+ * @param packageJson
+ * @param updateUIComponents
  */
-private List<String> _buildRedirectUrisList(String tenantId, String kongDomain, String currentTenantUrl, String currentTenantId) {
-  List<String> redirectUrisList = []
-
-  // Add consortia-specific redirect URIs
-  switch (tenantId) {
-    case 'consortium':
-      redirectUrisList << "https://ecs-${kongDomain}/*"
-      break
-    case 'consortium2':
-      redirectUrisList << "https://ecs2-${kongDomain}/*"
-      break
-    case 'cs00000int':
-      redirectUrisList << "https://ecs-${kongDomain}/*"
-      break
-  }
-
-  // Add standard redirect URIs
-  redirectUrisList.addAll([
-    "${currentTenantUrl}/*",
-    'http://localhost:3000/*',
-    'http://localhost:3001/*',
-    "https://eureka-snapshot-${currentTenantId}.${Constants.CI_ROOT_DOMAIN}/*"
-  ])
-
-  return redirectUrisList
+private void _updateUIComponents(Map packageJson, List<EurekaModule> updateUIComponents) {
+  println('Method _updateUIComponents is not implemented yet.')
 }
 
-private List<String> _updatePackageJsonFile(TenantUi tenantUi) {
+// File I/O operations
+private Map _readPackageJsonFile() {
   final String packageJsonFile = 'package.json'
-  List<String> uiModulesToAdd = []
-
-  // Safely read the package.json file
   Map packageJson
   try {
     packageJson = readJSON(file: packageJsonFile)
@@ -404,84 +212,201 @@ private List<String> _updatePackageJsonFile(TenantUi tenantUi) {
     echo "Error reading ${packageJsonFile}: ${e.message}"
     throw e
   }
+  return packageJson
+}
 
-  tenantUi.getCustomUiModules().each { customUiModule ->
-    String uiModuleNameTransformed = customUiModule.name.replace('folio_', '@folio/')
-    uiModulesToAdd << uiModuleNameTransformed
-    packageJson['dependencies'][uiModuleNameTransformed] = customUiModule.version
-  }
-
-  // Safely write the updated package.json file
+private void _writePackageJsonFile(Map packageJson) {
+  final String packageJsonFile = 'package.json'
   try {
     writeJSON(file: packageJsonFile, json: packageJson, pretty: 2)
   } catch (Exception e) {
     echo "Error writing to ${packageJsonFile}: ${e.message}"
     throw e
   }
-
-  // Log the modules added to the package
-  echo "${packageJsonFile} updated with UI modules: ${uiModulesToAdd}"
-
-  return uiModulesToAdd
 }
 
-//TODO refactoring and reviewing required.
-@NonCPS
-static def make_tpl(String tpl, Map data) {
-  def ui_tpl = ((new StreamingTemplateEngine().createTemplate(tpl)).make(data)).toString()
-  return ui_tpl
+private String _readStripesConfigFile(String filePath = 'stripes.config.js') {
+  String stripesConfigContent
+  try {
+    stripesConfigContent = readFile(file: filePath)
+  } catch (Exception e) {
+    echo "Error reading ${filePath}: ${e.message}"
+    throw e
+  }
+  return stripesConfigContent
 }
 
-/**
- * Builds tenant options JSON for consortia central tenants including all member tenants
- * Uses actual tenant names from folioDefault.groovy configuration
- */
-private String buildTenantOptionsJson(OkapiTenant tenant, boolean singleConsortiaUI = false) {
+private void _writeStripesConfigFile(String content, String filePath = 'stripes.config.js') {
+  try {
+    writeFile(file: filePath, text: content)
+  } catch (Exception e) {
+    echo "Error writing to ${filePath}: ${e.message}"
+    throw e
+  }
+}
+
+// Keycloak configuration methods
+private void _updateKeycloakClientConfiguration(TenantUi tenantUi, String currentTenantId) {
+  String tenantId = tenantUi.getTenantId()
+  RestClient client = new RestClient(this, true)
+  Keycloak keycloak = new Keycloak(this, tenantUi.getKeycloakDomain(), true)
+
+  String token = keycloak.getAuthMasterTenantToken()
+  Map headers = ['Authorization': "Bearer ${token}"]
+
+  String realmUrl = keycloak.generateUrl("/admin/realms/${currentTenantId}/clients?clientId=${currentTenantId}-application")
+  Map realm = client.get(realmUrl, headers).body.first()
+
+  if (realm) {
+    String baseUIDomain = tenantUi.getDomain()
+    String currentUIDomain = tenantUi.getIsConsortiaSingleUi() ?
+      baseUIDomain.replace(tenantId, currentTenantId) :
+      baseUIDomain
+
+    List<String> redirectList = _buildRedirectList(currentTenantId, currentUIDomain, tenantUi.getKongDomain())
+
+    String updateRealmUrl = keycloak.generateUrl("/admin/realms/${currentTenantId}/clients/${realm['id']}")
+    headers['Content-Type'] = 'application/json'
+    String currentUIUrl = "https://${currentUIDomain}"
+    Map updateRealmBody = [
+      rootUrl                     : currentUIUrl,
+      baseUrl                     : currentUIUrl,
+      adminUrl                    : currentUIUrl,
+      redirectUris                : redirectList,
+      webOrigins                  : ['/*'],
+      authorizationServicesEnabled: true,
+      serviceAccountsEnabled      : true,
+      attributes                  : ['post.logout.redirect.uris': "/*##${currentUIUrl}/*", login_theme: 'custom-theme']
+    ]
+    client.put(updateRealmUrl, writeJSON(json: updateRealmBody, returnText: true), headers)
+
+    String updateSSOUrl = keycloak.generateUrl("/admin/realms/${currentTenantId}")
+    Map updateSSOBoby = [
+      resetPasswordAllowed: true
+    ]
+    client.put(updateSSOUrl, writeJSON(json: updateSSOBoby, returnText: true), headers)
+
+    echo "Updated Keycloak configuration for tenant: ${currentTenantId} with redirects: \n${writeJSON(json: redirectList, returnText: true, pretty: 2)}"
+  } else {
+    echo "Warning: No Keycloak client found for tenant: ${currentTenantId}"
+  }
+}
+
+private static List<String> _buildRedirectList(String currentTenantId, String currentUIDomain, String kongDomain) {
+  return [
+    'http://localhost:3000/*',
+    'http://localhost:3001/*',
+    "https://${kongDomain}/*",
+    "https://${currentUIDomain}/*",
+    "https://eureka-snapshot-${currentTenantId}.${Constants.CI_ROOT_DOMAIN}/*"
+  ]
+}
+
+// Tenant configuration methods
+private String _buildTenantOptionsJson(EurekaTenant tenant, boolean isConsortia, boolean singleConsortiaUI = false) {
   String tenantId = tenant.getTenantId()
 
-  if (singleConsortiaUI) {
-    return buildSingleTenantOption(tenantId, tenant.getTenantName(), singleConsortiaUI)
+  if (singleConsortiaUI || !isConsortia) {
+    return "{${_buildTenantEntry(tenantId, tenant.getTenantName(), singleConsortiaUI)}}"
   }
 
-  Map<String, OkapiTenant> tenantsMap = getTenantsForConsortia(tenantId)
+  Map<String, EurekaTenant> consortiaTenants = _getConsortiaTenants(tenantId)
 
-  if (!tenantsMap) {
-    return buildSingleTenantOption(tenantId, tenant.getTenantName(), singleConsortiaUI)
-  }
-
-  List<String> tenantEntries = tenantsMap.collect { id, tenantObj ->
-    buildTenantEntry(id, tenantObj.getTenantName(), singleConsortiaUI)
+  List<String> tenantEntries = consortiaTenants.collect { id, consortiaTenant ->
+    _buildTenantEntry(consortiaTenant.getTenantId(), consortiaTenant.getTenantName(), singleConsortiaUI)
   }
 
   return "{${tenantEntries.join(', ')}}"
 }
 
-private Map<String, OkapiTenant> getTenantsForConsortia(String tenantId) {
-  switch (tenantId) {
-    case 'consortium':
-      return folioDefault.consortiaTenants()
-    case 'consortium2':
-      return folioDefault.consortiaTenantsExtra()
-    case 'cs00000int':
-      return folioDefault.tenants().findAll { key, value ->
-        key == 'cs00000int' || key.startsWith('cs00000int_')
-      }
-    default:
-      return null
-  }
-}
-
-private String buildTenantEntry(String tenantId, String tenantName, boolean singleUx) {
+private static String _buildTenantEntry(String tenantId, String tenantName, boolean singleConsortiaUI) {
   String clientId = "${tenantId}-application"
 
-  if (singleUx || !tenantName) {
+  if (singleConsortiaUI || !tenantName) {
     return "${tenantId}: {name: \"${tenantId}\", clientId: \"${clientId}\"}"
   } else {
     return "${tenantId}: {name: \"${tenantId}\", displayName: \"${tenantName}\", clientId: \"${clientId}\"}"
   }
 }
 
-private String buildSingleTenantOption(String tenantId, String tenantName, boolean singleUx) {
-  String entry = buildTenantEntry(tenantId, tenantName, singleUx)
-  return "{${entry}}"
+private Map<String, EurekaTenant> _getConsortiaTenants(String tenantId) {
+  if (!tenantId?.trim()) {
+    throw new IllegalArgumentException('Tenant ID cannot be null or empty')
+  }
+
+  switch (tenantId) {
+    case 'consortium':
+      return folioDefault.consortiaTenants()
+    case 'consortium2':
+      return folioDefault.consortiaTenantsExtra()
+    case 'cs00000int':
+      return _getEcsTenants()
+    default:
+      echo "Warning: No consortia configuration found for tenant ID: ${tenantId}"
+      return [:]
+  }
+}
+
+/**
+ * Optimized method to get ECS (cs00000int) tenants without creating all tenants.
+ * Creates only the needed tenants to improve performance.
+ *
+ * @return Map of ECS tenant configurations
+ */
+@SuppressWarnings('GrMethodMayBeStatic')
+private Map<String, EurekaTenant> _getEcsTenants() {
+  Map<String, Object> allTenants = folioDefault.tenants()
+  Map<String, Object> ecsOnlyTenants = allTenants.findAll { key, value ->
+    key == 'cs00000int' || key.startsWith('cs00000int_')
+  }
+  return ecsOnlyTenants
+}
+
+private static List<String> _tenantsToRedirect(String tenantId) {
+  switch (tenantId) {
+    case 'consortium':
+      return [tenantId, 'university', 'college']
+    case 'consortium2':
+      return [tenantId, 'university2', 'college2']
+    case 'cs00000int':
+      return [tenantId] + (1..11).collect { i -> "cs00000int_${String.format('%03d', i)}" }
+    default:
+      return [tenantId]
+  }
+}
+
+// Domain and configuration utility methods
+private static void _overrideKongDomain(TenantUi tenantUi) {
+  switch (tenantUi.getTenantId()) {
+    case 'fs09000002':
+      tenantUi.setKongDomain("fs02-${tenantUi.getKongDomain()}")
+      break
+    case 'fs09000003':
+      tenantUi.setKongDomain("fs03-${tenantUi.getKongDomain()}")
+      break
+    case 'cs00000int' || 'consortium':
+      tenantUi.setKongDomain("ecs-${tenantUi.getKongDomain()}")
+      break
+    case 'consortium2':
+      tenantUi.setKongDomain("ecs2-${tenantUi.getKongDomain()}")
+      break
+  }
+}
+
+// General utility methods
+private static String _transformComponentName(String componentName) {
+  return componentName.replace('folio_', '@folio/')
+}
+
+@NonCPS
+/**
+ * Renders a template string with the provided data.
+ *
+ * @param tpl The template string to be rendered.
+ * @param data A map containing the data to populate the template.
+ * @return The rendered template string.
+ */
+private static def _makeTpl(String tpl, Map data) {
+  def ui_tpl = ((new StreamingTemplateEngine().createTemplate(tpl)).make(data)).toString()
+  return ui_tpl
 }
