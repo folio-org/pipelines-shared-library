@@ -1,5 +1,6 @@
 package org.folio.models
 
+import org.folio.models.module.EurekaModule
 import org.folio.models.module.FolioModule
 import org.folio.rest_v2.Constants
 
@@ -9,13 +10,19 @@ import org.folio.rest_v2.Constants
 class TenantUi implements Cloneable {
 
   /** Default name for the image. */
-  private static final String IMAGE_NAME = 'ui-bundle'
+  static final String IMAGE_NAME = 'ui-bundle'
 
   /** Identifier of the tenant. */
   String tenantId
 
   /** Domain of the tenant. */
   String domain
+
+  /** Kong domain of the tenant. */
+  String kongDomain
+
+  /** Keycloak domain of the tenant. */
+  String keycloakDomain
 
   /** Branch name of the tenant's repository. */
   String branch
@@ -32,7 +39,20 @@ class TenantUi implements Cloneable {
   /** Workspace of the tenant. */
   String workspace
 
+  @Deprecated
   List<FolioModule> customUiModules = []
+
+  /** Flag indicating whether Consortia is enabled for the tenant. */
+  boolean isConsortia = false
+
+  /** Flag indicating whether the tenant has a single UI for Consortia. */
+  boolean isConsortiaSingleUi = false
+
+  /** List of Eureka modules to be added to the tenant's UI. */
+  List<EurekaModule> addUIComponents = []
+
+  /** List of Eureka modules to be removed from the tenant's UI. */
+  List<EurekaModule> removeUIComponents = []
 
   /**
    * Constructor that sets the workspace, hash, and branch for the TenantUi.

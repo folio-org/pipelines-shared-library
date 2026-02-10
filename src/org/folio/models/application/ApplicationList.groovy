@@ -11,11 +11,11 @@ class ApplicationList extends ArrayList<Application> {
     apps.each { app -> add(new Application(app)) }
   }
 
-  ApplicationList(){ super() }
+  ApplicationList() { super() }
 
   @Override
   boolean add(Application e) {
-    return !any{it.equals(e) } && super.add(e)
+    return !any { it.equals(e) } && super.add(e)
   }
 
   @Override
@@ -26,12 +26,12 @@ class ApplicationList extends ArrayList<Application> {
 
   @Override
   boolean addAll(int index, Collection<? extends Application> c) {
-    return super.addAll(index, c.findAll{!this.any{app -> app.equals(it) } })
+    return super.addAll(index, c.findAll { !this.any { app -> app.equals(it) } })
   }
 
   @Override
   boolean addAll(Collection<? extends Application> c) {
-    return super.addAll(c.findAll{!this.any{app -> app.equals(it) } })
+    return super.addAll(c.findAll { !this.any { app -> app.equals(it) } })
   }
 
   @Override
@@ -43,27 +43,27 @@ class ApplicationList extends ArrayList<Application> {
     Map<String, ApplicationList> grouped = [:]
 
     this.each { app ->
-        if (!grouped.containsKey(app.name)) {
-          grouped[app.name] = new ApplicationList()
-        }
-
-        grouped[app.name].add(app)
+      if (!grouped.containsKey(app.name)) {
+        grouped[app.name] = new ApplicationList()
       }
+
+      grouped[app.name].add(app)
+    }
 
     return grouped
   }
 
   ApplicationList byName(String name) {
-    return group().findAll { it.key == name }.values() as ApplicationList
+    return group().get(name) ?: new ApplicationList()
   }
 
-  Map<String, String> groupMaxBuild(){
+  Map<String, String> groupMaxBuild() {
     return group().collectEntries { appName, appList ->
       [(appName): appList.max { a, b -> a.build <=> b.build }.build]
     } as Map<String, String>
   }
 
-  String maxBuild(String name){
+  String maxBuild(String name) {
     return byName(name).max { a, b -> a.build <=> b.build }.build
   }
 
@@ -89,4 +89,5 @@ class ApplicationList extends ArrayList<Application> {
 
     return installJson
   }
+
 }
