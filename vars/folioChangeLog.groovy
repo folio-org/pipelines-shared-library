@@ -66,32 +66,13 @@ List<ChangelogEntry> call(String previousSha, String currentSha) {
           if (!changeLogEntry.sha) {
             echo "Warning: Could not find workflow run SHA for ${repositoryName} build #${module.buildId}"
             echo "Workflow run response: ${workflowRun}"
-            echo "Attempting fallback: looking for Git tag v${module.version}"
-            def tagInfo = gitHubClient.getTagInfo(repositoryName, "v${module.version}")
-            if (tagInfo && tagInfo.object?.sha) {
-              changeLogEntry.sha = tagInfo.object.sha
-              echo "Successfully found SHA ${changeLogEntry.sha} from Git tag v${module.version}"
-            } else {
-              changeLogEntry.sha = 'Unknown'
-            }
+            changeLogEntry.sha = 'Unknown'
           } else {
             echo "Successfully found SHA ${changeLogEntry.sha} for ${repositoryName} build #${module.buildId}"
           }
         } catch (Exception e) {
           echo "Error getting workflow run SHA for ${repositoryName} build #${module.buildId}: ${e.getMessage()}"
-          echo "Attempting fallback: looking for Git tag v${module.version}"
-          try {
-            def tagInfo = gitHubClient.getTagInfo(repositoryName, "v${module.version}")
-            if (tagInfo && tagInfo.object?.sha) {
-              changeLogEntry.sha = tagInfo.object.sha
-              echo "Successfully found SHA ${changeLogEntry.sha} from Git tag v${module.version}"
-            } else {
-              changeLogEntry.sha = 'Unknown'
-            }
-          } catch (Exception fallbackError) {
-            echo "Fallback also failed: ${fallbackError.getMessage()}"
-            changeLogEntry.sha = 'Unknown'
-          }
+          changeLogEntry.sha = 'Unknown'
         }
         break
       case ModuleType.KONG:
@@ -105,32 +86,13 @@ List<ChangelogEntry> call(String previousSha, String currentSha) {
           if (!changeLogEntry.sha) {
             echo "Warning: Could not find workflow run SHA for ${repositoryName} build #${module.buildId}"
             echo "Workflow run response: ${workflowRun}"
-            echo "Attempting fallback: looking for Git tag v${module.version}"
-            def tagInfo = gitHubClient.getTagInfo(repositoryName, "v${module.version}")
-            if (tagInfo && tagInfo.object?.sha) {
-              changeLogEntry.sha = tagInfo.object.sha
-              echo "Successfully found SHA ${changeLogEntry.sha} from Git tag v${module.version}"
-            } else {
-              changeLogEntry.sha = 'Unknown'
-            }
+            changeLogEntry.sha = 'Unknown'
           } else {
             echo "Successfully found SHA ${changeLogEntry.sha} for ${repositoryName} build #${module.buildId}"
           }
         } catch (Exception e) {
           echo "Error getting workflow run SHA for ${repositoryName} build #${module.buildId}: ${e.getMessage()}"
-          echo "Attempting fallback: looking for Git tag v${module.version}"
-          try {
-            def tagInfo = gitHubClient.getTagInfo(repositoryName, "v${module.version}")
-            if (tagInfo && tagInfo.object?.sha) {
-              changeLogEntry.sha = tagInfo.object.sha
-              echo "Successfully found SHA ${changeLogEntry.sha} from Git tag v${module.version}"
-            } else {
-              changeLogEntry.sha = 'Unknown'
-            }
-          } catch (Exception fallbackError) {
-            echo "Fallback also failed: ${fallbackError.getMessage()}"
-            changeLogEntry.sha = 'Unknown'
-          }
+          changeLogEntry.sha = 'Unknown'
         }
         break
       case ModuleType.FRONTEND:
@@ -142,32 +104,13 @@ List<ChangelogEntry> call(String previousSha, String currentSha) {
           if (!changeLogEntry.sha) {
             echo "Warning: Could not find workflow run SHA for ${repositoryName} build #${module.buildId}"
             echo "Workflow run response: ${workflowRun}"
-            echo "Attempting fallback: looking for Git tag v${module.version}"
-            def tagInfo = gitHubClient.getTagInfo(repositoryName, "v${module.version}")
-            if (tagInfo && tagInfo.object?.sha) {
-              changeLogEntry.sha = tagInfo.object.sha
-              echo "Successfully found SHA ${changeLogEntry.sha} from Git tag v${module.version}"
-            } else {
-              changeLogEntry.sha = 'Unknown'
-            }
+            changeLogEntry.sha = 'Unknown'
           } else {
             echo "Successfully found SHA ${changeLogEntry.sha} for ${repositoryName} build #${module.buildId}"
           }
         } catch (Exception e) {
           echo "Error getting workflow run SHA for ${repositoryName} build #${module.buildId}: ${e.getMessage()}"
-          echo "Attempting fallback: looking for Git tag v${module.version}"
-          try {
-            def tagInfo = gitHubClient.getTagInfo(repositoryName, "v${module.version}")
-            if (tagInfo && tagInfo.object?.sha) {
-              changeLogEntry.sha = tagInfo.object.sha
-              echo "Successfully found SHA ${changeLogEntry.sha} from Git tag v${module.version}"
-            } else {
-              changeLogEntry.sha = 'Unknown'
-            }
-          } catch (Exception fallbackError) {
-            echo "Fallback also failed: ${fallbackError.getMessage()}"
-            changeLogEntry.sha = 'Unknown'
-          }
+          changeLogEntry.sha = 'Unknown'
         }
         break
       default:
