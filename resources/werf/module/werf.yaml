@@ -8,5 +8,4 @@ image: {{ env "MODULE_NAME" }}
 dockerfile: Dockerfile
 context: .
 contextAddFiles:
-  - .
-
+  - ./{{ env "TARGET_DIR" "target" }}
