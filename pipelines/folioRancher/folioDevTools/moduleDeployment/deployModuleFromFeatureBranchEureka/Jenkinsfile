@@ -48,7 +48,6 @@ if (params.NAMESPACE in Constants.RANCHER_PROTECTED_NAMESPACES) {
   folioCommon.kitfoxApproval()
 }
 
-
 /** Job variables */
 PodTemplates podTemplates = new PodTemplates(this, true)
 Logger logger = new Logger(this, env.JOB_BASE_NAME)
@@ -70,7 +69,7 @@ module.name = params.MODULE_NAME
 
 /** Collect feature branch and hash */
 String featureBranch = params.MODULE_BRANCH
-String featureHash = ""
+String featureHash = ''
 
 /** Collect Maven arguments */
 String mavenArguments = params.FORCE_MVN_CACHE_REFRESH ? "-U ${params.MAVEN_ARGS.trim()}" : params.MAVEN_ARGS.trim()
@@ -124,7 +123,7 @@ ansiColor('xterm') {
 
         switch (module.buildTool) {
           case ModuleBuildTool.MAVEN:
-            logger.info("Maven build tool is used")
+            logger.info('Maven build tool is used')
             module.buildDir = "${env.WORKSPACE}/${module.name}"
 
             dir(module.buildDir) {
@@ -146,17 +145,38 @@ ansiColor('xterm') {
                     mvn versions:set -DnewVersion=${module.getVersion()}
                     mvn package ${mavenArguments}
                   """.stripIndent()
+
+                // Determine target directory with enhanced error handling
+                String targetPath = sh(
+                  returnStdout: true,
+                  script: 'mvn help:evaluate -Dexpression=project.build.directory -q -DforceStdout'
+                )?.trim()
+
+                if (!targetPath) {
+                  throw new Exception('Failed to determine Maven target directory')
+                }
+
+                module.targetDir = targetPath.tokenize('/').last()
+
+                // Handle multi-module projects with server module
+                def projectPom = readMavenPom(file: 'pom.xml')
+                if (projectPom?.getModules()?.size() > 0) {
+                  String serverModule = projectPom.getModules().find { it.contains('server') }
+                  if (serverModule) {
+                    module.targetDir = "${serverModule}/${module.targetDir}"
+                  }
+                }
               }
             }
             break
 
           case ModuleBuildTool.GRADLE:
-            logger.info("Gradle build tool is used")
+            logger.info('Gradle build tool is used')
             module.buildDir = "${env.WORKSPACE}/${module.name}/service"
 
             dir(module.buildDir) {
               // Read module version from gradle.properties
-              String moduleVersion = readProperties(file: "gradle.properties")['appVersion']
+              String moduleVersion = readProperties(file: 'gradle.properties')['appVersion']
 
               // Load Module Details for Gradle builds
               module.loadModuleDetails("${module.name}-${moduleVersion}.${featureHash}")
@@ -192,6 +212,7 @@ ansiColor('xterm') {
                   ${login.replace('docker', 'werf cr')}
                   set -x
                   export MODULE_NAME=${module.name}
+                  export TARGET_DIR=${module.targetDir}
                   werf build ${module.name} --repo ${Constants.ECR_FOLIO_REPOSITORY}/werf-shadow \
                     --final-repo ${Constants.ECR_FOLIO_REPOSITORY}/${module.name} \
                     --add-custom-tag ${module.version} --loose-giterminism
@@ -248,220 +269,221 @@ ansiColor('xterm') {
 
       namespace.tenants.values().each { it.getModules().addModule(module) }
 
-      if (!(namespace.tenants))
+      if (!(namespace.tenants)) {
         throw new Exception("There are no tenants with the module ${module.getName()}")
-    }
+      }
 
-    stage("Retrieve module's sidecar") {
-      folioHelm.withKubeConfig(namespace.getClusterName()) {
-        String sidecarImage =
-          kubectl.getDeploymentContainerImageName(namespace.getNamespaceName(), module.getName(), "sidecar")
-            .replace(':', '-')
-
-        // In case updated module doesn't have Sidecar let's seek for it in other modules.
-        if (!sidecarImage) {
-          EurekaModule moduleWithSidecar = namespace.modules.getInstallJsonObject().find { fetchedModule ->
-            kubectl.getDeploymentContainerImageName(namespace.getNamespaceName(), fetchedModule.getName(), "sidecar")
+      stage("Retrieve module's sidecar") {
+        folioHelm.withKubeConfig(namespace.getClusterName()) {
+          String sidecarImage =
+            kubectl.getDeploymentContainerImageName(namespace.getNamespaceName(), module.getName(), 'sidecar')
               .replace(':', '-')
+
+          // In case updated module doesn't have Sidecar let's seek for it in other modules.
+          if (!sidecarImage) {
+            EurekaModule moduleWithSidecar = namespace.modules.getInstallJsonObject().find { fetchedModule ->
+              kubectl.getDeploymentContainerImageName(namespace.getNamespaceName(), fetchedModule.getName(), 'sidecar')
+                .replace(':', '-')
+            }
+
+            sidecarImage =
+              kubectl.getDeploymentContainerImageName(namespace.getNamespaceName(), moduleWithSidecar.getName(), 'sidecar')
+                .replace(':', '-')
           }
 
-          sidecarImage =
-            kubectl.getDeploymentContainerImageName(namespace.getNamespaceName(), moduleWithSidecar.getName(), "sidecar")
-              .replace(':', '-')
-        }
-
-        if (sidecarImage)
-          namespace.modules.addModule(sidecarImage)
-        else
-          throw new AbortException('There are no modules with sidecar in the namespace')
-      }
-
-      logger.debug("Configured Tenants: ${namespace.tenants}")
-      logger.debug("Configured Applications: ${namespace.applications}")
-      logger.debug("Namespace modules: ${namespace.modules.installJsonObject}")
-      logger.debug("Load Sample Data: ${params.LOAD_SAMPLE_DATA}")
-      logger.debug("Load Reference Data: ${params.LOAD_REFERENCE_DATA}")
-    }
-
-    /** Updated Applications Info Map<AppName, AppID> */
-    Map<String, String> updatedAppInfoMap = [:]
-    if (params.SIMPLIFIED) {
-      stage('[Deploy] Update Module Image') {
-        folioHelm.withKubeConfig(namespace.clusterName) {
-          sh(script: "kubectl set image deployment/${module.name} ${module.name}=${Constants.ECR_FOLIO_REPOSITORY}/${module.name}:${module.version} -n ${namespace.getNamespaceName()}", returnStdout: true)
-          folioHelm.checkDeploymentsRunning(namespace.getNamespaceName(), namespace.getModules().getBackendModules())
-        }
-      }
-      if (params.INVOKE_TENANT_API) {
-        stage('[Invoke] /tenant API POST calls') {
-          RestClient restClient = new RestClient(this)
-          def tenants = restClient.get("https://${namespace.generateDomain("kong")}/tenants?limit=500").body.tenants
-          def apps = restClient.get("https://${namespace.generateDomain("kong")}/applications?limit=500").body.applicationDescriptors
-          Keycloak keycloak = new Keycloak(this, namespace.generateDomain("keycloak"), false)
-          tenants.each { tenant ->
-            Map body = [
-              tenantId    : tenant.id,
-              applications: apps.findAll { it.modules*.name.contains(module.name) }*.id
-            ]
-            Map headers = [
-              'Content-Type' : 'application/json',
-              'Authorization': "Bearer ${keycloak.getAuthMasterTenantToken()}",
-            ]
-            folioPrint.colored("Invoking /tenant API for tenant: ${tenant.name} with applications: ${body.applications}", 'green')
-            restClient.post("https://${namespace.generateDomain("kong")}/reinstall/applications", writeJSON(json: body, returnText: true), headers)
-            folioPrint.colored("Invokation for tenant: ${tenant.name} is complete", 'green')
-            sleep time: 30, unit: 'SECONDS'
+          if (sidecarImage) {
+            namespace.modules.addModule(sidecarImage)
+          } else {
+            throw new AbortException('There are no modules with sidecar in the namespace')
           }
         }
+
+        logger.debug("Configured Tenants: ${namespace.tenants}")
+        logger.debug("Configured Applications: ${namespace.applications}")
+        logger.debug("Namespace modules: ${namespace.modules.installJsonObject}")
+        logger.debug("Load Sample Data: ${params.LOAD_SAMPLE_DATA}")
+        logger.debug("Load Reference Data: ${params.LOAD_REFERENCE_DATA}")
       }
 
-    } else {
-      // 1. Register Application Descriptor with Updated Module Version
-      stage('[Rest] Update App Descriptor') {
-        try {
-          updatedAppInfoMap = eureka.updateAppDescriptorFlow(namespace.applications, module)
-        } catch (e) {
-          logger.warning("Failed to register new application descriptor: ${e}")
-          eureka.removeResourcesOnFailFlow(updatedAppInfoMap, module)
-          throw e
-        }
-      }
-
-      // 2. Enable New Module Version (Discovery) for Application
-      stage('[Rest] Module Discovery') {
-        try {
-          eureka.registerModulesFlow(new FolioInstallJson<FolioModule>(EurekaModule.class).addModule(module))
-        } catch (e) {
-          logger.warning("Failed to perform new module discovery: ${e}")
-          eureka.removeResourcesOnFailFlow(updatedAppInfoMap, module)
-          throw e
-        }
-      }
-
-      // 3. Deploy New Module Version to Rancher Namespace via Helm
-      stage('[Helm] Deploy Module Ver') {
-        try {
+      /** Updated Applications Info Map<AppName, AppID> */
+      Map<String, String> updatedAppInfoMap = [:]
+      if (params.SIMPLIFIED) {
+        stage('[Deploy] Update Module Image') {
           folioHelm.withKubeConfig(namespace.clusterName) {
-            folioHelm.deployFolioModule(namespace, module.name, module.version, false, namespace.defaultTenantId)
-            echo "Module ${module.name}-${module.version} deployed to ${namespace.clusterName} namespace ${namespace.workspaceName}"
+            sh(script: "kubectl set image deployment/${module.name} ${module.name}=${Constants.ECR_FOLIO_REPOSITORY}/${module.name}:${module.version} -n ${namespace.getNamespaceName()}", returnStdout: true)
             folioHelm.checkDeploymentsRunning(namespace.getNamespaceName(), namespace.getModules().getBackendModules())
           }
-        } catch (e) {
-          logger.warning("Failed to deploy new module version via Helm: ${e}")
-          eureka.removeResourcesOnFailFlow(updatedAppInfoMap, module)
-          throw e
         }
-      }
-
-      // 4. Enable Application Descriptor with Updated Module Version for Tenants in Namespace
-      stage('[Rest] Enable New App') {
-        try {
-          EurekaRequestParams requestParams = new EurekaRequestParams()
-            .doLoadReference(params.LOAD_REFERENCE_DATA)
-            .doLoadSample(params.LOAD_SAMPLE_DATA) as EurekaRequestParams
-          namespace.getTenants().values().each { tenant ->
-            tenant
-              .withInstallRequestParams(requestParams)
-            logger.debug("Load reference data: ${params.LOAD_REFERENCE_DATA} for tenant: ${tenant.getTenantId()}")
-            logger.debug("Load sample data: ${params.LOAD_SAMPLE_DATA} for tenant: ${tenant.getTenantId()}")
-            Tenants.get(eureka.getKong()).updateApplicationsStandardEndpoint(tenant, updatedAppInfoMap.values().toList())
+        if (params.INVOKE_TENANT_API) {
+          stage('[Invoke] /tenant API POST calls') {
+            RestClient restClient = new RestClient(this)
+            def tenants = restClient.get("https://${namespace.generateDomain('kong')}/tenants?limit=500").body.tenants
+            def apps = restClient.get("https://${namespace.generateDomain('kong')}/applications?limit=500").body.applicationDescriptors
+            Keycloak keycloak = new Keycloak(this, namespace.generateDomain('keycloak'), false)
+            tenants.each { tenant ->
+              Map body = [
+                tenantId    : tenant.id,
+                applications: apps.findAll { it.modules*.name.contains(module.name) }*.id
+              ]
+              Map headers = [
+                'Content-Type' : 'application/json',
+                'Authorization': "Bearer ${keycloak.getAuthMasterTenantToken()}",
+              ]
+              folioPrint.colored("Invoking /tenant API for tenant: ${tenant.name} with applications: ${body.applications}", 'green')
+              restClient.post("https://${namespace.generateDomain('kong')}/reinstall/applications", writeJSON(json: body, returnText: true), headers)
+              folioPrint.colored("Invokation for tenant: ${tenant.name} is complete", 'green')
+              sleep time: 30, unit: 'SECONDS'
+            }
           }
-        } catch (e) {
-          logger.warning("Failed to enable (entitle) new application version: ${e}")
-
-          if (e.toString().contains('Application version is same or lower than entitled')) {
-            logger.info("Application version is same or lower than entitled. This may indicate tenants have entitlements that need cleanup.")
-
-            try {
-              logger.info("Attempting cleanup for all namespace tenants.")
-              def allTenantIds = namespace.getTenants().values().collect { it.uuid }
-              kubectl.updateApplicationsFix(params.NAMESPACE, params.CLUSTER, updatedAppInfoMap.values().toList(), allTenantIds)
-
-              logger.info("Retrying application update after entitlement cleanup.")
-              namespace.getTenants().values().each { tenant ->
-                Tenants.get(eureka.getKong()).updateApplicationsStandardEndpoint(tenant, updatedAppInfoMap.values().toList())
-              }
-              logger.info("Successfully enabled application after entitlement cleanup.")
-            } catch (retryException) {
-              logger.warning("Retry after cleanup failed: ${retryException}")
-              try {
-                eureka.removeResourcesOnFailFlow(updatedAppInfoMap, module)
-              } catch (cleanupException) {
-                if (cleanupException.toString().contains('cannot be removed')) {
-                  logger.warning("Cleanup failed due to active entitlements, which is expected after partial success. Continuing...")
-                } else {
-                  throw cleanupException
-                }
-              }
-              throw retryException
-            }
-          } else if (e.toString().contains('cannot be removed')) {
-            logger.info("Handling 'cannot be removed' error with tenant-specific cleanup.")
-            try {
-              def errorMessage = e.toString()
-              def responseMatch = errorMessage =~ /HTTP request failed\(\d+\) - (.+)/
-              if (responseMatch) {
-                def responseJson = responseMatch[0][1]
-                def errorResponse = readJSON(text: responseJson)
-
-                if (errorResponse.errors && errorResponse.errors[0].message.contains('installed for tenants')) {
-                  def tenantMessage = errorResponse.errors[0].message
-                  def tenantListMatch = tenantMessage =~ /tenants: \[([^\]]+)\]/
-                  if (tenantListMatch) {
-                    def tenantIds = tenantListMatch[0][1].split(', ').collect { it.trim() }
-                    logger.info("Found tenant IDs in error message: ${tenantIds}")
-                    kubectl.updateApplicationsFix(params.NAMESPACE, params.CLUSTER, updatedAppInfoMap.values().toList(), tenantIds)
-
-                    namespace.getTenants().values().each { tenant ->
-                      Tenants.get(eureka.getKong()).updateApplicationsStandardEndpoint(tenant, updatedAppInfoMap.values().toList())
-                    }
-                    logger.info("Successfully enabled application after tenant-specific cleanup.")
-                    return
-                  }
-                }
-              }
-
-              try {
-                eureka.removeResourcesOnFailFlow(updatedAppInfoMap, module)
-              } catch (cleanupException) {
-                if (cleanupException.toString().contains('cannot be removed')) {
-                  logger.warning("Cleanup failed due to active entitlements, which is expected after partial success. Continuing...")
-                } else {
-                  throw cleanupException
-                }
-              }
-              throw e
-            } catch (parseException) {
-              logger.warning("Failed to parse 'cannot be removed' error: ${parseException}")
-              try {
-                eureka.removeResourcesOnFailFlow(updatedAppInfoMap, module)
-              } catch (cleanupException) {
-                if (cleanupException.toString().contains('cannot be removed')) {
-                  logger.warning("Cleanup failed due to active entitlements, which is expected after partial success. Continuing...")
-                } else {
-                  throw cleanupException
-                }
-              }
-              throw e
-            }
-          } else {
-            try {
-              eureka.removeResourcesOnFailFlow(updatedAppInfoMap, module)
-            } catch (cleanupException) {
-              if (cleanupException.toString().contains('cannot be removed')) {
-                logger.warning("Cleanup failed due to active entitlements, which is expected after partial success. Continuing...")
-              } else {
-                throw cleanupException
-              }
-            }
+        }
+      } else {
+        // 1. Register Application Descriptor with Updated Module Version
+        stage('[Rest] Update App Descriptor') {
+          try {
+            updatedAppInfoMap = eureka.updateAppDescriptorFlow(namespace.applications, module)
+          } catch (e) {
+            logger.warning("Failed to register new application descriptor: ${e}")
+            eureka.removeResourcesOnFailFlow(updatedAppInfoMap, module)
             throw e
           }
         }
-      }
-    }
 
-    stage('[Rest] Remove Stale Resources') {
-      eureka.removeStaleResourcesFlow(namespace.applications, updatedAppInfoMap, module)
+        // 2. Enable New Module Version (Discovery) for Application
+        stage('[Rest] Module Discovery') {
+          try {
+            eureka.registerModulesFlow(new FolioInstallJson<FolioModule>(EurekaModule.class).addModule(module))
+          } catch (e) {
+            logger.warning("Failed to perform new module discovery: ${e}")
+            eureka.removeResourcesOnFailFlow(updatedAppInfoMap, module)
+            throw e
+          }
+        }
+
+        // 3. Deploy New Module Version to Rancher Namespace via Helm
+        stage('[Helm] Deploy Module Ver') {
+          try {
+            folioHelm.withKubeConfig(namespace.clusterName) {
+              folioHelm.deployFolioModule(namespace, module.name, module.version, false, namespace.defaultTenantId)
+              echo "Module ${module.name}-${module.version} deployed to ${namespace.clusterName} namespace ${namespace.workspaceName}"
+              folioHelm.checkDeploymentsRunning(namespace.getNamespaceName(), namespace.getModules().getBackendModules())
+            }
+          } catch (e) {
+            logger.warning("Failed to deploy new module version via Helm: ${e}")
+            eureka.removeResourcesOnFailFlow(updatedAppInfoMap, module)
+            throw e
+          }
+        }
+
+        // 4. Enable Application Descriptor with Updated Module Version for Tenants in Namespace
+        stage('[Rest] Enable New App') {
+          try {
+            EurekaRequestParams requestParams = new EurekaRequestParams()
+              .doLoadReference(params.LOAD_REFERENCE_DATA)
+              .doLoadSample(params.LOAD_SAMPLE_DATA) as EurekaRequestParams
+            namespace.getTenants().values().each { tenant ->
+              tenant
+                .withInstallRequestParams(requestParams)
+              logger.debug("Load reference data: ${params.LOAD_REFERENCE_DATA} for tenant: ${tenant.getTenantId()}")
+              logger.debug("Load sample data: ${params.LOAD_SAMPLE_DATA} for tenant: ${tenant.getTenantId()}")
+              Tenants.get(eureka.getKong()).updateApplicationsStandardEndpoint(tenant, updatedAppInfoMap.values().toList())
+            }
+          } catch (e) {
+            logger.warning("Failed to enable (entitle) new application version: ${e}")
+
+            if (e.toString().contains('Application version is same or lower than entitled')) {
+              logger.info('Application version is same or lower than entitled. This may indicate tenants have entitlements that need cleanup.')
+
+              try {
+                logger.info('Attempting cleanup for all namespace tenants.')
+                def allTenantIds = namespace.getTenants().values().collect { it.uuid }
+                kubectl.updateApplicationsFix(params.NAMESPACE, params.CLUSTER, updatedAppInfoMap.values().toList(), allTenantIds)
+
+                logger.info('Retrying application update after entitlement cleanup.')
+                namespace.getTenants().values().each { tenant ->
+                  Tenants.get(eureka.getKong()).updateApplicationsStandardEndpoint(tenant, updatedAppInfoMap.values().toList())
+                }
+                logger.info('Successfully enabled application after entitlement cleanup.')
+              } catch (retryException) {
+                logger.warning("Retry after cleanup failed: ${retryException}")
+                try {
+                  eureka.removeResourcesOnFailFlow(updatedAppInfoMap, module)
+                } catch (cleanupException) {
+                  if (cleanupException.toString().contains('cannot be removed')) {
+                    logger.warning('Cleanup failed due to active entitlements, which is expected after partial success. Continuing...')
+                  } else {
+                    throw cleanupException
+                  }
+                }
+                throw retryException
+              }
+            } else if (e.toString().contains('cannot be removed')) {
+              logger.info("Handling 'cannot be removed' error with tenant-specific cleanup.")
+              try {
+                def errorMessage = e.toString()
+                def responseMatch = errorMessage =~ /HTTP request failed\(\d+\) - (.+)/
+                if (responseMatch) {
+                  def responseJson = responseMatch[0][1]
+                  def errorResponse = readJSON(text: responseJson)
+
+                  if (errorResponse.errors && errorResponse.errors[0].message.contains('installed for tenants')) {
+                    def tenantMessage = errorResponse.errors[0].message
+                    def tenantListMatch = tenantMessage =~ /tenants: \[([^\]]+)\]/
+                    if (tenantListMatch) {
+                      def tenantIds = tenantListMatch[0][1].split(', ').collect { it.trim() }
+                      logger.info("Found tenant IDs in error message: ${tenantIds}")
+                      kubectl.updateApplicationsFix(params.NAMESPACE, params.CLUSTER, updatedAppInfoMap.values().toList(), tenantIds)
+
+                      namespace.getTenants().values().each { tenant ->
+                        Tenants.get(eureka.getKong()).updateApplicationsStandardEndpoint(tenant, updatedAppInfoMap.values().toList())
+                      }
+                      logger.info('Successfully enabled application after tenant-specific cleanup.')
+                      return
+                    }
+                  }
+                }
+
+                try {
+                  eureka.removeResourcesOnFailFlow(updatedAppInfoMap, module)
+                } catch (cleanupException) {
+                  if (cleanupException.toString().contains('cannot be removed')) {
+                    logger.warning('Cleanup failed due to active entitlements, which is expected after partial success. Continuing...')
+                  } else {
+                    throw cleanupException
+                  }
+                }
+                throw e
+              } catch (parseException) {
+                logger.warning("Failed to parse 'cannot be removed' error: ${parseException}")
+                try {
+                  eureka.removeResourcesOnFailFlow(updatedAppInfoMap, module)
+                } catch (cleanupException) {
+                  if (cleanupException.toString().contains('cannot be removed')) {
+                    logger.warning('Cleanup failed due to active entitlements, which is expected after partial success. Continuing...')
+                  } else {
+                    throw cleanupException
+                  }
+                }
+                throw e
+              }
+            } else {
+              try {
+                eureka.removeResourcesOnFailFlow(updatedAppInfoMap, module)
+              } catch (cleanupException) {
+                if (cleanupException.toString().contains('cannot be removed')) {
+                  logger.warning('Cleanup failed due to active entitlements, which is expected after partial success. Continuing...')
+                } else {
+                  throw cleanupException
+                }
+              }
+              throw e
+            }
+          }
+        }
+      }
+
+      stage('[Rest] Remove Stale Resources') {
+        eureka.removeStaleResourcesFlow(namespace.applications, updatedAppInfoMap, module)
+      }
     }
   }
 }
