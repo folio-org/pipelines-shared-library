@@ -3997,6 +3997,12 @@ mod-search:
     value: "2"
   - name: KAFKA_SUBJECTS_TOPIC_PARTITIONS
     value: "2"
+  - name: FOLIO_LOGGING_EXCHANGE_ENABLED
+    value: "true"
+  - name: FOLIO_LOGGING_EXCHANGE_LEVEL
+    value: "full"
+  - name: FOLIO_LOGGING_REQUEST_LEVEL
+    value: "full"
   integrations:
     db:
       enabled: true
