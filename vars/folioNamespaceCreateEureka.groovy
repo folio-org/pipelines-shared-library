@@ -326,6 +326,12 @@ void call(CreateNamespaceParameters args) {
 
           folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getBackendModules())
           folioHelm.checkDeploymentsRunning(namespace.getNamespaceName(), namespace.getModules().getBackendModules())
+
+          sleep(5000)
+
+          String pod = sh(script: "kubectl get pod -l 'app.kubernetes.io/name=mod-search' -o=name -n ${namespace.getNamespaceName()}", returnStdout: true).trim()
+
+          sh(script: "kubectl exec ${pod} --namespace ${namespace.getNamespaceName()} -- wget -qO- --header=\"Content-Type: application/json\" --post-data='{\"configuredLevel\":\"DEBUG\"}' http://localhost:8081/admin/loggers/org.folio.spring.client.ExchangeLoggingInterceptor", returnStdout: true)
         }
       }
 
