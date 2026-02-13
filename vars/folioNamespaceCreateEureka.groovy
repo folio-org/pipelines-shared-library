@@ -327,7 +327,7 @@ void call(CreateNamespaceParameters args) {
           folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getBackendModules())
           folioHelm.checkDeploymentsRunning(namespace.getNamespaceName(), namespace.getModules().getBackendModules())
 
-          sleep(5000)
+          sleep time: 5, unit: 'SECONDS'
 
           String pod = sh(script: "kubectl get pod -l 'app.kubernetes.io/name=mod-search' -o=name -n ${namespace.getNamespaceName()}", returnStdout: true).trim()
 
