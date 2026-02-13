@@ -30,7 +30,7 @@ void validateParameter(param, String paramName) {
     throw new IllegalArgumentException("${paramName} must be provided and cannot be empty.")
   }
 
-  // For booleans and other types (e.g., CypressRunExecutionSummary), a non-null value is considered valid
+// For booleans and other types (e.g., CypressRunExecutionSummary), a non-null value is considered valid
 }
 
 /**
@@ -43,7 +43,7 @@ void validateParameter(param, String paramName) {
  * @throws IllegalArgumentException if the branch name is null or empty.
  */
 void cloneCypressRepo(String branch) {
-  validateParameter(branch, "Branch name")
+  validateParameter(branch, 'Branch name')
 
   stage('[Git] Checkout Cypress repo') {
     echo("Checking out branch: ${branch}")
@@ -69,11 +69,11 @@ void cloneCypressRepo(String branch) {
  */
 void setupCommonEnvironmentVariables(String tenantUrl, String okapiUrl, String tenantId, String adminUsername,
                                      String adminPassword) {
-  validateParameter(tenantUrl, "Tenant URL")
-  validateParameter(okapiUrl, "Okapi URL")
-  validateParameter(tenantId, "Tenant ID")
-  validateParameter(adminUsername, "Admin username")
-  validateParameter(adminPassword, "Admin password")
+  validateParameter(tenantUrl, 'Tenant URL')
+  validateParameter(okapiUrl, 'Okapi URL')
+  validateParameter(tenantId, 'Tenant ID')
+  validateParameter(adminUsername, 'Admin username')
+  validateParameter(adminPassword, 'Admin password')
 
   stage('Set env variables') {
     env.CYPRESS_BASE_URL = tenantUrl
@@ -83,17 +83,17 @@ void setupCommonEnvironmentVariables(String tenantUrl, String okapiUrl, String t
     env.CYPRESS_diku_password = adminPassword
     env.AWS_DEFAULT_REGION = Constants.AWS_REGION
 
-    echo("Environment variables set for Cypress testing.")
+    echo('Environment variables set for Cypress testing.')
   }
 }
 
 void prepareTenantForCypressTests(CypressTestsParameters prepare) {
   stage('[Prepare] Tenant') {
-    echo "Preparing tenant for Cypress tests..."
+    echo 'Preparing tenant for Cypress tests...'
     try {
       sh "set +x; export EHOLDINGS_KB_URL=${prepare.kbUrl}; export EHOLDINGS_KB_ID=${prepare.kbId}; export EHOLDINGS_KB_KEY=${prepare.kbKey}; export OKAPI_HOST=${prepare.okapiUrl}; " +
         "export OKAPI_TENANT=${prepare.tenant.tenantId}; export DIKU_LOGIN=${prepare.tenant.adminUser.username}; export DIKU_PASSWORD=${prepare.tenant.adminUser.getPasswordPlainText()}"
-      sh "set -x; node ./scripts/prepare.js"
+      sh 'set -x; node ./scripts/prepare.js'
     } catch (Exception e) {
       currentBuild.result = 'ABORTED'
       throw new Exception("Failed to prepare tenant for Cypress tests: ${e.getMessage()}")
@@ -137,9 +137,9 @@ void compileCypressTests() {
  */
 void executeTests(String ciBuildId, String browserName, String execParameters,
                   String testrailProjectID = '', String testrailRunID = '') {
-  validateParameter(ciBuildId, "ciBuildId")
-  validateParameter(browserName, "Browser name")
-  validateParameter(execParameters, "Execution parameters")
+  validateParameter(ciBuildId, 'ciBuildId')
+  validateParameter(browserName, 'Browser name')
+  validateParameter(execParameters, 'Execution parameters')
 
   stage('[Cypress] Run tests') {
     String execString = createExecString(ciBuildId, browserName, execParameters)
@@ -162,9 +162,9 @@ void executeTests(String ciBuildId, String browserName, String execParameters,
  * @return The command string for executing tests.
  */
 String createExecString(String ciBuildId, String browserName, String execParameters) {
-  validateParameter(ciBuildId, "ciBuildId")
-  validateParameter(browserName, "Browser name")
-  validateParameter(execParameters, "Execution parameters")
+  validateParameter(ciBuildId, 'ciBuildId')
+  validateParameter(browserName, 'Browser name')
+  validateParameter(execParameters, 'Execution parameters')
 
   // Generate a random screen ID for Xvfb
   String screenId = (new Random().nextInt(90) + 10).toString()
@@ -174,7 +174,7 @@ String createExecString(String ciBuildId, String browserName, String execParamet
 
     mkdir -p /tmp/.X11-unix
     Xvfb \$DISPLAY -screen 0 1920x1080x24 &
-    npx cypress-cloud run --parallel --record --browser ${browserName} --ci-build-id ${ciBuildId} ${execParameters}
+    npx cypress run --browser ${browserName} ${execParameters}
     pkill Xvfb
   """.stripIndent()
 }
@@ -187,10 +187,10 @@ String createExecString(String ciBuildId, String browserName, String execParamet
  * @param execString The command string for executing tests. Must not be null or empty.
  */
 void runTests(String execString) {
-  validateParameter(execString, "Execution string")
+  validateParameter(execString, 'Execution string')
 
   try {
-    def numCurl = "curl https://jenkins.ci.folio.org > /dev/null 2>&1"
+    def numCurl = 'curl https://jenkins.ci.folio.org > /dev/null 2>&1'
     sh """nohup bash -c 'for i in \$(seq 1 86400); do sleep 1 && ${numCurl}; done' &"""
     sh execString
   } catch (Exception e) {
@@ -209,9 +209,9 @@ void runTests(String execString) {
  * @param execString The command string for executing tests. Must not be null or empty.
  */
 void runTestsWithTestRail(String testrailProjectID, String testrailRunID, String execString) {
-  validateParameter(testrailProjectID, "TestRail project ID")
-  validateParameter(testrailRunID, "TestRail run ID")
-  validateParameter(execString, "Execution string")
+  validateParameter(testrailProjectID, 'TestRail project ID')
+  validateParameter(testrailRunID, 'TestRail run ID')
+  validateParameter(execString, 'Execution string')
 
   execString = """
     export TESTRAIL_HOST=${Constants.TESTRAIL_HOST}
@@ -235,7 +235,7 @@ void runTestsWithTestRail(String testrailProjectID, String testrailRunID, String
  * @return
  */
 String archiveTestResults(String workerId) {
-  validateParameter(workerId, "Worker ID")
+  validateParameter(workerId, 'Worker ID')
 
   stage('[Stash] Archive test results') {
     String stashName = "allure-results-${workerId}"
@@ -269,8 +269,8 @@ String archiveTestResults(String workerId) {
  * @throws JsonException if the file is not a valid JSON.
  */
 String readPackageJsonDependencyVersion(String filePath, String dependencyName) {
-  validateParameter(filePath, "File path")
-  validateParameter(dependencyName, "Dependency name")
+  validateParameter(filePath, 'File path')
+  validateParameter(dependencyName, 'Dependency name')
 
   def packageJson
   try {
@@ -301,7 +301,7 @@ String readPackageJsonDependencyVersion(String filePath, String dependencyName) 
  * @throws IllegalArgumentException if reportPortalClient is null.
  */
 String setupReportPortal(ReportPortalClient reportPortalClient) {
-  validateParameter(reportPortalClient, "Report Portal client")
+  validateParameter(reportPortalClient, 'Report Portal client')
 
   stage('[ReportPortal] Config bind & launch') {
     try {
@@ -327,9 +327,9 @@ String setupReportPortal(ReportPortalClient reportPortalClient) {
  * @throws IllegalArgumentException if reportPortalClient is null.
  */
 void finalizeReportPortal(ReportPortalClient reportPortalClient) {
-  validateParameter(reportPortalClient, "Report Portal client")
+  validateParameter(reportPortalClient, 'Report Portal client')
 
-  stage("[ReportPortal] Finish run") {
+  stage('[ReportPortal] Finish run') {
     try {
       def response = reportPortalClient.launchFinish()
       echo("${response}")
@@ -348,7 +348,7 @@ void finalizeReportPortal(ReportPortalClient reportPortalClient) {
  * @throws IllegalArgumentException if stashesList is null or empty.
  */
 void unpackAllureReport(List stashesList) {
-  validateParameter(stashesList, "Result paths")
+  validateParameter(stashesList, 'Result paths')
 
   stage('[Stash] Unpack report') {
     for (stashName in stashesList) {
@@ -375,7 +375,7 @@ void generateAndPublishAllureReport(List resultPaths) {
     List validPaths = allureResultPaths.findAll { path -> fileExists(path) }
 
     if (validPaths.isEmpty()) {
-      error("No valid allure result paths found. Cannot generate report.")
+      error('No valid allure result paths found. Cannot generate report.')
     }
 
     List missingPaths = allureResultPaths - validPaths
@@ -385,9 +385,9 @@ void generateAndPublishAllureReport(List resultPaths) {
 
     echo "Processing ${validPaths.size()} result directories"
 
-    sh "JAVA_TOOL_OPTIONS='-Xmx6G -Xms1G -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp -XX:MaxDirectMemorySize=1G -Djava.util.concurrent.ForkJoinPool.common.parallelism=2' ${allureHome}/bin/allure generate --clean ${validPaths.join(" ")}"
+    sh "JAVA_TOOL_OPTIONS='-Xmx6G -Xms1G -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp -XX:MaxDirectMemorySize=1G -Djava.util.concurrent.ForkJoinPool.common.parallelism=2' ${allureHome}/bin/allure generate --clean ${validPaths.join(' ')}"
 
-    withEnv(["JAVA_TOOL_OPTIONS=-Xmx8G -Xms1G -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp -XX:MaxDirectMemorySize=1G -Djava.util.concurrent.ForkJoinPool.common.parallelism=2"]) {
+    withEnv(['JAVA_TOOL_OPTIONS=-Xmx8G -Xms1G -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp -XX:MaxDirectMemorySize=1G -Djava.util.concurrent.ForkJoinPool.common.parallelism=2']) {
       allure([includeProperties: false,
               jdk              : '',
               commandline      : Constants.CYPRESS_ALLURE_VERSION,
@@ -433,9 +433,9 @@ CypressRunExecutionSummary analyzeResults() {
  */
 void sendNotifications(CypressRunExecutionSummary testRunExecutionSummary, String ciBuildId, boolean useReportPortal,
                        String channel = '#rancher_tests_notifications') {
-  validateParameter(testRunExecutionSummary, "Test run execution summary")
-  validateParameter(ciBuildId, "CI build ID")
-  validateParameter(useReportPortal, "Use Report Portal")
+  validateParameter(testRunExecutionSummary, 'Test run execution summary')
+  validateParameter(ciBuildId, 'CI build ID')
+  validateParameter(useReportPortal, 'Use Report Portal')
 
   stage('[Slack] Send notification') {
     slackSend(attachments: folioSlackNotificationUtils
@@ -458,7 +458,7 @@ void sendNotifications(CypressRunExecutionSummary testRunExecutionSummary, Strin
  * @throws IllegalArgumentException if the length is less than or equal to 0.
  */
 String generateRandomId(int length) {
-  validateParameter(length, "ID length")
+  validateParameter(length, 'ID length')
 
   // Define the character pool
   def chars = ('a'..'z') + ('0'..'9')
@@ -466,4 +466,48 @@ String generateRandomId(int length) {
 
   // Generate the random ID
   return (1..length).collect { chars[random.nextInt(chars.size())] }.join()
+}
+
+/**
+ * Run parallel-run.js and wait for 'parallelWorkers.json' to be produced.
+ * @param timeoutMinutes number of minutes to wait for the file (default: 5)
+ * @param workersFile the filename to wait for (default: 'parallelWorkers.json')
+ * @return the list of worker entries parsed from the JSON file (json['workers'])
+ */
+List compileExecBatches(String compileExecParameters, int numberOfWorkers = 1, int timeoutMinutes = 5) {
+  String workersFile = 'parallelWorkers.json'
+  stage('Compile Exec Batch') {
+    try {
+      sh """#!/bin/bash
+        set -euo pipefail
+        node -v
+        yarn -v
+        node ./scripts/parallel-run.js threads=${numberOfWorkers} ${compileExecParameters}
+      """
+      timeout(time: timeoutMinutes, unit: 'MINUTES') {
+        waitUntil(quiet: true) { fileExists(workersFile) }
+      }
+
+      try {
+        def json = readJSON(file: workersFile)
+        def workers = json['workers']
+        if (!(workers instanceof Collection)) {
+          echo "${workersFile} parsed but 'workers' is missing or not a list"
+          currentBuild.result = 'FAILURE'
+          throw new Exception("'workers' is missing or not a list in ${workersFile}")
+        }
+        echo "${workersFile} parsed OK (entries: ${workers.size()})"
+        return workers
+      } catch (Exception parseErr) {
+        echo "${workersFile} exists but is invalid: ${parseErr.message}"
+        currentBuild.result = 'FAILURE'
+        throw parseErr
+      }
+    } catch (Exception e) {
+      echo "Failed waiting for '${workersFile}': ${e.getMessage()}"
+      sh 'ls -la || true'
+      currentBuild.result = 'FAILURE'
+      throw e
+    }
+  }
 }
