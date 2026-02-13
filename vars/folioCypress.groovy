@@ -474,7 +474,7 @@ String generateRandomId(int length) {
  * @param workersFile the filename to wait for (default: 'parallelWorkers.json')
  * @return the list of worker entries parsed from the JSON file (json['workers'])
  */
-List compileExecBatches(String compileExecParameters, int timeoutMinutes = 5) {
+List compileExecBatches(String compileExecParameters, int numberOfWorkers = 1, int timeoutMinutes = 5) {
   String workersFile = 'parallelWorkers.json'
   stage('Compile Exec Batch') {
     try {
@@ -482,7 +482,7 @@ List compileExecBatches(String compileExecParameters, int timeoutMinutes = 5) {
         set -euo pipefail
         node -v
         yarn -v
-        node ./scripts/parallel-run.js ${compileExecParameters}
+        node ./scripts/parallel-run.js threads=${numberOfWorkers} ${compileExecParameters}
       """
       timeout(time: timeoutMinutes, unit: 'MINUTES') {
         waitUntil(quiet: true) { fileExists(workersFile) }
