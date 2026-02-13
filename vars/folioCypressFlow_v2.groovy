@@ -66,10 +66,11 @@ CypressRunExecutionSummary call(String ciBuildId, List<CypressTestsParameters> t
   String reportPortalExecParameters = ''
 
   List allureResultsList = []
-  List execBatches = []
 
   try {
     testsToRun.each { CypressTestsParameters testParams ->
+      List execBatches = []
+
       podTemplates.cypressAgent {
         if (reportPortalUse) {
           folioCypress.validateParameter(reportPortalRunType, 'reportPortalRunType')
@@ -97,7 +98,7 @@ CypressRunExecutionSummary call(String ciBuildId, List<CypressTestsParameters> t
 
           folioCypress.compileCypressTests()
 
-          execBatches = folioCypress.compileExecBatches(testParams.compileExecParameters)
+          execBatches = folioCypress.compileExecBatches(testParams.compileExecParameters, testParams.numberOfWorkers)
 
           if (testParams.prepare) {
             folioCypress.prepareTenantForCypressTests(testParams)
