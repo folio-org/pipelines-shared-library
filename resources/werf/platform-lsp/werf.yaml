@@ -10,6 +10,8 @@ context: .
 contextAddFiles:
   - package.json
   - stripes.config.js
+  - stripes.modules.js
+  - stripes.extra.js
   - docker/Dockerfile
   - yarn.lock
 
