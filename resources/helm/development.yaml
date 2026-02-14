@@ -9,10 +9,10 @@ edge-caiasoft:
       alb.ingress.kubernetes.io/success-codes: 200-399
       kubernetes.io/ingress.class: alb
     hosts:
-    - paths:
-      - path: /caiasoftService*
-        pathType: ImplementationSpecific
-        servicePort: 80
+      - paths:
+          - path: /caiasoftService*
+            pathType: ImplementationSpecific
+            servicePort: 80
   service:
     type: NodePort
   extraEnvVars: []
@@ -27,11 +27,13 @@ edge-caiasoft:
   replicaCount: 1
   resources:
     limits:
+      cpu: 200m
       memory: 328Mi
     requests:
+      cpu: 100m
       memory: 286Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+    - -XX:MaxRAMPercentage=85.0
 edge-connexion:
   service:
     annotations:
@@ -51,11 +53,13 @@ edge-connexion:
   replicaCount: 1
   resources:
     limits:
+      cpu: 100m
       memory: 132Mi
     requests:
+      cpu: 50m
       memory: 114Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+    - -XX:MaxRAMPercentage=85.0
 edge-courses:
   ingress:
     enabled: true
@@ -67,21 +71,21 @@ edge-courses:
       alb.ingress.kubernetes.io/success-codes: 200-399
       kubernetes.io/ingress.class: alb
     hosts:
-    - paths:
-      - path: /courses*
-        pathType: ImplementationSpecific
-        servicePort: 80
+      - paths:
+          - path: /courses*
+            pathType: ImplementationSpecific
+            servicePort: 80
   service:
     type: NodePort
   extraEnvVars:
-  - name: secure_store
-    value: Ephemeral
-  - name: token_cache_ttl_ms
-    value: "3600000"
-  - name: null_token_cache_ttl_ms
-    value: "30000"
-  - name: token_cache_capacity
-    value: "100"
+    - name: secure_store
+      value: Ephemeral
+    - name: token_cache_ttl_ms
+      value: "3600000"
+    - name: null_token_cache_ttl_ms
+      value: "30000"
+    - name: token_cache_capacity
+      value: "100"
   integrations:
     okapi:
       enabled: true
@@ -93,11 +97,13 @@ edge-courses:
   replicaCount: 1
   resources:
     limits:
+      cpu: 100m
       memory: 259Mi
     requests:
+      cpu: 50m
       memory: 226Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+    - -XX:MaxRAMPercentage=85.0
 edge-dcb:
   ingress:
     enabled: true
@@ -109,10 +115,10 @@ edge-dcb:
       alb.ingress.kubernetes.io/success-codes: 200-399
       kubernetes.io/ingress.class: alb
     hosts:
-    - paths:
-      - path: /dcbService*
-        pathType: ImplementationSpecific
-        servicePort: 80
+      - paths:
+          - path: /dcbService*
+            pathType: ImplementationSpecific
+            servicePort: 80
   service:
     type: NodePort
   extraEnvVars: []
@@ -127,11 +133,13 @@ edge-dcb:
   replicaCount: 1
   resources:
     limits:
+      cpu: 100m
       memory: 296Mi
     requests:
+      cpu: 50m
       memory: 258Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+    - -XX:MaxRAMPercentage=85.0
 edge-dematic:
   ingress:
     enabled: true
@@ -143,10 +151,10 @@ edge-dematic:
       alb.ingress.kubernetes.io/success-codes: 200-399
       kubernetes.io/ingress.class: alb
     hosts:
-    - paths:
-      - path: /asrService*
-        pathType: ImplementationSpecific
-        servicePort: 80
+      - paths:
+          - path: /asrService*
+            pathType: ImplementationSpecific
+            servicePort: 80
   service:
     type: NodePort
   extraEnvVars: []
@@ -161,11 +169,13 @@ edge-dematic:
   replicaCount: 1
   resources:
     limits:
+      cpu: 100m
       memory: 293Mi
     requests:
+      cpu: 50m
       memory: 255Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+    - -XX:MaxRAMPercentage=85.0
 edge-erm:
   ingress:
     enabled: true
@@ -177,10 +187,10 @@ edge-erm:
       alb.ingress.kubernetes.io/success-codes: 200-399
       kubernetes.io/ingress.class: alb
     hosts:
-    - paths:
-      - path: /erm*
-        pathType: ImplementationSpecific
-        servicePort: 80
+      - paths:
+          - path: /erm*
+            pathType: ImplementationSpecific
+            servicePort: 80
   service:
     type: NodePort
   extraEnvVars: []
@@ -195,11 +205,13 @@ edge-erm:
   replicaCount: 1
   resources:
     limits:
+      cpu: 200m
       memory: 390Mi
     requests:
+      cpu: 100m
       memory: 339Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+    - -XX:MaxRAMPercentage=85.0
 edge-fqm:
   ingress:
     enabled: true
@@ -211,24 +223,24 @@ edge-fqm:
       alb.ingress.kubernetes.io/success-codes: 200-399
       kubernetes.io/ingress.class: alb
     hosts:
-    - paths:
-      - path: /query*
-        pathType: ImplementationSpecific
-        servicePort: 80
-      - path: /entity-types*
-        pathType: ImplementationSpecific
-        servicePort: 80
-      - path: /fqm/query*
-        pathType: ImplementationSpecific
-        servicePort: 80
-      - path: /fqm/entity-types*
-        pathType: ImplementationSpecific
-        servicePort: 80
+      - paths:
+          - path: /query*
+            pathType: ImplementationSpecific
+            servicePort: 80
+          - path: /entity-types*
+            pathType: ImplementationSpecific
+            servicePort: 80
+          - path: /fqm/query*
+            pathType: ImplementationSpecific
+            servicePort: 80
+          - path: /fqm/entity-types*
+            pathType: ImplementationSpecific
+            servicePort: 80
   service:
     type: NodePort
   extraEnvVars:
-  - name: secure_store
-    value: Ephemeral
+    - name: secure_store
+      value: Ephemeral
   integrations:
     okapi:
       enabled: true
@@ -240,8 +252,10 @@ edge-fqm:
   replicaCount: 1
   resources:
     limits:
+      cpu: 100m
       memory: 284Mi
     requests:
+      cpu: 50m
       memory: 247Mi
 edge-inn-reach:
   ingress:
@@ -254,10 +268,10 @@ edge-inn-reach:
       alb.ingress.kubernetes.io/success-codes: 200-399
       kubernetes.io/ingress.class: alb
     hosts:
-    - paths:
-      - path: /innreach*
-        pathType: ImplementationSpecific
-        servicePort: 80
+      - paths:
+          - path: /innreach*
+            pathType: ImplementationSpecific
+            servicePort: 80
   service:
     type: NodePort
   extraEnvVars: []
@@ -272,11 +286,13 @@ edge-inn-reach:
   replicaCount: 1
   resources:
     limits:
+      cpu: 100m
       memory: 277Mi
     requests:
+      cpu: 50m
       memory: 241Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+    - -XX:MaxRAMPercentage=85.0
 edge-inventory:
   ingress:
     enabled: true
@@ -288,15 +304,15 @@ edge-inventory:
       alb.ingress.kubernetes.io/success-codes: 200-399
       kubernetes.io/ingress.class: alb
     hosts:
-    - paths:
-      - path: /inventory*
-        pathType: ImplementationSpecific
-        servicePort: 80
+      - paths:
+          - path: /inventory*
+            pathType: ImplementationSpecific
+            servicePort: 80
   service:
     type: NodePort
   extraEnvVars:
-  - name: KAFKA_PRODUCER_TENANT_COLLECTION
-    value: "ALL"
+    - name: KAFKA_PRODUCER_TENANT_COLLECTION
+      value: "ALL"
   integrations:
     okapi:
       enabled: true
@@ -311,8 +327,10 @@ edge-inventory:
   replicaCount: 1
   resources:
     limits:
+      cpu: 200m
       memory: 588Mi
     requests:
+      cpu: 100m
       memory: 294Mi
 edge-users:
   ingress:
@@ -325,15 +343,15 @@ edge-users:
       alb.ingress.kubernetes.io/success-codes: 200-399
       kubernetes.io/ingress.class: alb
     hosts:
-    - paths:
-      - path: /users*
-        pathType: ImplementationSpecific
-        servicePort: 80
+      - paths:
+          - path: /users*
+            pathType: ImplementationSpecific
+            servicePort: 80
   service:
     type: NodePort
   extraEnvVars:
-  - name: KAFKA_PRODUCER_TENANT_COLLECTION
-    value: "ALL"
+    - name: KAFKA_PRODUCER_TENANT_COLLECTION
+      value: "ALL"
   integrations:
     okapi:
       enabled: true
@@ -348,8 +366,10 @@ edge-users:
   replicaCount: 1
   resources:
     limits:
+      cpu: 200m
       memory: 588Mi
     requests:
+      cpu: 100m
       memory: 294Mi
 edge-ncip:
   ingress:
@@ -362,10 +382,10 @@ edge-ncip:
       alb.ingress.kubernetes.io/success-codes: 200-399
       kubernetes.io/ingress.class: alb
     hosts:
-    - paths:
-      - path: /ncip*
-        pathType: ImplementationSpecific
-        servicePort: 80
+      - paths:
+          - path: /ncip*
+            pathType: ImplementationSpecific
+            servicePort: 80
   service:
     type: NodePort
   extraEnvVars: []
@@ -380,11 +400,13 @@ edge-ncip:
   replicaCount: 1
   resources:
     limits:
+      cpu: 100m
       memory: 132Mi
     requests:
+      cpu: 50m
       memory: 114Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+    - -XX:MaxRAMPercentage=85.0
 edge-oai-pmh:
   ingress:
     enabled: true
@@ -396,10 +418,10 @@ edge-oai-pmh:
       alb.ingress.kubernetes.io/success-codes: 200-399
       kubernetes.io/ingress.class: alb
     hosts:
-    - paths:
-      - path: /oai*
-        pathType: ImplementationSpecific
-        servicePort: 80
+      - paths:
+          - path: /oai*
+            pathType: ImplementationSpecific
+            servicePort: 80
   service:
     type: NodePort
   extraEnvVars: []
@@ -414,11 +436,13 @@ edge-oai-pmh:
   replicaCount: 1
   resources:
     limits:
+      cpu: 100m
       memory: 162Mi
     requests:
+      cpu: 50m
       memory: 141Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+    - -XX:MaxRAMPercentage=85.0
 edge-orders:
   ingress:
     enabled: true
@@ -430,46 +454,46 @@ edge-orders:
       alb.ingress.kubernetes.io/success-codes: 200-399
       kubernetes.io/ingress.class: alb
     hosts:
-    - paths:
-      - path: /orders*
-        pathType: ImplementationSpecific
-        servicePort: 80
-      - path: /mosaic*
-        pathType: ImplementationSpecific
-        servicePort: 80
-      - path: /finance*
-        pathType: ImplementationSpecific
-        servicePort: 80
-      - path: /acquisitions-units*
-        pathType: ImplementationSpecific
-        servicePort: 80
-      - path: /organizations*
-        pathType: ImplementationSpecific
-        servicePort: 80
-      - path: /addresses*
-        pathType: ImplementationSpecific
-        servicePort: 80
-      - path: /acquisition-methods*
-        pathType: ImplementationSpecific
-        servicePort: 80
-      - path: /locations-for-order*
-        pathType: ImplementationSpecific
-        servicePort: 80
-      - path: /material-types-for-order*
-        pathType: ImplementationSpecific
-        servicePort: 80
-      - path: /users-for-order*
-        pathType: ImplementationSpecific
-        servicePort: 80
-      - path: /finance/fund-codes-expense-classes*
-        pathType: ImplementationSpecific
-        servicePort: 80
-      - path: /identifier-types-for-order*
-        pathType: ImplementationSpecific
-        servicePort: 80
-      - path: /contributor-name-types-for-order*
-        pathType: ImplementationSpecific
-        servicePort: 80
+      - paths:
+          - path: /orders*
+            pathType: ImplementationSpecific
+            servicePort: 80
+          - path: /mosaic*
+            pathType: ImplementationSpecific
+            servicePort: 80
+          - path: /finance*
+            pathType: ImplementationSpecific
+            servicePort: 80
+          - path: /acquisitions-units*
+            pathType: ImplementationSpecific
+            servicePort: 80
+          - path: /organizations*
+            pathType: ImplementationSpecific
+            servicePort: 80
+          - path: /addresses*
+            pathType: ImplementationSpecific
+            servicePort: 80
+          - path: /acquisition-methods*
+            pathType: ImplementationSpecific
+            servicePort: 80
+          - path: /locations-for-order*
+            pathType: ImplementationSpecific
+            servicePort: 80
+          - path: /material-types-for-order*
+            pathType: ImplementationSpecific
+            servicePort: 80
+          - path: /users-for-order*
+            pathType: ImplementationSpecific
+            servicePort: 80
+          - path: /finance/fund-codes-expense-classes*
+            pathType: ImplementationSpecific
+            servicePort: 80
+          - path: /identifier-types-for-order*
+            pathType: ImplementationSpecific
+            servicePort: 80
+          - path: /contributor-name-types-for-order*
+            pathType: ImplementationSpecific
+            servicePort: 80
   service:
     type: NodePort
   extraEnvVars: []
@@ -484,11 +508,13 @@ edge-orders:
   replicaCount: 1
   resources:
     limits:
+      cpu: 100m
       memory: 132Mi
     requests:
+      cpu: 50m
       memory: 114Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+    - -XX:MaxRAMPercentage=85.0
 edge-patron:
   ingress:
     enabled: true
@@ -500,10 +526,10 @@ edge-patron:
       alb.ingress.kubernetes.io/success-codes: 200-399
       kubernetes.io/ingress.class: alb
     hosts:
-    - paths:
-      - path: /patron*
-        pathType: ImplementationSpecific
-        servicePort: 80
+      - paths:
+          - path: /patron*
+            pathType: ImplementationSpecific
+            servicePort: 80
   service:
     type: NodePort
   extraEnvVars: []
@@ -518,11 +544,13 @@ edge-patron:
   replicaCount: 1
   resources:
     limits:
+      cpu: 100m
       memory: 134Mi
     requests:
+      cpu: 50m
       memory: 117Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+    - -XX:MaxRAMPercentage=85.0
 edge-rtac:
   ingress:
     enabled: true
@@ -534,10 +562,10 @@ edge-rtac:
       alb.ingress.kubernetes.io/success-codes: 200-399
       kubernetes.io/ingress.class: alb
     hosts:
-    - paths:
-      - path: /*rtac*
-        pathType: ImplementationSpecific
-        servicePort: 80
+      - paths:
+          - path: /*rtac*
+            pathType: ImplementationSpecific
+            servicePort: 80
   service:
     type: NodePort
   extraEnvVars: []
@@ -552,11 +580,13 @@ edge-rtac:
   replicaCount: 1
   resources:
     limits:
+      cpu: 200m
       memory: 512Mi
     requests:
+      cpu: 100m
       memory: 256Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+    - -XX:MaxRAMPercentage=85.0
 edge-sip2:
   service:
     annotations:
@@ -573,19 +603,23 @@ edge-sip2:
   replicaCount: 1
   resources:
     limits:
+      cpu: 100m
       memory: 150Mi
     requests:
+      cpu: 50m
       memory: 131Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+    - -XX:MaxRAMPercentage=85.0
 mod-aes:
   extraEnvVars: []
   integrations: {}
   replicaCount: 1
   resources:
     limits:
+      cpu: 300m
       memory: 634Mi
     requests:
+      cpu: 150m
       memory: 507Mi
   startupProbe:
     httpGet:
@@ -601,10 +635,10 @@ mod-aes:
     maxUnavailable: 1
 mod-agreements:
   extraEnvVars:
-  - name: DB_MAXPOOLSIZE
-    value: "50"
-  - name: CONCURRENT_JOBS_GLOBAL
-    value: "2"
+    - name: DB_MAXPOOLSIZE
+      value: "50"
+    - name: CONCURRENT_JOBS_GLOBAL
+      value: "2"
   integrations:
     okapi:
       enabled: true
@@ -618,11 +652,13 @@ mod-agreements:
   replicaCount: 1
   resources:
     limits:
+      cpu: 1000m
       memory: 4096Mi
     requests:
+      cpu: 500m
       memory: 2048Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+    - -XX:MaxRAMPercentage=85.0
   startupProbe:
     httpGet:
       path: /admin/health
@@ -647,11 +683,13 @@ mod-audit:
   replicaCount: 1
   resources:
     limits:
+      cpu: 200m
       memory: 473Mi
     requests:
+      cpu: 100m
       memory: 412Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+    - -XX:MaxRAMPercentage=85.0
   startupProbe:
     httpGet:
       path: /admin/health
@@ -667,8 +705,8 @@ mod-audit:
 mod-authtoken:
   extraEnvVars: []
   extraJavaOpts:
-  - -Dallow.cross.tenant.requests=true
-  - -XX:MaxRAMPercentage=85.0
+    - -Dallow.cross.tenant.requests=true
+    - -XX:MaxRAMPercentage=85.0
   integrations:
     okapi:
       enabled: true
@@ -679,8 +717,10 @@ mod-authtoken:
   replicaCount: 1
   resources:
     limits:
+      cpu: 100m
       memory: 220Mi
     requests:
+      cpu: 50m
       memory: 192Mi
   startupProbe:
     httpGet:
@@ -703,11 +743,13 @@ mod-batch-print:
   replicaCount: 1
   resources:
     limits:
+      cpu: 100m
       memory: 208Mi
     requests:
+      cpu: 50m
       memory: 181Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+    - -XX:MaxRAMPercentage=85.0
   startupProbe:
     httpGet:
       path: /admin/health
@@ -722,8 +764,8 @@ mod-batch-print:
     maxUnavailable: 1
 mod-bulk-operations:
   extraEnvVars:
-  - name: MAX_UPLOADING_RETRIES
-    value: "50"
+    - name: MAX_UPLOADING_RETRIES
+      value: "50"
   integrations:
     okapi:
       enabled: true
@@ -743,11 +785,13 @@ mod-bulk-operations:
   replicaCount: 1
   resources:
     limits:
+      cpu: 500m
       memory: 1934Mi
     requests:
+      cpu: 250m
       memory: 1682Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+    - -XX:MaxRAMPercentage=85.0
   startupProbe:
     httpGet:
       path: /admin/health
@@ -769,11 +813,13 @@ mod-calendar:
   replicaCount: 1
   resources:
     limits:
+      cpu: 200m
       memory: 575Mi
     requests:
+      cpu: 100m
       memory: 500Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+    - -XX:MaxRAMPercentage=85.0
   startupProbe:
     httpGet:
       path: /admin/health
@@ -788,8 +834,8 @@ mod-calendar:
     maxUnavailable: 1
 mod-camunda:
   extraEnvVars:
-  - name: SPRING_JERSEY_APPLICATIONPATH
-    value: camunda
+    - name: SPRING_JERSEY_APPLICATIONPATH
+      value: camunda
   integrations:
     db:
       enabled: true
@@ -803,11 +849,13 @@ mod-camunda:
   replicaCount: 1
   resources:
     limits:
+      cpu: 300m
       memory: 676Mi
     requests:
+      cpu: 150m
       memory: 531Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+    - -XX:MaxRAMPercentage=85.0
   startupProbe:
     httpGet:
       path: /admin/health
@@ -822,12 +870,12 @@ mod-camunda:
     maxUnavailable: 1
 mod-circulation:
   extraEnvVars:
-  - name: SCHEDULED_ANONYMIZATION_NUMBER_OF_LOANS_TO_CHECK
-    value: "50000"
-  - name: REPLICATION_FACTOR
-    value: "1"
-  - name: ENABLE_FOR_USE_AT_LOCATION
-    value: "true"
+    - name: SCHEDULED_ANONYMIZATION_NUMBER_OF_LOANS_TO_CHECK
+      value: "50000"
+    - name: REPLICATION_FACTOR
+      value: "1"
+    - name: ENABLE_FOR_USE_AT_LOCATION
+      value: "true"
   integrations:
     kafka:
       enabled: true
@@ -838,11 +886,13 @@ mod-circulation:
   replicaCount: 1
   resources:
     limits:
+      cpu: 200m
       memory: 405Mi
     requests:
+      cpu: 100m
       memory: 353Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+    - -XX:MaxRAMPercentage=85.0
   startupProbe:
     httpGet:
       path: /admin/health
@@ -867,11 +917,13 @@ mod-circulation-bff:
   replicaCount: 1
   resources:
     limits:
+      cpu: 200m
       memory: 380Mi
     requests:
+      cpu: 100m
       memory: 331Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+    - -XX:MaxRAMPercentage=85.0
   startupProbe:
     httpGet:
       path: /admin/health
@@ -886,8 +938,8 @@ mod-circulation-bff:
     maxUnavailable: 1
 mod-circulation-storage:
   extraEnvVars:
-  - name: REPLICATION_FACTOR
-    value: "1"
+    - name: REPLICATION_FACTOR
+      value: "1"
   integrations:
     db:
       enabled: true
@@ -898,11 +950,13 @@ mod-circulation-storage:
   replicaCount: 1
   resources:
     limits:
+      cpu: 200m
       memory: 416Mi
     requests:
+      cpu: 100m
       memory: 362Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+    - -XX:MaxRAMPercentage=85.0
   startupProbe:
     httpGet:
       path: /admin/health
@@ -921,8 +975,10 @@ mod-codex-ekb:
   replicaCount: 1
   resources:
     limits:
+      cpu: 200m
       memory: 564Mi
     requests:
+      cpu: 100m
       memory: 450Mi
   startupProbe:
     httpGet:
@@ -942,8 +998,10 @@ mod-codex-inventory:
   replicaCount: 1
   resources:
     limits:
+      cpu: 200m
       memory: 564Mi
     requests:
+      cpu: 100m
       memory: 450Mi
   startupProbe:
     httpGet:
@@ -963,8 +1021,10 @@ mod-codex-mux:
   replicaCount: 1
   resources:
     limits:
+      cpu: 200m
       memory: 564Mi
     requests:
+      cpu: 100m
       memory: 450Mi
   startupProbe:
     httpGet:
@@ -987,11 +1047,13 @@ mod-configuration:
   replicaCount: 1
   resources:
     limits:
+      cpu: 100m
       memory: 286Mi
     requests:
+      cpu: 50m
       memory: 249Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+    - -XX:MaxRAMPercentage=85.0
   startupProbe:
     httpGet:
       path: /admin/health
@@ -1022,11 +1084,13 @@ mod-consortia:
   replicaCount: 1
   resources:
     limits:
+      cpu: 300m
       memory: 1167Mi
     requests:
+      cpu: 150m
       memory: 1014Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+    - -XX:MaxRAMPercentage=85.0
   startupProbe:
     httpGet:
       path: /admin/health
@@ -1048,11 +1112,13 @@ mod-copycat:
   replicaCount: 1
   resources:
     limits:
+      cpu: 100m
       memory: 292Mi
     requests:
+      cpu: 50m
       memory: 254Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+    - -XX:MaxRAMPercentage=85.0
   startupProbe:
     httpGet:
       path: /admin/health
@@ -1074,11 +1140,13 @@ mod-courses:
   replicaCount: 1
   resources:
     limits:
+      cpu: 100m
       memory: 259Mi
     requests:
+      cpu: 50m
       memory: 226Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+    - -XX:MaxRAMPercentage=85.0
   startupProbe:
     httpGet:
       path: /admin/health
@@ -1106,11 +1174,13 @@ mod-data-export:
   replicaCount: 1
   resources:
     limits:
+      cpu: 500m
       memory: 1728Mi
     requests:
+      cpu: 250m
       memory: 1503Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+    - -XX:MaxRAMPercentage=85.0
   startupProbe:
     httpGet:
       path: /admin/health
@@ -1141,11 +1211,13 @@ mod-data-export-spring:
   replicaCount: 1
   resources:
     limits:
+      cpu: 300m
       memory: 1399Mi
     requests:
+      cpu: 150m
       memory: 1217Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+    - -XX:MaxRAMPercentage=85.0
   startupProbe:
     httpGet:
       path: /admin/health
@@ -1173,11 +1245,13 @@ mod-data-export-worker:
   replicaCount: 1
   resources:
     limits:
+      cpu: 500m
       memory: 1774Mi
     requests:
+      cpu: 250m
       memory: 1543Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+    - -XX:MaxRAMPercentage=85.0
   startupProbe:
     httpGet:
       path: /admin/health
@@ -1208,11 +1282,13 @@ mod-data-import:
   replicaCount: 1
   resources:
     limits:
+      cpu: 300m
       memory: 885Mi
     requests:
+      cpu: 150m
       memory: 770Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+    - -XX:MaxRAMPercentage=85.0
   startupProbe:
     httpGet:
       path: /admin/health
@@ -1227,8 +1303,8 @@ mod-data-import:
     maxUnavailable: 1
 mod-linked-data-import:
   extraEnvVars:
-  - name: KAFKA_PRODUCER_TENANT_COLLECTION
-    value: "ALL"
+    - name: KAFKA_PRODUCER_TENANT_COLLECTION
+      value: "ALL"
   integrations:
     db:
       enabled: true
@@ -1245,12 +1321,14 @@ mod-linked-data-import:
   replicaCount: 1
   resources:
     limits:
+      cpu: 300m
       memory: 1353Mi
     requests:
+      cpu: 150m
       memory: 1015Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
-  - -Xss4m
+    - -XX:MaxRAMPercentage=85.0
+    - -Xss4m
   startupProbe:
     httpGet:
       path: /admin/health
@@ -1272,11 +1350,13 @@ mod-di-converter-storage:
   replicaCount: 1
   resources:
     limits:
+      cpu: 200m
       memory: 326Mi
     requests:
+      cpu: 100m
       memory: 284Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+    - -XX:MaxRAMPercentage=85.0
   startupProbe:
     httpGet:
       path: /admin/health
@@ -1295,11 +1375,13 @@ mod-ebsconet:
   replicaCount: 1
   resources:
     limits:
+      cpu: 200m
       memory: 450Mi
     requests:
+      cpu: 100m
       memory: 392Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+    - -XX:MaxRAMPercentage=85.0
   startupProbe:
     httpGet:
       path: /admin/health
@@ -1321,11 +1403,13 @@ mod-email:
   replicaCount: 1
   resources:
     limits:
+      cpu: 100m
       memory: 297Mi
     requests:
+      cpu: 50m
       memory: 259Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+    - -XX:MaxRAMPercentage=85.0
   startupProbe:
     httpGet:
       path: /admin/health
@@ -1340,14 +1424,14 @@ mod-email:
     maxUnavailable: 1
 mod-entities-links:
   extraEnvVars:
-  - name: INSTANCE_STORAGE_QUERY_BATCH_SIZE
-    value: "50"
-  - name: AUTHORITY_ARCHIVES_EXPIRATION_PERIOD
-    value: "7"
-  - name: KAFKA_INSTANCE_AUTHORITY_TOPIC_PARTITIONS
-    value: "2"
-  - name: KAFKA_INSTANCE_AUTHORITY_STATS_TOPIC_PARTITIONS
-    value: "2"
+    - name: INSTANCE_STORAGE_QUERY_BATCH_SIZE
+      value: "50"
+    - name: AUTHORITY_ARCHIVES_EXPIRATION_PERIOD
+      value: "7"
+    - name: KAFKA_INSTANCE_AUTHORITY_TOPIC_PARTITIONS
+      value: "2"
+    - name: KAFKA_INSTANCE_AUTHORITY_STATS_TOPIC_PARTITIONS
+      value: "2"
   integrations:
     db:
       enabled: true
@@ -1367,11 +1451,13 @@ mod-entities-links:
   replicaCount: 1
   resources:
     limits:
+      cpu: 300m
       memory: 1493Mi
     requests:
+      cpu: 150m
       memory: 1299Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+    - -XX:MaxRAMPercentage=85.0
   startupProbe:
     httpGet:
       path: /admin/health
@@ -1393,11 +1479,13 @@ mod-erm-usage:
   replicaCount: 1
   resources:
     limits:
+      cpu: 100m
       memory: 300Mi
     requests:
+      cpu: 50m
       memory: 261Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+    - -XX:MaxRAMPercentage=85.0
   startupProbe:
     httpGet:
       path: /admin/health
@@ -1425,11 +1513,13 @@ mod-erm-usage-harvester:
   replicaCount: 1
   resources:
     limits:
+      cpu: 200m
       memory: 402Mi
     requests:
+      cpu: 100m
       memory: 350Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+    - -XX:MaxRAMPercentage=85.0
   startupProbe:
     httpGet:
       path: /admin/health
@@ -1451,11 +1541,13 @@ mod-eusage-reports:
   replicaCount: 1
   resources:
     limits:
+      cpu: 100m
       memory: 163Mi
     requests:
+      cpu: 50m
       memory: 142Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+    - -XX:MaxRAMPercentage=85.0
   startupProbe:
     httpGet:
       path: /admin/health
@@ -1477,11 +1569,13 @@ mod-event-config:
   replicaCount: 1
   resources:
     limits:
+      cpu: 100m
       memory: 244Mi
     requests:
+      cpu: 50m
       memory: 213Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+    - -XX:MaxRAMPercentage=85.0
   startupProbe:
     httpGet:
       path: /admin/health
@@ -1503,11 +1597,13 @@ mod-feesfines:
   replicaCount: 1
   resources:
     limits:
+      cpu: 200m
       memory: 340Mi
     requests:
+      cpu: 100m
       memory: 296Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+    - -XX:MaxRAMPercentage=85.0
   startupProbe:
     httpGet:
       path: /admin/health
@@ -1522,8 +1618,8 @@ mod-feesfines:
     maxUnavailable: 1
 mod-finc-config:
   extraEnvVars:
-  - name: EZB_DOWNLOAD_URL
-    value: https://ezb-api.ur.de/ezb/export/licenselist_html.php?pack=0&bibid=%s&lang=de&output_style=kbart&todo_license=ALkbart
+    - name: EZB_DOWNLOAD_URL
+      value: https://ezb-api.ur.de/ezb/export/licenselist_html.php?pack=0&bibid=%s&lang=de&output_style=kbart&todo_license=ALkbart
   integrations:
     okapi:
       enabled: true
@@ -1534,11 +1630,13 @@ mod-finc-config:
   replicaCount: 1
   resources:
     limits:
+      cpu: 200m
       memory: 507Mi
     requests:
+      cpu: 100m
       memory: 338Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+    - -XX:MaxRAMPercentage=85.0
   startupProbe:
     httpGet:
       path: /admin/health
@@ -1557,11 +1655,13 @@ mod-finance:
   replicaCount: 1
   resources:
     limits:
+      cpu: 300m
       memory: 744Mi
     requests:
+      cpu: 150m
       memory: 646Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+    - -XX:MaxRAMPercentage=85.0
   startupProbe:
     httpGet:
       path: /admin/health
@@ -1583,11 +1683,13 @@ mod-finance-storage:
   replicaCount: 1
   resources:
     limits:
+      cpu: 200m
       memory: 428Mi
     requests:
+      cpu: 100m
       memory: 373Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+    - -XX:MaxRAMPercentage=85.0
   startupProbe:
     httpGet:
       path: /admin/health
@@ -1602,10 +1704,10 @@ mod-finance-storage:
     maxUnavailable: 1
 mod-fqm-manager:
   extraEnvVars:
-  - name: QUERY_RETENTION_DURATION
-    value: 3h
-  - name: task.execution.pool.max-size
-    value: "10"
+    - name: QUERY_RETENTION_DURATION
+      value: 3h
+    - name: task.execution.pool.max-size
+      value: "10"
   integrations:
     db:
       enabled: true
@@ -1613,11 +1715,13 @@ mod-fqm-manager:
   replicaCount: 1
   resources:
     limits:
+      cpu: 300m
       memory: 1500Mi
     requests:
+      cpu: 150m
       memory: 1305Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+    - -XX:MaxRAMPercentage=85.0
   startupProbe:
     httpGet:
       path: /admin/health
@@ -1639,11 +1743,13 @@ mod-gobi:
   replicaCount: 1
   resources:
     limits:
+      cpu: 100m
       memory: 266Mi
     requests:
+      cpu: 50m
       memory: 232Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+    - -XX:MaxRAMPercentage=85.0
   startupProbe:
     httpGet:
       path: /admin/health
@@ -1662,11 +1768,13 @@ mod-graphql:
   replicaCount: 1
   resources:
     limits:
+      cpu: 200m
       memory: 340Mi
     requests:
+      cpu: 100m
       memory: 296Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+    - -XX:MaxRAMPercentage=85.0
   startupProbe:
     httpGet:
       path: /admin/health
@@ -1681,8 +1789,8 @@ mod-graphql:
     maxUnavailable: 1
 mod-inn-reach:
   extraEnvVars:
-  - name: INNREACH_TENANTS
-    value: diku|fs09000000|consortium|college|university
+    - name: INNREACH_TENANTS
+      value: diku|fs09000000|consortium|college|university
   integrations:
     db:
       enabled: true
@@ -1699,11 +1807,13 @@ mod-inn-reach:
   replicaCount: 1
   resources:
     limits:
+      cpu: 300m
       memory: 893Mi
     requests:
+      cpu: 150m
       memory: 777Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+    - -XX:MaxRAMPercentage=85.0
   startupProbe:
     httpGet:
       path: /admin/health
@@ -1718,8 +1828,8 @@ mod-inn-reach:
     maxUnavailable: 1
 mod-inventory:
   extraEnvVars:
-  - name: KAFKA_PRODUCER_TENANT_COLLECTION
-    value: "ALL"
+    - name: KAFKA_PRODUCER_TENANT_COLLECTION
+      value: "ALL"
   integrations:
     db:
       enabled: true
@@ -1733,11 +1843,13 @@ mod-inventory:
   replicaCount: 1
   resources:
     limits:
+      cpu: 500m
       memory: 2446Mi
     requests:
+      cpu: 250m
       memory: 2127Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+    - -XX:MaxRAMPercentage=85.0
   startupProbe:
     httpGet:
       path: /admin/health
@@ -1752,10 +1864,10 @@ mod-inventory:
     maxUnavailable: 1
 mod-inventory-storage:
   extraEnvVars:
-  - name: REPLICATION_FACTOR
-    value: "1"
-  - name: KAFKA_DOMAIN_TOPIC_NUM_PARTITIONS
-    value: "2"
+    - name: REPLICATION_FACTOR
+      value: "1"
+    - name: KAFKA_DOMAIN_TOPIC_NUM_PARTITIONS
+      value: "2"
   integrations:
     db:
       enabled: true
@@ -1766,11 +1878,13 @@ mod-inventory-storage:
   replicaCount: 1
   resources:
     limits:
+      cpu: 500m
       memory: 1678Mi
     requests:
+      cpu: 250m
       memory: 1460Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+    - -XX:MaxRAMPercentage=85.0
   startupProbe:
     httpGet:
       path: /admin/health
@@ -1792,11 +1906,13 @@ mod-inventory-update:
   replicaCount: 1
   resources:
     limits:
+      cpu: 100m
       memory: 151Mi
     requests:
+      cpu: 50m
       memory: 131Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+    - -XX:MaxRAMPercentage=85.0
   startupProbe:
     httpGet:
       path: /admin/health
@@ -1811,10 +1927,10 @@ mod-inventory-update:
     maxUnavailable: 1
 mod-invoice:
   extraEnvVars:
-  - name: dataimport.consumer.verticle.mandatory
-    value: "false"
-  - name: dataimport.max-active-threads
-    value: "1"
+    - name: dataimport.consumer.verticle.mandatory
+      value: "false"
+    - name: dataimport.max-active-threads
+      value: "1"
   integrations:
     db:
       enabled: true
@@ -1828,11 +1944,13 @@ mod-invoice:
   replicaCount: 1
   resources:
     limits:
+      cpu: 300m
       memory: 836Mi
     requests:
+      cpu: 150m
       memory: 727Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+    - -XX:MaxRAMPercentage=85.0
   startupProbe:
     httpGet:
       path: /admin/health
@@ -1857,11 +1975,13 @@ mod-invoice-storage:
   replicaCount: 1
   resources:
     limits:
+      cpu: 200m
       memory: 336Mi
     requests:
+      cpu: 100m
       memory: 293Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+    - -XX:MaxRAMPercentage=85.0
   startupProbe:
     httpGet:
       path: /admin/health
@@ -1883,11 +2003,13 @@ mod-kb-ebsco-java:
   replicaCount: 1
   resources:
     limits:
+      cpu: 200m
       memory: 432Mi
     requests:
+      cpu: 100m
       memory: 376Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+    - -XX:MaxRAMPercentage=85.0
   startupProbe:
     httpGet:
       path: /admin/health
@@ -1909,11 +2031,13 @@ mod-ldp:
   replicaCount: 1
   resources:
     limits:
+      cpu: 300m
       memory: 1353Mi
     requests:
+      cpu: 150m
       memory: 1184Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+    - -XX:MaxRAMPercentage=85.0
   startupProbe:
     httpGet:
       path: /admin/health
@@ -1932,11 +2056,13 @@ mod-reporting:
   replicaCount: 1
   resources:
     limits:
+      cpu: 100m
       memory: 151Mi
     requests:
+      cpu: 50m
       memory: 131Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+    - -XX:MaxRAMPercentage=85.0
   startupProbe:
     httpGet:
       path: /admin/health
@@ -1964,11 +2090,13 @@ mod-licenses:
   replicaCount: 1
   resources:
     limits:
+      cpu: 500m
       memory: 1871Mi
     requests:
+      cpu: 250m
       memory: 1627Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+    - -XX:MaxRAMPercentage=85.0
   startupProbe:
     httpGet:
       path: /admin/health
@@ -1983,8 +2111,8 @@ mod-licenses:
     maxUnavailable: 1
 mod-linked-data:
   extraEnvVars:
-  - name: KAFKA_PRODUCER_TENANT_COLLECTION
-    value: "ALL"
+    - name: KAFKA_PRODUCER_TENANT_COLLECTION
+      value: "ALL"
   integrations:
     db:
       enabled: true
@@ -2001,13 +2129,15 @@ mod-linked-data:
   replicaCount: 1
   resources:
     limits:
+      cpu: 500m
       memory: 1557Mi
     requests:
+      cpu: 250m
       memory: 1353Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
-  - -Dspring.profiles.active=nocache
-  - -Dserver.port=8081
+    - -XX:MaxRAMPercentage=85.0
+    - -Dspring.profiles.active=nocache
+    - -Dserver.port=8081
   startupProbe:
     httpGet:
       path: /admin/health
@@ -2022,14 +2152,14 @@ mod-linked-data:
     maxUnavailable: 1
 mod-lists:
   extraEnvVars:
-  - name: MAX_LIST_SIZE
-    value: "1250000"
-  - name: LIST_EXPORT_BATCH_SIZE
-    value: "1000"
-  - name: spring.task.execution.pool.max-size
-    value: "10"
-  - name: mod-lists.list-export.s3-startup-check.enabled
-    value: "false"
+    - name: MAX_LIST_SIZE
+      value: "1250000"
+    - name: LIST_EXPORT_BATCH_SIZE
+      value: "1000"
+    - name: spring.task.execution.pool.max-size
+      value: "10"
+    - name: mod-lists.list-export.s3-startup-check.enabled
+      value: "false"
   integrations:
     db:
       enabled: true
@@ -2046,11 +2176,13 @@ mod-lists:
   replicaCount: 1
   resources:
     limits:
+      cpu: 300m
       memory: 1435Mi
     requests:
+      cpu: 150m
       memory: 1248Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+    - -XX:MaxRAMPercentage=85.0
   startupProbe:
     httpGet:
       path: /admin/health
@@ -2072,11 +2204,13 @@ mod-login:
   replicaCount: 1
   resources:
     limits:
+      cpu: 100m
       memory: 296Mi
     requests:
+      cpu: 50m
       memory: 258Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+    - -XX:MaxRAMPercentage=85.0
   startupProbe:
     httpGet:
       path: /admin/health
@@ -2091,8 +2225,8 @@ mod-login:
     maxUnavailable: 1
 mod-login-saml:
   extraEnvVars:
-  - name: DB_MAXPOOLSIZE
-    value: "20"
+    - name: DB_MAXPOOLSIZE
+      value: "20"
   integrations:
     db:
       enabled: true
@@ -2100,11 +2234,13 @@ mod-login-saml:
   replicaCount: 1
   resources:
     limits:
+      cpu: 100m
       memory: 288Mi
     requests:
+      cpu: 50m
       memory: 251Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+    - -XX:MaxRAMPercentage=85.0
   startupProbe:
     httpGet:
       path: /admin/health
@@ -2135,11 +2271,13 @@ mod-marc-migrations:
   replicaCount: 1
   resources:
     limits:
+      cpu: 200m
       memory: 540Mi
     requests:
+      cpu: 100m
       memory: 470Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+    - -XX:MaxRAMPercentage=85.0
   startupProbe:
     httpGet:
       path: /admin/health
@@ -2161,8 +2299,10 @@ mod-marccat:
   replicaCount: 1
   resources:
     limits:
+      cpu: 300m
       memory: 1375Mi
     requests:
+      cpu: 150m
       memory: 1099Mi
   startupProbe:
     httpGet:
@@ -2185,11 +2325,13 @@ mod-mosaic:
   replicaCount: 1
   resources:
     limits:
+      cpu: 300m
       memory: 687Mi
     requests:
+      cpu: 150m
       memory: 634Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=75.0
+    - -XX:MaxRAMPercentage=75.0
   startupProbe:
     httpGet:
       path: /admin/health
@@ -2208,11 +2350,13 @@ mod-ncip:
   replicaCount: 1
   resources:
     limits:
+      cpu: 100m
       memory: 151Mi
     requests:
+      cpu: 50m
       memory: 131Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+    - -XX:MaxRAMPercentage=85.0
   startupProbe:
     httpGet:
       path: /admin/health
@@ -2234,11 +2378,13 @@ mod-notes:
   replicaCount: 1
   resources:
     limits:
+      cpu: 300m
       memory: 608Mi
     requests:
+      cpu: 150m
       memory: 527Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+    - -XX:MaxRAMPercentage=85.0
   startupProbe:
     httpGet:
       path: /admin/health
@@ -2260,11 +2406,13 @@ mod-notify:
   replicaCount: 1
   resources:
     limits:
+      cpu: 100m
       memory: 256Mi
     requests:
+      cpu: 50m
       memory: 223Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+    - -XX:MaxRAMPercentage=85.0
   startupProbe:
     httpGet:
       path: /admin/health
@@ -2289,11 +2437,13 @@ mod-oa:
   replicaCount: 1
   resources:
     limits:
+      cpu: 300m
       memory: 1040Mi
     requests:
+      cpu: 150m
       memory: 905Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+    - -XX:MaxRAMPercentage=85.0
   startupProbe:
     httpGet:
       path: /admin/health
@@ -2308,8 +2458,8 @@ mod-oa:
     maxUnavailable: 1
 mod-oai-pmh:
   extraEnvVars:
-  - name: CLEAN_UP_ERROR_LOGS_INTERVAL
-    value: "30"
+    - name: CLEAN_UP_ERROR_LOGS_INTERVAL
+      value: "30"
   integrations:
     db:
       enabled: true
@@ -2320,12 +2470,14 @@ mod-oai-pmh:
   replicaCount: 1
   resources:
     limits:
+      cpu: 300m
       memory: 1380Mi
     requests:
+      cpu: 150m
       memory: 1200Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
-  - -Dfile.encoding=UTF-8
+    - -XX:MaxRAMPercentage=85.0
+    - -Dfile.encoding=UTF-8
   startupProbe:
     httpGet:
       path: /admin/health
@@ -2353,11 +2505,13 @@ mod-orders:
   replicaCount: 1
   resources:
     limits:
+      cpu: 500m
       memory: 1998Mi
     requests:
+      cpu: 250m
       memory: 1738Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+    - -XX:MaxRAMPercentage=85.0
   startupProbe:
     httpGet:
       path: /admin/health
@@ -2372,8 +2526,8 @@ mod-orders:
     maxUnavailable: 1
 mod-orders-storage:
   extraEnvVars:
-  - name: consumer.verticle.mandatory
-    value: "false"
+    - name: consumer.verticle.mandatory
+      value: "false"
   integrations:
     db:
       enabled: true
@@ -2384,11 +2538,13 @@ mod-orders-storage:
   replicaCount: 1
   resources:
     limits:
+      cpu: 200m
       memory: 522Mi
     requests:
+      cpu: 100m
       memory: 454Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+    - -XX:MaxRAMPercentage=85.0
   startupProbe:
     httpGet:
       path: /admin/health
@@ -2403,8 +2559,8 @@ mod-orders-storage:
     maxUnavailable: 1
 mod-dcb:
   extraEnvVars:
-  - name: consumer.verticle.mandatory
-    value: "false"
+    - name: consumer.verticle.mandatory
+      value: "false"
   integrations:
     okapi:
       enabled: true
@@ -2421,11 +2577,13 @@ mod-dcb:
   replicaCount: 1
   resources:
     limits:
+      cpu: 300m
       memory: 680Mi
     requests:
+      cpu: 150m
       memory: 592Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+    - -XX:MaxRAMPercentage=85.0
   startupProbe:
     httpGet:
       path: /admin/health
@@ -2440,8 +2598,8 @@ mod-dcb:
     maxUnavailable: 1
 mod-circulation-item:
   extraEnvVars:
-  - name: consumer.verticle.mandatory
-    value: "false"
+    - name: consumer.verticle.mandatory
+      value: "false"
   integrations:
     okapi:
       enabled: true
@@ -2452,11 +2610,13 @@ mod-circulation-item:
   replicaCount: 1
   resources:
     limits:
+      cpu: 200m
       memory: 469Mi
     requests:
+      cpu: 100m
       memory: 408Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+    - -XX:MaxRAMPercentage=85.0
   startupProbe:
     httpGet:
       path: /admin/health
@@ -2475,11 +2635,13 @@ mod-organizations:
   replicaCount: 1
   resources:
     limits:
+      cpu: 100m
       memory: 236Mi
     requests:
+      cpu: 50m
       memory: 206Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+    - -XX:MaxRAMPercentage=85.0
   startupProbe:
     httpGet:
       path: /admin/health
@@ -2504,11 +2666,13 @@ mod-organizations-storage:
   replicaCount: 1
   resources:
     limits:
+      cpu: 200m
       memory: 339Mi
     requests:
+      cpu: 100m
       memory: 295Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+    - -XX:MaxRAMPercentage=85.0
   startupProbe:
     httpGet:
       path: /admin/health
@@ -2530,11 +2694,13 @@ mod-password-validator:
   replicaCount: 1
   resources:
     limits:
+      cpu: 200m
       memory: 488Mi
     requests:
+      cpu: 100m
       memory: 425Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+    - -XX:MaxRAMPercentage=85.0
   startupProbe:
     httpGet:
       path: /admin/health
@@ -2556,11 +2722,13 @@ mod-patron:
   replicaCount: 1
   resources:
     limits:
+      cpu: 100m
       memory: 216Mi
     requests:
+      cpu: 50m
       memory: 188Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+    - -XX:MaxRAMPercentage=85.0
   startupProbe:
     httpGet:
       path: /admin/health
@@ -2582,11 +2750,13 @@ mod-patron-blocks:
   replicaCount: 1
   resources:
     limits:
+      cpu: 200m
       memory: 393Mi
     requests:
+      cpu: 100m
       memory: 341Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+    - -XX:MaxRAMPercentage=85.0
   startupProbe:
     httpGet:
       path: /admin/health
@@ -2608,11 +2778,13 @@ mod-permissions:
   replicaCount: 1
   resources:
     limits:
+      cpu: 300m
       memory: 736Mi
     requests:
+      cpu: 150m
       memory: 640Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+    - -XX:MaxRAMPercentage=85.0
   startupProbe:
     httpGet:
       path: /admin/health
@@ -2643,11 +2815,13 @@ mod-pubsub:
   replicaCount: 1
   resources:
     limits:
+      cpu: 500m
       memory: 1586Mi
     requests:
+      cpu: 250m
       memory: 1353Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+    - -XX:MaxRAMPercentage=85.0
   startupProbe:
     httpGet:
       path: /admin/health
@@ -2662,10 +2836,10 @@ mod-pubsub:
     maxUnavailable: 1
 mod-quick-marc:
   extraEnvVars:
-  - name: REPLICATION_FACTOR
-    value: "1"
-  - name: NUMBER_OF_PARTITIONS
-    value: "1"
+    - name: REPLICATION_FACTOR
+      value: "1"
+    - name: NUMBER_OF_PARTITIONS
+      value: "1"
   integrations:
     db:
       enabled: true
@@ -2676,11 +2850,13 @@ mod-quick-marc:
   replicaCount: 1
   resources:
     limits:
+      cpu: 300m
       memory: 1161Mi
     requests:
+      cpu: 150m
       memory: 1010Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+    - -XX:MaxRAMPercentage=85.0
   startupProbe:
     httpGet:
       path: /admin/health
@@ -2702,11 +2878,13 @@ mod-reading-room:
   replicaCount: 1
   resources:
     limits:
+      cpu: 200m
       memory: 480Mi
     requests:
+      cpu: 100m
       memory: 418Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+    - -XX:MaxRAMPercentage=85.0
   startupProbe:
     httpGet:
       path: /admin/health
@@ -2730,11 +2908,13 @@ mod-record-specifications:
       existingSecret: kafka-credentials
   resources:
     limits:
+      cpu: 300m
       memory: 740Mi
     requests:
+      cpu: 150m
       memory: 644Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+    - -XX:MaxRAMPercentage=85.0
   startupProbe:
     httpGet:
       path: /admin/health
@@ -2765,11 +2945,13 @@ mod-remote-storage:
   replicaCount: 1
   resources:
     limits:
+      cpu: 500m
       memory: 1512Mi
     requests:
+      cpu: 250m
       memory: 1315Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+    - -XX:MaxRAMPercentage=85.0
   startupProbe:
     httpGet:
       path: /admin/health
@@ -2800,11 +2982,13 @@ mod-requests-mediated:
   replicaCount: 1
   resources:
     limits:
+      cpu: 200m
       memory: 526Mi
     requests:
+      cpu: 100m
       memory: 458Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+    - -XX:MaxRAMPercentage=85.0
   startupProbe:
     httpGet:
       path: /admin/health
@@ -2823,11 +3007,13 @@ mod-rtac:
   replicaCount: 1
   resources:
     limits:
+      cpu: 100m
       memory: 227Mi
     requests:
+      cpu: 50m
       memory: 198Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+    - -XX:MaxRAMPercentage=85.0
   startupProbe:
     httpGet:
       path: /admin/health
@@ -2855,11 +3041,13 @@ mod-rtac-cache:
   replicaCount: 1
   resources:
     limits:
+      cpu: 300m
       memory: 676Mi
     requests:
+      cpu: 150m
       memory: 338Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+    - -XX:MaxRAMPercentage=85.0
   startupProbe:
     httpGet:
       path: /admin/health
@@ -2874,46 +3062,46 @@ mod-rtac-cache:
     maxUnavailable: 1
 mod-search:
   extraEnvVars:
-  - name: INSTANCE_SUBJECTS_INDEXING_RETRY_ATTEMPTS
-    value: "3"
-  - name: INSTANCE_CONTRIBUTORS_INDEXING_RETRY_ATTEMPTS
-    value: "3"
-  - name: INDEXING_DATA_FORMAT
-    value: json
-  - name: INITIAL_LANGUAGES
-    value: eng
-  - name: MAX_SUPPORTED_LANGUAGES
-    value: "5"
-  - name: SEARCH_BY_ALL_FIELDS_ENABLED
-    value: "true"
-  - name: BROWSE_CN_INTERMEDIATE_VALUES_ENABLED
-    value: "true"
-  - name: BROWSE_CN_INTERMEDIATE_REMOVE_DUPLICATES
-    value: "true"
-  - name: SCROLL_QUERY_SIZE
-    value: "1000"
-  - name: STREAM_ID_RETRY_INTERVAL_MS
-    value: "1000"
-  - name: STREAM_ID_RETRY_ATTEMPTS
-    value: "3"
-  - name: STREAM_ID_CORE_POOL_SIZE
-    value: "2"
-  - name: STREAM_ID_MAX_POOL_SIZE
-    value: "2"
-  - name: STREAM_ID_QUEUE_CAPACITY
-    value: "500"
-  - name: CN_BROWSE_OPTIMIZATION_ENABLED
-    value: "true"
-  - name: SEARCH_QUERY_TIMEOUT
-    value: 25s
-  - name: MAX_BROWSE_REQUEST_OFFSET
-    value: "500"
-  - name: KAFKA_CONTRIBUTORS_TOPIC_PARTITIONS
-    value: "2"
-  - name: KAFKA_CONSORTIUM_INSTANCE_TOPIC_PARTITIONS
-    value: "2"
-  - name: KAFKA_SUBJECTS_TOPIC_PARTITIONS
-    value: "2"
+    - name: INSTANCE_SUBJECTS_INDEXING_RETRY_ATTEMPTS
+      value: "3"
+    - name: INSTANCE_CONTRIBUTORS_INDEXING_RETRY_ATTEMPTS
+      value: "3"
+    - name: INDEXING_DATA_FORMAT
+      value: json
+    - name: INITIAL_LANGUAGES
+      value: eng
+    - name: MAX_SUPPORTED_LANGUAGES
+      value: "5"
+    - name: SEARCH_BY_ALL_FIELDS_ENABLED
+      value: "true"
+    - name: BROWSE_CN_INTERMEDIATE_VALUES_ENABLED
+      value: "true"
+    - name: BROWSE_CN_INTERMEDIATE_REMOVE_DUPLICATES
+      value: "true"
+    - name: SCROLL_QUERY_SIZE
+      value: "1000"
+    - name: STREAM_ID_RETRY_INTERVAL_MS
+      value: "1000"
+    - name: STREAM_ID_RETRY_ATTEMPTS
+      value: "3"
+    - name: STREAM_ID_CORE_POOL_SIZE
+      value: "2"
+    - name: STREAM_ID_MAX_POOL_SIZE
+      value: "2"
+    - name: STREAM_ID_QUEUE_CAPACITY
+      value: "500"
+    - name: CN_BROWSE_OPTIMIZATION_ENABLED
+      value: "true"
+    - name: SEARCH_QUERY_TIMEOUT
+      value: 25s
+    - name: MAX_BROWSE_REQUEST_OFFSET
+      value: "500"
+    - name: KAFKA_CONTRIBUTORS_TOPIC_PARTITIONS
+      value: "2"
+    - name: KAFKA_CONSORTIUM_INSTANCE_TOPIC_PARTITIONS
+      value: "2"
+    - name: KAFKA_SUBJECTS_TOPIC_PARTITIONS
+      value: "2"
   integrations:
     db:
       enabled: true
@@ -2933,11 +3121,13 @@ mod-search:
   replicaCount: 1
   resources:
     limits:
+      cpu: 300m
       memory: 1064Mi
     requests:
+      cpu: 150m
       memory: 926Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+    - -XX:MaxRAMPercentage=85.0
   startupProbe:
     httpGet:
       path: /admin/health
@@ -2956,11 +3146,13 @@ mod-sender:
   replicaCount: 1
   resources:
     limits:
+      cpu: 100m
       memory: 225Mi
     requests:
+      cpu: 50m
       memory: 196Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+    - -XX:MaxRAMPercentage=85.0
   startupProbe:
     httpGet:
       path: /admin/health
@@ -2975,8 +3167,8 @@ mod-sender:
     maxUnavailable: 1
 mod-serials-management:
   extraEnvVars:
-  - name: DB_MAXPOOLSIZE
-    value: "50"
+    - name: DB_MAXPOOLSIZE
+      value: "50"
   integrations:
     okapi:
       enabled: true
@@ -2987,11 +3179,13 @@ mod-serials-management:
   replicaCount: 1
   resources:
     limits:
+      cpu: 500m
       memory: 1981Mi
     requests:
+      cpu: 250m
       memory: 1722Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+    - -XX:MaxRAMPercentage=85.0
   startupProbe:
     httpGet:
       path: /admin/health
@@ -3006,8 +3200,8 @@ mod-serials-management:
     maxUnavailable: 1
 mod-service-interaction:
   extraEnvVars:
-  - name: DB_MAXPOOLSIZE
-    value: "50"
+    - name: DB_MAXPOOLSIZE
+      value: "50"
   integrations:
     db:
       enabled: true
@@ -3018,11 +3212,13 @@ mod-service-interaction:
   replicaCount: 1
   resources:
     limits:
+      cpu: 300m
       memory: 1289Mi
     requests:
+      cpu: 150m
       memory: 1120Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+    - -XX:MaxRAMPercentage=85.0
   startupProbe:
     httpGet:
       path: /admin/health
@@ -3044,11 +3240,13 @@ mod-settings:
   replicaCount: 1
   resources:
     limits:
+      cpu: 300m
       memory: 676Mi
     requests:
+      cpu: 150m
       memory: 338Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+    - -XX:MaxRAMPercentage=85.0
   startupProbe:
     httpGet:
       path: /admin/health
@@ -3076,11 +3274,13 @@ mod-source-record-manager:
   replicaCount: 1
   resources:
     limits:
+      cpu: 300m
       memory: 917Mi
     requests:
+      cpu: 150m
       memory: 798Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+    - -XX:MaxRAMPercentage=85.0
   startupProbe:
     httpGet:
       path: /admin/health
@@ -3108,11 +3308,13 @@ mod-source-record-storage:
   replicaCount: 1
   resources:
     limits:
+      cpu: 300m
       memory: 1038Mi
     requests:
+      cpu: 150m
       memory: 903Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+    - -XX:MaxRAMPercentage=85.0
   startupProbe:
     httpGet:
       path: /admin/health
@@ -3134,11 +3336,13 @@ mod-tags:
   replicaCount: 1
   resources:
     limits:
+      cpu: 200m
       memory: 480Mi
     requests:
+      cpu: 100m
       memory: 418Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+    - -XX:MaxRAMPercentage=85.0
   startupProbe:
     httpGet:
       path: /admin/health
@@ -3160,11 +3364,13 @@ mod-template-engine:
   replicaCount: 1
   resources:
     limits:
+      cpu: 100m
       memory: 278Mi
     requests:
+      cpu: 50m
       memory: 242Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+    - -XX:MaxRAMPercentage=85.0
   startupProbe:
     httpGet:
       path: /admin/health
@@ -3195,11 +3401,13 @@ mod-tlr:
   replicaCount: 1
   resources:
     limits:
+      cpu: 200m
       memory: 547Mi
     requests:
+      cpu: 100m
       memory: 474Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+    - -XX:MaxRAMPercentage=85.0
   startupProbe:
     httpGet:
       path: /admin/health
@@ -3218,11 +3426,13 @@ mod-user-import:
   replicaCount: 1
   resources:
     limits:
+      cpu: 100m
       memory: 220Mi
     requests:
+      cpu: 50m
       memory: 192Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+    - -XX:MaxRAMPercentage=85.0
   startupProbe:
     httpGet:
       path: /admin/health
@@ -3237,8 +3447,8 @@ mod-user-import:
     maxUnavailable: 1
 mod-users:
   extraEnvVars:
-  - name: KAFKA_PRODUCER_TENANT_COLLECTION
-    value: "ALL"
+    - name: KAFKA_PRODUCER_TENANT_COLLECTION
+      value: "ALL"
   integrations:
     db:
       enabled: true
@@ -3249,11 +3459,13 @@ mod-users:
   replicaCount: 1
   resources:
     limits:
+      cpu: 200m
       memory: 503Mi
     requests:
+      cpu: 100m
       memory: 438Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+    - -XX:MaxRAMPercentage=85.0
   startupProbe:
     httpGet:
       path: /admin/health
@@ -3269,19 +3481,21 @@ mod-users:
   sidecarContainers:
     eureka:
       extraEnvVars:
-      - name: QUARKUS_HTTP_LIMITS_MAX_BODY_SIZE
-        value: "25M"
+        - name: QUARKUS_HTTP_LIMITS_MAX_BODY_SIZE
+          value: "25M"
 mod-users-bl:
   extraEnvVars: []
   integrations: {}
   replicaCount: 1
   resources:
     limits:
+      cpu: 500m
       memory: 1652Mi
     requests:
+      cpu: 250m
       memory: 1353Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+    - -XX:MaxRAMPercentage=85.0
   startupProbe:
     httpGet:
       path: /admin/health
@@ -3296,10 +3510,10 @@ mod-users-bl:
     maxUnavailable: 1
 mod-workflow:
   extraEnvVars:
-  - name: OKAPI_CAMUNDA_BASEPATH
-    value: "/"
-  - name: OKAPI_CAMUNDA_RESTPATH
-    value: "/camunda"
+    - name: OKAPI_CAMUNDA_BASEPATH
+      value: "/"
+    - name: OKAPI_CAMUNDA_RESTPATH
+      value: "/camunda"
   integrations:
     db:
       enabled: true
@@ -3313,11 +3527,13 @@ mod-workflow:
   replicaCount: 1
   resources:
     limits:
+      cpu: 300m
       memory: 676Mi
     requests:
+      cpu: 150m
       memory: 507Mi
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+    - -XX:MaxRAMPercentage=85.0
   startupProbe:
     httpGet:
       path: /admin/health
@@ -3336,34 +3552,36 @@ mod-z3950:
   replicaCount: 1
   resources:
     limits:
+      cpu: 200m
       memory: 450Mi
     requests:
+      cpu: 100m
       memory: 338Mi
   pdb:
     enabled: true
     maxUnavailable: 1
 mgr-applications:
   extraEnvVars:
-  - name: ROUTEMANAGEMENT_ENABLE
-    value: "true"
-  - name: MODULE_URL
-    value: "http://mgr-applications"
-  - name: FOLIO_CLIENT_CONNECT_TIMEOUT
-    value: "600s"
-  - name: FOLIO_CLIENT_READ_TIMEOUT
-    value: "600s"
-  - name: KONG_CONNECT_TIMEOUT
-    value: "941241418"
-  - name: KONG_READ_TIMEOUT
-    value: "941241418"
-  - name: KONG_WRITE_TIMEOUT
-    value: "941241418"
-  - name: KC_INTEGRATION_ENABLED
-    value: "true"
-  - name: SECURITY_ENABLED
-    value: "true"
+    - name: ROUTEMANAGEMENT_ENABLE
+      value: "true"
+    - name: MODULE_URL
+      value: "http://mgr-applications"
+    - name: FOLIO_CLIENT_CONNECT_TIMEOUT
+      value: "600s"
+    - name: FOLIO_CLIENT_READ_TIMEOUT
+      value: "600s"
+    - name: KONG_CONNECT_TIMEOUT
+      value: "941241418"
+    - name: KONG_READ_TIMEOUT
+      value: "941241418"
+    - name: KONG_WRITE_TIMEOUT
+      value: "941241418"
+    - name: KC_INTEGRATION_ENABLED
+      value: "true"
+    - name: SECURITY_ENABLED
+      value: "true"
   extraJavaOpts:
-  - "-Dlogging.level.root=INFO -Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties"
+    - "-Dlogging.level.root=INFO -Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties"
   integrations:
     db:
       enabled: true
@@ -3374,8 +3592,10 @@ mgr-applications:
   replicaCount: 1
   resources:
     limits:
+      cpu: 300m
       memory: 1024Mi
     requests:
+      cpu: 150m
       memory: 509Mi
   readinessProbe:
     httpGet:
@@ -3384,26 +3604,26 @@ mgr-applications:
     initialDelaySeconds: 20
 mgr-tenants:
   extraEnvVars:
-  - name: MODULE_URL
-    value: "http://mgr-tenants"
-  - name: FOLIO_CLIENT_CONNECT_TIMEOUT
-    value: "600s"
-  - name: FOLIO_CLIENT_READ_TIMEOUT
-    value: "600s"
-  - name: KONG_CONNECT_TIMEOUT
-    value: "941241418"
-  - name: KONG_READ_TIMEOUT
-    value: "941241418"
-  - name: KONG_WRITE_TIMEOUT
-    value: "941241418"
-  - name: KC_INTEGRATION_ENABLED
-    value: "true"
-  - name: SECURITY_ENABLED
-    value: "true"
-  - name: MTE_URL
-    value: "http://mgr-tenant-entitlements"
+    - name: MODULE_URL
+      value: "http://mgr-tenants"
+    - name: FOLIO_CLIENT_CONNECT_TIMEOUT
+      value: "600s"
+    - name: FOLIO_CLIENT_READ_TIMEOUT
+      value: "600s"
+    - name: KONG_CONNECT_TIMEOUT
+      value: "941241418"
+    - name: KONG_READ_TIMEOUT
+      value: "941241418"
+    - name: KONG_WRITE_TIMEOUT
+      value: "941241418"
+    - name: KC_INTEGRATION_ENABLED
+      value: "true"
+    - name: SECURITY_ENABLED
+      value: "true"
+    - name: MTE_URL
+      value: "http://mgr-tenant-entitlements"
   extraJavaOpts:
-  - "-Dlogging.level.root=INFO -Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties"
+    - "-Dlogging.level.root=INFO -Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties"
   integrations:
     db:
       enabled: true
@@ -3414,8 +3634,10 @@ mgr-tenants:
   replicaCount: 1
   resources:
     limits:
+      cpu: 300m
       memory: 818Mi
     requests:
+      cpu: 150m
       memory: 546Mi
   readinessProbe:
     httpGet:
@@ -3471,8 +3693,10 @@ mgr-tenant-entitlements:
   replicaCount: 1
   resources:
     limits:
+      cpu: 800m
       memory: 1024Mi
     requests:
+      cpu: 150m
       memory: 399Mi
   readinessProbe:
     httpGet:
@@ -3481,14 +3705,14 @@ mgr-tenant-entitlements:
     initialDelaySeconds: 20
 mod-consortia-keycloak:
   extraEnvVars:
-  - name: CUSTOM_FIELDS_RETRY_BACKOFF_DELAY
-    value: "5000"
-  - name: CUSTOM_FIELDS_RETRY_MAX_RETRIES
-    value: "5"
-  - name: SERVER_PORT
-    value: "8080"
-  - name: KAFKA_PRODUCER_TENANT_COLLECTION
-    value: "ALL"
+    - name: CUSTOM_FIELDS_RETRY_BACKOFF_DELAY
+      value: "5000"
+    - name: CUSTOM_FIELDS_RETRY_MAX_RETRIES
+      value: "5"
+    - name: SERVER_PORT
+      value: "8080"
+    - name: KAFKA_PRODUCER_TENANT_COLLECTION
+      value: "ALL"
   integrations:
     db:
       enabled: true
@@ -3505,17 +3729,19 @@ mod-consortia-keycloak:
   replicaCount: 1
   resources:
     limits:
+      cpu: 300m
       memory: 830Mi
     requests:
+      cpu: 150m
       memory: 634Mi
 mod-login-keycloak:
   extraEnvVars:
-  - name: KC_ADMIN_TOKEN_TTL
-    value: "295s"
-  - name: X_OKAPI_TOKEN_HEADER_ENABLED
-    value: "false"
-  - name: LOGIN_COOKIE_SAMESITE
-    value: "NONE"
+    - name: KC_ADMIN_TOKEN_TTL
+      value: "295s"
+    - name: X_OKAPI_TOKEN_HEADER_ENABLED
+      value: "false"
+    - name: LOGIN_COOKIE_SAMESITE
+      value: "NONE"
   integrations:
     db:
       enabled: true
@@ -3529,17 +3755,19 @@ mod-login-keycloak:
   replicaCount: 1
   resources:
     limits:
+      cpu: 300m
       memory: 744Mi
     requests:
+      cpu: 150m
       memory: 525Mi
 mod-roles-keycloak:
   extraEnvVars:
-  - name: KAFKA_CAPABILITIES_TOPIC_PATTERN
-    value: '(${application.environment}\.)(.*\.)mgr-tenant-entitlements.capability'
-  - name: CAPABILITY_TOPIC_RETRY_DELAY
-    value: "1s"
-  - name: CAPABILITY_TOPIC_RETRY_ATTEMPTS
-    value: "9223372036854775807"
+    - name: KAFKA_CAPABILITIES_TOPIC_PATTERN
+      value: '(${application.environment}\.)(.*\.)mgr-tenant-entitlements.capability'
+    - name: CAPABILITY_TOPIC_RETRY_DELAY
+      value: "1s"
+    - name: CAPABILITY_TOPIC_RETRY_ATTEMPTS
+      value: "9223372036854775807"
   integrations:
     db:
       enabled: true
@@ -3556,27 +3784,29 @@ mod-roles-keycloak:
   replicaCount: 1
   resources:
     limits:
+      cpu: 300m
       memory: 1021Mi
     requests:
+      cpu: 150m
       memory: 814Mi
 mod-users-keycloak:
   extraEnvVars:
-  - name: MOD_USERS_URL
-    value: "http://mod-users"
-  - name: KAFKA_SYS_USER_TOPIC_PATTERN
-    value: '(${application.environment}\.)(.*\.)mgr-tenant-entitlements.system-user'
-  - name: KAFKA_SYS_USER_TOPIC_RETRY_DELAY
-    value: "1s"
-  - name: KAFKA_SYS_USER_TOPIC_RETRY_ATTEMPTS
-    value: "9223372036854775807"
-  - name: KAFKA_SYS_USER_CAPABILITIES_RETRY_DELAY
-    value: "5s"
-  - name: KAFKA_SYS_USER_CAPABILITIES_RETRY_ATTEMPTS
-    value: "100"
-  - name: MIGRATION_BATCH_SIZE
-    value: "20"
-  - name: INCLUDE_ONLY_VISIBLE_PERMISSIONS
-    value: "false"
+    - name: MOD_USERS_URL
+      value: "http://mod-users"
+    - name: KAFKA_SYS_USER_TOPIC_PATTERN
+      value: '(${application.environment}\.)(.*\.)mgr-tenant-entitlements.system-user'
+    - name: KAFKA_SYS_USER_TOPIC_RETRY_DELAY
+      value: "1s"
+    - name: KAFKA_SYS_USER_TOPIC_RETRY_ATTEMPTS
+      value: "9223372036854775807"
+    - name: KAFKA_SYS_USER_CAPABILITIES_RETRY_DELAY
+      value: "5s"
+    - name: KAFKA_SYS_USER_CAPABILITIES_RETRY_ATTEMPTS
+      value: "100"
+    - name: MIGRATION_BATCH_SIZE
+      value: "20"
+    - name: INCLUDE_ONLY_VISIBLE_PERMISSIONS
+      value: "false"
   integrations:
     db:
       enabled: true
@@ -3593,29 +3823,31 @@ mod-users-keycloak:
   replicaCount: 1
   resources:
     limits:
+      cpu: 300m
       memory: 769Mi
     requests:
+      cpu: 150m
       memory: 577Mi
 mod-scheduler:
   extraEnvVars:
-  - name: KC_IMPERSONATION_CLIENT
-    value: "impersonation-client"
-  - name: KAFKA_JOB_CONSUMER_PATTERN
-    value: '(${folio.environment}\.)(.*\.)mgr-tenant-entitlements\.scheduled-job'
-  - name: KAFKA_JOB_CONCURRENCY
-    value: "1"
-  - name: KAFKA_CONSUMER_MAX_POLL_RECORDS
-    value: "200"
-  - name: QUARTZ_STARTUP_DELAY
-    value: "0s"
-  - name: QUARTZ_SCHEDULER_IDLE_WAIT_TIME
-    value: "10000"
-  - name: QUARTZ_MISFIRE_THRESHOLD
-    value: "250"
-  - name: QUARTZ_CLUSTER_CHECKIN_INTERVAL
-    value: "500"
-  - name: QUARTZ_POOL_THREAD_COUNT
-    value: "5"
+    - name: KC_IMPERSONATION_CLIENT
+      value: "impersonation-client"
+    - name: KAFKA_JOB_CONSUMER_PATTERN
+      value: '(${folio.environment}\.)(.*\.)mgr-tenant-entitlements\.scheduled-job'
+    - name: KAFKA_JOB_CONCURRENCY
+      value: "1"
+    - name: KAFKA_CONSUMER_MAX_POLL_RECORDS
+      value: "200"
+    - name: QUARTZ_STARTUP_DELAY
+      value: "0s"
+    - name: QUARTZ_SCHEDULER_IDLE_WAIT_TIME
+      value: "10000"
+    - name: QUARTZ_MISFIRE_THRESHOLD
+      value: "250"
+    - name: QUARTZ_CLUSTER_CHECKIN_INTERVAL
+      value: "500"
+    - name: QUARTZ_POOL_THREAD_COUNT
+      value: "5"
   integrations:
     db:
       enabled: true
@@ -3632,25 +3864,27 @@ mod-scheduler:
   replicaCount: 1
   resources:
     limits:
+      cpu: 300m
       memory: 1009Mi
     requests:
+      cpu: 150m
       memory: 667Mi
 mod-okapi-facade:
   extraEnvVars:
-  - name: AM_TLS_ENABLED
-    value: "false"
-  - name: TM_TLS_ENABLED
-    value: "false"
-  - name: TE_TLS_ENABLED
-    value: "false"
-  - name: TENANT_APPS_TTL
-    value: "600s"
-  - name: AM_CLIENT_URL
-    value: http://mgr-applications
-  - name: MT_CLIENT_URL
-    value: http://mgr-tenants
-  - name: TE_URL
-    value: http://mgr-tenant-entitlements
+    - name: AM_TLS_ENABLED
+      value: "false"
+    - name: TM_TLS_ENABLED
+      value: "false"
+    - name: TE_TLS_ENABLED
+      value: "false"
+    - name: TENANT_APPS_TTL
+      value: "600s"
+    - name: AM_CLIENT_URL
+      value: http://mgr-applications
+    - name: MT_CLIENT_URL
+      value: http://mgr-tenants
+    - name: TE_URL
+      value: http://mgr-tenant-entitlements
   integrations:
     db:
       enabled: true
@@ -3658,8 +3892,10 @@ mod-okapi-facade:
   replicaCount: 1
   resources:
     limits:
+      cpu: 300m
       memory: 676Mi
     requests:
+      cpu: 150m
       memory: 294Mi
 okapi:
   ingress:
@@ -3672,24 +3908,26 @@ okapi:
       alb.ingress.kubernetes.io/success-codes: 200-403
       kubernetes.io/ingress.class: alb
     hosts:
-    - paths:
-      - path: /*
-        pathType: ImplementationSpecific
-        servicePort: 9130
+      - paths:
+          - path: /*
+            pathType: ImplementationSpecific
+            servicePort: 9130
   service:
     type: NodePort
   replicaCount: 1
   resources:
     limits:
+      cpu: 300m
       memory: 755Mi
     requests:
+      cpu: 150m
       memory: 657Mi
   integrations:
     db:
       enabled: true
       existingSecret: db-credentials
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+    - -XX:MaxRAMPercentage=85.0
   startupProbe:
     httpGet:
       path: /_/proxy/health
@@ -3712,15 +3950,17 @@ ui-bundle:
       alb.ingress.kubernetes.io/success-codes: 200-399
       kubernetes.io/ingress.class: alb
     hosts:
-    - paths:
-      - path: /*
-        pathType: ImplementationSpecific
-        servicePort: 80
+      - paths:
+          - path: /*
+            pathType: ImplementationSpecific
+            servicePort: 80
   service:
     type: NodePort
   replicaCount: 1
   resources:
     limits:
+      cpu: 100m
       memory: 200Mi
     requests:
+      cpu: 50m
       memory: 100Mi
