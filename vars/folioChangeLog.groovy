@@ -109,7 +109,15 @@ List<ChangelogEntry> call(String previousSha, String currentSha) {
           }
         }
         break
-      case ModuleType.FRONTEND:#${module.buildId}, falling back to master branch"
+      case ModuleType.FRONTEND:
+        repositoryName = "ui-${module.name.replaceFirst('folio_', '')}"
+        def frontendWorkflowFile = 'build-npm.yml'
+        echo "Looking for GitHub workflow run for repository: ${repositoryName}, workflow: ${frontendWorkflowFile}, build: ${module.buildId}"
+        try {
+          def workflowRun = gitHubClient.getWorkflowRunByNumber(repositoryName, frontendWorkflowFile, module.buildId)
+          changeLogEntry.sha = workflowRun?.head_sha ?: null
+          if (!changeLogEntry.sha) {
+            echo "Warning: Could not find workflow run #${module.buildId}, falling back to master branch"
             def branchInfo = gitHubClient.getBranchInfo(repositoryName, 'master')
             changeLogEntry.sha = branchInfo?.commit?.sha ?: 'Unknown'
           } else {
@@ -124,14 +132,7 @@ List<ChangelogEntry> call(String previousSha, String currentSha) {
           } catch (Exception e2) {
             echo "Error getting master branch SHA: ${e2.getMessage()}"
             changeLogEntry.sha = 'Unknown'
-          } ${workflowRun}"
-            changeLogEntry.sha = 'Unknown'
-          } else {
-            echo "Successfully found SHA ${changeLogEntry.sha} for ${repositoryName} build #${module.buildId}"
           }
-        } catch (Exception e) {
-          echo "Error getting workflow run SHA for ${repositoryName} build #${module.buildId}: ${e.getMessage()}"
-          changeLogEntry.sha = 'Unknown'
         }
         break
       default:
