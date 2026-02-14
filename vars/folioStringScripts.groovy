@@ -20,7 +20,7 @@ static String getApplications(String applicationSet) {
   return "return ${RestConstants.APPLICATION_SETS_APPLICATIONS.inspect()}[${applicationSet}.trim()]"
 }
 
-static String getRepositoryBranches(String repository) {
+private static String getGitHubScriptBase() {
   return """import groovy.json.JsonSlurperClassic
 import com.cloudbees.plugins.credentials.CredentialsProvider
 import org.jenkinsci.plugins.plaincredentials.StringCredentials
@@ -41,46 +41,67 @@ def getGithubToken(String credentialId) {
   return credential.secret.plainText
 }
 
+def fetchJson(String url, String token) {
+  def connection = new URL(url).openConnection()
+  connection.setRequestProperty("User-Agent", "Jenkins-Groovy-Script")
+  connection.setRequestProperty("Authorization", "Bearer \${token}")
+  connection.setConnectTimeout(5000)
+  connection.setReadTimeout(10000)
+
+  if (connection.responseCode == 200) {
+    def responseText = connection.inputStream.getText('UTF-8')
+    return [json: new JsonSlurperClassic().parseText(responseText), headers: connection.headerFields]
+  } else {
+    throw new IOException("Failed to fetch \${url}: HTTP \${connection.responseCode}")
+  }
+}
+
+def credentialId = "github-jenkins-service-user-token"
+def token = getGithubToken(credentialId)
+"""
+}
+
+static String getApplicationsFromPlatformDescriptor(String reference) {
+  return """${getGitHubScriptBase()}
+try {
+  def url = "${Constants.FOLIO_GITHUB_RAW_URL}/platform-lsp/\${${reference}}/platform-descriptor.json"
+  def descriptor = fetchJson(url, token).json
+  def apps = []
+
+  descriptor.applications.required.each { app ->
+    apps.add(app['name'] + ':selected')
+  }
+  descriptor.applications.optional.each { app ->
+    apps.add(app['name'] + ':selected')
+  }
+
+  return apps
+} catch (Exception e) {
+  println "Error fetching platform-descriptor.json: \${e.message}"
+  return []
+}
+""".stripIndent()
+}
+
+static String getRepositoryBranches(String repository) {
+  return """${getGitHubScriptBase()}
 def fetchAllBranches(String initialUrl, String token) {
   def branches = []
-  def jsonSlurper = new JsonSlurperClassic()
 
   def fetchPage
   fetchPage = { url ->
-    def connection = new URL(url).openConnection()
-    connection.setRequestProperty("User-Agent", "Jenkins-Groovy-Script")
-    connection.setRequestProperty("Authorization", "Bearer \${token}")
-    connection.setConnectTimeout(5000)
-    connection.setReadTimeout(10000)
+    def result = fetchJson(url, token)
+    branches.addAll(result.json.collect { it['name'] })
 
-    if (connection.responseCode == 200) {
-      def responseText = connection.inputStream.getText('UTF-8')
-      def json = jsonSlurper.parseText(responseText)
-      branches.addAll(json.collect { it.name })
+    def linkHeader = result.headers['Link']?.first()
+    def nextPageUrl = (linkHeader =~ /<([^>]+)>; rel="next"/)?.with { matcher -> matcher.find() ? matcher.group(1) : null }
 
-      def linkHeader = connection.getHeaderField('Link')
-      def nextPageUrl = (linkHeader =~ /<([^>]+)>; rel="next"/)?.with { matcher -> matcher.find() ? matcher.group(1) : null }
-
-      if (nextPageUrl) {
-        fetchPage(nextPageUrl)
-      }
-    } else {
-      throw new IOException("Failed to fetch branches: HTTP \${connection.responseCode}")
+    if (nextPageUrl) {
+      fetchPage(nextPageUrl)
     }
   }
 
   fetchPage(initialUrl)
-
-  return branches
-}
-
-def apiUrl = "${Constants.FOLIO_GITHUB_REPOS_URL}/${repository}/branches"
-def perPage = 100
-def credentialId = "github-jenkins-service-user-token"
-
-try {
-  def token = getGithubToken(credentialId)
-  def branches = fetchAllBranches("\${apiUrl}?per_page=\${perPage}", token)
 
   def priorityBranches = ['snapshot', 'master', 'main']
   def defaultBranch = priorityBranches.find { priority -> branches.contains(priority) }
@@ -91,6 +112,11 @@ try {
   }
 
   return branches
+}
+
+try {
+  def apiUrl = "${Constants.FOLIO_GITHUB_REPOS_URL}/${repository}/branches"
+  return fetchAllBranches("\${apiUrl}?per_page=100", token)
 } catch (Exception e) {
   println "Error: \${e.message}"
   throw e
