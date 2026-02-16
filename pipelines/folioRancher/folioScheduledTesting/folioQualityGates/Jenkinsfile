@@ -15,10 +15,10 @@ import org.folio.testing.karate.results.KarateRunExecutionSummary
 import org.folio.utilities.Logger
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-2764') _
 
 properties([
-  pipelineTriggers([cron('H 6,9,12,15,18,21 * * 1-5')]),
+//  pipelineTriggers([cron('H 6,9,12,15,18,21 * * 1-5')]),
   buildDiscarder(logRotator(numToKeepStr: '40')),
   disableConcurrentBuilds(),
   parameters([
@@ -44,12 +44,13 @@ KarateRunExecutionSummary karateTestsExecutionSummary
 
 String createNamespaceFromBranchJob = GlobalConstants.JENKINS_CREATE_NAMESPACE_FROM_BRANCH_JOB
 String deleteNamespaceJob = GlobalConstants.JENKINS_DELETE_NAMESPACE_JOB
-String globalSlackChannel = '#rancher_tests_notifications, #e2e-tests-maintenance'
+//String globalSlackChannel = '#rancher_tests_notifications, #e2e-tests-maintenance'
+String globalSlackChannel = '#folio-rancher-debug-notifications'
 String okapiVersion = folioTools.eval(folioStringScripts.getOkapiVersions(), ['FOLIO_BRANCH': params.FOLIO_BRANCH])[0]
 
 Map envsMap = [
-  cypress: [cluster: 'folio-etesting', namespace: 'cicypress', platform: 'eureka'],
-//  schema : [cluster: 'folio-tmp', namespace: 'cischema']
+//  cypress: [cluster: 'folio-etesting', namespace: 'cicypress', platform: 'eureka'],
+  schema : [cluster: 'folio-tmp', namespace: 'cicypress']
 ]
 
 if (params.INCLUDE_KARATE) {
@@ -138,7 +139,8 @@ ansiColor('xterm') {
         cypressParameters.setNumberOfWorkers(5)
         cypressParameters.setTimeout('180')
 
-        cypressTestsExecutionSummary = folioCypressFlow.call(cypressParameters.getCiBuildId(), [cypressParameters], false, true, 'ci')
+        cypressTestsExecutionSummary = folioCypressFlow_v2.call(cypressParameters.getCiBuildId(), [cypressParameters], false, false, '')
+//        cypressTestsExecutionSummary = folioCypressFlow.call(cypressParameters.getCiBuildId(), [cypressParameters], false, true, 'ci')
       }
       if (params.INCLUDE_KARATE) {
         branches['Karate'] = { ->
