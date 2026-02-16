@@ -70,26 +70,18 @@ CreateNamespaceParameters namespace = new CreateNamespaceParameters.Builder()
   .clusterName(params.CLUSTER)
   .namespaceName(params.NAMESPACE)
   .folioBranch('snapshot')
+  .platformBranch('snapshot')
   .okapiVersion('latest')
   .configType(params.CONFIG_TYPE)
   .loadReference(false)
   .loadSample(false)
   .consortia(true)
-  .linkedData(true)
   .rwSplit(false)
   .greenmail(false)
   .mockServer(false)
   .rtr(false)
   .splitFiles(true)
   .ecsCCL(false)
-  .applicationSet('Complete')
-  .applications(org.folio.rest_v2.Constants.APPLICATION_BRANCH('Complete') +
-          (params.MARC_MIGRATIONS ?
-          org.folio.rest_v2.Constants.APPLICATION_COMPLETE
-                  .findAll {it.name == 'app-marc-migrations' }
-                  .collectEntries{app -> [ app.name, app.branch ] } :
-          [:])
-  )
   .dbBackupName(params.DB_BACKUP_NAME)
   .doMarcMigrations(params.MARC_MIGRATIONS)
   .type(params.TYPE)
@@ -108,6 +100,16 @@ CreateNamespaceParameters namespace = new CreateNamespaceParameters.Builder()
   .build()
 
 ansiColor('xterm') {
+  stage('Fetch Applications') {
+    List<String> appNames = folioDefault.getApplicationNamesFromPlatform('snapshot')
+
+    if (!params.MARC_MIGRATIONS) {
+      appNames = appNames.findAll { it != 'app-marc-migrations' }
+    }
+
+    namespace.applications = appNames
+  }
+
   stage('Update Sprint Testing') {
     if(params.TYPE == 'full' ) {
       folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespace)
