@@ -46,7 +46,8 @@ String createNamespaceFromBranchJob = GlobalConstants.JENKINS_CREATE_NAMESPACE_F
 String deleteNamespaceJob = GlobalConstants.JENKINS_DELETE_NAMESPACE_JOB
 //String globalSlackChannel = '#rancher_tests_notifications, #e2e-tests-maintenance'
 String globalSlackChannel = '#folio-rancher-debug-notifications'
-String okapiVersion = folioTools.eval(folioStringScripts.getOkapiVersions(), ['FOLIO_BRANCH': params.FOLIO_BRANCH])[0]
+//String okapiVersion = folioTools.eval(folioStringScripts.getOkapiVersions(), ['FOLIO_BRANCH': params.FOLIO_BRANCH])[0]
+String okapiVersion = ''
 
 Map envsMap = [
 //  cypress: [cluster: 'folio-etesting', namespace: 'cicypress', platform: 'eureka'],
