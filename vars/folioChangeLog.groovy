@@ -46,7 +46,7 @@ List<ChangelogEntry> call(String previousSha, String currentSha) {
     updatedModulesObjectsList << module
   }
 
-  List<ChangelogEntry> changeLogEntriesList = []
+  Map<String, ChangelogEntry> changeLogEntriesMap = [:]
   updatedModulesObjectsList.each { module ->
     ChangelogEntry changeLogEntry = new ChangelogEntry()
     String repositoryName
@@ -163,10 +163,23 @@ List<ChangelogEntry> call(String previousSha, String currentSha) {
 
     changeLogEntry.commitLink = commitInfo?.html_url ?: null
 
-    changeLogEntriesList << changeLogEntry
+    String entryKey = "${module.name}|${changeLogEntry.sha ?: 'Unknown'}"
+    if (!changeLogEntriesMap.containsKey(entryKey)) {
+      changeLogEntriesMap[entryKey] = changeLogEntry
+    } else {
+      ChangelogEntry existingEntry = changeLogEntriesMap[entryKey]
+      String existingBuildId = existingEntry?.module?.buildId?.toString()
+      String newBuildId = module?.buildId?.toString()
+      Integer existingBuildNumber = existingBuildId?.isInteger() ? existingBuildId.toInteger() : null
+      Integer newBuildNumber = newBuildId?.isInteger() ? newBuildId.toInteger() : null
+
+      if (newBuildNumber != null && existingBuildNumber != null && newBuildNumber > existingBuildNumber) {
+        changeLogEntriesMap[entryKey] = changeLogEntry
+      }
+    }
   }
 
-  return changeLogEntriesList
+  return changeLogEntriesMap.values().toList()
 }
 
 static List getUpdatedModulesList(Map commitInfo, String filename = 'install.json') {
