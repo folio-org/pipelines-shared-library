@@ -93,7 +93,7 @@ ansiColor('xterm') {
     // Add a separate run for the sanity check
     if (params.RUN_SANITY_CHECK) {
       CypressTestsParameters cypressSanityParameters = cypressParameters.clone()
-      cypressSanityParameters.setCompileExecParameters('--env grepTags="fse+sanity"')
+      cypressSanityParameters.setCompileExecParameters('tags="fse+sanity"')
       cypressSanityParameters.setNumberOfWorkers(4)
       cypressSanityParameters.setTimeout('60')
       testsToRun.add(cypressSanityParameters)
