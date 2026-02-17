@@ -360,7 +360,7 @@ void call(CreateNamespaceParameters args) {
         }
       }
       int counter = 0
-      retry(8) {
+      retry(15) {
         sleep time: (counter == 0 ? 0 : 1), unit: 'MINUTES'
         counter++
 
