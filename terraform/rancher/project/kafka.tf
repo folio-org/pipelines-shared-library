@@ -4,7 +4,7 @@ resource "rancher2_secret" "kafka-credentials" {
   namespace_id = rancher2_namespace.this.id
   data = {
     ENV        = base64encode(local.env_name)
-    KAFKA_HOST = base64encode(var.kafka_shared ? local.msk_value["KAFKA_HOST"] : "kafka-${var.rancher_project_name}")
+    KAFKA_HOST = base64encode(var.kafka_shared ? local.msk_value["KAFKA_HOST"] : "kafka-${var.rancher_project_name}-headless.${var.rancher_project_name}.svc.cluster.local")
     KAFKA_PORT = base64encode("9092")
   }
 }
@@ -65,7 +65,7 @@ resources:
     memory: '${var.kafka_max_mem_size}Mi'
 kraft:
   enabled: true
-  processRoles: broker,controller  
+  processRoles: broker,controller
 zookeeper:
   image:
     tag: 3.7
@@ -91,7 +91,7 @@ extraEnvVars:
   - name: KAFKA_DELETE_TOPIC_ENABLE
     value: "true"
   - name: KAFKA_CFG_NODE_ID
-    value: "0"  
+    value: "0"
 ${local.schedule_value}
 EOF
   ]
