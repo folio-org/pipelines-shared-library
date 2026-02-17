@@ -72,7 +72,6 @@ CreateNamespaceParameters namespaceBaseParams = new CreateNamespaceParameters.Bu
   .build()
 
 CreateNamespaceParameters namespaceFromBranchParams = namespaceBaseParams.toBuilder()
-  .folioBranch(params.FOLIO_BRANCH)
   .platformBranch(params.FOLIO_BRANCH)
   .okapiVersion(okapiVersion)
   .configType('testing')

@@ -19,6 +19,7 @@ class CreateNamespaceParameters implements Cloneable {
 
   String platformBranch
 
+  @Deprecated
   String okapiVersion
 
   String configType
@@ -167,6 +168,7 @@ class CreateNamespaceParameters implements Cloneable {
      * @param folioBranch The branch name of the FOLIO repository.
      * @return Builder instance for method chaining.
      */
+    @Deprecated
     Builder folioBranch(String folioBranch) {
       parameters.folioBranch = folioBranch
       return this
