@@ -51,7 +51,7 @@ String okapiVersion = ''
 
 Map envsMap = [
 //  cypress: [cluster: 'folio-etesting', namespace: 'cicypress', platform: 'eureka'],
-  schema : [cluster: 'folio-tmp', namespace: 'cicypress']
+  schema : [cluster: 'folio-tmp', namespace: 'tmpcypress']
 ]
 
 if (params.INCLUDE_KARATE) {
