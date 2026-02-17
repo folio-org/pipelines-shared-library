@@ -135,7 +135,10 @@ ansiColor('xterm') {
       branches['Cypress'] = { ->
         CypressTestsParameters cypressParameters = new CypressTestsParameters()
         cypressParameters.setCiBuildId(env.JOB_BASE_NAME)
-        cypressParameters.setTestsSrcBranch('master')
+        cypressParameters.setTestsSrcBranch('master_parallel_run')
+//TODO Uncomment after testing
+//        cypressParameters.setTestsSrcBranch('master')
+//END TODO
         cypressParameters.setTenantUrl("https://${envsMap['cypress']['cluster']}-${envsMap['cypress']['namespace']}-diku.${GlobalConstants.CI_ROOT_DOMAIN}")
         cypressParameters.setOkapiUrl("https://${envsMap['cypress']['cluster']}-${envsMap['cypress']['namespace']}-kong.${GlobalConstants.CI_ROOT_DOMAIN}")
         cypressParameters.setTenant(new OkapiTenant('diku')
@@ -144,7 +147,10 @@ ansiColor('xterm') {
         cypressParameters.setNumberOfWorkers(5)
         cypressParameters.setTimeout('180')
 
-        cypressTestsExecutionSummary = folioCypressFlow_v2.call(cypressParameters.getCiBuildId(), [cypressParameters], false, true, 'ci')
+        cypressTestsExecutionSummary = folioCypressFlow_v2.call(cypressParameters.getCiBuildId(), [cypressParameters], false, false, '')
+//TODO Uncomment after testing
+//        cypressTestsExecutionSummary = folioCypressFlow_v2.call(cypressParameters.getCiBuildId(), [cypressParameters], false, true, 'ci')
+//END TODO
       }
       if (params.INCLUDE_KARATE) {
         branches['Karate'] = { ->
