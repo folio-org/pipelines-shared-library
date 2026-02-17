@@ -17,7 +17,7 @@ properties([
     string(name: 'TENANT_ID', defaultValue: "diku", description: 'Tenant ID', trim: true),
     string(name: 'ADMIN_USERNAME', defaultValue: "diku_admin", description: 'Tenant admin username', trim: true),
     password(name: 'ADMIN_PASSWORD', defaultValueAsSecret: Secret.fromString('admin'), description: 'Tenant admin password'),
-    string(name: 'EXEC_PARAMETERS', defaultValue: "", description: 'Cypress execution parameters.<br>Example: --tag fse,sanity,criticalPath,extendedPath', trim: true),
+    string(name: 'EXEC_PARAMETERS', defaultValue: "", description: 'Cypress execution parameters.<br>Example: tags="fse,sanity,criticalPath,extendedPath"', trim: true),
     string(name: 'KB_URL', defaultValue: "", description: 'Tenant KB endpoint', trim: true),
     string(name: 'KB_ID', defaultValue: "apidvcorp", description: 'Tenant KB ID', trim: true),
     password(name: 'KB_KEY', defaultValueAsSecret: Secret.fromString('changeMe!'), description: 'Tenant KB key'),
@@ -93,7 +93,7 @@ ansiColor('xterm') {
     // Add a separate run for the sanity check
     if (params.RUN_SANITY_CHECK) {
       CypressTestsParameters cypressSanityParameters = cypressParameters.clone()
-      cypressSanityParameters.setCompileExecParameters('--env grepTags="fse+sanity"')
+      cypressSanityParameters.setCompileExecParameters('tags="fse+sanity"')
       cypressSanityParameters.setNumberOfWorkers(4)
       cypressSanityParameters.setTimeout('60')
       testsToRun.add(cypressSanityParameters)
