@@ -15,10 +15,10 @@ import org.folio.testing.karate.results.KarateRunExecutionSummary
 import org.folio.utilities.Logger
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library@RANCHER-2475-test') _
+@Library('pipelines-shared-library@RANCHER-2764') _
 
 properties([
-  pipelineTriggers([cron('H 6,9,12,15,18,21 * * 1-5')]),
+//  pipelineTriggers([cron('H 6,9,12,15,18,21 * * 1-5')]),
   buildDiscarder(logRotator(numToKeepStr: '40')),
   disableConcurrentBuilds(),
   parameters([
@@ -44,11 +44,17 @@ KarateRunExecutionSummary karateTestsExecutionSummary
 
 String createNamespaceFromBranchJob = GlobalConstants.JENKINS_CREATE_NAMESPACE_FROM_BRANCH_JOB
 String deleteNamespaceJob = GlobalConstants.JENKINS_DELETE_NAMESPACE_JOB
-String globalSlackChannel = '#rancher_tests_notifications, #e2e-tests-maintenance'
+String globalSlackChannel = '#folio-rancher-debug-notifications'
+//TODO Uncomment after testing
+//String globalSlackChannel = '#rancher_tests_notifications, #e2e-tests-maintenance'
+//END TODO
 String okapiVersion = folioTools.eval(folioStringScripts.getOkapiVersions(), ['FOLIO_BRANCH': params.FOLIO_BRANCH])[0]
 
 Map envsMap = [
-  cypress: [cluster: 'folio-etesting', namespace: 'cicypress', platform: 'eureka'],
+  cypress: [cluster: 'folio-tmp', namespace: 'citmp', platform: 'eureka'],
+//TODO Uncomment after testing
+//  cypress: [cluster: 'folio-etesting', namespace: 'cicypress', platform: 'eureka'],
+//END TODO
 //  schema : [cluster: 'folio-tmp', namespace: 'cischema']
 ]
 
@@ -134,11 +140,11 @@ ansiColor('xterm') {
         cypressParameters.setOkapiUrl("https://${envsMap['cypress']['cluster']}-${envsMap['cypress']['namespace']}-kong.${GlobalConstants.CI_ROOT_DOMAIN}")
         cypressParameters.setTenant(new OkapiTenant('diku')
           .withAdminUser(new OkapiUser('diku_admin', 'admin')))
-        cypressParameters.setExecParameters('--env grepTags="shiftLeft"')
+        cypressParameters.setCompileExecParameters('tags="shiftLeft"')
         cypressParameters.setNumberOfWorkers(5)
         cypressParameters.setTimeout('180')
 
-        cypressTestsExecutionSummary = folioCypressFlow.call(cypressParameters.getCiBuildId(), [cypressParameters], false, true, 'ci')
+        cypressTestsExecutionSummary = folioCypressFlow_v2.call(cypressParameters.getCiBuildId(), [cypressParameters], false, true, 'ci')
       }
       if (params.INCLUDE_KARATE) {
         branches['Karate'] = { ->
