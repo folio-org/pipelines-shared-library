@@ -328,11 +328,11 @@ void call(CreateNamespaceParameters args) {
           folioHelm.checkDeploymentsRunning(namespace.getNamespaceName(), namespace.getModules().getBackendModules())
 
           //TODO: Temporary workaround to increase log level for feign client in mod-search to debug for better visibility of interactions with other modules.
-          sleep time: 10, unit: 'SECONDS'
-
-          String pod = sh(script: "kubectl get pod -l 'app.kubernetes.io/name=mod-search' -o=name -n ${namespace.getNamespaceName()}", returnStdout: true).trim()
-
-          sh(script: "kubectl exec ${pod} --namespace ${namespace.getNamespaceName()} -c 'mod-search' -- wget -qO- --header=\"Content-Type: application/json\" --post-data='{\"configuredLevel\":\"DEBUG\"}' http://localhost:8081/admin/loggers/org.folio.spring.client.ExchangeLoggingInterceptor", returnStdout: true)
+//          sleep time: 10, unit: 'SECONDS'
+//
+//          String pod = sh(script: "kubectl get pod -l 'app.kubernetes.io/name=mod-search' -o=name -n ${namespace.getNamespaceName()}", returnStdout: true).trim()
+//
+//          sh(script: "kubectl exec ${pod} --namespace ${namespace.getNamespaceName()} -c 'mod-search' -- wget -qO- --header=\"Content-Type: application/json\" --post-data='{\"configuredLevel\":\"DEBUG\"}' http://localhost:8081/admin/loggers/org.folio.spring.client.ExchangeLoggingInterceptor", returnStdout: true)
         }
       }
 
