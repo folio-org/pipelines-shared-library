@@ -19,7 +19,7 @@ resource "helm_release" "kafka" {
   version    = "21.4.6"
   values = [<<-EOF
 image:
-  tag: 3.7
+  tag: 4.1
   registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
   repository: kafka
   pullPolicy: IfNotPresent
@@ -65,7 +65,7 @@ resources:
     memory: '${var.kafka_max_mem_size}Mi'
 kraft:
   enabled: true
-  processRoles: broker,controller  
+  processRoles: broker,controller
 zookeeper:
   image:
     tag: 3.7
@@ -91,7 +91,7 @@ extraEnvVars:
   - name: KAFKA_DELETE_TOPIC_ENABLE
     value: "true"
   - name: KAFKA_CFG_NODE_ID
-    value: "0"  
+    value: "0"
 ${local.schedule_value}
 EOF
   ]
