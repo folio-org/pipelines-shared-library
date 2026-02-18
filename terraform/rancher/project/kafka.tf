@@ -16,7 +16,7 @@ resource "helm_release" "kafka" {
   repository = local.catalogs.bitnami
   name       = "kafka-${var.rancher_project_name}"
   chart      = "kafka"
-  version    = "21.4.6"
+  version    = "31.0.0"
   values = [<<-EOF
 image:
   tag: 4.1
@@ -67,20 +67,7 @@ kraft:
   enabled: true
   processRoles: broker,controller
 zookeeper:
-  image:
-    tag: 3.7
-    registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
-    repository: zookeeper
-    pullPolicy: IfNotPresent
   enabled: false
-  persistence:
-    size: 5Gi
-  resources:
-    requests:
-      memory: 512Mi
-    limits:
-      memory: 768Mi
-  ${indent(2, local.schedule_value)}
 livenessProbe:
   enabled: false
 readinessProbe:
