@@ -4,7 +4,7 @@ resource "rancher2_secret" "kafka-credentials" {
   namespace_id = rancher2_namespace.this.id
   data = {
     ENV        = base64encode(local.env_name)
-    KAFKA_HOST = base64encode(var.kafka_shared ? local.msk_value["KAFKA_HOST"] : "kafka-${var.rancher_project_name}")
+    KAFKA_HOST = base64encode(var.kafka_shared ? local.msk_value["KAFKA_HOST"] : "kafka-${var.rancher_project_name}-controller-headless.${var.rancher_project_name}.svc.cluster.local")
     KAFKA_PORT = base64encode("9092")
   }
 }
@@ -96,7 +96,7 @@ resource "helm_release" "kafka-ui" {
   version    = "0.7.1"
   values = [<<-EOF
 image:
-  tag: v0.7.0
+  tag: v0.7.2
   registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
   repository: kafka-ui
   pullPolicy: IfNotPresent
@@ -121,7 +121,7 @@ yamlApplicationConfig:
   kafka:
     clusters:
       - name: ${join("-", [data.rancher2_cluster.this.name, var.rancher_project_name])}
-        bootstrapServers: "${helm_release.kafka[0].name}:9092"
+        bootstrapServers: "kafka-${var.rancher_project_name}-controller-headless.${var.rancher_project_name}.svc.cluster.local:9092"
   auth:
     type: disabled
   management:
