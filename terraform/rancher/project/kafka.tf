@@ -88,6 +88,14 @@ heapOpts: "-XX:MaxRAMPercentage=75.0"
 extraEnvVars:
   - name: KAFKA_DELETE_TOPIC_ENABLE
     value: "true"
+  - name: KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR
+    value: "1"
+  - name: KAFKA_OFFSETS_TOPIC_NUM_PARTITIONS
+    value: "1"
+  - name: KAFKA_OFFSETS_TOPIC_SEGMENT_BYTES
+    value: "104857600"
+  - name: KAFKA_OFFSETS_TOPIC_COMPRESSION_CODEC
+    value: "producer"
 ${local.schedule_value}
 EOF
   ]
