@@ -106,7 +106,7 @@ private void _preBuildConfigure(EurekaTenant tenant, boolean enableEcsRequests) 
   }
 }
 
-private void _renderConfig(String stripesConfig, EurekaTenant tenant, TenantUi tenantUi, boolean enableEcsRequests) {
+private String _renderConfig(String stripesConfig, EurekaTenant tenant, TenantUi tenantUi, boolean enableEcsRequests) {
   stage('Render Config') {
     _overrideKongDomain(tenantUi)
     String tenantOptionsJson = _buildTenantOptionsJson(tenant, tenantUi.getIsConsortia(), tenantUi.getIsConsortiaSingleUi())
