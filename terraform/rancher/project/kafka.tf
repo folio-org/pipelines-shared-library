@@ -65,12 +65,6 @@ persistence:
   enabled: true
   size: ${join("", [var.kafka_ebs_volume_size, "Gi"])}
   storageClass: gp2
-controller:  
-  resources:
-    requests:
-      memory: 2Gi
-    limits:
-      memory: '${var.kafka_max_mem_size}Mi'
 kraft:
   enabled: true
   processRoles: broker,controller
@@ -83,6 +77,11 @@ readinessProbe:
 controller:
   replicaCount: 1
   controllerOnly: false
+  resources:
+    requests:
+      memory: 2Gi
+    limits:
+      memory: '${var.kafka_max_mem_size}Mi'
 broker:
   replicaCount: 0
 heapOpts: "-XX:MaxRAMPercentage=75.0"
