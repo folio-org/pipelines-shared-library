@@ -369,7 +369,7 @@ private static List<String> _tenantsToRedirect(String tenantId) {
     case 'consortium2':
       return [tenantId, 'university2', 'college2']
     case 'cs00000int':
-      return [tenantId] + (1..11).collect { i -> "cs00000int_${String.format('%03d', i)}" }
+      return [tenantId] + (1..11).collect { i -> "cs00000int_${String.format('%04d', i)}" }
     default:
       return [tenantId]
   }
