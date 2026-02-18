@@ -79,6 +79,8 @@ extraEnvVars:
     value: "true"
   - name: KAFKA_CFG_NODE_ID
     value: "0"
+  - name: KAFKA_CFG_CONTROLLER_QUORUM_VOTERS
+    value: "0@$(MY_POD_NAME).kafka-${var.rancher_project_name}-headless.${var.rancher_project_name}.svc.cluster.local:9095"
 ${local.schedule_value}
 EOF
   ]
