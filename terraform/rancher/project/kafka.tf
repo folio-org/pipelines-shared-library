@@ -65,6 +65,7 @@ resources:
     memory: '${var.kafka_max_mem_size}Mi'
 kraft:
   enabled: true
+  clusterId: 1  
   processRoles: broker,controller
 zookeeper:
   enabled: false
