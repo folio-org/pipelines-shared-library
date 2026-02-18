@@ -384,7 +384,8 @@ private static void _overrideKongDomain(TenantUi tenantUi) {
     case 'fs09000003':
       tenantUi.setKongDomain("fs03-${tenantUi.getKongDomain()}")
       break
-    case 'cs00000int' || 'consortium':
+    case 'cs00000int':
+    case 'consortium':
       tenantUi.setKongDomain("ecs-${tenantUi.getKongDomain()}")
       break
     case 'consortium2':
