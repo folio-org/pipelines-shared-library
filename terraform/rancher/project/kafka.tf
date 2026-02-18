@@ -72,15 +72,15 @@ livenessProbe:
   enabled: false
 readinessProbe:
   enabled: false
-replicaCount: ${var.kafka_number_of_broker_nodes}
+controller:
+  replicaCount: 1
+  controllerOnly: false
+broker:
+  replicaCount: 0
 heapOpts: "-XX:MaxRAMPercentage=75.0"
 extraEnvVars:
   - name: KAFKA_DELETE_TOPIC_ENABLE
     value: "true"
-  - name: KAFKA_CFG_NODE_ID
-    value: "0"
-  - name: KAFKA_CFG_CONTROLLER_QUORUM_VOTERS
-    value: "0@$(MY_POD_NAME).kafka-${var.rancher_project_name}-headless.${var.rancher_project_name}.svc.cluster.local:9095"
 ${local.schedule_value}
 EOF
   ]
