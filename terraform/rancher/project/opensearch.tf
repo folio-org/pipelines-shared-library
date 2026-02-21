@@ -4,12 +4,12 @@ resource "rancher2_secret" "opensearch-credentials" {
   namespace_id = rancher2_namespace.this.id
   data = {
     ENV                    = base64encode(local.env_name)
-    ELASTICSEARCH_URL      = base64encode(var.opensearch_shared ? base64decode(local.opensearch_value["ELASTICSEARCH_URL"]) : "http://opensearch-${var.rancher_project_name}:9200")
+    ELASTICSEARCH_URL      = base64encode(var.opensearch_shared ? base64decode(local.opensearch_value["ELASTICSEARCH_URL"]) : "http://opensearch-${var.rancher_project_name}-headless:9200")
     ELASTICSEARCH_HOST     = base64encode(var.opensearch_shared ? base64decode(local.opensearch_value["ELASTICSEARCH_HOST"]) : "")
     ELASTICSEARCH_PORT     = base64encode(var.opensearch_shared ? base64decode(local.opensearch_value["ELASTICSEARCH_PORT"]) : "9200")
     ELASTICSEARCH_USERNAME = base64encode(var.opensearch_shared ? base64decode(local.opensearch_value["ELASTICSEARCH_USERNAME"]) : "admin")
     ELASTICSEARCH_PASSWORD = base64encode(var.opensearch_shared ? base64decode(local.opensearch_value["ELASTICSEARCH_PASSWORD"]) : "admin")
-    OPENSEARCH_URL         = base64encode(var.opensearch_shared ? base64decode(local.opensearch_value["ELASTICSEARCH_URL"]) : "http://opensearch-${var.rancher_project_name}:9200")
+    OPENSEARCH_URL         = base64encode(var.opensearch_shared ? base64decode(local.opensearch_value["ELASTICSEARCH_URL"]) : "http://opensearch-${var.rancher_project_name}-headless:9200")
     OPENSEARCH_HOST        = base64encode(var.opensearch_shared ? base64decode(local.opensearch_value["ELASTICSEARCH_HOST"]) : "")
     OPENSEARCH_PORT        = base64encode(var.opensearch_shared ? base64decode(local.opensearch_value["ELASTICSEARCH_PORT"]) : "9200")
     OPENSEARCH_USERNAME    = base64encode(var.opensearch_shared ? base64decode(local.opensearch_value["ELASTICSEARCH_USERNAME"]) : "admin")
@@ -26,7 +26,7 @@ resource "helm_release" "opensearch-single-node" {
   version    = "2.16.0"
   values = [<<-EOF
 image:
-  tag: 2.11.0
+  tag: 3.1.0
   repository: 732722833398.dkr.ecr.us-west-2.amazonaws.com/opensearch
   pullPolicy: IfNotPresent
 clusterName: "opensearch-${var.rancher_project_name}"
@@ -49,7 +49,7 @@ persistence:
   size: ${join("", [var.es_ebs_volume_size, "Gi"])}
 plugins:
   enabled: true
-  installList: [analysis-icu, analysis-kuromoji, analysis-smartcn, analysis-nori, analysis-phonetic, https://github.com/aiven/prometheus-exporter-plugin-for-opensearch/releases/download/2.11.0.0/prometheus-exporter-2.11.0.0.zip]
+  installList: [analysis-icu, analysis-kuromoji, analysis-smartcn, analysis-nori, analysis-phonetic]
 ${local.schedule_value}
 EOF
   ]
@@ -101,7 +101,7 @@ resource "helm_release" "opensearch-master" {
   version    = "2.16.0"
   values = [<<-EOF
 image:
-  tag: 2.11.0
+  tag: 3.1.0
   repository: 732722833398.dkr.ecr.us-west-2.amazonaws.com/opensearch
   pullPolicy: IfNotPresent
 clusterName: "opensearch-${var.rancher_project_name}"
@@ -136,7 +136,7 @@ resource "helm_release" "opensearch-data" {
   version    = "2.16.0"
   values = [<<-EOF
 image:
-  tag: 2.11.0
+  tag: 3.1.0
   repository: 732722833398.dkr.ecr.us-west-2.amazonaws.com/opensearch
   pullPolicy: IfNotPresent
 clusterName: "opensearch-${var.rancher_project_name}"
@@ -174,7 +174,7 @@ resource "helm_release" "opensearch-client" {
   version    = "2.16.0"
   values = [<<-EOF
 image:
-  tag: 2.11.0
+  tag: 3.1.0
   pullPolicy: IfNotPresent
   repository: 732722833398.dkr.ecr.us-west-2.amazonaws.com/opensearch
 service:
@@ -197,7 +197,7 @@ resources:
     memory: 2048Mi
 plugins:
   enabled: true
-  installList: [analysis-icu, analysis-kuromoji, analysis-smartcn, analysis-nori, analysis-phonetic, https://github.com/aiven/prometheus-exporter-plugin-for-opensearch/releases/download/2.11.0.0/prometheus-exporter-2.11.0.0.zip]
+  installList: [analysis-icu, analysis-kuromoji, analysis-smartcn, analysis-nori, analysis-phonetic]
 ingress:
   hosts:
     - ${join(".", [join("-", [data.rancher2_cluster.this.name, var.rancher_project_name, "opensearch-client"]), var.root_domain])}
@@ -224,7 +224,7 @@ resource "helm_release" "opensearch-dashboards" {
   version    = "2.14.0"
   values = [<<-EOF
 image:
-  tag: 2.11.0
+  tag: 3.1.0
   repository: 732722833398.dkr.ecr.us-west-2.amazonaws.com/opensearch-dashboards
   pullPolicy: IfNotPresent
 clusterName: "opensearch-${var.rancher_project_name}"

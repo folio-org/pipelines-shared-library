@@ -39,6 +39,7 @@ claude*
 
 # Terraform temp files
 *.tfstate.backup
+*.tfplan
 
 ######################
 # Project
