@@ -36,7 +36,7 @@ variable "kafka_version" {
 
 variable "kafka_instance_type" {
   type    = string
-  default = "kafka.m5.large"
+  default = "kafka.m7g.large"
 }
 
 variable "kafka_number_of_broker_nodes" {
