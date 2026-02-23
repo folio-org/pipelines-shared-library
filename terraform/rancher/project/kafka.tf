@@ -107,7 +107,7 @@ resource "helm_release" "kafka-ui" {
   version    = "0.7.1"
   values = [<<-EOF
 image:
-  tag: v0.7.0
+  tag: v0.7.2
   registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
   repository: kafka-ui
   pullPolicy: IfNotPresent
