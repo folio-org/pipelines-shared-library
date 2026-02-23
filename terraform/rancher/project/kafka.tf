@@ -4,7 +4,7 @@ resource "rancher2_secret" "kafka-credentials" {
   namespace_id = rancher2_namespace.this.id
   data = {
     ENV        = base64encode(local.env_name)
-    KAFKA_HOST = base64encode(var.kafka_shared ? local.msk_value["KAFKA_HOST"] : "kafka-${var.rancher_project_name}-controller-headless.${var.rancher_project_name}.svc.cluster.local")
+    KAFKA_HOST = base64encode(var.kafka_shared ? local.msk_value["KAFKA_HOST"] : "kafka-${var.rancher_project_name}")
     KAFKA_PORT = base64encode("9092")
   }
 }
@@ -16,20 +16,13 @@ resource "helm_release" "kafka" {
   repository = local.catalogs.bitnami
   name       = "kafka-${var.rancher_project_name}"
   chart      = "kafka"
-  version    = "31.0.0"
+  version    = "21.4.6"
   values = [<<-EOF
 image:
-  tag: 4.1
+  tag: 3.7
   registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
   repository: kafka
   pullPolicy: IfNotPresent
-listeners:
-  client:
-    protocol: PLAINTEXT
-  controller:
-    protocol: PLAINTEXT
-  interbroker:
-    protocol: PLAINTEXT
 metrics:
   kafka:
     image:
@@ -65,37 +58,40 @@ persistence:
   enabled: true
   size: ${join("", [var.kafka_ebs_volume_size, "Gi"])}
   storageClass: gp2
+resources:
+  requests:
+    memory: 2Gi
+  limits:
+    memory: '${var.kafka_max_mem_size}Mi'
 kraft:
   enabled: true
   processRoles: broker,controller
 zookeeper:
+  image:
+    tag: 3.7
+    registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
+    repository: zookeeper
+    pullPolicy: IfNotPresent
   enabled: false
+  persistence:
+    size: 5Gi
+  resources:
+    requests:
+      memory: 512Mi
+    limits:
+      memory: 768Mi
+  ${indent(2, local.schedule_value)}
 livenessProbe:
   enabled: false
 readinessProbe:
   enabled: false
-controller:
-  replicaCount: 1
-  controllerOnly: false
-  resources:
-    requests:
-      memory: 2Gi
-    limits:
-      memory: '${var.kafka_max_mem_size}Mi'
-broker:
-  replicaCount: 0
+replicaCount: ${var.kafka_number_of_broker_nodes}
 heapOpts: "-XX:MaxRAMPercentage=75.0"
 extraEnvVars:
   - name: KAFKA_DELETE_TOPIC_ENABLE
     value: "true"
-  - name: KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR
-    value: "1"
-  - name: KAFKA_OFFSETS_TOPIC_NUM_PARTITIONS
-    value: "1"
-  - name: KAFKA_OFFSETS_TOPIC_SEGMENT_BYTES
-    value: "104857600"
-  - name: KAFKA_OFFSETS_TOPIC_COMPRESSION_CODEC
-    value: "producer"
+  - name: KAFKA_CFG_NODE_ID
+    value: "0"
 ${local.schedule_value}
 EOF
   ]
@@ -111,7 +107,7 @@ resource "helm_release" "kafka-ui" {
   version    = "0.7.1"
   values = [<<-EOF
 image:
-  tag: v0.7.2
+  tag: v0.7.1
   registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
   repository: kafka-ui
   pullPolicy: IfNotPresent
@@ -136,7 +132,7 @@ yamlApplicationConfig:
   kafka:
     clusters:
       - name: ${join("-", [data.rancher2_cluster.this.name, var.rancher_project_name])}
-        bootstrapServers: "kafka-${var.rancher_project_name}-controller-headless.${var.rancher_project_name}.svc.cluster.local:9092"
+        bootstrapServers: "${helm_release.kafka[0].name}:9092"
   auth:
     type: disabled
   management:
