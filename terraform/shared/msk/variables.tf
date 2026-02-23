@@ -30,13 +30,13 @@ variable "vpc_name" {
 # Kafka variables
 variable "kafka_version" {
   type        = string
-  default     = "3.7.x.kraft"
+  default     = "4.1.x.kraft"
   description = "Kafka version"
 }
 
 variable "kafka_instance_type" {
   type    = string
-  default = "kafka.m5.large"
+  default = "kafka.m7g.large"
 }
 
 variable "kafka_number_of_broker_nodes" {
