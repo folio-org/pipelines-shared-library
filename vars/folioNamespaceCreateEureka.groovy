@@ -359,7 +359,7 @@ void call(CreateNamespaceParameters args) {
         }
       }
       int counter = 0
-      retry(8) {
+      retry(15) {
         sleep time: (counter == 0 ? 0 : 1), unit: 'MINUTES'
         counter++
 
@@ -425,7 +425,7 @@ void call(CreateNamespaceParameters args) {
        currentBuild.description = e.getMessage()
        currentBuild.result = 'FAILURE'
       //TODO: Add adequate slack notification https://folio-org.atlassian.net/browse/RANCHER-1892
-       slackSend(color: 'danger', message: args.clusterName + "-" + args.namespaceName + " env build failed...\n" + "Console output: ${env.BUILD_URL}", channel: args.dataset ? '#eureka-sprint-testing' : Constants.SLACK_CHANNEL)
+      slackSend(color: 'danger', message: args.clusterName + "-" + args.namespaceName + " env build failed...\n" + "Console output: ${env.BUILD_URL}", channel: args.dataset ? '#eureka-sprint-testing' : Constants.SLACK_CHANNEL)
       logger.error(e)
     }
   }
