@@ -71,7 +71,6 @@ CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builde
   .build()
 
 namespaceParams.folioExtensions.add('consortia-eureka')
-namespaceParams.folioExtensions.add('linked-data')
 
 RancherNamespace namespace = new RancherNamespace(namespaceParams.getClusterName(), namespaceParams.getNamespaceName())
 namespace.withSuperTenantAdminUser()
