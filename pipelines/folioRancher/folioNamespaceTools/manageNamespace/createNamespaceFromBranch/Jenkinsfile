@@ -131,7 +131,12 @@ CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builde
   .build()
 
 if (params.CONSORTIA) {
-    namespaceParams.folioExtensions.add('consortia')
+    if (namespaceParams.platform == PlatformType.EUREKA) {
+      namespaceParams.folioExtensions.add('consortia-eureka')
+    }
+    else {
+      namespaceParams.folioExtensions.add('consortia')
+    }
 }
 
 if (params.LINKED_DATA) {
