@@ -24,19 +24,21 @@ private static def cypressStash(String key = null) {
  * Executes the Cypress test flow.
  *
  * This function validates the input parameters, sets up the Report Portal client if required,
- * and orchestrates the Cypress tests execution workflow. It performs the following steps:
+ * and orchestrates the Cypress tests execution workflow using batch-based parallel execution.
+ * It performs the following steps:
  *
  *   1. Validates required parameters.
  *   2. Initializes a Report Portal client (if reporting is enabled) and configures execution parameters.
  *   3. Clones the Cypress repository and sets up common environment variables.
- *   4. Compiles the Cypress tests.
+ *   4. Compiles the Cypress tests and generates execution batches for optimized parallel processing.
  *   5. Archives the tests and stashes the archive for parallel execution.
- *   6. Configures parallel workers to:
+ *   6. Configures parallel workers based on execution batches to:
  *       - Unstash and extract the archived tests.
- *       - Execute the tests with specified timeout settings.
+ *       - Execute the tests with batch-specific parameters.
  *       - Archive the test results.
- *   7. Merges results from all workers.
- *   8. Finalizes Report Portal reporting (if enabled), unpacks the Allure report,
+ *   7. Applies timeout to the entire parallel execution workflow.
+ *   8. Merges results from all workers.
+ *   9. Finalizes Report Portal reporting (if enabled), unpacks the Allure report,
  *      generates and publishes the Allure report, and analyzes the test run.
  *
  * @param ciBuildId The CI build identifier.
@@ -51,113 +53,115 @@ private static def cypressStash(String key = null) {
  */
 CypressRunExecutionSummary call(String ciBuildId, List<CypressTestsParameters> testsToRun, boolean sendNotification = false,
                                 boolean reportPortalUse = false, String reportPortalRunType = '') {
-  folioCypress.validateParameter(ciBuildId, "ciBuildId")
-  folioCypress.validateParameter(testsToRun, "testsToRun")
+  folioCypress.validateParameter(ciBuildId, 'ciBuildId')
+  folioCypress.validateParameter(testsToRun, 'testsToRun')
 
   PodTemplates podTemplates = new PodTemplates(this, true)
   Logger logger = new Logger(this, 'folioCypressFlow.groovy')
-  CypressRunExecutionSummary testRunExecutionSummary
-  List allureResultsList = []
-  String reportPortalExecParameters = ''
-  ReportPortalClient reportPortalClient = null
 
+  CypressRunExecutionSummary testRunExecutionSummary
+  ReportPortalClient reportPortalClient = null
+  String reportPortalExecParameters = ''
+
+  List allureResultsList = []
 
   try {
-    podTemplates.cypressAgent {
-      // Initialize Report Portal client if needed and set up execution parameters
-      if (reportPortalUse) {
-        reportPortalClient = new ReportPortalClient(this,
-          TestType.CYPRESS,
-          ciBuildId,
-          env.BUILD_NUMBER,
-          env.WORKSPACE,
-          reportPortalRunType)
-        reportPortalExecParameters = folioCypress.setupReportPortal(reportPortalClient)
-      }
+    testsToRun.each { CypressTestsParameters testParams ->
+      List execBatches = []
 
-      container('cypress') {
-        logger.info("Starting test execution flow...")
+      podTemplates.cypressAgent {
+        if (reportPortalUse) {
+          folioCypress.validateParameter(reportPortalRunType, 'reportPortalRunType')
 
-        testsToRun.each { CypressTestsParameters testParams ->
+          reportPortalClient = new ReportPortalClient(this,
+            TestType.CYPRESS,
+            ciBuildId,
+            env.BUILD_NUMBER,
+            env.WORKSPACE,
+            reportPortalRunType)
+
+          reportPortalExecParameters = folioCypress.setupReportPortal(reportPortalClient)
+        }
+
+        container('cypress') {
           testParams.addExecParameter(reportPortalExecParameters)
 
-          // Clone repository with tests
           folioCypress.cloneCypressRepo(testParams.testsSrcBranch)
-          // Set up common environment variables
+
           folioCypress.setupCommonEnvironmentVariables(testParams.tenantUrl,
             testParams.okapiUrl,
             testParams.tenant.tenantId,
             testParams.tenant.adminUser.username,
             testParams.tenant.adminUser.getPasswordPlainText())
-          // Compile tests
+
           folioCypress.compileCypressTests()
+
+          execBatches = folioCypress.compileExecBatches(testParams.compileExecParameters, testParams.numberOfWorkers)
 
           if (testParams.prepare) {
             folioCypress.prepareTenantForCypressTests(testParams)
           }
 
           stage('[Stash] Archive tests') {
-            // Archive tests for parallel
             sh """
             touch ${cypressStash('archive')}
             tar --exclude=${cypressStash('archive')} -zcf ${cypressStash('archive')} .
             md5sum ${cypressStash('archive')} > ${cypressStash('checksum')}
           """.stripIndent()
-            // Stash tests for parallel
             stash(name: cypressStash('name'),
               includes: "${cypressStash('archive')},${cypressStash('checksum')}")
           }
-          // Set up parallel workers for executing tests
-          def workers = [failFast: false]
-          String runId = folioCypress.generateRandomId(3)
-          testParams.ciBuildId = "${ciBuildId}-${runId}"
-          // Use a local list to collect Allure results per test to avoid concurrent modification issues
-          List localAllureResults = []
-          // Run tests in parallel with the specified number of workers and timeout for each worker
-          testParams.numberOfWorkers.times { int workerIndex ->
-            String workerId = "${runId}${workerIndex}"
-            workers["Worker#${workerId}"] = {
-              podTemplates.cypressAgent {
-                container('cypress') {
-                  stage('[Stash] Extract tests') {
-                    unstash name: cypressStash('name')
-                    sh """
-                      md5sum -c ${cypressStash('checksum')}
-                      tar -zxf ${cypressStash('archive')}
-                      rm -rf ${cypressStash('archive')} ${cypressStash('checksum')}
-                    """
-                  }
+        }
+      }
 
-                  timeout(time: testParams.timeout, unit: 'MINUTES') {
-                    // Set up common environment variables
-                    folioCypress.setupCommonEnvironmentVariables(testParams.tenantUrl,
-                      testParams.okapiUrl,
-                      testParams.tenant.tenantId,
-                      testParams.tenant.adminUser.username,
-                      testParams.tenant.adminUser.getPasswordPlainText())
-                    // Execute tests with Cypress runner
-                    folioCypress.executeTests(testParams.ciBuildId,
-                      testParams.browserName,
-                      testParams.execParameters,
-                      testParams.testrailProjectID,
-                      testParams.testrailRunID)
-                  }
-                  // Archive test results for each worker and add to local list for merging later
-                  localAllureResults.add(folioCypress.archiveTestResults(workerId))
+      stage('Run tests') {
+        def workers = [failFast: false]
+        String runId = folioCypress.generateRandomId(3)
+        testParams.ciBuildId = "${ciBuildId}-${runId}"
+        List localAllureResults = []
+
+        execBatches.size().times { int batchIndex ->
+          String workerId = "${runId}${batchIndex}"
+          workers["Worker#${workerId}"] = {
+            podTemplates.cypressAgent {
+              container('cypress') {
+                stage('[Stash] Extract tests') {
+                  unstash name: cypressStash('name')
+                  sh """
+                    md5sum -c ${cypressStash('checksum')}
+                    tar -zxf ${cypressStash('archive')}
+                    rm -rf ${cypressStash('archive')} ${cypressStash('checksum')}
+                  """
                 }
+
+                folioCypress.setupCommonEnvironmentVariables(testParams.tenantUrl,
+                  testParams.okapiUrl,
+                  testParams.tenant.tenantId,
+                  testParams.tenant.adminUser.username,
+                  testParams.tenant.adminUser.getPasswordPlainText())
+
+                String execParameters = "${execBatches[batchIndex]} ${testParams.execParameters}"
+
+                folioCypress.executeTests(testParams.ciBuildId,
+                  testParams.browserName,
+                  execParameters,
+                  testParams.testrailProjectID,
+                  testParams.testrailRunID)
+
+                localAllureResults.add(folioCypress.archiveTestResults(workerId))
               }
             }
           }
-
-          // Run all workers in parallel and merge their results
-          parallel(workers)
-          allureResultsList.addAll(localAllureResults)
         }
+
+        timeout(time: testParams.timeout, unit: 'MINUTES') {
+          parallel(workers)
+        }
+        allureResultsList.addAll(localAllureResults)
       }
     }
   } catch (Exception e) {
-    echo("Error executing tests: ${e.getMessage()}")
-    throw e // Rethrow the exception for further handling if necessary
+    logger.error("Error during Cypress tests execution: ${e.getMessage()}")
   } finally {
     podTemplates.rancherJavaAgent {
       if (reportPortalUse && reportPortalClient != null) {
@@ -165,24 +169,21 @@ CypressRunExecutionSummary call(String ciBuildId, List<CypressTestsParameters> t
       }
 
       if (!allureResultsList.isEmpty()) {
-        // Unpack Allure report
         folioCypress.unpackAllureReport(allureResultsList)
-        // Generate and publish Allure report
+
         container('java') {
           folioCypress.generateAndPublishAllureReport(allureResultsList)
         }
       }
 
-      // Analyze results after execution
       testRunExecutionSummary = folioCypress.analyzeResults()
 
       try {
         if (sendNotification) {
-          // Send notifications based on the execution summary
           folioCypress.sendNotifications(testRunExecutionSummary, ciBuildId, reportPortalUse)
         }
       } catch (Exception e) {
-        echo("Error sending notifications: ${e.getMessage()}")
+        logger.warning("Error sending notifications: ${e.getMessage()}")
       }
     }
   }
