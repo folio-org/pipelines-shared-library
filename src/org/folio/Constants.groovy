@@ -236,7 +236,7 @@ class Constants {
   static final String JENKINS_FOLIO_RANCHER_FOLDER = '/folioRancher'
 
   static final String JENKINS_CREATE_NAMESPACE_FROM_BRANCH_JOB =
-    "$JENKINS_FOLIO_RANCHER_FOLDER/manageNamespace/createNamespaceFromBranch"
+    "$JENKINS_FOLIO_RANCHER_FOLDER/manageNamespace/createNamespaceFromBranchNEW"
 
   static final String JENKINS_DELETE_NAMESPACE_JOB = "$JENKINS_FOLIO_RANCHER_FOLDER/manageNamespace/deleteNamespace"
   static final String JENKINS_DEPLOY_MODULES_FROM_JSON = "$JENKINS_FOLIO_RANCHER_FOLDER/folioDevTools/moduleDeployment/deployModulesFromJson"
