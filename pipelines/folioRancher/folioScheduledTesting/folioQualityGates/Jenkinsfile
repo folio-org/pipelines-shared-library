@@ -134,7 +134,7 @@ ansiColor('xterm') {
         cypressParameters.setOkapiUrl("https://${envsMap['cypress']['cluster']}-${envsMap['cypress']['namespace']}-kong.${GlobalConstants.CI_ROOT_DOMAIN}")
         cypressParameters.setTenant(new OkapiTenant('diku')
           .withAdminUser(new OkapiUser('diku_admin', 'admin')))
-        cypressParameters.setExecParameters('--env grepTags="shiftLeft"')
+        cypressParameters.setCompileExecParameters('tags="shiftLeft"')
         cypressParameters.setNumberOfWorkers(5)
         cypressParameters.setTimeout('180')
 

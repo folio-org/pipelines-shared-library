@@ -132,10 +132,10 @@ CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builde
 
 if (params.CONSORTIA) {
     if (namespaceParams.platform == PlatformType.EUREKA) {
-      namespaceParams.folioExtensions.add('consortia-eureka')
+        namespaceParams.folioExtensions.add('consortia-eureka')
     }
     else {
-      namespaceParams.folioExtensions.add('consortia')
+        namespaceParams.folioExtensions.add('consortia')
     }
 }
 
@@ -171,11 +171,12 @@ cypressSanityParameters.setTimeout('60')
 if (namespaceParams.platform == PlatformType.EUREKA) {
     cypressSanityParameters.setTestsSrcBranch('master')
     cypressSanityParameters.setOkapiUrl("https://${namespace.getDomains().kong}")
-    cypressSanityParameters.setExecParameters('--env grepTags="fse+sanity"')
+    //TODO: Temporary exclusion of the eholdings and software-version test cases.
+    cypressSanityParameters.setExecParameters('tags="fse+sanity"')
 } else {
     cypressSanityParameters.setTestsSrcBranch('okapi')
     cypressSanityParameters.setOkapiUrl("https://${namespace.getDomains().okapi}")
-    cypressSanityParameters.setExecParameters('--env grepTags="fse+sanity"')
+    cypressSanityParameters.setExecParameters('tags="fse+sanity"')
 }
 
 ansiColor('xterm') {
