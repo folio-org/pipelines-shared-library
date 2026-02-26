@@ -302,7 +302,7 @@ void call(CreateNamespaceParameters args) {
             tenant.assignApplications(apps)
 
             if (tenant.tenantUi) {
-              if (tenant.tenantUi.getIsConsortia()) {
+              if (!tenant.tenantUi.getIsConsortia()) {
                 tenant.tenantUi.removeUIComponents.add(new FolioModule().loadModuleDetails('folio_consortia-settings-0.0.0'))
                 logger.info("Removed 'folio_consortia-settings' module from tenant ${tenant.getTenantId()} because it's not a consortia tenant")
               }
