@@ -17,8 +17,6 @@ properties([
   disableConcurrentBuilds(),
   parameters([folioParameters.refreshParameters()]),
   pipelineTriggers([parameterizedCron('''H 23 * * *''')])
-// Get back when the ticket is resolved https://folio-org.atlassian.net/browse/RANCHER-1546
-//            pipelineTriggers([parameterizedCron('''H 23 * * * %AGENT=rancher''')])])
 ])
 
 
@@ -34,20 +32,18 @@ CreateNamespaceParameters namespace1 = new CreateNamespaceParameters.Builder()
   .clusterName('folio-etesting')
   .namespaceName('snapshot')
   .folioBranch('snapshot')
+  .platformBranch('snapshot')
   .okapiVersion('latest')
   .configType('testing')
   .loadReference(true)
   .loadSample(true)
   .consortia(true)
-  .linkedData(true)
   .rwSplit(false)
   .splitFiles(true)
   .greenmail(false)
   .mockServer(false)
   .rtr(false)
   .ecsCCL(true)
-  .applicationSet('Complete')
-  .applications(org.folio.rest_v2.Constants.APPLICATION_BRANCH('Complete'))
   .hasSecureTenant(true)
   .secureTenantId(folioDefault.consortiaTenants().get('university').getTenantId())
   .dataset(false)
@@ -67,20 +63,18 @@ CreateNamespaceParameters namespace2 = new CreateNamespaceParameters.Builder()
   .clusterName('folio-etesting')
   .namespaceName('snapshot2')
   .folioBranch('snapshot')
+  .platformBranch('snapshot')
   .okapiVersion('latest')
   .configType('testing')
   .loadReference(true)
   .loadSample(true)
   .consortia(true)
-  .linkedData(true)
   .rwSplit(false)
   .splitFiles(true)
   .greenmail(false)
   .mockServer(false)
   .rtr(false)
   .ecsCCL(true)
-  .applicationSet('Complete')
-  .applications(org.folio.rest_v2.Constants.APPLICATION_BRANCH('Complete'))
   .hasSecureTenant(true)
   .secureTenantId(folioDefault.consortiaTenants().get('university').getTenantId())
   .dataset(false)
@@ -99,6 +93,12 @@ ansiColor('xterm') {
   podTemplates.rancherAgent {
     stage('Checkout') {
       checkout scm
+    }
+
+    stage('Fetch Applications') {
+      List<String> appNames = folioDefault.getApplicationNamesFromPlatform('snapshot')
+      namespace1.applications = appNames
+      namespace2.applications = appNames
     }
 
     CreateNamespaceParameters createdEnv = namespace1

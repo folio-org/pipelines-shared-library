@@ -1,7 +1,6 @@
 import groovy.json.JsonSlurperClassic
 import org.folio.Constants
 import org.folio.rest_v2.PlatformType
-import org.folio.rest_v2.Constants as RestConstants
 
 static String getClusters(String platform) {
   return """return ${platform} && ${PlatformType.values().collect{it.name() }.inspect()}.contains(${platform}.trim()) ?
@@ -14,10 +13,6 @@ static String getNamespaces() {
   return """def namespacesList = ${Constants.AWS_EKS_NAMESPACE_MAPPING.inspect()}
 return namespacesList[CLUSTER]
 """.stripIndent()
-}
-
-static String getApplications(String applicationSet) {
-  return "return ${RestConstants.APPLICATION_SETS_APPLICATIONS.inspect()}[${applicationSet}.trim()]"
 }
 
 private static String getGitHubScriptBase() {

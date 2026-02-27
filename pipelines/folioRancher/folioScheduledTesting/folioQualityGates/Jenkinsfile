@@ -7,7 +7,6 @@ import org.folio.models.OkapiUser
 import org.folio.models.parameters.CreateNamespaceParameters
 import org.folio.models.parameters.CypressTestsParameters
 import org.folio.models.parameters.KarateTestsParameters
-import org.folio.rest_v2.Constants as RestConstants
 import org.folio.rest_v2.PlatformType
 import org.folio.slack.SlackHelper
 import org.folio.testing.TestType
@@ -72,19 +71,17 @@ CreateNamespaceParameters namespaceBaseParams = new CreateNamespaceParameters.Bu
 
 CreateNamespaceParameters namespaceFromBranchParams = namespaceBaseParams.toBuilder()
   .folioBranch(params.FOLIO_BRANCH)
+  .platformBranch(params.FOLIO_BRANCH)
   .okapiVersion(okapiVersion)
   .configType('testing')
   .loadReference(true)
   .loadSample(true)
   .mockServer(false)
   .consortia(true)
-  .linkedData(true)
   .splitFiles(true)
   .ecsCCL(false)
   .rtr(false)
   .scNative(true)
-  .applicationSet('Complete')
-  .applications(RestConstants.APPLICATION_BRANCH('Complete'))
   .hasSecureTenant(true)
   .secureTenantId(folioDefault.consortiaTenants().get('university').getTenantId())
   .build()
@@ -112,6 +109,10 @@ ansiColor('xterm') {
             slackSend(attachments: folioSlackNotificationUtils.renderAbortedBuildResultMessage(), channel: globalSlackChannel)
           }
         }
+      }
+
+      stage('Fetch Applications') {
+        namespaceFromBranchParams.applications = folioDefault.getApplicationNamesFromPlatform(params.FOLIO_BRANCH)
       }
     }
 

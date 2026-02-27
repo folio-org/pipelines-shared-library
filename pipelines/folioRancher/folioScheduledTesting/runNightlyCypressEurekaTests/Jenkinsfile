@@ -60,16 +60,14 @@ CreateNamespaceParameters namespaceBaseParams = new CreateNamespaceParameters.Bu
 
 CreateNamespaceParameters namespaceFromBranchParams = namespaceBaseParams.toBuilder()
   .folioBranch(platformCompleteBranch)
+  .platformBranch(platformCompleteBranch)
   .okapiVersion('latest')
   .configType('testing')
   .loadReference(true)
   .loadSample(true)
-  .linkedData(true)
   .consortia(true)
   .rtr(false)
   .scNative(true)
-  .applicationSet('Complete')
-  .applications(org.folio.rest_v2.Constants.APPLICATION_BRANCH('Complete'))
   .hasSecureTenant(true)
   .secureTenantId(folioDefault.consortiaTenants().get('university').getTenantId())
   .uiBuild(true)
@@ -100,6 +98,10 @@ ansiColor('xterm') {
   podTemplates.rancherAgent {
     stage('Ini') {
       buildDescription "Branch: ${params.CYPRESS_BRANCH}\nConfig: ${namespaceFromBranchParams.getConfigType()}\nEnv: ${cypressParameters.tenantUrl}"
+    }
+
+    stage('Fetch Applications') {
+      namespaceFromBranchParams.applications = folioDefault.getApplicationNamesFromPlatform(platformCompleteBranch)
     }
 
     stage('[Job] Destroy environment') {

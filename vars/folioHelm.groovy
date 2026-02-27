@@ -288,7 +288,7 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
 //        }
 //    }
 
-  if (ns instanceof EurekaNamespace) {
+  if (ns instanceof EurekaNamespace && moduleName != 'ui-bundle') {
     String sidecarRepository = determineModulePlacement(
       "folio-module-sidecar"
       , ns.getModules().getModuleByName('folio-module-sidecar').getVersion()
