@@ -1,5 +1,6 @@
 package org.folio.models
 
+import com.cloudbees.groovy.cps.NonCPS
 import org.folio.models.module.EurekaModule
 import org.folio.models.module.FolioModule
 import org.folio.rest_v2.Constants
@@ -87,17 +88,57 @@ class TenantUi implements Cloneable {
   }
 
   /**
-   * Clones the TenantUi object. Performs a deep clone of the list customUiModules.
-   * @return A new TenantUi object with copied properties.
+   * Clones the TenantUi object.
+   * Creates new lists for customUiModules, addUIComponents, and removeUIComponents
+   * to prevent shared references between cloned instances.
+   * Note: Performs shallow copy of list contents (module objects are shared).
+   *
+   * @return A new TenantUi object with copied properties and independent lists.
+   * @throws AssertionError if cloning is not supported.
    */
+  @NonCPS
   @Override
   TenantUi clone() {
-    // Create a shallow clone of the current object
-    TenantUi cloned = (TenantUi) super.clone()
+    try {
+      // Create a shallow clone of the current object
+      TenantUi cloned = (TenantUi) super.clone()
 
-    // Deep clone the customUiModules list to ensure no shared references
-    cloned.customUiModules = this.customUiModules.collect { it.clone() }
+      // Create new lists to prevent shared references between clones
+      // Note: Module objects themselves are shared (shallow copy)
+      cloned.customUiModules = this.customUiModules ? new ArrayList<>(this.customUiModules) : []
+      cloned.addUIComponents = this.addUIComponents ? new ArrayList<>(this.addUIComponents) : []
+      cloned.removeUIComponents = this.removeUIComponents ? new ArrayList<>(this.removeUIComponents) : []
 
-    return cloned
+      return cloned
+    } catch (CloneNotSupportedException e) {
+      throw new AssertionError('Cloning not supported for TenantUi', e)
+    }
   }
+
+  /**
+   * Returns a string representation of this TenantUi object for debugging purposes.
+   * @return A JSON-like string representation of the TenantUi properties.
+   */
+  @NonCPS
+  @Override
+  String toString() {
+    return """
+      "class_name": "TenantUi",
+      "tenantId": "${tenantId ?: 'null'}",
+      "domain": "${domain ?: 'null'}",
+      "kongDomain": "${kongDomain ?: 'null'}",
+      "keycloakDomain": "${keycloakDomain ?: 'null'}",
+      "branch": "${branch ?: 'null'}",
+      "hash": "${hash ?: 'null'}",
+      "tag": "${tag ?: 'null'}",
+      "imageName": "${imageName ?: 'null'}",
+      "workspace": "${workspace ?: 'null'}",
+      "isConsortia": ${isConsortia},
+      "isConsortiaSingleUi": ${isConsortiaSingleUi},
+      "customUiModules": ${customUiModules ? customUiModules.size() : 0} modules (deprecated),
+      "addUIComponents": ${addUIComponents ? addUIComponents.size() : 0} components,
+      "removeUIComponents": ${removeUIComponents ? removeUIComponents.size() : 0} components
+    """
+  }
+
 }
