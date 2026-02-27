@@ -302,12 +302,9 @@ void call(CreateNamespaceParameters args) {
             tenant.assignApplications(apps)
 
             if (tenant.tenantUi) {
-              logger.debug("Tenant ID: ${tenant.tenantUi.getTenantId()}")
-              logger.debug("Is consortia tenant: ${tenant.tenantUi.getIsConsortia()}")
               if (!tenant.tenantUi.getIsConsortia()) {
                 tenant.tenantUi.removeUIComponents.add(new FolioModule().loadModuleDetails('folio_consortia-settings-0.0.0'))
                 logger.info("Removed 'folio_consortia-settings' module from tenant ${tenant.getTenantId()} because it's not a consortia tenant")
-                logger.debug(tenant.tenantUi.dump()) //TODO: Remove after debugging. This is to check the tenantUi details before removing the module.
               }
 
               ApplicationList linkedDataApp = apps.byName('app-linked-data')
@@ -386,7 +383,6 @@ void call(CreateNamespaceParameters args) {
           Map branches = [:]
           namespace.getTenants().each { tenantId, tenant ->
             if (tenant.getTenantUi()) {
-              logger.debug(tenant.getTenantUi().dump()) //TODO: Remove after debugging. This is to check the tenantUi details before UI build and deploy.
               branches[tenantId] = {
                 boolean isECSBff = tenant.tenantId.startsWith("c")
                 folioUI.buildAndDeploy(namespace, tenant, isECSBff)
