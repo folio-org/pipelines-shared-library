@@ -28,7 +28,7 @@ cypressParameters.setTenantUrl('https://bugfest-quesnelia-aqa.int.aws.folio.org'
 cypressParameters.setOkapiUrl('https://okapi-bugfest-quesnelia-aqa.int.aws.folio.org')
 cypressParameters.setTenant(new OkapiTenant('fs09000003')
   .withAdminUser(new OkapiUser('folio-aqa', 'Folio-aqa1')))
-cypressParameters.setExecParameters('tags="smoke criticalPth extendedPath"')
+cypressParameters.compileExecParameters('tags="smoke criticalPth extendedPath"')
 cypressParameters.setTestrailProjectID('14')
 cypressParameters.setTestrailRunID('2421')
 cypressParameters.setNumberOfWorkers(6)
