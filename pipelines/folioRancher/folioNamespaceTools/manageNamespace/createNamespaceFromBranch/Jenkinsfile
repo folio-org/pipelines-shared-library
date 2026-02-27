@@ -172,11 +172,11 @@ if (namespaceParams.platform == PlatformType.EUREKA) {
     cypressSanityParameters.setTestsSrcBranch('master')
     cypressSanityParameters.setOkapiUrl("https://${namespace.getDomains().kong}")
     //TODO: Temporary exclusion of the eholdings and software-version test cases.
-    cypressSanityParameters.setExecParameters('tags="fse+sanity"')
+    cypressSanityParameters.compileExecParameters('tags="fse+sanity"')
 } else {
     cypressSanityParameters.setTestsSrcBranch('okapi')
     cypressSanityParameters.setOkapiUrl("https://${namespace.getDomains().okapi}")
-    cypressSanityParameters.setExecParameters('tags="fse+sanity"')
+    cypressSanityParameters.compileExecParameters('tags="fse+sanity"')
 }
 
 ansiColor('xterm') {
