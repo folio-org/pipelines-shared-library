@@ -59,8 +59,8 @@ EurekaNamespace namespace = new EurekaNamespace("${params.CLUSTER}", "${params.N
 namespace.setIsConsortiaSingleUi(params.CONSORTIA_SINGLE_UI)
 
 TenantUi tenantUi = new TenantUi(namespace.getWorkspaceName(), commitHash, params.FOLIO_BRANCH as String)
-tenantUi.setKongDomain(namespace.getDomains()['kong'])
-tenantUi.setKeycloakDomain(namespace.getDomains()['keycloak'])
+tenantUi.setKongDomain(namespace.getDomains()['kong'].toString())
+tenantUi.setKeycloakDomain(namespace.getDomains()['keycloak'].toString())
 if (params.CONSORTIA) {
   tenantUi.setIsConsortia(params.CONSORTIA)
   tenantUi.setIsConsortiaSingleUi(params.CONSORTIA_SINGLE_UI)
