@@ -81,7 +81,7 @@ class Constants {
   public static final List<Map<String, ?>> APPLICATION_COMPLETE = [
     [
       name: "app-platform-minimal"
-      , branch: "snapshot"
+      , branch: "MODUSERS-551"
       , consortia: false
       , core     : true
       , byDefault: true
@@ -385,7 +385,7 @@ class Constants {
     ],
     [
       name: "app-edge-locate"
-      , branch: "snapshot"
+      , branch: "MODUSERS-551"
       , consortia: false
       , core: false
       , byDefault: false
