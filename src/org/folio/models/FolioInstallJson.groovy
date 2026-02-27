@@ -138,6 +138,24 @@ class FolioInstallJson<T extends FolioModule> {
   }
 
   /**
+   * Retrieves Kong module from the installJsonObject.
+   *
+   * @return the FolioModule representing Kong, or null if not found.
+   */
+  T getKongModule() {
+    return this.installJsonObject.find { module -> module.getType() == ModuleType.KONG }
+  }
+
+  /**
+   * Retrieves Keycloak module from the installJsonObject.
+   *
+   * @return the FolioModule representing Keycloak, or null if not found.
+   */
+  T getKeycloakModule() {
+    return this.installJsonObject.find { module -> module.getType() == ModuleType.KEYCLOAK }
+  }
+
+  /**
    * Retrieves all UI modules from the installJsonObject.
    *
    * @return a list of frontend FolioModules.

@@ -42,7 +42,7 @@ def createNamespaceFromBranch(String jobName, CreateNamespaceParameters namespac
       string(name: 'TYPE', value: namespaceParams.getType()),
       //TODO: Remove in the future release with getApplicationSet() method
       string(name: 'APPLICATION_SET', value: namespaceParams.getApplicationSet()),
-      string(name: 'APPLICATIONS', value: namespaceParams.getApplications().keySet().join(',')),
+      string(name: 'APPLICATIONS', value: namespaceParams.getApplications().join(',')),
       string(name: 'POSTGRESQL', value: namespaceParams.getPgType()),
       string(name: 'DB_VERSION', value: namespaceParams.getPgVersion()),
       string(name: 'KAFKA', value: namespaceParams.getKafkaType()),
