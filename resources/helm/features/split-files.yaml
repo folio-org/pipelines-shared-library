@@ -12,4 +12,4 @@ mod-data-import:
   integrations:
     s3:
       enabled: true
-      existingSecret: s3-mod-data-import-credentials
+      existingSecret: s3-credentials
