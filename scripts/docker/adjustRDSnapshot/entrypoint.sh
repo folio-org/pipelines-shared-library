@@ -58,21 +58,36 @@ done
 echo "Downloading and preparing authority cleanup script for ECS tenants..."
 CLEANUP_SQL_URL="https://raw.githubusercontent.com/folio-org/mod-entities-links/refs/heads/master/src/main/resources/db/scripts/cleanup_authority_propagated_data.sql"
 CLEANUP_SQL_FILE="/tmp/cleanup_authority_propagated_data.sql"
-curl -s -o "$CLEANUP_SQL_FILE" "$CLEANUP_SQL_URL"
 
-if [[ -f "$CLEANUP_SQL_FILE" ]]; then
-	echo "Executing authority cleanup procedures for ECS tenants..."
-	psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PGDATABASE" -f "$CLEANUP_SQL_FILE"
+if curl -fsSL -o "$CLEANUP_SQL_FILE" "$CLEANUP_SQL_URL"; then
+	if [[ -f "$CLEANUP_SQL_FILE" && -s "$CLEANUP_SQL_FILE" ]]; then
+		echo "Successfully downloaded cleanup script ($(wc -l < "$CLEANUP_SQL_FILE") lines)"
+		echo "Creating authority cleanup procedures in database..."
+		if psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PGDATABASE" -f "$CLEANUP_SQL_FILE"; then
+			echo "Procedures created successfully"
 
-	for e in $ecs; do
-		if [[ -n "$e" ]]; then
-			echo "Running authority cleanup for consortia tenant: $e"
-			psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PGDATABASE" -c "CALL cleanup_member_tenant_propagated_data('$e');"
+			for e in $ecs; do
+				if [[ -n "$e" ]]; then
+					echo "Running authority cleanup for consortia tenant: $e"
+					psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PGDATABASE" <<-EOSQL
+						CALL cleanup_member_tenant_propagated_data('$e');
+					EOSQL
+				fi
+			done
+
+			echo "Dropping cleanup procedures..."
+			psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PGDATABASE" <<-EOSQL
+				DROP PROCEDURE IF EXISTS cleanup_member_tenant_propagated_data(TEXT);
+				DROP PROCEDURE IF EXISTS cleanup_all_member_tenants();
+			EOSQL
+		else
+			echo "Error: Failed to create cleanup procedures in database"
 		fi
-	done
 
-	echo "Dropping cleanup procedures..."
-	psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PGDATABASE" -c "DROP PROCEDURE IF EXISTS cleanup_member_tenant_propagated_data(TEXT); DROP PROCEDURE IF EXISTS cleanup_all_member_tenants();"
+		rm -f "$CLEANUP_SQL_FILE"
+	else
+		echo "Warning: Downloaded file is empty or does not exist"
+	fi
 else
 	echo "Warning: Failed to download cleanup script from $CLEANUP_SQL_URL"
 fi
