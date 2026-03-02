@@ -66,18 +66,16 @@ ansiColor('xterm') {
 
     CreateNamespaceParameters namespaceFromBranchParams = namespaceBaseParams.toBuilder()
       .folioBranch('snapshot')
+      .platformBranch('snapshot')
       .okapiVersion(okapiVersion)
       .configType('testing')
       .loadReference(true)
       .loadSample(true)
-      .linkedData(true)
       .mockServer(true)
       .consortia(true)
       .splitFiles(true)
       .scNative(true)
       .rtr(false)
-      .applicationSet('Complete')
-      .applications(org.folio.rest_v2.Constants.APPLICATION_BRANCH('Complete'))
       .hasSecureTenant(true)
       .secureTenantId(folioDefault.consortiaTenants().get('university').getTenantId())
       .uiBuild(true)
@@ -121,6 +119,10 @@ ansiColor('xterm') {
         } else {
           logger.warning("${namespaceBaseParams.getNamespaceName()} namespace does not exists!")
         }
+      }
+
+      stage('Fetch Applications') {
+        namespaceFromBranchParams.applications = folioDefault.getApplicationNamesFromPlatform('snapshot')
       }
 
       stage('[Job] Provision environment') {

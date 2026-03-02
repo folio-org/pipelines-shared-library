@@ -47,10 +47,6 @@ class CreateNamespaceParameters implements Cloneable {
 
   boolean marcMigrations = false
 
-  boolean rtacCache = false
-
-  boolean edgeLocate = false
-
   boolean hasSecureTenant
 
   String secureTenantId
@@ -64,12 +60,6 @@ class CreateNamespaceParameters implements Cloneable {
   String dmSnapshot
 
   String dbBackupName = ""
-
-  //TODO: remove after pipeline refactoring. Just utilize it. Use this only in the main pipeline for developers
-  // as a select-simplicity approach. Don't use it, and do not include it in the underlying
-  // base pipeline or step-separated pipelines.
-  @Deprecated
-  String applicationSet = 'Complete'
 
   List<String> applications = []
 
@@ -344,26 +334,6 @@ class CreateNamespaceParameters implements Cloneable {
     }
 
     /**
-     * Do or not rtac-cache
-     * @param doRtacCache `true` to do rtac-cache; `false` to skip.
-     * @return Builder instance for method chaining.
-     */
-    Builder doRtacCache(boolean doRtacCache) {
-      parameters.rtacCache = doRtacCache
-      return this
-    }
-
-    /**
-     * Do or not edge-locate
-     * @param doEdgeLocate `true` to do edge-locate; `false` to skip.
-     * @return Builder instance for method chaining.
-     */
-    Builder doEdgeLocate(boolean doEdgeLocate) {
-      parameters.edgeLocate = doEdgeLocate
-      return this
-    }
-
-    /**
      * Activate or not secure tenant
      * @param has `true` to activate security on tenant secureTenantId
      * @return Builder instance for method chaining.
@@ -416,17 +386,6 @@ class CreateNamespaceParameters implements Cloneable {
     @Deprecated
     Builder applications(Map map) {
       parameters.applications = map.keySet().toList()
-      return this
-    }
-
-    /**
-     * Specifies the application set for Eureka platform
-     * @param set The name of application set.
-     * @return Builder instance for method chaining.
-     */
-    @Deprecated
-    Builder applicationSet(String set) {
-      parameters.applicationSet = set
       return this
     }
 
