@@ -55,6 +55,28 @@ for n in $non_ecs; do
 	fi
 done
 
+echo "Downloading and preparing authority cleanup script for ECS tenants..."
+CLEANUP_SQL_URL="https://raw.githubusercontent.com/folio-org/mod-entities-links/refs/heads/master/src/main/resources/db/scripts/cleanup_authority_propagated_data.sql"
+CLEANUP_SQL_FILE="/tmp/cleanup_authority_propagated_data.sql"
+curl -s -o "$CLEANUP_SQL_FILE" "$CLEANUP_SQL_URL"
+
+if [[ -f "$CLEANUP_SQL_FILE" ]]; then
+	echo "Executing authority cleanup procedures for ECS tenants..."
+	psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PGDATABASE" -f "$CLEANUP_SQL_FILE"
+
+	for e in $ecs; do
+		if [[ -n "$e" ]]; then
+			echo "Running authority cleanup for consortia tenant: $e"
+			psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PGDATABASE" -c "CALL cleanup_member_tenant_propagated_data('$e');"
+		fi
+	done
+
+	echo "Dropping cleanup procedures..."
+	psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PGDATABASE" -c "DROP PROCEDURE IF EXISTS cleanup_member_tenant_propagated_data(TEXT); DROP PROCEDURE IF EXISTS cleanup_all_member_tenants();"
+else
+	echo "Warning: Failed to download cleanup script from $CLEANUP_SQL_URL"
+fi
+
 for e in $ecs; do
 	if [[ -n "$e" ]]; then
 		echo "Dropping schemas for consortia tenant: $e"
