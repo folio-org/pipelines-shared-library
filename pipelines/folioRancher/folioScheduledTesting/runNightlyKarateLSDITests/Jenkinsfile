@@ -5,7 +5,6 @@ import org.folio.jenkins.PodTemplates
 import org.folio.models.RancherNamespace
 import org.folio.models.parameters.CreateNamespaceParameters
 import org.folio.models.parameters.KarateTestsParameters
-import org.folio.rest_v2.Constants as RestConstants
 import org.folio.rest_v2.PlatformType
 import org.jenkinsci.plugins.workflow.libs.Library
 
@@ -46,6 +45,7 @@ CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builde
   .clusterName('folio-etesting')
   .namespaceName('lsdi')
   .folioBranch('snapshot')
+  .platformBranch('snapshot')
   .okapiVersion(okapiVersion)
   .configType('testing')
   .loadReference(true)
@@ -54,12 +54,9 @@ CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builde
   .splitFiles(true)
   .ecsCCL(true)
   .rwSplit(false)
-  .linkedData(true)
   .greenmail(false)
   .mockServer(false)
   .rtr(false)
-  .applicationSet('Complete')
-  .applications(RestConstants.APPLICATION_BRANCH('Complete'))
   .hasSecureTenant(true)
   .secureTenantId(folioDefault.consortiaTenants().get('university').getTenantId())
   .pgType('built-in')
@@ -74,7 +71,6 @@ CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builde
   .build()
 
 namespaceParams.folioExtensions.add('consortia-eureka')
-namespaceParams.folioExtensions.add('linked-data')
 
 RancherNamespace namespace = new RancherNamespace(namespaceParams.getClusterName(), namespaceParams.getNamespaceName())
 namespace.withSuperTenantAdminUser()
@@ -108,6 +104,10 @@ ansiColor('xterm') {
 
     stage('[Job] Destroy environment (before)') {
       params.RETRY_FAILED ? println('RETRY tests execution | Skip destroy stage') : folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceParams)
+    }
+
+    stage('Fetch Applications') {
+      namespaceParams.applications = folioDefault.getApplicationNamesFromPlatform('snapshot')
     }
 
     stage('[Job] Provision environment') {

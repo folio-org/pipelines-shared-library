@@ -1,5 +1,36 @@
 import org.folio.Constants
 import org.folio.models.*
+import org.folio.rest.GitHubUtility
+
+Map getPlatformDescriptor(String branch = 'snapshot') {
+  Map platformDescriptor = new GitHubUtility(this).getJsonModulesList('platform-lsp', branch, 'platform-descriptor.json') as Map
+
+  int requiredCount = platformDescriptor.applications?.required?.size() ?: 0
+  int optionalCount = platformDescriptor.applications?.optional?.size() ?: 0
+  println "Fetched platform-descriptor.json with ${requiredCount} required and ${optionalCount} optional applications"
+
+  return platformDescriptor
+}
+
+List<String> getApplicationNamesFromPlatform(String branch = 'snapshot') {
+  Map platformDescriptor = getPlatformDescriptor(branch)
+
+  List appNames = (platformDescriptor.applications?.required?.collect { it.name } ?: []) +
+                          (platformDescriptor.applications?.optional?.collect { it.name } ?: [])
+
+  return appNames as List<String>
+}
+
+List<Map<String, String>> getAllPlatformApps(String branch = 'snapshot', Map platformDescriptor = null) {
+  if (!platformDescriptor) {
+    platformDescriptor = getPlatformDescriptor(branch)
+  }
+
+  List allApps = (platformDescriptor.applications?.required ?: []) +
+                                       (platformDescriptor.applications?.optional ?: [])
+
+  return allApps as List<Map<String, String>>
+}
 
 OkapiUser adminOkapiUser(String username, def password) {
   return new OkapiUser(username, password)
@@ -175,7 +206,7 @@ Map<String, OkapiTenant> tenants(
       .withTenantDescription('fs09000003 bug-fest created via Jenkins')
       .withAdminUser(adminOkapiUser('folio-aqa', 'Folio-aqa1'))
       .withConfiguration(new OkapiConfig().withSmtp(smtp).withKbApiKey(kbApiKey)),
-      
+
     cs00000int     : new OkapiTenantConsortia('cs00000int', true)
       .withTenantCode('CEN')
       .withConsortiaName('CONSORTIA')

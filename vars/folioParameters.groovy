@@ -3,7 +3,6 @@ import org.folio.Constants
 import org.folio.rest.model.OkapiUser
 import org.folio.rest_v2.PlatformType
 import org.folio.testing.cypress.CypressConstants
-import org.folio.rest_v2.Constants as RestConstants
 
 static List repositoriesList() {
   return ['platform-complete',
@@ -107,16 +106,12 @@ def platform(PlatformType defaultValue = null, String paramName = 'PLATFORM') {
   return _paramChoice(paramName, values, 'Select FOLIO platform')
 }
 
-def applicationSet() {
-  return _paramChoice('APPLICATION_SET', RestConstants.APPLICATION_SETS_LIST, 'Select Eureka application set')
+def applicationsFromPlatform(String paramName = 'APPLICATIONS', String reference = 'PLATFORM_BRANCH') {
+  return _paramExtendedCheckboxSelect(paramName, reference, folioStringScripts.getApplicationsFromPlatformDescriptor(reference), 'Select env applications', false)
 }
 
-def applications(String paramName = 'APPLICATIONS', String reference = 'APPLICATION_SET') {
-  return _paramExtendedCheckboxSelect(paramName, reference, folioStringScripts.getApplications(reference), 'Select env applications', false)
-}
-
-def application(String paramName = 'APPLICATION', String reference = 'APPLICATION_SET') {
-  return _paramExtendedSingleSelect(paramName, reference, folioStringScripts.getApplications(reference), 'Select application')
+def applicationFromPlatform(String paramName = 'APPLICATION', String reference = 'PLATFORM_BRANCH') {
+  return _paramExtendedSingleSelect(paramName, reference, folioStringScripts.getApplicationsFromPlatformDescriptor(reference), 'Select application')
 }
 
 def refreshParameters() {
@@ -135,8 +130,12 @@ def repository() {
   return _paramChoice('FOLIO_REPOSITORY', repositoriesList(), 'Platform-complete repository, complete stripes platform consists an NPM package.json that specifies the version of @folio/stripes-core')
 }
 
-def branch(String paramName = 'FOLIO_BRANCH', String repository = 'platform-complete') {
-  return _paramExtendedSingleSelect(paramName, '', folioStringScripts.getRepositoryBranches(repository), "(Required) Select what '${repository}' branch use for build")
+def branch(String paramName = 'FOLIO_BRANCH', String repository = 'platform-complete', String reference = 'PLATFORM') {
+  return _paramExtendedSingleSelect(paramName, reference, folioStringScripts.getRepositoryBranches(repository), "(Required) Select what '${repository}' branch use for build")
+}
+
+def platformBranch(String paramName = 'PLATFORM_BRANCH', String repository = 'platform-lsp', String reference = 'PLATFORM') {
+  return _paramExtendedSingleSelect(paramName, reference, folioStringScripts.getRepositoryBranches(repository), "(Required) Select what '${repository}' branch use for build")
 }
 
 def branchWithRef(String paramName = 'FOLIO_BRANCH', String reference = "") {

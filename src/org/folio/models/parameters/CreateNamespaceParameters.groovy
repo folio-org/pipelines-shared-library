@@ -17,6 +17,8 @@ class CreateNamespaceParameters implements Cloneable {
 
   String folioBranch
 
+  String platformBranch
+
   String okapiVersion
 
   String configType
@@ -45,10 +47,6 @@ class CreateNamespaceParameters implements Cloneable {
 
   boolean marcMigrations = false
 
-  boolean rtacCache = false
-
-  boolean edgeLocate = false
-
   boolean hasSecureTenant
 
   String secureTenantId
@@ -63,13 +61,7 @@ class CreateNamespaceParameters implements Cloneable {
 
   String dbBackupName = ""
 
-  //TODO: remove after pipeline refactoring. Just utilize it. Use this only in the main pipeline for developers
-  // as a select-simplicity approach. Don't use it, and do not include it in the underlying
-  // base pipeline or step-separated pipelines.
-  @Deprecated
-  String applicationSet = 'Complete'
-
-  Map<String,String> applications = [:]
+  List<String> applications = []
 
   List<String> folioExtensions = []
 
@@ -177,6 +169,17 @@ class CreateNamespaceParameters implements Cloneable {
      */
     Builder folioBranch(String folioBranch) {
       parameters.folioBranch = folioBranch
+      return this
+    }
+
+    /**
+     * Specifies the platform-lsp branch for Eureka platform configuration.
+     * This determines the platform descriptor version to use for application and component versions.
+     * @param platformBranch The branch name of the platform-lsp repository.
+     * @return Builder instance for method chaining.
+     */
+    Builder platformBranch(String platformBranch) {
+      parameters.platformBranch = platformBranch
       return this
     }
 
@@ -331,26 +334,6 @@ class CreateNamespaceParameters implements Cloneable {
     }
 
     /**
-     * Do or not rtac-cache
-     * @param doRtacCache `true` to do rtac-cache; `false` to skip.
-     * @return Builder instance for method chaining.
-     */
-    Builder doRtacCache(boolean doRtacCache) {
-      parameters.rtacCache = doRtacCache
-      return this
-    }
-
-    /**
-     * Do or not edge-locate
-     * @param doEdgeLocate `true` to do edge-locate; `false` to skip.
-     * @return Builder instance for method chaining.
-     */
-    Builder doEdgeLocate(boolean doEdgeLocate) {
-      parameters.edgeLocate = doEdgeLocate
-      return this
-    }
-
-    /**
      * Activate or not secure tenant
      * @param has `true` to activate security on tenant secureTenantId
      * @return Builder instance for method chaining.
@@ -383,23 +366,26 @@ class CreateNamespaceParameters implements Cloneable {
 
 
     /**
-     * Specifies the application list for Eureka platform
-     * @param list The list of application-branch map to entitle.
+     * Specifies the application names list for Eureka platform.
+     * Application versions are resolved from platform-descriptor.json via FAR.
+     * @param list The list of application names to deploy.
      * @return Builder instance for method chaining.
      */
-    Builder applications(Map map) {
-      parameters.applications = map
+    Builder applications(List<String> list) {
+      parameters.applications = list
       return this
     }
 
     /**
-     * Specifies the application set for Eureka platform
-     * @param set The name of application set.
+     * Specifies the applications map for Eureka platform.
+     * Extracts application names from the map keys.
+     * @param map The map of application names to branches (branches are ignored, versions come from FAR).
      * @return Builder instance for method chaining.
+     * @deprecated Use {@link #applications(List)} instead. Application versions are now resolved from FAR.
      */
     @Deprecated
-    Builder applicationSet(String set) {
-      parameters.applicationSet = set
+    Builder applications(Map map) {
+      parameters.applications = map.keySet().toList()
       return this
     }
 
