@@ -64,7 +64,7 @@ properties([
     // TODO: Hide FOLIO_BRANCH for Eureka after UI build refactoring to use platform-lsp
     , folioParameters.hideParameters(
     [
-      'EUREKA': ['OKAPI_VERSION', 'EDGE_LOCATE', 'RTAC_CACHE', 'LINKED_DATA', 'MARC_MIGRATIONS', 'FOLIO_KEYCLOAK_VERSION', 'FOLIO_KONG_VERSION'],
+      'EUREKA': ['OKAPI_VERSION', 'EDGE_LOCATE', 'RTAC_CACHE', 'FOLIO_BRANCH', 'LINKED_DATA', 'MARC_MIGRATIONS', 'FOLIO_KEYCLOAK_VERSION', 'FOLIO_KONG_VERSION'],
       'OKAPI' : ['PLATFORM_BRANCH', 'APPLICATIONS', 'SC_NATIVE']
     ]
     , 'PLATFORM')
@@ -171,7 +171,6 @@ cypressSanityParameters.setTimeout('60')
 if (namespaceParams.platform == PlatformType.EUREKA) {
     cypressSanityParameters.setTestsSrcBranch('master')
     cypressSanityParameters.setOkapiUrl("https://${namespace.getDomains().kong}")
-    //TODO: Temporary exclusion of the eholdings and software-version test cases.
     cypressSanityParameters.setCompileExecParameters('tags="fse+sanity"')
 } else {
     cypressSanityParameters.setTestsSrcBranch('okapi')
