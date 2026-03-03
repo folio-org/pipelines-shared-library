@@ -1,5 +1,5 @@
 resource "kubernetes_role" "debugger_deployment_access" {
-  count = var.rancher_cluster_name == "folio-edev" ? 1 : 0
+  #count = var.rancher_cluster_name == "folio-edev" ? 1 : 0
 
   metadata {
     name      = "debugger-deployment-access"
@@ -32,7 +32,7 @@ resource "kubernetes_role" "debugger_deployment_access" {
 }
 
 resource "kubernetes_role_binding" "debugger_deployment_access" {
-  count = var.rancher_cluster_name == "folio-edev" ? 1 : 0
+  #count = var.rancher_cluster_name == "folio-edev" ? 1 : 0
 
   metadata {
     name      = "debugger-deployment-access"
