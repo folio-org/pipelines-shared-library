@@ -23,6 +23,12 @@ resource "kubernetes_role" "debugger_deployment_access" {
     resources  = ["pods/log"]
     verbs      = ["get", "list", "watch"]
   }
+
+  rule {
+    api_groups = [""]
+    resources  = ["pods/portforward"]
+    verbs      = ["create", "get", "list"]
+  }
 }
 
 resource "kubernetes_role_binding" "debugger_deployment_access" {
