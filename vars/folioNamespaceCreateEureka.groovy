@@ -339,7 +339,10 @@ void call(CreateNamespaceParameters args) {
           namespace.getModules().getEdgeModules().each { module ->
             kubectl.createConfigMap("${module.name}-ephemeral-properties", namespace.getNamespaceName(), "./${module.name}-ephemeral-properties")
           }
-
+          if (namespace.getNamespaceName() == 'sprint') {
+            sh "helm uninstall edge-users --namespace ${namespace.getNamespaceName()} || true"
+            sleep time: 10, unit: 'SECONDS'
+          }
           folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getEdgeModules())
           folioHelm.checkDeploymentsRunning(namespace.getNamespaceName(), namespace.getModules().getEdgeModules())
 
