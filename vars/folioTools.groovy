@@ -1,4 +1,5 @@
 import hudson.util.Secret
+import groovy.json.JsonOutput
 import org.folio.Constants
 import org.folio.utilities.Logger
 import org.folio.utilities.RestClient
@@ -208,8 +209,17 @@ void deleteSSMParameters(String cluster, String namespace) {
 void karateTenantsCleanUp(String cluster, String namespace) {
   String url = "https://${cluster}-${namespace}-keycloak.ci.folio.org/realms/master/protocol/openid-connect/token"
   String body = "grant_type=client_credentials&client_id=folio-backend-admin-client&client_secret=SecretPassword"
+  
   def tokenResp = sh(script: "curl -s -X POST -d \"${body}\" \"${url}\"", returnStdout: true).trim()
-  String token = readJSON(text: tokenResp).access_token
+  
+  echo "Token response: ${tokenResp}"
+  
+  def tokenJson = readJSON(text: tokenResp)
+  String token = tokenJson.access_token
+
+  if (!token) {
+    error("Failed to obtain access token from Keycloak. Response: ${tokenResp}")
+  }
 
   String tenantsUrl = "https://${cluster}-${namespace}-kong.ci.folio.org/tenants?limit=500"
   def tenantsResp = sh(script: "curl -s -H 'Authorization: Bearer ${token}' '${tenantsUrl}'", returnStdout: true).trim()
@@ -219,6 +229,28 @@ void karateTenantsCleanUp(String cluster, String namespace) {
     String tenantName = tenantObj.name
     String tenantId = tenantObj.id
     if (tenantName ==~ /(university|central|college|testtenant)[0-9]+$/) {
+      String entitlementsUrl = "https://${cluster}-${namespace}-kong.ci.folio.org/entitlements?query=tenantId==${tenantId}&limit=500"
+      def entitlementsResp = sh(script: "curl -s -H 'Authorization: Bearer ${token}' '${entitlementsUrl}'", returnStdout: true).trim()
+      def entitlementsJson = readJSON(text: entitlementsResp)
+      List applications = (entitlementsJson.entitlements ?: []).collect { entitlement ->
+        if (entitlement?.applicationId) {
+          return entitlement.applicationId.toString()
+        }
+        if (entitlement?.application?.id) {
+          return entitlement.application.id.toString()
+        }
+        return null
+      }.findAll { it }.unique()
+
+      if (!applications.isEmpty()) {
+        String uninstallPayload = JsonOutput.toJson([tenantId: tenantId, applications: applications])
+        String uninstallPayloadFile = "entitlements-uninstall-${tenantId}.json"
+        writeFile(file: uninstallPayloadFile, text: uninstallPayload)
+        def uninstallResp = sh(script: "curl -s -X DELETE -H 'Authorization: Bearer ${token}' -H 'Content-Type: application/json' 'https://${cluster}-${namespace}-kong.ci.folio.org/entitlements?purge=true&ignoreErrors=true' --data @${uninstallPayloadFile}", returnStdout: true).trim()
+        sh(script: "rm -f ${uninstallPayloadFile}", returnStdout: false)
+        echo "Entitlements uninstall response for tenant ${tenantName}: ${uninstallResp}"
+      }
+
       println "Deleting tenant: ${tenantName} (ID: ${tenantId})"
       String deleteUrl = "https://${cluster}-${namespace}-kong.ci.folio.org/tenants/${tenantId}?purge=true"
       sh(script: "curl -s -X DELETE -H 'Authorization: Bearer ${token}' '${deleteUrl}'", returnStdout: false)
@@ -228,10 +260,35 @@ void karateTenantsCleanUp(String cluster, String namespace) {
 }
 
 void karateTenantsCleanUpUnified(String kongURL, String keycloakURL, String clientId, String clientSecret) {
+  clientId = (clientId ?: '').trim()
+  clientSecret = (clientSecret ?: '').trim()
+
+  if (!clientSecret) {
+    error('CLIENT_SECRET is empty. Set a valid Keycloak client secret.')
+  }
+
+  echo "Attempting to authenticate with Keycloak"
+  echo "Keycloak URL: ${keycloakURL}"
+  echo "Client ID: ${clientId}"
+
   String url = "${keycloakURL}/realms/master/protocol/openid-connect/token"
   String body = "grant_type=client_credentials&client_id=${clientId}&client_secret=${clientSecret}"
+  
   def tokenResp = sh(script: "curl -s -X POST -d \"${body}\" \"${url}\"", returnStdout: true).trim()
-  String token = readJSON(text: tokenResp).access_token
+  
+  echo "Token response: ${tokenResp}"
+  
+  def tokenJson = readJSON(text: tokenResp)
+
+  if (tokenJson.error) {
+    error("Failed to obtain access token from Keycloak.\nError: ${tokenJson.error}\nDescription: ${tokenJson.error_description}\nKeycloak URL: ${keycloakURL}\nClient ID: ${clientId}")
+  }
+
+  String token = tokenJson.access_token
+
+  if (!token) {
+    error("Failed to obtain access token from Keycloak. Response: ${tokenResp}")
+  }
 
   String tenantsUrl = "${kongURL}/tenants?limit=500"
   def tenantsResp = sh(script: "curl -s -H 'Authorization: Bearer ${token}' '${tenantsUrl}'", returnStdout: true).trim()
@@ -241,6 +298,28 @@ void karateTenantsCleanUpUnified(String kongURL, String keycloakURL, String clie
     String tenantName = tenantObj.name
     String tenantId = tenantObj.id
     if (tenantName ==~ /(university|central|college|testtenant)[0-9]+$/) {
+      String entitlementsUrl = "${kongURL}/entitlements?query=tenantId==${tenantId}&limit=500"
+      def entitlementsResp = sh(script: "curl -s -H 'Authorization: Bearer ${token}' '${entitlementsUrl}'", returnStdout: true).trim()
+      def entitlementsJson = readJSON(text: entitlementsResp)
+      List applications = (entitlementsJson.entitlements ?: []).collect { entitlement ->
+        if (entitlement?.applicationId) {
+          return entitlement.applicationId.toString()
+        }
+        if (entitlement?.application?.id) {
+          return entitlement.application.id.toString()
+        }
+        return null
+      }.findAll { it }.unique()
+
+      if (!applications.isEmpty()) {
+        String uninstallPayload = JsonOutput.toJson([tenantId: tenantId, applications: applications])
+        String uninstallPayloadFile = "entitlements-uninstall-${tenantId}.json"
+        writeFile(file: uninstallPayloadFile, text: uninstallPayload)
+        def uninstallResp = sh(script: "curl -s -X DELETE -H 'Authorization: Bearer ${token}' -H 'Content-Type: application/json' '${kongURL}/entitlements?purge=true&ignoreErrors=true' --data @${uninstallPayloadFile}", returnStdout: true).trim()
+        sh(script: "rm -f ${uninstallPayloadFile}", returnStdout: false)
+        echo "Entitlements uninstall response for tenant ${tenantName}: ${uninstallResp}"
+      }
+
       println "Deleting tenant: ${tenantName} (ID: ${tenantId})"
       String deleteUrl = "${kongURL}/tenants/${tenantId}?purge=true"
       sh(script: "curl -s -X DELETE -H 'Authorization: Bearer ${token}' '${deleteUrl}'", returnStdout: false)
