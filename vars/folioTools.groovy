@@ -240,8 +240,8 @@ void karateTenantsCleanUpUnified(String kongURL, String keycloakURL, String clie
   clientId = (clientId ?: '').trim()
   clientSecret = (clientSecret ?: '').trim()
 
-  if (!clientSecret || clientSecret == 'SecretPassword') {
-    error('CLIENT_SECRET is empty or still uses the default placeholder. Set a valid Keycloak client secret.')
+  if (!clientSecret) {
+    error('CLIENT_SECRET is empty. Set a valid Keycloak client secret.')
   }
 
   echo "Attempting to authenticate with Keycloak"
