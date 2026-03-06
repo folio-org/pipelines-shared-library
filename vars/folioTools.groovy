@@ -208,8 +208,17 @@ void deleteSSMParameters(String cluster, String namespace) {
 void karateTenantsCleanUp(String cluster, String namespace) {
   String url = "https://${cluster}-${namespace}-keycloak.ci.folio.org/realms/master/protocol/openid-connect/token"
   String body = "grant_type=client_credentials&client_id=folio-backend-admin-client&client_secret=SecretPassword"
+  
   def tokenResp = sh(script: "curl -s -X POST -d \"${body}\" \"${url}\"", returnStdout: true).trim()
-  String token = readJSON(text: tokenResp).access_token
+  
+  echo "Token response: ${tokenResp}"
+  
+  def tokenJson = readJSON(text: tokenResp)
+  String token = tokenJson.access_token
+
+  if (!token) {
+    error("Failed to obtain access token from Keycloak. Response: ${tokenResp}")
+  }
 
   String tenantsUrl = "https://${cluster}-${namespace}-kong.ci.folio.org/tenants?limit=500"
   def tenantsResp = sh(script: "curl -s -H 'Authorization: Bearer ${token}' '${tenantsUrl}'", returnStdout: true).trim()
@@ -228,10 +237,35 @@ void karateTenantsCleanUp(String cluster, String namespace) {
 }
 
 void karateTenantsCleanUpUnified(String kongURL, String keycloakURL, String clientId, String clientSecret) {
+  clientId = (clientId ?: '').trim()
+  clientSecret = (clientSecret ?: '').trim()
+
+  if (!clientSecret || clientSecret == 'SecretPassword') {
+    error('CLIENT_SECRET is empty or still uses the default placeholder. Set a valid Keycloak client secret.')
+  }
+
+  echo "Attempting to authenticate with Keycloak"
+  echo "Keycloak URL: ${keycloakURL}"
+  echo "Client ID: ${clientId}"
+
   String url = "${keycloakURL}/realms/master/protocol/openid-connect/token"
   String body = "grant_type=client_credentials&client_id=${clientId}&client_secret=${clientSecret}"
+  
   def tokenResp = sh(script: "curl -s -X POST -d \"${body}\" \"${url}\"", returnStdout: true).trim()
-  String token = readJSON(text: tokenResp).access_token
+  
+  echo "Token response: ${tokenResp}"
+  
+  def tokenJson = readJSON(text: tokenResp)
+
+  if (tokenJson.error) {
+    error("Failed to obtain access token from Keycloak.\nError: ${tokenJson.error}\nDescription: ${tokenJson.error_description}\nKeycloak URL: ${keycloakURL}\nClient ID: ${clientId}")
+  }
+
+  String token = tokenJson.access_token
+
+  if (!token) {
+    error("Failed to obtain access token from Keycloak. Response: ${tokenResp}")
+  }
 
   String tenantsUrl = "${kongURL}/tenants?limit=500"
   def tenantsResp = sh(script: "curl -s -H 'Authorization: Bearer ${token}' '${tenantsUrl}'", returnStdout: true).trim()
