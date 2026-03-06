@@ -1,4 +1,5 @@
 import hudson.util.Secret
+import groovy.json.JsonOutput
 import org.folio.Constants
 import org.folio.utilities.Logger
 import org.folio.utilities.RestClient
@@ -228,6 +229,27 @@ void karateTenantsCleanUp(String cluster, String namespace) {
     String tenantName = tenantObj.name
     String tenantId = tenantObj.id
     if (tenantName ==~ /(university|central|college|testtenant)[0-9]+$/) {
+      String entitlementsUrl = "https://${cluster}-${namespace}-kong.ci.folio.org/entitlements?query=tenantId==${tenantId}&limit=500"
+      def entitlementsResp = sh(script: "curl -s -H 'Authorization: Bearer ${token}' '${entitlementsUrl}'", returnStdout: true).trim()
+      def entitlementsJson = readJSON(text: entitlementsResp)
+      List applications = (entitlementsJson.entitlements ?: []).collect { entitlement ->
+        if (entitlement?.applicationId) {
+          return entitlement.applicationId.toString()
+        }
+        if (entitlement?.application?.id) {
+          return entitlement.application.id.toString()
+        }
+        return null
+      }.findAll { it }.unique()
+
+      if (!applications.isEmpty()) {
+        String uninstallPayload = JsonOutput.toJson([tenantId: tenantId, applications: applications])
+        withEnv(["ENTITLEMENTS_UNINSTALL_PAYLOAD=${uninstallPayload}"]) {
+          def uninstallResp = sh(script: "curl -s -X DELETE -H 'Authorization: Bearer ${token}' -H 'Content-Type: application/json' 'https://${cluster}-${namespace}-kong.ci.folio.org/entitlements?purge=true&ignoreErrors=true' --data \"${ENTITLEMENTS_UNINSTALL_PAYLOAD}\"", returnStdout: true).trim()
+          echo "Entitlements uninstall response for tenant ${tenantName}: ${uninstallResp}"
+        }
+      }
+
       println "Deleting tenant: ${tenantName} (ID: ${tenantId})"
       String deleteUrl = "https://${cluster}-${namespace}-kong.ci.folio.org/tenants/${tenantId}?purge=true"
       sh(script: "curl -s -X DELETE -H 'Authorization: Bearer ${token}' '${deleteUrl}'", returnStdout: false)
@@ -275,6 +297,27 @@ void karateTenantsCleanUpUnified(String kongURL, String keycloakURL, String clie
     String tenantName = tenantObj.name
     String tenantId = tenantObj.id
     if (tenantName ==~ /(university|central|college|testtenant)[0-9]+$/) {
+      String entitlementsUrl = "${kongURL}/entitlements?query=tenantId==${tenantId}&limit=500"
+      def entitlementsResp = sh(script: "curl -s -H 'Authorization: Bearer ${token}' '${entitlementsUrl}'", returnStdout: true).trim()
+      def entitlementsJson = readJSON(text: entitlementsResp)
+      List applications = (entitlementsJson.entitlements ?: []).collect { entitlement ->
+        if (entitlement?.applicationId) {
+          return entitlement.applicationId.toString()
+        }
+        if (entitlement?.application?.id) {
+          return entitlement.application.id.toString()
+        }
+        return null
+      }.findAll { it }.unique()
+
+      if (!applications.isEmpty()) {
+        String uninstallPayload = JsonOutput.toJson([tenantId: tenantId, applications: applications])
+        withEnv(["ENTITLEMENTS_UNINSTALL_PAYLOAD=${uninstallPayload}"]) {
+          def uninstallResp = sh(script: "curl -s -X DELETE -H 'Authorization: Bearer ${token}' -H 'Content-Type: application/json' '${kongURL}/entitlements?purge=true&ignoreErrors=true' --data \"${ENTITLEMENTS_UNINSTALL_PAYLOAD}\"", returnStdout: true).trim()
+          echo "Entitlements uninstall response for tenant ${tenantName}: ${uninstallResp}"
+        }
+      }
+
       println "Deleting tenant: ${tenantName} (ID: ${tenantId})"
       String deleteUrl = "${kongURL}/tenants/${tenantId}?purge=true"
       sh(script: "curl -s -X DELETE -H 'Authorization: Bearer ${token}' '${deleteUrl}'", returnStdout: false)
