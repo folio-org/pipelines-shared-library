@@ -244,10 +244,11 @@ void karateTenantsCleanUp(String cluster, String namespace) {
 
       if (!applications.isEmpty()) {
         String uninstallPayload = JsonOutput.toJson([tenantId: tenantId, applications: applications])
-        withEnv(["ENTITLEMENTS_UNINSTALL_PAYLOAD=${uninstallPayload}"]) {
-          def uninstallResp = sh(script: "curl -s -X DELETE -H 'Authorization: Bearer ${token}' -H 'Content-Type: application/json' 'https://${cluster}-${namespace}-kong.ci.folio.org/entitlements?purge=true&ignoreErrors=true' --data \"${ENTITLEMENTS_UNINSTALL_PAYLOAD}\"", returnStdout: true).trim()
-          echo "Entitlements uninstall response for tenant ${tenantName}: ${uninstallResp}"
-        }
+        String uninstallPayloadFile = "entitlements-uninstall-${tenantId}.json"
+        writeFile(file: uninstallPayloadFile, text: uninstallPayload)
+        def uninstallResp = sh(script: "curl -s -X DELETE -H 'Authorization: Bearer ${token}' -H 'Content-Type: application/json' 'https://${cluster}-${namespace}-kong.ci.folio.org/entitlements?purge=true&ignoreErrors=true' --data @${uninstallPayloadFile}", returnStdout: true).trim()
+        sh(script: "rm -f ${uninstallPayloadFile}", returnStdout: false)
+        echo "Entitlements uninstall response for tenant ${tenantName}: ${uninstallResp}"
       }
 
       println "Deleting tenant: ${tenantName} (ID: ${tenantId})"
@@ -312,10 +313,11 @@ void karateTenantsCleanUpUnified(String kongURL, String keycloakURL, String clie
 
       if (!applications.isEmpty()) {
         String uninstallPayload = JsonOutput.toJson([tenantId: tenantId, applications: applications])
-        withEnv(["ENTITLEMENTS_UNINSTALL_PAYLOAD=${uninstallPayload}"]) {
-          def uninstallResp = sh(script: "curl -s -X DELETE -H 'Authorization: Bearer ${token}' -H 'Content-Type: application/json' '${kongURL}/entitlements?purge=true&ignoreErrors=true' --data \"${ENTITLEMENTS_UNINSTALL_PAYLOAD}\"", returnStdout: true).trim()
-          echo "Entitlements uninstall response for tenant ${tenantName}: ${uninstallResp}"
-        }
+        String uninstallPayloadFile = "entitlements-uninstall-${tenantId}.json"
+        writeFile(file: uninstallPayloadFile, text: uninstallPayload)
+        def uninstallResp = sh(script: "curl -s -X DELETE -H 'Authorization: Bearer ${token}' -H 'Content-Type: application/json' '${kongURL}/entitlements?purge=true&ignoreErrors=true' --data @${uninstallPayloadFile}", returnStdout: true).trim()
+        sh(script: "rm -f ${uninstallPayloadFile}", returnStdout: false)
+        echo "Entitlements uninstall response for tenant ${tenantName}: ${uninstallResp}"
       }
 
       println "Deleting tenant: ${tenantName} (ID: ${tenantId})"
