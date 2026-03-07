@@ -45,6 +45,8 @@ class RestClient {
    */
   private Logger logger
 
+  private boolean flushDnsCache
+
   /**
    *   Maximum allowed length for an inline request body. If the text representation of the body is shorter than this,
    *   it will be passed inline to the curl command.
@@ -59,15 +61,18 @@ class RestClient {
    * @param debug                    Enables debug logging if true (default: false).
    * @param defaultConnectionTimeout Connection timeout in milliseconds (default: 120000 ms).
    * @param defaultReadTimeout       Read timeout in milliseconds (default: 10800000 ms).
+   * @param flushDnsCache            Enables DNS cache flushing for each request (default: false).
    */
   RestClient(Object context,
              boolean debug = false,
              int defaultConnectionTimeout = 120000,
-             int defaultReadTimeout = 10800000) {
+             int defaultReadTimeout = 10800000,
+             boolean flushDnsCache = false) {
     this.steps = context
     this.debug = debug
     this.defaultConnectionTimeout = defaultConnectionTimeout
     this.defaultReadTimeout = defaultReadTimeout
+    this.flushDnsCache = flushDnsCache
     this.logger = new Logger(context, 'RestClient')
   }
 
@@ -206,45 +211,13 @@ class RestClient {
                         int connectionTimeout,
                         int readTimeout) {
 
-    // Prepare the body (either as inline data or in a temporary file)
     Map preparedBody = prepareRequestBody(body, headers)
     String inlineData = preparedBody.inlineData
     String bodyFilePath = preparedBody.filePath
 
     try {
-      if (debug) {
-        logger.debug("[HTTP REQUEST] method=${method}, url=${url}, headers=${headers}, body=${body}")
-      }
-
-      // Convert timeouts from milliseconds to seconds for the curl command
-      int connectSeconds = Math.round(connectionTimeout / 1000)
-      int readSeconds = Math.round(readTimeout / 1000)
-
-      // Build the curl command string
-      String curlCmd = buildCurlCommand(method, url, headers, bodyFilePath, inlineData, connectSeconds, readSeconds, body)
-      if (debug) {
-        logger.debug("[CURL COMMAND] ${curlCmd}")
-      }
-
-      // Execute the curl command, capturing stdout
-      String curlOutput = steps.sh(script: curlCmd, returnStdout: true).trim()
-
-      // Parse the combined headers, body, and HTTP status code from the curl output
-      Map parsed = parseCurlOutput(curlOutput)
-
-      if (debug) {
-        logger.debug("[HTTP RESPONSE] status=${parsed.responseCode}, headers=${parsed.headers}, body=${parsed.body}")
-      }
-
-      // If the status code is >= 400 and not in validResponseCodes, throw an error
-      if (!validResponseCodes?.contains(parsed.responseCode) && parsed.responseCode >= 400) {
-        handleHttpError(parsed.responseCode, "HTTP request failed", parsed.body, parsed.body?.toString())
-      }
-
-      return parsed
-
+      return executeRequestWithDnsRetry(method, url, body, headers, validResponseCodes, connectionTimeout, readTimeout, bodyFilePath, inlineData)
     } finally {
-      // Cleanup: remove the temporary body file if it was created
       if (bodyFilePath) {
         steps.sh(script: """
           set +x
@@ -253,6 +226,78 @@ class RestClient {
         """)
       }
     }
+  }
+
+  private Map executeRequestWithDnsRetry(String method,
+                                         String url,
+                                         Object body,
+                                         Map<String, String> headers,
+                                         List<Integer> validResponseCodes,
+                                         int connectionTimeout,
+                                         int readTimeout,
+                                         String bodyFilePath,
+                                         String inlineData) {
+    try {
+      return executeRequest(method, url, body, headers, validResponseCodes, connectionTimeout, readTimeout, bodyFilePath, inlineData)
+    } catch (Exception e) {
+      if (isDnsResolutionError(e)) {
+        logger.info("DNS resolution failed, flushing DNS cache and retrying: ${e.message}")
+        boolean originalFlushDnsCache = this.flushDnsCache
+        try {
+          this.flushDnsCache = true
+          return executeRequest(method, url, body, headers, validResponseCodes, connectionTimeout, readTimeout, bodyFilePath, inlineData)
+        } finally {
+          this.flushDnsCache = originalFlushDnsCache
+        }
+      } else {
+        throw e
+      }
+    }
+  }
+
+  private Map executeRequest(String method,
+                             String url,
+                             Object body,
+                             Map<String, String> headers,
+                             List<Integer> validResponseCodes,
+                             int connectionTimeout,
+                             int readTimeout,
+                             String bodyFilePath,
+                             String inlineData) {
+    if (debug) {
+      logger.debug("[HTTP REQUEST] method=${method}, url=${url}, headers=${headers}, body=${body}")
+    }
+
+    int connectSeconds = Math.round(connectionTimeout / 1000)
+    int readSeconds = Math.round(readTimeout / 1000)
+
+    String curlCmd = buildCurlCommand(method, url, headers, bodyFilePath, inlineData, connectSeconds, readSeconds, body)
+    if (debug) {
+      logger.debug("[CURL COMMAND] ${curlCmd}")
+    }
+
+    String curlOutput = steps.sh(script: curlCmd, returnStdout: true).trim()
+
+    Map parsed = parseCurlOutput(curlOutput)
+
+    if (debug) {
+      logger.debug("[HTTP RESPONSE] status=${parsed.responseCode}, headers=${parsed.headers}, body=${parsed.body}")
+    }
+
+    if (!validResponseCodes?.contains(parsed.responseCode) && parsed.responseCode >= 400) {
+      handleHttpError(parsed.responseCode, "HTTP request failed", parsed.body, parsed.body?.toString())
+    }
+
+    return parsed
+  }
+
+  private boolean isDnsResolutionError(Exception e) {
+    String errorMessage = e.message?.toLowerCase() ?: ''
+    return errorMessage.contains('could not resolve host') ||
+           errorMessage.contains('name or service not known') ||
+           errorMessage.contains('nodename nor servname provided') ||
+           errorMessage.contains('temporary failure in name resolution') ||
+           errorMessage.contains('curl: (6)')
   }
 
   /**
@@ -337,10 +382,12 @@ class RestClient {
                                   int connectTimeoutSec,
                                   int readTimeoutSec,
                                   Object originalBody) {
-    // Start building the curl command
     StringBuilder cmd = new StringBuilder("curl -s -S -X ${method}")
 
-    // Include each header; escape single quotes to prevent shell injection
+    if (flushDnsCache) {
+      cmd.append(" --dns-servers 8.8.8.8,8.8.4.4")
+    }
+
     headers.each { k, v ->
       String safeValue = v ?: ""
       cmd.append(" -H '${escapeSingleQuotes(k)}: ${escapeSingleQuotes(safeValue)}'")
@@ -489,8 +536,73 @@ class RestClient {
     if (!input) {
       return ""
     }
-    // Replace any single quote ' with '"'"' to close and reopen quoting in shell
     return input.replace("'", "'\"'\"'")
+  }
+
+  /**
+   * Enables DNS cache flushing for subsequent requests.
+   * When enabled, curl will use specified DNS servers to bypass local DNS cache.
+   *
+   * @return This RestClient instance for method chaining.
+   */
+  RestClient enableDnsCacheFlush() {
+    this.flushDnsCache = true
+    if (debug) {
+      logger.debug("DNS cache flushing enabled for RestClient")
+    }
+    return this
+  }
+
+  /**
+   * Disables DNS cache flushing for subsequent requests.
+   *
+   * @return This RestClient instance for method chaining.
+   */
+  RestClient disableDnsCacheFlush() {
+    this.flushDnsCache = false
+    if (debug) {
+      logger.debug("DNS cache flushing disabled for RestClient")
+    }
+    return this
+  }
+
+  /**
+   * Flushes the system DNS cache by executing platform-specific commands.
+   * This is useful when DNS records have changed and you need immediate updates.
+   * Note: This requires appropriate permissions on the system.
+   */
+  void flushSystemDnsCache() {
+    try {
+      String os = System.getProperty('os.name').toLowerCase()
+      String flushCmd
+
+      if (os.contains('linux')) {
+        flushCmd = '''
+          set +x
+          if command -v systemd-resolve >/dev/null 2>&1; then
+            sudo systemd-resolve --flush-caches 2>/dev/null || true
+          elif command -v resolvectl >/dev/null 2>&1; then
+            sudo resolvectl flush-caches 2>/dev/null || true
+          fi
+          if [ -f /etc/init.d/nscd ]; then
+            sudo /etc/init.d/nscd restart 2>/dev/null || true
+          fi
+          set -x
+        '''
+      } else if (os.contains('mac')) {
+        flushCmd = 'sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder'
+      } else {
+        logger.debug("DNS cache flush not implemented for OS: ${os}")
+        return
+      }
+
+      steps.sh(script: flushCmd, returnStdout: false)
+      if (debug) {
+        logger.debug("System DNS cache flushed successfully")
+      }
+    } catch (Exception e) {
+      logger.debug("Failed to flush system DNS cache: ${e.message}")
+    }
   }
 
   /**
