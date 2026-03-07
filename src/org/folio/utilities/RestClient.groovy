@@ -211,45 +211,13 @@ class RestClient {
                         int connectionTimeout,
                         int readTimeout) {
 
-    // Prepare the body (either as inline data or in a temporary file)
     Map preparedBody = prepareRequestBody(body, headers)
     String inlineData = preparedBody.inlineData
     String bodyFilePath = preparedBody.filePath
 
     try {
-      if (debug) {
-        logger.debug("[HTTP REQUEST] method=${method}, url=${url}, headers=${headers}, body=${body}")
-      }
-
-      // Convert timeouts from milliseconds to seconds for the curl command
-      int connectSeconds = Math.round(connectionTimeout / 1000)
-      int readSeconds = Math.round(readTimeout / 1000)
-
-      // Build the curl command string
-      String curlCmd = buildCurlCommand(method, url, headers, bodyFilePath, inlineData, connectSeconds, readSeconds, body)
-      if (debug) {
-        logger.debug("[CURL COMMAND] ${curlCmd}")
-      }
-
-      // Execute the curl command, capturing stdout
-      String curlOutput = steps.sh(script: curlCmd, returnStdout: true).trim()
-
-      // Parse the combined headers, body, and HTTP status code from the curl output
-      Map parsed = parseCurlOutput(curlOutput)
-
-      if (debug) {
-        logger.debug("[HTTP RESPONSE] status=${parsed.responseCode}, headers=${parsed.headers}, body=${parsed.body}")
-      }
-
-      // If the status code is >= 400 and not in validResponseCodes, throw an error
-      if (!validResponseCodes?.contains(parsed.responseCode) && parsed.responseCode >= 400) {
-        handleHttpError(parsed.responseCode, "HTTP request failed", parsed.body, parsed.body?.toString())
-      }
-
-      return parsed
-
+      return executeRequestWithDnsRetry(method, url, body, headers, validResponseCodes, connectionTimeout, readTimeout, bodyFilePath, inlineData)
     } finally {
-      // Cleanup: remove the temporary body file if it was created
       if (bodyFilePath) {
         steps.sh(script: """
           set +x
@@ -258,6 +226,78 @@ class RestClient {
         """)
       }
     }
+  }
+
+  private Map executeRequestWithDnsRetry(String method,
+                                         String url,
+                                         Object body,
+                                         Map<String, String> headers,
+                                         List<Integer> validResponseCodes,
+                                         int connectionTimeout,
+                                         int readTimeout,
+                                         String bodyFilePath,
+                                         String inlineData) {
+    try {
+      return executeRequest(method, url, body, headers, validResponseCodes, connectionTimeout, readTimeout, bodyFilePath, inlineData)
+    } catch (Exception e) {
+      if (isDnsResolutionError(e)) {
+        logger.info("DNS resolution failed, flushing DNS cache and retrying: ${e.message}")
+        boolean originalFlushDnsCache = this.flushDnsCache
+        try {
+          this.flushDnsCache = true
+          return executeRequest(method, url, body, headers, validResponseCodes, connectionTimeout, readTimeout, bodyFilePath, inlineData)
+        } finally {
+          this.flushDnsCache = originalFlushDnsCache
+        }
+      } else {
+        throw e
+      }
+    }
+  }
+
+  private Map executeRequest(String method,
+                             String url,
+                             Object body,
+                             Map<String, String> headers,
+                             List<Integer> validResponseCodes,
+                             int connectionTimeout,
+                             int readTimeout,
+                             String bodyFilePath,
+                             String inlineData) {
+    if (debug) {
+      logger.debug("[HTTP REQUEST] method=${method}, url=${url}, headers=${headers}, body=${body}")
+    }
+
+    int connectSeconds = Math.round(connectionTimeout / 1000)
+    int readSeconds = Math.round(readTimeout / 1000)
+
+    String curlCmd = buildCurlCommand(method, url, headers, bodyFilePath, inlineData, connectSeconds, readSeconds, body)
+    if (debug) {
+      logger.debug("[CURL COMMAND] ${curlCmd}")
+    }
+
+    String curlOutput = steps.sh(script: curlCmd, returnStdout: true).trim()
+
+    Map parsed = parseCurlOutput(curlOutput)
+
+    if (debug) {
+      logger.debug("[HTTP RESPONSE] status=${parsed.responseCode}, headers=${parsed.headers}, body=${parsed.body}")
+    }
+
+    if (!validResponseCodes?.contains(parsed.responseCode) && parsed.responseCode >= 400) {
+      handleHttpError(parsed.responseCode, "HTTP request failed", parsed.body, parsed.body?.toString())
+    }
+
+    return parsed
+  }
+
+  private boolean isDnsResolutionError(Exception e) {
+    String errorMessage = e.message?.toLowerCase() ?: ''
+    return errorMessage.contains('could not resolve host') ||
+           errorMessage.contains('name or service not known') ||
+           errorMessage.contains('nodename nor servname provided') ||
+           errorMessage.contains('temporary failure in name resolution') ||
+           errorMessage.contains('curl: (6)')
   }
 
   /**
