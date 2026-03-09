@@ -14,7 +14,6 @@ import org.jenkinsci.plugins.workflow.libs.Library
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
-  disableConcurrentBuilds(),
   parameters([folioParameters.platform(),
               folioParameters.cluster('PLATFORM'),
               folioParameters.namespace(),
