@@ -4848,7 +4848,7 @@ mod-consortia-keycloak:
   startupProbe:
     httpGet:
       path: /admin/health
-      port: 8081
+      port: 8080
     initialDelaySeconds: 60
     periodSeconds: 20
     timeoutSeconds: 5
