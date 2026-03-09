@@ -377,8 +377,6 @@ ansiColor('xterm') {
         // 4. Enable Application Descriptor with Updated Module Version for Tenants in Namespace
         retry(3) {
 
-          sleep time: 90, unit: 'SECONDS' // RANCHER-2838 timeout for app to get ready
-
           stage('[Rest] Enable New App') {
             try {
               EurekaRequestParams requestParams = new EurekaRequestParams()

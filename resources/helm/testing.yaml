@@ -4860,6 +4860,15 @@ mod-consortia-keycloak:
           memory: 256Mi
         requests:
           memory: 128Mi
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
 mod-login-keycloak:
   extraEnvVars:
   - name: KC_ADMIN_TOKEN_TTL
@@ -4894,6 +4903,15 @@ mod-login-keycloak:
           memory: 256Mi
         requests:
           memory: 128Mi
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
 mod-roles-keycloak:
   extraEnvVars:
   - name: KAFKA_CAPABILITIES_TOPIC_PATTERN
@@ -4931,6 +4949,15 @@ mod-roles-keycloak:
           memory: 256Mi
         requests:
           memory: 128Mi
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
 mod-users-keycloak:
   extraEnvVars:
   - name: MOD_USERS_URL
@@ -4980,6 +5007,15 @@ mod-users-keycloak:
           memory: 256Mi
         requests:
           memory: 128Mi
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
 mod-scheduler:
   extraEnvVars:
   - name: KC_IMPERSONATION_CLIENT
@@ -5029,6 +5065,15 @@ mod-scheduler:
           memory: 256Mi
         requests:
           memory: 128Mi
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
 mod-okapi-facade:
   extraEnvVars:
   - name: AM_TLS_ENABLED
@@ -5065,6 +5110,15 @@ mod-okapi-facade:
           memory: 256Mi
         requests:
           memory: 128Mi
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
 okapi:
   args:
   - cluster
