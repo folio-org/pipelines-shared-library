@@ -3734,6 +3734,15 @@ mod-consortia-keycloak:
     requests:
       cpu: 150m
       memory: 634Mi
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
 mod-login-keycloak:
   extraEnvVars:
     - name: KC_ADMIN_TOKEN_TTL
@@ -3760,6 +3769,15 @@ mod-login-keycloak:
     requests:
       cpu: 150m
       memory: 525Mi
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
 mod-roles-keycloak:
   extraEnvVars:
     - name: KAFKA_CAPABILITIES_TOPIC_PATTERN
@@ -3781,6 +3799,15 @@ mod-roles-keycloak:
     systemuser:
       enabled: true
       existingSecret: mod-roles-keycloak-systemuser
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
   replicaCount: 1
   resources:
     limits:
@@ -3828,6 +3855,15 @@ mod-users-keycloak:
     requests:
       cpu: 150m
       memory: 577Mi
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
 mod-scheduler:
   extraEnvVars:
     - name: KC_IMPERSONATION_CLIENT
@@ -3869,6 +3905,15 @@ mod-scheduler:
     requests:
       cpu: 150m
       memory: 667Mi
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
 mod-okapi-facade:
   extraEnvVars:
     - name: AM_TLS_ENABLED
@@ -3897,6 +3942,15 @@ mod-okapi-facade:
     requests:
       cpu: 150m
       memory: 294Mi
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
 okapi:
   ingress:
     enabled: true
