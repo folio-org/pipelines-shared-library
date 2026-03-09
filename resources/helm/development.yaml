@@ -3781,6 +3781,15 @@ mod-roles-keycloak:
     systemuser:
       enabled: true
       existingSecret: mod-roles-keycloak-systemuser
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
   replicaCount: 1
   resources:
     limits:
