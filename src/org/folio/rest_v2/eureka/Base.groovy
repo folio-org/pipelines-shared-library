@@ -15,7 +15,7 @@ class Base {
     this.context = context
     this.logger = new Logger(context, this.getClass().getCanonicalName())
     this.tools = new Tools(context)
-    this.restClient = new RestClient(context, debug)
+    this.restClient = new RestClient(context, debug, 120000, 10800000, true)
     this.debug = debug
   }
 }

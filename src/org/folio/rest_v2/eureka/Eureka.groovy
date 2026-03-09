@@ -301,7 +301,7 @@ class Eureka extends Base {
     Map<String, String> updatedAppInfoMap = [:]
 
     appWithDescriptors.each { app ->
-      String newBuildNumber = app.build ? (app.build.toInteger() + 1).toString() : ""
+      String newBuildNumber = app.build ? (app.build.toLong() + 1).toString() : ""
 
       Map updatedAppDescriptor = getUpdatedApplicationDescriptor(app.descriptor, module, newBuildNumber)
 

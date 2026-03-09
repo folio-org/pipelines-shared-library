@@ -47,7 +47,17 @@ locals {
       }
 
       capacity_type  = var.eks_nodes_type
-      disk_size      = 100
+      block_device_mappings = {
+        xvda = {
+          device_name = "/dev/xvda"
+          ebs = {
+            volume_size           = 100
+            volume_type           = "gp3"
+            encrypted             = true
+            delete_on_termination = true
+          }
+        }
+      }
       instance_types = var.asg_instance_types
 
       enable_monitoring = false
@@ -85,7 +95,7 @@ module "eks_cluster" {
   version = "~>20.0"
 
   cluster_name      = terraform.workspace
-  cluster_version   = "1.33"
+  cluster_version   = "1.34"
   cluster_ip_family = "ipv4"
 
   cluster_endpoint_private_access = false
@@ -172,7 +182,17 @@ module "eks_cluster" {
       ami_type    = "AL2023_x86_64_STANDARD"
 
       capacity_type  = var.eks_nodes_type
-      disk_size      = 50
+      block_device_mappings = {
+        xvda = {
+          device_name = "/dev/xvda"
+          ebs = {
+            volume_size           = 100
+            volume_type           = "gp3"
+            encrypted             = true
+            delete_on_termination = true
+          }
+        }
+      }
       instance_types = var.asg_instance_types
 
       enable_monitoring = false

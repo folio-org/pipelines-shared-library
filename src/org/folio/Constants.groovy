@@ -39,54 +39,31 @@ class Constants {
   static String AWS_EKS_ADMIN_USERS = 'rancher-port-forward,jenkins-service-user,oleksandrhaimanov,eldiiarduishenaliev,stanislav,vasylavramenko'
   static List AWS_EKS_TMP_NAMESPACES = ['test', 'test-1', 'test-2', 'tdspora']
   static List AWS_EKS_TESTING_NAMESPACES = ['cypress', 'data-migration', 'ecs-snapshot', 'karate', 'snapshot', 'snapshot2', 'sprint', 'pre-bugfest', 'orchid-migration', 'lsdi']
-  static List AWS_EKS_RELEASE_NAMESPACES = ['poppy', 'quesnelia']
+  static List AWS_EKS_RELEASE_NAMESPACES = ['sunflower', 'trillium']
   static List AWS_EKS_DEV_NAMESPACES = ['aggies',
                                         'bama',
                                         'bienenvolk',
                                         'big-fc',
-                                        'bulk-edit',
                                         'citation',
-                                        'concorde',
-                                        'consortia',
                                         'corsair',
-                                        'core-platform',
-                                        'data-migration',
-                                        'dojo',
                                         'dreamliner',
+                                        'dresden',
                                         'eureka',
                                         'eureka-2nd',
                                         'erm',
-                                        'falcon',
                                         'firebird',
                                         'folijet',
                                         'k-int',
-                                        'knowledgeware',
                                         'leipzig',
-                                        'metadata',
-                                        'mjolnir',
-                                        'nest-es',
-                                        'nla',
-                                        'prokopovych',
-                                        'reservoir-dogs',
-                                        'scout',
-                                        'sif',
-                                        'siphon',
-                                        'spanish',
                                         'spitfire',
                                         'spitfire-2nd',
-                                        'spring-force',
-                                        'stripes-force',
-                                        'task-force',
-                                        'task-force-2nd',
                                         'thor',
                                         'thunderjet',
                                         'thunderjet-2nd',
-                                        'unam',
                                         'vega',
                                         'vega-2nd',
                                         'volaris',
-                                        'volaris-2nd',
-                                        'rtr']
+                                        'volaris-2nd']
 
   static List AWS_EKS_NAMESPACE_CONFIGS = ['development',
                                            'performance',
@@ -241,7 +218,7 @@ class Constants {
   static List<String> DOCKERHUB_REPO_NAMES_LIST = ['folioci', 'folioorg']
 
   //Jenkins
-  static List JENKINS_KITFOX_USER_IDS = ['ohaimanov', 'eldiiar-duishenaliev', 'dmytrmoroz', 'aatoyan', 'epam-avramenko', 'yaroslavishchenko', 'sergii-msn']
+  static List JENKINS_KITFOX_USER_IDS = ['ohaimanov', 'eldiiar-duishenaliev', 'epam-avramenko']
   static String JENKINS_MASTER_NODE = 'controller'
   static String JENKINS_JOB_PROJECT = '/Rancher/Project'
   static String JENKINS_JOB_RESTORE_PG_BACKUP = 'Rancher/Create-Restore-PosgreSQL-DB-backup'
@@ -284,6 +261,7 @@ class Constants {
                                   'consortia'     : 'thunderjet',
                                   'core-platform' : 'core-platform',
                                   'cypress'       : 'AQA',
+                                  'dresden'       : 'Dresden',
                                   'dreamliner'    : 'Dreamliner',
                                   'dojo'          : 'dojo',
                                   'ebsco-core'    : 'ebsco-core',
@@ -379,10 +357,8 @@ class Constants {
 
   static List KITFOX_MEMBERS = ["oleksii_petrenko1@epam.com",
                                 "oleksandr_haimanov@epam.com",
-                                "arsen_atoyan@epam.com",
                                 "vasyl_avramenko@epam.com",
-                                "eldiiar_duishenaliev@epam",
-                                "sergii_masiuk@epam.com"]
+                                "eldiiar_duishenaliev@epam.com"]
 
   static List PGSQL_VERSION = ["12.12", "13.13", "14.10", "15.5", "16.1"]
 

@@ -23,8 +23,8 @@ properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
   parameters([
     booleanParam(name: 'FROM_REPOSITORY', defaultValue: true, description: 'Check for building from application repository'),
-    folioParameters.applicationSet(),
-    folioParameters.application(),
+    folioParameters.platformBranch(),
+    folioParameters.applicationFromPlatform(),
     folioParameters.branchWithRef('APPLICATION_BRANCH', 'APPLICATION'),
 
     booleanParam(name: 'FROM_DESCRIPTOR', defaultValue: false, description: 'Check to upgrade previously built descriptor'),
@@ -78,7 +78,7 @@ properties([
 
     , folioParameters.hideParameters(
     [
-      ''  : ['APPLICATION_SET', 'APPLICATION', 'APPLICATION_BRANCH'],
+      ''  : ['PLATFORM_BRANCH', 'APPLICATION', 'APPLICATION_BRANCH'],
       'on': ['VERSION']
     ]
     , "FROM_REPOSITORY", "FROM_REPOSITORY,FROM_DESCRIPTOR,FROM_TEMPLATE")

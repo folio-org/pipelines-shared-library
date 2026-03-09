@@ -52,7 +52,11 @@ karateTestsParams.okapiUrl = params.OKAPI_URL
 karateTestsParams.keycloakUrl = params.KEYCLOAK_URL
 karateTestsParams.edgeUrl = params.EDGE_URL
 karateTestsParams.clientId = params.CLIENT_ID
-karateTestsParams.clientSecret = params.CLIENT_SECRET.getPlainText()
+String resolvedClientSecret = (params.CLIENT_SECRET?.getPlainText() ?: '').trim()
+if (!resolvedClientSecret) {
+  resolvedClientSecret = 'SecretPassword'
+}
+karateTestsParams.clientSecret = resolvedClientSecret
 karateTestsParams.tenant = params.SUPER_TENANT
 karateTestsParams.adminUserName = params.SUPER_ADMIN_USERNAME
 karateTestsParams.adminPassword = params.SUPER_ADMIN_PASSWORD.getPlainText()

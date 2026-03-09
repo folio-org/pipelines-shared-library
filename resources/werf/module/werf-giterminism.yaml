@@ -3,3 +3,4 @@ config:
   goTemplateRendering:
     allowEnvVariables:
     - MODULE_NAME
+    - TARGET_DIR

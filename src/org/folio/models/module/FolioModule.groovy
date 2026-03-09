@@ -26,6 +26,7 @@ class FolioModule {
   VersionType versionType // Type of version (e.g., SNAPSHOT, RELEASE)
   ModuleBuildTool buildTool   // Build Tool Name (Maven or Gradle)
   String buildDir    // Build Folder Path
+  String targetDir   // Target Folder Path
   String modDescriptorPath // Module Descriptor File Path
 
   // Default constructor
