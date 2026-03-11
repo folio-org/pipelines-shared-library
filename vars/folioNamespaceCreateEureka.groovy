@@ -380,7 +380,7 @@ void call(CreateNamespaceParameters args) {
           new Edge(this, "${namespace.generateDomain('kong')}", "${namespace.generateDomain('keycloak')}").createEurekaUsers(namespace)
         }
       }
-      retry(3) {
+
       if (args.uiBuild) {
         stage('Build and deploy UI') {
           Map branches = [:]
@@ -388,6 +388,7 @@ void call(CreateNamespaceParameters args) {
             if (tenant.getTenantUi()) {
               branches[tenantId] = {
                 boolean isECSBff = tenant.tenantId.startsWith("c")
+                retry(3) {
                 folioUI.buildAndDeploy(namespace, tenant, isECSBff)
               }
             }
