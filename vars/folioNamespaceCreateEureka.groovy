@@ -380,7 +380,7 @@ void call(CreateNamespaceParameters args) {
           new Edge(this, "${namespace.generateDomain('kong')}", "${namespace.generateDomain('keycloak')}").createEurekaUsers(namespace)
         }
       }
-
+      retry(3) {
       if (args.uiBuild) {
         stage('Build and deploy UI') {
           Map branches = [:]
@@ -395,6 +395,7 @@ void call(CreateNamespaceParameters args) {
           parallel branches
         }
       }
+    }
 
       //TODO: Add adequate slack notification https://folio-org.atlassian.net/browse/RANCHER-1892
       stage('[Notify] Eureka') {
