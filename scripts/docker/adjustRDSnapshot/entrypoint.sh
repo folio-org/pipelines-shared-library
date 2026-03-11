@@ -58,12 +58,29 @@ done
 echo "Downloading and preparing authority cleanup script for ECS tenants..."
 CLEANUP_SQL_URL="https://raw.githubusercontent.com/folio-org/mod-entities-links/refs/heads/master/src/main/resources/db/scripts/cleanup_authority_propagated_data.sql"
 CLEANUP_SQL_FILE="/tmp/cleanup_authority_propagated_data.sql"
+CLEANUP_SQL_SANITIZED_FILE="/tmp/cleanup_authority_propagated_data_sanitized.sql"
 
-if curl -fsSL -o "$CLEANUP_SQL_FILE" "$CLEANUP_SQL_URL"; then
+download_cleanup_sql() {
+	if command -v curl >/dev/null 2>&1; then
+		curl -fsSL -o "$CLEANUP_SQL_FILE" "$CLEANUP_SQL_URL"
+		return $?
+	fi
+
+	if command -v wget >/dev/null 2>&1; then
+		wget -q -O "$CLEANUP_SQL_FILE" "$CLEANUP_SQL_URL"
+		return $?
+	fi
+
+	echo "Error: Neither curl nor wget is available for downloading cleanup script"
+	return 1
+}
+
+if download_cleanup_sql; then
 	if [[ -f "$CLEANUP_SQL_FILE" && -s "$CLEANUP_SQL_FILE" ]]; then
 		echo "Successfully downloaded cleanup script ($(wc -l < "$CLEANUP_SQL_FILE") lines)"
 		echo "Creating authority cleanup procedures in database..."
-		if psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PGDATABASE" -f "$CLEANUP_SQL_FILE"; then
+		sed '/^DROP PROCEDURE IF EXISTS cleanup_member_tenant_propagated_data(TEXT);$/d; /^DROP PROCEDURE IF EXISTS cleanup_all_member_tenants();$/d' "$CLEANUP_SQL_FILE" > "$CLEANUP_SQL_SANITIZED_FILE"
+		if psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PGDATABASE" -f "$CLEANUP_SQL_SANITIZED_FILE"; then
 			echo "Procedures created successfully"
 
 			for e in $ecs; do
@@ -84,7 +101,7 @@ if curl -fsSL -o "$CLEANUP_SQL_FILE" "$CLEANUP_SQL_URL"; then
 			echo "Error: Failed to create cleanup procedures in database"
 		fi
 
-		rm -f "$CLEANUP_SQL_FILE"
+		rm -f "$CLEANUP_SQL_FILE" "$CLEANUP_SQL_SANITIZED_FILE"
 	else
 		echo "Warning: Downloaded file is empty or does not exist"
 	fi
