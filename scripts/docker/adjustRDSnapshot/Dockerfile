@@ -5,7 +5,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 # Update and install prerequisites
 RUN apt-get update && \
-    apt-get install -y wget curl gnupg2 lsb-release && \
+    apt-get install -y wget curl ca-certificates gnupg2 lsb-release && \
     rm -rf /var/lib/apt/lists/*
 
 # Add PostgreSQL APT repository
