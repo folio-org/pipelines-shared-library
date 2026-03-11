@@ -123,9 +123,15 @@ ansiColor('xterm') {
               ${login.replace('docker', 'werf cr')}
               set -x
               export MODULE_NAME=${module.getName()}
-              werf build ${module.getName()} --repo ${Constants.ECR_FOLIO_REPOSITORY}/werf-shadow \
-                --final-repo ${Constants.ECR_FOLIO_REPOSITORY}/${module.getName()} \
-                --add-custom-tag ${module.getVersion()} --loose-giterminism
+
+              werf build ${module.getName()} \
+                --repo ${Constants.ECR_FOLIO_REPOSITORY}/werf-shadow \
+                --loose-giterminism
+                
+              werf export ${module.getName()} \
+                --repo ${Constants.ECR_FOLIO_REPOSITORY}/werf-shadow \
+                --tag ${Constants.ECR_FOLIO_REPOSITORY}/${module.getName()}:${module.getVersion()} \
+                --loose-giterminism
             """.stripIndent()
           }
         }

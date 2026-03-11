@@ -46,8 +46,11 @@ ansiColor('xterm') {
               set -x
               export JAVA_VERSION=${env.JAVA_VERSION.trim()}
               werf build --repo ${Constants.ECR_FOLIO_REPOSITORY}/werf-shadow \
-                --final-repo ${Constants.ECR_FOLIO_REPOSITORY}/amazoncorretto \
-                --add-custom-tag ${env.IMAGE_TAG} --loose-giterminism
+                --loose-giterminism
+
+              werf export --repo ${Constants.ECR_FOLIO_REPOSITORY}/werf-shadow \
+                --tag ${Constants.ECR_FOLIO_REPOSITORY}/amazoncorretto:${env.IMAGE_TAG} \
+                --loose-giterminism
             """.stripIndent()
           }
         }

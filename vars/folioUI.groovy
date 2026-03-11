@@ -45,9 +45,14 @@ void build(EurekaTenant tenant, boolean enableEcsRequests) {
             set -x
             export OKAPI_URL=https://${tenantUi.getKongDomain()}
             export TENANT_ID=${tenant.getTenantId()}
-            werf build ${tenantUi.IMAGE_NAME} --repo ${Constants.ECR_FOLIO_REPOSITORY}/werf-shadow \
-              --final-repo ${Constants.ECR_FOLIO_REPOSITORY}/${tenantUi.IMAGE_NAME} \
-              --add-custom-tag ${tenantUi.getTag()} --loose-giterminism
+            werf build ${tenantUi.IMAGE_NAME} \
+              --repo ${Constants.ECR_FOLIO_REPOSITORY}/werf-shadow \
+              --loose-giterminism
+
+            werf export ${tenantUi.IMAGE_NAME} \
+              --repo ${Constants.ECR_FOLIO_REPOSITORY}/werf-shadow \
+              --tag ${Constants.ECR_FOLIO_REPOSITORY}/${tenantUi.IMAGE_NAME}:${tenantUi.getTag()} \
+              --loose-giterminism
           """
         }
       }
