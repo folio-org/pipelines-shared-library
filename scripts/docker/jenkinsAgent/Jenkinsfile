@@ -52,9 +52,13 @@ ansiColor('xterm') {
               export HELM_VERSION=${env.HELM_VER.trim()}
               export KUBECTL_VERSION=${env.KUBECTL_VER.trim()}
               export KAFKA_VERSION=${env.KAFKA_VER.trim()}
+
               werf build --repo ${Constants.ECR_FOLIO_REPOSITORY}/werf-shadow \
-                --final-repo ${Constants.ECR_FOLIO_REPOSITORY}/folio-jenkins-agent \
-                --add-custom-tag ${env.IMAGE_TAG} --loose-giterminism
+                --loose-giterminism
+
+              werf export --repo ${Constants.ECR_FOLIO_REPOSITORY}/werf-shadow \
+                --tag ${Constants.ECR_FOLIO_REPOSITORY}/folio-jenkins-agent:${env.IMAGE_TAG} \
+                --loose-giterminism
             """.stripIndent()
           }
         }
