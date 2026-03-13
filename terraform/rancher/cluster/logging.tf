@@ -72,17 +72,17 @@ resource "rancher2_app_v2" "elasticsearch" {
     # Use the default image (Elasticsearch 7.17.15)
     image: "docker.elastic.co/elasticsearch/elasticsearch"
     imageTag: "7.17.15"
-    
+
     esJavaOpts: "-Xmx2g -Xms2g"
-    
+
     # Single node configuration - CRITICAL SETTINGS
     clusterName: "elasticsearch"
     nodeGroup: "master"
     replicas: 1
-    
+
     # OVERRIDE: Disable cluster bootstrap for single-node
     masterService: ""
-    
+
     # Completely disable SSL/TLS and use single-node discovery
     esConfig:
       elasticsearch.yml: |
@@ -91,10 +91,10 @@ resource "rancher2_app_v2" "elasticsearch" {
         network.host: 0.0.0.0
         http.port: 9200
         http.host: 0.0.0.0
-        
+
         # SINGLE NODE DISCOVERY - no cluster bootstrap needed
         discovery.type: single-node
-        
+
         # Disable ALL security features
         xpack.security.enabled: false
         xpack.security.http.ssl.enabled: false
@@ -102,17 +102,17 @@ resource "rancher2_app_v2" "elasticsearch" {
         xpack.monitoring.enabled: false
         xpack.watcher.enabled: false
         xpack.ml.enabled: false
-        
+
         # Enable CORS for dashboard access
         http.cors.enabled: true
         http.cors.allow-origin: "*"
         http.cors.allow-headers: "X-Requested-With,X-Auth-Token,Content-Type,Content-Length,Authorization"
         http.cors.allow-credentials: true
-        
+
         # Performance settings
         bootstrap.memory_lock: false
         indices.query.bool.max_clause_count: 10000
-    
+
     # CRITICAL: Override environment variables that conflict with single-node
     extraEnvs:
       - name: discovery.type
@@ -121,27 +121,27 @@ resource "rancher2_app_v2" "elasticsearch" {
         value: ""
       - name: discovery.seed_hosts
         value: ""
-    
+
     # Resource allocation
     resources:
       requests:
         memory: "2Gi"
         cpu: "500m"
       limits:
-        memory: "3Gi" 
+        memory: "3Gi"
         cpu: "1000m"
-    
+
     # Persistent storage
     volumeClaimTemplate:
       accessModes: [ "ReadWriteOnce" ]
       resources:
         requests:
           storage: 400Gi
-    
+
     # Service configuration
     service:
       type: NodePort
-    
+
     # Custom readiness probe for single-node setup - accept yellow status
     readinessProbe:
       exec:
@@ -153,7 +153,7 @@ resource "rancher2_app_v2" "elasticsearch" {
           # For single-node cluster, yellow status is healthy (no replicas available)
           START_FILE=/tmp/.es_start_file
           export NSS_SDB_USE_CACHE=no
-          
+
           if [ -f "$${START_FILE}" ]; then
             # Check if node is responding
             HTTP_CODE=$(curl --output /dev/null -k -XGET -s -w '%%{http_code}' http://127.0.0.1:9200/)
@@ -178,7 +178,7 @@ resource "rancher2_app_v2" "elasticsearch" {
       timeoutSeconds: 5
       successThreshold: 3
       failureThreshold: 3
-      
+
     # Ingress for external access
     ingress:
       enabled: true
@@ -217,10 +217,10 @@ resource "rancher2_app_v2" "kibana" {
     # Use Kibana 7.17.15 image
     image: "docker.elastic.co/kibana/kibana"
     imageTag: "7.17.15"
-    
+
     # Connect to Elasticsearch service
     elasticsearchHosts: "http://elasticsearch-master:9200"
-    
+
     # Complete Kibana configuration
     kibanaConfig:
       kibana.yml: |
@@ -229,54 +229,54 @@ resource "rancher2_app_v2" "kibana" {
         server.port: 5601
         server.name: "kibana"
         server.rewriteBasePath: false
-        
-        # ALB and proxy configuration  
+
+        # ALB and proxy configuration
         server.publicBaseUrl: "https://${module.eks_cluster.cluster_name}-kibana.${var.root_domain}"
         server.maxPayloadBytes: 1048576
-        
+
         # Configure for ALB with Cognito authentication
         server.xsrf.disableProtection: true
         server.xsrf.whitelist: ["/oauth2/idpresponse"]
-        
+
         # Trust ALB proxy
         server.ssl.enabled: false
-        
+
         # Elasticsearch connection
         elasticsearch.hosts: ["http://elasticsearch-master:9200"]
         elasticsearch.ssl.verificationMode: none
         elasticsearch.requestTimeout: 30000
         elasticsearch.pingTimeout: 1500
-        
+
         # Disable all X-Pack security features
         xpack.security.enabled: false
         xpack.encryptedSavedObjects.encryptionKey: "something_at_least_32_characters_long_for_session_encryption"
-        xpack.reporting.enabled: false
+        xpack.reporting.enabled: true
         xpack.monitoring.enabled: false
         xpack.ml.enabled: false
         xpack.watcher.enabled: false
-        
+
         # Disable spaces to prevent /spaces/enter redirect
         xpack.spaces.enabled: false
         xpack.spaces.maxSpaces: 1
-        
+
         # Configure Kibana for first-time setup
         kibana.index: ".kibana"
         kibana.autocompleteTimeout: 1000
         kibana.autocompleteTerminateAfter: 100000
-        
+
         # Internationalization settings - fix i18n locale error
         i18n.locale: "en"
-        
+
         # Handle ALB Cognito authentication properly
         server.defaultRoute: "/app/discover"
-        
+
         # Request headers for ALB Cognito authentication
         elasticsearch.requestHeadersWhitelist: ["authorization", "x-amzn-oidc-accesstoken", "x-amzn-oidc-identity", "x-amzn-oidc-data"]
-        
+
         # ALB-specific settings for proper routing after authentication
         server.compression.enabled: true
         server.cors.enabled: false
-        
+
         # Correct logging configuration for Kibana 7.17.x
         logging:
           appenders:
@@ -284,7 +284,7 @@ resource "rancher2_app_v2" "kibana" {
               type: json
           root:
             level: info
-    
+
     # Resource allocation
     resources:
       requests:
@@ -293,15 +293,15 @@ resource "rancher2_app_v2" "kibana" {
       limits:
         memory: 1024Mi
         cpu: 500m
-        
+
     # Service configuration
     service:
       type: NodePort
       port: 5601
-      
+
     # Health checks - use API status endpoint
     healthCheckPath: "/api/status"
-      
+
     # Ingress for external access with Cognito auth
     ingress:
       enabled: true
@@ -489,40 +489,40 @@ data:
           target: ''
           fields:
             log_source: 'filebeat'
-    
+
     # Enable HTTP endpoint for health checks
     http:
       enabled: true
       host: 0.0.0.0
       port: 5066
-    
+
     # Output to Elasticsearch - SIMPLIFIED CONFIGURATION
     output.elasticsearch:
       hosts: ["elasticsearch-master.logging.svc.cluster.local:9200"]
       protocol: "http"
       index: "logs-%%{+yyyy.MM.dd}"
-      
+
       # Connection and retry settings
       timeout: 90
       max_retries: 3
       backoff.init: 1s
       backoff.max: 60s
-      
+
       # Bulk settings for performance
       bulk_max_size: 1000
       flush_bytes: 10485760
       flush_interval: 1s
-      
+
       # Template and pipeline settings - DISABLED to avoid conflicts
       template.enabled: false
       pipeline: ""
-      
+
     # Completely disable setup features to avoid any compatibility issues
     setup.template.enabled: false
     setup.ilm.enabled: false
     setup.dashboards.enabled: false
     setup.kibana.enabled: false
-    
+
     # Logging configuration
     logging.level: info
     logging.to_files: true
@@ -531,13 +531,13 @@ data:
       name: filebeat
       keepfiles: 7
       permissions: 0644
-    
+
     # Performance and memory settings
     queue.mem:
       events: 4096
       flush.min_events: 512
       flush.timeout: 5s
-    
+
     # Additional metadata processors
     processors:
     - add_host_metadata:
@@ -827,7 +827,7 @@ spec:
         - |
           set -e
           echo "Waiting for Elasticsearch to be ready..."
-          
+
           # Wait for Elasticsearch to be healthy
           for i in $(seq 1 30); do
             if curl -s -f "http://elasticsearch-master:9200/_cluster/health?wait_for_status=yellow&timeout=10s"; then
@@ -837,13 +837,13 @@ spec:
             echo "Attempt $i/30: Elasticsearch not ready yet, waiting..."
             sleep 10
           done
-          
+
           # Verify we can connect
           curl -s "http://elasticsearch-master:9200/" || {
             echo "Failed to connect to Elasticsearch"
             exit 1
           }
-          
+
           echo "Creating ILM policy..."
           # Apply ILM policy with simpler configuration
           curl -X PUT "http://elasticsearch-master:9200/_ilm/policy/logs-policy" \
@@ -868,7 +868,7 @@ spec:
                 }
               }
             }' || echo "ILM policy creation failed, but continuing..."
-          
+
           echo "Creating index template..."
           # Create simple index template
           curl -X PUT "http://elasticsearch-master:9200/_template/logs-template" \
@@ -881,7 +881,7 @@ spec:
                 "index.refresh_interval": "30s"
               }
             }' || echo "Template creation failed, but continuing..."
-            
+
           echo "Setup completed successfully!"
         volumeMounts:
         - name: policy
