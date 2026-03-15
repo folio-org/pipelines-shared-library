@@ -97,7 +97,7 @@ class Constants {
     ],
     [
       name: "app-platform-complete"
-      , branch: "snapshot"
+      , branch: "APPINV-1"
       , consortia: false
       , core     : false
       , byDefault: true
@@ -137,7 +137,7 @@ class Constants {
     ],
     [
       name: "app-acquisitions"
-      , branch: "snapshot"
+      , branch: "APPINV-1"
       , consortia: false
       , core: false
       , byDefault: true
@@ -161,7 +161,7 @@ class Constants {
     ],
     [
       name: "app-gobi"
-      , branch: "snapshot"
+      , branch: "APPINV-1"
       , consortia: false
       , core: false
       , byDefault: true
@@ -169,7 +169,7 @@ class Constants {
     ],
     [
       name: "app-rtac"
-      , branch: "snapshot"
+      , branch: "APPINV-1"
       , consortia: false
       , core: false
       , byDefault: true
@@ -177,7 +177,7 @@ class Constants {
     ],
     [
       name: "app-rtac-cache"
-      , branch: "snapshot"
+      , branch: "APPINV-1"
       , consortia: false
       , core: false
       , byDefault: false
@@ -233,7 +233,7 @@ class Constants {
     ],
     [
       name: "app-dcb"
-      , branch: "snapshot"
+      , branch: "APPINV-1"
       , consortia: true
       , core     : false
       , byDefault: true
@@ -249,7 +249,7 @@ class Constants {
     ],
     [
       name: "app-reading-room"
-      , branch: "snapshot"
+      , branch: "APPINV-1"
       , consortia: false
       , core: false
       , byDefault: true
@@ -265,11 +265,19 @@ class Constants {
     ],
     [
       name: "app-inn-reach"
-      , branch: "snapshot"
+      , branch: "APPINV-1"
       , consortia: false
       , core: false
       , byDefault: true
       , dependsOn: ["app-platform-minimal", "app-platform-complete"]
+    ],
+    [
+      name: "app-inventory"
+      , branch: "snapshot"
+      , consortia: false
+      , core: false
+      , byDefault: true
+      , dependsOn: ["app-platform-minimal"]
     ],
     [
       name: "app-fqm"
@@ -289,7 +297,7 @@ class Constants {
     ],
     [
       name: "app-requests-ecs"
-      , branch: "snapshot"
+      , branch: "APPINV-1"
       , consortia: true
       , core: false
       , byDefault: true
@@ -297,7 +305,7 @@ class Constants {
     ],
     [
       name: "app-requests-mediated"
-      , branch: "snapshot"
+      , branch: "APPINV-1"
       , consortia: true
       , core: false
       , byDefault: true
@@ -313,7 +321,7 @@ class Constants {
     ],
     [
       name: "app-marc-migrations"
-      , branch: "snapshot"
+      , branch: "APPINV-1"
       , consortia: false
       , core: false
       , byDefault: false
@@ -345,7 +353,7 @@ class Constants {
     ],
     [
       name: "app-oai-pmh"
-      , branch: "snapshot"
+      , branch: "APPINV-1"
       , consortia: false
       , core: false
       , byDefault: true
@@ -353,7 +361,7 @@ class Constants {
     ],
     [
       name: "app-bulk-edit"
-      , branch: "snapshot"
+      , branch: "APPINV-1"
       , consortia: false
       , core: false
       , byDefault: true
@@ -361,7 +369,7 @@ class Constants {
     ],
     [
       name: "app-data-export"
-      , branch: "snapshot"
+      , branch: "APPINV-1"
       , consortia: false
       , core: false
       , byDefault: true
