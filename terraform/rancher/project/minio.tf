@@ -97,8 +97,9 @@ resource "rancher2_secret" "s3-credentials" {
 }
 
 resource "aws_s3_bucket" "s3-bucket-for-backend-modules" {
-  count  = var.s3_embedded ? 0 : 1
-  bucket = local.s3_bucket_name
+  count         = var.s3_embedded ? 0 : 1
+  bucket        = local.s3_bucket_name
+  force_destroy = true
   tags = {
     Cluster   = data.rancher2_cluster.this.name
     Project   = var.rancher_project_name
