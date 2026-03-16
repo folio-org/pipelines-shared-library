@@ -96,21 +96,17 @@ resource "rancher2_secret" "s3-credentials" {
   }
 }
 
-resource "null_resource" "s3-bucket-cleanup" {
-  count      = var.s3_embedded ? 0 : 1
-  depends_on = [aws_s3_bucket.s3-bucket-for-backend-modules]
-
-  triggers = {
-    bucket = local.s3_bucket_name
-    region = var.aws_region
-  }
+resource "aws_s3_bucket" "s3-bucket-for-backend-modules" {
+  count         = var.s3_embedded ? 0 : 1
+  bucket        = local.s3_bucket_name
+  force_destroy = true
 
   provisioner "local-exec" {
     when        = destroy
     interpreter = ["/bin/bash", "-c"]
     environment = {
-      BUCKET = self.triggers.bucket
-      REGION = self.triggers.region
+      BUCKET = self.bucket
+      REGION = self.region
     }
     command = <<-EOT
       aws s3 rm "s3://$BUCKET" --recursive --region "$REGION" || true
@@ -153,12 +149,7 @@ resource "null_resource" "s3-bucket-cleanup" {
       exit 0
     EOT
   }
-}
 
-resource "aws_s3_bucket" "s3-bucket-for-backend-modules" {
-  count         = var.s3_embedded ? 0 : 1
-  bucket        = local.s3_bucket_name
-  force_destroy = true
   tags = {
     Cluster   = data.rancher2_cluster.this.name
     Project   = var.rancher_project_name
