@@ -389,14 +389,14 @@ void call(CreateNamespaceParameters args) {
               branches[tenantId] = {
                 boolean isECSBff = tenant.tenantId.startsWith("c")
                 retry(3) {
-                folioUI.buildAndDeploy(namespace, tenant, isECSBff)
+                  folioUI.buildAndDeploy(namespace, tenant, isECSBff)
+                }
               }
             }
+            parallel branches
           }
-          parallel branches
         }
       }
-    }
 
       //TODO: Add adequate slack notification https://folio-org.atlassian.net/browse/RANCHER-1892
       stage('[Notify] Eureka') {
