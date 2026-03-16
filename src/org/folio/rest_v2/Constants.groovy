@@ -97,7 +97,7 @@ class Constants {
     ],
     [
       name: "app-platform-complete"
-      , branch: "MikeTaylor:snapshot"
+      , branch: "snapshot"
       , consortia: false
       , core     : false
       , byDefault: true
@@ -270,6 +270,14 @@ class Constants {
       , core: false
       , byDefault: true
       , dependsOn: ["app-platform-minimal", "app-platform-complete"]
+    ],
+    [
+      name: "app-inventory"
+      , branch: "snapshot-inventory-update"
+      , consortia: false
+      , core: false
+      , byDefault: true
+      , dependsOn: ["app-platform-minimal"]
     ],
     [
       name: "app-fqm"
