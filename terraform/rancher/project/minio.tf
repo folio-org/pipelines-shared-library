@@ -96,6 +96,65 @@ resource "rancher2_secret" "s3-credentials" {
   }
 }
 
+resource "null_resource" "s3-bucket-cleanup" {
+  count      = var.s3_embedded ? 0 : 1
+  depends_on = [aws_s3_bucket.s3-bucket-for-backend-modules]
+
+  triggers = {
+    bucket = local.s3_bucket_name
+    region = var.aws_region
+  }
+
+  provisioner "local-exec" {
+    when        = destroy
+    interpreter = ["/bin/bash", "-c"]
+    environment = {
+      BUCKET = self.triggers.bucket
+      REGION = self.triggers.region
+    }
+    command = <<-EOT
+      aws s3 rm "s3://$BUCKET" --recursive --region "$REGION" || true
+
+      versions=$(aws s3api list-object-versions --bucket "$BUCKET" --region "$REGION" --query 'Versions[].[Key,VersionId]' --output text || true)
+      if [ -n "$versions" ] && [ "$versions" != "None" ]; then
+        while IFS=$'\t' read -r key version; do
+          if [ -n "$key" ] && [ -n "$version" ] && [ "$key" != "None" ] && [ "$version" != "None" ]; then
+            aws s3api delete-object --bucket "$BUCKET" --key "$key" --version-id "$version" --region "$REGION" || true
+          fi
+        done <<< "$versions"
+      fi
+
+      markers=$(aws s3api list-object-versions --bucket "$BUCKET" --region "$REGION" --query 'DeleteMarkers[].[Key,VersionId]' --output text || true)
+      if [ -n "$markers" ] && [ "$markers" != "None" ]; then
+        while IFS=$'\t' read -r key version; do
+          if [ -n "$key" ] && [ -n "$version" ] && [ "$key" != "None" ] && [ "$version" != "None" ]; then
+            aws s3api delete-object --bucket "$BUCKET" --key "$key" --version-id "$version" --region "$REGION" || true
+          fi
+        done <<< "$markers"
+      fi
+
+      for _ in $(seq 1 24); do
+        obj_count=$(aws s3api list-objects-v2 --bucket "$BUCKET" --region "$REGION" --query 'KeyCount' --output text 2>/dev/null || echo 0)
+        ver_count=$(aws s3api list-object-versions --bucket "$BUCKET" --region "$REGION" --query 'length(Versions)' --output text 2>/dev/null || echo 0)
+        marker_count=$(aws s3api list-object-versions --bucket "$BUCKET" --region "$REGION" --query 'length(DeleteMarkers)' --output text 2>/dev/null || echo 0)
+
+        [ "$obj_count" = "None" ] && obj_count=0
+        [ "$ver_count" = "None" ] && ver_count=0
+        [ "$marker_count" = "None" ] && marker_count=0
+
+        if [ "$obj_count" = "0" ] && [ "$ver_count" = "0" ] && [ "$marker_count" = "0" ]; then
+          exit 0
+        fi
+
+        aws s3 rm "s3://$BUCKET" --recursive --region "$REGION" || true
+        sleep 5
+      done
+
+      exit 0
+    EOT
+  }
+}
+
 resource "aws_s3_bucket" "s3-bucket-for-backend-modules" {
   count         = var.s3_embedded ? 0 : 1
   bucket        = local.s3_bucket_name
