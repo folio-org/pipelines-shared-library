@@ -887,7 +887,7 @@ mod-bulk-operations:
     eureka:
       extraEnvVars:
       - name: JAVA_OPTS
-        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+        value: "-Dweb-client.ingress.pool.max-size=1500 -Dweb-client.egress.pool.max-size=1500 -Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 256Mi
