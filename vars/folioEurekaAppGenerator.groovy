@@ -105,14 +105,26 @@ Map createTemplateFromDescriptor(Map descriptor, String version = null, boolean 
 Map generateFromRepository(String repoName, FolioInstallJson moduleList, String branch = "master", boolean debug = false) {
   logger.info("Generating application descriptor from repository ${repoName}...")
 
+  String repoUrl
+  String effectiveBranch
+
+  if (branch.contains(':')) {
+    def parts = branch.split(':', 2)
+    repoUrl = "https://github.com/${parts[0]}/${repoName}.git"
+    effectiveBranch = parts[1]
+  } else {
+    repoUrl = "${Constants.FOLIO_GITHUB_URL}/${repoName}.git"
+    effectiveBranch = branch
+  }
+
   checkout(poll: false,
     changelog: false,
     scm: scmGit(
-      branches: [[name: "*/${branch}"]],
+      branches: [[name: "*/${effectiveBranch}"]],
       extensions: [cloneOption(depth: 10, noTags: true, reference: '', shallow: true),
                    [$class: 'RelativeTargetDirectory', relativeTargetDir: repoName]],
       userRemoteConfigs: [[credentialsId: Constants.PRIVATE_GITHUB_CREDENTIALS_ID,
-                           url          : "${Constants.FOLIO_GITHUB_URL}/${repoName}.git"]])
+                           url          : repoUrl]])
   )
 
   dir(repoName) {
