@@ -46,7 +46,7 @@ locals {
         AmazonSSMFullAccess = "arn:aws:iam::aws:policy/AmazonSSMFullAccess"
       }
 
-      capacity_type  = var.eks_nodes_type
+      capacity_type = var.eks_nodes_type
       block_device_mappings = {
         xvda = {
           device_name = "/dev/xvda"
@@ -181,7 +181,7 @@ module "eks_cluster" {
       description = "EKS managed node group"
       ami_type    = "AL2023_x86_64_STANDARD"
 
-      capacity_type  = var.eks_nodes_type
+      capacity_type = var.eks_nodes_type
       block_device_mappings = {
         xvda = {
           device_name = "/dev/xvda"

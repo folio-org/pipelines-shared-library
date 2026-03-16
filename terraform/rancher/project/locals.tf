@@ -1,6 +1,6 @@
 # Creating local variables that are used in the rest of the terraform file.
 locals {
-  testing_cluster   = "folio-testing"
+  testing_cluster   = "folio-etesting"
   opensearch_value  = try(nonsensitive(jsondecode(data.aws_ssm_parameter.opensearch[0].value)), "")
   msk_value         = try(nonsensitive(jsondecode(data.aws_ssm_parameter.msk[0].value)), "")
   env_name          = join("-", [data.rancher2_cluster.this.name, var.rancher_project_name])
@@ -23,10 +23,7 @@ locals {
     "mod-bulk-operations", "mod-oai-pmh", "mod-marc-migrations", "mod-agreements", "mod-licenses", "mod-linked-data-import"
   ]
 
-  s3_buckets_map = { for module in local.s3_integrated_modules :
-    module => "${data.rancher2_cluster.this.name}-${var.rancher_project_name}-${replace(module, "mod-", "")}"
-  }
-  s3_buckets_string   = join(",", values(local.s3_buckets_map))
+  s3_bucket_name      = "${data.rancher2_cluster.this.name}-${rancher2_namespace.this.name}"
   ssm_params          = ["master_folio-backend-admin-client"]
   schedule_namespaces = ["cicypress", "cikarate", "cypress"]
   schedule_object     = <<-EOF
