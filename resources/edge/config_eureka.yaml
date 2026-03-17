@@ -7,9 +7,8 @@ edge-users:
     password: edgeUser123!
     create: true
   capabilities:
-    - users_collection.view
+    - users_collection.manage
     - users_item.create
-    - users.collection.get
 edge-inventory:
   tenants:
   - tenant: testinventory
