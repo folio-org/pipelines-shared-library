@@ -3964,7 +3964,7 @@ mod-rtac-cache:
 mod-search:
   extraEnvVars:
   - name: spring.cache.type
-    value: none
+    value: "none"
   - name: INSTANCE_SUBJECTS_INDEXING_RETRY_ATTEMPTS
     value: "3"
   - name: INSTANCE_CONTRIBUTORS_INDEXING_RETRY_ATTEMPTS
