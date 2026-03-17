@@ -366,7 +366,7 @@ spec:
         jenkins/label: "${JenkinsAgentLabel.STRIPES_AGENT.getLabel()}"
 """,
       containers: [
-        buildWerfContainer([], '9Gi', '12Gi'),
+        buildWerfContainer([], '10Gi', '10Gi'),
       ]
     )) {
       steps.node(JenkinsAgentLabel.STRIPES_AGENT.getLabel()) {
