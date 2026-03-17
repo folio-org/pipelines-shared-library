@@ -381,6 +381,8 @@ edge-users:
       memory: 512Mi
     requests:
       memory: 256Mi
+  extraJavaOpts:
+    - -Dserver.port=8081
 edge-ncip:
   ingress:
     enabled: true
@@ -3961,6 +3963,8 @@ mod-rtac-cache:
           memory: 128Mi
 mod-search:
   extraEnvVars:
+  - name: spring.cache.type
+    value: none
   - name: INSTANCE_SUBJECTS_INDEXING_RETRY_ATTEMPTS
     value: "3"
   - name: INSTANCE_CONTRIBUTORS_INDEXING_RETRY_ATTEMPTS
