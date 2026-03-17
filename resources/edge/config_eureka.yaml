@@ -9,6 +9,7 @@ edge-users:
   capabilities:
     - users_collection.view
     - users_item.create
+    - users.collection.get
 edge-inventory:
   tenants:
   - tenant: testinventory
