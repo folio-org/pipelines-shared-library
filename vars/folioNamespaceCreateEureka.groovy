@@ -388,11 +388,11 @@ void call(CreateNamespaceParameters args) {
             if (tenant.getTenantUi()) {
               branches[tenantId] = {
                 boolean isECSBff = tenant.tenantId.startsWith("c")
-                  folioUI.buildAndDeploy(namespace, tenant, isECSBff)
+                folioUI.buildAndDeploy(namespace, tenant, isECSBff)
               }
             }
-            parallel branches
           }
+          parallel branches
         }
       }
 
