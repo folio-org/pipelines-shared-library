@@ -382,20 +382,19 @@ private static List<String> _tenantsToRedirect(String tenantId) {
 
 // Domain and configuration utility methods
 private static void _overrideKongDomain(TenantUi tenantUi) {
-  String current = tenantUi.getKongDomain()
   switch (tenantUi.getTenantId()) {
     case 'fs09000002':
-      if (!current.startsWith('fs02-')) tenantUi.setKongDomain("fs02-${current}")
+      tenantUi.setKongDomain("fs02-${tenantUi.getKongDomain()}")
       break
     case 'fs09000003':
-      if (!current.startsWith('fs03-')) tenantUi.setKongDomain("fs03-${current}")
+      tenantUi.setKongDomain("fs03-${tenantUi.getKongDomain()}")
       break
     case 'cs00000int':
     case 'consortium':
-      if (!current.startsWith('ecs-')) tenantUi.setKongDomain("ecs-${current}")
+      tenantUi.setKongDomain("ecs-${tenantUi.getKongDomain()}")
       break
     case 'consortium2':
-      if (!current.startsWith('ecs2-')) tenantUi.setKongDomain("ecs2-${current}")
+      tenantUi.setKongDomain("ecs2-${tenantUi.getKongDomain()}")
       break
   }
 }
