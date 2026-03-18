@@ -195,8 +195,16 @@ class Configurations extends Kong {
                   $entries""")
 
     Map<String, String> headers = getTenantHttpHeaders(tenant)
-    String url = generateUrl("/configurations/entries")
+    Map parsedEntries = context.readJSON text: entries
 
+    if (parsedEntries.code == "FOLIO_HOST") {
+      String baseUrl = generateUrl("/base-url")
+      restClient.put(baseUrl, entries, headers)
+      logger.info("Setting configuration entries on tenant ${tenant.tenantId} with ${tenant.uuid} were finished successfully")
+      return this
+    }
+
+    String url = generateUrl("/configurations/entries")
     def response = restClient.post(url, entries, headers, [201, 422])
     String contentStr = response.body.toString()
 
