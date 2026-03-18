@@ -170,6 +170,15 @@ class Configurations extends Kong {
       }
     }
 
+    logger.info("Set base-url on tenant ${tenant.tenantId} with ${tenant.uuid}...")
+
+    Map<String, String> headers = getTenantHttpHeaders(tenant)
+    String url = generateUrl("/base-url")
+    Map body = [baseUrl: tenant.okapiConfig.resetPasswordLink]
+
+    restClient.put(url, body, headers)
+    logger.info("base-url on tenant ${tenant.tenantId} with ${tenant.uuid} was set successfully")
+
     return this
   }
 
