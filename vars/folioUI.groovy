@@ -37,23 +37,27 @@ void build(EurekaTenant tenant, boolean enableEcsRequests) {
         sh "sed -i '/^FROM /a ENV YARN_CACHE_FOLDER=${WORKSPACE}/.cache/yarn' docker/Dockerfile"
 
         withAWS(credentials: Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID, region: Constants.AWS_REGION) {
-          String login = ecrLogin()
-
-          sh """
-            set -eu +x
-            ${login.replace('docker', 'werf cr')}
-            set -x
-            export OKAPI_URL=https://${tenantUi.getKongDomain()}
-            export TENANT_ID=${tenant.getTenantId()}
-            werf build ${tenantUi.IMAGE_NAME} \
-              --repo ${Constants.ECR_FOLIO_REPOSITORY}/werf-shadow \
-              --loose-giterminism
-
-            werf export ${tenantUi.IMAGE_NAME} \
-              --repo ${Constants.ECR_FOLIO_REPOSITORY}/werf-shadow \
-              --tag ${Constants.ECR_FOLIO_REPOSITORY}/${tenantUi.IMAGE_NAME}:${tenantUi.getTag()} \
-              --loose-giterminism
-          """
+          withCredentials([usernamePassword(credentialsId: Constants.DOCKER_FOLIOCI_PULL_CREDENTIALS_ID,
+            usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD')]) {
+            String ecrLoginString = ecrLogin()
+            String dockerHubLoginString = "werf cr login -u ${DOCKER_USER} -p ${DOCKER_PASSWORD} https://index.docker.io/v1/"
+            sh """
+              set -eu +x
+              ${ecrLoginString.replace('docker', 'werf cr')}
+              ${dockerHubLoginString}
+              set -x
+              export OKAPI_URL=https://${tenantUi.getKongDomain()}
+              export TENANT_ID=${tenant.getTenantId()}
+              werf build ${tenantUi.IMAGE_NAME} \
+                --repo ${Constants.ECR_FOLIO_REPOSITORY}/werf-shadow \
+                --loose-giterminism
+  
+              werf export ${tenantUi.IMAGE_NAME} \
+                --repo ${Constants.ECR_FOLIO_REPOSITORY}/werf-shadow \
+                --tag ${Constants.ECR_FOLIO_REPOSITORY}/${tenantUi.IMAGE_NAME}:${tenantUi.getTag()} \
+                --loose-giterminism
+            """
+          }
         }
       }
     }

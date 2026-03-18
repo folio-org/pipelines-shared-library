@@ -112,23 +112,28 @@ ansiColor('xterm') {
             writeFile file: 'werf.yaml', text: libraryResource("werf/${sidecarModuleName}/werf.yaml")
 
             withAWS(credentials: Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID, region: Constants.AWS_REGION) {
-              String login = ecrLogin()
-              String imageName = params.NATIVE ? 'sidecar-native' : 'sidecar'
+              withCredentials([usernamePassword(credentialsId: Constants.DOCKER_FOLIOCI_PULL_CREDENTIALS_ID,
+                usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD')]) {
+                String ecrLoginString = ecrLogin()
+                String dockerHubLoginString = "werf cr login -u ${DOCKER_USER} -p ${DOCKER_PASSWORD} https://index.docker.io/v1/"
+                String imageName = params.NATIVE ? 'sidecar-native' : 'sidecar'
 
-              sh """
-                set -eu +x
-                ${login.replace('docker', 'werf cr')}
-                set -x
+                sh """
+                  set -eu +x
+                  ${ecrLoginString.replace('docker', 'werf cr')}
+                  ${dockerHubLoginString}
+                  set -x
 
-                werf build ${imageName} \
-                  --repo ${Constants.ECR_FOLIO_REPOSITORY}/werf-shadow \
-                  --loose-giterminism
-                  
-                werf export ${imageName} \
-                  --repo ${Constants.ECR_FOLIO_REPOSITORY}/werf-shadow \
-                  --tag ${Constants.ECR_FOLIO_REPOSITORY}/${params.SC_ECR_REGISTRY}:${sidecarVersion} \
-                  --loose-giterminism
-              """.stripIndent()
+                  werf build ${imageName} \
+                    --repo ${Constants.ECR_FOLIO_REPOSITORY}/werf-shadow \
+                    --loose-giterminism
+
+                  werf export ${imageName} \
+                    --repo ${Constants.ECR_FOLIO_REPOSITORY}/werf-shadow \
+                    --tag ${Constants.ECR_FOLIO_REPOSITORY}/${params.SC_ECR_REGISTRY}:${sidecarVersion} \
+                    --loose-giterminism
+                """.stripIndent()
+              }
             }
           }
         }

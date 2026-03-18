@@ -117,22 +117,27 @@ ansiColor('xterm') {
           writeFile file: 'werf-giterminism.yaml', text: libraryResource('werf/module/werf-giterminism.yaml')
 
           withAWS(credentials: Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID, region: Constants.AWS_REGION) {
-            String login = ecrLogin()
-            sh """
-              set -eu +x
-              ${login.replace('docker', 'werf cr')}
-              set -x
-              export MODULE_NAME=${module.getName()}
+            withCredentials([usernamePassword(credentialsId: Constants.DOCKER_FOLIOCI_PULL_CREDENTIALS_ID,
+              usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD')]) {
+              String ecrLoginString = ecrLogin()
+              String dockerHubLoginString = "werf cr login -u ${DOCKER_USER} -p ${DOCKER_PASSWORD} https://index.docker.io/v1/"
+              sh """
+                set -eu +x
+                ${ecrLoginString.replace('docker', 'werf cr')}
+                ${dockerHubLoginString}
+                set -x
+                export MODULE_NAME=${module.getName()}
 
-              werf build ${module.getName()} \
-                --repo ${Constants.ECR_FOLIO_REPOSITORY}/werf-shadow \
-                --loose-giterminism
-                
-              werf export ${module.getName()} \
-                --repo ${Constants.ECR_FOLIO_REPOSITORY}/werf-shadow \
-                --tag ${Constants.ECR_FOLIO_REPOSITORY}/${module.getName()}:${module.getVersion()} \
-                --loose-giterminism
-            """.stripIndent()
+                werf build ${module.getName()} \
+                  --repo ${Constants.ECR_FOLIO_REPOSITORY}/werf-shadow \
+                  --loose-giterminism
+
+                werf export ${module.getName()} \
+                  --repo ${Constants.ECR_FOLIO_REPOSITORY}/werf-shadow \
+                  --tag ${Constants.ECR_FOLIO_REPOSITORY}/${module.getName()}:${module.getVersion()} \
+                  --loose-giterminism
+              """.stripIndent()
+            }
           }
         }
       }

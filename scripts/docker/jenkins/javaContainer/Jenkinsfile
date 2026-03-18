@@ -39,19 +39,24 @@ ansiColor('xterm') {
       dir(dockerfilePath) {
         container('werf') {
           withAWS(credentials: Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID, region: Constants.AWS_REGION) {
-            String login = ecrLogin()
-            sh """
-              set -eu +x
-              ${login.replace('docker', 'werf cr')}
-              set -x
-              export JAVA_VERSION=${env.JAVA_VERSION.trim()}
-              werf build --repo ${Constants.ECR_FOLIO_REPOSITORY}/werf-shadow \
-                --loose-giterminism
+            withCredentials([usernamePassword(credentialsId: Constants.DOCKER_FOLIOCI_PULL_CREDENTIALS_ID,
+              usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD')]) {
+              String ecrLoginString = ecrLogin()
+              String dockerHubLoginString = "werf cr login -u ${DOCKER_USER} -p ${DOCKER_PASSWORD} https://index.docker.io/v1/"
+              sh """
+                set -eu +x
+                ${ecrLoginString.replace('docker', 'werf cr')}
+                ${dockerHubLoginString}
+                set -x
+                export JAVA_VERSION=${env.JAVA_VERSION.trim()}
+                werf build --repo ${Constants.ECR_FOLIO_REPOSITORY}/werf-shadow \
+                  --loose-giterminism
 
-              werf export --repo ${Constants.ECR_FOLIO_REPOSITORY}/werf-shadow \
-                --tag ${Constants.ECR_FOLIO_REPOSITORY}/amazoncorretto:${env.IMAGE_TAG} \
-                --loose-giterminism
-            """.stripIndent()
+                werf export --repo ${Constants.ECR_FOLIO_REPOSITORY}/werf-shadow \
+                  --tag ${Constants.ECR_FOLIO_REPOSITORY}/amazoncorretto:${env.IMAGE_TAG} \
+                  --loose-giterminism
+              """.stripIndent()
+            }
           }
         }
       }
