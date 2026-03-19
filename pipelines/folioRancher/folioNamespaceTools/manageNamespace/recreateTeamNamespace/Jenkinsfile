@@ -21,7 +21,7 @@ properties([
               folioParameters.configType(),
               booleanParam(name: 'SC_NATIVE', defaultValue: true, description: '(Optional) Set false to use Java based SC image'),
               booleanParam(name: 'CONSORTIA_EXTRA', defaultValue: false, description: '(Optional) Set true to include 2nd consortium'),
-              booleanParam(name: 'SANITY_CHECK', defaultValue: false, description: '(Optional) Set true to run sanity check after environment is up'),]),
+              booleanParam(name: 'SANITY_CHECK', defaultValue: false, description: '(Optional) Set true to run sanity check after environment is up'),
               folioParameters.refreshParameters()]),
   pipelineTriggers([
     parameterizedCron('''
