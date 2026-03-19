@@ -21,6 +21,7 @@ properties([
               folioParameters.configType(),
               booleanParam(name: 'SC_NATIVE', defaultValue: true, description: '(Optional) Set false to use Java based SC image'),
               booleanParam(name: 'CONSORTIA_EXTRA', defaultValue: false, description: '(Optional) Set true to include 2nd consortium'),
+              booleanParam(name: 'SANITY_CHECK', defaultValue: false, description: '(Optional) Set true to run sanity check after environment is up'),
               folioParameters.refreshParameters()]),
   pipelineTriggers([
     parameterizedCron('''
@@ -68,7 +69,7 @@ CreateNamespaceParameters namespace = new CreateNamespaceParameters.Builder()
   .scNative(params.SC_NATIVE)
   .s3Type('built-in')
   .uiBuild(true)
-  .runSanityCheck(true)
+  .runSanityCheck(params.SANITY_CHECK)
   .build()
 
 ansiColor('xterm') {
