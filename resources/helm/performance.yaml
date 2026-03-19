@@ -381,6 +381,8 @@ edge-users:
       memory: 512Mi
     requests:
       memory: 256Mi
+  extraJavaOpts:
+    - -Dserver.port=8081      
 edge-ncip:
   ingress:
     enabled: true
