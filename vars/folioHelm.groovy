@@ -345,6 +345,13 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
 //            value: '1'
 //          ] : []
         break
+        
+      case 'mod-search':
+          moduleConfig['extraEnvVars'] +=  ['cikarate', 'karate'].contains(ns.getNamespaceName()) ? [
+            name : 'spring.cache.type',
+            value: 'none'
+          ] : []
+        break          
 
       case ~/mod-.*-keycloak/:
         moduleConfig['extraEnvVars'] += [
