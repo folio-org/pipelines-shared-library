@@ -54,6 +54,10 @@ class RestClient {
 
   private static final int INLINE_BODY_MAX_SIZE = 4096
 
+  private static final int DNS_RETRY_COUNT = 4
+
+  private static final int DNS_RETRY_DELAY_SECONDS = 2
+
   /**
    * Constructs a new RestClient.
    *
@@ -237,22 +241,32 @@ class RestClient {
                                          int readTimeout,
                                          String bodyFilePath,
                                          String inlineData) {
+    boolean originalFlushDnsCache = this.flushDnsCache
+    Exception lastDnsException = null
+
     try {
-      return executeRequest(method, url, body, headers, validResponseCodes, connectionTimeout, readTimeout, bodyFilePath, inlineData)
-    } catch (Exception e) {
-      if (isDnsResolutionError(e)) {
-        logger.info("DNS resolution failed, flushing DNS cache and retrying: ${e.message}")
-        boolean originalFlushDnsCache = this.flushDnsCache
+      for (int attempt = 1; attempt <= DNS_RETRY_COUNT; attempt++) {
         try {
-          this.flushDnsCache = true
+          this.flushDnsCache = attempt > 1 ? true : originalFlushDnsCache
           return executeRequest(method, url, body, headers, validResponseCodes, connectionTimeout, readTimeout, bodyFilePath, inlineData)
-        } finally {
-          this.flushDnsCache = originalFlushDnsCache
+        } catch (Exception e) {
+          if (!isDnsResolutionError(e)) {
+            throw e
+          }
+          lastDnsException = e
+          if (attempt == DNS_RETRY_COUNT) {
+            break
+          }
+          int backoffSeconds = DNS_RETRY_DELAY_SECONDS * attempt
+          logger.info("DNS resolution failed (attempt ${attempt}/${DNS_RETRY_COUNT}) for ${url}. Retrying in ${backoffSeconds}s: ${e.message}")
+          steps.sleep(time: backoffSeconds, unit: 'SECONDS')
         }
-      } else {
-        throw e
       }
+    } finally {
+      this.flushDnsCache = originalFlushDnsCache
     }
+
+    throw lastDnsException
   }
 
   private Map executeRequest(String method,
