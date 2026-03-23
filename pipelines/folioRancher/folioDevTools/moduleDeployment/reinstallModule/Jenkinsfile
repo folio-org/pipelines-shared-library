@@ -4,7 +4,7 @@ import org.folio.jenkins.PodTemplates
 import org.folio.utilities.Logger
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library@RANCHER-2873') _
+@Library('pipelines-shared-library') _
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
@@ -44,7 +44,7 @@ ansiColor('xterm') {
       folioHelm.withKubeConfig(params.CLUSTER) {
         def imageId = sh(script: "kubectl get deploy $params.MODULE -n $params.NAMESPACE -o=jsonpath='{\$.spec.template.spec.containers[:1].image}'", returnStdout: true).trim()
         def id = imageId.split('/')[1].replace(':', '-')
-        String cmd = "curl -X POST -H 'x-okapi-tenant:${params.TENANT}' -H 'Content-Type: application/json' -d '{\"id\": \"$id\", \"parameters\":[{\"key\":\"install\",\"value\":\"true\"},{\"key\":\"loadReference\",\"value\":\"${params.LOAD_REFERENCE}\"},{\"key\":\"loadSample\",\"value\":\"${params.LOAD_SAMPLE}\"}]}' 'http://${params.MODULE}/_/tenant'"
+        String cmd = "curl -X POST -H 'x-okapi-tenant:${params.TENANT}' -H 'Content-Type: application/json' -d '{\"id\": \"$id\", \"parameters\":[{\"key\":\"reinstall\",\"value\":\"true\"},{\"key\":\"loadReference\",\"value\":\"${params.LOAD_REFERENCE}\"},{\"key\":\"loadSample\",\"value\":\"${params.LOAD_SAMPLE}\"}]}' 'http://${params.MODULE}/_/tenant'"
         kubectl.runPodWithCommand("${params.NAMESPACE}", 'curl-reinstall', Constants.ECR_FOLIO_REPOSITORY + '/curl:7.88.1')
         kubectl.waitPodIsRunning("${params.NAMESPACE}", 'curl-reinstall')
         kubectl.execCommand("${params.NAMESPACE}", 'curl-reinstall', cmd)
