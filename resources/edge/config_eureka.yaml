@@ -9,8 +9,8 @@ edge-users:
   capabilitiesSet:
     - users.manage
   capabilities:
-    - patron-blocks.automated-patron-blocks.collection.get
-    - manualblocks.collection.get
+    - patron-blocks_automated-patron-blocks_collection.view
+    - manualblocks_collection.view
 edge-inventory:
   tenants:
   - tenant: testinventory
