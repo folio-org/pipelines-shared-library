@@ -1,15 +1,16 @@
 edge-users:
   tenants:
-  - tenant: default
-    username: edgeUser
-    firstName: edge
-    lastName: SYSTEM
-    password: edgeUser123!
-    create: true
+    - tenant: default
+      username: edgeUser
+      firstName: edge
+      lastName: SYSTEM
+      password: edgeUser123!
+      create: true
   capabilitiesSet:
-    - users_collection.manage
+    - users.manage
   capabilities:
-    - users_item.create
+    - patron-blocks.automated-patron-blocks.collection.get
+    - manualblocks.collection.get
 edge-inventory:
   tenants:
   - tenant: testinventory
