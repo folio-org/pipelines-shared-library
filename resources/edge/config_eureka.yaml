@@ -6,8 +6,9 @@ edge-users:
     lastName: SYSTEM
     password: edgeUser123!
     create: true
-  capabilities:
+  capabilitiesSet:
     - users_collection.manage
+  capabilities:
     - users_item.create
 edge-inventory:
   tenants:
