@@ -157,3 +157,15 @@ resource "aws_s3_bucket" "s3-bucket-for-backend-modules" {
     ManagedBy = "Terraform"
   }
 }
+
+resource "aws_s3_bucket_cors_configuration" "s3-bucket-for-backend-modules" {
+  count  = var.s3_embedded ? 0 : 1
+  bucket = aws_s3_bucket.s3-bucket-for-backend-modules[0].id
+
+  cors_rule {
+    allowed_headers = []
+    allowed_methods = ["GET", "PUT"]
+    allowed_origins = ["https://*.ci.folio.org"]
+    expose_headers  = ["etag"]
+  }
+}
