@@ -52,6 +52,7 @@ for n in $non_ecs; do
 		psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PGDATABASE" -c "DO \$\$ BEGIN IF EXISTS (SELECT FROM information_schema.tables WHERE table_schema = '${n}_mod_email' AND table_name = 'smtp_configuration') THEN DELETE FROM ${n}_mod_email.smtp_configuration; END IF; END \$\$;"
 		psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PGDATABASE" -c "DO \$\$ BEGIN IF EXISTS (SELECT FROM information_schema.tables WHERE table_schema = '${n}_mod_email' AND table_name = 'settings') THEN DELETE FROM ${n}_mod_email.settings; END IF; END \$\$;"
 		psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PGDATABASE" -c "DO \$\$ BEGIN IF EXISTS (SELECT FROM information_schema.tables WHERE table_schema = '${n}_mod_configuration' AND table_name = 'config_data') THEN DELETE FROM ${n}_mod_configuration.config_data WHERE jsonb ->> 'module' = 'SMTP_SERVER'; END IF; END \$\$;"
+		psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PGDATABASE" -c "DO \$\$ BEGIN IF EXISTS (SELECT FROM information_schema.tables WHERE table_schema = '${n}_mod_scheduler' AND table_name = 'timer') THEN DELETE FROM ${n}_mod_scheduler.timer; END IF; END \$\$;"
 	fi
 done
 
@@ -126,6 +127,7 @@ for e in $ecs; do
 		psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PGDATABASE" -c "DO \$\$ BEGIN IF EXISTS (SELECT FROM information_schema.tables WHERE table_schema = '${e}_mod_email' AND table_name = 'smtp_configuration') THEN DELETE FROM ${e}_mod_email.smtp_configuration; END IF; END \$\$;"
 		psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PGDATABASE" -c "DO \$\$ BEGIN IF EXISTS (SELECT FROM information_schema.tables WHERE table_schema = '${e}_mod_email' AND table_name = 'settings') THEN DELETE FROM ${e}_mod_email.settings; END IF; END \$\$;"
 		psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PGDATABASE" -c "DO \$\$ BEGIN IF EXISTS (SELECT FROM information_schema.tables WHERE table_schema = '${e}_mod_configuration' AND table_name = 'config_data') THEN DELETE FROM ${e}_mod_configuration.config_data WHERE jsonb ->> 'module' = 'SMTP_SERVER'; END IF; END \$\$;"
+		psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PGDATABASE" -c "DO \$\$ BEGIN IF EXISTS (SELECT FROM information_schema.tables WHERE table_schema = '${e}_mod_scheduler' AND table_name = 'timer') THEN DELETE FROM ${e}_mod_scheduler.timer; END IF; END \$\$;"
 	fi
 done
 
