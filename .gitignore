@@ -58,3 +58,6 @@ out/
 
 # Personal
 localDev
+
+#local groovy binaries
+lib/*
