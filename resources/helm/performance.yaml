@@ -4949,6 +4949,10 @@ mod-roles-keycloak:
   sidecarContainers:
     eureka:
       extraEnvVars:
+      - name: WEB_CLIENT_INGRESS_POOL_MAX_SIZE
+        value: "1500"
+      - name: WEB_CLIENT_EGRESS_POOL_MAX_SIZE
+        value: "1500"
       - name: JAVA_OPTS
         value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms160m -Xmx160m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
