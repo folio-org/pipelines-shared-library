@@ -44,6 +44,9 @@ ansiColor('xterm') {
     }
 
     stage('[Start]') {
+
+      def tenant
+
       logger.info("Reindex on tenant: ${params.TENANT}")
       folioHelm.withKubeConfig(params.CLUSTER) {
 
@@ -53,13 +56,17 @@ ansiColor('xterm') {
 
           switch (params.TENANT) {
             case 'consortium':
-              folioDefault.consortiaTenants()[params.TENANT]
+              tenant = folioDefault.consortiaTenants()[params.TENANT]
               break
             case 'consortium2':
-              folioDefault.consortiaTenantsExtra()[params.TENANT]
+              tenant = folioDefault.consortiaTenantsExtra()[params.TENANT]
               break
             default:
-              folioDefault.tenants()[params.TENANT]
+              tenant = folioDefault.tenants()[params.TENANT]
+          }
+
+          if (!tenant) {
+            error("Tenant config for '${params.TENANT}' was not found")
           }
 
           def URL = "https://$params.CLUSTER-$params.NAMESPACE-kong.$Constants.CI_ROOT_DOMAIN/search/index/instance-records/reindex/full"
