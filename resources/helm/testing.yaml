@@ -1467,6 +1467,10 @@ mod-data-export-worker:
   sidecarContainers:
     eureka:
       extraEnvVars:
+      - name: WEB_CLIENT_INGRESS_POOL_MAX_SIZE
+        value: "1500"
+      - name: WEB_CLIENT_EGRESS_POOL_MAX_SIZE
+        value: "1500"
       - name: JAVA_OPTS
         value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
@@ -2343,6 +2347,10 @@ mod-inventory:
   sidecarContainers:
     eureka:
       extraEnvVars:
+      - name: WEB_CLIENT_INGRESS_POOL_MAX_SIZE
+        value: "1500"
+      - name: WEB_CLIENT_EGRESS_POOL_MAX_SIZE
+        value: "1500"
       - name: JAVA_OPTS
         value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms256m -Xmx256m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
@@ -2394,6 +2402,10 @@ mod-inventory-storage:
   sidecarContainers:
     eureka:
       extraEnvVars:
+      - name: WEB_CLIENT_INGRESS_POOL_MAX_SIZE
+        value: "1500"
+      - name: WEB_CLIENT_EGRESS_POOL_MAX_SIZE
+        value: "1500"
       - name: JAVA_OPTS
         value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms256m -Xmx256m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
@@ -4047,6 +4059,10 @@ mod-search:
   sidecarContainers:
     eureka:
       extraEnvVars:
+      - name: WEB_CLIENT_INGRESS_POOL_MAX_SIZE
+        value: "1500"
+      - name: WEB_CLIENT_EGRESS_POOL_MAX_SIZE
+        value: "1500"
       - name: JAVA_OPTS
         value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms160m -Xmx160m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
@@ -4948,6 +4964,10 @@ mod-roles-keycloak:
   sidecarContainers:
     eureka:
       extraEnvVars:
+      - name: WEB_CLIENT_INGRESS_POOL_MAX_SIZE
+        value: "1500"
+      - name: WEB_CLIENT_EGRESS_POOL_MAX_SIZE
+        value: "1500"
       - name: JAVA_OPTS
         value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms160m -Xmx160m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
@@ -5006,6 +5026,10 @@ mod-users-keycloak:
   sidecarContainers:
     eureka:
       extraEnvVars:
+      - name: WEB_CLIENT_INGRESS_POOL_MAX_SIZE
+        value: "1500"
+      - name: WEB_CLIENT_EGRESS_POOL_MAX_SIZE
+        value: "1500"
       - name: JAVA_OPTS
         value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms256m -Xmx256m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
