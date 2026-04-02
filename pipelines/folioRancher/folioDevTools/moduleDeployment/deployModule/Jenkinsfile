@@ -41,6 +41,10 @@ if (params.NAMESPACE in Constants.RANCHER_PROTECTED_NAMESPACES) {
   folioCommon.kitfoxApproval()
 }
 
+if (params.CONFIG_TYPE == 'release') {
+  folioCommon.kitfoxApproval()
+}
+
 
 /** Pipeline variables */
 PodTemplates podTemplates = new PodTemplates(this)

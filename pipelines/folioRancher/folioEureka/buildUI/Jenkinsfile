@@ -36,6 +36,10 @@ if (params.NAMESPACE in Constants.RANCHER_PROTECTED_NAMESPACES) {
   folioCommon.kitfoxApproval()
 }
 
+if (params.CONFIG_TYPE == 'release') {
+  folioCommon.kitfoxApproval()
+}
+
 List<FolioModule> removeUIComponents = []
 if (!params.CONSORTIA) {
   removeUIComponents.add(new FolioModule().loadModuleDetails('folio_consortia-settings-0.0.0'))

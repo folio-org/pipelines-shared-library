@@ -40,6 +40,10 @@ if (params.CLUSTER == 'folio-testing') {
   folioCommon.kitfoxApproval()
 }
 
+if (params.CONFIG_TYPE == 'release') {
+  folioCommon.kitfoxApproval()
+}
+
 folioCommon.validateNamespace(params.NAMESPACE)
 
 /**

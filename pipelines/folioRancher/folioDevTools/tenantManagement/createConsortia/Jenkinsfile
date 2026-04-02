@@ -32,6 +32,10 @@ if (params.REFRESH_PARAMETERS) {
   error('DRY RUN BUILD, PARAMETERS REFRESHED!')
 }
 
+if (params.CONFIG_TYPE == 'release') {
+  folioCommon.kitfoxApproval()
+}
+
 PodTemplates podTemplates = new PodTemplates(this)
 
 //Set namespace configuration

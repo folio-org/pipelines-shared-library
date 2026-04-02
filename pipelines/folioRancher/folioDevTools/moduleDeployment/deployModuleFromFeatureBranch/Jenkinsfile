@@ -40,6 +40,10 @@ if (params.NAMESPACE in Constants.RANCHER_PROTECTED_NAMESPACES) {
  folioCommon.kitfoxApproval()
 }
 
+if (params.CONFIG_TYPE == 'release') {
+ folioCommon.kitfoxApproval()
+}
+
 PodTemplates podTemplates = new PodTemplates(this, true)
 Logger logger = new Logger(this, env.JOB_BASE_NAME)
 
