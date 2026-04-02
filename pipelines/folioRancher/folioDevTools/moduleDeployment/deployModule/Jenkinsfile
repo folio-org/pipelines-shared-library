@@ -37,11 +37,7 @@ if (params.REFRESH_PARAMETERS) {
   return
 }
 
-if (params.NAMESPACE in Constants.RANCHER_PROTECTED_NAMESPACES) {
-  folioCommon.kitfoxApproval()
-}
-
-if (params.CONFIG_TYPE == 'release') {
+if (params.NAMESPACE in Constants.RANCHER_PROTECTED_NAMESPACES || params.CONFIG_TYPE == 'release') {
   folioCommon.kitfoxApproval()
 }
 
