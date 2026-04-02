@@ -708,7 +708,7 @@ mod-agreements:
     eureka:
       extraEnvVars:
       - name: JAVA_OPTS
-        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms384m -Xmx384m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 1024Mi
@@ -752,7 +752,7 @@ mod-audit:
     eureka:
       extraEnvVars:
       - name: JAVA_OPTS
-        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms384m -Xmx384m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 1024Mi
@@ -828,7 +828,7 @@ mod-batch-print:
     eureka:
       extraEnvVars:
       - name: JAVA_OPTS
-        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms384m -Xmx384m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 1024Mi
@@ -893,7 +893,7 @@ mod-bulk-operations:
       - name: WEB_CLIENT_EGRESS_POOL_MAX_SIZE
         value: "1500"
       - name: JAVA_OPTS
-        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms750m -Xmx750m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 1500Mi
@@ -934,7 +934,7 @@ mod-calendar:
     eureka:
       extraEnvVars:
       - name: JAVA_OPTS
-        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms384m -Xmx384m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 1024Mi
@@ -1018,7 +1018,7 @@ mod-circulation:
     eureka:
       extraEnvVars:
       - name: JAVA_OPTS
-        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms256m -Xmx256m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms768m -Xmx768m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 1024Mi
@@ -1108,7 +1108,7 @@ mod-circulation-storage:
     eureka:
       extraEnvVars:
       - name: JAVA_OPTS
-        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms256m -Xmx256m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms768m -Xmx768m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 1024Mi
@@ -1212,7 +1212,7 @@ mod-configuration:
     eureka:
       extraEnvVars:
       - name: JAVA_OPTS
-        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms256m -Xmx256m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms768m -Xmx768m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 1024Mi
@@ -1293,7 +1293,7 @@ mod-copycat:
     eureka:
       extraEnvVars:
       - name: JAVA_OPTS
-        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms512m -Xmx512m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 1024Mi
@@ -1334,7 +1334,7 @@ mod-courses:
     eureka:
       extraEnvVars:
       - name: JAVA_OPTS
-        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms512m -Xmx512m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 1024Mi
@@ -1376,7 +1376,7 @@ mod-data-export:
     eureka:
       extraEnvVars:
       - name: JAVA_OPTS
-        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms512m -Xmx512m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 1024Mi
@@ -1421,7 +1421,7 @@ mod-data-export-spring:
     eureka:
       extraEnvVars:
       - name: JAVA_OPTS
-        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms512m -Xmx512m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 1024Mi
@@ -1472,7 +1472,7 @@ mod-data-export-worker:
       - name: WEB_CLIENT_EGRESS_POOL_MAX_SIZE
         value: "1500"
       - name: JAVA_OPTS
-        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms512m -Xmx512m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 1024Mi
@@ -1517,7 +1517,7 @@ mod-data-import:
     eureka:
       extraEnvVars:
       - name: JAVA_OPTS
-        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms160m -Xmx160m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms640m -Xmx640m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 1024Mi
@@ -1606,7 +1606,7 @@ mod-di-converter-storage:
     eureka:
       extraEnvVars:
       - name: JAVA_OPTS
-        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms512m -Xmx512m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 1024Mi
@@ -1644,7 +1644,7 @@ mod-ebsconet:
     eureka:
       extraEnvVars:
       - name: JAVA_OPTS
-        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms384m -Xmx384m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 1024Mi
@@ -1685,7 +1685,7 @@ mod-email:
     eureka:
       extraEnvVars:
       - name: JAVA_OPTS
-        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms512m -Xmx512m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 1024Mi
@@ -1746,7 +1746,7 @@ mod-entities-links:
     eureka:
       extraEnvVars:
       - name: JAVA_OPTS
-        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms512m -Xmx512m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 1024Mi
@@ -1787,7 +1787,7 @@ mod-erm-usage:
     eureka:
       extraEnvVars:
       - name: JAVA_OPTS
-        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms384m -Xmx384m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 1024Mi
@@ -1834,7 +1834,7 @@ mod-erm-usage-harvester:
     eureka:
       extraEnvVars:
       - name: JAVA_OPTS
-        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms160m -Xmx160m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms640m -Xmx640m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 1024Mi
@@ -1875,7 +1875,7 @@ mod-eusage-reports:
     eureka:
       extraEnvVars:
       - name: JAVA_OPTS
-        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms384m -Xmx384m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 1024Mi
@@ -1916,7 +1916,7 @@ mod-event-config:
     eureka:
       extraEnvVars:
       - name: JAVA_OPTS
-        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms384m -Xmx384m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 1024Mi
@@ -1957,7 +1957,7 @@ mod-feesfines:
     eureka:
       extraEnvVars:
       - name: JAVA_OPTS
-        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms160m -Xmx160m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms640m -Xmx640m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 1024Mi
@@ -2041,7 +2041,7 @@ mod-finance:
     eureka:
       extraEnvVars:
       - name: JAVA_OPTS
-        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms160m -Xmx160m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms640m -Xmx640m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 1024Mi
@@ -2082,7 +2082,7 @@ mod-finance-storage:
     eureka:
       extraEnvVars:
       - name: JAVA_OPTS
-        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms512m -Xmx512m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 1024Mi
@@ -2127,7 +2127,7 @@ mod-fqm-manager:
     eureka:
       extraEnvVars:
       - name: JAVA_OPTS
-        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms512m -Xmx512m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 1024Mi
@@ -2168,7 +2168,7 @@ mod-gobi:
     eureka:
       extraEnvVars:
       - name: JAVA_OPTS
-        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms384m -Xmx384m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 1024Mi
@@ -2206,7 +2206,7 @@ mod-graphql:
     eureka:
       extraEnvVars:
       - name: JAVA_OPTS
-        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms384m -Xmx384m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 1024Mi
@@ -2258,7 +2258,7 @@ mod-inn-reach:
     eureka:
       extraEnvVars:
       - name: JAVA_OPTS
-        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms384m -Xmx384m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 1024Mi
@@ -2352,7 +2352,7 @@ mod-inventory:
       - name: WEB_CLIENT_EGRESS_POOL_MAX_SIZE
         value: "1500"
       - name: JAVA_OPTS
-        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms256m -Xmx256m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms768m -Xmx768m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 1024Mi
@@ -2407,7 +2407,7 @@ mod-inventory-storage:
       - name: WEB_CLIENT_EGRESS_POOL_MAX_SIZE
         value: "1500"
       - name: JAVA_OPTS
-        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms256m -Xmx256m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms768m -Xmx768m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 1024Mi
@@ -2448,7 +2448,7 @@ mod-inventory-update:
     eureka:
       extraEnvVars:
       - name: JAVA_OPTS
-        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms384m -Xmx384m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 1024Mi
@@ -2499,7 +2499,7 @@ mod-invoice:
     eureka:
       extraEnvVars:
       - name: JAVA_OPTS
-        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms512m -Xmx512m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 1024Mi
@@ -2543,7 +2543,7 @@ mod-invoice-storage:
     eureka:
       extraEnvVars:
       - name: JAVA_OPTS
-        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms512m -Xmx512m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 1024Mi
@@ -2584,7 +2584,7 @@ mod-kb-ebsco-java:
     eureka:
       extraEnvVars:
       - name: JAVA_OPTS
-        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms384m -Xmx384m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 1024Mi
@@ -2690,7 +2690,7 @@ mod-licenses:
     eureka:
       extraEnvVars:
       - name: JAVA_OPTS
-        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms384m -Xmx384m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 1024Mi
@@ -2792,7 +2792,7 @@ mod-lists:
     eureka:
       extraEnvVars:
       - name: JAVA_OPTS
-        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms288m -Xmx288m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 768Mi
@@ -2908,7 +2908,7 @@ mod-marc-migrations:
     eureka:
       extraEnvVars:
       - name: JAVA_OPTS
-        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms384m -Xmx384m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 1024Mi
@@ -3027,7 +3027,7 @@ mod-notes:
     eureka:
       extraEnvVars:
       - name: JAVA_OPTS
-        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms512m -Xmx512m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 1024Mi
@@ -3068,7 +3068,7 @@ mod-notify:
     eureka:
       extraEnvVars:
       - name: JAVA_OPTS
-        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms384m -Xmx384m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 1024Mi
@@ -3159,7 +3159,7 @@ mod-oai-pmh:
     eureka:
       extraEnvVars:
       - name: JAVA_OPTS
-        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms384m -Xmx384m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 1024Mi
@@ -3212,7 +3212,7 @@ mod-orders:
     eureka:
       extraEnvVars:
       - name: JAVA_OPTS
-        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms160m -Xmx160m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms640m -Xmx640m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 1024Mi
@@ -3258,7 +3258,7 @@ mod-orders-storage:
     eureka:
       extraEnvVars:
       - name: JAVA_OPTS
-        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms256m -Xmx256m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms768m -Xmx768m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 1024Mi
@@ -3313,7 +3313,7 @@ mod-dcb:
     eureka:
       extraEnvVars:
       - name: JAVA_OPTS
-        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms384m -Xmx384m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 1024Mi
@@ -3359,7 +3359,7 @@ mod-circulation-item:
     eureka:
       extraEnvVars:
       - name: JAVA_OPTS
-        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms384m -Xmx384m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 1024Mi
@@ -3397,7 +3397,7 @@ mod-organizations:
     eureka:
       extraEnvVars:
       - name: JAVA_OPTS
-        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms512m -Xmx512m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 1024Mi
@@ -3441,7 +3441,7 @@ mod-organizations-storage:
     eureka:
       extraEnvVars:
       - name: JAVA_OPTS
-        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms512m -Xmx512m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 1024Mi
@@ -3482,7 +3482,7 @@ mod-password-validator:
     eureka:
       extraEnvVars:
       - name: JAVA_OPTS
-        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms384m -Xmx384m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 1024Mi
@@ -3523,7 +3523,7 @@ mod-patron:
     eureka:
       extraEnvVars:
       - name: JAVA_OPTS
-        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms384m -Xmx384m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 1024Mi
@@ -3564,7 +3564,7 @@ mod-patron-blocks:
     eureka:
       extraEnvVars:
       - name: JAVA_OPTS
-        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms160m -Xmx160m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms640m -Xmx640m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 1024Mi
@@ -3605,7 +3605,7 @@ mod-permissions:
     eureka:
       extraEnvVars:
       - name: JAVA_OPTS
-        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms512m -Xmx512m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 1024Mi
@@ -3655,7 +3655,7 @@ mod-pubsub:
     eureka:
       extraEnvVars:
       - name: JAVA_OPTS
-        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms512m -Xmx512m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 1024Mi
@@ -3698,7 +3698,7 @@ mod-quick-marc:
     eureka:
       extraEnvVars:
       - name: JAVA_OPTS
-        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms512m -Xmx512m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 1024Mi
@@ -3739,7 +3739,7 @@ mod-reading-room:
     eureka:
       extraEnvVars:
       - name: JAVA_OPTS
-        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms384m -Xmx384m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 1024Mi
@@ -3782,7 +3782,7 @@ mod-record-specifications:
     eureka:
       extraEnvVars:
       - name: JAVA_OPTS
-        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms384m -Xmx384m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 1024Mi
@@ -3832,7 +3832,7 @@ mod-remote-storage:
     eureka:
       extraEnvVars:
       - name: JAVA_OPTS
-        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms512m -Xmx512m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 1024Mi
@@ -3920,7 +3920,7 @@ mod-rtac:
     eureka:
       extraEnvVars:
       - name: JAVA_OPTS
-        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms384m -Xmx384m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 1024Mi
@@ -3967,7 +3967,7 @@ mod-rtac-cache:
     eureka:
       extraEnvVars:
       - name: JAVA_OPTS
-        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms384m -Xmx384m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 1024Mi
@@ -4064,7 +4064,7 @@ mod-search:
       - name: WEB_CLIENT_EGRESS_POOL_MAX_SIZE
         value: "1500"
       - name: JAVA_OPTS
-        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms160m -Xmx160m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms640m -Xmx640m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 1024Mi
@@ -4102,7 +4102,7 @@ mod-sender:
     eureka:
       extraEnvVars:
       - name: JAVA_OPTS
-        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms384m -Xmx384m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 1024Mi
@@ -4148,7 +4148,7 @@ mod-serials-management:
     eureka:
       extraEnvVars:
       - name: JAVA_OPTS
-        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms384m -Xmx384m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 1024Mi
@@ -4194,7 +4194,7 @@ mod-service-interaction:
     eureka:
       extraEnvVars:
       - name: JAVA_OPTS
-        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms384m -Xmx384m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 1024Mi
@@ -4235,7 +4235,7 @@ mod-settings:
     eureka:
       extraEnvVars:
       - name: JAVA_OPTS
-        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms512m -Xmx512m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 1024Mi
@@ -4304,7 +4304,7 @@ mod-source-record-manager:
     eureka:
       extraEnvVars:
       - name: JAVA_OPTS
-        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms192m -Xmx192m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms768m -Xmx768m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 1024Mi
@@ -4390,7 +4390,7 @@ mod-source-record-storage:
     eureka:
       extraEnvVars:
       - name: JAVA_OPTS
-        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms160m -Xmx160m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms640m -Xmx640m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 1024Mi
@@ -4431,7 +4431,7 @@ mod-tags:
     eureka:
       extraEnvVars:
       - name: JAVA_OPTS
-        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms512m -Xmx512m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 1024Mi
@@ -4472,7 +4472,7 @@ mod-template-engine:
     eureka:
       extraEnvVars:
       - name: JAVA_OPTS
-        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms384m -Xmx384m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 1024Mi
@@ -4560,7 +4560,7 @@ mod-user-import:
     eureka:
       extraEnvVars:
       - name: JAVA_OPTS
-        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms384m -Xmx384m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 1024Mi
@@ -4608,7 +4608,7 @@ mod-users:
       - name: QUARKUS_HTTP_LIMITS_MAX_BODY_SIZE
         value: "25M"
       - name: JAVA_OPTS
-        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms256m -Xmx256m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms768m -Xmx768m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 1024Mi
@@ -4643,7 +4643,7 @@ mod-users-bl:
     eureka:
       extraEnvVars:
       - name: JAVA_OPTS
-        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms256m -Xmx256m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms768m -Xmx768m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 1024Mi
@@ -4876,7 +4876,7 @@ mod-consortia-keycloak:
     eureka:
       extraEnvVars:
       - name: JAVA_OPTS
-        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms160m -Xmx160m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms640m -Xmx640m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 1024Mi
@@ -4969,7 +4969,7 @@ mod-roles-keycloak:
       - name: WEB_CLIENT_EGRESS_POOL_MAX_SIZE
         value: "1500"
       - name: JAVA_OPTS
-        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms160m -Xmx160m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms640m -Xmx640m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 1024Mi
@@ -5031,7 +5031,7 @@ mod-users-keycloak:
       - name: WEB_CLIENT_EGRESS_POOL_MAX_SIZE
         value: "1500"
       - name: JAVA_OPTS
-        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms256m -Xmx256m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms768m -Xmx768m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 1024Mi
@@ -5089,7 +5089,7 @@ mod-scheduler:
     eureka:
       extraEnvVars:
       - name: JAVA_OPTS
-        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms256m -Xmx256m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms768m -Xmx768m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 1024Mi
@@ -5134,7 +5134,7 @@ mod-okapi-facade:
     eureka:
       extraEnvVars:
       - name: JAVA_OPTS
-        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms384m -Xmx384m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
       resources:
         limits:
           memory: 1024Mi
