@@ -52,6 +52,10 @@ if (params.REFRESH_PARAMETERS) {
   return
 }
 
+if (params.CONFIG_TYPE == 'release') {
+  folioCommon.kitfoxApproval()
+}
+
 if (params.IS_CRON_JOB) {
   if (isSecondWednesday && params.TYPE != 'full') {
     echo "REASON: Second Wednesday but TYPE is '${params.TYPE}' (expected 'full')"

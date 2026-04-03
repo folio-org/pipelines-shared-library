@@ -39,6 +39,10 @@ if (params.REFRESH_PARAMETERS) {
   return
 }
 
+if (params.CONFIG_TYPE == 'release') {
+  folioCommon.kitfoxApproval()
+}
+
 PodTemplates podTemplates = new PodTemplates(this)
 
 CreateNamespaceParameters namespace = new CreateNamespaceParameters.Builder()

@@ -36,7 +36,7 @@ if (params.REFRESH_PARAMETERS) {
   return
 }
 
-if (params.CLUSTER == 'folio-testing') {
+if (params.CLUSTER == 'folio-testing' || params.CONFIG_TYPE == 'release') {
   folioCommon.kitfoxApproval()
 }
 

@@ -1,0 +1,5222 @@
+edge-caiasoft:
+  ingress:
+    enabled: true
+    annotations:
+      alb.ingress.kubernetes.io/healthcheck-path: /admin/health
+      alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+      alb.ingress.kubernetes.io/load-balancer-attributes: idle_timeout.timeout_seconds=4000
+      alb.ingress.kubernetes.io/scheme: internet-facing
+      alb.ingress.kubernetes.io/success-codes: 200-399
+      kubernetes.io/ingress.class: alb
+    hosts:
+    - paths:
+      - path: /caiasoftService*
+        pathType: ImplementationSpecific
+        servicePort: 80
+  service:
+    type: NodePort
+  extraEnvVars: []
+  integrations:
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+  configMaps:
+    ephemeral:
+      fileName: edge-caiasoft-ephemeral-properties
+      existingConfig: edge-caiasoft-ephemeral-properties
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1024Mi
+    requests:
+      memory: 896Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 2
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+edge-connexion:
+  service:
+    annotations:
+      service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: ip
+      service.beta.kubernetes.io/aws-load-balancer-scheme: internet-facing
+      service.beta.kubernetes.io/aws-load-balancer-type: external
+    type: LoadBalancer
+  extraEnvVars: []
+  integrations:
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+  configMaps:
+    ephemeral:
+      fileName: edge-connexion-ephemeral-properties
+      existingConfig: edge-connexion-ephemeral-properties
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1024Mi
+    requests:
+      memory: 896Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 2
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+edge-courses:
+  ingress:
+    enabled: true
+    annotations:
+      alb.ingress.kubernetes.io/healthcheck-path: /admin/health
+      alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+      alb.ingress.kubernetes.io/load-balancer-attributes: idle_timeout.timeout_seconds=4000
+      alb.ingress.kubernetes.io/scheme: internet-facing
+      alb.ingress.kubernetes.io/success-codes: 200-399
+      kubernetes.io/ingress.class: alb
+    hosts:
+    - paths:
+      - path: /courses*
+        pathType: ImplementationSpecific
+        servicePort: 80
+  service:
+    type: NodePort
+  extraEnvVars:
+  - name: secure_store
+    value: Ephemeral
+  - name: token_cache_ttl_ms
+    value: "3600000"
+  - name: null_token_cache_ttl_ms
+    value: "30000"
+  - name: token_cache_capacity
+    value: "100"
+  integrations:
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+  configMaps:
+    ephemeral:
+      fileName: edge-courses-ephemeral-properties
+      existingConfig: edge-courses-ephemeral-properties
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1024Mi
+    requests:
+      memory: 896Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 2
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+edge-dcb:
+  ingress:
+    enabled: true
+    annotations:
+      alb.ingress.kubernetes.io/healthcheck-path: /admin/health
+      alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+      alb.ingress.kubernetes.io/load-balancer-attributes: idle_timeout.timeout_seconds=4000
+      alb.ingress.kubernetes.io/scheme: internet-facing
+      alb.ingress.kubernetes.io/success-codes: 200-399
+      kubernetes.io/ingress.class: alb
+    hosts:
+    - paths:
+      - path: /dcbService*
+        pathType: ImplementationSpecific
+        servicePort: 80
+  service:
+    type: NodePort
+  extraEnvVars: []
+  integrations:
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+  configMaps:
+    ephemeral:
+      fileName: edge-dcb-ephemeral-properties
+      existingConfig: edge-dcb-ephemeral-properties
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1024Mi
+    requests:
+      memory: 896Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 2
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+edge-dematic:
+  ingress:
+    enabled: true
+    annotations:
+      alb.ingress.kubernetes.io/healthcheck-path: /admin/health
+      alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+      alb.ingress.kubernetes.io/load-balancer-attributes: idle_timeout.timeout_seconds=4000
+      alb.ingress.kubernetes.io/scheme: internet-facing
+      alb.ingress.kubernetes.io/success-codes: 200-399
+      kubernetes.io/ingress.class: alb
+    hosts:
+    - paths:
+      - path: /asrService*
+        pathType: ImplementationSpecific
+        servicePort: 80
+  service:
+    type: NodePort
+  extraEnvVars: []
+  integrations:
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+  configMaps:
+    ephemeral:
+      fileName: edge-dematic-ephemeral-properties
+      existingConfig: edge-dematic-ephemeral-properties
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1024Mi
+    requests:
+      memory: 896Mi
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+edge-erm:
+  ingress:
+    enabled: true
+    annotations:
+      alb.ingress.kubernetes.io/healthcheck-path: /admin/health
+      alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+      alb.ingress.kubernetes.io/load-balancer-attributes: idle_timeout.timeout_seconds=4000
+      alb.ingress.kubernetes.io/scheme: internet-facing
+      alb.ingress.kubernetes.io/success-codes: 200-399
+      kubernetes.io/ingress.class: alb
+    hosts:
+    - paths:
+      - path: /erm*
+        pathType: ImplementationSpecific
+        servicePort: 80
+  service:
+    type: NodePort
+  extraEnvVars: []
+  integrations:
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+  configMaps:
+    ephemeral:
+      fileName: edge-erm-ephemeral-properties
+      existingConfig: edge-erm-ephemeral-properties
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1024Mi
+    requests:
+      memory: 888Mi
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+edge-fqm:
+  ingress:
+    enabled: true
+    annotations:
+      alb.ingress.kubernetes.io/healthcheck-path: /admin/health
+      alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+      alb.ingress.kubernetes.io/load-balancer-attributes: idle_timeout.timeout_seconds=4000
+      alb.ingress.kubernetes.io/scheme: internet-facing
+      alb.ingress.kubernetes.io/success-codes: 200-399
+      kubernetes.io/ingress.class: alb
+    hosts:
+    - paths:
+      - path: /query*
+        pathType: ImplementationSpecific
+        servicePort: 80
+      - path: /entity-types*
+        pathType: ImplementationSpecific
+        servicePort: 80
+      - path: /fqm/query*
+        pathType: ImplementationSpecific
+        servicePort: 80
+      - path: /fqm/entity-types*
+        pathType: ImplementationSpecific
+        servicePort: 80
+  service:
+    type: NodePort
+  extraEnvVars:
+  - name: secure_store
+    value: Ephemeral
+  integrations:
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+  configMaps:
+    ephemeral:
+      fileName: edge-fqm-ephemeral-properties
+      existingConfig: edge-fqm-ephemeral-properties
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1024Mi
+    requests:
+      memory: 512Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 2
+    targetMemoryUtilizationPercentage: 65
+edge-inn-reach:
+  ingress:
+    enabled: true
+    annotations:
+      alb.ingress.kubernetes.io/healthcheck-path: /admin/health
+      alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+      alb.ingress.kubernetes.io/load-balancer-attributes: idle_timeout.timeout_seconds=4000
+      alb.ingress.kubernetes.io/scheme: internet-facing
+      alb.ingress.kubernetes.io/success-codes: 200-399
+      kubernetes.io/ingress.class: alb
+    hosts:
+    - paths:
+      - path: /innreach*
+        pathType: ImplementationSpecific
+        servicePort: 80
+  service:
+    type: NodePort
+  extraEnvVars: []
+  integrations:
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+  configMaps:
+    ephemeral:
+      fileName: edge-inn-reach-ephemeral-properties
+      existingConfig: edge-inn-reach-ephemeral-properties
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1024Mi
+    requests:
+      memory: 896Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 2
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+edge-inventory:
+  ingress:
+    enabled: true
+    annotations:
+      alb.ingress.kubernetes.io/healthcheck-path: /admin/health
+      alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+      alb.ingress.kubernetes.io/load-balancer-attributes: idle_timeout.timeout_seconds=4000
+      alb.ingress.kubernetes.io/scheme: internet-facing
+      alb.ingress.kubernetes.io/success-codes: 200-399
+      kubernetes.io/ingress.class: alb
+    hosts:
+    - paths:
+      - path: /inventory*
+        pathType: ImplementationSpecific
+        servicePort: 80
+  service:
+    type: NodePort
+  extraEnvVars:
+  - name: KAFKA_PRODUCER_TENANT_COLLECTION
+    value: "ALL"
+  integrations:
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
+  configMaps:
+    ephemeral:
+      fileName: edge-inventory-ephemeral-properties
+      existingConfig: edge-inventory-ephemeral-properties
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 512Mi
+    requests:
+      memory: 256Mi
+edge-users:
+  ingress:
+    enabled: true
+    annotations:
+      alb.ingress.kubernetes.io/healthcheck-path: /admin/health
+      alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+      alb.ingress.kubernetes.io/load-balancer-attributes: idle_timeout.timeout_seconds=4000
+      alb.ingress.kubernetes.io/scheme: internet-facing
+      alb.ingress.kubernetes.io/success-codes: 200-399
+      kubernetes.io/ingress.class: alb
+    hosts:
+    - paths:
+      - path: /users*
+        pathType: ImplementationSpecific
+        servicePort: 80
+  service:
+    type: NodePort
+  extraEnvVars:
+  - name: KAFKA_PRODUCER_TENANT_COLLECTION
+    value: "ALL"
+  integrations:
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
+  configMaps:
+    ephemeral:
+      fileName: edge-users-ephemeral-properties
+      existingConfig: edge-users-ephemeral-properties
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 512Mi
+    requests:
+      memory: 256Mi
+  extraJavaOpts:
+    - -Dserver.port=8081
+edge-ncip:
+  ingress:
+    enabled: true
+    annotations:
+      alb.ingress.kubernetes.io/healthcheck-path: /admin/health
+      alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+      alb.ingress.kubernetes.io/load-balancer-attributes: idle_timeout.timeout_seconds=4000
+      alb.ingress.kubernetes.io/scheme: internet-facing
+      alb.ingress.kubernetes.io/success-codes: 200-399
+      kubernetes.io/ingress.class: alb
+    hosts:
+    - paths:
+      - path: /ncip*
+        pathType: ImplementationSpecific
+        servicePort: 80
+  service:
+    type: NodePort
+  extraEnvVars: []
+  integrations:
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+  configMaps:
+    ephemeral:
+      fileName: edge-ncip-ephemeral-properties
+      existingConfig: edge-ncip-ephemeral-properties
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1024Mi
+    requests:
+      memory: 896Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 2
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+edge-oai-pmh:
+  ingress:
+    enabled: true
+    annotations:
+      alb.ingress.kubernetes.io/healthcheck-path: /admin/health
+      alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+      alb.ingress.kubernetes.io/load-balancer-attributes: idle_timeout.timeout_seconds=4000
+      alb.ingress.kubernetes.io/scheme: internet-facing
+      alb.ingress.kubernetes.io/success-codes: 200-399
+      kubernetes.io/ingress.class: alb
+    hosts:
+    - paths:
+      - path: /oai*
+        pathType: ImplementationSpecific
+        servicePort: 80
+  service:
+    type: NodePort
+  extraEnvVars: []
+  integrations:
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+  configMaps:
+    ephemeral:
+      fileName: edge-oai-pmh-ephemeral-properties
+      existingConfig: edge-oai-pmh-ephemeral-properties
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1512Mi
+    requests:
+      memory: 1440Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 2
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+edge-orders:
+  ingress:
+    enabled: true
+    annotations:
+      alb.ingress.kubernetes.io/healthcheck-path: /admin/health
+      alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+      alb.ingress.kubernetes.io/load-balancer-attributes: idle_timeout.timeout_seconds=4000
+      alb.ingress.kubernetes.io/scheme: internet-facing
+      alb.ingress.kubernetes.io/success-codes: 200-399
+      kubernetes.io/ingress.class: alb
+    hosts:
+    - paths:
+      - path: /orders*
+        pathType: ImplementationSpecific
+        servicePort: 80
+      - path: /mosaic*
+        pathType: ImplementationSpecific
+        servicePort: 80
+      - path: /finance*
+        pathType: ImplementationSpecific
+        servicePort: 80
+      - path: /acquisitions-units*
+        pathType: ImplementationSpecific
+        servicePort: 80
+      - path: /organizations*
+        pathType: ImplementationSpecific
+        servicePort: 80
+      - path: /addresses*
+        pathType: ImplementationSpecific
+        servicePort: 80
+      - path: /acquisition-methods*
+        pathType: ImplementationSpecific
+        servicePort: 80
+      - path: /locations-for-order*
+        pathType: ImplementationSpecific
+        servicePort: 80
+      - path: /material-types-for-order*
+        pathType: ImplementationSpecific
+        servicePort: 80
+      - path: /users-for-order*
+        pathType: ImplementationSpecific
+        servicePort: 80
+      - path: /finance/fund-codes-expense-classes*
+        pathType: ImplementationSpecific
+        servicePort: 80
+      - path: /identifier-types-for-order*
+        pathType: ImplementationSpecific
+        servicePort: 80
+      - path: /contributor-name-types-for-order*
+        pathType: ImplementationSpecific
+        servicePort: 80
+  service:
+    type: NodePort
+  extraEnvVars: []
+  integrations:
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+  configMaps:
+    ephemeral:
+      fileName: edge-orders-ephemeral-properties
+      existingConfig: edge-orders-ephemeral-properties
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1024Mi
+    requests:
+      memory: 896Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 2
+    targetMemoryUtilizationPercentage: 70
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=80.0
+edge-patron:
+  ingress:
+    enabled: true
+    annotations:
+      alb.ingress.kubernetes.io/healthcheck-path: /admin/health
+      alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+      alb.ingress.kubernetes.io/load-balancer-attributes: idle_timeout.timeout_seconds=4000
+      alb.ingress.kubernetes.io/scheme: internet-facing
+      alb.ingress.kubernetes.io/success-codes: 200-399
+      kubernetes.io/ingress.class: alb
+    hosts:
+    - paths:
+      - path: /patron*
+        pathType: ImplementationSpecific
+        servicePort: 80
+  service:
+    type: NodePort
+  extraEnvVars: []
+  integrations:
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+  configMaps:
+    ephemeral:
+      fileName: edge-patron-ephemeral-properties
+      existingConfig: edge-patron-ephemeral-properties
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1024Mi
+    requests:
+      memory: 896Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 2
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+edge-rtac:
+  ingress:
+    enabled: true
+    annotations:
+      alb.ingress.kubernetes.io/healthcheck-path: /admin/health
+      alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+      alb.ingress.kubernetes.io/load-balancer-attributes: idle_timeout.timeout_seconds=4000
+      alb.ingress.kubernetes.io/scheme: internet-facing
+      alb.ingress.kubernetes.io/success-codes: 200-399
+      kubernetes.io/ingress.class: alb
+    hosts:
+    - paths:
+      - path: /*rtac*
+        pathType: ImplementationSpecific
+        servicePort: 80
+  service:
+    type: NodePort
+  extraEnvVars: []
+  integrations:
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+  configMaps:
+    ephemeral:
+      fileName: edge-rtac-ephemeral-properties
+      existingConfig: edge-rtac-ephemeral-properties
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1024Mi
+    requests:
+      memory: 896Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 2
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+edge-sip2:
+  service:
+    annotations:
+      service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: ip
+      service.beta.kubernetes.io/aws-load-balancer-scheme: internet-facing
+      service.beta.kubernetes.io/aws-load-balancer-type: external
+    type: LoadBalancer
+  extraEnvVars: []
+  integrations: {}
+  configMaps:
+    ephemeral:
+      fileName: edge-sip2-ephemeral-properties
+      existingConfig: edge-sip2-ephemeral-properties
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1024Mi
+    requests:
+      memory: 896Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 2
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+mod-aes:
+  extraEnvVars: []
+  integrations: {}
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 480Mi
+    requests:
+      memory: 384Mi
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+mod-agreements:
+  jmx:
+    enabled: false
+  extraEnvVars:
+  - name: DB_MAXPOOLSIZE
+    value: "50"
+  - name: CONCURRENT_JOBS_GLOBAL
+    value: "4"
+  integrations:
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    s3:
+      enabled: true
+      existingSecret: s3-credentials
+  replicaCount: 2
+  resources:
+    limits:
+      memory: 4096Mi
+    requests:
+      memory: 2048Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 2
+    targetMemoryUtilizationPercentage: 85
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8080
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+      - name: JAVA_OPTS
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms384m -Xmx384m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+      resources:
+        limits:
+          memory: 1024Mi
+        requests:
+          memory: 512Mi
+mod-audit:
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1024Mi
+    requests:
+      memory: 896Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 2
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+      - name: JAVA_OPTS
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms384m -Xmx384m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+      resources:
+        limits:
+          memory: 1024Mi
+        requests:
+          memory: 512Mi
+mod-authtoken:
+  extraEnvVars: []
+  extraJavaOpts:
+  - -Dallow.cross.tenant.requests=true
+  - -XX:MaxRAMPercentage=85.0
+  integrations:
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+    db:
+      enabled: true
+      existingSecret: db-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1024Mi
+    requests:
+      memory: 896Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 2
+    targetMemoryUtilizationPercentage: 75
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+mod-batch-print:
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1024Mi
+    requests:
+      memory: 896Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 2
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+      - name: JAVA_OPTS
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms384m -Xmx384m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+      resources:
+        limits:
+          memory: 1024Mi
+        requests:
+          memory: 512Mi
+mod-bulk-operations:
+  jmx:
+    enabled: true
+    agentVersion: 0.19.0
+    agentPath: /jmx_exporter
+    port: 9991
+  heapDumpEnabled: true
+  extraEnvVars:
+  - name: MAX_UPLOADING_RETRIES
+    value: "50"
+  integrations:
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
+    s3:
+      enabled: true
+      existingSecret: s3-credentials
+    systemuser:
+      enabled: true
+      existingSecret: mod-bulk-operations-systemuser
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 3072Mi
+    requests:
+      memory: 2671Mi
+  autoscaling:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 2
+    targetMemoryUtilizationPercentage: 80
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+      - name: WEB_CLIENT_INGRESS_POOL_MAX_SIZE
+        value: "1500"
+      - name: WEB_CLIENT_EGRESS_POOL_MAX_SIZE
+        value: "1500"
+      - name: JAVA_OPTS
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms750m -Xmx750m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+      resources:
+        limits:
+          memory: 1500Mi
+        requests:
+          memory: 750Mi
+mod-calendar:
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 2048Mi
+    requests:
+      memory: 1792Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 2
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+      - name: JAVA_OPTS
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms384m -Xmx384m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+      resources:
+        limits:
+          memory: 1024Mi
+        requests:
+          memory: 512Mi
+mod-camunda:
+  extraEnvVars:
+  - name: SPRING_JERSEY_APPLICATIONPATH
+    value: camunda
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 512Mi
+    requests:
+      memory: 402Mi
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=66.0
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+mod-circulation:
+  extraEnvVars:
+  - name: SCHEDULED_ANONYMIZATION_NUMBER_OF_LOANS_TO_CHECK
+    value: "50000"
+  - name: REPLICATION_FACTOR
+    value: "1"
+  - name: ENABLE_FOR_USE_AT_LOCATION
+    value: "true"
+  integrations:
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 2880Mi
+    requests:
+      memory: 2520Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 2
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 9801
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+      - name: JAVA_OPTS
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms768m -Xmx768m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+      resources:
+        limits:
+          memory: 1024Mi
+        requests:
+          memory: 512Mi
+mod-circulation-bff:
+  extraEnvVars: []
+  integrations:
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+    systemuser:
+      enabled: true
+      existingSecret: mod-circulation-bff-systemuser
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 512Mi
+    requests:
+      memory: 384Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 2
+    targetMemoryUtilizationPercentage: 65
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=66.0
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+      - name: JAVA_OPTS
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+      resources:
+        limits:
+          memory: 256Mi
+        requests:
+          memory: 128Mi
+mod-circulation-storage:
+  extraEnvVars:
+  - name: REPLICATION_FACTOR
+    value: "1"
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 2880Mi
+    requests:
+      memory: 2700Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 2
+    targetMemoryUtilizationPercentage: 55
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=65.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+      - name: JAVA_OPTS
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms768m -Xmx768m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+      resources:
+        limits:
+          memory: 1024Mi
+        requests:
+          memory: 512Mi
+mod-codex-ekb:
+  extraEnvVars: []
+  integrations: {}
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 427Mi
+    requests:
+      memory: 341Mi
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+mod-codex-inventory:
+  extraEnvVars: []
+  integrations: {}
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 427Mi
+    requests:
+      memory: 341Mi
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+mod-codex-mux:
+  extraEnvVars: []
+  integrations: {}
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 427Mi
+    requests:
+      memory: 341Mi
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+mod-configuration:
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1024Mi
+    requests:
+      memory: 896Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 2
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+      - name: JAVA_OPTS
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms768m -Xmx768m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+      resources:
+        limits:
+          memory: 1024Mi
+        requests:
+          memory: 512Mi
+mod-consortia:
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+    systemuser:
+      enabled: true
+      existingSecret: mod-consortia-systemuser
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1024Mi
+    requests:
+      memory: 896Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 2
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+mod-copycat:
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1024Mi
+    requests:
+      memory: 896Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 2
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+      - name: JAVA_OPTS
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms512m -Xmx512m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+      resources:
+        limits:
+          memory: 1024Mi
+        requests:
+          memory: 512Mi
+mod-courses:
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1024Mi
+    requests:
+      memory: 896Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 2
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+      - name: JAVA_OPTS
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms512m -Xmx512m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+      resources:
+        limits:
+          memory: 1024Mi
+        requests:
+          memory: 512Mi
+mod-data-export:
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    s3:
+      enabled: true
+      existingSecret: s3-credentials
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 2592Mi
+    requests:
+      memory: 2334Mi
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=70.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+      - name: JAVA_OPTS
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms512m -Xmx512m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+      resources:
+        limits:
+          memory: 1024Mi
+        requests:
+          memory: 512Mi
+mod-data-export-spring:
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+    systemuser:
+      enabled: true
+      existingSecret: mod-data-export-spring-systemuser
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 2048Mi
+    requests:
+      memory: 1844Mi
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=70.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+      - name: JAVA_OPTS
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms512m -Xmx512m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+      resources:
+        limits:
+          memory: 1024Mi
+        requests:
+          memory: 512Mi
+mod-data-export-worker:
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
+    s3:
+      enabled: true
+      existingSecret: s3-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 3072Mi
+    requests:
+      memory: 2600Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 2
+    targetMemoryUtilizationPercentage: 70
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=80.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+      - name: WEB_CLIENT_INGRESS_POOL_MAX_SIZE
+        value: "1500"
+      - name: WEB_CLIENT_EGRESS_POOL_MAX_SIZE
+        value: "1500"
+      - name: JAVA_OPTS
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms512m -Xmx512m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+      resources:
+        limits:
+          memory: 1024Mi
+        requests:
+          memory: 512Mi
+mod-data-import:
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
+    s3:
+      enabled: true
+      existingSecret: s3-credentials
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 2048Mi
+    requests:
+      memory: 1844Mi
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=70.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+      - name: JAVA_OPTS
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms640m -Xmx640m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+      resources:
+        limits:
+          memory: 1024Mi
+        requests:
+          memory: 512Mi
+mod-linked-data-import:
+  extraEnvVars:
+  - name: KAFKA_PRODUCER_TENANT_COLLECTION
+    value: "ALL"
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
+    s3:
+      enabled: true
+      existingSecret: s3-credentials
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1536Mi
+    requests:
+      memory: 1024Mi
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+  - -Xss4m
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+      - name: JAVA_OPTS
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms160m -Xmx160m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+      resources:
+        limits:
+          memory: 256Mi
+        requests:
+          memory: 128Mi
+mod-di-converter-storage:
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1024Mi
+    requests:
+      memory: 896Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 2
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+      - name: JAVA_OPTS
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms512m -Xmx512m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+      resources:
+        limits:
+          memory: 1024Mi
+        requests:
+          memory: 512Mi
+mod-ebsconet:
+  extraEnvVars: []
+  integrations: {}
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1248Mi
+    requests:
+      memory: 1024Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 2
+    targetMemoryUtilizationPercentage: 60
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=70.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+      - name: JAVA_OPTS
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms384m -Xmx384m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+      resources:
+        limits:
+          memory: 1024Mi
+        requests:
+          memory: 512Mi
+mod-email:
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 2800Mi
+    requests:
+      memory: 2450Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 2
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+      - name: JAVA_OPTS
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms512m -Xmx512m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+      resources:
+        limits:
+          memory: 1024Mi
+        requests:
+          memory: 512Mi
+mod-entities-links:
+  extraEnvVars:
+  - name: INSTANCE_STORAGE_QUERY_BATCH_SIZE
+    value: "50"
+  - name: AUTHORITY_ARCHIVES_EXPIRATION_PERIOD
+    value: "7"
+  - name: KAFKA_INSTANCE_AUTHORITY_TOPIC_PARTITIONS
+    value: "2"
+  - name: KAFKA_INSTANCE_AUTHORITY_STATS_TOPIC_PARTITIONS
+    value: "2"
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+    systemuser:
+      enabled: true
+      existingSecret: mod-entities-links-systemuser
+    s3:
+      enabled: true
+      existingSecret: s3-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 2592Mi
+    requests:
+      memory: 2480Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 2
+    targetMemoryUtilizationPercentage: 50
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=60.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+      - name: JAVA_OPTS
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms512m -Xmx512m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+      resources:
+        limits:
+          memory: 1024Mi
+        requests:
+          memory: 512Mi
+mod-erm-usage:
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 2800Mi
+    requests:
+      memory: 2450Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 2
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+      - name: JAVA_OPTS
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms384m -Xmx384m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+      resources:
+        limits:
+          memory: 1024Mi
+        requests:
+          memory: 512Mi
+mod-erm-usage-harvester:
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+    systemuser:
+      enabled: true
+      existingSecret: mod-erm-usage-harvester-systemuser
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1024Mi
+    requests:
+      memory: 896Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 2
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+      - name: JAVA_OPTS
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms640m -Xmx640m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+      resources:
+        limits:
+          memory: 1024Mi
+        requests:
+          memory: 512Mi
+mod-eusage-reports:
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1024Mi
+    requests:
+      memory: 896Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 2
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+      - name: JAVA_OPTS
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms384m -Xmx384m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+      resources:
+        limits:
+          memory: 1024Mi
+        requests:
+          memory: 512Mi
+mod-event-config:
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1024Mi
+    requests:
+      memory: 896Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 2
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+      - name: JAVA_OPTS
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms384m -Xmx384m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+      resources:
+        limits:
+          memory: 1024Mi
+        requests:
+          memory: 512Mi
+mod-feesfines:
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1024Mi
+    requests:
+      memory: 896Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 2
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+      - name: JAVA_OPTS
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms640m -Xmx640m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+      resources:
+        limits:
+          memory: 1024Mi
+        requests:
+          memory: 512Mi
+mod-finc-config:
+  extraEnvVars:
+  - name: EZB_DOWNLOAD_URL
+    value: https://ezb-api.ur.de/ezb/export/licenselist_html.php?pack=0&bibid=%s&lang=de&output_style=kbart&todo_license=ALkbart
+  integrations:
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+    db:
+      enabled: true
+      existingSecret: db-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 384Mi
+    requests:
+      memory: 256Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 2
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+      - name: JAVA_OPTS
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms160m -Xmx160m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+      resources:
+        limits:
+          memory: 256Mi
+        requests:
+          memory: 128Mi
+mod-finance:
+  extraEnvVars: []
+  integrations: {}
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1024Mi
+    requests:
+      memory: 896Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 2
+    targetMemoryUtilizationPercentage: 70
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=80.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+      - name: JAVA_OPTS
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms640m -Xmx640m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+      resources:
+        limits:
+          memory: 1024Mi
+        requests:
+          memory: 512Mi
+mod-finance-storage:
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1024Mi
+    requests:
+      memory: 896Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 2
+    targetMemoryUtilizationPercentage: 70
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=80.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+      - name: JAVA_OPTS
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms512m -Xmx512m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+      resources:
+        limits:
+          memory: 1024Mi
+        requests:
+          memory: 512Mi
+mod-fqm-manager:
+  extraEnvVars:
+  - name: QUERY_RETENTION_DURATION
+    value: 3h
+  - name: task.execution.pool.max-size
+    value: "10"
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 3000Mi
+    requests:
+      memory: 2600Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 2
+    targetMemoryUtilizationPercentage: 70
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=80.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+      - name: JAVA_OPTS
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms512m -Xmx512m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+      resources:
+        limits:
+          memory: 1024Mi
+        requests:
+          memory: 512Mi
+mod-gobi:
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1024Mi
+    requests:
+      memory: 896Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 2
+    targetMemoryUtilizationPercentage: 70
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=80.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+      - name: JAVA_OPTS
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms384m -Xmx384m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+      resources:
+        limits:
+          memory: 1024Mi
+        requests:
+          memory: 512Mi
+mod-graphql:
+  extraEnvVars: []
+  integrations: {}
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1024Mi
+    requests:
+      memory: 896Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 2
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 3001
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+      - name: JAVA_OPTS
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms384m -Xmx384m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+      resources:
+        limits:
+          memory: 1024Mi
+        requests:
+          memory: 512Mi
+mod-inn-reach:
+  extraEnvVars:
+  - name: INNREACH_TENANTS
+    value: diku|fs09000000|consortium|college|university
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+    systemuser:
+      enabled: true
+      existingSecret: mod-inn-reach-systemuser
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 3600Mi
+    requests:
+      memory: 3150Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 2
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+      - name: JAVA_OPTS
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms384m -Xmx384m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+      resources:
+        limits:
+          memory: 1024Mi
+        requests:
+          memory: 512Mi
+mod-inventory:
+  extraEnvVars:
+  - name: DI_INVENTORY_INSTANCE_CREATED_PARTITIONS
+    value: "8"
+  - name: DI_INVENTORY_HOLDING_CREATED_PARTITIONS
+    value: "8"
+  - name: DI_INVENTORY_ITEM_CREATED_PARTITIONS
+    value: "8"
+  - name: DI_INVENTORY_INSTANCE_MATCHED_PARTITIONS
+    value: "8"
+  - name: DI_INVENTORY_HOLDING_MATCHED_PARTITIONS
+    value: "8"
+  - name: DI_INVENTORY_ITEM_MATCHED_PARTITIONS
+    value: "8"
+  - name: DI_SRS_MARC_BIB_RECORD_MATCHED_PARTITIONS
+    value: "8"
+  - name: DI_INVENTORY_INSTANCE_UPDATED_PARTITIONS
+    value: "8"
+  - name: DI_INVENTORY_HOLDING_UPDATED_PARTITIONS
+    value: "8"
+  - name: DI_INVENTORY_ITEM_UPDATED_PARTITIONS
+    value: "8"
+  - name: DI_INVENTORY_INSTANCE_NOT_MATCHED_PARTITIONS
+    value: "8"
+  - name: DI_INVENTORY_HOLDING_NOT_MATCHED_PARTITIONS
+    value: "8"
+  - name: DI_INVENTORY_ITEM_NOT_MATCHED_PARTITIONS
+    value: "8"
+  - name: DI_SRS_MARC_BIB_RECORD_NOT_MATCHED_PARTITIONS
+    value: "8"
+  - name: DI_INVENTORY_AUTHORITY_UPDATED_PARTITIONS
+    value: "8"
+  - name: DI_INVENTORY_HOLDINGS_CREATED_READY_FOR_POST_PROCESSING_PARTITIONS
+    value: "8"
+  - name: DI_INVENTORY_AUTHORITY_CREATED_READY_FOR_POST_PROCESSING_PARTITIONS
+    value: "8"
+  - name: DI_INVENTORY_AUTHORITY_UPDATED_READY_FOR_POST_PROCESSING_PARTITIONS
+    value: "8"
+  - name: DI_SRS_MARC_BIB_RECORD_MODIFIED_PARTITIONS
+    value: "8"
+  - name: INVENTORY_INSTANCE_INGRESS_PARTITIONS
+    value: "8"
+  - name: KAFKA_PRODUCER_TENANT_COLLECTION
+    value: "ALL"
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
+    systemuser:
+      enabled: true
+      existingSecret: mod-inventory-systemuser
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 4096Mi
+    requests:
+      memory: 3688Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 2
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+  - -Dinventory.kafka.DataImportConsumer.loadLimit=16
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 9403
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+      - name: WEB_CLIENT_INGRESS_POOL_MAX_SIZE
+        value: "1500"
+      - name: WEB_CLIENT_EGRESS_POOL_MAX_SIZE
+        value: "1500"
+      - name: JAVA_OPTS
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms768m -Xmx768m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+      resources:
+        limits:
+          memory: 1024Mi
+        requests:
+          memory: 512Mi
+mod-inventory-storage:
+  extraEnvVars:
+  - name: REPLICATION_FACTOR
+    value: "1"
+  - name: KAFKA_DOMAIN_TOPIC_NUM_PARTITIONS
+    value: "2"
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
+    s3:
+      enabled: true
+      existingSecret: s3-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 4096Mi
+    requests:
+      memory: 3621Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 2
+    targetMemoryUtilizationPercentage: 65
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=75.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+      - name: WEB_CLIENT_INGRESS_POOL_MAX_SIZE
+        value: "1500"
+      - name: WEB_CLIENT_EGRESS_POOL_MAX_SIZE
+        value: "1500"
+      - name: JAVA_OPTS
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms768m -Xmx768m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+      resources:
+        limits:
+          memory: 1024Mi
+        requests:
+          memory: 512Mi
+mod-inventory-update:
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1024Mi
+    requests:
+      memory: 896Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 2
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8080
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+      - name: JAVA_OPTS
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms384m -Xmx384m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+      resources:
+        limits:
+          memory: 1024Mi
+        requests:
+          memory: 512Mi
+mod-invoice:
+  extraEnvVars:
+  - name: dataimport.consumer.verticle.mandatory
+    value: "false"
+  - name: dataimport.max-active-threads
+    value: "1"
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
+    systemuser:
+      enabled: true
+      existingSecret: mod-invoice-systemuser
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1440Mi
+    requests:
+      memory: 1152Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 2
+    targetMemoryUtilizationPercentage: 70
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=80.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+      - name: JAVA_OPTS
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms512m -Xmx512m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+      resources:
+        limits:
+          memory: 1024Mi
+        requests:
+          memory: 512Mi
+mod-invoice-storage:
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1872Mi
+    requests:
+      memory: 1638Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 2
+    targetMemoryUtilizationPercentage: 70
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=80.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+      - name: JAVA_OPTS
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms512m -Xmx512m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+      resources:
+        limits:
+          memory: 1024Mi
+        requests:
+          memory: 512Mi
+mod-kb-ebsco-java:
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1024Mi
+    requests:
+      memory: 896Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 2
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+      - name: JAVA_OPTS
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms384m -Xmx384m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+      resources:
+        limits:
+          memory: 1024Mi
+        requests:
+          memory: 512Mi
+mod-ldp:
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1024Mi
+    requests:
+      memory: 896Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 2
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8001
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+mod-reporting:
+  extraEnvVars: []
+  integrations: {}
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 512Mi
+    requests:
+      memory: 384Mi
+  autoscaling:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 2
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 12369
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+mod-licenses:
+  extraEnvVars: []
+  integrations:
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    s3:
+      enabled: true
+      existingSecret: s3-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 2480Mi
+    requests:
+      memory: 2312Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 2
+    targetMemoryUtilizationPercentage: 70
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=80.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8080
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+      - name: JAVA_OPTS
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms384m -Xmx384m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+      resources:
+        limits:
+          memory: 1024Mi
+        requests:
+          memory: 512Mi
+mod-linked-data:
+  extraEnvVars:
+  - name: KAFKA_PRODUCER_TENANT_COLLECTION
+    value: "ALL"
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
+    systemuser:
+      enabled: true
+      existingSecret: mod-linked-data-systemuser
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 2048Mi
+    requests:
+      memory: 1780Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 2
+    targetMemoryUtilizationPercentage: 80
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+  - -Dspring.profiles.active=nocache
+  - -Dserver.port=8081
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+mod-lists:
+  extraEnvVars:
+  - name: MAX_LIST_SIZE
+    value: "1250000"
+  - name: LIST_EXPORT_BATCH_SIZE
+    value: "1000"
+  - name: spring.task.execution.pool.max-size
+    value: "10"
+  - name: mod-lists.list-export.s3-startup-check.enabled
+    value: "false"
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    s3:
+      enabled: true
+      existingSecret: s3-credentials
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+    systemuser:
+      enabled: true
+      existingSecret: mod-lists-systemuser
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 6000Mi
+    requests:
+      memory: 5200Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 2
+    targetMemoryUtilizationPercentage: 70
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=80.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+      - name: JAVA_OPTS
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms288m -Xmx288m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+      resources:
+        limits:
+          memory: 768Mi
+        requests:
+          memory: 384Mi
+mod-login:
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1440Mi
+    requests:
+      memory: 1298Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 2
+    targetMemoryUtilizationPercentage: 50
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=60.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+mod-login-saml:
+  extraEnvVars:
+  - name: DB_MAXPOOLSIZE
+    value: "20"
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1024Mi
+    requests:
+      memory: 896Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 2
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+mod-marc-migrations:
+  extraEnvVars:
+  - name: LOCAL_FILE_STORAGE_PATH
+    value: /tmp/marc
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+    s3:
+      enabled: true
+      existingSecret: s3-credentials
+    systemuser:
+      enabled: true
+      existingSecret: mod-marc-migrations-systemuser
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 2880Mi
+    requests:
+      memory: 720Mi
+  autoscaling:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 2
+    targetMemoryUtilizationPercentage: 65
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+      - name: JAVA_OPTS
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms384m -Xmx384m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+      resources:
+        limits:
+          memory: 1024Mi
+        requests:
+          memory: 512Mi
+mod-marccat:
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1040Mi
+    requests:
+      memory: 832Mi
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+mod-mosaic:
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1024Mi
+    requests:
+      memory: 819Mi
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=75.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+mod-ncip:
+  extraEnvVars: []
+  integrations: {}
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1024Mi
+    requests:
+      memory: 896Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 2
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+mod-notes:
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1024Mi
+    requests:
+      memory: 896Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 2
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+      - name: JAVA_OPTS
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms512m -Xmx512m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+      resources:
+        limits:
+          memory: 1024Mi
+        requests:
+          memory: 512Mi
+mod-notify:
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1024Mi
+    requests:
+      memory: 896Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 2
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+      - name: JAVA_OPTS
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms384m -Xmx384m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+      resources:
+        limits:
+          memory: 1024Mi
+        requests:
+          memory: 512Mi
+mod-oa:
+  extraEnvVars: []
+  integrations:
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+    db:
+      enabled: true
+      existingSecret: db-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1512Mi
+    requests:
+      memory: 1024Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 2
+    targetMemoryUtilizationPercentage: 65
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8080
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=65.0
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+      - name: JAVA_OPTS
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+      resources:
+        limits:
+          memory: 256Mi
+        requests:
+          memory: 128Mi
+mod-oai-pmh:
+  extraEnvVars:
+  - name: CLEAN_UP_ERROR_LOGS_INTERVAL
+    value: "30"
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    s3:
+      enabled: true
+      existingSecret: s3-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 4096Mi
+    requests:
+      memory: 3687Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 2
+    targetMemoryUtilizationPercentage: 70
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=80.0
+  - -Dfile.encoding=UTF-8
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+      - name: JAVA_OPTS
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms384m -Xmx384m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+      resources:
+        limits:
+          memory: 1024Mi
+        requests:
+          memory: 512Mi
+mod-orders:
+  extraEnvVars:
+  - name: DI_ORDER_CREATED_READY_FOR_POST_PROCESSING_PARTITIONS
+    value: "8"
+  - name: DI_ORDER_CREATED_PARTITIONS
+    value: "8"
+  - name: DI_PENDING_ORDER_CREATED_PARTITIONS
+    value: "8"
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
+    systemuser:
+      enabled: true
+      existingSecret: mod-orders-systemuser
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 2048Mi
+    requests:
+      memory: 1440Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 2
+    targetMemoryUtilizationPercentage: 65
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=75.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+      - name: JAVA_OPTS
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms640m -Xmx640m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+      resources:
+        limits:
+          memory: 1024Mi
+        requests:
+          memory: 512Mi
+mod-orders-storage:
+  extraEnvVars:
+  - name: consumer.verticle.mandatory
+    value: "false"
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1024Mi
+    requests:
+      memory: 896Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 2
+    targetMemoryUtilizationPercentage: 70
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=80.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+      - name: JAVA_OPTS
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms768m -Xmx768m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+      resources:
+        limits:
+          memory: 1024Mi
+        requests:
+          memory: 512Mi
+mod-dcb:
+  extraEnvVars:
+  - name: consumer.verticle.mandatory
+    value: "false"
+  integrations:
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
+    systemuser:
+      enabled: true
+      existingSecret: mod-dcb-systemuser
+    locations:
+      enabled: true
+      existingSecret: mod-dcb-shadow-locations
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 2048Mi
+    requests:
+      memory: 1792Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 2
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+      - name: JAVA_OPTS
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms384m -Xmx384m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+      resources:
+        limits:
+          memory: 1024Mi
+        requests:
+          memory: 512Mi
+mod-circulation-item:
+  extraEnvVars:
+  - name: consumer.verticle.mandatory
+    value: "false"
+  integrations:
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+    db:
+      enabled: true
+      existingSecret: db-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1024Mi
+    requests:
+      memory: 896Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 2
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+      - name: JAVA_OPTS
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms384m -Xmx384m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+      resources:
+        limits:
+          memory: 1024Mi
+        requests:
+          memory: 512Mi
+mod-organizations:
+  extraEnvVars: []
+  integrations: {}
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1024Mi
+    requests:
+      memory: 896Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 2
+    targetMemoryUtilizationPercentage: 70
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=80.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+      - name: JAVA_OPTS
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms512m -Xmx512m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+      resources:
+        limits:
+          memory: 1024Mi
+        requests:
+          memory: 512Mi
+mod-organizations-storage:
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1024Mi
+    requests:
+      memory: 896Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 2
+    targetMemoryUtilizationPercentage: 70
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=80.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+      - name: JAVA_OPTS
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms512m -Xmx512m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+      resources:
+        limits:
+          memory: 1024Mi
+        requests:
+          memory: 512Mi
+mod-password-validator:
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1440Mi
+    requests:
+      memory: 1298Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 2
+    targetMemoryUtilizationPercentage: 55
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=65.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+      - name: JAVA_OPTS
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms384m -Xmx384m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+      resources:
+        limits:
+          memory: 1024Mi
+        requests:
+          memory: 512Mi
+mod-patron:
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1024Mi
+    requests:
+      memory: 896Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 2
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+      - name: JAVA_OPTS
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms384m -Xmx384m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+      resources:
+        limits:
+          memory: 1024Mi
+        requests:
+          memory: 512Mi
+mod-patron-blocks:
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1024Mi
+    requests:
+      memory: 896Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 2
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+      - name: JAVA_OPTS
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms640m -Xmx640m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+      resources:
+        limits:
+          memory: 1024Mi
+        requests:
+          memory: 512Mi
+mod-permissions:
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1684Mi
+    requests:
+      memory: 1544Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 2
+    targetMemoryUtilizationPercentage: 60
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=70.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+      - name: JAVA_OPTS
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms512m -Xmx512m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+      resources:
+        limits:
+          memory: 1024Mi
+        requests:
+          memory: 512Mi
+mod-pubsub:
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+    systemuser:
+      enabled: true
+      existingSecret: mod-pubsub-systemuser
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1536Mi
+    requests:
+      memory: 1440Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 2
+    targetMemoryUtilizationPercentage: 55
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=65.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+      - name: JAVA_OPTS
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms512m -Xmx512m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+      resources:
+        limits:
+          memory: 1024Mi
+        requests:
+          memory: 512Mi
+mod-quick-marc:
+  extraEnvVars:
+  - name: REPLICATION_FACTOR
+    value: "1"
+  - name: NUMBER_OF_PARTITIONS
+    value: "1"
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 2288Mi
+    requests:
+      memory: 2176Mi
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=80.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+      - name: JAVA_OPTS
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms512m -Xmx512m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+      resources:
+        limits:
+          memory: 1024Mi
+        requests:
+          memory: 512Mi
+mod-reading-room:
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1024Mi
+    requests:
+      memory: 768Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 2
+    targetMemoryUtilizationPercentage: 65
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=66.0
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+      - name: JAVA_OPTS
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms384m -Xmx384m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+      resources:
+        limits:
+          memory: 1024Mi
+        requests:
+          memory: 512Mi
+mod-record-specifications:
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
+  resources:
+    limits:
+      memory: 2048Mi
+    requests:
+      memory: 1638Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 2
+    targetMemoryUtilizationPercentage: 65
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+      - name: JAVA_OPTS
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms384m -Xmx384m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+      resources:
+        limits:
+          memory: 1024Mi
+        requests:
+          memory: 512Mi
+mod-remote-storage:
+  extraEnvVars: []
+  integrations:
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
+    systemuser:
+      enabled: true
+      existingSecret: mod-remote-storage-systemuser
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 4920Mi
+    requests:
+      memory: 4447Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 2
+    targetMemoryUtilizationPercentage: 60
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=70.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+      - name: JAVA_OPTS
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms512m -Xmx512m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+      resources:
+        limits:
+          memory: 1024Mi
+        requests:
+          memory: 512Mi
+mod-requests-mediated:
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    systemuser:
+      enabled: true
+      existingSecret: mod-requests-mediated-systemuser
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 512Mi
+    requests:
+      memory: 384Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 2
+    targetMemoryUtilizationPercentage: 65
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=66.0
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+      - name: JAVA_OPTS
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+      resources:
+        limits:
+          memory: 256Mi
+        requests:
+          memory: 128Mi
+mod-rtac:
+  extraEnvVars: []
+  integrations: {}
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1024Mi
+    requests:
+      memory: 896Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 2
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+      - name: JAVA_OPTS
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms384m -Xmx384m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+      resources:
+        limits:
+          memory: 1024Mi
+        requests:
+          memory: 512Mi
+mod-rtac-cache:
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
+    systemuser:
+      enabled: true
+      existingSecret: mod-rtac-cache-systemuser
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1024Mi
+    requests:
+      memory: 896Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 2
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+      - name: JAVA_OPTS
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms384m -Xmx384m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+      resources:
+        limits:
+          memory: 1024Mi
+        requests:
+          memory: 512Mi
+mod-search:
+  extraEnvVars:
+  - name: INSTANCE_SUBJECTS_INDEXING_RETRY_ATTEMPTS
+    value: "3"
+  - name: INSTANCE_CONTRIBUTORS_INDEXING_RETRY_ATTEMPTS
+    value: "3"
+  - name: INDEXING_DATA_FORMAT
+    value: json
+  - name: INITIAL_LANGUAGES
+    value: eng
+  - name: MAX_SUPPORTED_LANGUAGES
+    value: "5"
+  - name: SEARCH_BY_ALL_FIELDS_ENABLED
+    value: "true"
+  - name: BROWSE_CN_INTERMEDIATE_VALUES_ENABLED
+    value: "true"
+  - name: BROWSE_CN_INTERMEDIATE_REMOVE_DUPLICATES
+    value: "true"
+  - name: SCROLL_QUERY_SIZE
+    value: "1000"
+  - name: STREAM_ID_RETRY_INTERVAL_MS
+    value: "1000"
+  - name: STREAM_ID_RETRY_ATTEMPTS
+    value: "3"
+  - name: STREAM_ID_CORE_POOL_SIZE
+    value: "2"
+  - name: STREAM_ID_MAX_POOL_SIZE
+    value: "2"
+  - name: STREAM_ID_QUEUE_CAPACITY
+    value: "500"
+  - name: CN_BROWSE_OPTIMIZATION_ENABLED
+    value: "true"
+  - name: SEARCH_QUERY_TIMEOUT
+    value: 25s
+  - name: MAX_BROWSE_REQUEST_OFFSET
+    value: "500"
+  - name: KAFKA_CONTRIBUTORS_TOPIC_PARTITIONS
+    value: "2"
+  - name: KAFKA_CONSORTIUM_INSTANCE_TOPIC_PARTITIONS
+    value: "2"
+  - name: KAFKA_SUBJECTS_TOPIC_PARTITIONS
+    value: "2"
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+    opensearch:
+      enabled: true
+      existingSecret: opensearch-credentials
+    systemuser:
+      enabled: true
+      existingSecret: mod-search-systemuser
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 2592Mi
+    requests:
+      memory: 2480Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 2
+    targetMemoryUtilizationPercentage: 50
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=60.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+      - name: WEB_CLIENT_INGRESS_POOL_MAX_SIZE
+        value: "1500"
+      - name: WEB_CLIENT_EGRESS_POOL_MAX_SIZE
+        value: "1500"
+      - name: JAVA_OPTS
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms640m -Xmx640m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+      resources:
+        limits:
+          memory: 1024Mi
+        requests:
+          memory: 512Mi
+mod-sender:
+  extraEnvVars: []
+  integrations: {}
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1024Mi
+    requests:
+      memory: 896Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 2
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+      - name: JAVA_OPTS
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms384m -Xmx384m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+      resources:
+        limits:
+          memory: 1024Mi
+        requests:
+          memory: 512Mi
+mod-serials-management:
+  extraEnvVars:
+  - name: DB_MAXPOOLSIZE
+    value: "50"
+  integrations:
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+    db:
+      enabled: true
+      existingSecret: db-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 2780Mi
+    requests:
+      memory: 2592Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 2
+    targetMemoryUtilizationPercentage: 70
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=80.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8080
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+      - name: JAVA_OPTS
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms384m -Xmx384m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+      resources:
+        limits:
+          memory: 1024Mi
+        requests:
+          memory: 512Mi
+mod-service-interaction:
+  extraEnvVars:
+  - name: DB_MAXPOOLSIZE
+    value: "50"
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 2048Mi
+    requests:
+      memory: 1844Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 2
+    targetMemoryUtilizationPercentage: 60
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=70.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8080
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+      - name: JAVA_OPTS
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms384m -Xmx384m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+      resources:
+        limits:
+          memory: 1024Mi
+        requests:
+          memory: 512Mi
+mod-settings:
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1024Mi
+    requests:
+      memory: 896Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 2
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+      - name: JAVA_OPTS
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms512m -Xmx512m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+      resources:
+        limits:
+          memory: 1024Mi
+        requests:
+          memory: 512Mi
+mod-source-record-manager:
+  extraEnvVars:
+  - name: DI_COMPLETED_PARTITIONS
+    value: "8"
+  - name: DI_ERROR_PARTITIONS
+    value: "8"
+  - name: DI_INCOMING_MARC_BIB_FOR_ORDER_PARSED_PARTITIONS
+    value: "8"
+  - name: DI_SRS_MARC_AUTHORITY_RECORD_CREATED_PARTITIONS
+    value: "8"
+  - name: DI_SRS_MARC_HOLDINGS_RECORD_CREATED_PARTITIONS
+    value: "8"
+  - name: DI_MARC_FOR_UPDATE_RECEIVED_PARTITIONS
+    value: "8"
+  - name: DI_MARC_FOR_DELETE_RECEIVED_PARTITIONS
+    value: "8"
+  - name: DI_INCOMING_MARC_BIB_RECORD_PARSED_PARTITIONS
+    value: "8"
+  - name: DI_INCOMING_EDIFACT_RECORD_PARSED_PARTITIONS
+    value: "8"
+  - name: DI_RAW_RECORDS_CHUNK_PARSED_PARTITIONS
+    value: "8"
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
+    systemuser:
+      enabled: true
+      existingSecret: mod-source-record-manager-systemuser
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 4500Mi
+    requests:
+      memory: 4052Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 2
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+  - -Dsrm.kafka.DataImportConsumer.loadLimit=8
+  - -Dsrm.kafka.DataImportConsumer.globalLoadLimit=64
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+      - name: JAVA_OPTS
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms768m -Xmx768m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+      resources:
+        limits:
+          memory: 1024Mi
+        requests:
+          memory: 512Mi
+mod-source-record-storage:
+  extraEnvVars:
+  - name: DI_PARSED_RECORDS_CHUNK_SAVED_PARTITIONS
+    value: "8"
+  - name: DI_SRS_MARC_AUTHORITY_RECORD_MATCHED_PARTITIONS
+    value: "8"
+  - name: DI_SRS_MARC_AUTHORITY_RECORD_NOT_MATCHED_PARTITIONS
+    value: "8"
+  - name: DI_SRS_MARC_AUTHORITY_RECORD_DELETED_PARTITIONS
+    value: "8"
+  - name: DI_SRS_MARC_HOLDINGS_HOLDING_HRID_SET_PARTITIONS
+    value: "8"
+  - name: DI_SRS_MARC_HOLDINGS_RECORD_MODIFIED_READY_FOR_POST_PROCESSING_PARTITIONS
+    value: "8"
+  - name: DI_SRS_MARC_HOLDINGS_RECORD_UPDATED_PARTITIONS
+    value: "8"
+  - name: DI_SRS_MARC_BIB_RECORD_UPDATED_PARTITIONS
+    value: "8"
+  - name: DI_SRS_MARC_AUTHORITY_RECORD_MODIFIED_READY_FOR_POST_PROCESSING_PARTITIONS
+    value: "8"
+  - name: DI_SRS_MARC_BIB_RECORD_MATCHED_READY_FOR_POST_PROCESSING_PARTITIONS
+    value: "8"
+  - name: DI_LOG_SRS_MARC_AUTHORITY_RECORD_CREATED_PARTITIONS
+    value: "8"
+  - name: DI_LOG_SRS_MARC_AUTHORITY_RECORD_UPDATED_PARTITIONS
+    value: "8"
+  - name: DI_SRS_MARC_HOLDINGS_RECORD_MATCHED
+    value: "8"
+  - name: DI_SRS_MARC_HOLDINGS_RECORD_NOT_MATCHED
+    value: "8"
+  - name: DI_SRS_MARC_AUTHORITY_RECORD_UPDATED
+    value: "8"
+  - name: SRS_SOURCE_RECORDS_PARTITIONS
+    value: "8"
+  - name: DI_SRS_MARC_BIB_RECORD_MODIFIED_READY_FOR_POST_PROCESSING_PARTITIONS
+    value: "8"
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
+    systemuser:
+      enabled: true
+      existingSecret: mod-source-record-storage-systemuser
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 4500Mi
+    requests:
+      memory: 4052Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 2
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+  - -Dsrs.kafka.AuthorityDomainConsumer.loadLimit=4
+  - -Dsrs.kafka.AuthorityLinkChunkConsumer.loadLimit=4
+  - -Dsrs.kafka.DataImportConsumer.loadLimit=16
+  - -Dsrs.kafka.ParsedMarcChunkConsumer.loadLimit=16
+  - -Dsrs.kafka.QuickMarcConsumer.loadLimit=4
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+      - name: JAVA_OPTS
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms640m -Xmx640m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+      resources:
+        limits:
+          memory: 1024Mi
+        requests:
+          memory: 512Mi
+mod-tags:
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1024Mi
+    requests:
+      memory: 896Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 2
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+      - name: JAVA_OPTS
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms512m -Xmx512m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+      resources:
+        limits:
+          memory: 1024Mi
+        requests:
+          memory: 512Mi
+mod-template-engine:
+  extraEnvVars: []
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1024Mi
+    requests:
+      memory: 896Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 2
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+      - name: JAVA_OPTS
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms384m -Xmx384m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+      resources:
+        limits:
+          memory: 1024Mi
+        requests:
+          memory: 512Mi
+mod-tlr:
+  extraEnvVars: []
+  integrations:
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
+    systemuser:
+      enabled: true
+      existingSecret: mod-tlr-systemuser
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 512Mi
+    requests:
+      memory: 384Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 2
+    targetMemoryUtilizationPercentage: 65
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=66.0
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+      - name: JAVA_OPTS
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms128m -Xmx128m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+      resources:
+        limits:
+          memory: 256Mi
+        requests:
+          memory: 128Mi
+mod-user-import:
+  extraEnvVars: []
+  integrations: {}
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1024Mi
+    requests:
+      memory: 896Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 2
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+      - name: JAVA_OPTS
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms384m -Xmx384m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+      resources:
+        limits:
+          memory: 1024Mi
+        requests:
+          memory: 512Mi
+mod-users:
+  extraEnvVars:
+  - name: KAFKA_PRODUCER_TENANT_COLLECTION
+    value: "ALL"
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1024Mi
+    requests:
+      memory: 896Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 2
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+      - name: QUARKUS_HTTP_LIMITS_MAX_BODY_SIZE
+        value: "25M"
+      - name: JAVA_OPTS
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms768m -Xmx768m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+      resources:
+        limits:
+          memory: 1024Mi
+        requests:
+          memory: 512Mi
+mod-users-bl:
+  extraEnvVars: []
+  integrations: {}
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1440Mi
+    requests:
+      memory: 1080Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 2
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+      - name: JAVA_OPTS
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms768m -Xmx768m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+      resources:
+        limits:
+          memory: 1024Mi
+        requests:
+          memory: 512Mi
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+mod-workflow:
+  extraEnvVars:
+  - name: OKAPI_CAMUNDA_BASEPATH
+    value: "/"
+  - name: OKAPI_CAMUNDA_RESTPATH
+    value: "/camunda"
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 512Mi
+    requests:
+      memory: 384Mi
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=66.0
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+mod-z3950:
+  extraEnvVars: []
+  integrations: {}
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 341Mi
+    requests:
+      memory: 256Mi
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+mgr-applications:
+  extraEnvVars:
+  - name: ROUTEMANAGEMENT_ENABLE
+    value: "true"
+  - name: MODULE_URL
+    value: "http://mgr-applications"
+  - name: FOLIO_CLIENT_CONNECT_TIMEOUT
+    value: "600s"
+  - name: FOLIO_CLIENT_READ_TIMEOUT
+    value: "600s"
+  - name: KONG_CONNECT_TIMEOUT
+    value: "941241418"
+  - name: KONG_READ_TIMEOUT
+    value: "941241418"
+  - name: KONG_WRITE_TIMEOUT
+    value: "941241418"
+  - name: KC_INTEGRATION_ENABLED
+    value: "true"
+  - name: SECURITY_ENABLED
+    value: "true"
+  extraJavaOpts:
+  - "-Dlogging.level.root=INFO -Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties"
+  - -XX:MaxRAMPercentage=80.0
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1024Mi
+    requests:
+      memory: 675Mi
+  readinessProbe:
+    httpGet:
+      path: /applications
+      port: 8081
+    initialDelaySeconds: 20
+mgr-tenants:
+  extraEnvVars:
+  - name: MODULE_URL
+    value: "http://mgr-tenants"
+  - name: FOLIO_CLIENT_CONNECT_TIMEOUT
+    value: "600s"
+  - name: FOLIO_CLIENT_READ_TIMEOUT
+    value: "600s"
+  - name: KONG_CONNECT_TIMEOUT
+    value: "941241418"
+  - name: KONG_READ_TIMEOUT
+    value: "941241418"
+  - name: KONG_WRITE_TIMEOUT
+    value: "941241418"
+  - name: KC_INTEGRATION_ENABLED
+    value: "true"
+  - name: SECURITY_ENABLED
+    value: "true"
+  - name: MTE_URL
+    value: "http://mgr-tenant-entitlements"
+  extraJavaOpts:
+  - "-Dlogging.level.root=INFO -Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties"
+  - -XX:MaxRAMPercentage=75.0
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1024Mi
+    requests:
+      memory: 704Mi
+  readinessProbe:
+    httpGet:
+      path: /tenants
+      port: 8081
+    initialDelaySeconds: 20
+mgr-tenant-entitlements:
+  extraJavaOpts:
+  - "-Dlogging.level.root=INFO -Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties"
+  - -XX:MaxRAMPercentage=80.0
+  extraEnvVars:
+  - name: ROUTEMANAGEMENT_ENABLE
+    value: "false"
+  - name: MODULE_URL
+    value: "http://mgr-tenant-entitlements"
+  - name: FOLIO_CLIENT_CONNECT_TIMEOUT
+    value: "120s"
+  - name: FOLIO_CLIENT_READ_TIMEOUT
+    value: "120s"
+  - name: KONG_CONNECT_TIMEOUT
+    value: "180000"
+  - name: KONG_READ_TIMEOUT
+    value: "180000"
+  - name: KONG_WRITE_TIMEOUT
+    value: "180000"
+  - name: VALIDATION_INTERFACE_COLLECTOR_MODE
+    value: "scoped"
+  - name: KC_INTEGRATION_ENABLED
+    value: "true"
+  - name: SECURITY_ENABLED
+    value: "true"
+  - name: RETRIES_MODULE_MAX
+    value: "3"
+  - name: RETRIES_MODULE_BACKOFF_DELAY
+    value: "120000"
+  - name: RETRIES_MODULE_BACKOFF_MAXDELAY
+    value: "60000"
+  - name: RETRIES_MODULE_BACKOFF_MULTIPLIER
+    value: "2"
+  - name: FLOW_ENGINE_MODULE_INSTALLER_THREADS
+    value: "3"
+  - name: FLOW_ENGINE_THREADS_NUM
+    value: "3"
+  - name: FLOW_ENGINE_EXECUTION_TIMEOUT
+    value: "10m"
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1024Mi
+    requests:
+      memory: 800Mi
+  readinessProbe:
+    httpGet:
+      path: /entitlements
+      port: 8081
+    initialDelaySeconds: 20
+mod-consortia-keycloak:
+  extraEnvVars:
+  - name: CUSTOM_FIELDS_RETRY_BACKOFF_DELAY
+    value: "5000"
+  - name: CUSTOM_FIELDS_RETRY_MAX_RETRIES
+    value: "5"
+  - name: SERVER_PORT
+    value: "8080"
+  - name: SINGLE_TENANT_UX
+    value: "true"
+  - name: KAFKA_PRODUCER_TENANT_COLLECTION
+    value: "ALL"
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=70.0
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+    systemuser:
+      enabled: true
+      existingSecret: mod-consortia-keycloak-systemuser
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 5136Mi
+    requests:
+      memory: 2568Mi
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+      - name: JAVA_OPTS
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms640m -Xmx640m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+      resources:
+        limits:
+          memory: 1024Mi
+        requests:
+          memory: 512Mi
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8080
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+mod-login-keycloak:
+  extraEnvVars:
+  - name: KC_ADMIN_TOKEN_TTL
+    value: "295s"
+  - name: X_OKAPI_TOKEN_HEADER_ENABLED
+    value: "false"
+  - name: LOGIN_COOKIE_SAMESITE
+    value: "NONE"
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1024Mi
+    requests:
+      memory: 791Mi
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+      - name: JAVA_OPTS
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms96m -Xmx96m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+      resources:
+        limits:
+          memory: 256Mi
+        requests:
+          memory: 128Mi
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+mod-roles-keycloak:
+  extraEnvVars:
+  - name: KAFKA_CAPABILITIES_TOPIC_PATTERN
+    value: '(${application.environment}\.)(.*\.)mgr-tenant-entitlements.capability'
+  - name: CAPABILITY_TOPIC_RETRY_DELAY
+    value: "1s"
+  - name: CAPABILITY_TOPIC_RETRY_ATTEMPTS
+    value: "9223372036854775807"
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+    systemuser:
+      enabled: true
+      existingSecret: mod-roles-keycloak-systemuser
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 4096Mi
+    requests:
+      memory: 3418Mi
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+      - name: WEB_CLIENT_INGRESS_POOL_MAX_SIZE
+        value: "1500"
+      - name: WEB_CLIENT_EGRESS_POOL_MAX_SIZE
+        value: "1500"
+      - name: JAVA_OPTS
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms640m -Xmx640m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+      resources:
+        limits:
+          memory: 1024Mi
+        requests:
+          memory: 512Mi
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+mod-users-keycloak:
+  extraEnvVars:
+  - name: MOD_USERS_URL
+    value: "http://mod-users"
+  - name: KAFKA_SYS_USER_TOPIC_PATTERN
+    value: '(${application.environment}\.)(.*\.)mgr-tenant-entitlements.system-user'
+  - name: KAFKA_SYS_USER_TOPIC_RETRY_DELAY
+    value: "1s"
+  - name: KAFKA_SYS_USER_TOPIC_RETRY_ATTEMPTS
+    value: "9223372036854775807"
+  - name: KAFKA_SYS_USER_CAPABILITIES_RETRY_DELAY
+    value: "5s"
+  - name: KAFKA_SYS_USER_CAPABILITIES_RETRY_ATTEMPTS
+    value: "100"
+  - name: MIGRATION_BATCH_SIZE
+    value: "20"
+  - name: INCLUDE_ONLY_VISIBLE_PERMISSIONS
+    value: "false"
+  - name: SINGLE_TENANT_UX
+    value: "true"
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+    systemuser:
+      enabled: true
+      existingSecret: mod-users-keycloak-systemuser
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 4096Mi
+    requests:
+      memory: 3195Mi
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+      - name: WEB_CLIENT_INGRESS_POOL_MAX_SIZE
+        value: "1500"
+      - name: WEB_CLIENT_EGRESS_POOL_MAX_SIZE
+        value: "1500"
+      - name: JAVA_OPTS
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms768m -Xmx768m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+      resources:
+        limits:
+          memory: 1024Mi
+        requests:
+          memory: 512Mi
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+mod-scheduler:
+  extraEnvVars:
+  - name: KC_IMPERSONATION_CLIENT
+    value: "impersonation-client"
+  - name: KAFKA_JOB_CONSUMER_PATTERN
+    value: '(${folio.environment}\.)(.*\.)mgr-tenant-entitlements\.scheduled-job'
+  - name: KAFKA_JOB_CONCURRENCY
+    value: "1"
+  - name: KAFKA_CONSUMER_MAX_POLL_RECORDS
+    value: "200"
+  - name: QUARTZ_STARTUP_DELAY
+    value: "0s"
+  - name: QUARTZ_SCHEDULER_IDLE_WAIT_TIME
+    value: "10000"
+  - name: QUARTZ_MISFIRE_THRESHOLD
+    value: "250"
+  - name: QUARTZ_CLUSTER_CHECKIN_INTERVAL
+    value: "500"
+  - name: QUARTZ_POOL_THREAD_COUNT
+    value: "5"
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
+    systemuser:
+      enabled: true
+      existingSecret: mod-scheduler-systemuser
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1024Mi
+    requests:
+      memory: 681Mi
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+      - name: JAVA_OPTS
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms768m -Xmx768m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+      resources:
+        limits:
+          memory: 1024Mi
+        requests:
+          memory: 512Mi
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+mod-okapi-facade:
+  extraEnvVars:
+  - name: AM_TLS_ENABLED
+    value: "false"
+  - name: TM_TLS_ENABLED
+    value: "false"
+  - name: TE_TLS_ENABLED
+    value: "false"
+  - name: TENANT_APPS_TTL
+    value: "600s"
+  - name: AM_CLIENT_URL
+    value: http://mgr-applications
+  - name: MT_CLIENT_URL
+    value: http://mgr-tenants
+  - name: TE_URL
+    value: http://mgr-tenant-entitlements
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1024Mi
+    requests:
+      memory: 512Mi
+  sidecarContainers:
+    eureka:
+      extraEnvVars:
+      - name: JAVA_OPTS
+        value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms384m -Xmx384m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+      resources:
+        limits:
+          memory: 1024Mi
+        requests:
+          memory: 512Mi
+  startupProbe:
+    httpGet:
+      path: /admin/health
+      port: 8081
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+okapi:
+  args:
+  - cluster
+  - -hazelcast-config-file
+  - /etc/hazelcast/hazelcast.xml
+  ingress:
+    enabled: true
+    annotations:
+      alb.ingress.kubernetes.io/healthcheck-path: /_/version
+      alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+      alb.ingress.kubernetes.io/load-balancer-attributes: idle_timeout.timeout_seconds=4000
+      alb.ingress.kubernetes.io/scheme: internet-facing
+      alb.ingress.kubernetes.io/success-codes: 200-403
+      kubernetes.io/ingress.class: alb
+    hosts:
+    - paths:
+      - path: /*
+        pathType: ImplementationSpecific
+        servicePort: 9130
+  service:
+    type: NodePort
+  resources:
+    limits:
+      memory: 1684Mi
+    requests:
+      memory: 1440Mi
+  integrations:
+    db:
+      enabled: true
+      existingSecret: db-credentials
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 3
+    targetMemoryUtilizationPercentage: 75
+  extraJavaOpts:
+  - -XX:MaxRAMPercentage=85.0
+  startupProbe:
+    httpGet:
+      path: /_/proxy/health
+      port: 9130
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+ui-bundle:
+  ingress:
+    enabled: true
+    annotations:
+      alb.ingress.kubernetes.io/healthcheck-path: /
+      alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+      alb.ingress.kubernetes.io/scheme: internet-facing
+      alb.ingress.kubernetes.io/success-codes: 200-399
+      kubernetes.io/ingress.class: alb
+    hosts:
+    - paths:
+      - path: /*
+        pathType: ImplementationSpecific
+        servicePort: 80
+  service:
+    type: NodePort
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 200Mi
+    requests:
+      memory: 100Mi

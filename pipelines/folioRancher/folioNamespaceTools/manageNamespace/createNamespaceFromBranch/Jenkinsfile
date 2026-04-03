@@ -89,7 +89,7 @@ if (params.CLUSTER != 'folio-tmp') {
     folioCommon.validateNamespace(params.NAMESPACE)
 }
 
-if (params.CLUSTER == 'folio-etesting' || params.DATASET) {
+if (params.CLUSTER == 'folio-etesting' || params.DATASET || params.CONFIG_TYPE == 'release') {
     folioCommon.kitfoxApproval()
 }
 
