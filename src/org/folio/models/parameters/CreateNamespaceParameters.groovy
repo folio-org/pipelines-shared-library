@@ -1,6 +1,7 @@
 package org.folio.models.parameters
 
 import com.cloudbees.groovy.cps.NonCPS
+import org.folio.rest_v2.EntitlementApproach
 import org.folio.rest_v2.PlatformType
 
 /**
@@ -56,6 +57,8 @@ class CreateNamespaceParameters implements Cloneable {
   boolean dataset = false
 
   boolean scNative = false
+
+  EntitlementApproach entitlementApproach = EntitlementApproach.STATE
 
   String dmSnapshot
 
@@ -534,6 +537,11 @@ class CreateNamespaceParameters implements Cloneable {
      */
     Builder scNative(boolean scNative) {
       parameters.scNative = scNative
+      return this
+    }
+
+    Builder entitlementApproach(EntitlementApproach entitlementApproach) {
+      parameters.entitlementApproach = entitlementApproach
       return this
     }
 
