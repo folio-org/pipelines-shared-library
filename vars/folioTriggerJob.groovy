@@ -46,6 +46,7 @@ def createNamespaceFromBranch(String jobName, CreateNamespaceParameters namespac
       string(name: 'OPENSEARCH', value: namespaceParams.getOpensearchType()),
       string(name: 'S3_BUCKET', value: namespaceParams.getS3Type()),
       booleanParam(name: 'SC_NATIVE', value: namespaceParams.getScNative()),
+      string(name: 'ENTITLEMENT_APPROACH', value: namespaceParams.getEntitlementApproach().name()),
       booleanParam(name: 'RUN_SANITY_CHECK', value: namespaceParams.getRunSanityCheck()),
       string(name: 'MEMBERS', value: namespaceParams.getMembers())]
   return jobResult
