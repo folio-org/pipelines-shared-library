@@ -101,7 +101,7 @@ class Applications extends Kong{
   Applications deleteRegisteredApplication(String appId) {
     logger.info("Delete registered application ${appId} ...")
 
-    Map<String, String> headers = getMasterHttpHeaders()
+    Map<String, String> headers = getMasterHttpHeaders(true)
 
     restClient.delete(generateUrl("/applications/${appId}"), headers)
 
