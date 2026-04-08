@@ -33,30 +33,36 @@ void build(EurekaTenant tenant, boolean enableEcsRequests) {
         writeFile file: 'werf.yaml', text: libraryResource('werf/platform-lsp/werf.yaml')
         writeFile file: 'werf-giterminism.yaml', text: libraryResource('werf/platform-lsp/werf-giterminism.yaml')
 
-        // Add YARN_CACHE_FOLDER to the Dockerfile
-        sh "sed -i '/^FROM /a ENV YARN_CACHE_FOLDER=${WORKSPACE}/.cache/yarn' docker/Dockerfile"
+        // RANCHER-2930: Add YARN_CACHE_FOLDER to the Dockerfile and patch yarn install with network-timeout and reduced concurrency to handle transient registry errors
+        sh """
+          sed -i '/^FROM /a ENV YARN_CACHE_FOLDER=${WORKSPACE}/.cache/yarn' docker/Dockerfile
+          sed -i 's|yarn install|yarn install --network-timeout 600000 --network-concurrency 1|g' docker/Dockerfile
+        """
 
         withAWS(credentials: Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID, region: Constants.AWS_REGION) {
           withCredentials([usernamePassword(credentialsId: Constants.DOCKER_FOLIOCI_PULL_CREDENTIALS_ID,
             usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD')]) {
             String ecrLoginString = ecrLogin()
             String dockerHubLoginString = "werf cr login -u ${DOCKER_USER} -p ${DOCKER_PASSWORD} https://index.docker.io/v1/"
-            sh """
-              set -eu +x
-              ${ecrLoginString.replace('docker', 'werf cr')}
-              ${dockerHubLoginString}
-              set -x
-              export OKAPI_URL=https://${tenantUi.getKongDomain()}
-              export TENANT_ID=${tenant.getTenantId()}
-              werf build ${tenantUi.IMAGE_NAME} \
-                --repo ${Constants.ECR_FOLIO_REPOSITORY}/werf-shadow \
-                --loose-giterminism
-  
-              werf export ${tenantUi.IMAGE_NAME} \
-                --repo ${Constants.ECR_FOLIO_REPOSITORY}/werf-shadow \
-                --tag ${Constants.ECR_FOLIO_REPOSITORY}/${tenantUi.IMAGE_NAME}:${tenantUi.getTag()} \
-                --loose-giterminism
-            """
+            // RANCHER-2930: Wrap werf build + werf export with retry(3) to handle transient 502 registry errors
+            retry(3) {
+              sh """
+                set -eu +x
+                ${ecrLoginString.replace('docker', 'werf cr')}
+                ${dockerHubLoginString}
+                set -x
+                export OKAPI_URL=https://${tenantUi.getKongDomain()}
+                export TENANT_ID=${tenant.getTenantId()}
+                werf build ${tenantUi.IMAGE_NAME} \
+                  --repo ${Constants.ECR_FOLIO_REPOSITORY}/werf-shadow \
+                  --loose-giterminism
+    
+                werf export ${tenantUi.IMAGE_NAME} \
+                  --repo ${Constants.ECR_FOLIO_REPOSITORY}/werf-shadow \
+                  --tag ${Constants.ECR_FOLIO_REPOSITORY}/${tenantUi.IMAGE_NAME}:${tenantUi.getTag()} \
+                  --loose-giterminism
+              """
+            }
           }
         }
       }
