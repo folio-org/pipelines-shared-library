@@ -17,6 +17,8 @@
 .claude/
 .codemie/
 .codex/
+.specify/
+.serena/
 .mcp.json
 .cursor*
 claude*
