@@ -182,7 +182,7 @@ ansiColor('xterm') {
               module.loadModuleDetails("${module.name}-${moduleVersion}.${featureHash}")
 
               // Build Module as Gradle Project
-              sh "./gradlew ${commonGradleOpts} -PapVerYon=${module.getVersion()} assemble"
+              sh "./gradlew ${commonGradleOpts} -PappVersion=${module.getVersion()} assemble"
             }
             break
 
@@ -238,7 +238,7 @@ ansiColor('xterm') {
 
               String shellCmd = """
                 echo '[INFO] Build Docker Image'
-                ./gradlew ${commonGradleOpts} -PdockerRepo=folioci -PapVerYon=${module.version} buildImage
+                ./gradlew ${commonGradleOpts} -PdockerRepo=folioci -PappVersion=${module.version} buildImage
 
                 echo '[INFO] Get rid of BUILD_NUMBER in Module Descriptor'
                 [ -e ${module.modDescriptorPath} ] && sed -i 's#${module.version}.${env.BUILD_NUMBER}#${module.version}#g' ${module.modDescriptorPath}
