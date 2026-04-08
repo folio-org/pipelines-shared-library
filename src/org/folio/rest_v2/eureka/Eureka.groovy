@@ -47,9 +47,12 @@ class Eureka extends Base {
     kong.keycloak.defineTTL(tenant.tenantId, 600)
 
     if (entitlementApproach == EntitlementApproach.CREATE) {
+      ApplicationList entitledApps = Tenants.get(kong).getEnabledApplications(tenant)
       Tenants.get(kong).enableApplications(
         tenant,
-        tenant.applications.collect { it.id }
+        tenant.applications
+          .findAll { app -> !entitledApps.any { it.name == app.name } }
+          .collect { it.id }
       )
     } else {
       Tenants.get(kong).enableDesiredApplications(
