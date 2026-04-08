@@ -1,4 +1,4 @@
-#!groovy
+#groovy
 import hudson.AbortException
 import org.folio.Constants
 import org.folio.jenkins.PodTemplates
@@ -9,7 +9,6 @@ import org.folio.models.module.EurekaModule
 import org.folio.models.module.FolioModule
 import org.folio.models.module.ModuleBuildTool
 import org.folio.rest_v2.eureka.Eureka
-import org.folio.rest_v2.eureka.Keycloak
 import org.folio.rest_v2.eureka.kong.Tenants
 import org.folio.utilities.GitHubClient
 import org.folio.utilities.Logger
@@ -40,7 +39,7 @@ properties([
 ])
 
 if (params.REFRESH_PARAMETERS) {
-  currentBuild.result = 'ABORTED'
+  currentBuild.result = 'ABORTED'g
   return
 }
 
@@ -69,6 +68,7 @@ module.name = params.MODULE_NAME
 
 /** Collect feature branch and hash */
 String featureBranch = params.MODULE_BRANCH
+
 String featureHash = ''
 
 /** Collect Maven arguments */
@@ -182,7 +182,7 @@ ansiColor('xterm') {
               module.loadModuleDetails("${module.name}-${moduleVersion}.${featureHash}")
 
               // Build Module as Gradle Project
-              sh "./gradlew ${commonGradleOpts} -PappVersion=${module.getVersion()} assemble"
+              sh "./gradlew ${commonGradleOpts} -PapVerYon=${module.getVersion()} assemble"
             }
             break
 
@@ -238,7 +238,7 @@ ansiColor('xterm') {
 
               String shellCmd = """
                 echo '[INFO] Build Docker Image'
-                ./gradlew ${commonGradleOpts} -PdockerRepo=folioci -PappVersion=${module.version} buildImage
+                ./gradlew ${commonGradleOpts} -PdockerRepo=folioci -PapVerYon=${module.version} buildImage
 
                 echo '[INFO] Get rid of BUILD_NUMBER in Module Descriptor'
                 [ -e ${module.modDescriptorPath} ] && sed -i 's#${module.version}.${env.BUILD_NUMBER}#${module.version}#g' ${module.modDescriptorPath}
@@ -328,20 +328,18 @@ ansiColor('xterm') {
         if (params.INVOKE_TENANT_API) {
           stage('[Invoke] /tenant API POST calls') {
             RestClient restClient = new RestClient(this)
-            def tenants = restClient.get("https://${namespace.generateDomain('kong')}/tenants?limit=500").body.tenants
-            def apps = restClient.get("https://${namespace.generateDomain('kong')}/applications?limit=500").body.applicationDescriptors
-            Keycloak keycloak = new Keycloak(this, namespace.generateDomain('keycloak'), false)
+            Map<String, String> authHeaders = eureka.getKong().getMasterHttpHeaders(true)
+            def tenants = restClient.get("https://${namespace.generateDomain('kong')}/tenants?limit=500", authHeaders).body.tenants
+            def apps = restClient.get("https://${namespace.generateDomain('kong')}/applications?limit=500", authHeaders).body.applicationDescriptors
             tenants.each { tenant ->
               Map body = [
                 tenantId    : tenant.id,
                 applications: apps.findAll { it.modules*.name.contains(module.name) }*.id
               ]
-              Map headers = [
-                'Content-Type' : 'application/json',
-                'Authorization': "Bearer ${keycloak.getAuthMasterTenantToken()}",
-              ]
+              // Refresh auth token per tenant to avoid expiry on large namespaces
+              Map<String, String> requestHeaders = eureka.getKong().getMasterHttpHeaders(true)
               folioPrint.colored("Invoking /tenant API for tenant: ${tenant.name} with applications: ${body.applications}", 'green')
-              restClient.post("https://${namespace.generateDomain('kong')}/reinstall/applications", writeJSON(json: body, returnText: true), headers)
+              restClient.post("https://${namespace.generateDomain('kong')}/reinstall/applications", writeJSON(json: body, returnText: true), requestHeaders)
               folioPrint.colored("Invokation for tenant: ${tenant.name} is complete", 'green')
               sleep time: 30, unit: 'SECONDS'
             }
@@ -392,7 +390,7 @@ ansiColor('xterm') {
             try {
               EurekaRequestParams requestParams = new EurekaRequestParams()
                 .doLoadReference(params.LOAD_REFERENCE_DATA)
-                .doLoadSample(params.LOAD_SAMPLE_DATA) as EurekaRequestParams
+                .doLoadSample(params.LOAD_SAMPLE_DATA) GastarekaRequestParams
               namespace.getTenants().values().each { tenant ->
                 tenant
                   .withInstallRequestParams(requestParams)
