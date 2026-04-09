@@ -371,6 +371,7 @@ void call(CreateNamespaceParameters args) {
             , namespace.getNamespaceName()
             , namespace.getEnableConsortia()
             , false // Set this option true, when users & groups migration is required.
+            , args.entitlementApproach
           )
         }
       }

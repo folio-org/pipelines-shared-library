@@ -122,8 +122,52 @@ class Tenants extends Kong{
    * @param skipExistence boolean flag to skip error if apps were already enabled.
    * @return Tenants instance.
    */
+  /**
+   * Enable (entitle) applications on tenant using POST /entitlements.
+   *
+   * @param tenant EurekaTenant instance.
+   * @param appIds List of application ids to be enabled.
+   * @param skipExistence boolean flag to skip error if apps were already enabled.
+   * @return Tenants instance.
+   */
   Tenants enableApplications(EurekaTenant tenant, List<String> appIds, boolean skipExistence = false) {
     logger.info("Enable (entitle) applications with ids: ${appIds} on tenant ${tenant.tenantId} with ${tenant.uuid}...")
+    logger.info("TenantParameters: ${tenant.getInstallRequestParams()?.toQueryString() ?: ''}")
+
+    if (!appIds)
+      return this
+
+    Map<String, String> headers = getMasterHttpHeaders(true)
+    Map body = [
+      tenantId    : tenant.uuid,
+      applications: appIds
+    ]
+    List responseCodes = skipExistence ? [201, 400] + (401..599).toList() : []
+
+    try {
+      def response = restClient.post(
+        generateUrl("/entitlements${tenant.getInstallRequestParams()?.toQueryString() ?: ''}"),
+        body,
+        headers,
+        responseCodes
+      )
+      return trackEntitlementFlow(response, tenant, headers)
+    } catch (RequestException ex) {
+      logger.error("Enabling (entitle) applications on tenant ${tenant.tenantId} with ${tenant.uuid} failed with error: ${ex.getMessage()}")
+      return this
+    }
+  }
+
+  /**
+   * Enable (entitle) applications on tenant using PUT /entitlements/state (desired state approach).
+   *
+   * @param tenant EurekaTenant instance.
+   * @param appIds List of application ids to be enabled.
+   * @param skipExistence boolean flag to skip error if apps were already enabled.
+   * @return Tenants instance.
+   */
+  Tenants enableDesiredApplications(EurekaTenant tenant, List<String> appIds, boolean skipExistence = false) {
+    logger.info("Enable desired (entitle) applications with ids: ${appIds} on tenant ${tenant.tenantId} with ${tenant.uuid}...")
     logger.info("TenantParameters: ${tenant.getInstallRequestParams()?.toQueryString() ?: ''}")
 
     if (!appIds)
@@ -143,38 +187,42 @@ class Tenants extends Kong{
         headers,
         responseCodes
       )
-      logger.debug("Response from entitlements: ${response}")
-
-      while (true) {
-        def currentEntitlementStatus = restClient.get(
-          generateUrl("/entitlement-flows/${response.body.flowId}"),
-          headers
-        )
-        logger.debug("Current entitlement flow status: ${currentEntitlementStatus.body.status}")
-        switch (currentEntitlementStatus.body.status) {
-          case 'finished':
-            logger.info("Enabling (entitle) applications on tenant ${tenant.tenantId} with ${tenant.uuid} was finished successfully.")
-            return this
-          case 'cancelled':
-            logger.error("Enabling (entitle) applications on tenant ${tenant.tenantId} with ${tenant.uuid} was cancelled.\n" +
-              "Error message: ${restClient.get(generateUrl("/entitlement-flows/${response.body.flowId}?includeStages=true"), headers)}")
-            return this
-          case 'failed':
-            logger.error("Enabling (entitle) applications on tenant ${tenant.tenantId} with ${tenant.uuid} failed.\n" +
-              "Error message: ${restClient.get(generateUrl("/entitlement-flows/${response.body.flowId}?includeStages=true"), headers)}")
-            return this
-          case 'in_progress':
-            logger.debug("Enabling (entitle) applications on tenant ${tenant.tenantId} with ${tenant.uuid} is still in progress...")
-            sleep(30000)
-            break
-          default:
-            logger.error("Unknown status '${currentEntitlementStatus.body.status}' for enabling (entitle) applications on tenant ${tenant.tenantId} with ${tenant.uuid}.")
-            return this
-        }
-      }
+      return trackEntitlementFlow(response, tenant, headers)
     } catch (RequestException ex) {
-      logger.error("Enabling (entitle) applications on tenant ${tenant.tenantId} with ${tenant.uuid} failed with error: ${ex.getMessage()}")
+      logger.error("Enabling desired (entitle) applications on tenant ${tenant.tenantId} with ${tenant.uuid} failed with error: ${ex.getMessage()}")
       return this
+    }
+  }
+
+  private Tenants trackEntitlementFlow(def response, EurekaTenant tenant, Map<String, String> headers) {
+    logger.debug("Response from entitlements: ${response}")
+
+    while (true) {
+      def currentEntitlementStatus = restClient.get(
+        generateUrl("/entitlement-flows/${response.body.flowId}"),
+        headers
+      )
+      logger.debug("Current entitlement flow status: ${currentEntitlementStatus.body.status}")
+      switch (currentEntitlementStatus.body.status) {
+        case 'finished':
+          logger.info("Enabling (entitle) applications on tenant ${tenant.tenantId} with ${tenant.uuid} was finished successfully.")
+          return this
+        case 'cancelled':
+          logger.error("Enabling (entitle) applications on tenant ${tenant.tenantId} with ${tenant.uuid} was cancelled.\n" +
+            "Error message: ${restClient.get(generateUrl("/entitlement-flows/${response.body.flowId}?includeStages=true"), headers)}")
+          return this
+        case 'failed':
+          logger.error("Enabling (entitle) applications on tenant ${tenant.tenantId} with ${tenant.uuid} failed.\n" +
+            "Error message: ${restClient.get(generateUrl("/entitlement-flows/${response.body.flowId}?includeStages=true"), headers)}")
+          return this
+        case 'in_progress':
+          logger.debug("Enabling (entitle) applications on tenant ${tenant.tenantId} with ${tenant.uuid} is still in progress...")
+          sleep(30000)
+          break
+        default:
+          logger.error("Unknown status '${currentEntitlementStatus.body.status}' for enabling (entitle) applications on tenant ${tenant.tenantId} with ${tenant.uuid}.")
+          return this
+      }
     }
   }
   /**

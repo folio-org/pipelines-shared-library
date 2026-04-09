@@ -7,6 +7,7 @@ import org.folio.models.application.Application
 import org.folio.models.application.ApplicationList
 import org.folio.models.module.EurekaModule
 import org.folio.models.module.FolioModule
+import org.folio.rest_v2.EntitlementApproach
 import org.folio.rest_v2.eureka.kong.*
 
 class Eureka extends Base {
@@ -29,7 +30,8 @@ class Eureka extends Base {
     return this
   }
 
-  Eureka createTenantFlow(EurekaTenant tenant, String cluster, String namespace, boolean migrate = false) {
+  Eureka createTenantFlow(EurekaTenant tenant, String cluster, String namespace,
+                           boolean migrate = false, EntitlementApproach entitlementApproach = EntitlementApproach.STATE) {
     EurekaTenant createdTenant = Tenants.get(kong).createTenant(tenant)
 
     tenant.withUUID(createdTenant.getUuid())
@@ -44,10 +46,20 @@ class Eureka extends Base {
 
     kong.keycloak.defineTTL(tenant.tenantId, 600)
 
-    Tenants.get(kong).enableApplications(
-      tenant,
-      tenant.applications.collect { it.id }
-    )
+    if (entitlementApproach == EntitlementApproach.CREATE) {
+      ApplicationList entitledApps = Tenants.get(kong).getEnabledApplications(tenant)
+      Tenants.get(kong).enableApplications(
+        tenant,
+        tenant.applications
+          .findAll { app -> !entitledApps.any { it.name == app.name } }
+          .collect { it.id }
+      )
+    } else {
+      Tenants.get(kong).enableDesiredApplications(
+        tenant,
+        tenant.applications.collect { it.id }
+      )
+    }
 
     context.folioTools.stsKafkaLag(cluster, namespace, tenant.tenantId)
 
@@ -213,9 +225,10 @@ class Eureka extends Base {
   }
 
   Eureka initializeFromScratch(Map<String, EurekaTenant> tenants, String cluster, String namespace
-                               , boolean enableConsortia, boolean migrate = false) {
+                               , boolean enableConsortia, boolean migrate = false
+                               , EntitlementApproach entitlementApproach = EntitlementApproach.STATE) {
     tenants.each { tenantId, tenant ->
-      createTenantFlow(tenant, cluster, namespace, migrate)
+      createTenantFlow(tenant, cluster, namespace, migrate, entitlementApproach)
     }
 
     if (enableConsortia)
