@@ -19,6 +19,7 @@
 .codex/
 .specify/
 .serena/
+specs/
 .mcp.json
 .cursor*
 claude*
