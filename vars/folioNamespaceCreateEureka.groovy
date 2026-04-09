@@ -405,7 +405,7 @@ void call(CreateNamespaceParameters args) {
             "2. https://${namespace.generateDomain('fs09000002')} creds: folio-plus:Folio-plus1\n" +
             "3. https://${namespace.generateDomain('fs09000003')} creds: folio-aqa:Folio-aqa1\n" +
             "4. https://${namespace.generateDomain('cs00000int')} creds: ECSAdmin:admin\n" +
-            (args.type == 'full' ? "Re-indexing large datasets may take up to 8-12 hours to complete. Monitor progress via the folio-logs(Kibana)." : ""),
+            (args.type == 'full' ? "Re-indexing large datasets may take up to 8-12 hours to complete. Track status on https://reindex-checker.ci.folio.org" : ""),
             channel: '#eureka-sprint-testing')
         } else {
           slackSend(color: 'good', message: args.clusterName + "-" + args.namespaceName + " env successfully built\n" +
