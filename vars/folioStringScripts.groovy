@@ -69,6 +69,9 @@ try {
   descriptor.applications.optional.each { app ->
     apps.add(app['name'] + ':selected')
   }
+  descriptor.applications.experimental?.each { app ->
+    apps.add(app['name'])
+  }
 
   return apps
 } catch (Exception e) {

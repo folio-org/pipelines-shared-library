@@ -7,7 +7,8 @@ Map getPlatformDescriptor(String branch = 'snapshot') {
 
   int requiredCount = platformDescriptor.applications?.required?.size() ?: 0
   int optionalCount = platformDescriptor.applications?.optional?.size() ?: 0
-  println "Fetched platform-descriptor.json with ${requiredCount} required and ${optionalCount} optional applications"
+  int experimentalCount = platformDescriptor.applications?.experimental?.size() ?: 0
+  println "Fetched platform-descriptor.json with ${requiredCount} required, ${optionalCount} optional, and ${experimentalCount} experimental applications"
 
   return platformDescriptor
 }
@@ -27,7 +28,8 @@ List<Map<String, String>> getAllPlatformApps(String branch = 'snapshot', Map pla
   }
 
   List allApps = (platformDescriptor.applications?.required ?: []) +
-                                       (platformDescriptor.applications?.optional ?: [])
+                 (platformDescriptor.applications?.optional ?: []) +
+                 (platformDescriptor.applications?.experimental ?: [])
 
   return allApps as List<Map<String, String>>
 }
