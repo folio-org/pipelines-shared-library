@@ -170,6 +170,19 @@ class Configurations extends Kong {
       }
     }
 
+    return this
+  }
+
+  /**
+   * Sets the base-url for the specified tenant via PUT /base-url endpoint.
+   * This endpoint was introduced after the Sunflower release and should not be called for it.
+   *
+   * @param tenant The tenant for which to set the base-url.
+   */
+  Configurations setBaseUrl(EurekaTenant tenant) {
+    if (!tenant.okapiConfig?.resetPasswordLink)
+      return this
+
     logger.info("Set base-url on tenant ${tenant.tenantId} with ${tenant.uuid}...")
 
     Map<String, String> headers = getTenantHttpHeaders(tenant)
