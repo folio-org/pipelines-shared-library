@@ -16,6 +16,8 @@ class EurekaNamespace extends RancherNamespace {
 
   boolean enableECS_CCL = false
 
+  List<String> configExtensions = []
+
   boolean hasSecureTenant = false
 
   EurekaTenant secureTenant
@@ -68,6 +70,12 @@ class EurekaNamespace extends RancherNamespace {
 
     if (getDeploymentConfigType() && enableECS_CCL)
       setDeploymentConfig(mergeMaps(getDeploymentConfig(), getFeatureConfig('ecs-ccl', branch)))
+
+    if (getDeploymentConfigType() && configExtensions) {
+      configExtensions.each { feature ->
+        setDeploymentConfig(mergeMaps(getDeploymentConfig(), getFeatureConfig(feature, branch)))
+      }
+    }
   }
 
   private List<EurekaTenantConsortia> findCentralConsortiaTenants() {
