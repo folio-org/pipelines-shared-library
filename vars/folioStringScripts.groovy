@@ -14,13 +14,7 @@ static String getPlatformFromCluster(String cluster) {
     .collectEntries { [(it.name): it.platform[0].name()] }
 
   return """
-String platform = ${clusterPlatform.inspect()}[${cluster}]
-//def mapping = ${clusterPlatform.inspect()}
-//def platform = mapping[CLUSTER] ?: 'EUREKA'
-//return ["\${platform}:selected"]
-////return ['EUREKA:selected']
-//return ["\${${cluster}}:selected"]
-def test = ${cluster}
+String platform = ${clusterPlatform.inspect()}[${cluster}] ?: 'EUREKA'
 return [platform]
 """.stripIndent()
 }
