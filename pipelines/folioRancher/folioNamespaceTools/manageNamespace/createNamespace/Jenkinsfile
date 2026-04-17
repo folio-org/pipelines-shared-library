@@ -32,9 +32,9 @@ if (params.REFRESH_PARAMETERS) {
   return
 }
 
-if (params.CLUSTER != 'folio-tmp') {
-  folioCommon.validateNamespace(params.NAMESPACE)
-}
+//if (params.CLUSTER != 'folio-tmp') {
+//  folioCommon.validateNamespace(params.NAMESPACE)
+//}
 
 CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builder()
   .clusterName(params.CLUSTER)
