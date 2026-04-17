@@ -17,7 +17,7 @@ properties([
     folioParameters.branch(),
     booleanParam(name: 'CONSORTIA', defaultValue: true, description: '(Optional) Set true to create consortium'),
     folioParameters.refreshParameters()
-    , folioParameters.hideParameters(['PLATFORM'])
+//    , folioParameters.hideParameters(['PLATFORM'])
     , folioParameters.hideParameters(
     [
       'EUREKA': ['FOLIO_BRANCH'],
