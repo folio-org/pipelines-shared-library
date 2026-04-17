@@ -54,7 +54,7 @@ class CreateNamespaceParameters implements Cloneable {
 
   boolean hasSecureTenant = true
 
-  String secureTenantId = folioDefault.consortiaTenants().get('university').getTenantId()
+  String secureTenantId = 'university'
 
   boolean uiBuild = true
 
