@@ -96,7 +96,7 @@ spec:
 ''',
       podRetention: podRetention,
       inheritYamlMergeStrategy: true,
-      slaveConnectTimeout: 900,
+      slaveConnectTimeout: 1800,
       hostNetwork: false,
       workspaceVolume: steps.genericEphemeralVolume(accessModes: 'ReadWriteOnce',
         requestsSize: '5Gi',
@@ -111,9 +111,12 @@ spec:
           resourceLimitMemory: '12228Mi',
           envVars: [
             new KeyValueEnvVar('JENKINS_JAVA_OPTS',
-              '-Dorg.jenkinsci.remoting.engine.JnlpAgentEndpointResolver.PING_INTERVAL=30' +
-                ' -Dorg.jenkinsci.remoting.engine.JnlpAgentEndpointResolver.PING_TIMEOUT=600' +
-                ' -Dorg.jenkinsci.remoting.websocket.WebSocketSession.pingInterval=30')
+              '-Dorg.jenkinsci.remoting.engine.JnlpAgentEndpointResolver.PING_INTERVAL=60' +
+                ' -Dorg.jenkinsci.remoting.engine.JnlpAgentEndpointResolver.PING_TIMEOUT=3600' +
+                ' -Dorg.jenkinsci.remoting.websocket.WebSocketSession.pingInterval=60' +
+                ' -Dorg.jenkinsci.remoting.websocket.WebSocketSession.pingTimeout=3600' +
+                ' -Dhudson.remoting.Launcher.pingIntervalSec=60' +
+                ' -Dhudson.remoting.Launcher.pingTimeoutSec=3600')
           ]
         )]) {
       body.call()
