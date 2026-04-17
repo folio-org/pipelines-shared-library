@@ -107,7 +107,7 @@ def platform(PlatformType defaultValue = null, String paramName = 'PLATFORM') {
 }
 
 def platformFromCluster(String paramName = 'PLATFORM', String reference = 'CLUSTER') {
-  return _paramExtendedSingleSelect(paramName, reference, folioStringScripts.getPlatformFromCluster(),
+  return _paramExtendedSingleSelect(paramName, reference, folioStringScripts.getPlatformFromCluster(reference),
     'Platform type (auto-derived from cluster)')
 }
 
