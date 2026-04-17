@@ -17,7 +17,8 @@ def platform = mapping[CLUSTER] ?: 'EUREKA'
 //return ["\${platform}:selected"]
 ////return ['EUREKA:selected']
 //return ["\${${cluster}}:selected"]
-return ["Test"]
+def test = "\${${cluster}}"
+return [test]
 """.stripIndent()
 }
 
