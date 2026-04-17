@@ -109,7 +109,7 @@ class Constants {
     ],
     [
       name: 'folio-tmp'
-      , platform: [ PlatformType.OKAPI, PlatformType.EUREKA ]
+      , platform: [ PlatformType.EUREKA, PlatformType.OKAPI ]
       , namespaces: AWS_EKS_TMP_NAMESPACES
       , disabled: false
     ]
