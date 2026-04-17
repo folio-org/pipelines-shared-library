@@ -21,7 +21,7 @@ class DependentParametersResolver {
     // Release-driven
     result.entitlementApproach = (effectiveRelease == FolioRelease.SUNFLOWER) ? EntitlementApproach.CREATE : EntitlementApproach.STATE
     result.setBaseUrl = (effectiveRelease != FolioRelease.SUNFLOWER)
-    result.configExtensions = (effectiveRelease == FolioRelease.SUNFLOWER) ? ['sunflower-release'] : []
+    result.configExtensions = (effectiveRelease == FolioRelease.SUNFLOWER) ? ['sunflower'] : []
 
     // Cluster-driven
     result.platform = resolvePlatform(clusterName)
