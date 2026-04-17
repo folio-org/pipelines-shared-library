@@ -189,7 +189,7 @@ if (namespaceParams.platform == PlatformType.EUREKA) {
 ansiColor('xterm') {
     if (namespaceParams.platform == PlatformType.EUREKA) {
         folioNamespaceCreateEureka.call(namespaceParams)
-  } else {
+    } else {
         folioNamespaceCreate.call(namespaceParams)
     }
 
