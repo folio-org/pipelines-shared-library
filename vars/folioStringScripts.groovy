@@ -18,7 +18,7 @@ static String getPlatformFromCluster(String cluster) {
 //return ["\${platform}:selected"]
 ////return ['EUREKA:selected']
 //return ["\${${cluster}}:selected"]
-def test = '${cluster}'
+def test = ${cluster}
 return [test]
 """.stripIndent()
 }
