@@ -438,6 +438,8 @@ class CreateNamespaceParameters implements Cloneable {
       Map<String, Object> defaults = DependentParametersResolver.resolve(
         parameters.clusterName, parameters.namespaceName, parameters.releaseType)
 
+      context.println("Resolved dependent parameters: ${defaults}")
+
       defaults.each { name, value ->
         if (!modifiedFields.contains(name) && value != null && parameters.hasProperty(name)) {
           parameters[name] = value
