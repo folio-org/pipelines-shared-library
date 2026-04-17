@@ -21,7 +21,7 @@ String platform = ${clusterPlatform.inspect()}[${cluster}]
 ////return ['EUREKA:selected']
 //return ["\${${cluster}}:selected"]
 def test = ${cluster}
-return [test]
+return [platform]
 """.stripIndent()
 }
 
