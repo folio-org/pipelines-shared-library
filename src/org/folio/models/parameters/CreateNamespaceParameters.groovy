@@ -1,7 +1,9 @@
 package org.folio.models.parameters
 
 import com.cloudbees.groovy.cps.NonCPS
+import org.folio.Constants
 import org.folio.rest_v2.EntitlementApproach
+import org.folio.rest_v2.FolioRelease
 import org.folio.rest_v2.PlatformType
 
 /**
@@ -9,6 +11,8 @@ import org.folio.rest_v2.PlatformType
  * various services and features within the FOLIO ecosystem.
  */
 class CreateNamespaceParameters implements Cloneable {
+
+  FolioRelease releaseType = FolioRelease.SNAPSHOT
 
   PlatformType platform = PlatformType.OKAPI
 
@@ -24,11 +28,11 @@ class CreateNamespaceParameters implements Cloneable {
 
   String configType
 
-  boolean loadReference
+  boolean loadReference = true
 
-  boolean loadSample
+  boolean loadSample = true
 
-  boolean consortia
+  boolean consortia = true
 
   boolean consortiaExtra = false
 
@@ -48,17 +52,17 @@ class CreateNamespaceParameters implements Cloneable {
 
   boolean marcMigrations = false
 
-  boolean hasSecureTenant
+  boolean hasSecureTenant = true
 
-  String secureTenantId
+  String secureTenantId = folioDefault.consortiaTenants().get('university').getTenantId()
 
-  boolean uiBuild
+  boolean uiBuild = true
 
   boolean dataset = false
 
-  boolean scNative = false
+  boolean scNative = true
 
-  EntitlementApproach entitlementApproach = EntitlementApproach.STATE
+  InitializeFromScratchParameters initParams = new InitializeFromScratchParameters()
 
   String dmSnapshot
 
@@ -68,15 +72,17 @@ class CreateNamespaceParameters implements Cloneable {
 
   List<String> folioExtensions = []
 
-  String pgType
+  List<String> configExtensions = []
 
-  String pgVersion
+  String pgType = 'built-in'
 
-  String kafkaType
+  String pgVersion = Constants.PGSQL_DEFAULT_VERSION
 
-  String opensearchType
+  String kafkaType = 'built-in'
 
-  String s3Type
+  String opensearchType = 'aws'
+
+  String s3Type = 'built-in'
 
   boolean runSanityCheck
 
@@ -118,29 +124,21 @@ class CreateNamespaceParameters implements Cloneable {
   static class Builder {
 
     private CreateNamespaceParameters parameters = new CreateNamespaceParameters()
+    private Set<String> modifiedFields = [] as Set
 
-    /**
-     * Constructor for Builder, initializes with default parameters.
-     */
     Builder() {}
 
-    /**
-     * Initializes the builder with an existing set of parameters for cloning or modification.
-     * @param existingParameters The existing parameters to initialize the builder with.
-     */
     Builder(CreateNamespaceParameters existingParameters) {
       this.parameters = existingParameters.clone()
     }
 
-    /**
-     * Define platform type within the namespace.
-     * @param platformType. The type of platform to use, e.g., OKAPI or EUREKA.
-     * @return Builder instance for method chaining.
-     */
-    Builder platform(PlatformType platformType) {
-      parameters.platform = platformType
+    private Builder setParam(String fieldName, Object value) {
+      parameters[fieldName] = value
+      modifiedFields << fieldName
       return this
     }
+
+    Builder platform(PlatformType platformType) { return setParam('platform', platformType) }
 
     /**
      * Sets the cluster name where the namespace will be created.
@@ -148,10 +146,7 @@ class CreateNamespaceParameters implements Cloneable {
      * @param clusterName The name of the Kubernetes cluster.
      * @return Builder instance for method chaining.
      */
-    Builder clusterName(String clusterName) {
-      parameters.clusterName = clusterName
-      return this
-    }
+    Builder clusterName(String clusterName) { return setParam('clusterName', clusterName) }
 
     /**
      * Sets the name of the namespace to be created or managed.
@@ -159,10 +154,7 @@ class CreateNamespaceParameters implements Cloneable {
      * @param namespaceName The unique name for the namespace.
      * @return Builder instance for method chaining.
      */
-    Builder namespaceName(String namespaceName) {
-      parameters.namespaceName = namespaceName
-      return this
-    }
+    Builder namespaceName(String namespaceName) { return setParam('namespaceName', namespaceName) }
 
     /**
      * Specifies the FOLIO branch for which the namespace is being configured.
@@ -170,10 +162,7 @@ class CreateNamespaceParameters implements Cloneable {
      * @param folioBranch The branch name of the FOLIO repository.
      * @return Builder instance for method chaining.
      */
-    Builder folioBranch(String folioBranch) {
-      parameters.folioBranch = folioBranch
-      return this
-    }
+    Builder folioBranch(String folioBranch) { return setParam('folioBranch', folioBranch) }
 
     /**
      * Specifies the platform-lsp branch for Eureka platform configuration.
@@ -181,10 +170,7 @@ class CreateNamespaceParameters implements Cloneable {
      * @param platformBranch The branch name of the platform-lsp repository.
      * @return Builder instance for method chaining.
      */
-    Builder platformBranch(String platformBranch) {
-      parameters.platformBranch = platformBranch
-      return this
-    }
+    Builder platformBranch(String platformBranch) { return setParam('platformBranch', platformBranch) }
 
     /**
      * Sets the version of Okapi to be deployed within the namespace.
@@ -192,20 +178,14 @@ class CreateNamespaceParameters implements Cloneable {
      * @param okapiVersion The version number of Okapi.
      * @return Builder instance for method chaining.
      */
-    Builder okapiVersion(String okapiVersion) {
-      parameters.okapiVersion = okapiVersion
-      return this
-    }
+    Builder okapiVersion(String okapiVersion) { return setParam('okapiVersion', okapiVersion) }
 
     /**
      * Defines the configuration type for the namespace, affecting how resources are allocated and managed.
      * @param configType A string indicating the configuration profile to apply.
      * @return Builder instance for method chaining.
      */
-    Builder configType(String configType) {
-      parameters.configType = configType
-      return this
-    }
+    Builder configType(String configType) { return setParam('configType', configType) }
 
     /**
      * Determines whether reference data should be loaded into the namespace.
@@ -213,10 +193,7 @@ class CreateNamespaceParameters implements Cloneable {
      * @param loadReference `true` to load reference data; `false` otherwise.
      * @return Builder instance for method chaining.
      */
-    Builder loadReference(boolean loadReference) {
-      parameters.loadReference = loadReference
-      return this
-    }
+    Builder loadReference(boolean loadReference) { return setParam('loadReference', loadReference) }
 
     /**
      * Determines whether sample data should be loaded into the namespace.
@@ -224,10 +201,7 @@ class CreateNamespaceParameters implements Cloneable {
      * @param loadSample `true` to load sample data; `false` otherwise.
      * @return Builder instance for method chaining.
      */
-    Builder loadSample(boolean loadSample) {
-      parameters.loadSample = loadSample
-      return this
-    }
+    Builder loadSample(boolean loadSample) { return setParam('loadSample', loadSample) }
 
     /**
      * Enables or disables consortia features within the namespace.
@@ -235,20 +209,14 @@ class CreateNamespaceParameters implements Cloneable {
      * @param consortia `true` to enable consortia features; `false` to disable.
      * @return Builder instance for method chaining.
      */
-    Builder consortia(boolean consortia) {
-      parameters.consortia = consortia
-      return this
-    }
+    Builder consortia(boolean consortia) { return setParam('consortia', consortia) }
 
     /**
      * Enables or disables the second consortium features within the namespace.
      * @param consortiaExtra `true` to enable the second consortium features; `false` to disable.
      * @return Builder instance for method chaining.
      */
-    Builder consortiaExtra(boolean consortiaExtra) {
-      parameters.consortiaExtra = consortiaExtra
-      return this
-    }
+    Builder consortiaExtra(boolean consortiaExtra) { return setParam('consortiaExtra', consortiaExtra) }
 
     /**
      * Enables or disables linked data features within the namespace.
@@ -258,30 +226,21 @@ class CreateNamespaceParameters implements Cloneable {
      * @param linkedData `true` to enable linked data features; `false` to disable.
      * @return Builder instance for method chaining.
      */
-    Builder linkedData(boolean linkedData) {
-      parameters.linkedData = linkedData
-      return this
-    }
+    Builder linkedData(boolean linkedData) { return setParam('linkedData', linkedData) }
 
     /**
      * Enables or disables split-files features within the namespace.
      * @param splitFiles `true` to enable split-files features; `false` to disable.
      * @return Builder instance for method chaining.
      */
-    Builder splitFiles(boolean splitFiles) {
-      parameters.splitFiles = splitFiles
-      return this
-    }
+    Builder splitFiles(boolean splitFiles) { return setParam('splitFiles', splitFiles) }
 
     /**
      * Enables or disables ECS_CCL feature within the namespace.
      * @param ecsCCL `true` to enable ECS_CCL features; `false` to disable.
      * @return Builder instance for method chaining.
      */
-    Builder ecsCCL(boolean ecsCCL) {
-      parameters.ecsCCL = ecsCCL
-      return this
-    }
+    Builder ecsCCL(boolean ecsCCL) { return setParam('ecsCCL', ecsCCL) }
 
     /**
      * Enables or disables read-write splitting for database access.
@@ -289,10 +248,7 @@ class CreateNamespaceParameters implements Cloneable {
      * @param rwSplit `true` to enable read-write splitting; `false` to disable.
      * @return Builder instance for method chaining.
      */
-    Builder rwSplit(boolean rwSplit) {
-      parameters.rwSplit = rwSplit
-      return this
-    }
+    Builder rwSplit(boolean rwSplit) { return setParam('rwSplit', rwSplit) }
 
     /**
      * Enables or disables the use of GreenMail for email testing.
@@ -300,10 +256,7 @@ class CreateNamespaceParameters implements Cloneable {
      * @param greenmail `true` to enable GreenMail; `false` to disable.
      * @return Builder instance for method chaining.
      */
-    Builder greenmail(boolean greenmail) {
-      parameters.greenmail = greenmail
-      return this
-    }
+    Builder greenmail(boolean greenmail) { return setParam('greenmail', greenmail) }
 
     /**
      * Enables or disables the mock server for testing without external dependencies.
@@ -311,62 +264,42 @@ class CreateNamespaceParameters implements Cloneable {
      * @param mockServer `true` to enable the mock server; `false` to disable.
      * @return Builder instance for method chaining.
      */
-    Builder mockServer(boolean mockServer) {
-      parameters.mockServer = mockServer
-      return this
-    }
+    Builder mockServer(boolean mockServer) { return setParam('mockServer', mockServer) }
 
     /**
      * Enables or disables refresh token rotation (RTR)
      * @param rtr `true` to enable RTR; `false` to disable.
      * @return Builder instance for method chaining.
      */
-    Builder rtr(boolean rtr) {
-      parameters.rtr = rtr
-      return this
-    }
+    Builder rtr(boolean rtr) { return setParam('rtr', rtr) }
 
     /**
      * Do or not marc-migrations
      * @param doMigrations `true` to do marc-migrations; `false` to skip.
      * @return Builder instance for method chaining.
      */
-    Builder doMarcMigrations(boolean doMigrations) {
-      parameters.marcMigrations = doMigrations
-      return this
-    }
+    Builder doMarcMigrations(boolean doMigrations) { return setParam('marcMigrations', doMigrations) }
 
     /**
      * Activate or not secure tenant
      * @param has `true` to activate security on tenant secureTenantId
      * @return Builder instance for method chaining.
      */
-    Builder hasSecureTenant(boolean has) {
-      parameters.hasSecureTenant = has
-      return this
-    }
+    Builder hasSecureTenant(boolean has) { return setParam('hasSecureTenant', has) }
 
     /**
      * Defines the id of the tenant to secure
      * @param id The id of the tenant to secure
      * @return Builder instance for method chaining.
      */
-    Builder secureTenantId(String id) {
-      parameters.secureTenantId = id
-      return this
-    }
+    Builder secureTenantId(String id) { return setParam('secureTenantId', id) }
 
     /**
      * Defines the type of environment to be used.
      * @param dataset `true` to enable BF like dataset; `false` to disable.
      * @return
      */
-
-    Builder dataset(boolean dataset) {
-      parameters.dataset = dataset
-      return this
-    }
-
+    Builder dataset(boolean dataset) { return setParam('dataset', dataset) }
 
     /**
      * Specifies the application names list for Eureka platform.
@@ -374,10 +307,7 @@ class CreateNamespaceParameters implements Cloneable {
      * @param list The list of application names to deploy.
      * @return Builder instance for method chaining.
      */
-    Builder applications(List<String> list) {
-      parameters.applications = list
-      return this
-    }
+    Builder applications(List<String> list) { return setParam('applications', list) }
 
     /**
      * Specifies the applications map for Eureka platform.
@@ -387,80 +317,56 @@ class CreateNamespaceParameters implements Cloneable {
      * @deprecated Use {@link #applications(List)} instead. Application versions are now resolved from FAR.
      */
     @Deprecated
-    Builder applications(Map map) {
-      parameters.applications = map.keySet().toList()
-      return this
-    }
+    Builder applications(Map map) { return setParam('applications', map.keySet().toList()) }
 
     /**
      * Specifies the type of PostgreSQL database to be used.
      * @param pgType The type of PostgreSQL deployment, e.g., "built-in" or a specific cloud provider's service.
      * @return Builder instance for method chaining.
      */
-    Builder pgType(String pgType) {
-      parameters.pgType = pgType
-      return this
-    }
+    Builder pgType(String pgType) { return setParam('pgType', pgType) }
 
     /**
      * Sets the version of the PostgreSQL database.
      * @param pgVersion The version number of PostgreSQL to use.
      * @return Builder instance for method chaining.
      */
-    Builder pgVersion(String pgVersion) {
-      parameters.pgVersion = pgVersion
-      return this
-    }
+    Builder pgVersion(String pgVersion) { return setParam('pgVersion', pgVersion) }
 
     /**
      * Defines the type of Kafka service to be used.
      * @param kafkaType The type of Kafka deployment, e.g., "built-in" or managed service.
      * @return Builder instance for method chaining.
      */
-    Builder kafkaType(String kafkaType) {
-      parameters.kafkaType = kafkaType
-      return this
-    }
+    Builder kafkaType(String kafkaType) { return setParam('kafkaType', kafkaType) }
 
     /**
      * Sets the type of OpenSearch service to be used.
      * @param opensearchType The deployment option for OpenSearch, such as "built-in" or a cloud service.
      * @return Builder instance for method chaining.
      */
-    Builder opensearchType(String opensearchType) {
-      parameters.opensearchType = opensearchType
-      return this
-    }
+    Builder opensearchType(String opensearchType) { return setParam('opensearchType', opensearchType) }
 
     /**
      * Determines the type of S3-compatible storage to be used.
      * @param s3Type The storage option for S3, indicating whether it's "built-in" or a specific provider.
      * @return Builder instance for method chaining.
-     */
-    Builder s3Type(String s3Type) {
-      parameters.s3Type = s3Type
-      return this
-    }
+    */
+    Builder s3Type(String s3Type) { return setParam('s3Type', s3Type) }
 
     /**
      * Identify if Cypress sanity check should be run.
      * @param runSanityCheck The option to run or skip cypress sanity check.
      * @return Builder instance for method chaining.
      */
-    Builder runSanityCheck(boolean runSanityCheck) {
-      parameters.runSanityCheck = runSanityCheck
-      return this
-    }
+    Builder runSanityCheck(boolean runSanityCheck) { return setParam('runSanityCheck', runSanityCheck) }
 
     /**
      * Lists members associated with the namespace, typically used for access control or resource sharing.
      * @param members A comma-separated list of members.
      * @return Builder instance for method chaining.
      */
-    Builder members(String members) {
-      parameters.members = members
-      return this
-    }
+    Builder members(String members) { return setParam('members', members) }
 
     /**
      * Marks the namespace as being solely for namespace management without deploying the full stack.
@@ -468,10 +374,7 @@ class CreateNamespaceParameters implements Cloneable {
      * @param namespaceOnly `true` to indicate only namespace creation/deletion; `false` for full deployment.
      * @return Builder instance for method chaining.
      */
-    Builder namespaceOnly(boolean namespaceOnly) {
-      parameters.namespaceOnly = namespaceOnly
-      return this
-    }
+    Builder namespaceOnly(boolean namespaceOnly) { return setParam('namespaceOnly', namespaceOnly) }
 
     @Deprecated
     /**
@@ -480,10 +383,7 @@ class CreateNamespaceParameters implements Cloneable {
      * @param worker The name of the Jenkins worker node.
      * @return Builder instance for method chaining.
      */
-    Builder worker(String worker) {
-      parameters.worker = worker
-      return this
-    }
+    Builder worker(String worker) { return setParam('worker', worker) }
 
     /**
      * Specifies whether UI  bundle should be build.
@@ -491,75 +391,65 @@ class CreateNamespaceParameters implements Cloneable {
      * @param uiBuild default true.
      * @return decision for UI.
      */
-    Builder uiBuild(boolean uiBuild) {
-      parameters.uiBuild = uiBuild
-      return this
-    }
+    Builder uiBuild(boolean uiBuild) { return setParam('uiBuild', uiBuild) }
 
-    Builder kongVersion(String kongVersion) {
-      parameters.kongVersion = kongVersion
-      return this
-    }
+    Builder kongVersion(String kongVersion) { return setParam('kongVersion', kongVersion) }
 
-    Builder keycloakVersion(String keycloakVersion) {
-      parameters.keycloakVersion = keycloakVersion
-      return this
-    }
+    Builder keycloakVersion(String keycloakVersion) { return setParam('keycloakVersion', keycloakVersion) }
 
-    Builder type(String type) {
-      parameters.type = type
-      return this
-    }
+    Builder type(String type) { return setParam('type', type) }
+
     /**
      * Specifies the snapshot of data migration to be used.
      * @param dmSnapshot The snapshot of data migration to use.
      * @return Builder instance for method chaining.
      */
-    Builder dmSnapshot(String dmSnapshot) {
-      parameters.dmSnapshot = dmSnapshot
-      return this
-    }
+    Builder dmSnapshot(String dmSnapshot) { return setParam('dmSnapshot', dmSnapshot) }
 
     /**
      * Specifies the name of the database backup to be used.
      * @param name The name of the database backup.
      * @return Builder instance for method chaining.
      */
-    Builder dbBackupName(String name) {
-      parameters.dbBackupName = name
-      return this
-    }
+    Builder dbBackupName(String name) { return setParam('dbBackupName', name) }
+
     /**
      * Specifies whether the namespace should be created with native support for SC (SideCar).
      * This is typically used for environments that require specific configurations for SideCar features.
      * @param scNative `true` to enable native support for SC; `false` otherwise.
      * @return Builder instance for method chaining.
      */
-    Builder scNative(boolean scNative) {
-      parameters.scNative = scNative
-      return this
-    }
+    Builder scNative(boolean scNative) { return setParam('scNative', scNative) }
 
-    Builder entitlementApproach(EntitlementApproach entitlementApproach) {
-      parameters.entitlementApproach = entitlementApproach
-      return this
-    }
+    Builder initParams(InitializeFromScratchParameters initParams) { return setParam('initParams', initParams) }
+
+    Builder releaseType(FolioRelease releaseType) { return setParam('releaseType', releaseType) }
+
+    Builder configExtensions(List<String> configExtensions) { return setParam('configExtensions', configExtensions) }
 
     /**
      * Specifies whether the consortia single UI feature should be enabled.
      * @param isConsortiaSingleUi
      * @return
      */
-    Builder isConsortiaSingleUi(boolean isConsortiaSingleUi){
-      parameters.isConsortiaSingleUi = isConsortiaSingleUi
-      return this
-    }
+    Builder isConsortiaSingleUi(boolean isConsortiaSingleUi) { return setParam('isConsortiaSingleUi', isConsortiaSingleUi) }
 
-    /**
-     * Builds the CreateNamespaceParameters instance.
-     * @return A new instance of CreateNamespaceParameters based on the builder settings.
-     */
-    CreateNamespaceParameters build() {
+    CreateNamespaceParameters build(def context = null) {
+      Map<String, Object> defaults = DependentParametersResolver.resolve(
+        parameters.clusterName, parameters.namespaceName, parameters.releaseType)
+
+      defaults.each { name, value ->
+        if (!modifiedFields.contains(name) && value != null && parameters.hasProperty(name)) {
+          parameters[name] = value
+        }
+      }
+
+      if (parameters.initParams.entitlementApproach == null && defaults.entitlementApproach != null)
+        parameters.initParams.entitlementApproach = defaults.entitlementApproach as EntitlementApproach
+
+      if (!modifiedFields.contains('applications') && !parameters.applications && parameters.platformBranch && context)
+        parameters.applications = context.folioDefault.getApplicationNamesFromPlatform(parameters.platformBranch)
+
       return parameters
     }
   }
