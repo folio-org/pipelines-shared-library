@@ -130,292 +130,292 @@ void call(CreateNamespaceParameters args) {
         }
       }
 
-      if (args.greenmail) {
-        stage('[Helm] Deploy greenmail') {
-          folioHelm.withKubeConfig(namespace.getClusterName()) {
-            folioHelmFlow.deployGreenmail(namespace.getNamespaceName())
-          }
-        }
-      }
+      // if (args.greenmail) {
+      //   stage('[Helm] Deploy greenmail') {
+      //     folioHelm.withKubeConfig(namespace.getClusterName()) {
+      //       folioHelmFlow.deployGreenmail(namespace.getNamespaceName())
+      //     }
+      //   }
+      // }
 
-      if (args.mockServer) {
-        stage('[Helm] Deploy mock-server') {
-          folioHelm.withKubeConfig(namespace.getClusterName()) {
-            folioHelmFlow.deployMockServer(namespace)
-          }
-        }
-      }
+      // if (args.mockServer) {
+      //   stage('[Helm] Deploy mock-server') {
+      //     folioHelm.withKubeConfig(namespace.getClusterName()) {
+      //       folioHelmFlow.deployMockServer(namespace)
+      //     }
+      //   }
+      // }
 
-      if (args.namespaceOnly) {
-        return
-      }
+      // if (args.namespaceOnly) {
+      //   return
+      // }
 
-      TenantUi tenantUi = new TenantUi("${namespace.getClusterName()}-${namespace.getNamespaceName()}",
-        commitHash, args.platformBranch)
-      tenantUi.setKongDomain(namespace.getDomains()['kong'])
-      tenantUi.setKeycloakDomain(namespace.getDomains()['keycloak'])
+      // TenantUi tenantUi = new TenantUi("${namespace.getClusterName()}-${namespace.getNamespaceName()}",
+      //   commitHash, args.platformBranch)
+      // tenantUi.setKongDomain(namespace.getDomains()['kong'])
+      // tenantUi.setKeycloakDomain(namespace.getDomains()['keycloak'])
 
-      EurekaRequestParams installRequestParams = new EurekaRequestParams()
-        .withIgnoreErrors(true)
-        .withAsync(true)
-        .doLoadReference(args.loadReference)
-        .doLoadSample(args.loadSample) as EurekaRequestParams
+      // EurekaRequestParams installRequestParams = new EurekaRequestParams()
+      //   .withIgnoreErrors(true)
+      //   .withAsync(true)
+      //   .doLoadReference(args.loadReference)
+      //   .doLoadSample(args.loadSample) as EurekaRequestParams
 
       // Prepare separate params for each consortia group to avoid duplicate centralTenantId | SIMPLE SOLUTION
-      def consortiaParams1 = installRequestParams.clone()
-      def consortiaParams2 = installRequestParams.clone()
+      // def consortiaParams1 = installRequestParams.clone()
+      // def consortiaParams2 = installRequestParams.clone()
 
-      namespace.setIsConsortiaSingleUi(args.isConsortiaSingleUi)
-      namespace.withSuperTenantAdminUser()
-        .withOkapiVersion(args.okapiVersion)
-        .withDefaultTenant(defaultTenantId)
-        .withDeploymentConfigType(args.configType)
+      // namespace.setIsConsortiaSingleUi(args.isConsortiaSingleUi)
+      // namespace.withSuperTenantAdminUser()
+      //   .withOkapiVersion(args.okapiVersion)
+      //   .withDefaultTenant(defaultTenantId)
+      //   .withDeploymentConfigType(args.configType)
 
-      namespace.setEnableSplitFiles(args.splitFiles)
-      namespace.setEnableRwSplit(args.rwSplit)
-      namespace.setEnableRtr(args.rtr)
-      namespace.setEnableECS_CCL(args.ecsCCL)
-      namespace.addDeploymentConfig(folioTools.getPipelineBranch())
+      // namespace.setEnableSplitFiles(args.splitFiles)
+      // namespace.setEnableRwSplit(args.rwSplit)
+      // namespace.setEnableRtr(args.rtr)
+      // namespace.setEnableECS_CCL(args.ecsCCL)
+      // namespace.addDeploymentConfig(folioTools.getPipelineBranch())
 
-      namespace.addTenant(
-        folioDefault.tenants()[namespace.getDefaultTenantId()]
-          .convertTo(EurekaTenant.class)
-          .withInstallJson(installJson)
-          .withIndex(new Index('instance', true, true))
-          .withIndex(new Index('authority', true, false))
-          .withIndex(new Index('location', true, false))
-          .withInstallRequestParams(installRequestParams.clone())
-          .withTenantUi(tenantUi.clone())
-      )
+      // namespace.addTenant(
+      //   folioDefault.tenants()[namespace.getDefaultTenantId()]
+      //     .convertTo(EurekaTenant.class)
+      //     .withInstallJson(installJson)
+      //     .withIndex(new Index('instance', true, true))
+      //     .withIndex(new Index('authority', true, false))
+      //     .withIndex(new Index('location', true, false))
+      //     .withInstallRequestParams(installRequestParams.clone())
+      //     .withTenantUi(tenantUi.clone())
+      // )
 
-      if (args.dataset) {
-        List nonECS = ['fs09000002', 'fs09000003']
-        nonECS.each { tenantId ->
-          namespace.addTenant(
-            folioDefault.tenants()[tenantId]
-              .convertTo(EurekaTenant.class)
-              .withInstallJson(installJson)
-              .withIndex(new Index('instance', true, true))
-              .withIndex(new Index('authority', true, false))
-              .withIndex(new Index('location', true, false))
-              .withInstallRequestParams(installRequestParams.clone())
-              .withTenantUi(tenantUi.clone())
-          )
-        }
-      }
+      // if (args.dataset) {
+      //   List nonECS = ['fs09000002', 'fs09000003']
+      //   nonECS.each { tenantId ->
+      //     namespace.addTenant(
+      //       folioDefault.tenants()[tenantId]
+      //         .convertTo(EurekaTenant.class)
+      //         .withInstallJson(installJson)
+      //         .withIndex(new Index('instance', true, true))
+      //         .withIndex(new Index('authority', true, false))
+      //         .withIndex(new Index('location', true, false))
+      //         .withInstallRequestParams(installRequestParams.clone())
+      //         .withTenantUi(tenantUi.clone())
+      //     )
+      //   }
+      // }
 
-      if (args.consortia) {
-        namespace.setEnableConsortia(true, isRelease)
+      // if (args.consortia) {
+      //   namespace.setEnableConsortia(true, isRelease)
 
-        Map defaultConsortiaTenants = args.dataset ?
-          folioDefault.tenants([], installRequestParams).findAll { it.value.getTenantId().startsWith('cs00000int') } :
-          folioDefault.consortiaTenants([], consortiaParams1 as InstallRequestParams)
+      //   Map defaultConsortiaTenants = args.dataset ?
+      //     folioDefault.tenants([], installRequestParams).findAll { it.value.getTenantId().startsWith('cs00000int') } :
+      //     folioDefault.consortiaTenants([], consortiaParams1 as InstallRequestParams)
 
-        if (args.consortiaExtra) {
-          defaultConsortiaTenants.putAll(folioDefault.consortiaTenantsExtra([], consortiaParams2 as InstallRequestParams))
-        }
+      //   if (args.consortiaExtra) {
+      //     defaultConsortiaTenants.putAll(folioDefault.consortiaTenantsExtra([], consortiaParams2 as InstallRequestParams))
+      //   }
 
 
-        DTO.convertMapTo(defaultConsortiaTenants, EurekaTenantConsortia.class)
-          .values()
-          .each { tenant ->
-            tenant.withInstallJson(installJson)
-              .withSecureTenant(args.hasSecureTenant && args.secureTenantId == tenant.getTenantId())
+      //   DTO.convertMapTo(defaultConsortiaTenants, EurekaTenantConsortia.class)
+      //     .values()
+      //     .each { tenant ->
+      //       tenant.withInstallJson(installJson)
+      //         .withSecureTenant(args.hasSecureTenant && args.secureTenantId == tenant.getTenantId())
 
-            if (tenant.getIsCentralConsortiaTenant()) {
-              TenantUi centralTenantUi = tenantUi.clone()
-              centralTenantUi.setIsConsortia(true)
-              centralTenantUi.setIsConsortiaSingleUi(args.isConsortiaSingleUi)
-              tenant.withTenantUi(centralTenantUi)
-            }
+      //       if (tenant.getIsCentralConsortiaTenant()) {
+      //         TenantUi centralTenantUi = tenantUi.clone()
+      //         centralTenantUi.setIsConsortia(true)
+      //         centralTenantUi.setIsConsortiaSingleUi(args.isConsortiaSingleUi)
+      //         tenant.withTenantUi(centralTenantUi)
+      //       }
 
-            namespace.addTenant(tenant)
-          }
-      }
+      //       namespace.addTenant(tenant)
+      //     }
+      // }
 
       //In case update environment the reindex is not needed
-      if (args.type == 'update')
-        namespace.getTenants().values().each { tenant -> tenant.indexes.clear() }
+      // if (args.type == 'update')
+      //   namespace.getTenants().values().each { tenant -> tenant.indexes.clear() }
 
       // TODO: Move this part to one of Eureka classes later. | DO NOT REMOVE | FIX FOR DNS PROPAGATION ISSUE!!!
-      timeout(time: 25, unit: 'MINUTES') {
-        def check = ''
+      // timeout(time: 25, unit: 'MINUTES') {
+      //   def check = ''
 
-        while (check == '') {
-          try {
-            check = sh(script: "curl --fail --silent https://${namespace.generateDomain('keycloak')}/admin/master/console/", returnStdout: true).trim()
-            return check
-          } catch (ignored) {
-            logger.debug("DNS record: ${namespace.generateDomain('keycloak')} still not propagated!")
-            sleep time: 5, unit: "SECONDS"
-          }
-        }
-      }
+      //   while (check == '') {
+      //     try {
+      //       check = sh(script: "curl --fail --silent https://${namespace.generateDomain('keycloak')}/admin/master/console/", returnStdout: true).trim()
+      //       return check
+      //     } catch (ignored) {
+      //       logger.debug("DNS record: ${namespace.generateDomain('keycloak')} still not propagated!")
+      //       sleep time: 5, unit: "SECONDS"
+      //     }
+      //   }
+      // }
 
       //Don't move from here because it increases Keycloak TTL before mgr modules to be deployed
-      Eureka eureka = new Eureka(this, namespace.generateDomain('kong'), namespace.generateDomain('keycloak'))
-      Boolean check = false
-      timeout(time: 15, unit: 'MINUTES') {
-        while (!check) {
-          try {
-            eureka.defineKeycloakTTL()
-            check = true
-          } catch (Exception e) {
-            logger.warning("Keycloak TTL increase failed: ${e.getMessage()}")
-            sleep time: 5, unit: 'SECONDS'
-            check = false
-          }
-        }
-      }
+      // Eureka eureka = new Eureka(this, namespace.generateDomain('kong'), namespace.generateDomain('keycloak'))
+      // Boolean check = false
+      // timeout(time: 15, unit: 'MINUTES') {
+      //   while (!check) {
+      //     try {
+      //       eureka.defineKeycloakTTL()
+      //       check = true
+      //     } catch (Exception e) {
+      //       logger.warning("Keycloak TTL increase failed: ${e.getMessage()}")
+      //       sleep time: 5, unit: 'SECONDS'
+      //       check = false
+      //     }
+      //   }
+      // }
 
-      stage('[Helm] Deploy mgr-*') {
-        folioHelm.withKubeConfig(namespace.getClusterName()) {
-          folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getMgrModules())
+//       stage('[Helm] Deploy mgr-*') {
+//         folioHelm.withKubeConfig(namespace.getClusterName()) {
+//           folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getMgrModules())
 
-          //Check availability of the mgr-applications /applications endpoint to ensure the module up and running
-          int counter = 0
-          retry(10) {
-            sleep time: (counter == 0 ? 0 : 30), unit: 'SECONDS'
-            counter++
+//           //Check availability of the mgr-applications /applications endpoint to ensure the module up and running
+//           int counter = 0
+//           retry(10) {
+//             sleep time: (counter == 0 ? 0 : 30), unit: 'SECONDS'
+//             counter++
 
-            Applications.get(eureka.kong).getRegisteredApplications()
-          }
-          if (args.type == 'update') {
+//             Applications.get(eureka.kong).getRegisteredApplications()
+//           }
+//           if (args.type == 'update') {
 //            List sql_cmd = ['DELETE FROM public.module', 'DELETE FROM public.entitlement',
 //                            'DELETE FROM public.entitlement_module', 'DELETE FROM public.application',
 //                            'DELETE FROM public.application_flow']
 //            String pod = sh(script: "kubectl get pod -l 'app.kubernetes.io/name=pgadmin4' -o=name -n ${namespace.getNamespaceName()}", returnStdout: true).trim()
 //            sql_cmd.each { sh(script: "kubectl exec ${pod} --namespace ${namespace.getNamespaceName()} -- /usr/local/pgsql-16/psql -c '${it}'", returnStdout: true) }
-            logger.info("TESTING: This for the ticket RANCHER-2656. DO NOT remove commented lines, even if testing is complete.")
-          }
-        }
-      }
+//             logger.info("TESTING: This for the ticket RANCHER-2656. DO NOT remove commented lines, even if testing is complete.")
+//           }
+//         }
+//       }
 
-      stage('[Rest] Preinstall') {
-        int counter = 0
-        retry(5) {
-          sleep time: (counter == 0 ? 0 : 30), unit: 'SECONDS'
-          counter++
-          eureka.registerApplications(apps)
+      // stage('[Rest] Preinstall') {
+      //   int counter = 0
+      //   retry(5) {
+      //     sleep time: (counter == 0 ? 0 : 30), unit: 'SECONDS'
+      //     counter++
+      //     eureka.registerApplications(apps)
 
-          namespace.getTenants().values().each { tenant ->
-            tenant.assignApplications(apps)
+      //     namespace.getTenants().values().each { tenant ->
+      //       tenant.assignApplications(apps)
 
-            if (tenant.tenantUi) {
-              if (!tenant.tenantUi.getIsConsortia()) {
-                tenant.tenantUi.removeUIComponents.add(new FolioModule().loadModuleDetails('folio_consortia-settings-0.0.0'))
-                logger.info("Removed 'folio_consortia-settings' module from tenant ${tenant.getTenantId()} because it's not a consortia tenant")
-              }
+      //       if (tenant.tenantUi) {
+      //         if (!tenant.tenantUi.getIsConsortia()) {
+      //           tenant.tenantUi.removeUIComponents.add(new FolioModule().loadModuleDetails('folio_consortia-settings-0.0.0'))
+      //           logger.info("Removed 'folio_consortia-settings' module from tenant ${tenant.getTenantId()} because it's not a consortia tenant")
+      //         }
 
-              ApplicationList linkedDataApp = apps.byName('app-linked-data')
+      //         ApplicationList linkedDataApp = apps.byName('app-linked-data')
 
-              if (linkedDataApp.size() == 0) {
-                tenant.tenantUi.removeUIComponents.add(new FolioModule().loadModuleDetails('folio_ld-folio-wrapper-0.0.0'))
-                logger.info("Removed 'folio_ld-folio-wrapper' module from tenant ${tenant.getTenantId()} because 'app-linked-data' is not included in the installation")
-              }
-            }
+      //         if (linkedDataApp.size() == 0) {
+      //           tenant.tenantUi.removeUIComponents.add(new FolioModule().loadModuleDetails('folio_ld-folio-wrapper-0.0.0'))
+      //           logger.info("Removed 'folio_ld-folio-wrapper' module from tenant ${tenant.getTenantId()} because 'app-linked-data' is not included in the installation")
+      //         }
+      //       }
 
-            tenant.enableFolioExtensions(this, [])
-          }
+      //       tenant.enableFolioExtensions(this, [])
+      //     }
 
-          namespace.withApplications(apps)
+      //     namespace.withApplications(apps)
 
-          eureka.registerModulesFlow(namespace.applications.getInstallJson())
-        }
-      }
+      //     eureka.registerModulesFlow(namespace.applications.getInstallJson())
+      //   }
+      // }
 
-      stage('[Helm] Deploy modules') {
-        folioHelm.withKubeConfig(namespace.getClusterName()) {
-          logger.info(namespace.getModules().getBackendModules())
+      // stage('[Helm] Deploy modules') {
+      //   folioHelm.withKubeConfig(namespace.getClusterName()) {
+      //     logger.info(namespace.getModules().getBackendModules())
 
-          folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getBackendModules())
-          folioHelm.checkDeploymentsRunning(namespace.getNamespaceName(), namespace.getModules().getBackendModules())
-        }
-      }
+      //     folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getBackendModules())
+      //     folioHelm.checkDeploymentsRunning(namespace.getNamespaceName(), namespace.getModules().getBackendModules())
+      //   }
+      // }
 
-      stage('[Helm] Deploy edge') {
-        folioHelm.withKubeConfig(namespace.getClusterName()) {
-          folioEdge.renderEphemeralPropertiesEureka(namespace)
-          namespace.getModules().getEdgeModules().each { module ->
-            kubectl.createConfigMap("${module.name}-ephemeral-properties", namespace.getNamespaceName(), "./${module.name}-ephemeral-properties")
-          }
-          if (namespace.getNamespaceName() == 'sprint') {
-            sh "helm uninstall edge-users --namespace ${namespace.getNamespaceName()} || true"
-            sleep time: 10, unit: 'SECONDS'
-          }
-          folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getEdgeModules())
-          folioHelm.checkDeploymentsRunning(namespace.getNamespaceName(), namespace.getModules().getEdgeModules())
+      // stage('[Helm] Deploy edge') {
+      //   folioHelm.withKubeConfig(namespace.getClusterName()) {
+      //     folioEdge.renderEphemeralPropertiesEureka(namespace)
+      //     namespace.getModules().getEdgeModules().each { module ->
+      //       kubectl.createConfigMap("${module.name}-ephemeral-properties", namespace.getNamespaceName(), "./${module.name}-ephemeral-properties")
+      //     }
+      //     if (namespace.getNamespaceName() == 'sprint') {
+      //       sh "helm uninstall edge-users --namespace ${namespace.getNamespaceName()} || true"
+      //       sleep time: 10, unit: 'SECONDS'
+      //     }
+      //     folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getEdgeModules())
+      //     folioHelm.checkDeploymentsRunning(namespace.getNamespaceName(), namespace.getModules().getEdgeModules())
 
-        }
-      }
+      //   }
+      // }
 
-      stage('[Rest] Initialize') {
-        if (args.dataset) { // Prepare for large dataset reindex
-          folioHelm.withKubeConfig(namespace.getClusterName()) {
+      // stage('[Rest] Initialize') {
+      //   if (args.dataset) { // Prepare for large dataset reindex
+      //     folioHelm.withKubeConfig(namespace.getClusterName()) {
 
-            kubectl.setKubernetesResourceCount('deployment', 'mod-inventory-storage', namespace.getNamespaceName(), '4')
-            sleep(time: 10, unit: 'SECONDS')
-            kubectl.setKubernetesResourceCount('deployment', 'mod-search', namespace.getNamespaceName(), '4')
+      //       kubectl.setKubernetesResourceCount('deployment', 'mod-inventory-storage', namespace.getNamespaceName(), '4')
+      //       sleep(time: 10, unit: 'SECONDS')
+      //       kubectl.setKubernetesResourceCount('deployment', 'mod-search', namespace.getNamespaceName(), '4')
 
-            folioHelm.checkDeploymentsRunning(namespace.getNamespaceName(), namespace.getModules().getBackendModules())
-          }
-        }
-        int counter = 0
-        retry(15) {
-          sleep time: (counter == 0 ? 0 : 1), unit: 'MINUTES'
-          counter++
+      //       folioHelm.checkDeploymentsRunning(namespace.getNamespaceName(), namespace.getModules().getBackendModules())
+      //     }
+      //   }
+      //   int counter = 0
+      //   retry(15) {
+      //     sleep time: (counter == 0 ? 0 : 1), unit: 'MINUTES'
+      //     counter++
 
-          eureka.initializeFromScratch(
-            namespace.getTenants()
-            , namespace.getClusterName()
-            , namespace.getNamespaceName()
-            , namespace.getEnableConsortia()
-            , false // Set this option true, when users & groups migration is required.
-            , args.entitlementApproach
-          )
-        }
-      }
+      //     eureka.initializeFromScratch(
+      //       namespace.getTenants()
+      //       , namespace.getClusterName()
+      //       , namespace.getNamespaceName()
+      //       , namespace.getEnableConsortia()
+      //       , false // Set this option true, when users & groups migration is required.
+      //       , args.entitlementApproach
+      //     )
+      //   }
+      // }
 
-      stage('[Rest] Configure edge') {
-        retry(5) {
-          new Edge(this, "${namespace.generateDomain('kong')}", "${namespace.generateDomain('keycloak')}").createEurekaUsers(namespace)
-        }
-      }
+      // stage('[Rest] Configure edge') {
+      //   retry(5) {
+      //     new Edge(this, "${namespace.generateDomain('kong')}", "${namespace.generateDomain('keycloak')}").createEurekaUsers(namespace)
+      //   }
+      // }
 
-      if (args.uiBuild) {
-        stage('Build and deploy UI') {
-          Map branches = [:]
-          namespace.getTenants().each { tenantId, tenant ->
-            if (tenant.getTenantUi()) {
-              branches[tenantId] = {
-                boolean isECSBff = tenant.tenantId.startsWith("c")
-                folioUI.buildAndDeploy(namespace, tenant, isECSBff)
-              }
-            }
-          }
-          parallel branches
-        }
-      }
+      // if (args.uiBuild) {
+      //   stage('Build and deploy UI') {
+      //     Map branches = [:]
+      //     namespace.getTenants().each { tenantId, tenant ->
+      //       if (tenant.getTenantUi()) {
+      //         branches[tenantId] = {
+      //           boolean isECSBff = tenant.tenantId.startsWith("c")
+      //           folioUI.buildAndDeploy(namespace, tenant, isECSBff)
+      //         }
+      //       }
+      //     }
+      //     parallel branches
+      //   }
+      // }
 
       //TODO: Add adequate slack notification https://folio-org.atlassian.net/browse/RANCHER-1892
-      stage('[Notify] Eureka') {
-        if (args.dataset) {
-          logger.warning("SUCCESS: Eureka ${args.clusterName}-${args.namespaceName} env successfully built!!!")
-          slackSend(color: 'good', message: args.clusterName + "-" + args.namespaceName + (args.type == 'update' ? " env successfully updated\n" : " env successfully built\n") +
-            "1. https://${namespace.generateDomain('fs09000000')} creds: folio:folio\n" +
-            "2. https://${namespace.generateDomain('fs09000002')} creds: folio-plus:Folio-plus1\n" +
-            "3. https://${namespace.generateDomain('fs09000003')} creds: folio-aqa:Folio-aqa1\n" +
-            "4. https://${namespace.generateDomain('cs00000int')} creds: ECSAdmin:admin\n" +
-            (args.type == 'full' ? "Re-indexing large datasets may take up to 8-12 hours to complete. Track status on https://reindex-checker.ci.folio.org" : ""),
-            channel: '#eureka-sprint-testing')
-        } else {
-          slackSend(color: 'good', message: args.clusterName + "-" + args.namespaceName + " env successfully built\n" +
-            "1. https://${namespace.generateDomain('diku')}\n" +
-            "2. https://${namespace.generateDomain('consortium')}\n" +
-            (args.consortiaExtra ? "3. https://${namespace.generateDomain('consortium2')}" : ''),
-            channel: Constants.SLACK_CHANNEL)
-        }
-      }
+      // stage('[Notify] Eureka') {
+      //   if (args.dataset) {
+      //     logger.warning("SUCCESS: Eureka ${args.clusterName}-${args.namespaceName} env successfully built!!!")
+      //     slackSend(color: 'good', message: args.clusterName + "-" + args.namespaceName + (args.type == 'update' ? " env successfully updated\n" : " env successfully built\n") +
+      //       "1. https://${namespace.generateDomain('fs09000000')} creds: folio:folio\n" +
+      //       "2. https://${namespace.generateDomain('fs09000002')} creds: folio-plus:Folio-plus1\n" +
+      //       "3. https://${namespace.generateDomain('fs09000003')} creds: folio-aqa:Folio-aqa1\n" +
+      //       "4. https://${namespace.generateDomain('cs00000int')} creds: ECSAdmin:admin\n" +
+      //       (args.type == 'full' ? "Re-indexing large datasets may take up to 8-12 hours to complete. Track status on https://reindex-checker.ci.folio.org" : ""),
+      //       channel: '#eureka-sprint-testing')
+      //   } else {
+      //     slackSend(color: 'good', message: args.clusterName + "-" + args.namespaceName + " env successfully built\n" +
+      //       "1. https://${namespace.generateDomain('diku')}\n" +
+      //       "2. https://${namespace.generateDomain('consortium')}\n" +
+      //       (args.consortiaExtra ? "3. https://${namespace.generateDomain('consortium2')}" : ''),
+      //       channel: Constants.SLACK_CHANNEL)
+      //   }
+      // }
 
 //    stage('Deploy ldp') {
 //      folioHelm.withKubeConfig(namespace.getClusterName()) {
