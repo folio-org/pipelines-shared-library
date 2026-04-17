@@ -9,6 +9,15 @@ ${Constants.AWS_EKS_CLUSTERS_LIST.inspect()}
 """.stripIndent()
 }
 
+static String getPlatformFromCluster() {
+  Map<String, String> clusterPlatform = Constants.AWS_EKS_CLUSTERS
+    .collectEntries { [(it.name): it.platform[0].name()] }
+  return """def mapping = ${clusterPlatform.inspect()}
+def platform = mapping[CLUSTER] ?: 'EUREKA'
+return ["\${platform}:selected"]
+""".stripIndent()
+}
+
 static String getNamespaces() {
   return """def namespacesList = ${Constants.AWS_EKS_NAMESPACE_MAPPING.inspect()}
 return namespacesList[CLUSTER]
