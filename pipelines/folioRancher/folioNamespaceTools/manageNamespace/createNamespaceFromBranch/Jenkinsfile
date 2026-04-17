@@ -6,8 +6,10 @@ import org.folio.models.OkapiUser
 import org.folio.models.RancherNamespace
 import org.folio.models.parameters.CreateNamespaceParameters
 import org.folio.models.parameters.CypressTestsParameters
+import org.folio.models.parameters.InitializeFromScratchParameters
 import org.folio.Constants
 import org.folio.rest_v2.EntitlementApproach
+import org.folio.rest_v2.FolioRelease
 import org.folio.rest_v2.PlatformType
 import org.jenkinsci.plugins.workflow.libs.Library
 
@@ -27,7 +29,7 @@ properties([
     booleanParam(name: 'SC_NATIVE', defaultValue: true, description: '(Optional) Set false to use Java based SC image'),
     folioParameters.groupParameters('Environment features'
       , ['LOAD_REFERENCE', 'LOAD_SAMPLE', 'BUILD_UI', 'CONSORTIA', 'CONSORTIA_SINGLE_UI', 'CONSORTIA_EXTRA', 'LINKED_DATA', 'MARC_MIGRATIONS', 'RTAC_CACHE',  'EDGE_LOCATE'
-         , 'SPLIT_FILES', 'RW_SPLIT', 'ECS_CCL', 'GREENMAIL', 'MOCK_SERVER', 'RTR', 'DATASET', 'TYPE', 'ENTITLEMENT_APPROACH'
+         , 'SPLIT_FILES', 'RW_SPLIT', 'ECS_CCL', 'GREENMAIL', 'MOCK_SERVER', 'RTR', 'DATASET', 'TYPE', 'ENTITLEMENT_APPROACH', 'SET_BASE_URL'
          , 'HAS_SECURE_TENANT', 'SECURE_TENANT', 'FOLIO_KEYCLOAK_VERSION', 'FOLIO_KONG_VERSION'
     ]),
     folioParameters.loadReference(),
@@ -51,6 +53,7 @@ properties([
     booleanParam(name: 'DATASET', defaultValue: false, description: '(Optional) Set true to build BF like environment'),
     choice(name: 'TYPE', choices: ['full', 'terraform', 'update'], description: '(Required) Set action TYPE to perform'),
     choice(name: 'ENTITLEMENT_APPROACH', choices: ['STATE', 'CREATE'], description: '(Optional) Entitlement method: STATE = PUT /entitlements/state (declarative), CREATE = POST /entitlements (procedural)'),
+    booleanParam(name: 'SET_BASE_URL', defaultValue: true, description: '(Optional) Set false to skip PUT /base-url during tenant configuration (e.g. for Sunflower)'),
     string(name: 'DB_BACKUP_NAME', defaultValue: Constants.BUGFEST_SNAPSHOT_NAME, description: '(Optional) Set name of the DB backup to restore'),
     string(name: 'FOLIO_KEYCLOAK_VERSION', defaultValue: 'latest', description: '(Optional) Set FOLIO Keycloak tag, example: 21.0.1-SNAPSHOT.f959523'),
     string(name: 'FOLIO_KONG_VERSION', defaultValue: 'latest', description: '(Optional) Set FOLIO Kong tag, example: 3.10.0-SNAPSHOT.f959523'),
@@ -66,7 +69,7 @@ properties([
     , folioParameters.hideParameters(
     [
       'EUREKA': ['OKAPI_VERSION', 'EDGE_LOCATE', 'RTAC_CACHE', 'FOLIO_BRANCH', 'LINKED_DATA', 'MARC_MIGRATIONS', 'FOLIO_KEYCLOAK_VERSION', 'FOLIO_KONG_VERSION'],
-      'OKAPI' : ['PLATFORM_BRANCH', 'APPLICATIONS', 'SC_NATIVE', 'ENTITLEMENT_APPROACH']
+      'OKAPI' : ['PLATFORM_BRANCH', 'APPLICATIONS', 'SC_NATIVE', 'ENTITLEMENT_APPROACH', 'SET_BASE_URL']
     ]
     , 'PLATFORM')
     , folioParameters.hideParameters(
@@ -129,8 +132,11 @@ CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builde
   .dataset(params.DATASET)
   .type(params.TYPE)
   .scNative(params.SC_NATIVE)
-  .entitlementApproach(EntitlementApproach.valueOf(params.ENTITLEMENT_APPROACH))
-  .build()
+  .initParams(new InitializeFromScratchParameters()
+    .withEntitlementApproach(EntitlementApproach.valueOf(params.ENTITLEMENT_APPROACH))
+    .withSetBaseUrl(params.SET_BASE_URL))
+  .releaseType(FolioRelease.fromPlatformVersion(params.PLATFORM_BRANCH))
+  .build(this)
 
 if (params.CONSORTIA) {
     if (namespaceParams.platform == PlatformType.EUREKA) {
