@@ -1,6 +1,8 @@
 #!groovy
+package folioRancher.folioNamespaceTools.manageNamespace.createNamespace
 
 import org.folio.models.parameters.CreateNamespaceParameters
+import org.folio.Constants
 import org.jenkinsci.plugins.workflow.libs.Library
 
 @Library('pipelines-shared-library') _
@@ -10,15 +12,18 @@ properties([
   parameters([
     folioParameters.cluster(),
     folioParameters.namespace(),
-    booleanParam(name: 'RW_SPLIT', defaultValue: false, description: '(Optional) Set true to Enable Read/Write split'),
-    booleanParam(name: 'GREENMAIL', defaultValue: false, description: '(Optional) Set true to deploy greenmail server'),
-    booleanParam(name: 'MOCK_SERVER', defaultValue: false, description: '(Optional) Set true to deploy mock-server'),
-    folioParameters.pgType(),
-    folioParameters.pgVersion(),
-    folioParameters.kafkaType(),
-    folioParameters.opensearchType(),
-    folioParameters.s3Type(),
+    folioParameters.platformFromCluster(),
+    folioParameters.platformBranch(),
+    folioParameters.branch(),
+    booleanParam(name: 'CONSORTIA', defaultValue: true, description: '(Optional) Set true to create consortium'),
     folioParameters.refreshParameters()
+    , folioParameters.hideParameters(['PLATFORM'])
+    , folioParameters.hideParameters(
+    [
+      'EUREKA': ['FOLIO_BRANCH'],
+      'OKAPI' : ['PLATFORM_BRANCH']
+    ]
+    , 'PLATFORM')
   ])
 ])
 
@@ -27,26 +32,14 @@ if (params.REFRESH_PARAMETERS) {
   return
 }
 
-if (params.CLUSTER == 'folio-testing') {
-  folioCommon.kitfoxApproval()
-}
+folioCommon.validateNamespace(params.NAMESPACE)
 
 CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builder()
   .clusterName(params.CLUSTER)
   .namespaceName(params.NAMESPACE)
-  .rwSplit(params.RW_SPLIT)
-  .greenmail(params.GREENMAIL)
-  .mockServer(params.MOCK_SERVER)
-  .pgType(params.POSTGRESQL)
-  .pgVersion(params.DB_VERSION)
-  .kafkaType(params.KAFKA)
-  .opensearchType(params.OPENSEARCH)
-  .s3Type(params.S3_BUCKET)
-  .namespaceOnly(true)
-  .build()
+  .platformBranch(params.PLATFORM_BRANCH)
+  .folioBranch(params.FOLIO_BRANCH)
+  .consortia(params.CONSORTIA)
+  .build(this)
 
-folioCommon.validateNamespace(params.NAMESPACE)
-
-ansiColor('xterm') {
-  folioNamespaceCreate.call(namespaceParams)
-}
+folioTriggerJob.createNamespaceFromBranch(Constants.JENKINS_CREATE_NAMESPACE_FROM_BRANCH_JOB, namespaceParams)
