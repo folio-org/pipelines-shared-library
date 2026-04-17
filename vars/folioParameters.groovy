@@ -106,6 +106,11 @@ def platform(PlatformType defaultValue = null, String paramName = 'PLATFORM') {
   return _paramChoice(paramName, values, 'Select FOLIO platform')
 }
 
+def platformFromCluster(String paramName = 'PLATFORM', String reference = 'CLUSTER') {
+  return _paramExtendedSingleSelect(paramName, reference, folioStringScripts.getPlatformFromCluster(),
+    'Platform type (auto-derived from cluster)')
+}
+
 def applicationsFromPlatform(String paramName = 'APPLICATIONS', String reference = 'PLATFORM_BRANCH') {
   return _paramExtendedCheckboxSelect(paramName, reference, folioStringScripts.getApplicationsFromPlatformDescriptor(reference), 'Select env applications', false)
 }
