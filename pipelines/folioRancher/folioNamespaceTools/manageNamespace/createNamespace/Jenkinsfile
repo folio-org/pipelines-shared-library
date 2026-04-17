@@ -44,4 +44,7 @@ CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builde
   .consortia(params.CONSORTIA)
   .build(this)
 
+folioCommon.updateBuildName("#${namespaceParams.clusterName}-${namespaceParams.namespaceName}.${env.BUILD_ID}")
+folioCommon.updateBuildDescription("Branch: ${namespaceParams.platformBranch}\nConfig: ${namespaceParams.configType}")
+
 folioTriggerJob.createNamespaceFromBranch(Constants.JENKINS_CREATE_NAMESPACE_FROM_BRANCH_JOB, namespaceParams)
