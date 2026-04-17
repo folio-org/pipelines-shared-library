@@ -13,10 +13,10 @@ static String getPlatformFromCluster(String cluster) {
   Map<String, String> clusterPlatform = Constants.AWS_EKS_CLUSTERS
     .collectEntries { [(it.name): it.platform[0].name()] }
   return """def mapping = ${clusterPlatform.inspect()}
-//def platform = mapping[CLUSTER] ?: 'EUREKA'
-//return ["\${platform}:selected"]
-//return ['EUREKA:selected']
-return ['${cluster}:selected']
+def platform = mapping[CLUSTER] ?: 'EUREKA'
+return ["\${platform}:selected"]
+////return ['EUREKA:selected']
+//return ['${cluster}:selected']
 """.stripIndent()
 }
 
