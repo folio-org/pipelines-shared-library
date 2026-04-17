@@ -16,7 +16,8 @@ static String getPlatformFromCluster(String cluster) {
 def platform = mapping[CLUSTER] ?: 'EUREKA'
 //return ["\${platform}:selected"]
 ////return ['EUREKA:selected']
-return ["\${${cluster}}:selected"]
+//return ["\${${cluster}}:selected"]
+return "Test"
 """.stripIndent()
 }
 
