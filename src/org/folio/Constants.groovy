@@ -239,7 +239,7 @@ class Constants {
   static final String JENKINS_CREATE_NAMESPACE_FROM_BRANCH_JOB =
     "$JENKINS_FOLIO_RANCHER_FOLDER/Avramenko/createNamespaceFromBranch-2936"
 
-  static final String JENKINS_DELETE_NAMESPACE_JOB = "$JENKINS_FOLIO_RANCHER_FOLDER/manageNamespace/deleteNamespace"
+  static final String JENKINS_DELETE_NAMESPACE_JOB = "/folioRancher/manageNamespace/deleteNamespace"
   static final String JENKINS_DEPLOY_MODULES_FROM_JSON = "$JENKINS_FOLIO_RANCHER_FOLDER/folioDevTools/moduleDeployment/deployModulesFromJson"
 
   //PostgreSQL
