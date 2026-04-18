@@ -54,7 +54,7 @@ class CreateNamespaceParameters implements Cloneable {
 
   boolean hasSecureTenant = true
 
-  String secureTenantId = folioDefault.consortiaTenants().get('university').getTenantId()
+  String secureTenantId = 'university'
 
   boolean uiBuild = true
 
@@ -436,7 +436,7 @@ class CreateNamespaceParameters implements Cloneable {
 
     CreateNamespaceParameters build(def context = null) {
       Map<String, Object> defaults = DependentParametersResolver.resolve(
-        parameters.clusterName, parameters.namespaceName, parameters.releaseType)
+        parameters.clusterName, parameters.namespaceName, parameters.platformBranch, context)
 
       defaults.each { name, value ->
         if (!modifiedFields.contains(name) && value != null && parameters.hasProperty(name)) {
@@ -446,9 +446,6 @@ class CreateNamespaceParameters implements Cloneable {
 
       if (parameters.initParams.entitlementApproach == null && defaults.entitlementApproach != null)
         parameters.initParams.entitlementApproach = defaults.entitlementApproach as EntitlementApproach
-
-      if (!modifiedFields.contains('applications') && !parameters.applications && parameters.platformBranch && context)
-        parameters.applications = context.folioDefault.getApplicationNamesFromPlatform(parameters.platformBranch)
 
       return parameters
     }
