@@ -21,15 +21,20 @@ properties([
     folioParameters.platformBranch(),
     folioParameters.branch(),
     booleanParam(name: 'CONSORTIA', defaultValue: true, description: '(Optional) Set true to create consortium'),
+    booleanParam(name: 'FORCE_DELETE_IF_EXISTS', defaultValue: false, description: '(Internal) Skip the deletion confirmation prompt when the namespace already exists. Used by automation/cron.'),
     folioParameters.refreshParameters()
-    , folioParameters.hideParameters(['PLATFORM'])
+    , folioParameters.hideParameters(['PLATFORM', 'FORCE_DELETE_IF_EXISTS'])
     , folioParameters.hideParameters(
     [
       'EUREKA': ['FOLIO_BRANCH'],
       'OKAPI' : ['PLATFORM_BRANCH']
     ]
     , 'PLATFORM')
-  ])
+  ]),
+  pipelineTriggers([
+    parameterizedCron('''
+      H 20 * * * %CLUSTER=folio-edev;NAMESPACE=eureka;PLATFORM_BRANCH=snapshot;FORCE_DELETE_IF_EXISTS=true
+    ''')])
 ])
 
 if (params.REFRESH_PARAMETERS) {
@@ -70,13 +75,15 @@ ansiColor('xterm') {
     }
 
     if (nsExists) {
-      stage('Confirm deletion') {
-        timeout(time: 30, unit: 'MINUTES') {
-          input(
-            id: 'ConfirmDelete',
-            message: "Namespace '${namespace.getNamespaceName()}' already exists on cluster '${namespace.getClusterName()}'. Delete it before re-creating?",
-            ok: 'Delete and re-create'
-          )
+      if(!params.FORCE_DELETE_IF_EXISTS) {
+        stage('Confirm deletion') {
+          timeout(time: 30, unit: 'MINUTES') {
+            input(
+              id: 'ConfirmDelete',
+              message: "Namespace '${namespace.getNamespaceName()}' already exists on cluster '${namespace.getClusterName()}'. Delete it before re-creating?",
+              ok: 'Delete and re-create'
+            )
+          }
         }
       }
 
