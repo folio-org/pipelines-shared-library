@@ -435,14 +435,8 @@ class CreateNamespaceParameters implements Cloneable {
     Builder isConsortiaSingleUi(boolean isConsortiaSingleUi) { return setParam('isConsortiaSingleUi', isConsortiaSingleUi) }
 
     CreateNamespaceParameters build(def context = null) {
-      context.println("${parameters.clusterName} - ${parameters.namespaceName}: Starting to resolve dependent parameters based on cluster, namespace, and release type ${parameters.releaseType}")
-      context.input("Let's wait")
-
       Map<String, Object> defaults = DependentParametersResolver.resolve(
         parameters.clusterName, parameters.namespaceName, parameters.platformBranch, context)
-
-      context.println("Resolved dependent parameters: ${defaults}")
-      context.input("Let's wait")
 
       defaults.each { name, value ->
         if (!modifiedFields.contains(name) && value != null && parameters.hasProperty(name)) {
