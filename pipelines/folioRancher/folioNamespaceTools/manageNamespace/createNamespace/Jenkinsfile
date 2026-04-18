@@ -10,6 +10,7 @@ import org.jenkinsci.plugins.workflow.libs.Library
 @Library('pipelines-shared-library@RANCHER-2936-test') _
 
 @Field final String createNamespaceJobName = Constants.JENKINS_CREATE_NAMESPACE_FROM_BRANCH_JOB
+@Field final String deleteNamespaceJobName = Constants.JENKINS_DELETE_NAMESPACE_JOB
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
@@ -59,6 +60,29 @@ ansiColor('xterm') {
     stage('Build name') {
       buildName "${namespace.getClusterName()}-${namespace.getNamespaceName()}.${env.BUILD_ID}"
       buildDescription "Branch: ${namespace.getPlatformBranch()}\nConfig: ${namespace.getConfigType()}"
+    }
+
+    boolean nsExists = false
+    stage('Check existing namespace') {
+      folioHelm.withKubeConfig(namespace.getClusterName()) {
+        nsExists = kubectl.checkNamespaceExistence(namespace.getNamespaceName())
+      }
+    }
+
+    if (nsExists) {
+      stage('Confirm deletion') {
+        timeout(time: 30, unit: 'MINUTES') {
+          input(
+            id: 'ConfirmDelete',
+            message: "Namespace '${namespace.getNamespaceName()}' already exists on cluster '${namespace.getClusterName()}'. Delete it before re-creating?",
+            ok: 'Delete and re-create'
+          )
+        }
+      }
+
+      stage('Cleaning env') {
+        folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespace)
+      }
     }
 
     stage('Spinning up env') {
