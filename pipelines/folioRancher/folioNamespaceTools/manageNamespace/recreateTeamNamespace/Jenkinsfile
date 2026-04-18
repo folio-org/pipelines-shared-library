@@ -63,7 +63,7 @@ ansiColor('xterm') {
 
     stage('Build name') {
       buildName "${namespace.getClusterName()}-${namespace.getNamespaceName()}.${env.BUILD_ID}"
-      buildDescription "Config: ${params.CONFIG_TYPE}"
+      buildDescription "Branch: ${namespace.getPlatformBranch()}\nConfig: ${namespace.getConfigType()}"
     }
 
     stage('Cleaning env') {
