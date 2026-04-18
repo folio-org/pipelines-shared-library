@@ -1,12 +1,12 @@
 #!groovy
+package folioRancher.folioNamespaceTools.manageNamespace.recreateTeamNamespace
+
 import groovy.transform.Field
 import org.folio.Constants
 import org.folio.jenkins.PodTemplates
 import org.folio.models.parameters.CreateNamespaceParameters
-import org.folio.rest_v2.PlatformType
 import org.jenkinsci.plugins.workflow.libs.Library
 
-//TODO remove branch before merge to master
 @Library('pipelines-shared-library') _
 
 @Field final String deleteNamespaceJobName = Constants.JENKINS_DELETE_NAMESPACE_JOB
@@ -14,25 +14,27 @@ import org.jenkinsci.plugins.workflow.libs.Library
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
-  parameters([folioParameters.platform(),
-              folioParameters.cluster('PLATFORM'),
-              folioParameters.namespace(),
-              folioParameters.platformBranch(),
-              folioParameters.configType(),
-              booleanParam(name: 'SC_NATIVE', defaultValue: true, description: '(Optional) Set false to use Java based SC image'),
-              booleanParam(name: 'CONSORTIA_EXTRA', defaultValue: false, description: '(Optional) Set true to include 2nd consortium'),
-              booleanParam(name: 'SANITY_CHECK', defaultValue: false, description: '(Optional) Set true to run sanity check after environment is up'),
-              folioParameters.refreshParameters()]),
+  parameters([
+    folioParameters.cluster(),
+    folioParameters.namespace(),
+    folioParameters.platformFromCluster(),
+    folioParameters.platformBranch(),
+    folioParameters.branch(),
+    booleanParam(name: 'CONSORTIA', defaultValue: true, description: '(Optional) Set true to create consortium'),
+    folioParameters.refreshParameters()
+    , folioParameters.hideParameters(['PLATFORM'])
+    , folioParameters.hideParameters(
+    [
+      'EUREKA': ['FOLIO_BRANCH'],
+      'OKAPI' : ['PLATFORM_BRANCH']
+    ]
+    , 'PLATFORM')
+  ]),
   pipelineTriggers([
     parameterizedCron('''
-      H 20 * * * %PLATFORM=EUREKA;CLUSTER=folio-edev;NAMESPACE=eureka;CONFIG_TYPE=development
+      H 20 * * * %PLATFORM=EUREKA;CLUSTER=folio-edev;NAMESPACE=eureka;PLATFORM_BRANCH=snapshot
     ''')])
 ])
-// Get back when the ticket is resolved https://folio-org.atlassian.net/browse/RANCHER-1546
-//            pipelineTriggers([parameterizedCron('''
-//              H 20 * * * %CLUSTER=folio-edev;NAMESPACE=eureka;EUREKA=true;CONFIG_TYPE=development;AGENT=rancher
-//            ''')])])
-
 
 if (params.REFRESH_PARAMETERS) {
   currentBuild.result = 'ABORTED'
@@ -46,35 +48,12 @@ if (params.CONFIG_TYPE == 'release') {
 PodTemplates podTemplates = new PodTemplates(this)
 
 CreateNamespaceParameters namespace = new CreateNamespaceParameters.Builder()
-  .platform(PlatformType.EUREKA)
   .clusterName(params.CLUSTER)
   .namespaceName(params.NAMESPACE)
-  .folioBranch('snapshot')
   .platformBranch(params.PLATFORM_BRANCH)
-  .okapiVersion('latest')
-  .configType(params.CONFIG_TYPE)
-  .loadReference(true)
-  .loadSample(true)
-  .consortia(true)
-  .consortiaExtra(params.CONSORTIA_EXTRA)
-  .rwSplit(false)
-  .greenmail(false)
-  .mockServer(false)
-  .rtr(false)
+  .folioBranch(params.FOLIO_BRANCH)
   .splitFiles(true)
-  .ecsCCL(false)
-  .hasSecureTenant(true)
-  .secureTenantId(folioDefault.consortiaTenants().get('university').getTenantId())
-  .dataset(false)
-  .pgType('built-in')
-  .pgVersion('16.8')
-  .kafkaType('built-in')
-  .opensearchType('aws')
-  .scNative(params.SC_NATIVE)
-  .s3Type('built-in')
-  .uiBuild(true)
-  .runSanityCheck(params.SANITY_CHECK)
-  .build()
+  .build(this)
 
 ansiColor('xterm') {
   podTemplates.rancherAgent {
@@ -82,13 +61,9 @@ ansiColor('xterm') {
       checkout scm
     }
 
-    stage('Fetch Applications') {
-      namespace.applications = folioDefault.getApplicationNamesFromPlatform(params.PLATFORM_BRANCH)
-    }
-
     stage('Build name') {
       buildName "${namespace.getClusterName()}-${namespace.getNamespaceName()}.${env.BUILD_ID}"
-      buildDescription "Config: ${params.CONFIG_TYPE}"
+      buildDescription "Branch: ${namespace.getPlatformBranch()}\nConfig: ${namespace.getConfigType()}"
     }
 
     stage('Cleaning env') {
