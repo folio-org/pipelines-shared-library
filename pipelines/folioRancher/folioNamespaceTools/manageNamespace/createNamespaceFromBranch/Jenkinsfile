@@ -9,7 +9,6 @@ import org.folio.models.parameters.CypressTestsParameters
 import org.folio.models.parameters.InitializeFromScratchParameters
 import org.folio.Constants
 import org.folio.rest_v2.EntitlementApproach
-import org.folio.rest_v2.FolioRelease
 import org.folio.rest_v2.PlatformType
 import org.jenkinsci.plugins.workflow.libs.Library
 
@@ -135,14 +134,12 @@ CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builde
   .initParams(new InitializeFromScratchParameters()
     .withEntitlementApproach(EntitlementApproach.valueOf(params.ENTITLEMENT_APPROACH))
     .withSetBaseUrl(params.SET_BASE_URL))
-  .releaseType(FolioRelease.fromPlatformVersion(params.PLATFORM_BRANCH))
   .build(this)
 
 if (params.CONSORTIA) {
     if (namespaceParams.platform == PlatformType.EUREKA) {
         namespaceParams.folioExtensions.add('consortia-eureka')
-    }
-    else {
+    } else {
         namespaceParams.folioExtensions.add('consortia')
     }
 }
@@ -189,7 +186,7 @@ if (namespaceParams.platform == PlatformType.EUREKA) {
 ansiColor('xterm') {
     if (namespaceParams.platform == PlatformType.EUREKA) {
         folioNamespaceCreateEureka.call(namespaceParams)
-  } else {
+    } else {
         folioNamespaceCreate.call(namespaceParams)
     }
 
