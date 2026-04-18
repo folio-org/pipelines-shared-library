@@ -439,7 +439,7 @@ class CreateNamespaceParameters implements Cloneable {
       context.input("Let's wait")
 
       Map<String, Object> defaults = DependentParametersResolver.resolve(
-        parameters.clusterName, parameters.namespaceName, parameters.releaseType)
+        parameters.clusterName, parameters.namespaceName, parameters.platformBranch, context)
 
       context.println("Resolved dependent parameters: ${defaults}")
       context.input("Let's wait")
@@ -452,9 +452,6 @@ class CreateNamespaceParameters implements Cloneable {
 
       if (parameters.initParams.entitlementApproach == null && defaults.entitlementApproach != null)
         parameters.initParams.entitlementApproach = defaults.entitlementApproach as EntitlementApproach
-
-      if (!modifiedFields.contains('applications') && !parameters.applications && parameters.platformBranch && context)
-        parameters.applications = context.folioDefault.getApplicationNamesFromPlatform(parameters.platformBranch)
 
       return parameters
     }
