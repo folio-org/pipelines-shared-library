@@ -13,15 +13,20 @@ import org.folio.rest_v2.PlatformType
  */
 class DependentParametersResolver {
 
-  static Map<String, Object> resolve(String clusterName, String namespaceName, FolioRelease releaseType) {
+  static Map<String, Object> resolve(String clusterName, String namespaceName, String platformBranch, def context = null) {
     Map<String, Object> result = [:]
 
-    FolioRelease effectiveRelease = releaseType ?: FolioRelease.SNAPSHOT
+    FolioRelease releaseType = FolioRelease.fromPlatformBranch(context, platformBranch)
+    result.releaseType = releaseType
+
+    if (context && platformBranch) {
+      result.applications = context.folioDefault.getApplicationNamesFromPlatform(platformBranch)
+    }
 
     // Release-driven
-    result.entitlementApproach = (effectiveRelease == FolioRelease.SUNFLOWER) ? EntitlementApproach.CREATE : EntitlementApproach.STATE
-    result.setBaseUrl = (effectiveRelease != FolioRelease.SUNFLOWER)
-    result.configExtensions = (effectiveRelease == FolioRelease.SUNFLOWER) ? ['sunflower'] : []
+    result.entitlementApproach = (releaseType == FolioRelease.SUNFLOWER) ? EntitlementApproach.CREATE : EntitlementApproach.STATE
+    result.setBaseUrl = (releaseType != FolioRelease.SUNFLOWER)
+    result.configExtensions = (releaseType == FolioRelease.SUNFLOWER) ? ['sunflower'] : []
 
     // Cluster-driven
     result.platform = resolvePlatform(clusterName)
