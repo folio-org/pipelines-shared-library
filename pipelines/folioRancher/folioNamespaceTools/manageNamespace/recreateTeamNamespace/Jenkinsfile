@@ -41,6 +41,12 @@ if (params.REFRESH_PARAMETERS) {
   return
 }
 
+// DEPRECATED: This pipeline is replaced by folioRancher/manageNamespace/createNamespace.
+// createNamespace performs the same delete-then-create flow with a UI confirmation prompt
+// for interactive runs and FORCE_DELETE_IF_EXISTS=true for unattended/cron runs.
+error("This pipeline is deprecated. Use 'folioRancher/manageNamespace/createNamespace' instead " +
+  "(set FORCE_DELETE_IF_EXISTS=true for unattended runs).")
+
 if (params.CONFIG_TYPE == 'release') {
   folioCommon.kitfoxApproval()
 }
