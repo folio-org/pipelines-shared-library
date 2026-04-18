@@ -21,4 +21,10 @@ enum FolioRelease {
     }
     return SNAPSHOT
   }
+
+  static FolioRelease fromPlatformBranch(def context, String platformBranch) {
+    if (!context || !platformBranch) return SNAPSHOT
+    Map descriptor = context.folioDefault.getPlatformDescriptor(platformBranch)
+    return fromPlatformVersion(descriptor?.version as String)
+  }
 }
