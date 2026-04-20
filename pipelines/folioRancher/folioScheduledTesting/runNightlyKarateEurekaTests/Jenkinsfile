@@ -54,7 +54,7 @@ ansiColor('xterm') {
       .build(this)
 
     CreateNamespaceParameters namespaceFromBranchParams = namespaceBaseParams.toBuilder()
-      .folioBranch('snapshot')
+      .platformBranch('snapshot')
       .mockServer(true)
       .splitFiles(true)
       .scNative(true)
