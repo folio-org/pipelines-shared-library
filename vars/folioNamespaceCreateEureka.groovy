@@ -70,8 +70,6 @@ void call(CreateNamespaceParameters args) {
       def defaultTenantId = args.dataset ? 'fs09000000' : 'diku'
       boolean isRelease = (args.releaseType != null && args.releaseType != FolioRelease.SNAPSHOT)
       String commitHash = common.getLastCommitHash('platform-lsp', args.platformBranch)
-      // TODO: Refactor UI build to use platform-lsp instead of platform-complete
-      String uiCommitHash = common.getLastCommitHash('platform-complete', args.folioBranch)
 
       List<Map<String, String>> installJson = appModules.getInstallJson()
 
