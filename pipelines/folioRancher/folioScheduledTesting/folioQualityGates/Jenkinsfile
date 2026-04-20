@@ -57,34 +57,17 @@ if (params.INCLUDE_KARATE) {
 }
 
 CreateNamespaceParameters namespaceBaseParams = new CreateNamespaceParameters.Builder()
-  .rwSplit(false)
-  .greenmail(false)
   .mockServer(true)
-  .pgType('built-in')
-  .pgVersion('16.8')
-  .kafkaType('built-in')
   .opensearchType('built-in')
-  .s3Type('built-in')
-  .runSanityCheck(false)
-  .members('')
   .build()
 
 CreateNamespaceParameters namespaceFromBranchParams = namespaceBaseParams.toBuilder()
-  .folioBranch(params.FOLIO_BRANCH)
   .platformBranch(params.FOLIO_BRANCH)
-  .okapiVersion(okapiVersion)
   .configType('testing')
-  .loadReference(true)
-  .loadSample(true)
   .mockServer(false)
-  .consortia(true)
   .splitFiles(true)
-  .ecsCCL(false)
-  .rtr(false)
   .scNative(true)
-  .hasSecureTenant(true)
-  .secureTenantId(folioDefault.consortiaTenants().get('university').getTenantId())
-  .build()
+  .build(this)
 
 ansiColor('xterm') {
   try {
@@ -111,9 +94,6 @@ ansiColor('xterm') {
         }
       }
 
-      stage('Fetch Applications') {
-        namespaceFromBranchParams.applications = folioDefault.getApplicationNamesFromPlatform(params.FOLIO_BRANCH)
-      }
     }
 
     if (autoCanceled) {

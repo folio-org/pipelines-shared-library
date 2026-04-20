@@ -1,12 +1,12 @@
 #!groovy
+package folioRancher.folioScheduledProvisioning.createDailySnapshotEureka
+
 import groovy.transform.Field
 import org.folio.Constants
 import org.folio.jenkins.PodTemplates
 import org.folio.models.parameters.CreateNamespaceParameters
-import org.folio.rest_v2.PlatformType
 import org.jenkinsci.plugins.workflow.libs.Library
 
-//TODO remove branch before merge to master
 @Library('pipelines-shared-library') _
 
 @Field final String deleteNamespaceJobName = Constants.JENKINS_DELETE_NAMESPACE_JOB
@@ -28,77 +28,25 @@ if (params.REFRESH_PARAMETERS) {
 PodTemplates podTemplates = new PodTemplates(this)
 
 CreateNamespaceParameters namespace1 = new CreateNamespaceParameters.Builder()
-  .platform(PlatformType.EUREKA)
   .clusterName('folio-etesting')
   .namespaceName('snapshot')
-  .folioBranch('snapshot')
   .platformBranch('snapshot')
-  .okapiVersion('latest')
-  .configType('testing')
-  .loadReference(true)
-  .loadSample(true)
-  .consortia(true)
-  .rwSplit(false)
   .splitFiles(true)
-  .greenmail(false)
-  .mockServer(false)
-  .rtr(false)
   .ecsCCL(true)
-  .hasSecureTenant(true)
-  .secureTenantId(folioDefault.consortiaTenants().get('university').getTenantId())
-  .dataset(false)
-  .pgType('built-in')
-  .pgVersion('16.8')
-  .kafkaType('built-in')
-  .opensearchType('aws')
-  .s3Type('built-in')
-  .scNative(true)
-  .members('thunderjet,folijet,spitfire,vega,thor,Eureka,volaris,corsair,Bama,Aggies,Dreamliner,Leipzig,firebird,dojo,erm')
-  .uiBuild(true)
-  .runSanityCheck(false)
-  .build()
+  .build(this)
 
 CreateNamespaceParameters namespace2 = new CreateNamespaceParameters.Builder()
-  .platform(PlatformType.EUREKA)
   .clusterName('folio-etesting')
   .namespaceName('snapshot2')
-  .folioBranch('snapshot')
   .platformBranch('snapshot')
-  .okapiVersion('latest')
-  .configType('testing')
-  .loadReference(true)
-  .loadSample(true)
-  .consortia(true)
-  .rwSplit(false)
   .splitFiles(true)
-  .greenmail(false)
-  .mockServer(false)
-  .rtr(false)
   .ecsCCL(true)
-  .hasSecureTenant(true)
-  .secureTenantId(folioDefault.consortiaTenants().get('university').getTenantId())
-  .dataset(false)
-  .pgType('built-in')
-  .pgVersion('16.8')
-  .kafkaType('built-in')
-  .opensearchType('aws')
-  .s3Type('built-in')
-  .scNative(true)
-  .members('thunderjet,folijet,spitfire,vega,thor,Eureka,volaris,corsair,Bama,Aggies,Dreamliner,Leipzig,firebird,dojo,erm')
-  .uiBuild(true)
-  .runSanityCheck(false)
-  .build()
+  .build(this)
 
 ansiColor('xterm') {
   podTemplates.rancherAgent {
     stage('Checkout') {
       checkout scm
-    }
-
-    stage('Fetch Applications') {
-      List<String> appNames = folioDefault.getApplicationNamesFromPlatform('snapshot')
-      namespace1.applications = appNames
-      namespace2.applications = appNames
     }
 
     CreateNamespaceParameters createdEnv = namespace1
