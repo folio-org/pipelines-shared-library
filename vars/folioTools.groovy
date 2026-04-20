@@ -78,7 +78,7 @@ List getGitHubTeamsIds(String teams) {
         }
       }
     }
-    return ids
+    return ids.unique()
   }
 }
 
