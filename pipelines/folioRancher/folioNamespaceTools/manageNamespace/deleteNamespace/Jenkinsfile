@@ -39,7 +39,7 @@ CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builde
   .kafkaType(params.KAFKA)
   .opensearchType(params.OPENSEARCH)
   .s3Type(params.S3_BUCKET)
-  .build()
+  .build(this)
 
 if (params.CLUSTER != 'folio-tmp') {
   folioCommon.validateNamespace(params.NAMESPACE)
