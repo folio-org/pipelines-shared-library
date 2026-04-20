@@ -70,48 +70,25 @@ if (params.IS_CRON_JOB) {
 }
 
 CreateNamespaceParameters namespace = new CreateNamespaceParameters.Builder()
-  .platform(PlatformType.EUREKA)
   .clusterName(params.CLUSTER)
   .namespaceName(params.NAMESPACE)
-  .folioBranch('snapshot')
   .platformBranch('snapshot')
-  .okapiVersion('latest')
   .configType(params.CONFIG_TYPE)
   .loadReference(false)
   .loadSample(false)
-  .consortia(true)
-  .rwSplit(false)
-  .greenmail(false)
-  .mockServer(false)
-  .rtr(false)
   .splitFiles(true)
-  .ecsCCL(false)
   .dbBackupName(params.DB_BACKUP_NAME)
   .doMarcMigrations(params.MARC_MIGRATIONS)
   .type(params.TYPE)
   .hasSecureTenant(false)
-  .secureTenantId(folioDefault.consortiaTenants().get('university').getTenantId())
-  .dataset(true)
-  .pgType('aws')
-  .pgVersion('16.8')
-  .kafkaType('aws')
-  .opensearchType('aws')
-  .s3Type('aws')
-  .scNative(true)
   .uiBuild(false)
-  .runSanityCheck(false)
-  .members('thunderjet,folijet,spitfire,vega,thor,Eureka,volaris,corsair,Bama,Aggies,Dreamliner,Leipzig,firebird,dojo,erm')
-  .build()
+  .build(this)
 
 ansiColor('xterm') {
-  stage('Fetch Applications') {
-    List<String> appNames = folioDefault.getApplicationNamesFromPlatform('snapshot')
-
+  stage('Filter Applications') {
     if (!params.MARC_MIGRATIONS) {
-      appNames = appNames.findAll { it != 'app-marc-migrations' }
+      namespace.applications = namespace.applications.findAll { it != 'app-marc-migrations' }
     }
-
-    namespace.applications = appNames
   }
 
   stage('Update Sprint Testing') {

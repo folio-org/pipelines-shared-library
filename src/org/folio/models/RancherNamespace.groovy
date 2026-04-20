@@ -189,7 +189,7 @@ class RancherNamespace {
     }
   }
 
-  protected Map getFeatureConfig(String feature, String branch = DEPLOYMENT_CONFIG_BRANCH) {
+  Map getFeatureConfig(String feature, String branch = DEPLOYMENT_CONFIG_BRANCH) {
     return fetchYaml("${GITHUB_SHARED_LIBRARY_RAW}/${branch}/resources/helm/features/${feature}.yaml")
   }
 
@@ -215,10 +215,7 @@ class RancherNamespace {
           // Merge maps recursively
           map1[key] = mergeMaps(map1[key] as Map, value as Map)
         } else if (map1[key] instanceof List && value instanceof List) {
-          // Merge lists
-          List mergedList = new ArrayList(map1[key])
-          mergedList.addAll(value)
-          map1[key] = mergedList.unique() // Remove duplicates, if required
+          map1[key] = mergeNamedLists(map1[key] as List, value as List)
         } else {
           map1[key] = value
         }
@@ -227,6 +224,25 @@ class RancherNamespace {
       }
     }
     return map1
+  }
+
+  /**
+   * Merges two lists. When all elements in both lists are Maps containing a 'name' key
+   * (the standard Kubernetes env var pattern), entries are deduplicated by 'name' with
+   * the second list overriding the first. Otherwise, falls back to append + unique.
+   */
+  protected static List mergeNamedLists(List list1, List list2) {
+    boolean isNamedMapList = !(list1 + list2).isEmpty() &&
+      (list1 + list2).every { it instanceof Map && (it as Map).containsKey('name') }
+    if (isNamedMapList) {
+      Map<String, Map> byName = new LinkedHashMap<>()
+      list1.each { byName[(it as Map).name as String] = it as Map }
+      list2.each { byName[(it as Map).name as String] = it as Map }
+      return byName.values().toList()
+    }
+    List merged = new ArrayList(list1)
+    merged.addAll(list2)
+    return merged.unique()
   }
 
   String getWorkspaceName() {

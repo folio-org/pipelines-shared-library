@@ -1,0 +1,5 @@
+---
+mgr-tenant-entitlements:
+  extraEnvVars:
+    - name: VALIDATION_INTERFACE_COLLECTOR_MODE
+      value: "combined"

@@ -41,34 +41,15 @@ PodTemplates podTemplates = new PodTemplates(this)
 String okapiVersion = folioTools.eval(folioStringScripts.getOkapiVersions(), ['FOLIO_BRANCH': 'snapshot'])[0]
 
 CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builder()
-  .platform(PlatformType.EUREKA)
   .clusterName('folio-etesting')
   .namespaceName('lsdi')
-  .folioBranch('snapshot')
   .platformBranch('snapshot')
-  .okapiVersion(okapiVersion)
-  .configType('testing')
-  .loadReference(true)
-  .loadSample(true)
-  .consortia(true)
   .splitFiles(true)
   .ecsCCL(true)
-  .rwSplit(false)
-  .greenmail(false)
-  .mockServer(false)
-  .rtr(false)
-  .hasSecureTenant(true)
-  .secureTenantId(folioDefault.consortiaTenants().get('university').getTenantId())
-  .pgType('built-in')
-  .pgVersion('16.8')
-  .kafkaType('built-in')
   .opensearchType('built-in')
-  .s3Type('built-in')
   .scNative(true)
   .members('folijet')
-  .uiBuild(true)
-  .worker('rancher')
-  .build()
+  .build(this)
 
 namespaceParams.folioExtensions.add('consortia-eureka')
 
@@ -104,10 +85,6 @@ ansiColor('xterm') {
 
     stage('[Job] Destroy environment (before)') {
       params.RETRY_FAILED ? println('RETRY tests execution | Skip destroy stage') : folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceParams)
-    }
-
-    stage('Fetch Applications') {
-      namespaceParams.applications = folioDefault.getApplicationNamesFromPlatform('snapshot')
     }
 
     stage('[Job] Provision environment') {

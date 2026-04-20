@@ -5,6 +5,7 @@ import org.folio.models.*
 import org.folio.models.application.ApplicationList
 import org.folio.models.module.FolioModule
 import org.folio.models.parameters.CreateNamespaceParameters
+import org.folio.rest_v2.FolioRelease
 import org.folio.rest_v2.PlatformType
 import org.folio.rest_v2.eureka.Eureka
 import org.folio.rest_v2.eureka.kong.Applications
@@ -67,7 +68,7 @@ void call(CreateNamespaceParameters args) {
       logger.info("Using Kong version: ${kongVersion}, Keycloak version: ${keycloakVersion}")
 
       def defaultTenantId = args.dataset ? 'fs09000000' : 'diku'
-      boolean isRelease = args.platformBranch ==~ /^R\d-\d{4}.*/
+      boolean isRelease = (args.releaseType != null && args.releaseType != FolioRelease.SNAPSHOT)
       String commitHash = common.getLastCommitHash('platform-lsp', args.platformBranch)
       // TODO: Refactor UI build to use platform-lsp instead of platform-complete
       String uiCommitHash = common.getLastCommitHash('platform-complete', args.folioBranch)
@@ -175,6 +176,7 @@ void call(CreateNamespaceParameters args) {
       namespace.setEnableRwSplit(args.rwSplit)
       namespace.setEnableRtr(args.rtr)
       namespace.setEnableECS_CCL(args.ecsCCL)
+      namespace.setConfigExtensions(args.configExtensions ?: [])
       namespace.addDeploymentConfig(folioTools.getPipelineBranch())
 
       namespace.addTenant(
@@ -370,8 +372,7 @@ void call(CreateNamespaceParameters args) {
             , namespace.getClusterName()
             , namespace.getNamespaceName()
             , namespace.getEnableConsortia()
-            , false // Set this option true, when users & groups migration is required.
-            , args.entitlementApproach
+            , args.initParams
           )
         }
       }

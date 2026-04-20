@@ -48,38 +48,17 @@ ansiColor('xterm') {
     String okapiVersion = folioTools.eval(folioStringScripts.getOkapiVersions(), ['FOLIO_BRANCH': 'snapshot'])[0]
 
     CreateNamespaceParameters namespaceBaseParams = new CreateNamespaceParameters.Builder()
-      .platform(PlatformType.EUREKA)
       .clusterName('folio-etesting')
       .namespaceName('cikarate')
-      .rwSplit(false)
-      .greenmail(false)
-      .mockServer(false)
-      .pgType('built-in')
-      .pgVersion('16.8')
-      .kafkaType('built-in')
-      .opensearchType('aws')
-      .s3Type('built-in')
-      .runSanityCheck(false)
       .members('dojo')
-      .uiBuild(true)
-      .build()
+      .build(this)
 
     CreateNamespaceParameters namespaceFromBranchParams = namespaceBaseParams.toBuilder()
       .folioBranch('snapshot')
-      .platformBranch('snapshot')
-      .okapiVersion(okapiVersion)
-      .configType('testing')
-      .loadReference(true)
-      .loadSample(true)
       .mockServer(true)
-      .consortia(true)
       .splitFiles(true)
       .scNative(true)
-      .rtr(false)
-      .hasSecureTenant(true)
-      .secureTenantId(folioDefault.consortiaTenants().get('university').getTenantId())
-      .uiBuild(true)
-      .build()
+      .build(this)
 
     RancherNamespace namespace = new RancherNamespace(namespaceBaseParams.getClusterName(), namespaceBaseParams.getNamespaceName())
     namespace.withDefaultTenant('diku')
@@ -119,10 +98,6 @@ ansiColor('xterm') {
         } else {
           logger.warning("${namespaceBaseParams.getNamespaceName()} namespace does not exists!")
         }
-      }
-
-      stage('Fetch Applications') {
-        namespaceFromBranchParams.applications = folioDefault.getApplicationNamesFromPlatform('snapshot')
       }
 
       stage('[Job] Provision environment') {

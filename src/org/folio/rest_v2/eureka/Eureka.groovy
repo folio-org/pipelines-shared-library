@@ -7,6 +7,7 @@ import org.folio.models.application.Application
 import org.folio.models.application.ApplicationList
 import org.folio.models.module.EurekaModule
 import org.folio.models.module.FolioModule
+import org.folio.models.parameters.InitializeFromScratchParameters
 import org.folio.rest_v2.EntitlementApproach
 import org.folio.rest_v2.eureka.kong.*
 
@@ -31,7 +32,7 @@ class Eureka extends Base {
   }
 
   Eureka createTenantFlow(EurekaTenant tenant, String cluster, String namespace,
-                           boolean migrate = false, EntitlementApproach entitlementApproach = EntitlementApproach.STATE) {
+                          InitializeFromScratchParameters params) {
     EurekaTenant createdTenant = Tenants.get(kong).createTenant(tenant)
 
     tenant.withUUID(createdTenant.getUuid())
@@ -46,7 +47,7 @@ class Eureka extends Base {
 
     kong.keycloak.defineTTL(tenant.tenantId, 600)
 
-    if (entitlementApproach == EntitlementApproach.CREATE) {
+    if (params.entitlementApproach == EntitlementApproach.CREATE) {
       ApplicationList entitledApps = Tenants.get(kong).getEnabledApplications(tenant)
       Tenants.get(kong).enableApplications(
         tenant,
@@ -68,23 +69,27 @@ class Eureka extends Base {
       , new Role(name: "adminRole", desc: "Admin role")
       , Permissions.get(kong).getCapabilitiesId(tenant)
       , Permissions.get(kong).getCapabilitySetsId(tenant)
-      , migrate)
+      , params.migrate)
 
-    configureTenant(tenant)
+    configureTenant(tenant, params)
 
     return this
   }
 
-  Eureka configureTenant(EurekaTenant tenant){
-    Configurations.get(kong)
-      .setSmtp(tenant)
+  Eureka configureTenant(EurekaTenant tenant, InitializeFromScratchParameters params) {
+    Configurations configs = Configurations.get(kong)
+    configs.setSmtp(tenant)
       .setResetPasswordLink(tenant)
 
-    if(tenant.getModules().getModuleByName('mod-copycat'))
-      Configurations.get(kong).setWorldcat(tenant)
+    if (params.setBaseUrl) {
+      configs.setBaseUrl(tenant)
+    }
 
-    if(tenant.getModules().getModuleByName('mod-kb-ebsco-java'))
-      Configurations.get(kong).setRmapiConfig(tenant)
+    if (tenant.getModules().getModuleByName('mod-copycat'))
+      configs.setWorldcat(tenant)
+
+    if (tenant.getModules().getModuleByName('mod-kb-ebsco-java'))
+      configs.setRmapiConfig(tenant)
 
     return this
   }
@@ -224,11 +229,10 @@ class Eureka extends Base {
     return this
   }
 
-  Eureka initializeFromScratch(Map<String, EurekaTenant> tenants, String cluster, String namespace
-                               , boolean enableConsortia, boolean migrate = false
-                               , EntitlementApproach entitlementApproach = EntitlementApproach.STATE) {
+  Eureka initializeFromScratch(Map<String, EurekaTenant> tenants, String cluster, String namespace,
+                               boolean enableConsortia, InitializeFromScratchParameters params) {
     tenants.each { tenantId, tenant ->
-      createTenantFlow(tenant, cluster, namespace, migrate, entitlementApproach)
+      createTenantFlow(tenant, cluster, namespace, params)
     }
 
     if (enableConsortia)

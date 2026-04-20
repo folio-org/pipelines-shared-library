@@ -109,7 +109,7 @@ class Constants {
     ],
     [
       name: 'folio-tmp'
-      , platform: [ PlatformType.OKAPI, PlatformType.EUREKA ]
+      , platform: [ PlatformType.EUREKA, PlatformType.OKAPI ]
       , namespaces: AWS_EKS_TMP_NAMESPACES
       , disabled: false
     ]
@@ -361,7 +361,8 @@ class Constants {
                                 "vasyl_avramenko@epam.com",
                                 "eldiiar_duishenaliev@epam.com"]
 
-  static List PGSQL_VERSION = ["12.12", "13.13", "14.10", "15.5", "16.1"]
+  static String PGSQL_DEFAULT_VERSION = "16.8"
+  static List PGSQL_VERSION = [PGSQL_DEFAULT_VERSION, "16.9", "16.10", "17.6", "18.0"]
 
   static Pattern NAME_VERSION_REGEXP = ~/^([a-z_\-]+)-([\d.]+(?:-SNAPSHOT(?:\.\w+)?|))$/
 
