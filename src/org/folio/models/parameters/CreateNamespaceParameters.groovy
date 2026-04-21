@@ -447,6 +447,8 @@ class CreateNamespaceParameters implements Cloneable {
       if (parameters.initParams.entitlementApproach == null && defaults.entitlementApproach != null)
         parameters.initParams.entitlementApproach = defaults.entitlementApproach as EntitlementApproach
 
+      parameters.folioExtensions = (parameters.folioExtensions + DependentParametersResolver.resolveFolioExtensions(parameters)).unique()
+
       return parameters
     }
   }
