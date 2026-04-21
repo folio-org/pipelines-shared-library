@@ -89,4 +89,19 @@ class DependentParametersResolver {
       return SHARED_ENV_MEMBERS
     return Constants.ENVS_MEMBERS_LIST.getOrDefault(namespaceName, '') as String
   }
+
+  /**
+   * Derives the list of folio-extensions based on the finalized parameter flags.
+   * Called from Builder.build() AFTER the defaults loop so the flags have their
+   * final values.
+   */
+  static List<String> resolveFolioExtensions(CreateNamespaceParameters params) {
+    List<String> extensions = []
+    if (params.consortia) {
+      extensions << (params.platform == PlatformType.EUREKA ? 'consortia-eureka' : 'consortia')
+    }
+    if (params.linkedData) extensions << 'linked-data'
+    if (params.marcMigrations) extensions << 'marc-migrations'
+    return extensions
+  }
 }
