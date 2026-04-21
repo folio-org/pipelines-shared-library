@@ -26,7 +26,7 @@ if (params.REFRESH_PARAMETERS) {
 }
 
 if (params.CLUSTER == 'folio-testing' || params.CLUSTER == 'folio-etesting' ||
-  parameters.CLUSTER == 'folio-perf' || parameters.CLUSTER == 'folio-eperf') {
+      params.CLUSTER == 'folio-perf' || params.CLUSTER == 'folio-eperf') {
   folioCommon.kitfoxApproval()
 }
 
