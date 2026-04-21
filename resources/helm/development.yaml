@@ -27,10 +27,8 @@ edge-caiasoft:
   replicaCount: 1
   resources:
     limits:
-      cpu: 200m
       memory: 328Mi
     requests:
-      cpu: 100m
       memory: 286Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
@@ -53,10 +51,8 @@ edge-connexion:
   replicaCount: 1
   resources:
     limits:
-      cpu: 100m
       memory: 132Mi
     requests:
-      cpu: 50m
       memory: 114Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
@@ -97,10 +93,8 @@ edge-courses:
   replicaCount: 1
   resources:
     limits:
-      cpu: 100m
       memory: 259Mi
     requests:
-      cpu: 50m
       memory: 226Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
@@ -133,10 +127,8 @@ edge-dcb:
   replicaCount: 1
   resources:
     limits:
-      cpu: 100m
       memory: 296Mi
     requests:
-      cpu: 50m
       memory: 258Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
@@ -169,10 +161,8 @@ edge-dematic:
   replicaCount: 1
   resources:
     limits:
-      cpu: 100m
       memory: 293Mi
     requests:
-      cpu: 50m
       memory: 255Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
@@ -205,10 +195,8 @@ edge-erm:
   replicaCount: 1
   resources:
     limits:
-      cpu: 200m
       memory: 390Mi
     requests:
-      cpu: 100m
       memory: 339Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
@@ -252,10 +240,8 @@ edge-fqm:
   replicaCount: 1
   resources:
     limits:
-      cpu: 100m
       memory: 284Mi
     requests:
-      cpu: 50m
       memory: 247Mi
 edge-inn-reach:
   ingress:
@@ -286,10 +272,8 @@ edge-inn-reach:
   replicaCount: 1
   resources:
     limits:
-      cpu: 100m
       memory: 277Mi
     requests:
-      cpu: 50m
       memory: 241Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
@@ -327,10 +311,8 @@ edge-inventory:
   replicaCount: 1
   resources:
     limits:
-      cpu: 200m
       memory: 588Mi
     requests:
-      cpu: 100m
       memory: 294Mi
 edge-users:
   ingress:
@@ -366,10 +348,8 @@ edge-users:
   replicaCount: 1
   resources:
     limits:
-      cpu: 200m
       memory: 588Mi
     requests:
-      cpu: 100m
       memory: 294Mi
   extraJavaOpts:
     - -Dserver.port=8081      
@@ -402,10 +382,8 @@ edge-ncip:
   replicaCount: 1
   resources:
     limits:
-      cpu: 100m
       memory: 132Mi
     requests:
-      cpu: 50m
       memory: 114Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
@@ -438,10 +416,8 @@ edge-oai-pmh:
   replicaCount: 1
   resources:
     limits:
-      cpu: 100m
       memory: 162Mi
     requests:
-      cpu: 50m
       memory: 141Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
@@ -510,10 +486,8 @@ edge-orders:
   replicaCount: 1
   resources:
     limits:
-      cpu: 100m
       memory: 132Mi
     requests:
-      cpu: 50m
       memory: 114Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
@@ -546,10 +520,8 @@ edge-patron:
   replicaCount: 1
   resources:
     limits:
-      cpu: 100m
       memory: 134Mi
     requests:
-      cpu: 50m
       memory: 117Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
@@ -582,10 +554,8 @@ edge-rtac:
   replicaCount: 1
   resources:
     limits:
-      cpu: 200m
       memory: 512Mi
     requests:
-      cpu: 100m
       memory: 256Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
@@ -605,10 +575,8 @@ edge-sip2:
   replicaCount: 1
   resources:
     limits:
-      cpu: 100m
       memory: 150Mi
     requests:
-      cpu: 50m
       memory: 131Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
@@ -618,10 +586,8 @@ mod-aes:
   replicaCount: 1
   resources:
     limits:
-      cpu: 300m
       memory: 634Mi
     requests:
-      cpu: 150m
       memory: 507Mi
   startupProbe:
     httpGet:
@@ -654,10 +620,8 @@ mod-agreements:
   replicaCount: 1
   resources:
     limits:
-      cpu: 1000m
       memory: 4096Mi
     requests:
-      cpu: 500m
       memory: 2048Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
@@ -685,10 +649,8 @@ mod-audit:
   replicaCount: 1
   resources:
     limits:
-      cpu: 200m
       memory: 473Mi
     requests:
-      cpu: 100m
       memory: 412Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
@@ -719,10 +681,8 @@ mod-authtoken:
   replicaCount: 1
   resources:
     limits:
-      cpu: 100m
       memory: 220Mi
     requests:
-      cpu: 50m
       memory: 192Mi
   startupProbe:
     httpGet:
@@ -745,10 +705,8 @@ mod-batch-print:
   replicaCount: 1
   resources:
     limits:
-      cpu: 100m
       memory: 208Mi
     requests:
-      cpu: 50m
       memory: 181Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
@@ -787,10 +745,8 @@ mod-bulk-operations:
   replicaCount: 1
   resources:
     limits:
-      cpu: 500m
       memory: 1934Mi
     requests:
-      cpu: 250m
       memory: 1682Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
@@ -815,10 +771,8 @@ mod-calendar:
   replicaCount: 1
   resources:
     limits:
-      cpu: 200m
       memory: 575Mi
     requests:
-      cpu: 100m
       memory: 500Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
@@ -851,10 +805,8 @@ mod-camunda:
   replicaCount: 1
   resources:
     limits:
-      cpu: 300m
       memory: 676Mi
     requests:
-      cpu: 150m
       memory: 531Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
@@ -888,10 +840,8 @@ mod-circulation:
   replicaCount: 1
   resources:
     limits:
-      cpu: 200m
       memory: 405Mi
     requests:
-      cpu: 100m
       memory: 353Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
@@ -919,10 +869,8 @@ mod-circulation-bff:
   replicaCount: 1
   resources:
     limits:
-      cpu: 200m
       memory: 380Mi
     requests:
-      cpu: 100m
       memory: 331Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
@@ -952,10 +900,8 @@ mod-circulation-storage:
   replicaCount: 1
   resources:
     limits:
-      cpu: 200m
       memory: 416Mi
     requests:
-      cpu: 100m
       memory: 362Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
@@ -977,10 +923,8 @@ mod-codex-ekb:
   replicaCount: 1
   resources:
     limits:
-      cpu: 200m
       memory: 564Mi
     requests:
-      cpu: 100m
       memory: 450Mi
   startupProbe:
     httpGet:
@@ -1000,10 +944,8 @@ mod-codex-inventory:
   replicaCount: 1
   resources:
     limits:
-      cpu: 200m
       memory: 564Mi
     requests:
-      cpu: 100m
       memory: 450Mi
   startupProbe:
     httpGet:
@@ -1023,10 +965,8 @@ mod-codex-mux:
   replicaCount: 1
   resources:
     limits:
-      cpu: 200m
       memory: 564Mi
     requests:
-      cpu: 100m
       memory: 450Mi
   startupProbe:
     httpGet:
@@ -1049,10 +989,8 @@ mod-configuration:
   replicaCount: 1
   resources:
     limits:
-      cpu: 100m
       memory: 286Mi
     requests:
-      cpu: 50m
       memory: 249Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
@@ -1086,10 +1024,8 @@ mod-consortia:
   replicaCount: 1
   resources:
     limits:
-      cpu: 300m
       memory: 1167Mi
     requests:
-      cpu: 150m
       memory: 1014Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
@@ -1114,10 +1050,8 @@ mod-copycat:
   replicaCount: 1
   resources:
     limits:
-      cpu: 100m
       memory: 292Mi
     requests:
-      cpu: 50m
       memory: 254Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
@@ -1142,10 +1076,8 @@ mod-courses:
   replicaCount: 1
   resources:
     limits:
-      cpu: 100m
       memory: 259Mi
     requests:
-      cpu: 50m
       memory: 226Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
@@ -1176,10 +1108,8 @@ mod-data-export:
   replicaCount: 1
   resources:
     limits:
-      cpu: 500m
       memory: 1728Mi
     requests:
-      cpu: 250m
       memory: 1503Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
@@ -1213,10 +1143,8 @@ mod-data-export-spring:
   replicaCount: 1
   resources:
     limits:
-      cpu: 300m
       memory: 1399Mi
     requests:
-      cpu: 150m
       memory: 1217Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
@@ -1247,10 +1175,8 @@ mod-data-export-worker:
   replicaCount: 1
   resources:
     limits:
-      cpu: 500m
       memory: 1774Mi
     requests:
-      cpu: 250m
       memory: 1543Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
@@ -1284,10 +1210,8 @@ mod-data-import:
   replicaCount: 1
   resources:
     limits:
-      cpu: 300m
       memory: 885Mi
     requests:
-      cpu: 150m
       memory: 770Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
@@ -1323,10 +1247,8 @@ mod-linked-data-import:
   replicaCount: 1
   resources:
     limits:
-      cpu: 300m
       memory: 1353Mi
     requests:
-      cpu: 150m
       memory: 1015Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
@@ -1352,10 +1274,8 @@ mod-di-converter-storage:
   replicaCount: 1
   resources:
     limits:
-      cpu: 200m
       memory: 326Mi
     requests:
-      cpu: 100m
       memory: 284Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
@@ -1377,10 +1297,8 @@ mod-ebsconet:
   replicaCount: 1
   resources:
     limits:
-      cpu: 200m
       memory: 450Mi
     requests:
-      cpu: 100m
       memory: 392Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
@@ -1405,10 +1323,8 @@ mod-email:
   replicaCount: 1
   resources:
     limits:
-      cpu: 100m
       memory: 297Mi
     requests:
-      cpu: 50m
       memory: 259Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
@@ -1453,10 +1369,8 @@ mod-entities-links:
   replicaCount: 1
   resources:
     limits:
-      cpu: 300m
       memory: 1493Mi
     requests:
-      cpu: 150m
       memory: 1299Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
@@ -1481,10 +1395,8 @@ mod-erm-usage:
   replicaCount: 1
   resources:
     limits:
-      cpu: 100m
       memory: 300Mi
     requests:
-      cpu: 50m
       memory: 261Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
@@ -1515,10 +1427,8 @@ mod-erm-usage-harvester:
   replicaCount: 1
   resources:
     limits:
-      cpu: 200m
       memory: 402Mi
     requests:
-      cpu: 100m
       memory: 350Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
@@ -1543,10 +1453,8 @@ mod-eusage-reports:
   replicaCount: 1
   resources:
     limits:
-      cpu: 100m
       memory: 163Mi
     requests:
-      cpu: 50m
       memory: 142Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
@@ -1571,10 +1479,8 @@ mod-event-config:
   replicaCount: 1
   resources:
     limits:
-      cpu: 100m
       memory: 244Mi
     requests:
-      cpu: 50m
       memory: 213Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
@@ -1599,10 +1505,8 @@ mod-feesfines:
   replicaCount: 1
   resources:
     limits:
-      cpu: 200m
       memory: 340Mi
     requests:
-      cpu: 100m
       memory: 296Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
@@ -1632,10 +1536,8 @@ mod-finc-config:
   replicaCount: 1
   resources:
     limits:
-      cpu: 200m
       memory: 507Mi
     requests:
-      cpu: 100m
       memory: 338Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
@@ -1657,10 +1559,8 @@ mod-finance:
   replicaCount: 1
   resources:
     limits:
-      cpu: 300m
       memory: 744Mi
     requests:
-      cpu: 150m
       memory: 646Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
@@ -1685,10 +1585,8 @@ mod-finance-storage:
   replicaCount: 1
   resources:
     limits:
-      cpu: 200m
       memory: 428Mi
     requests:
-      cpu: 100m
       memory: 373Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
@@ -1717,10 +1615,8 @@ mod-fqm-manager:
   replicaCount: 1
   resources:
     limits:
-      cpu: 300m
       memory: 1500Mi
     requests:
-      cpu: 150m
       memory: 1305Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
@@ -1745,10 +1641,8 @@ mod-gobi:
   replicaCount: 1
   resources:
     limits:
-      cpu: 100m
       memory: 266Mi
     requests:
-      cpu: 50m
       memory: 232Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
@@ -1770,10 +1664,8 @@ mod-graphql:
   replicaCount: 1
   resources:
     limits:
-      cpu: 200m
       memory: 340Mi
     requests:
-      cpu: 100m
       memory: 296Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
@@ -1809,10 +1701,8 @@ mod-inn-reach:
   replicaCount: 1
   resources:
     limits:
-      cpu: 300m
       memory: 893Mi
     requests:
-      cpu: 150m
       memory: 777Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
@@ -1845,10 +1735,8 @@ mod-inventory:
   replicaCount: 1
   resources:
     limits:
-      cpu: 500m
       memory: 2446Mi
     requests:
-      cpu: 250m
       memory: 2127Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
@@ -1880,10 +1768,8 @@ mod-inventory-storage:
   replicaCount: 1
   resources:
     limits:
-      cpu: 500m
       memory: 1678Mi
     requests:
-      cpu: 250m
       memory: 1460Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
@@ -1908,10 +1794,8 @@ mod-inventory-update:
   replicaCount: 1
   resources:
     limits:
-      cpu: 100m
       memory: 151Mi
     requests:
-      cpu: 50m
       memory: 131Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
@@ -1946,10 +1830,8 @@ mod-invoice:
   replicaCount: 1
   resources:
     limits:
-      cpu: 300m
       memory: 836Mi
     requests:
-      cpu: 150m
       memory: 727Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
@@ -1977,10 +1859,8 @@ mod-invoice-storage:
   replicaCount: 1
   resources:
     limits:
-      cpu: 200m
       memory: 336Mi
     requests:
-      cpu: 100m
       memory: 293Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
@@ -2005,10 +1885,8 @@ mod-kb-ebsco-java:
   replicaCount: 1
   resources:
     limits:
-      cpu: 200m
       memory: 432Mi
     requests:
-      cpu: 100m
       memory: 376Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
@@ -2033,10 +1911,8 @@ mod-ldp:
   replicaCount: 1
   resources:
     limits:
-      cpu: 300m
       memory: 1353Mi
     requests:
-      cpu: 150m
       memory: 1184Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
@@ -2058,10 +1934,8 @@ mod-reporting:
   replicaCount: 1
   resources:
     limits:
-      cpu: 100m
       memory: 151Mi
     requests:
-      cpu: 50m
       memory: 131Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
@@ -2092,10 +1966,8 @@ mod-licenses:
   replicaCount: 1
   resources:
     limits:
-      cpu: 500m
       memory: 1871Mi
     requests:
-      cpu: 250m
       memory: 1627Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
@@ -2131,10 +2003,8 @@ mod-linked-data:
   replicaCount: 1
   resources:
     limits:
-      cpu: 500m
       memory: 1557Mi
     requests:
-      cpu: 250m
       memory: 1353Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
@@ -2178,10 +2048,8 @@ mod-lists:
   replicaCount: 1
   resources:
     limits:
-      cpu: 300m
       memory: 1435Mi
     requests:
-      cpu: 150m
       memory: 1248Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
@@ -2206,10 +2074,8 @@ mod-login:
   replicaCount: 1
   resources:
     limits:
-      cpu: 100m
       memory: 296Mi
     requests:
-      cpu: 50m
       memory: 258Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
@@ -2236,10 +2102,8 @@ mod-login-saml:
   replicaCount: 1
   resources:
     limits:
-      cpu: 100m
       memory: 288Mi
     requests:
-      cpu: 50m
       memory: 251Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
@@ -2273,10 +2137,8 @@ mod-marc-migrations:
   replicaCount: 1
   resources:
     limits:
-      cpu: 200m
       memory: 540Mi
     requests:
-      cpu: 100m
       memory: 470Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
@@ -2301,10 +2163,8 @@ mod-marccat:
   replicaCount: 1
   resources:
     limits:
-      cpu: 300m
       memory: 1375Mi
     requests:
-      cpu: 150m
       memory: 1099Mi
   startupProbe:
     httpGet:
@@ -2327,10 +2187,8 @@ mod-mosaic:
   replicaCount: 1
   resources:
     limits:
-      cpu: 300m
       memory: 687Mi
     requests:
-      cpu: 150m
       memory: 634Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=75.0
@@ -2352,10 +2210,8 @@ mod-ncip:
   replicaCount: 1
   resources:
     limits:
-      cpu: 100m
       memory: 151Mi
     requests:
-      cpu: 50m
       memory: 131Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
@@ -2380,10 +2236,8 @@ mod-notes:
   replicaCount: 1
   resources:
     limits:
-      cpu: 300m
       memory: 608Mi
     requests:
-      cpu: 150m
       memory: 527Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
@@ -2408,10 +2262,8 @@ mod-notify:
   replicaCount: 1
   resources:
     limits:
-      cpu: 100m
       memory: 256Mi
     requests:
-      cpu: 50m
       memory: 223Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
@@ -2439,10 +2291,8 @@ mod-oa:
   replicaCount: 1
   resources:
     limits:
-      cpu: 300m
       memory: 1040Mi
     requests:
-      cpu: 150m
       memory: 905Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
@@ -2472,10 +2322,8 @@ mod-oai-pmh:
   replicaCount: 1
   resources:
     limits:
-      cpu: 300m
       memory: 1380Mi
     requests:
-      cpu: 150m
       memory: 1200Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
@@ -2507,10 +2355,8 @@ mod-orders:
   replicaCount: 1
   resources:
     limits:
-      cpu: 500m
       memory: 1998Mi
     requests:
-      cpu: 250m
       memory: 1738Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
@@ -2540,10 +2386,8 @@ mod-orders-storage:
   replicaCount: 1
   resources:
     limits:
-      cpu: 200m
       memory: 522Mi
     requests:
-      cpu: 100m
       memory: 454Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
@@ -2579,10 +2423,8 @@ mod-dcb:
   replicaCount: 1
   resources:
     limits:
-      cpu: 300m
       memory: 680Mi
     requests:
-      cpu: 150m
       memory: 592Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
@@ -2612,10 +2454,8 @@ mod-circulation-item:
   replicaCount: 1
   resources:
     limits:
-      cpu: 200m
       memory: 469Mi
     requests:
-      cpu: 100m
       memory: 408Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
@@ -2637,10 +2477,8 @@ mod-organizations:
   replicaCount: 1
   resources:
     limits:
-      cpu: 100m
       memory: 236Mi
     requests:
-      cpu: 50m
       memory: 206Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
@@ -2668,10 +2506,8 @@ mod-organizations-storage:
   replicaCount: 1
   resources:
     limits:
-      cpu: 200m
       memory: 339Mi
     requests:
-      cpu: 100m
       memory: 295Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
@@ -2696,10 +2532,8 @@ mod-password-validator:
   replicaCount: 1
   resources:
     limits:
-      cpu: 200m
       memory: 488Mi
     requests:
-      cpu: 100m
       memory: 425Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
@@ -2724,10 +2558,8 @@ mod-patron:
   replicaCount: 1
   resources:
     limits:
-      cpu: 100m
       memory: 216Mi
     requests:
-      cpu: 50m
       memory: 188Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
@@ -2752,10 +2584,8 @@ mod-patron-blocks:
   replicaCount: 1
   resources:
     limits:
-      cpu: 200m
       memory: 393Mi
     requests:
-      cpu: 100m
       memory: 341Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
@@ -2780,10 +2610,8 @@ mod-permissions:
   replicaCount: 1
   resources:
     limits:
-      cpu: 300m
       memory: 736Mi
     requests:
-      cpu: 150m
       memory: 640Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
@@ -2817,10 +2645,8 @@ mod-pubsub:
   replicaCount: 1
   resources:
     limits:
-      cpu: 500m
       memory: 1586Mi
     requests:
-      cpu: 250m
       memory: 1353Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
@@ -2852,10 +2678,8 @@ mod-quick-marc:
   replicaCount: 1
   resources:
     limits:
-      cpu: 300m
       memory: 1161Mi
     requests:
-      cpu: 150m
       memory: 1010Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
@@ -2880,10 +2704,8 @@ mod-reading-room:
   replicaCount: 1
   resources:
     limits:
-      cpu: 200m
       memory: 480Mi
     requests:
-      cpu: 100m
       memory: 418Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
@@ -2910,10 +2732,8 @@ mod-record-specifications:
       existingSecret: kafka-credentials
   resources:
     limits:
-      cpu: 300m
       memory: 740Mi
     requests:
-      cpu: 150m
       memory: 644Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
@@ -2947,10 +2767,8 @@ mod-remote-storage:
   replicaCount: 1
   resources:
     limits:
-      cpu: 500m
       memory: 1512Mi
     requests:
-      cpu: 250m
       memory: 1315Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
@@ -2984,10 +2802,8 @@ mod-requests-mediated:
   replicaCount: 1
   resources:
     limits:
-      cpu: 200m
       memory: 526Mi
     requests:
-      cpu: 100m
       memory: 458Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
@@ -3009,10 +2825,8 @@ mod-rtac:
   replicaCount: 1
   resources:
     limits:
-      cpu: 100m
       memory: 227Mi
     requests:
-      cpu: 50m
       memory: 198Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
@@ -3043,10 +2857,8 @@ mod-rtac-cache:
   replicaCount: 1
   resources:
     limits:
-      cpu: 300m
       memory: 676Mi
     requests:
-      cpu: 150m
       memory: 338Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
@@ -3123,10 +2935,8 @@ mod-search:
   replicaCount: 1
   resources:
     limits:
-      cpu: 300m
       memory: 1064Mi
     requests:
-      cpu: 150m
       memory: 926Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
@@ -3148,10 +2958,8 @@ mod-sender:
   replicaCount: 1
   resources:
     limits:
-      cpu: 100m
       memory: 225Mi
     requests:
-      cpu: 50m
       memory: 196Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
@@ -3181,10 +2989,8 @@ mod-serials-management:
   replicaCount: 1
   resources:
     limits:
-      cpu: 500m
       memory: 1981Mi
     requests:
-      cpu: 250m
       memory: 1722Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
@@ -3214,10 +3020,8 @@ mod-service-interaction:
   replicaCount: 1
   resources:
     limits:
-      cpu: 300m
       memory: 1289Mi
     requests:
-      cpu: 150m
       memory: 1120Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
@@ -3242,10 +3046,8 @@ mod-settings:
   replicaCount: 1
   resources:
     limits:
-      cpu: 300m
       memory: 676Mi
     requests:
-      cpu: 150m
       memory: 338Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
@@ -3276,10 +3078,8 @@ mod-source-record-manager:
   replicaCount: 1
   resources:
     limits:
-      cpu: 300m
       memory: 917Mi
     requests:
-      cpu: 150m
       memory: 798Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
@@ -3310,10 +3110,8 @@ mod-source-record-storage:
   replicaCount: 1
   resources:
     limits:
-      cpu: 300m
       memory: 1038Mi
     requests:
-      cpu: 150m
       memory: 903Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
@@ -3338,10 +3136,8 @@ mod-tags:
   replicaCount: 1
   resources:
     limits:
-      cpu: 200m
       memory: 480Mi
     requests:
-      cpu: 100m
       memory: 418Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
@@ -3366,10 +3162,8 @@ mod-template-engine:
   replicaCount: 1
   resources:
     limits:
-      cpu: 100m
       memory: 278Mi
     requests:
-      cpu: 50m
       memory: 242Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
@@ -3403,10 +3197,8 @@ mod-tlr:
   replicaCount: 1
   resources:
     limits:
-      cpu: 200m
       memory: 547Mi
     requests:
-      cpu: 100m
       memory: 474Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
@@ -3428,10 +3220,8 @@ mod-user-import:
   replicaCount: 1
   resources:
     limits:
-      cpu: 100m
       memory: 220Mi
     requests:
-      cpu: 50m
       memory: 192Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
@@ -3461,10 +3251,8 @@ mod-users:
   replicaCount: 1
   resources:
     limits:
-      cpu: 200m
       memory: 503Mi
     requests:
-      cpu: 100m
       memory: 438Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
@@ -3491,10 +3279,8 @@ mod-users-bl:
   replicaCount: 1
   resources:
     limits:
-      cpu: 500m
       memory: 1652Mi
     requests:
-      cpu: 250m
       memory: 1353Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
@@ -3529,10 +3315,8 @@ mod-workflow:
   replicaCount: 1
   resources:
     limits:
-      cpu: 300m
       memory: 676Mi
     requests:
-      cpu: 150m
       memory: 507Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
@@ -3554,10 +3338,8 @@ mod-z3950:
   replicaCount: 1
   resources:
     limits:
-      cpu: 200m
       memory: 450Mi
     requests:
-      cpu: 100m
       memory: 338Mi
   pdb:
     enabled: true
@@ -3594,10 +3376,8 @@ mgr-applications:
   replicaCount: 1
   resources:
     limits:
-      cpu: 300m
       memory: 1024Mi
     requests:
-      cpu: 150m
       memory: 509Mi
   readinessProbe:
     httpGet:
@@ -3636,10 +3416,8 @@ mgr-tenants:
   replicaCount: 1
   resources:
     limits:
-      cpu: 300m
       memory: 818Mi
     requests:
-      cpu: 150m
       memory: 546Mi
   readinessProbe:
     httpGet:
@@ -3695,10 +3473,8 @@ mgr-tenant-entitlements:
   replicaCount: 1
   resources:
     limits:
-      cpu: 800m
       memory: 1024Mi
     requests:
-      cpu: 150m
       memory: 399Mi
   readinessProbe:
     httpGet:
@@ -3731,10 +3507,8 @@ mod-consortia-keycloak:
   replicaCount: 1
   resources:
     limits:
-      cpu: 300m
       memory: 830Mi
     requests:
-      cpu: 150m
       memory: 634Mi
   startupProbe:
     httpGet:
@@ -3766,10 +3540,8 @@ mod-login-keycloak:
   replicaCount: 1
   resources:
     limits:
-      cpu: 300m
       memory: 744Mi
     requests:
-      cpu: 150m
       memory: 525Mi
   startupProbe:
     httpGet:
@@ -3813,10 +3585,8 @@ mod-roles-keycloak:
   replicaCount: 1
   resources:
     limits:
-      cpu: 300m
       memory: 1021Mi
     requests:
-      cpu: 150m
       memory: 814Mi
 mod-users-keycloak:
   extraEnvVars:
@@ -3852,10 +3622,8 @@ mod-users-keycloak:
   replicaCount: 1
   resources:
     limits:
-      cpu: 300m
       memory: 769Mi
     requests:
-      cpu: 150m
       memory: 577Mi
   startupProbe:
     httpGet:
@@ -3902,10 +3670,8 @@ mod-scheduler:
   replicaCount: 1
   resources:
     limits:
-      cpu: 300m
       memory: 1009Mi
     requests:
-      cpu: 150m
       memory: 667Mi
   startupProbe:
     httpGet:
@@ -3939,10 +3705,8 @@ mod-okapi-facade:
   replicaCount: 1
   resources:
     limits:
-      cpu: 300m
       memory: 676Mi
     requests:
-      cpu: 150m
       memory: 294Mi
   startupProbe:
     httpGet:
@@ -3973,10 +3737,8 @@ okapi:
   replicaCount: 1
   resources:
     limits:
-      cpu: 300m
       memory: 755Mi
     requests:
-      cpu: 150m
       memory: 657Mi
   integrations:
     db:
@@ -4015,8 +3777,6 @@ ui-bundle:
   replicaCount: 1
   resources:
     limits:
-      cpu: 100m
       memory: 200Mi
     requests:
-      cpu: 50m
       memory: 100Mi
