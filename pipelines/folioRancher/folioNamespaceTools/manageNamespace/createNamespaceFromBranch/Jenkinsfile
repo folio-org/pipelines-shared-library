@@ -136,22 +136,6 @@ CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builde
     .withSetBaseUrl(params.SET_BASE_URL))
   .build(this)
 
-if (params.CONSORTIA) {
-    if (namespaceParams.platform == PlatformType.EUREKA) {
-        namespaceParams.folioExtensions.add('consortia-eureka')
-    } else {
-        namespaceParams.folioExtensions.add('consortia')
-    }
-}
-
-if (params.LINKED_DATA) {
-    namespaceParams.folioExtensions.add('linked-data')
-}
-
-if (params.MARC_MIGRATIONS) {
-    namespaceParams.folioExtensions.add('marc-migrations')
-}
-
 if (params.RTAC_CACHE) {
     namespaceParams.folioExtensions.add('rtac-cache')
 }

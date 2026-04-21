@@ -51,8 +51,6 @@ CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builde
   .members('folijet')
   .build(this)
 
-namespaceParams.folioExtensions.add('consortia-eureka')
-
 RancherNamespace namespace = new RancherNamespace(namespaceParams.getClusterName(), namespaceParams.getNamespaceName())
 namespace.withSuperTenantAdminUser()
 

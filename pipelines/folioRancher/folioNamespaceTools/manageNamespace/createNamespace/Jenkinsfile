@@ -56,6 +56,10 @@ CreateNamespaceParameters namespace = new CreateNamespaceParameters.Builder()
   .consortia(params.CONSORTIA)
   .build(this)
 
+if (namespace.getPgType() == 'aws' || namespace.getDataset() || namespace.getConfigType() == 'release') {
+  folioCommon.kitfoxApproval()
+}
+
 ansiColor('xterm') {
   podTemplates.rancherAgent {
     stage('Checkout') {
