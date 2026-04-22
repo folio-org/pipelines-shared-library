@@ -39,7 +39,7 @@ ansiColor('xterm') {
     stage('[FIX] Reinstall module via Kong') {
       logger.info("Reinstalling module: ${params.MODULE} on tenant: ${params.TENANT}")
 
-      String kongBase = "https://${params.CLUSTER}-${params.NAMESPACE}.kong.ci.folio.org"
+      String kongBase = "https://${params.CLUSTER}-${params.NAMESPACE}-kong.ci.folio.org"
 
       String tenantsResponse = sh(
         script: "curl -sf '${kongBase}/tenants?limit=500'",
