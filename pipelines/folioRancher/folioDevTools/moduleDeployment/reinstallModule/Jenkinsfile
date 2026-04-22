@@ -74,7 +74,7 @@ ansiColor('xterm') {
 
       String keycloakBase = "https://${params.CLUSTER}-${params.NAMESPACE}-keycloak.ci.folio.org"
       String tokenResponse = sh(
-        script: "curl -sf -X POST '${keycloakBase}/realms/${tenantId}/protocol/openid-connect/token' -H 'Content-Type: application/x-www-form-urlencoded' -d 'client_id=folio-backend-admin-client&client_secret=SecretPassword&grant_type=client_credentials'",
+        script: "curl -sf -X POST '${keycloakBase}/realms/master/protocol/openid-connect/token' -H 'Content-Type: application/x-www-form-urlencoded' -d 'client_id=folio-backend-admin-client&client_secret=SecretPassword&grant_type=client_credentials'",
         returnStdout: true
       ).trim()
       def tokenPayload = readJSON text: tokenResponse
