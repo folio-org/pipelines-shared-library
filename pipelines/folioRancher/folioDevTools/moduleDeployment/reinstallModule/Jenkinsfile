@@ -77,7 +77,8 @@ ansiColor('xterm') {
         script: "curl -sf -X POST '${keycloakBase}/realms/${tenantId}/protocol/openid-connect/token' -H 'Content-Type: application/x-www-form-urlencoded' -d 'client_id=folio-backend-admin-client&client_secret=SecretPassword&grant_type=client_credentials'",
         returnStdout: true
       ).trim()
-      String accessToken = (readJSON text: tokenResponse).access_token
+      def tokenPayload = readJSON text: tokenResponse
+      String accessToken = tokenPayload.access_token
 
       String body = groovy.json.JsonOutput.toJson([
         tenantId     : tenantId,
