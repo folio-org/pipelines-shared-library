@@ -72,13 +72,20 @@ ansiColor('xterm') {
       }
       logger.info("Resolved moduleId=${moduleId}, applicationId=${applicationId}, tenantId=${tenantId}")
 
+      String keycloakBase = "https://${params.CLUSTER}-${params.NAMESPACE}-keycloak.ci.folio.org"
+      String tokenResponse = sh(
+        script: "curl -sf -X POST '${keycloakBase}/realms/${tenantId}/protocol/openid-connect/token' -H 'Content-Type: application/x-www-form-urlencoded' -d 'client_id=folio-backend-admin-client&client_secret=SecretPassword&grant_type=client_credentials'",
+        returnStdout: true
+      ).trim()
+      String accessToken = (readJSON text: tokenResponse).access_token
+
       String body = groovy.json.JsonOutput.toJson([
         tenantId     : tenantId,
         applicationId: applicationId,
         modules      : [moduleId]
       ])
 
-      sh "curl -sf -X POST -H 'Content-Type: application/json' -d '${body}' '${kongBase}/reinstall/modules'"
+      sh "curl -sf -X POST -H 'Content-Type: application/json' -H 'Authorization: Bearer ${accessToken}' -d '${body}' '${kongBase}/reinstall/modules'"
 
       logger.info("Module ${moduleId} reinstalled successfully on tenant ${params.TENANT}")
     }
