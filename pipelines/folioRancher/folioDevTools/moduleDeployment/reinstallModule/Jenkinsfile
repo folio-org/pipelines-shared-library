@@ -13,6 +13,8 @@ properties([
     folioParameters.namespace(),
     string(name: 'MODULE', defaultValue: '', description: '(Required) Short module name, e.g. mod-fqm-manager'),
     string(name: 'TENANT', defaultValue: '', description: '(Required) Tenant name to reinstall module on'),
+    folioParameters.loadReference(),
+    folioParameters.loadSample(),
     folioParameters.refreshParameters()
   ])
 ])
@@ -86,7 +88,7 @@ ansiColor('xterm') {
         modules      : [moduleId]
       ])
 
-      sh "curl -sf -X POST -H 'Content-Type: application/json' -H 'Authorization: Bearer ${accessToken}' -d '${body}' '${kongBase}/reinstall/modules'"
+      sh "curl -sf -X POST -H 'Content-Type: application/json' -H 'x-okapi-token: ${accessToken}' -d '${body}' '${kongBase}/reinstall/modules?tenantParameters=loadReference=${params.LOAD_REFERENCE},loadSample=${params.LOAD_SAMPLE}'"
 
       logger.info("Module ${moduleId} reinstalled successfully on tenant ${params.TENANT}")
     }
