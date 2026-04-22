@@ -11,8 +11,8 @@ properties([
   parameters([
     folioParameters.cluster(),
     folioParameters.namespace(),
-    string(name: 'MODULE', defaultValue: 'mod-linked-data', description: '(Required) Short module name, e.g. mod-fqm-manager'),
-    choice(name: 'TENANT', choices: ['diku', 'consortium', 'consortium2', 'cs00000int', 'college', 'university', 'fs09000000', 'fs09000002', 'fs09000003'], description: 'Tenant to reinstall module on'),
+    string(name: 'APPLICATIONS', defaultValue: '', description: '(Required) Comma-separated list of short app names, e.g. app-fqm,app-inventory'),
+    choice(name: 'TENANT', choices: ['diku', 'consortium', 'consortium2', 'cs00000int', 'college', 'university', 'fs09000000', 'fs09000002', 'fs09000003'], description: 'Tenant to reinstall applications on'),
     folioParameters.loadReference(false),
     folioParameters.loadSample(false),
     folioParameters.refreshParameters()
@@ -30,7 +30,7 @@ Logger logger = new Logger(this, env.JOB_BASE_NAME)
 ansiColor('xterm') {
   podTemplates.rancherAgent {
     stage('Ini') {
-      buildName "Reinstall ${params.MODULE} on ${params.TENANT}"
+      buildName "Reinstall ${params.APPLICATIONS} on ${params.TENANT}"
       buildDescription "${params.CLUSTER}-${params.NAMESPACE}"
     }
 
@@ -38,8 +38,8 @@ ansiColor('xterm') {
       checkout scm
     }
 
-    stage('[FIX] Reinstall module via Kong') {
-      logger.info("Reinstalling module: ${params.MODULE} on tenant: ${params.TENANT}")
+    stage('[FIX] Reinstall applications via Kong') {
+      logger.info("Reinstalling applications: ${params.APPLICATIONS} on tenant: ${params.TENANT}")
 
       String kongBase = "https://${params.CLUSTER}-${params.NAMESPACE}-kong.ci.folio.org"
 
@@ -59,20 +59,17 @@ ansiColor('xterm') {
         returnStdout: true
       ).trim()
       def appsPayload = readJSON text: appsResponse
-      String moduleId = null
-      String applicationId = null
-      for (app in appsPayload.applicationDescriptors) {
-        def moduleObj = app.modules?.find { it.name == params.MODULE }
-        if (moduleObj) {
-          moduleId = moduleObj.id
-          applicationId = app.id
-          break
+
+      List<String> requestedApps = params.APPLICATIONS.split(',').collect { it.trim() }
+      List<String> resolvedAppIds = []
+      requestedApps.each { appName ->
+        def appObj = appsPayload.applicationDescriptors.find { it.name == appName }
+        if (!appObj) {
+          error("Application '${appName}' not found in Kong")
         }
+        resolvedAppIds << appObj.id
       }
-      if (!moduleId) {
-        error("Module '${params.MODULE}' not found in any application")
-      }
-      logger.info("Resolved moduleId=${moduleId}, applicationId=${applicationId}, tenantId=${tenantId}")
+      logger.info("Resolved applicationIds=${resolvedAppIds}, tenantId=${tenantId}")
 
       String keycloakBase = "https://${params.CLUSTER}-${params.NAMESPACE}-keycloak.ci.folio.org"
       String tokenResponse = sh(
@@ -83,14 +80,13 @@ ansiColor('xterm') {
       String accessToken = tokenPayload.access_token
 
       String body = groovy.json.JsonOutput.toJson([
-        tenantId     : tenantId,
-        applicationId: applicationId,
-        modules      : [moduleId]
+        tenantId    : tenantId,
+        applications: resolvedAppIds
       ])
 
-      sh "curl -sf -X POST -H 'Content-Type: application/json' -H 'x-okapi-token: ${accessToken}' -d '${body}' '${kongBase}/reinstall/modules?tenantParameters=loadReference=${params.LOAD_REFERENCE},loadSample=${params.LOAD_SAMPLE}'"
+      sh "curl -sf -X POST -H 'Content-Type: application/json' -H 'x-okapi-token: ${accessToken}' -d '${body}' '${kongBase}/reinstall/applications?tenantParameters=loadReference=${params.LOAD_REFERENCE},loadSample=${params.LOAD_SAMPLE}'"
 
-      logger.info("Module ${moduleId} reinstalled successfully on tenant ${params.TENANT}")
+      logger.info("Applications ${resolvedAppIds} reinstalled successfully on tenant ${params.TENANT}")
     }
   }
 }
