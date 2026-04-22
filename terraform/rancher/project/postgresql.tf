@@ -23,9 +23,9 @@ resource "rancher2_secret" "db-credentials" {
     DB_PASSWORD     = base64encode(local.pg_password)
     DB_DATABASE     = base64encode(var.eureka ? local.pg_eureka_db_name : var.pg_dbname)
     DB_MAXPOOLSIZE  = base64encode("50")
-    DB_MAXSHAREDPOOLSIZE = base64encode("50")
+    #DB_MAXSHAREDPOOLSIZE = base64encode("50")
     DB_CHARSET      = base64encode("UTF-8")
-    DB_QUERYTIMEOUT = base64encode("120000")
+    DB_QUERYTIMEOUT = base64encode("180000")
     },
     var.enable_rw_split ? {
       DB_HOST_READER = base64encode(var.pg_embedded ? local.pg_service_reader : module.rds[0].cluster_reader_endpoint)
@@ -46,9 +46,9 @@ resource "rancher2_secret" "db-credentials-eureka-components" {
     DB_PASSWORD     = base64encode(var.pg_password == "" ? random_password.pg_password.result : var.pg_password)
     DB_DATABASE     = base64encode(var.eureka ? "folio" : var.pg_dbname)
     DB_MAXPOOLSIZE  = base64encode("50")
-    DB_MAXSHAREDPOOLSIZE = base64encode("50")
+    #DB_MAXSHAREDPOOLSIZE = base64encode("50")
     DB_CHARSET      = base64encode("UTF-8")
-    DB_QUERYTIMEOUT = base64encode("120000")
+    DB_QUERYTIMEOUT = base64encode("180000")
     },
     var.enable_rw_split ? {
       DB_HOST_READER = base64encode("postgresql-${var.rancher_project_name}-eureka-read")
