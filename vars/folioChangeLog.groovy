@@ -1,230 +1,235 @@
 import com.cloudbees.groovy.cps.NonCPS
-import org.folio.models.ChangelogEntry
-import org.folio.models.module.FolioModule
-import org.folio.models.module.ModuleType
+import org.folio.far.Far
 import org.folio.slack.SlackHelper
 import org.folio.utilities.GitHubClient
-import java.util.regex.Matcher
 
-List<ChangelogEntry> call(String previousSha, String currentSha) {
+Map<String, Map> call(String previousSha, String currentSha) {
 
   GitHubClient gitHubClient = new GitHubClient(this)
-  String platformCompleteRepositoryName = 'platform-complete'
+  String platformLspRepositoryName = 'platform-lsp'
+  Far far = new Far(this)
 
-  List allChangeLogShas = gitHubClient.getTwoCommitsDiff(previousSha, currentSha, platformCompleteRepositoryName)['commits']
-    .collect { it['sha'] }
+  echo "Fetching platform descriptors from ${platformLspRepositoryName}"
+  Map previousPlatformDescriptor = getPlatformDescriptor(gitHubClient, previousSha, platformLspRepositoryName)
+  Map currentPlatformDescriptor = getPlatformDescriptor(gitHubClient, currentSha, platformLspRepositoryName)
 
-  List allInstallJsonChangeLogShas = gitHubClient.getFileChangeHistory(currentSha, 'install.json', platformCompleteRepositoryName)
-    .collect { it['sha'] }
+  Map<String, String> previousApps = extractApplications(previousPlatformDescriptor)
+  Map<String, String> currentApps = extractApplications(currentPlatformDescriptor)
 
-  List allEurekaPlatformJsonChangeLogShas = gitHubClient.getFileChangeHistory(currentSha, 'eureka-platform.json', platformCompleteRepositoryName)
-    .collect { it['sha'] }
+  echo "Previous platform has ${previousApps.size()} applications"
+  echo "Current platform has ${currentApps.size()} applications"
 
-  List installJsonChangeLogShas = allChangeLogShas.intersect(allInstallJsonChangeLogShas)
-  List eurekaPlatformJsonChangeLogShas = allChangeLogShas.intersect(allEurekaPlatformJsonChangeLogShas)
+  Map<String, Map> changelog = [:]
 
+  currentApps.each { appName, currentAppId ->
+    String previousAppId = previousApps[appName]
 
-  List updatedModulesList = []
+    if (!previousAppId) {
+      echo "New application detected: ${appName} (${currentAppId})"
+      changelog[appName] = [
+        status: 'added',
+        previous: null,
+        current: currentAppId,
+        modules: [],
+        uiModules: []
+      ]
+    } else if (previousAppId != currentAppId) {
+      echo "Application updated: ${appName} (${previousAppId} -> ${currentAppId})"
 
-  echo "Processing install.json changes: ${installJsonChangeLogShas.size()} commits"
-  installJsonChangeLogShas.each { sha ->
-    updatedModulesList.addAll(getUpdatedModulesList(gitHubClient.getCommitInfo(sha, platformCompleteRepositoryName), 'install.json'))
-  }
+      try {
+        Map previousAppDescriptor = far.getApplicationDescriptor(previousAppId, true)
+        Map currentAppDescriptor = far.getApplicationDescriptor(currentAppId, true)
 
-  echo "Processing eureka-platform.json changes: ${eurekaPlatformJsonChangeLogShas.size()} commits"
-  eurekaPlatformJsonChangeLogShas.each { sha ->
-    updatedModulesList.addAll(getUpdatedModulesList(gitHubClient.getCommitInfo(sha, platformCompleteRepositoryName), 'eureka-platform.json'))
-  }
+        List<Map> moduleDiffs = compareModules(previousAppDescriptor.modules, currentAppDescriptor.modules)
+        List<Map> uiModuleDiffs = compareModules(previousAppDescriptor.uiModules, currentAppDescriptor.uiModules)
 
-  echo "Total modules found: ${updatedModulesList.size()}"
-
-  List<FolioModule> updatedModulesObjectsList = []
-  updatedModulesList.each { id ->
-    FolioModule module = new FolioModule()
-    module.loadModuleDetails(id)
-
-    updatedModulesObjectsList << module
-  }
-
-  Map<String, ChangelogEntry> changeLogEntriesMap = [:]
-  updatedModulesObjectsList.each { module ->
-    ChangelogEntry changeLogEntry = new ChangelogEntry()
-    String repositoryName
-    changeLogEntry.module = module
-
-    switch (module.type) {
-      case ModuleType.BACKEND:
-      case ModuleType.EDGE:
-      case ModuleType.MGR:
-      case ModuleType.SIDECAR:
-        repositoryName = module.name
-        def backendWorkflowFile = 'maven.yml'
-        echo "Looking for GitHub workflow run for repository: ${repositoryName}, workflow: ${backendWorkflowFile}, build: ${module.buildId}"
-        try {
-          def workflowRun = gitHubClient.getWorkflowRunByNumber(repositoryName, backendWorkflowFile, module.buildId)
-          changeLogEntry.sha = workflowRun?.head_sha ?: null
-          if (!changeLogEntry.sha) {
-            echo "Warning: Could not find workflow run #${module.buildId}, falling back to master branch"
-            def branchInfo = gitHubClient.getBranchInfo(repositoryName, 'master')
-            changeLogEntry.sha = branchInfo?.commit?.sha ?: 'Unknown'
-          } else {
-            echo "Successfully found SHA ${changeLogEntry.sha} for ${repositoryName} build #${module.buildId}"
-          }
-        } catch (Exception e) {
-          echo "Error getting workflow run SHA for ${repositoryName} build #${module.buildId}: ${e.getMessage()}"
-          echo "Falling back to master branch"
-          try {
-            def branchInfo = gitHubClient.getBranchInfo(repositoryName, 'master')
-            changeLogEntry.sha = branchInfo?.commit?.sha ?: 'Unknown'
-          } catch (Exception e2) {
-            echo "Error getting master branch SHA: ${e2.getMessage()}"
-            changeLogEntry.sha = 'Unknown'
-          }
-        }
-        break
-      case ModuleType.KONG:
-      case ModuleType.KEYCLOAK:
-        repositoryName = module.name
-        def workflowFile = 'do-docker.yml'
-        echo "Looking for GitHub workflow run for repository: ${repositoryName}, workflow: ${workflowFile}, build: ${module.buildId}"
-        try {
-          def workflowRun = gitHubClient.getWorkflowRunByNumber(repositoryName, workflowFile, module.buildId)
-          changeLogEntry.sha = workflowRun?.head_sha ?: null
-          if (!changeLogEntry.sha) {
-            echo "Warning: Could not find workflow run #${module.buildId}, falling back to master branch"
-            def branchInfo = gitHubClient.getBranchInfo(repositoryName, 'master')
-            changeLogEntry.sha = branchInfo?.commit?.sha ?: 'Unknown'
-          } else {
-            echo "Successfully found SHA ${changeLogEntry.sha} for ${repositoryName} build #${module.buildId}"
-          }
-        } catch (Exception e) {
-          echo "Error getting workflow run SHA for ${repositoryName} build #${module.buildId}: ${e.getMessage()}"
-          echo "Falling back to master branch"
-          try {
-            def branchInfo = gitHubClient.getBranchInfo(repositoryName, 'master')
-            changeLogEntry.sha = branchInfo?.commit?.sha ?: 'Unknown'
-          } catch (Exception e2) {
-            echo "Error getting master branch SHA: ${e2.getMessage()}"
-            changeLogEntry.sha = 'Unknown'
-          }
-        }
-        break
-      case ModuleType.FRONTEND:
-        repositoryName = "ui-${module.name.replaceFirst('folio_', '')}"
-        def frontendWorkflowFile = 'build-npm.yml'
-        echo "Looking for GitHub workflow run for repository: ${repositoryName}, workflow: ${frontendWorkflowFile}, build: ${module.buildId}"
-        try {
-          def workflowRun = gitHubClient.getWorkflowRunByNumber(repositoryName, frontendWorkflowFile, module.buildId)
-          changeLogEntry.sha = workflowRun?.head_sha ?: null
-          if (!changeLogEntry.sha) {
-            echo "Warning: Could not find workflow run #${module.buildId}, falling back to master branch"
-            def branchInfo = gitHubClient.getBranchInfo(repositoryName, 'master')
-            changeLogEntry.sha = branchInfo?.commit?.sha ?: 'Unknown'
-          } else {
-            echo "Successfully found SHA ${changeLogEntry.sha} for ${repositoryName} build #${module.buildId}"
-          }
-        } catch (Exception e) {
-          echo "Error getting workflow run SHA for ${repositoryName} build #${module.buildId}: ${e.getMessage()}"
-          echo "Falling back to master branch"
-          try {
-            def branchInfo = gitHubClient.getBranchInfo(repositoryName, 'master')
-            changeLogEntry.sha = branchInfo?.commit?.sha ?: 'Unknown'
-          } catch (Exception e2) {
-            echo "Error getting master branch SHA: ${e2.getMessage()}"
-            changeLogEntry.sha = 'Unknown'
-          }
-        }
-        break
-      default:
-        echo "Warning: Unknown module type ${module.type} for module ${module.name}. Skipping SHA lookup."
-        repositoryName = module.name
-        changeLogEntry.sha = 'Unknown'
-        break
-    }
-
-    Map commitInfo = [:]
-    try {
-      if (changeLogEntry.sha && changeLogEntry.sha != 'Unknown') {
-        commitInfo = gitHubClient.getCommitInfo(changeLogEntry.sha, repositoryName)
-      } else {
-        echo "Warning: SHA is null or 'Unknown' for module ${module.name} (${module.type}). Build ID: ${module.buildId}"
-      }
-    } catch (Exception e) {
-      echo "Error fetching commit info for SHA: ${changeLogEntry.sha}, repository: ${repositoryName}. Error: ${e.getMessage()}"
-    }
-
-    changeLogEntry.author = commitInfo?.commit?.author?.name ?: 'Unknown author'
-
-    if (changeLogEntry.sha == 'Unknown') {
-      changeLogEntry.commitMessage = "Unable to find GitHub workflow run ${module.buildId} for ${repositoryName}"
-    } else {
-      changeLogEntry.commitMessage = commitInfo?.commit?.message?.split('\n', 2)?.getAt(0) ?: "Unable to fetch commit info for ${module.name} (build: ${module.buildId})"
-    }
-
-    changeLogEntry.commitLink = commitInfo?.html_url ?: null
-
-    String entryKey = "${module.name}|${changeLogEntry.sha ?: 'Unknown'}"
-    if (!changeLogEntriesMap.containsKey(entryKey)) {
-      changeLogEntriesMap[entryKey] = changeLogEntry
-    } else {
-      ChangelogEntry existingEntry = changeLogEntriesMap[entryKey]
-      String existingBuildId = existingEntry?.module?.buildId?.toString()
-      String newBuildId = module?.buildId?.toString()
-      Integer existingBuildNumber = existingBuildId?.isInteger() ? existingBuildId.toInteger() : null
-      Integer newBuildNumber = newBuildId?.isInteger() ? newBuildId.toInteger() : null
-
-      if (newBuildNumber != null && existingBuildNumber != null && newBuildNumber > existingBuildNumber) {
-        changeLogEntriesMap[entryKey] = changeLogEntry
+        changelog[appName] = [
+          status: 'updated',
+          previous: previousAppId,
+          current: currentAppId,
+          modules: moduleDiffs,
+          uiModules: uiModuleDiffs
+        ]
+      } catch (Exception e) {
+        echo "Error processing application ${appName}: ${e.getMessage()}"
+        changelog[appName] = [
+          status: 'error',
+          previous: previousAppId,
+          current: currentAppId,
+          error: e.getMessage(),
+          modules: [],
+          uiModules: []
+        ]
       }
     }
   }
 
-  return changeLogEntriesMap.values().toList()
+  previousApps.each { appName, previousAppId ->
+    if (!currentApps.containsKey(appName)) {
+      echo "Application removed: ${appName} (${previousAppId})"
+      changelog[appName] = [
+        status: 'removed',
+        previous: previousAppId,
+        current: null,
+        modules: [],
+        uiModules: []
+      ]
+    }
+  }
+
+  echo "Changelog generated with ${changelog.size()} application changes"
+  return changelog
 }
 
-static List getUpdatedModulesList(Map commitInfo, String filename = 'install.json') {
+Map getPlatformDescriptor(GitHubClient gitHubClient, String sha, String repositoryName) {
   try {
-    String pattern = /(?m)-\s+"id" : "(.*?)",\n\+\s+"id" : "(.*?)",/
-    def fileInfo = commitInfo['files']?.find { it['filename'] == filename }
-
-    if (!fileInfo || !fileInfo['patch']) {
-      return []
-    }
-
-    Matcher matches = fileInfo['patch'] =~ pattern
-    return matches.collect { match -> match[2] }
+    Map fileContent = gitHubClient.getFileContent(sha, 'platform-descriptor.json', repositoryName)
+    String content = new String(fileContent.content.decodeBase64())
+    return readJSON(text: content)
   } catch (Exception e) {
-    echo "Error parsing ${filename} changes: ${e.getMessage()}"
-    return []
+    echo "Error fetching platform-descriptor.json for ${sha}: ${e.getMessage()}"
+    return [applications: [required: [], optional: [], experimental: []]]
   }
+}
+
+Map<String, String> extractApplications(Map platformDescriptor) {
+  Map<String, String> apps = [:]
+
+  List allApps = (platformDescriptor.applications?.required ?: []) +
+                 (platformDescriptor.applications?.optional ?: []) +
+                 (platformDescriptor.applications?.experimental ?: [])
+
+  allApps.each { app ->
+    String appName = app.name
+    String appId = app.id
+    apps[appName] = appId
+  }
+
+  return apps
+}
+
+List<Map> compareModules(List previousModules, List currentModules) {
+  List<Map> diffs = []
+  Map<String, Map> previousModulesMap = [:]
+  Map<String, Map> currentModulesMap = [:]
+
+  previousModules?.each { mod ->
+    previousModulesMap[mod.name] = mod
+  }
+
+  currentModules?.each { mod ->
+    currentModulesMap[mod.name] = mod
+  }
+
+  currentModulesMap.each { moduleName, currentMod ->
+    Map previousMod = previousModulesMap[moduleName]
+
+    if (!previousMod) {
+      diffs << [
+        name: moduleName,
+        status: 'added',
+        previous: null,
+        current: currentMod.id,
+        currentVersion: currentMod.version
+      ]
+    } else if (previousMod.id != currentMod.id) {
+      diffs << [
+        name: moduleName,
+        status: 'updated',
+        previous: previousMod.id,
+        current: currentMod.id,
+        previousVersion: previousMod.version,
+        currentVersion: currentMod.version
+      ]
+    }
+  }
+
+  previousModulesMap.each { moduleName, previousMod ->
+    if (!currentModulesMap.containsKey(moduleName)) {
+      diffs << [
+        name: moduleName,
+        status: 'removed',
+        previous: previousMod.id,
+        current: null,
+        previousVersion: previousMod.version
+      ]
+    }
+  }
+
+  return diffs.sort { it.name }
 }
 
 
 @SuppressWarnings('GrMethodMayBeStatic')
-List renderChangelogBlock(List<ChangelogEntry> changeLogEntriesList) {
+List renderChangelogBlock(Map<String, Map> changelog) {
   List blocks = [[type: "divider"],
                  [type: "header",
                   text: [type : "plain_text",
-                         text : ":scroll:Changelog:scroll:",
+                         text : "Changelog",
                          emoji: true]]]
 
   String changeLog = ''
-  List<ChangelogEntry> sortedChangeLogEntriesList = getSortedChangeLogEntriesList(changeLogEntriesList)
+  List<String> sortedAppNames = changelog.keySet().sort()
 
-  for (entry in sortedChangeLogEntriesList) {
-    String elementHeader = "*${entry.module.id}*"
-    String elementCommit = "`${entry.sha.take(7)}`"
-    String elementMessage = entry.commitLink ? "<${entry.commitLink}|${entry.commitMessage}>" : entry.commitMessage
-    String elementAuthor = entry.author ? "by ${entry.author}" : ''
-    String element = ">${elementHeader}\\n>${elementCommit} ${elementMessage} ${elementAuthor}\\n\\n"
+  for (appName in sortedAppNames) {
+    Map appChange = changelog[appName]
+    String appStatus = appChange.status
+    String appHeader = "*${appName}*"
+    String appDetails = ""
 
-    // Slack text section is limited by number of characters (3001)
-    if ((changeLog + element).length() > 2998) {
+    switch (appStatus) {
+      case 'added':
+        appDetails = "New application: ${appChange.current}"
+        break
+      case 'removed':
+        appDetails = "Removed: ${appChange.previous}"
+        break
+      case 'updated':
+        appDetails = "${appChange.previous} -> ${appChange.current}"
+        break
+      case 'error':
+        appDetails = "Error: ${appChange.error}"
+        break
+    }
+
+    String appLine = ">${appHeader}\\n>${appDetails}\\n"
+
+    if ((changeLog + appLine).length() > 2998) {
       changeLog += '...'
       break
     }
 
-    changeLog += element
+    changeLog += appLine
+
+    if (appStatus == 'updated') {
+      List<Map> allModules = (appChange.modules ?: []) + (appChange.uiModules ?: [])
+
+      for (moduleDiff in allModules) {
+        String moduleStatus = moduleDiff.status
+        String moduleLine = ""
+
+        switch (moduleStatus) {
+          case 'added':
+            moduleLine = ">  + ${moduleDiff.name}: ${moduleDiff.current}\\n"
+            break
+          case 'removed':
+            moduleLine = ">  - ${moduleDiff.name}: ${moduleDiff.previous}\\n"
+            break
+          case 'updated':
+            moduleLine = ">  ${moduleDiff.name}: ${moduleDiff.previousVersion} -> ${moduleDiff.currentVersion}\\n"
+            break
+        }
+
+        if ((changeLog + moduleLine).length() > 2998) {
+          changeLog += '>  ...'
+          break
+        }
+
+        changeLog += moduleLine
+      }
+    }
+
+    changeLog += "\\n"
   }
 
   blocks << [type: "section",
@@ -235,47 +240,118 @@ List renderChangelogBlock(List<ChangelogEntry> changeLogEntriesList) {
 }
 
 @SuppressWarnings('GrMethodMayBeStatic')
-String renderChangelogSection(List<ChangelogEntry> changeLogEntriesList) {
+String renderChangelogSection(Map<String, Map> changelog) {
   String changeLog = ''
-  List<ChangelogEntry> sortedChangeLogEntriesList = getSortedChangeLogEntriesList(changeLogEntriesList)
+  List<String> sortedAppNames = changelog.keySet().sort()
 
-  for (entry in sortedChangeLogEntriesList) {
-    String elementHeader = "*${entry.module.id}*"
-    String elementCommit = "`${entry.sha.take(7)}`"
-    String elementMessage = entry.commitLink ? "<${entry.commitLink}|${entry.commitMessage}>" : entry.commitMessage
-    String elementAuthor = entry.author ? "by ${entry.author}" : ''
-    String element = "${elementHeader}\\n${elementCommit} ${elementMessage} ${elementAuthor}\\n\\n"
+  for (appName in sortedAppNames) {
+    Map appChange = changelog[appName]
+    String appStatus = appChange.status
+    String appHeader = "*${appName}*"
+    String appDetails = ""
 
-    // Slack text section is limited by number of characters (3001)
-    if ((changeLog + element).length() > 2998) {
+    switch (appStatus) {
+      case 'added':
+        appDetails = "New application: ${appChange.current}"
+        break
+      case 'removed':
+        appDetails = "Removed: ${appChange.previous}"
+        break
+      case 'updated':
+        appDetails = "${appChange.previous} -> ${appChange.current}"
+        break
+      case 'error':
+        appDetails = "Error: ${appChange.error}"
+        break
+    }
+
+    String appLine = "${appHeader}\\n${appDetails}\\n"
+
+    if ((changeLog + appLine).length() > 2998) {
       changeLog += '>...'
       break
     }
 
-    changeLog += element
+    changeLog += appLine
+
+    if (appStatus == 'updated') {
+      List<Map> allModules = (appChange.modules ?: []) + (appChange.uiModules ?: [])
+
+      for (moduleDiff in allModules) {
+        String moduleStatus = moduleDiff.status
+        String moduleLine = ""
+
+        switch (moduleStatus) {
+          case 'added':
+            moduleLine = "  + ${moduleDiff.name}: ${moduleDiff.current}\\n"
+            break
+          case 'removed':
+            moduleLine = "  - ${moduleDiff.name}: ${moduleDiff.previous}\\n"
+            break
+          case 'updated':
+            moduleLine = "  ${moduleDiff.name}: ${moduleDiff.previousVersion} -> ${moduleDiff.currentVersion}\\n"
+            break
+        }
+
+        if ((changeLog + moduleLine).length() > 2998) {
+          changeLog += '>...'
+          break
+        }
+
+        changeLog += moduleLine
+      }
+    }
+
+    changeLog += "\\n"
   }
 
-  String section = SlackHelper.renderSection(':scroll:Changelog:scroll:', changeLog.replace('"', '\\"'), '#808080', [], [])
+  String section = SlackHelper.renderSection('Changelog', changeLog.replace('"', '\\"'), '#808080', [], [])
 
   return section
 }
 
-String getPlainText(List<ChangelogEntry> changeLogEntriesList) {
+String getPlainText(Map<String, Map> changelog) {
   StringBuilder plainTextBuilder = new StringBuilder()
+  List<String> sortedAppNames = changelog.keySet().sort()
 
-  changeLogEntriesList.each { entry ->
-    String moduleId = entry.module.id
-    String sha = entry.sha.take(7)
-    String commitMessage = entry.commitMessage
-    String author = entry?.author ?: "Unknown author"
+  sortedAppNames.each { appName ->
+    Map appChange = changelog[appName]
+    String appStatus = appChange.status
 
-    plainTextBuilder.append("${moduleId} ${commitMessage} by ${author} (${sha})\n")
+    switch (appStatus) {
+      case 'added':
+        plainTextBuilder.append("${appName}: New application (${appChange.current})\n")
+        break
+      case 'removed':
+        plainTextBuilder.append("${appName}: Removed (${appChange.previous})\n")
+        break
+      case 'updated':
+        plainTextBuilder.append("${appName}: ${appChange.previous} -> ${appChange.current}\n")
+
+        List<Map> allModules = (appChange.modules ?: []) + (appChange.uiModules ?: [])
+        allModules.each { moduleDiff ->
+          String moduleStatus = moduleDiff.status
+
+          switch (moduleStatus) {
+            case 'added':
+              plainTextBuilder.append("  + ${moduleDiff.name}: ${moduleDiff.current}\n")
+              break
+            case 'removed':
+              plainTextBuilder.append("  - ${moduleDiff.name}: ${moduleDiff.previous}\n")
+              break
+            case 'updated':
+              plainTextBuilder.append("  ${moduleDiff.name}: ${moduleDiff.previousVersion} -> ${moduleDiff.currentVersion}\n")
+              break
+          }
+        }
+        break
+      case 'error':
+        plainTextBuilder.append("${appName}: Error - ${appChange.error}\n")
+        break
+    }
+
+    plainTextBuilder.append("\n")
   }
 
   return plainTextBuilder.toString()
-}
-
-@NonCPS
-static List<ChangelogEntry> getSortedChangeLogEntriesList(List<ChangelogEntry> toSort) {
-  toSort.sort() { a, b -> a.module.id <=> b.module.id }
 }
