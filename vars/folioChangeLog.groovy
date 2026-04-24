@@ -9,50 +9,93 @@ import java.util.regex.Matcher
 List<ChangelogEntry> call(String previousSha, String currentSha) {
 
   GitHubClient gitHubClient = new GitHubClient(this)
-  String platformCompleteRepositoryName = 'platform-complete'
+  String platformRepositoryName = 'platform-lsp'
 
-  List allChangeLogShas = gitHubClient.getTwoCommitsDiff(previousSha, currentSha, platformCompleteRepositoryName)['commits']
+  List allChangeLogShas = gitHubClient.getTwoCommitsDiff(previousSha, currentSha, platformRepositoryName)['commits']
     .collect { it['sha'] }
 
-  List allInstallJsonChangeLogShas = gitHubClient.getFileChangeHistory(currentSha, 'install.json', platformCompleteRepositoryName)
+  List allPlatformDescriptorChangeLogShas = gitHubClient.getFileChangeHistory(currentSha, 'platform-descriptor.json', platformRepositoryName)
     .collect { it['sha'] }
 
-  List allEurekaPlatformJsonChangeLogShas = gitHubClient.getFileChangeHistory(currentSha, 'eureka-platform.json', platformCompleteRepositoryName)
-    .collect { it['sha'] }
+  List platformDescriptorChangeLogShas = allChangeLogShas.intersect(allPlatformDescriptorChangeLogShas)
 
-  List installJsonChangeLogShas = allChangeLogShas.intersect(allInstallJsonChangeLogShas)
-  List eurekaPlatformJsonChangeLogShas = allChangeLogShas.intersect(allEurekaPlatformJsonChangeLogShas)
+  List updatedApps = []
 
-
-  List updatedModulesList = []
-
-  echo "Processing install.json changes: ${installJsonChangeLogShas.size()} commits"
-  installJsonChangeLogShas.each { sha ->
-    updatedModulesList.addAll(getUpdatedModulesList(gitHubClient.getCommitInfo(sha, platformCompleteRepositoryName), 'install.json'))
+  echo "Processing platform-descriptor.json changes: ${platformDescriptorChangeLogShas.size()} commits"
+  platformDescriptorChangeLogShas.each { sha ->
+    updatedApps.addAll(getUpdatedAppsList(gitHubClient.getCommitInfo(sha, platformRepositoryName), 'platform-descriptor.json'))
   }
 
-  echo "Processing eureka-platform.json changes: ${eurekaPlatformJsonChangeLogShas.size()} commits"
-  eurekaPlatformJsonChangeLogShas.each { sha ->
-    updatedModulesList.addAll(getUpdatedModulesList(gitHubClient.getCommitInfo(sha, platformCompleteRepositoryName), 'eureka-platform.json'))
-  }
-
-  echo "Total modules found: ${updatedModulesList.size()}"
-
-  List<FolioModule> updatedModulesObjectsList = []
-  updatedModulesList.each { id ->
-    FolioModule module = new FolioModule()
-    module.loadModuleDetails(id)
-
-    updatedModulesObjectsList << module
-  }
+  echo "Total apps found: ${updatedApps.size()}"
 
   Map<String, ChangelogEntry> changeLogEntriesMap = [:]
-  updatedModulesObjectsList.each { module ->
-    ChangelogEntry changeLogEntry = new ChangelogEntry()
-    String repositoryName
-    changeLogEntry.module = module
+  updatedApps.each { appChange ->
+    // appChange is a Map [oldId:..., newId:...]
+    String oldId = appChange.oldId
+    String newId = appChange.newId
 
-    switch (module.type) {
+    ChangelogEntry changeLogEntry = new ChangelogEntry()
+    // Use module.id to hold application id
+    changeLogEntry.module = new FolioModule()
+    changeLogEntry.module.id = newId
+
+    // Parse app name and versions
+    def splitIndexOld = oldId?.lastIndexOf('-')
+    def splitIndexNew = newId?.lastIndexOf('-')
+    String oldName = splitIndexOld > 0 ? oldId[0..(splitIndexOld - 1)] : oldId
+    String oldVersion = splitIndexOld > 0 ? oldId[(splitIndexOld + 1)..-1] : ''
+    String newName = splitIndexNew > 0 ? newId[0..(splitIndexNew - 1)] : newId
+    String newVersion = splitIndexNew > 0 ? newId[(splitIndexNew + 1)..-1] : ''
+
+    // Fetch application descriptor from FAR to extract modules
+    List modules = []
+    try {
+      String farUrl = "https://far.ci.folio.org/applications/${newId}"
+      String resp = sh(script: "curl -s --fail '${farUrl}'", returnStdout: true).trim()
+      if (resp) {
+        def json = new groovy.json.JsonSlurper().parseText(resp)
+        // Common keys where module descriptors may exist
+        if (json.moduleDescriptors) {
+          modules = json.moduleDescriptors.collect { it.id ?: it.moduleId ?: it.name }.findAll { it }
+        } else if (json.modules) {
+          modules = json.modules.collect { it.id ?: it.moduleId ?: it.name }.findAll { it }
+        } else {
+          // try to find any arrays with objects containing id or moduleId
+          def collector = []
+          json.each { k, v ->
+            if (v instanceof List) {
+              v.each { el -> if (el instanceof Map) collector << el }
+            }
+          }
+          modules = collector.collect { it.id ?: it.moduleId ?: it.name }.findAll { it }
+        }
+      }
+    } catch (Exception e) {
+      echo "Failed to fetch FAR descriptor for ${newId}: ${e.message}"
+    }
+
+    // Build commitMessage in the requested format
+    StringBuilder messageBuilder = new StringBuilder()
+    messageBuilder.append("${oldName}(${oldVersion}) --> ${newName}(${newVersion})\n")
+    messageBuilder.append('Changed modules:\n')
+    if (modules && modules.size() > 0) {
+      modules.eachWithIndex { mod, idx ->
+        messageBuilder.append("${idx + 1}. ${mod}\n")
+      }
+    } else {
+      messageBuilder.append('No modules found or failed to fetch descriptor\n')
+    }
+
+    changeLogEntry.sha = newId
+    changeLogEntry.commitMessage = messageBuilder.toString()
+    changeLogEntry.author = null
+    changeLogEntry.commitLink = "https://far.ci.folio.org/applications/${newId}"
+
+    String entryKey = "${newId}|${changeLogEntry.sha}"
+    changeLogEntriesMap[entryKey] = changeLogEntry
+  }
+
+  return changeLogEntriesMap.values().toList()
       case ModuleType.BACKEND:
       case ModuleType.EDGE:
       case ModuleType.MGR:
@@ -182,9 +225,10 @@ List<ChangelogEntry> call(String previousSha, String currentSha) {
   return changeLogEntriesMap.values().toList()
 }
 
-static List getUpdatedModulesList(Map commitInfo, String filename = 'install.json') {
+static List getUpdatedAppsList(Map commitInfo, String filename = 'platform-descriptor.json') {
   try {
-    String pattern = /(?m)-\s+"id" : "(.*?)",\n\+\s+"id" : "(.*?)",/
+    // Dotall to allow matching across newlines
+    String pattern = /(?s)-\s*"id"\s*:\s*"(.*?)".*?\+\s*"id"\s*:\s*"(.*?)"/
     def fileInfo = commitInfo['files']?.find { it['filename'] == filename }
 
     if (!fileInfo || !fileInfo['patch']) {
@@ -192,7 +236,7 @@ static List getUpdatedModulesList(Map commitInfo, String filename = 'install.jso
     }
 
     Matcher matches = fileInfo['patch'] =~ pattern
-    return matches.collect { match -> match[2] }
+    return matches.collect { match -> [oldId: match[1], newId: match[2]] }
   } catch (Exception e) {
     echo "Error parsing ${filename} changes: ${e.getMessage()}"
     return []
