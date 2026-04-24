@@ -4,187 +4,102 @@ import org.folio.models.module.FolioModule
 import org.folio.models.module.ModuleType
 import org.folio.slack.SlackHelper
 import org.folio.utilities.GitHubClient
+import org.folio.far.Far
 import java.util.regex.Matcher
 
 List<ChangelogEntry> call(String previousSha, String currentSha) {
 
   GitHubClient gitHubClient = new GitHubClient(this)
-  String platformCompleteRepositoryName = 'platform-complete'
+  String platformRepositoryName = 'platform-lsp'
 
-  List allChangeLogShas = gitHubClient.getTwoCommitsDiff(previousSha, currentSha, platformCompleteRepositoryName)['commits']
+  List allChangeLogShas = gitHubClient.getTwoCommitsDiff(previousSha, currentSha, platformRepositoryName)['commits']
     .collect { it['sha'] }
 
-  List allInstallJsonChangeLogShas = gitHubClient.getFileChangeHistory(currentSha, 'install.json', platformCompleteRepositoryName)
+  List allPlatformDescriptorChangeLogShas = gitHubClient.getFileChangeHistory(currentSha, 'platform-descriptor.json', platformRepositoryName)
     .collect { it['sha'] }
 
-  List allEurekaPlatformJsonChangeLogShas = gitHubClient.getFileChangeHistory(currentSha, 'eureka-platform.json', platformCompleteRepositoryName)
-    .collect { it['sha'] }
+  List platformDescriptorChangeLogShas = allChangeLogShas.intersect(allPlatformDescriptorChangeLogShas)
 
-  List installJsonChangeLogShas = allChangeLogShas.intersect(allInstallJsonChangeLogShas)
-  List eurekaPlatformJsonChangeLogShas = allChangeLogShas.intersect(allEurekaPlatformJsonChangeLogShas)
+  List updatedApps = []
 
-
-  List updatedModulesList = []
-
-  echo "Processing install.json changes: ${installJsonChangeLogShas.size()} commits"
-  installJsonChangeLogShas.each { sha ->
-    updatedModulesList.addAll(getUpdatedModulesList(gitHubClient.getCommitInfo(sha, platformCompleteRepositoryName), 'install.json'))
+  echo "Processing platform-descriptor.json changes: ${platformDescriptorChangeLogShas.size()} commits"
+  platformDescriptorChangeLogShas.each { sha ->
+    updatedApps.addAll(getUpdatedAppsList(gitHubClient.getCommitInfo(sha, platformRepositoryName), 'platform-descriptor.json'))
   }
 
-  echo "Processing eureka-platform.json changes: ${eurekaPlatformJsonChangeLogShas.size()} commits"
-  eurekaPlatformJsonChangeLogShas.each { sha ->
-    updatedModulesList.addAll(getUpdatedModulesList(gitHubClient.getCommitInfo(sha, platformCompleteRepositoryName), 'eureka-platform.json'))
-  }
-
-  echo "Total modules found: ${updatedModulesList.size()}"
-
-  List<FolioModule> updatedModulesObjectsList = []
-  updatedModulesList.each { id ->
-    FolioModule module = new FolioModule()
-    module.loadModuleDetails(id)
-
-    updatedModulesObjectsList << module
-  }
+  echo "Total apps found: ${updatedApps.size()}"
 
   Map<String, ChangelogEntry> changeLogEntriesMap = [:]
-  updatedModulesObjectsList.each { module ->
+  updatedApps.each { appChange ->
+    // appChange is a Map [oldId:..., newId:...]
+    String oldId = appChange.oldId
+    String newId = appChange.newId
+
     ChangelogEntry changeLogEntry = new ChangelogEntry()
-    String repositoryName
-    changeLogEntry.module = module
+    // Use module.id to hold application id
+    changeLogEntry.module = new FolioModule()
+    changeLogEntry.module.id = newId
 
-    switch (module.type) {
-      case ModuleType.BACKEND:
-      case ModuleType.EDGE:
-      case ModuleType.MGR:
-      case ModuleType.SIDECAR:
-        repositoryName = module.name
-        def backendWorkflowFile = 'maven.yml'
-        echo "Looking for GitHub workflow run for repository: ${repositoryName}, workflow: ${backendWorkflowFile}, build: ${module.buildId}"
-        try {
-          def workflowRun = gitHubClient.getWorkflowRunByNumber(repositoryName, backendWorkflowFile, module.buildId)
-          changeLogEntry.sha = workflowRun?.head_sha ?: null
-          if (!changeLogEntry.sha) {
-            echo "Warning: Could not find workflow run #${module.buildId}, falling back to master branch"
-            def branchInfo = gitHubClient.getBranchInfo(repositoryName, 'master')
-            changeLogEntry.sha = branchInfo?.commit?.sha ?: 'Unknown'
-          } else {
-            echo "Successfully found SHA ${changeLogEntry.sha} for ${repositoryName} build #${module.buildId}"
-          }
-        } catch (Exception e) {
-          echo "Error getting workflow run SHA for ${repositoryName} build #${module.buildId}: ${e.getMessage()}"
-          echo "Falling back to master branch"
-          try {
-            def branchInfo = gitHubClient.getBranchInfo(repositoryName, 'master')
-            changeLogEntry.sha = branchInfo?.commit?.sha ?: 'Unknown'
-          } catch (Exception e2) {
-            echo "Error getting master branch SHA: ${e2.getMessage()}"
-            changeLogEntry.sha = 'Unknown'
-          }
-        }
-        break
-      case ModuleType.KONG:
-      case ModuleType.KEYCLOAK:
-        repositoryName = module.name
-        def workflowFile = 'do-docker.yml'
-        echo "Looking for GitHub workflow run for repository: ${repositoryName}, workflow: ${workflowFile}, build: ${module.buildId}"
-        try {
-          def workflowRun = gitHubClient.getWorkflowRunByNumber(repositoryName, workflowFile, module.buildId)
-          changeLogEntry.sha = workflowRun?.head_sha ?: null
-          if (!changeLogEntry.sha) {
-            echo "Warning: Could not find workflow run #${module.buildId}, falling back to master branch"
-            def branchInfo = gitHubClient.getBranchInfo(repositoryName, 'master')
-            changeLogEntry.sha = branchInfo?.commit?.sha ?: 'Unknown'
-          } else {
-            echo "Successfully found SHA ${changeLogEntry.sha} for ${repositoryName} build #${module.buildId}"
-          }
-        } catch (Exception e) {
-          echo "Error getting workflow run SHA for ${repositoryName} build #${module.buildId}: ${e.getMessage()}"
-          echo "Falling back to master branch"
-          try {
-            def branchInfo = gitHubClient.getBranchInfo(repositoryName, 'master')
-            changeLogEntry.sha = branchInfo?.commit?.sha ?: 'Unknown'
-          } catch (Exception e2) {
-            echo "Error getting master branch SHA: ${e2.getMessage()}"
-            changeLogEntry.sha = 'Unknown'
-          }
-        }
-        break
-      case ModuleType.FRONTEND:
-        repositoryName = "ui-${module.name.replaceFirst('folio_', '')}"
-        def frontendWorkflowFile = 'build-npm.yml'
-        echo "Looking for GitHub workflow run for repository: ${repositoryName}, workflow: ${frontendWorkflowFile}, build: ${module.buildId}"
-        try {
-          def workflowRun = gitHubClient.getWorkflowRunByNumber(repositoryName, frontendWorkflowFile, module.buildId)
-          changeLogEntry.sha = workflowRun?.head_sha ?: null
-          if (!changeLogEntry.sha) {
-            echo "Warning: Could not find workflow run #${module.buildId}, falling back to master branch"
-            def branchInfo = gitHubClient.getBranchInfo(repositoryName, 'master')
-            changeLogEntry.sha = branchInfo?.commit?.sha ?: 'Unknown'
-          } else {
-            echo "Successfully found SHA ${changeLogEntry.sha} for ${repositoryName} build #${module.buildId}"
-          }
-        } catch (Exception e) {
-          echo "Error getting workflow run SHA for ${repositoryName} build #${module.buildId}: ${e.getMessage()}"
-          echo "Falling back to master branch"
-          try {
-            def branchInfo = gitHubClient.getBranchInfo(repositoryName, 'master')
-            changeLogEntry.sha = branchInfo?.commit?.sha ?: 'Unknown'
-          } catch (Exception e2) {
-            echo "Error getting master branch SHA: ${e2.getMessage()}"
-            changeLogEntry.sha = 'Unknown'
-          }
-        }
-        break
-      default:
-        echo "Warning: Unknown module type ${module.type} for module ${module.name}. Skipping SHA lookup."
-        repositoryName = module.name
-        changeLogEntry.sha = 'Unknown'
-        break
-    }
+    // Parse app name and versions
+    def splitIndexOld = oldId?.lastIndexOf('-')
+    def splitIndexNew = newId?.lastIndexOf('-')
+    String oldName = splitIndexOld > 0 ? oldId[0..(splitIndexOld - 1)] : oldId
+    String oldVersion = splitIndexOld > 0 ? oldId[(splitIndexOld + 1)..-1] : ''
+    String newName = splitIndexNew > 0 ? newId[0..(splitIndexNew - 1)] : newId
+    String newVersion = splitIndexNew > 0 ? newId[(splitIndexNew + 1)..-1] : ''
 
-    Map commitInfo = [:]
+    // Fetch application descriptor from FAR to extract modules
+    List modules = []
     try {
-      if (changeLogEntry.sha && changeLogEntry.sha != 'Unknown') {
-        commitInfo = gitHubClient.getCommitInfo(changeLogEntry.sha, repositoryName)
+      Far far = new Far(this)
+      Map descriptor = far.getApplicationDescriptor(newId, true)
+      if (descriptor?.moduleDescriptors) {
+        modules = descriptor.moduleDescriptors.collect { it.id ?: it.moduleId ?: it.name }.findAll { it }
+      } else if (descriptor?.modules) {
+        modules = descriptor.modules.collect { it.id ?: it.moduleId ?: it.name }.findAll { it }
       } else {
-        echo "Warning: SHA is null or 'Unknown' for module ${module.name} (${module.type}). Build ID: ${module.buildId}"
+        // try to find any arrays with objects containing id or moduleId
+        def collector = []
+        descriptor.each { k, v ->
+          if (v instanceof List) {
+            v.each { el -> if (el instanceof Map) collector << el }
+          }
+        }
+        modules = collector.collect { it.id ?: it.moduleId ?: it.name }.findAll { it }
       }
     } catch (Exception e) {
-      echo "Error fetching commit info for SHA: ${changeLogEntry.sha}, repository: ${repositoryName}. Error: ${e.getMessage()}"
+      echo "Failed to fetch FAR descriptor for ${newId}: ${e.message}"
     }
 
-    changeLogEntry.author = commitInfo?.commit?.author?.name ?: 'Unknown author'
-
-    if (changeLogEntry.sha == 'Unknown') {
-      changeLogEntry.commitMessage = "Unable to find GitHub workflow run ${module.buildId} for ${repositoryName}"
-    } else {
-      changeLogEntry.commitMessage = commitInfo?.commit?.message?.split('\n', 2)?.getAt(0) ?: "Unable to fetch commit info for ${module.name} (build: ${module.buildId})"
-    }
-
-    changeLogEntry.commitLink = commitInfo?.html_url ?: null
-
-    String entryKey = "${module.name}|${changeLogEntry.sha ?: 'Unknown'}"
-    if (!changeLogEntriesMap.containsKey(entryKey)) {
-      changeLogEntriesMap[entryKey] = changeLogEntry
-    } else {
-      ChangelogEntry existingEntry = changeLogEntriesMap[entryKey]
-      String existingBuildId = existingEntry?.module?.buildId?.toString()
-      String newBuildId = module?.buildId?.toString()
-      Integer existingBuildNumber = existingBuildId?.isInteger() ? existingBuildId.toInteger() : null
-      Integer newBuildNumber = newBuildId?.isInteger() ? newBuildId.toInteger() : null
-
-      if (newBuildNumber != null && existingBuildNumber != null && newBuildNumber > existingBuildNumber) {
-        changeLogEntriesMap[entryKey] = changeLogEntry
+    // Build commitMessage in the requested format
+    StringBuilder messageBuilder = new StringBuilder()
+    messageBuilder.append("${oldName}(${oldVersion}) --> ${newName}(${newVersion})\n")
+    messageBuilder.append('Changed modules:\n')
+    if (modules && modules.size() > 0) {
+      modules.eachWithIndex { mod, idx ->
+        messageBuilder.append("${idx + 1}. ${mod}\n")
       }
+    } else {
+      messageBuilder.append('No modules found or failed to fetch descriptor\n')
     }
+
+    changeLogEntry.sha = newId
+    changeLogEntry.commitMessage = messageBuilder.toString()
+    changeLogEntry.author = null
+    changeLogEntry.commitLink = "https://far.ci.folio.org/applications/${newId}"
+
+    String entryKey = "${newId}|${changeLogEntry.sha}"
+    changeLogEntriesMap[entryKey] = changeLogEntry
   }
 
   return changeLogEntriesMap.values().toList()
 }
 
-static List getUpdatedModulesList(Map commitInfo, String filename = 'install.json') {
+
+static List getUpdatedAppsList(Map commitInfo, String filename = 'platform-descriptor.json') {
   try {
-    String pattern = /(?m)-\s+"id" : "(.*?)",\n\+\s+"id" : "(.*?)",/
+    // Dotall to allow matching across newlines
+    String pattern = /(?s)-\s*"id"\s*:\s*"(.*?)".*?\+\s*"id"\s*:\s*"(.*?)"/
     def fileInfo = commitInfo['files']?.find { it['filename'] == filename }
 
     if (!fileInfo || !fileInfo['patch']) {
@@ -192,7 +107,7 @@ static List getUpdatedModulesList(Map commitInfo, String filename = 'install.jso
     }
 
     Matcher matches = fileInfo['patch'] =~ pattern
-    return matches.collect { match -> match[2] }
+    return matches.collect { match -> [oldId: match[1], newId: match[2]] }
   } catch (Exception e) {
     echo "Error parsing ${filename} changes: ${e.getMessage()}"
     return []
