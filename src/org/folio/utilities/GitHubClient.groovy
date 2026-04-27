@@ -119,6 +119,32 @@ class GitHubClient {
     }
   }
 
+  /**
+   * Fetch the raw content of a file at a specific commit SHA.
+   * Returns the decoded string, or empty string on failure.
+   */
+  String getFileContent(String sha, String filePath, String repository) {
+    String url = "${Constants.FOLIO_GITHUB_REPOS_URL}/${repository}/contents/${filePath}?ref=${sha}"
+    Map<String, String> headers = authorizedHeaders()
+
+    try {
+      def response = restClient.get(url, headers)
+      if (response.responseCode >= 200 && response.responseCode < 300) {
+        Map body = response.body as Map
+        if (body.encoding == 'base64') {
+          return new String((body.content as String).replace('\n', '').decodeBase64())
+        }
+        return body.content?.toString() ?: ''
+      } else {
+        logger.warning("GitHub API returned ${response.responseCode} for file content: ${url}")
+        return ''
+      }
+    } catch (Exception e) {
+      logger.warning("Failed to get file content for ${repository}/${filePath}@${sha}: ${e.getMessage()}")
+      return ''
+    }
+  }
+
   Map<String, String> authorizedHeaders() {
     return ['Accept'       : 'application/vnd.github+json',
             'Authorization': "Bearer ${this.gitHubToken}"]

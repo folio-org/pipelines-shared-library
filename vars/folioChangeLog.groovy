@@ -1,86 +1,63 @@
 import com.cloudbees.groovy.cps.NonCPS
+import groovy.json.JsonSlurper
 import org.folio.models.ChangelogEntry
 import org.folio.models.module.FolioModule
-import org.folio.models.module.ModuleType
 import org.folio.slack.SlackHelper
 import org.folio.utilities.GitHubClient
 import org.folio.far.Far
-import java.util.regex.Matcher
 
 List<ChangelogEntry> call(String previousSha, String currentSha) {
 
   GitHubClient gitHubClient = new GitHubClient(this)
-  String platformRepositoryName = 'platform-lsp'
+  String platformRepo = 'platform-lsp'
+  String descriptorFile = 'platform-descriptor.json'
 
-  List allChangeLogShas = gitHubClient.getTwoCommitsDiff(previousSha, currentSha, platformRepositoryName)['commits']
-    .collect { it['sha'] }
+  String previousContent = gitHubClient.getFileContent(previousSha, descriptorFile, platformRepo)
+  String currentContent = gitHubClient.getFileContent(currentSha, descriptorFile, platformRepo)
 
-  List allPlatformDescriptorChangeLogShas = gitHubClient.getFileChangeHistory(currentSha, 'platform-descriptor.json', platformRepositoryName)
-    .collect { it['sha'] }
-
-  List platformDescriptorChangeLogShas = allChangeLogShas.intersect(allPlatformDescriptorChangeLogShas)
-
-  List updatedApps = []
-
-  echo "Processing platform-descriptor.json changes: ${platformDescriptorChangeLogShas.size()} commits"
-  platformDescriptorChangeLogShas.each { sha ->
-    updatedApps.addAll(getUpdatedAppsList(gitHubClient.getCommitInfo(sha, platformRepositoryName), 'platform-descriptor.json'))
+  if (!previousContent || !currentContent) {
+    echo "Could not fetch ${descriptorFile} at one or both SHAs (previous=${previousSha}, current=${currentSha})"
+    return []
   }
 
-  echo "Total apps found: ${updatedApps.size()}"
+  List<String> previousAppIds = parseAppIds(previousContent)
+  List<String> currentAppIds = parseAppIds(currentContent)
+
+  echo "Previous app count: ${previousAppIds.size()}, Current app count: ${currentAppIds.size()}"
+
+  List<Map> changedApps = diffApps(previousAppIds, currentAppIds)
+  echo "Changed apps: ${changedApps.size()}"
 
   Map<String, ChangelogEntry> changeLogEntriesMap = [:]
-  updatedApps.each { appChange ->
-    // appChange is a Map [oldId:..., newId:...]
+
+  changedApps.each { appChange ->
     String oldId = appChange.oldId
     String newId = appChange.newId
 
     ChangelogEntry changeLogEntry = new ChangelogEntry()
-    // Use module.id to hold application id
     changeLogEntry.module = new FolioModule()
     changeLogEntry.module.id = newId
 
-    // Parse app name and versions
-    def splitIndexOld = oldId?.lastIndexOf('-')
-    def splitIndexNew = newId?.lastIndexOf('-')
-    String oldName = splitIndexOld > 0 ? oldId[0..(splitIndexOld - 1)] : oldId
-    String oldVersion = splitIndexOld > 0 ? oldId[(splitIndexOld + 1)..-1] : ''
-    String newName = splitIndexNew > 0 ? newId[0..(splitIndexNew - 1)] : newId
-    String newVersion = splitIndexNew > 0 ? newId[(splitIndexNew + 1)..-1] : ''
-
-    // Fetch application descriptor from FAR to extract modules
-    List modules = []
+    List<String> modules = []
     try {
       Far far = new Far(this)
       Map descriptor = far.getApplicationDescriptor(newId, true)
-      if (descriptor?.moduleDescriptors) {
-        modules = descriptor.moduleDescriptors.collect { it.id ?: it.moduleId ?: it.name }.findAll { it }
-      } else if (descriptor?.modules) {
-        modules = descriptor.modules.collect { it.id ?: it.moduleId ?: it.name }.findAll { it }
-      } else {
-        // try to find any arrays with objects containing id or moduleId
-        def collector = []
-        descriptor.each { k, v ->
-          if (v instanceof List) {
-            v.each { el -> if (el instanceof Map) collector << el }
-          }
-        }
-        modules = collector.collect { it.id ?: it.moduleId ?: it.name }.findAll { it }
-      }
+      modules = extractModuleIds(descriptor)
     } catch (Exception e) {
       echo "Failed to fetch FAR descriptor for ${newId}: ${e.message}"
     }
 
-    // Build commitMessage in the requested format
+    String appName = extractName(newId)
+    String oldVersion = extractVersion(oldId)
+    String newVersion = extractVersion(newId)
+
     StringBuilder messageBuilder = new StringBuilder()
-    messageBuilder.append("${oldName}(${oldVersion}) --> ${newName}(${newVersion})\n")
-    messageBuilder.append('Changed modules:\n')
-    if (modules && modules.size() > 0) {
-      modules.eachWithIndex { mod, idx ->
-        messageBuilder.append("${idx + 1}. ${mod}\n")
-      }
+    messageBuilder.append("${appName}(${oldVersion}) --> ${appName}(${newVersion})\n")
+    messageBuilder.append("Changed modules:\n")
+    if (modules) {
+      modules.eachWithIndex { mod, idx -> messageBuilder.append("${idx + 1}. ${mod}\n") }
     } else {
-      messageBuilder.append('No modules found or failed to fetch descriptor\n')
+      messageBuilder.append("No modules found\n")
     }
 
     changeLogEntry.sha = newId
@@ -88,31 +65,112 @@ List<ChangelogEntry> call(String previousSha, String currentSha) {
     changeLogEntry.author = null
     changeLogEntry.commitLink = "https://far.ci.folio.org/applications/${newId}"
 
-    String entryKey = "${newId}|${changeLogEntry.sha}"
-    changeLogEntriesMap[entryKey] = changeLogEntry
+    changeLogEntriesMap[newId] = changeLogEntry
   }
 
   return changeLogEntriesMap.values().toList()
 }
 
-
-List getUpdatedAppsList(Map commitInfo, String filename = 'platform-descriptor.json') {
+/**
+ * Parse platform-descriptor.json and return list of application IDs (name-version).
+ * The file structure is:
+ * {
+ *   "applications": {
+ *     "required":     [{"name": "app-x", "version": "1.0.0"}, ...],
+ *     "optional":     [...],
+ *     "experimental": [...]
+ *   }
+ * }
+ */
+@NonCPS
+static List<String> parseAppIds(String json) {
   try {
-    // (?m) multiline so ^ and $ match line boundaries; match a removed id line immediately
-    // followed by optional context lines then an added id line
-    String pattern = /(?m)^-[^\n]*"id"\s*:\s*"([^"]+)"[^\n]*\n(?:[^+-][^\n]*\n)*\+[^\n]*"id"\s*:\s*"([^"]+)"/
-    def fileInfo = commitInfo['files']?.find { it['filename'] == filename }
+    def parsed = new JsonSlurper().parseText(json)
+    List<String> ids = []
 
-    if (!fileInfo || !fileInfo['patch']) {
-      return []
+    if (parsed instanceof Map && parsed.applications instanceof Map) {
+      ['required', 'optional', 'experimental'].each { category ->
+        def apps = parsed.applications[category]
+        if (apps instanceof List) {
+          apps.each { app ->
+            if (app instanceof Map && app.name && app.version) {
+              ids << "${app.name}-${app.version}".toString()
+            }
+          }
+        }
+      }
     }
 
-    Matcher matches = fileInfo['patch'] =~ pattern
-    return matches.collect { match -> [oldId: match[1], newId: match[2]] }
+    return ids
   } catch (Exception e) {
-    echo "Error parsing ${filename} changes: ${e.getMessage()}"
     return []
   }
+}
+
+/**
+ * Return list of [oldId, newId] maps for apps whose version changed between builds.
+ */
+@NonCPS
+static List<Map> diffApps(List<String> previousIds, List<String> currentIds) {
+  Map<String, String> prevByName = [:]
+  previousIds.each { id ->
+    String name = extractName(id)
+    if (name) prevByName[name] = id
+  }
+
+  List<Map> changes = []
+  currentIds.each { newId ->
+    String name = extractName(newId)
+    String oldId = prevByName[name]
+    if (oldId && oldId != newId) {
+      changes << [oldId: oldId, newId: newId]
+    }
+  }
+  return changes
+}
+
+/**
+ * Extract the app name from an ID like "app-platform-minimal-1.0.0-SNAPSHOT.123".
+ * The name is everything before the first dash followed by a digit.
+ */
+@NonCPS
+static String extractName(String appId) {
+  if (!appId) return ''
+  for (int i = 0; i < appId.length() - 1; i++) {
+    if (appId.charAt(i) == '-' as char && Character.isDigit(appId.charAt(i + 1))) {
+      return appId[0..(i - 1)]
+    }
+  }
+  return appId
+}
+
+/**
+ * Extract the version part from an app ID.
+ */
+@NonCPS
+static String extractVersion(String appId) {
+  if (!appId) return ''
+  String name = extractName(appId)
+  return (name && name.length() < appId.length()) ? appId[(name.length() + 1)..-1] : ''
+}
+
+/**
+ * Extract module IDs from a FAR application descriptor.
+ * The descriptor has "modules" (backend) and "uiModules" (frontend) arrays.
+ */
+@NonCPS
+static List<String> extractModuleIds(Map descriptor) {
+  if (!descriptor) return []
+  List<String> modules = []
+  ['modules', 'uiModules'].each { key ->
+    if (descriptor[key] instanceof List) {
+      descriptor[key].each { mod ->
+        String id = mod?.id ?: mod?.moduleId
+        if (id) modules << id
+      }
+    }
+  }
+  return modules.unique()
 }
 
 
