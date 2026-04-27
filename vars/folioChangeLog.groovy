@@ -96,10 +96,11 @@ List<ChangelogEntry> call(String previousSha, String currentSha) {
 }
 
 
-static List getUpdatedAppsList(Map commitInfo, String filename = 'platform-descriptor.json') {
+List getUpdatedAppsList(Map commitInfo, String filename = 'platform-descriptor.json') {
   try {
-    // Dotall to allow matching across newlines
-    String pattern = /(?s)-\s*"id"\s*:\s*"(.*?)".*?\+\s*"id"\s*:\s*"(.*?)"/
+    // (?m) multiline so ^ and $ match line boundaries; match a removed id line immediately
+    // followed by optional context lines then an added id line
+    String pattern = /(?m)^-[^\n]*"id"\s*:\s*"([^"]+)"[^\n]*\n(?:[^+-][^\n]*\n)*\+[^\n]*"id"\s*:\s*"([^"]+)"/
     def fileInfo = commitInfo['files']?.find { it['filename'] == filename }
 
     if (!fileInfo || !fileInfo['patch']) {

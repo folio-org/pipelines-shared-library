@@ -18,19 +18,22 @@ String getPreviousBuildSha(String name = 'Hash-Commit') {
   }
   candidates.add('Hash-Commit')
 
+  // Use an outer variable — return inside a closure returns from the closure, not the method
+  String result = null
   awscli.withAwsClient {
     for (candidate in candidates) {
       try {
         def value = awscli.getSsmParameterValue(awsRegion, candidate)
         if (value) {
-          return value
+          result = value
+          break
         }
       } catch (Exception ignored) {
         // parameter not found or access denied, try next
       }
     }
   }
-  return null
+  return result
 }
 
 @SuppressWarnings('GrMethodMayBeStatic')
