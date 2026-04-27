@@ -33,7 +33,7 @@ properties([
   ]),
   pipelineTriggers([
     parameterizedCron('''
-      H 20 * * * %CLUSTER=folio-edev;NAMESPACE=eureka;PLATFORM_BRANCH=snapshot;FORCE_DELETE_IF_EXISTS=true
+      H 22 * * * %CLUSTER=folio-edev;NAMESPACE=eureka;PLATFORM_BRANCH=snapshot;FORCE_DELETE_IF_EXISTS=true
     ''')])
 ])
 
