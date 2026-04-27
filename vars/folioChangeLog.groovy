@@ -4,7 +4,6 @@ import org.folio.models.ChangelogEntry
 import org.folio.models.module.FolioModule
 import org.folio.slack.SlackHelper
 import org.folio.utilities.GitHubClient
-import org.folio.far.Far
 
 List<ChangelogEntry> call(String previousSha, String currentSha) {
 
@@ -38,30 +37,12 @@ List<ChangelogEntry> call(String previousSha, String currentSha) {
     changeLogEntry.module = new FolioModule()
     changeLogEntry.module.id = newId
 
-    List<String> modules = []
-    try {
-      Far far = new Far(this)
-      Map descriptor = far.getApplicationDescriptor(newId, true)
-      modules = extractModuleIds(descriptor)
-    } catch (Exception e) {
-      echo "Failed to fetch FAR descriptor for ${newId}: ${e.message}"
-    }
-
     String appName = extractName(newId)
     String oldVersion = extractVersion(oldId)
     String newVersion = extractVersion(newId)
 
-    StringBuilder messageBuilder = new StringBuilder()
-    messageBuilder.append("${appName}(${oldVersion}) --> ${appName}(${newVersion})\n")
-    messageBuilder.append("Changed modules:\n")
-    if (modules) {
-      modules.eachWithIndex { mod, idx -> messageBuilder.append("${idx + 1}. ${mod}\n") }
-    } else {
-      messageBuilder.append("No modules found\n")
-    }
-
     changeLogEntry.sha = newId
-    changeLogEntry.commitMessage = messageBuilder.toString()
+    changeLogEntry.commitMessage = "${appName}(${oldVersion}) --> ${appName}(${newVersion})"
     changeLogEntry.author = null
     changeLogEntry.commitLink = "https://far.ci.folio.org/applications/${newId}"
 
@@ -152,25 +133,6 @@ static String extractVersion(String appId) {
   if (!appId) return ''
   String name = extractName(appId)
   return (name && name.length() < appId.length()) ? appId[(name.length() + 1)..-1] : ''
-}
-
-/**
- * Extract module IDs from a FAR application descriptor.
- * The descriptor has "modules" (backend) and "uiModules" (frontend) arrays.
- */
-@NonCPS
-static List<String> extractModuleIds(Map descriptor) {
-  if (!descriptor) return []
-  List<String> modules = []
-  ['modules', 'uiModules'].each { key ->
-    if (descriptor[key] instanceof List) {
-      descriptor[key].each { mod ->
-        String id = mod?.id ?: mod?.moduleId
-        if (id) modules << id
-      }
-    }
-  }
-  return modules.unique()
 }
 
 
