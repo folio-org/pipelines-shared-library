@@ -19,7 +19,7 @@ resource "helm_release" "kafka" {
   version    = "21.4.6"
   values = [<<-EOF
 image:
-  tag: 3.7
+  tag: 4.1
   registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
   repository: kafka
   pullPolicy: IfNotPresent
@@ -65,6 +65,7 @@ resources:
     memory: '${var.kafka_max_mem_size}Mi'
 kraft:
   enabled: true
+  clusterId: "MkU3OEVBNTcwNTJENDM2Qk"
   processRoles: broker,controller
 zookeeper:
   image:

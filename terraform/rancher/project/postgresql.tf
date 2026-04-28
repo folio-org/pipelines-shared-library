@@ -25,7 +25,7 @@ resource "rancher2_secret" "db-credentials" {
     DB_MAXPOOLSIZE  = base64encode("50")
     #DB_MAXSHAREDPOOLSIZE = base64encode("50")
     DB_CHARSET      = base64encode("UTF-8")
-    DB_QUERYTIMEOUT = base64encode("180000")
+    DB_QUERYTIMEOUT = base64encode("14400000")
     },
     var.enable_rw_split ? {
       DB_HOST_READER = base64encode(var.pg_embedded ? local.pg_service_reader : module.rds[0].cluster_reader_endpoint)
