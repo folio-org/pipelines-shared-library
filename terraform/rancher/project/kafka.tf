@@ -60,7 +60,7 @@ broker:
 metrics:
   jmx:
     image:
-      tag: 0.18.0-debian-11-r5
+      tag: 1.5.0-debian-12-r8
       registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
       repository: jmx-exporter
       pullPolicy: IfNotPresent
