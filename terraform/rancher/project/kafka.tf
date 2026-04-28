@@ -30,6 +30,7 @@ clusterId: "MkU3OEVBNTcwNTJENDM2Qk"
 listeners:
   client:
     protocol: PLAINTEXT
+    containerPort: 9092
   controller:
     protocol: PLAINTEXT
   interbroker:
@@ -51,6 +52,7 @@ controller:
     enabled: false
   readinessProbe:
     enabled: false
+  advertisedListeners: "CLIENT://kafka-${var.rancher_project_name}:9092"
   extraEnvVars:
     - name: KAFKA_CFG_DELETE_TOPIC_ENABLE
       value: "true"
