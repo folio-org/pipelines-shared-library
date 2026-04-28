@@ -16,27 +16,45 @@ resource "helm_release" "kafka" {
   repository = local.catalogs.bitnami
   name       = "kafka-${var.rancher_project_name}"
   chart      = "kafka"
-  version    = "21.4.6"
+  version    = "31.2.0"
   values = [<<-EOF
 image:
   tag: 4.1
   registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
   repository: kafka
   pullPolicy: IfNotPresent
-metrics:
-  kafka:
-    image:
-      tag: 1.6.0-debian-11-r73
-      registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
-      repository: kafka-exporter
-      pullPolicy: IfNotPresent
+clusterId: "MkU3OEVBNTcwNTJENDM2Qk"
+listeners:
+  client:
+    protocol: PLAINTEXT
+  controller:
+    protocol: PLAINTEXT
+  interbroker:
+    protocol: PLAINTEXT
+controller:
+  replicaCount: ${var.kafka_number_of_broker_nodes}
+  controllerOnly: false
+  heapOpts: "-XX:MaxRAMPercentage=75.0"
+  resources:
+    requests:
+      memory: 2Gi
+    limits:
+      memory: '${var.kafka_max_mem_size}Mi'
+  persistence:
     enabled: true
-    resources:
-      limits:
-        memory: 1280Mi
-      requests:
-        memory: 256Mi
-    ${indent(4, local.schedule_value)}
+    size: ${join("", [var.kafka_ebs_volume_size, "Gi"])}
+    storageClass: gp2
+  livenessProbe:
+    enabled: false
+  readinessProbe:
+    enabled: false
+  extraEnvVars:
+    - name: KAFKA_CFG_DELETE_TOPIC_ENABLE
+      value: "true"
+  ${indent(2, local.schedule_value)}
+broker:
+  replicaCount: 0
+metrics:
   jmx:
     image:
       tag: 0.18.0-debian-11-r5
@@ -54,46 +72,6 @@ metrics:
     namespace: monitoring
     interval: 30s
     scrapeTimeout: 30s
-persistence:
-  enabled: true
-  size: ${join("", [var.kafka_ebs_volume_size, "Gi"])}
-  storageClass: gp2
-resources:
-  requests:
-    memory: 2Gi
-  limits:
-    memory: '${var.kafka_max_mem_size}Mi'
-kraft:
-  enabled: true
-  clusterId: "MkU3OEVBNTcwNTJENDM2Qk"
-  processRoles: broker,controller
-zookeeper:
-  image:
-    tag: 3.7
-    registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
-    repository: zookeeper
-    pullPolicy: IfNotPresent
-  enabled: false
-  persistence:
-    size: 5Gi
-  resources:
-    requests:
-      memory: 512Mi
-    limits:
-      memory: 768Mi
-  ${indent(2, local.schedule_value)}
-livenessProbe:
-  enabled: false
-readinessProbe:
-  enabled: false
-replicaCount: ${var.kafka_number_of_broker_nodes}
-heapOpts: "-XX:MaxRAMPercentage=75.0"
-extraEnvVars:
-  - name: KAFKA_DELETE_TOPIC_ENABLE
-    value: "true"
-  - name: KAFKA_CFG_NODE_ID
-    value: "0"
-${local.schedule_value}
 EOF
   ]
 }
