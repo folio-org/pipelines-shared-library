@@ -9,11 +9,9 @@ properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
   pipelineTriggers([cron('0 22 * * 0')]),
   parameters([
-    folioParameters.cluster(),
-    folioParameters.namespace(),
-    string(name: 'SSM_PATTERN_SUFFIX',
+    string(name: 'SSM_PATTERN',
            defaultValue: '_test',
-           description: '(Optional) SSM parameter name suffix to match for deletion. Defaults to "_test". Combined with cluster-namespace prefix: <CLUSTER>-<NAMESPACE><SUFFIX>'),
+           description: 'SSM parameter name pattern to match for deletion (e.g. "_test" matches all parameters containing "_test")'),
     folioParameters.refreshParameters()
   ])
 ])
@@ -23,20 +21,13 @@ if (params.REFRESH_PARAMETERS) {
   return
 }
 
-if (params.CLUSTER == 'folio-testing' || params.CLUSTER == 'folio-etesting' ||
-      params.CLUSTER == 'folio-perf' || params.CLUSTER == 'folio-eperf') {
-  folioCommon.kitfoxApproval()
-}
-
 PodTemplates podTemplates = new PodTemplates(this)
-
-String ssmPattern = "${params.CLUSTER}-${params.NAMESPACE}${params.SSM_PATTERN_SUFFIX}"
 
 ansiColor('xterm') {
   podTemplates.rancherAgent {
     stage('Ini') {
-      buildName("#${params.CLUSTER}-${params.NAMESPACE}.${env.BUILD_ID}")
-      buildDescription("SSM pattern: ${ssmPattern}")
+      buildName("#${env.BUILD_ID}")
+      buildDescription("SSM pattern: ${params.SSM_PATTERN}")
     }
 
     stage('Checkout') {
@@ -49,7 +40,7 @@ ansiColor('xterm') {
 
     stage('[AWS Parameter Store] Cleanup') {
       awscli.withAwsClient {
-        folioTools.deleteSSMParametersByPattern(ssmPattern)
+        folioTools.deleteSSMParametersByPattern(params.SSM_PATTERN)
       }
     }
   }

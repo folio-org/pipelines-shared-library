@@ -161,12 +161,13 @@ def addGithubTeamsToRancherProjectMembersList(String teams, String project) {
 }
 
 void deleteSSMParameters(String cluster, String namespace) {
-  deleteSSMParametersByPattern("${cluster}-${namespace}_")
+  folioHelm.withK8sClient {
+    deleteSSMParametersByPattern("${cluster}-${namespace}_")
+  }
 }
 
 void deleteSSMParametersByPattern(String pattern) {
-  folioHelm.withK8sClient {
-    def ssm_params = ""
+  def ssm_params = ""
     retry(5) {
       try {
         ssm_params = sh(script: """aws ssm describe-parameters --parameter-filters "Key=Name,Option=Contains,Values=${pattern}" --query Parameters[].Name --output text --region ${Constants.AWS_REGION}""", returnStdout: true).trim()
