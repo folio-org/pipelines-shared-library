@@ -168,44 +168,43 @@ void deleteSSMParameters(String cluster, String namespace) {
 
 void deleteSSMParametersByPattern(String pattern) {
   def ssm_params = ""
-    retry(5) {
-      try {
-        ssm_params = sh(script: """aws ssm describe-parameters --parameter-filters "Key=Name,Option=Contains,Values=${pattern}" --query Parameters[].Name --output text --region ${Constants.AWS_REGION}""", returnStdout: true).trim()
-      } catch (Exception e) {
-        if (e.getMessage().contains('ThrottlingException') || e.getMessage().contains('Rate exceeded')) {
-          echo "AWS SSM throttling detected, retrying with exponential backoff..."
-          sleep(time: (2 ** (currentBuild.getNumber() % 4)) * 5, unit: 'SECONDS')
-          throw e
-        } else {
-          throw e
-        }
+  retry(5) {
+    try {
+      ssm_params = sh(script: """aws ssm describe-parameters --parameter-filters "Key=Name,Option=Contains,Values=${pattern}" --query Parameters[].Name --output text --region ${Constants.AWS_REGION}""", returnStdout: true).trim()
+    } catch (Exception e) {
+      if (e.getMessage().contains('ThrottlingException') || e.getMessage().contains('Rate exceeded')) {
+        echo "AWS SSM throttling detected, retrying with exponential backoff..."
+        sleep(time: (2 ** (currentBuild.getNumber() % 4)) * 5, unit: 'SECONDS')
+        throw e
+      } else {
+        throw e
       }
     }
+  }
 
-    if (ssm_params) {
-      int Limit = 5
-      ssm_params.tokenize().collate(Limit).each { ssm_param ->
-        def branches = [:]
-        ssm_param.each { param ->
-          branches[param.toString().trim()] = {
-            retry(3) {
-              try {
-                sh(script: "aws ssm delete-parameter --name ${param.toString().trim()} --region ${Constants.AWS_REGION} || true", returnStdout: true)
-              } catch (Exception e) {
-                if (e.getMessage().contains('ThrottlingException') || e.getMessage().contains('Rate exceeded')) {
-                  sleep(time: 3, unit: 'SECONDS')
-                  throw e
-                }
+  if (ssm_params) {
+    int Limit = 5
+    ssm_params.tokenize().collate(Limit).each { ssm_param ->
+      def branches = [:]
+      ssm_param.each { param ->
+        branches[param.toString().trim()] = {
+          retry(3) {
+            try {
+              sh(script: "aws ssm delete-parameter --name ${param.toString().trim()} --region ${Constants.AWS_REGION} || true", returnStdout: true)
+            } catch (Exception e) {
+              if (e.getMessage().contains('ThrottlingException') || e.getMessage().contains('Rate exceeded')) {
+                sleep(time: 3, unit: 'SECONDS')
+                throw e
               }
             }
           }
         }
-        parallel branches
-        sleep(10)
       }
-    } else {
-      echo "No SSM parameters found for pattern: ${pattern}"
+      parallel branches
+      sleep(10)
     }
+  } else {
+    echo "No SSM parameters found for pattern: ${pattern}"
   }
 }
 
