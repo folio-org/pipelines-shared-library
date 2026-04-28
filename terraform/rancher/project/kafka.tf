@@ -22,7 +22,7 @@ global:
   security:
     allowInsecureImages: true
 image:
-  tag: 4.1
+  tag: 4.2.0-debian-12-r2
   registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
   repository: kafka
   pullPolicy: IfNotPresent
