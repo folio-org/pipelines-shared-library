@@ -18,6 +18,9 @@ resource "helm_release" "kafka" {
   chart      = "kafka"
   version    = "31.2.0"
   values = [<<-EOF
+global:
+  security:
+    allowInsecureImages: true
 image:
   tag: 4.1
   registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
