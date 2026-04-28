@@ -55,13 +55,23 @@ controller:
     enabled: false
   readinessProbe:
     enabled: false
-  advertisedListeners: "PLAINTEXT://kafka-${var.rancher_project_name}:9092"
   extraEnvVars:
     - name: KAFKA_CFG_DELETE_TOPIC_ENABLE
       value: "true"
+    - name: KAFKA_CFG_ADVERTISED_LISTENERS
+      value: "PLAINTEXT://kafka-${var.rancher_project_name}:9092"
+    - name: KAFKA_CFG_OFFSETS_TOPIC_REPLICATION_FACTOR
+      value: "1"
+    - name: KAFKA_CFG_TRANSACTION_STATE_LOG_REPLICATION_FACTOR
+      value: "1"
+    - name: KAFKA_CFG_TRANSACTION_STATE_LOG_MIN_ISR
+      value: "1"
   ${indent(2, local.schedule_value)}
 broker:
   replicaCount: 0
+service:
+  ports:
+    client: 9092
 metrics:
   jmx:
     image:
