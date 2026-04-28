@@ -29,11 +29,14 @@ image:
 clusterId: "MkU3OEVBNTcwNTJENDM2Qk"
 listeners:
   client:
+    name: PLAINTEXT
     protocol: PLAINTEXT
     containerPort: 9092
   controller:
+    name: CONTROLLER
     protocol: PLAINTEXT
   interbroker:
+    name: INTERBROKER
     protocol: PLAINTEXT
 controller:
   replicaCount: ${var.kafka_number_of_broker_nodes}
@@ -52,7 +55,7 @@ controller:
     enabled: false
   readinessProbe:
     enabled: false
-  advertisedListeners: "CLIENT://kafka-${var.rancher_project_name}:9092"
+  advertisedListeners: "PLAINTEXT://kafka-${var.rancher_project_name}:9092"
   extraEnvVars:
     - name: KAFKA_CFG_DELETE_TOPIC_ENABLE
       value: "true"
