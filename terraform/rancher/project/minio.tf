@@ -26,7 +26,7 @@ defaultBuckets: ${local.s3_bucket_name},local-files
 image:
   repository: minio
   registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
-  tag: 2022.8.11-debian-11-r0
+  tag: 2025.10.15-debian-12-r12
   pullPolicy: IfNotPresent
 auth:
   rootUser: ${random_string.access_key[0].result}

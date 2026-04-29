@@ -726,6 +726,10 @@ mod-bulk-operations:
   extraEnvVars:
     - name: MAX_UPLOADING_RETRIES
       value: "50"
+    - name: FQM_MAX_CHUNK_SIZE
+      value: "10000"
+    - name: FQM_MAX_PARALLEL_CHUNKS
+      value: "10"
   integrations:
     okapi:
       enabled: true
@@ -1350,6 +1354,8 @@ mod-entities-links:
       value: "2"
     - name: KAFKA_INSTANCE_AUTHORITY_STATS_TOPIC_PARTITIONS
       value: "2"
+    - name: S3_LOCAL_SUB_PATH
+      value: "mod-entities-links"
   integrations:
     db:
       enabled: true
@@ -1758,6 +1764,8 @@ mod-inventory-storage:
       value: "1"
     - name: KAFKA_DOMAIN_TOPIC_NUM_PARTITIONS
       value: "2"
+    - name: S3_LOCAL_SUB_PATH
+      value: "mod-inventory-storage"
   integrations:
     db:
       enabled: true
@@ -2120,7 +2128,11 @@ mod-login-saml:
     enabled: true
     maxUnavailable: 1
 mod-marc-migrations:
-  extraEnvVars: []
+  extraEnvVars:
+    - name: S3_SUB_PATH
+      value: "mod-marc-migrations"
+    - name: S3_LOCAL_SUB_PATH
+      value: "mod-marc-migrations"
   integrations:
     db:
       enabled: true
@@ -2228,7 +2240,9 @@ mod-ncip:
     enabled: true
     maxUnavailable: 1
 mod-notes:
-  extraEnvVars: []
+  extraEnvVars:
+    - name: NOTES_TYPES_DEFAULTS_LIMIT
+      value: "25"
   integrations:
     db:
       enabled: true
@@ -2916,6 +2930,8 @@ mod-search:
       value: "2"
     - name: KAFKA_SUBJECTS_TOPIC_PARTITIONS
       value: "2"
+    - name: ELASTICSEARCH_SERVER
+      value: "false"
   integrations:
     db:
       enabled: true
