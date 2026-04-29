@@ -21,6 +21,11 @@ resource "helm_release" "kafka" {
 global:
   security:
     allowInsecureImages: true
+podSecurityContext:
+  fsGroup: 1001
+securityContext:
+  runAsUser: 1001
+  runAsNonRoot: true
 image:
   tag: 4.2.0
   registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
