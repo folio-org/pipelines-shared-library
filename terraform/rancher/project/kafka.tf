@@ -60,25 +60,20 @@ controller:
     enabled: false
   readinessProbe:
     enabled: false
+  extraConfig: |
+    offsets.topic.replication.factor=${var.kafka_number_of_broker_nodes}
+    transaction.state.log.replication.factor=${var.kafka_number_of_broker_nodes}
+    transaction.state.log.min.isr=1
+    min.insync.replicas=1
+    default.replication.factor=${var.kafka_number_of_broker_nodes}
+    num.partitions=1
+    auto.create.topics.enable=true
+    delete.topic.enable=true
+    group.initial.rebalance.delay.ms=3000
+    group.coordinator.rebalance.protocols=classic
   extraEnvVars:
-    - name: KAFKA_CFG_DELETE_TOPIC_ENABLE
-      value: "true"
-    - name: KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE
-      value: "true"
     - name: KAFKA_CFG_ADVERTISED_LISTENERS
       value: "PLAINTEXT://kafka-${var.rancher_project_name}:9092"
-    - name: KAFKA_CFG_OFFSETS_TOPIC_REPLICATION_FACTOR
-      value: "${var.kafka_number_of_broker_nodes}"
-    - name: KAFKA_CFG_TRANSACTION_STATE_LOG_REPLICATION_FACTOR
-      value: "${var.kafka_number_of_broker_nodes}"
-    - name: KAFKA_CFG_TRANSACTION_STATE_LOG_MIN_ISR
-      value: "1"
-    - name: KAFKA_CFG_MIN_INSYNC_REPLICAS
-      value: "1"
-    - name: KAFKA_CFG_GROUP_INITIAL_REBALANCE_DELAY_MS
-      value: "3000"
-    - name: KAFKA_CFG_GROUP_COORDINATOR_REBALANCE_PROTOCOLS
-      value: "classic"
   ${indent(2, local.schedule_value)}
 broker:
   replicaCount: 0
