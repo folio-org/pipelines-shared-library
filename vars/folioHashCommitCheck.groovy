@@ -1,40 +1,98 @@
 import org.folio.Constants
 import org.folio.utilities.GitHubClient
 
-String getCurrentBuildSha(String branch) {
-  Map branchInfo = new GitHubClient(this).getBranchInfo('platform-complete', branch)
+String getCurrentBuildSha(String branch, String repo = 'platform-lsp') {
+  Map branchInfo = new GitHubClient(this).getBranchInfo(repo, branch)
 
-  return branchInfo.commit.sha
+  return branchInfo?.commit?.sha
 }
 
 @SuppressWarnings('GrMethodMayBeStatic')
-String getPreviousBuildSha() {
-  String awsSsmParameterName = 'Hash-Commit'
+String getPreviousBuildSha(String name = 'Hash-Commit') {
   String awsRegion = Constants.AWS_REGION
-  awscli.withAwsClient {
-    return awscli.getSsmParameterValue(awsRegion, awsSsmParameterName)
+  // build candidates: try provided name as-is, then common fallbacks
+  List candidates = [name]
+  if (name && name =~ /[a-z0-9\-]+/) {
+    candidates.add("Hash-Commit-${name}")
+    candidates.add(name.toUpperCase().replaceAll('-', '_') + '_SHA')
   }
+  candidates.add('Hash-Commit')
+
+  // Use an outer variable — return inside a closure returns from the closure, not the method
+  String result = null
+  awscli.withAwsClient {
+    for (candidate in candidates) {
+      try {
+        def value = awscli.getSsmParameterValue(awsRegion, candidate)
+        if (value) {
+          result = value
+          break
+        }
+      } catch (Exception ignored) {
+        // parameter not found or access denied, try next
+      }
+    }
+  }
+  return result
 }
 
 @SuppressWarnings('GrMethodMayBeStatic')
-void updateBuildSha(String sha) {
-  String awsSsmParameterName = 'Hash-Commit'
+void updateBuildSha(String sha, String name = 'Hash-Commit') {
   String awsRegion = Constants.AWS_REGION
-  awscli.withAwsClient {
-    awscli.updateSsmParameter(awsRegion, awsSsmParameterName, sha)
+  // Try to find an existing parameter to update; otherwise fall back to sensible default
+  List candidates = [name]
+  if (name && name =~ /[a-z0-9\-]+/) {
+    candidates.add("Hash-Commit-${name}")
+    candidates.add(name.toUpperCase().replaceAll('-', '_') + '_SHA')
   }
+  candidates.add('Hash-Commit')
+
+  String paramToUpdate = null
+  awscli.withAwsClient {
+    for (candidate in candidates) {
+      try {
+        def existing = awscli.getSsmParameterValue(awsRegion, candidate)
+        if (existing != null) {
+          paramToUpdate = candidate
+          break
+        }
+      } catch (Exception ignored) {
+        // ignore
+      }
+    }
+
+    if (!paramToUpdate) {
+      // default to provided name (may create new param) or 'Hash-Commit'
+      paramToUpdate = name ?: 'Hash-Commit'
+    }
+
+    awscli.updateSsmParameter(awsRegion, paramToUpdate, sha)
+  }
+}
+
+String getPreviousPlatformLspSha() {
+    try {
+        return getPreviousBuildSha('platform-lsp')
+    } catch (Exception e) {
+        println "Unable to read previous platform-lsp sha from SSM: ${e}"
+        return null
+    }
 }
 
 boolean isInstallJsonChanged(String previousSha, String currentSha) {
   println("Current build sha: ${currentSha}\nPrevious build sha: ${previousSha}")
+  if (!previousSha) {
+    // No previous SHA — treat as changed so pipeline proceeds
+    return true
+  }
   if (previousSha == currentSha) {
     return false
   } else {
-    Map commitsDiff = new GitHubClient(this).getTwoCommitsDiff(previousSha, currentSha, 'platform-complete')
+    Map commitsDiff = new GitHubClient(this).getTwoCommitsDiff(previousSha, currentSha, 'platform-lsp')
 
-    println("Changed files: ${commitsDiff.files*.filename}")
+    println("Changed files: ${commitsDiff?.files*.filename}")
 
-    return commitsDiff.files.any { it.filename == 'install.json' }
+    return commitsDiff?.files?.any { it.filename == 'platform-descriptor.json' } ?: false
   }
 }
 
