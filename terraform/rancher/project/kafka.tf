@@ -27,7 +27,7 @@ securityContext:
   runAsUser: 1001
   runAsNonRoot: true
 image:
-  tag: 4.2.0
+  tag: 4.2.0-debian-12-r2
   registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
   repository: kafka
   pullPolicy: IfNotPresent
@@ -63,14 +63,22 @@ controller:
   extraEnvVars:
     - name: KAFKA_CFG_DELETE_TOPIC_ENABLE
       value: "true"
+    - name: KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE
+      value: "true"
     - name: KAFKA_CFG_ADVERTISED_LISTENERS
       value: "PLAINTEXT://kafka-${var.rancher_project_name}:9092"
     - name: KAFKA_CFG_OFFSETS_TOPIC_REPLICATION_FACTOR
-      value: "1"
+      value: "${var.kafka_number_of_broker_nodes}"
     - name: KAFKA_CFG_TRANSACTION_STATE_LOG_REPLICATION_FACTOR
-      value: "1"
+      value: "${var.kafka_number_of_broker_nodes}"
     - name: KAFKA_CFG_TRANSACTION_STATE_LOG_MIN_ISR
       value: "1"
+    - name: KAFKA_CFG_MIN_INSYNC_REPLICAS
+      value: "1"
+    - name: KAFKA_CFG_GROUP_INITIAL_REBALANCE_DELAY_MS
+      value: "3000"
+    - name: KAFKA_CFG_GROUP_COORDINATOR_REBALANCE_PROTOCOLS
+      value: "classic"
   ${indent(2, local.schedule_value)}
 broker:
   replicaCount: 0
