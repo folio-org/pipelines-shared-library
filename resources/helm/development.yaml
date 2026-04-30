@@ -1214,9 +1214,9 @@ mod-data-import:
   replicaCount: 1
   resources:
     limits:
-      memory: 885Mi
+      memory: 1150Mi
     requests:
-      memory: 770Mi
+      memory: 1001Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
   startupProbe:
