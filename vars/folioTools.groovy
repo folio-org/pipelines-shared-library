@@ -203,6 +203,7 @@ void deleteSSMParametersByPattern(String pattern) {
       parallel branches
       sleep(10)
     }
+    buildDescription("#parameters deleted: ${ssm_params.tokenize().size()}")
   } else {
     echo "No SSM parameters found for pattern: ${pattern}"
   }
