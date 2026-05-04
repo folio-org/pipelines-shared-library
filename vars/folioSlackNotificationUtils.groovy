@@ -59,13 +59,15 @@ String renderTestResultSection(TestType type, IExecutionSummary summary
 }
 
 String renderBuildAndTestResultMessage(TestType type, IExecutionSummary summary
-                                       , String buildName, boolean useReportPortal, String url) {
-  return SlackHelper.renderMessage(
-    [
-      renderBuildResultSection()
-      , renderTestResultSection(type, summary, buildName, useReportPortal, url)
-    ]
-  )
+                                       , String buildName, boolean useReportPortal, String url, int flakyCount = 0) {
+  List sections = [
+    renderBuildResultSection()
+    , renderTestResultSection(type, summary, buildName, useReportPortal, url)
+  ]
+  if (flakyCount > 0) {
+    sections.add(SlackHelper.renderSection("Re-check", "${flakyCount} test(s) promoted to Flaky", "#2eb886", [], []))
+  }
+  return SlackHelper.renderMessage(sections)
 }
 
 Map<Team, String> renderTeamsTestResultMessages(TestType type

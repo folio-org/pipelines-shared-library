@@ -125,5 +125,5 @@ ansiColor('xterm') {
     }
   }
 
-  folioCypressFlow.call(cypressParameters.getCiBuildId(), [cypressParameters], false, reportPortalUse, reportPortalRunType)
+  folioCypressFlow.call(cypressParameters.getCiBuildId(), [cypressParameters], false, reportPortalUse, reportPortalRunType, true)
 }
