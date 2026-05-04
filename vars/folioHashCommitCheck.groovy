@@ -108,17 +108,20 @@ def hasRepoShaChanged(String org, String repo, String branch = 'master', String 
 
     String previousSha = null
     awscli.withAwsClient {
-        previousSha = awscli.getSsmParameterValue(awsRegion, ssmParameterName)
+        try {
+            previousSha = awscli.getSsmParameterValue(awsRegion, ssmParameterName)
+        } catch (ignored) {
+            previousSha = null
+        }
     }
 
     if (previousSha == latestSha) {
         return false
-    } else {
-        awscli.withAwsClient {
-            awscli.updateSsmParameter(awsRegion, ssmParameterName, latestSha)
-        }
-        return true
     }
+    awscli.withAwsClient {
+        awscli.updateSsmParameter(awsRegion, ssmParameterName, latestSha)
+    }
+    return true
 }
 
 def hasFolioIntegrationTestsShaChanged(String branch = 'master', String ssmParameterName = 'FOLIO_INTEGRATION_TESTS_SHA') {
