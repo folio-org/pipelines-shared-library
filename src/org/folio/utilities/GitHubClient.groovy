@@ -73,21 +73,21 @@ class GitHubClient {
     }
   }
 
-  List getTwoCommitsDiff(String previousSha, String currentSha, String repository) {
+  Map getTwoCommitsDiff(String previousSha, String currentSha, String repository) {
     String url = "${Constants.FOLIO_GITHUB_REPOS_URL}/${repository}/compare/${previousSha}...${currentSha}"
     Map<String, String> headers = authorizedHeaders()
 
     try {
       def response = restClient.get(url, headers)
       if (response.responseCode >= 200 && response.responseCode < 300) {
-        return response.body ?: []
+        return response.body instanceof Map ? response.body : [:]
       } else {
         logger.warning("GitHub API returned ${response.responseCode} for commit diff: ${url}")
-        return []
+        return [:]
       }
     } catch (Exception e) {
       logger.warning("Failed to get commit diff for ${repository} ${previousSha}...${currentSha}: ${e.getMessage()}")
-      return []
+      return [:]
     }
   }
 
