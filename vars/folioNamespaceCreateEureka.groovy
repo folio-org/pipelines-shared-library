@@ -387,8 +387,11 @@ void call(CreateNamespaceParameters args) {
           namespace.getTenants().each { tenantId, tenant ->
             if (tenant.getTenantUi()) {
               branches[tenantId] = {
-                boolean isECSBff = tenant.tenantId.startsWith("c")
-                folioUI.buildAndDeploy(namespace, tenant, isECSBff)
+                println("Is Consortia: ${tenant.getTenantUi().getIsConsortia()}")
+                println("ECS CCL enabled: ${args.ecsCCL}")
+                boolean isEcsBff = tenant.getTenantUi().getIsConsortia() && args.ecsCCL
+                println("Is ECS BFF: ${isEcsBff}")
+                folioUI.buildAndDeploy(namespace, tenant, isEcsBff)
               }
             }
           }
