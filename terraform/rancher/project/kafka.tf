@@ -49,7 +49,7 @@ controller:
   heapOpts: "-XX:MaxRAMPercentage=75.0"
   resources:
     requests:
-      memory: 2Gi
+      memory: 4Gi
     limits:
       memory: '${var.kafka_max_mem_size}Mi'
   persistence:
