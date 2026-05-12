@@ -337,6 +337,9 @@ spec:
   void javaKarateAgent(String javaVersion, Closure body) {
     createTemplate(new PodTemplateConfig(
       label: JenkinsAgentLabel.JAVA_KARATE_AGENT.getLabel(),
+      workspaceVolume: steps.genericEphemeralVolume(accessModes: 'ReadWriteOnce',
+        requestsSize: '20Gi',
+        storageClassName: 'gp3'),
       volumes: [steps.persistentVolumeClaim(claimName: MAVEN_CACHE_PVC, mountPath: "${WORKING_DIR}/.m2/repository")],
       containers: [
         buildJavaContainer(javaVersion, [], '5120Mi', '12228Mi')
