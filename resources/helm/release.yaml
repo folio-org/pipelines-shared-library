@@ -876,7 +876,7 @@ mod-bulk-operations:
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 80
   extraJavaOpts:
-  - -XX:MetaspaceSize=384m -XX:MaxMetaspaceSize=512m -Xmx2048m
+  - -XX:MaxRAMPercentage=85.0
   startupProbe:
     httpGet:
       path: /admin/health
@@ -2116,7 +2116,7 @@ mod-fqm-manager:
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 70
   extraJavaOpts:
-  - -XX:MetaspaceSize=88m -XX:MaxMetaspaceSize=512m -Xmx2048m
+  - -XX:MaxRAMPercentage=80.0
   startupProbe:
     httpGet:
       path: /admin/health
