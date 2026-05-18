@@ -132,3 +132,54 @@ module "cluster_autoscaler_role" {
     var.tags
   )
 }
+
+# S3 bucket access policy (customer managed)
+resource "aws_iam_policy" "s3_bucket_access" {
+  name        = join("-", [terraform.workspace, "s3-bucket-policy"])
+  description = "S3 bucket access policy for folio buckets"
+  policy      = data.aws_iam_policy_document.s3_bucket_policy.json
+
+  tags = merge(
+    {
+      Name = "s3-bucket-policy"
+    },
+    var.tags
+  )
+}
+
+# S3 bucket access policy document
+data "aws_iam_policy_document" "s3_bucket_policy" {
+  statement {
+    sid    = "S3BucketListAccess"
+    effect = "Allow"
+    actions = [
+      "s3:ListBucket",
+      "s3:GetBucketLocation",
+      "s3:GetBucketVersioning"
+    ]
+    resources = [
+      "arn:aws:s3:::folio-edev-*",
+      "arn:aws:s3:::folio-etesting-*",
+      "arn:aws:s3:::folio-tmp-*",
+      "arn:aws:s3:::folio-eperf-*"
+    ]
+  }
+
+  statement {
+    sid    = "S3ObjectAccess"
+    effect = "Allow"
+    actions = [
+      "s3:GetObject",
+      "s3:PutObject",
+      "s3:DeleteObject",
+      "s3:GetObjectVersion",
+      "s3:PutObjectVersionTagging"
+    ]
+    resources = [
+      "arn:aws:s3:::folio-edev-*/*",
+      "arn:aws:s3:::folio-etesting-*/*",
+      "arn:aws:s3:::folio-tmp-*/*",
+      "arn:aws:s3:::folio-eperf-*/*"
+    ]
+  }
+}
