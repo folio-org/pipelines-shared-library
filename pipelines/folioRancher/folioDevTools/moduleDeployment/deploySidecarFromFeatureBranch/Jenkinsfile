@@ -143,7 +143,7 @@ ansiColor('xterm') {
     } catch (Exception e) {
       currentBuild.result = 'FAILURE'
       currentBuild.description = "${e.message}"
-      slackSend(color: 'danger', message: 'Native SC Binaries CI build failed: ' + "${env.BUILD_URL}", channel: '#folio-eureka-support')
+      slackSend(color: 'danger', message: 'Native SC Binaries CI build failed: ' + "${env.BUILD_URL}", channel: '#folio-eureka-notify')
       logger.error("${e.message}")
     }
   }
