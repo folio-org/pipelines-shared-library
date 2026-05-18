@@ -44,6 +44,7 @@ locals {
 
       iam_role_additional_policies = {
         AmazonSSMFullAccess = "arn:aws:iam::aws:policy/AmazonSSMFullAccess"
+        S3BucketAccess      = aws_iam_role_policy.s3_bucket_policy.arn
       }
 
       capacity_type = var.eks_nodes_type
@@ -203,6 +204,7 @@ module "eks_cluster" {
 
       iam_role_additional_policies = {
         AmazonSSMFullAccess = "arn:aws:iam::aws:policy/AmazonSSMFullAccess"
+        S3BucketAccess      = aws_iam_role_policy.s3_bucket_policy.arn
       }
 
       # For future schedule https://registry.terraform.io/modules/terraform-aws-modules/eks/aws/latest/submodules/eks-managed-node-group#input_schedules
