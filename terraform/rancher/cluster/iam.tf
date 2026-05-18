@@ -133,31 +133,21 @@ module "cluster_autoscaler_role" {
   )
 }
 
-# S3 bucket access role for nodegroup
-resource "aws_iam_role" "s3_nodegroup_role" {
-  name               = join("-", [terraform.workspace, "s3-nodegroup-role"])
-  assume_role_policy = data.aws_iam_policy_document.assume_role_policy.json
+# S3 bucket access policy (customer managed)
+resource "aws_iam_policy" "s3_bucket_access" {
+  name        = join("-", [terraform.workspace, "s3-bucket-policy"])
+  description = "S3 bucket access policy for folio buckets"
+  policy      = data.aws_iam_policy_document.s3_bucket_policy.json
 
   tags = merge(
     {
-      Name = "s3-nodegroup-role"
+      Name = "s3-bucket-policy"
     },
     var.tags
   )
 }
 
-# Trust policy for EC2 instances (nodegroup)
-data "aws_iam_policy_document" "assume_role_policy" {
-  statement {
-    actions = ["sts:AssumeRole"]
-    principals {
-      type        = "Service"
-      identifiers = ["ec2.amazonaws.com"]
-    }
-  }
-}
-
-# S3 bucket access policy
+# S3 bucket access policy document
 data "aws_iam_policy_document" "s3_bucket_policy" {
   statement {
     sid    = "S3BucketListAccess"
@@ -192,11 +182,4 @@ data "aws_iam_policy_document" "s3_bucket_policy" {
       "arn:aws:s3:::folio-eperf-*/*"
     ]
   }
-}
-
-# Attach S3 policy to nodegroup role
-resource "aws_iam_role_policy" "s3_bucket_policy" {
-  name   = join("-", [terraform.workspace, "s3-bucket-policy"])
-  role   = aws_iam_role.s3_nodegroup_role.id
-  policy = data.aws_iam_policy_document.s3_bucket_policy.json
 }
