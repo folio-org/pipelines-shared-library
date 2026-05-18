@@ -869,14 +869,16 @@ mod-bulk-operations:
     limits:
       memory: 3072Mi
     requests:
-      memory: 2671Mi
+      memory: 2304Mi
   autoscaling:
     enabled: false
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 80
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=85.0
+  - -XX:MetaspaceSize=384m
+  - -XX:MaxMetaspaceSize=512m
+  - -Xmx2048m
   startupProbe:
     httpGet:
       path: /admin/health
@@ -2107,16 +2109,18 @@ mod-fqm-manager:
   replicaCount: 1
   resources:
     limits:
-      memory: 3000Mi
+      memory: 3072Mi
     requests:
-      memory: 2600Mi
+      memory: 2304Mi
   autoscaling:
     enabled: true
     minReplicas: 1
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 70
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=80.0
+  - -XX:MetaspaceSize=88m
+  - -XX:MaxMetaspaceSize=512m
+  - -Xmx2048m
   startupProbe:
     httpGet:
       path: /admin/health
