@@ -44,7 +44,7 @@ locals {
 
       iam_role_additional_policies = {
         AmazonSSMFullAccess = "arn:aws:iam::aws:policy/AmazonSSMFullAccess"
-        S3BucketAccess      = aws_iam_role_policy.s3_bucket_policy.arn
+        S3BucketAccess      = "arn:aws:iam::aws:policy/${aws_iam_role_policy.s3_bucket_policy.name}"
       }
 
       capacity_type = var.eks_nodes_type
