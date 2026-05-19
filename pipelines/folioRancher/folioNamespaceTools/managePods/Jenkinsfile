@@ -20,6 +20,8 @@ properties([
   pipelineTriggers([parameterizedCron('''
     50 22 * * 5 %ACTION=stop;CLUSTER=folio-etesting;NAMESPACE=sprint
     50 23 * * 0 %ACTION=start;CLUSTER=folio-etesting;NAMESPACE=sprint
+    55 22 * * 5 %ACTION=stop;CLUSTER=folio-etesting;NAMESPACE=sprint2
+    55 23 * * 0 %ACTION=start;CLUSTER=folio-etesting;NAMESPACE=sprint2
     00 17 * * * %ACTION=stop;CLUSTER=folio-etesting;NAMESPACE=data-anonymization
     25 22 * * * %ACTION=stop;CLUSTER=folio-tmp;NAMESPACE=test
     30 22 * * * %ACTION=stop;CLUSTER=folio-tmp;NAMESPACE=test-1
