@@ -729,7 +729,7 @@ mod-bulk-operations:
     - name: FQM_MAX_CHUNK_SIZE
       value: "10000"
     - name: FQM_MAX_PARALLEL_CHUNKS
-      value: "10"
+      value: "5"
   integrations:
     okapi:
       enabled: true
