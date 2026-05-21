@@ -17,6 +17,7 @@ properties([
           folioParameters.moduleName(),
           string(name: 'ENV_VAR_NAME', defaultValue: '', description: 'Environment variable name to set for the deployment'),
           string(name: 'ENV_VAR_VALUE', defaultValue: '', description: 'Environment variable value to set for the deployment'),
+          booleanParam(name: 'SET_ENV_VAR_SIDECAR', defaultValue: false, description: 'Set environment variable for sidecar container too'),
           folioParameters.refreshParameters()
   ])
 ])
@@ -43,7 +44,8 @@ ansiColor('xterm') {
     stage('[Set Env Var]') {
       folioHelm.withKubeConfig(params.CLUSTER) {
           logger.info("Setting env var for ${params.MODULE_NAME} deployment")
-          sh(script: "kubectl set env deployment/${params.MODULE_NAME} ${params.ENV_VAR_NAME.trim()}=${params.ENV_VAR_VALUE.trim()} --namespace ${params.NAMESPACE}", returnStdout: true)
+          def containers = params.SET_ENV_VAR_SIDECAR ? "--containers=*" : ""
+          sh(script: "kubectl set env deployment/${params.MODULE_NAME} ${params.ENV_VAR_NAME.trim()}=${params.ENV_VAR_VALUE.trim()} --namespace ${params.NAMESPACE} ${containers}".trim(), returnStdout: true)
       }
     }
   }
