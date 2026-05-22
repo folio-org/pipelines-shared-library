@@ -988,6 +988,8 @@ mod-circulation:
     value: "1"
   - name: ENABLE_FOR_USE_AT_LOCATION
     value: "true"
+  - name: ENABLE_FLOATING_COLLECTIONS
+    value: "true"
   integrations:
     kafka:
       enabled: true
