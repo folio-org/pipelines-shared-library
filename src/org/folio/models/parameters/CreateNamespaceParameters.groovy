@@ -91,11 +91,7 @@ class CreateNamespaceParameters implements Cloneable {
   boolean namespaceOnly = false
 
   @Deprecated
-  String worker
-
-  String keycloakVersion = 'latest'
-
-  String kongVersion = 'latest'
+  String workerv
 
   String type = 'full'
 
@@ -392,10 +388,6 @@ class CreateNamespaceParameters implements Cloneable {
      * @return decision for UI.
      */
     Builder uiBuild(boolean uiBuild) { return setParam('uiBuild', uiBuild) }
-
-    Builder kongVersion(String kongVersion) { return setParam('kongVersion', kongVersion) }
-
-    Builder keycloakVersion(String keycloakVersion) { return setParam('keycloakVersion', keycloakVersion) }
 
     Builder type(String type) { return setParam('type', type) }
 
