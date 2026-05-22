@@ -50,7 +50,7 @@ ansiColor('xterm') {
       stage('Prepare') {
         logger.info("Preparing to restore schema dump to environment: ${params.CLUSTER}-${params.NAMESPACE}")
         unstash 'SCHEMA_DUMP'
-        sh "du -sh $env.SCHEMA_DUMP_FILENAME"
+        sh "du -sh $env.WORKSPACE/$env.SCHEMA_DUMP_FILENAME"
       }
     } catch (e) {
       logger.warning("Caught exception: ${e}")
