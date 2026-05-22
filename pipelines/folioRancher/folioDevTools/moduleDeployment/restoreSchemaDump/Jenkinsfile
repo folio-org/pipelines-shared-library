@@ -42,8 +42,8 @@ ansiColor('xterm') {
       stage('[isRunning]') {
         folioHelm.withKubeConfig(params.CLUSTER) {
           def check = sh(script: "kubectl get pods --namespace ${params.NAMESPACE} --no-headers", returnStdout: true).trim()
-          if (!check.contains(module.getName())) {
-            logger.error("Reason: target env is not running or module: ${module.getName()} is not presented in environment")
+          if (!check.contains('postgres')) {
+            logger.error("Reason: target env is not running or postgreSQL is not presented in environment")
           }
         }
       }
