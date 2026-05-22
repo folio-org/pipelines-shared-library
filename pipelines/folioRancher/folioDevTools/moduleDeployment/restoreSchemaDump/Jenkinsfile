@@ -12,7 +12,7 @@ properties([
   parameters([
     folioParameters.cluster(),
     folioParameters.namespace(),
-    stashedFile 'SCHEMA_DUMP',
+    stashedFile(name: 'SCHEMA_DUMP', description: 'DB dump to restore'),
       folioParameters.refreshParameters()
   ])
 ])
