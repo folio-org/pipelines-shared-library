@@ -33,7 +33,7 @@ ansiColor('xterm') {
   podTemplates.rancherAgent {
     try {
       stage('Ini') {
-        buildName('Restore schema dump: ' + params.SCHEMA_DUMP)
+        buildName('Restore schema dump: ' + $SCHEMA_DUMP_FILENAME)
         buildDescription('Target environment: ' + params.CLUSTER + '-' + params.NAMESPACE)
       }
       stage('Checkout') {
@@ -48,9 +48,9 @@ ansiColor('xterm') {
         }
       }
       stage('Prepare') {
-        logger.info("Preparing to restore schema dump: ${params.SCHEMA_DUMP} to environment: ${params.CLUSTER}-${params.NAMESPACE}")
+        logger.info("Preparing to restore schema dump to environment: ${params.CLUSTER}-${params.NAMESPACE}")
         unstash 'SCHEMA_DUMP'
-        sh "du -sh $SCHEMA_DUMP_FILE"
+        sh "du -sh $SCHEMA_DUMP_FILENAME"
       }
     } catch (e) {
       logger.warning("Caught exception: ${e}")
