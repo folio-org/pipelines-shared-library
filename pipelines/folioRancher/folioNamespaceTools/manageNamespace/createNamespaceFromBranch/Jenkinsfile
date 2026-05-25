@@ -29,7 +29,7 @@ properties([
     folioParameters.groupParameters('Environment features'
       , ['LOAD_REFERENCE', 'LOAD_SAMPLE', 'BUILD_UI', 'CONSORTIA', 'CONSORTIA_SINGLE_UI', 'CONSORTIA_EXTRA', 'LINKED_DATA', 'MARC_MIGRATIONS', 'RTAC_CACHE',  'EDGE_LOCATE'
          , 'SPLIT_FILES', 'RW_SPLIT', 'ECS_CCL', 'GREENMAIL', 'MOCK_SERVER', 'RTR', 'DATASET', 'TYPE', 'ENTITLEMENT_APPROACH', 'SET_BASE_URL'
-         , 'HAS_SECURE_TENANT', 'SECURE_TENANT', 'FOLIO_KEYCLOAK_VERSION', 'FOLIO_KONG_VERSION'
+         , 'HAS_SECURE_TENANT', 'SECURE_TENANT'
     ]),
     folioParameters.loadReference(),
     folioParameters.loadSample(),
@@ -54,8 +54,6 @@ properties([
     choice(name: 'ENTITLEMENT_APPROACH', choices: ['STATE', 'CREATE'], description: '(Optional) Entitlement method: STATE = PUT /entitlements/state (declarative), CREATE = POST /entitlements (procedural)'),
     booleanParam(name: 'SET_BASE_URL', defaultValue: true, description: '(Optional) Set false to skip PUT /base-url during tenant configuration (e.g. for Sunflower)'),
     string(name: 'DB_BACKUP_NAME', defaultValue: Constants.BUGFEST_SNAPSHOT_NAME, description: '(Optional) Set name of the DB backup to restore'),
-    string(name: 'FOLIO_KEYCLOAK_VERSION', defaultValue: 'latest', description: '(Optional) Set FOLIO Keycloak tag, example: 21.0.1-SNAPSHOT.f959523'),
-    string(name: 'FOLIO_KONG_VERSION', defaultValue: 'latest', description: '(Optional) Set FOLIO Kong tag, example: 3.10.0-SNAPSHOT.f959523'),
     folioParameters.groupParameters('Integrations'
       , ['POSTGRESQL', 'DB_VERSION', 'KAFKA', 'OPENSEARCH', 'S3_BUCKET', 'DB_BACKUP_NAME']),
     folioParameters.pgType(),
@@ -68,7 +66,7 @@ properties([
     , folioParameters.hideParameters(
     [
       'EUREKA': ['OKAPI_VERSION', 'EDGE_LOCATE', 'RTAC_CACHE', 'FOLIO_BRANCH', 'LINKED_DATA', 'MARC_MIGRATIONS'],
-      'OKAPI' : ['PLATFORM_BRANCH', 'APPLICATIONS', 'SC_NATIVE', 'ENTITLEMENT_APPROACH', 'SET_BASE_URL', 'FOLIO_KEYCLOAK_VERSION', 'FOLIO_KONG_VERSION']
+      'OKAPI' : ['PLATFORM_BRANCH', 'APPLICATIONS', 'SC_NATIVE', 'ENTITLEMENT_APPROACH', 'SET_BASE_URL']
     ]
     , 'PLATFORM')
     , folioParameters.hideParameters(
@@ -126,8 +124,6 @@ CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builde
   .opensearchType(params.OPENSEARCH)
   .s3Type(params.S3_BUCKET)
   .uiBuild(params.BUILD_UI)
-  .kongVersion(params.FOLIO_KONG_VERSION)
-  .keycloakVersion(params.FOLIO_KEYCLOAK_VERSION)
   .dataset(params.DATASET)
   .type(params.TYPE)
   .scNative(params.SC_NATIVE)

@@ -93,10 +93,6 @@ class CreateNamespaceParameters implements Cloneable {
   @Deprecated
   String worker
 
-  String keycloakVersion = 'latest'
-
-  String kongVersion = 'latest'
-
   String type = 'full'
 
   boolean isConsortiaSingleUi
@@ -392,10 +388,6 @@ class CreateNamespaceParameters implements Cloneable {
      * @return decision for UI.
      */
     Builder uiBuild(boolean uiBuild) { return setParam('uiBuild', uiBuild) }
-
-    Builder kongVersion(String kongVersion) { return setParam('kongVersion', kongVersion) }
-
-    Builder keycloakVersion(String keycloakVersion) { return setParam('keycloakVersion', keycloakVersion) }
 
     Builder type(String type) { return setParam('type', type) }
 
