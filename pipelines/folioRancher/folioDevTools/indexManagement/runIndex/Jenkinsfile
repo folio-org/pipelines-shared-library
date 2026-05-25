@@ -8,7 +8,7 @@ import org.folio.utilities.Logger
 import org.folio.utilities.RestClient
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@reindex_additional_option') _
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
@@ -17,6 +17,7 @@ properties([
     folioParameters.cluster(),
     folioParameters.namespace(),
     choice(name: 'TENANT', choices: ['diku', 'consortium', 'consortium2', 'cs00000int', 'fs09000000', 'fs09000002', 'fs09000003'], description: 'Tenant to reindex'),
+    booleanParam(name: 'RECREATE_INDEXES', defaultValue: false, description: 'Recreate indexes instead of just reindexing'),
     folioParameters.refreshParameters()])
 ])
 
@@ -82,7 +83,7 @@ ansiColor('xterm') {
 
           headers.put('Authorization', "Bearer ${token}")
 
-          def response = new RestClient(this, true).post(URL, null, headers, [200, 201, 202, 204])
+          def response = new RestClient(this, true).post(URL, params.RECREATE_INDEXES ? "{\"recreateIndex\": true}" : null, headers, [200, 201, 202, 204])
 
           logger.info("Reindex response: ${response}")
         } else {
