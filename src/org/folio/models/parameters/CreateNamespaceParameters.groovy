@@ -91,7 +91,7 @@ class CreateNamespaceParameters implements Cloneable {
   boolean namespaceOnly = false
 
   @Deprecated
-  String workerv
+  String worker
 
   String type = 'full'
 
