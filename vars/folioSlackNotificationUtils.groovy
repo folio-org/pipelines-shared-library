@@ -8,18 +8,18 @@ import org.folio.testing.*
 import org.folio.testing.teams.Team
 import org.folio.testing.teams.TeamAssignment
 
-String renderBuildResultSection() {
+String renderBuildResultSection(String failedStage = null) {
   SlackBuildResultRenderer slackBuildResult =
     SlackBuildResultRenderer.fromResult(currentBuild.result == null ? "SUCCESS" : currentBuild.result)
 
-  return renderBuildResultSection(slackBuildResult)
+  return renderBuildResultSection(slackBuildResult, failedStage)
 }
 
-String renderBuildResultSection(SlackBuildResultRenderer buildResult) {
+String renderBuildResultSection(SlackBuildResultRenderer buildResult, String failedStage = null) {
   return buildResult.renderSection(
     env.JOB_BASE_NAME
     , env.BUILD_NUMBER
-    , STAGE_NAME
+    , failedStage ?: STAGE_NAME
     , "${env.BUILD_URL}console"
   )
 }
@@ -59,10 +59,11 @@ String renderTestResultSection(TestType type, IExecutionSummary summary
 }
 
 String renderBuildAndTestResultMessage(TestType type, IExecutionSummary summary
-                                       , String buildName, boolean useReportPortal, String url) {
+                                       , String buildName, boolean useReportPortal, String url
+                                       , String failedStage = null) {
   return SlackHelper.renderMessage(
     [
-      renderBuildResultSection()
+      renderBuildResultSection(failedStage)
       , renderTestResultSection(type, summary, buildName, useReportPortal, url)
     ]
   )
@@ -71,7 +72,8 @@ String renderBuildAndTestResultMessage(TestType type, IExecutionSummary summary
 Map<Team, String> renderTeamsTestResultMessages(TestType type
                                                 , IRunExecutionSummary summary
                                                 , TeamAssignment teamAssignment
-                                                , String buildName, boolean useReportPortal, String url) {
+                                                , String buildName, boolean useReportPortal, String url
+                                                , String failedStage = null) {
 
   Map<Team, List<IModuleExecutionSummary>> teamsResults = summary.getModuleResultByTeam(teamAssignment)
   Map<Team, String> teamsRenderSection = [:]
@@ -79,7 +81,7 @@ Map<Team, String> renderTeamsTestResultMessages(TestType type
   teamsResults.each { teamResults ->
     teamsRenderSection[teamResults.key] = SlackHelper.renderMessage(
       [
-        renderBuildResultSection()
+        renderBuildResultSection(failedStage)
         , renderTestResultSection(type, summary, buildName, useReportPortal, url)
         , renderTeamTestResultSection(type, teamResults.key, teamResults.value)
       ]

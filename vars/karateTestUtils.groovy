@@ -50,7 +50,12 @@ KarateRunExecutionSummary collectTestsResults(String karateSummaryFolder) {
  * @param summary karate tests execution statistics
  */
 void attachCucumberReports(KarateRunExecutionSummary summary) {
-  copyCucumberReports()
+  try {
+    copyCucumberReports()
+  } catch (Exception e) {
+    echo "Skipping cucumber report attachment: ${e.message}"
+    return
+  }
 
   List<KarateFeatureExecutionSummary> features = summary.modulesExecutionSummary.collect { name, moduleSummary ->
     moduleSummary.features
@@ -135,21 +140,21 @@ void syncJiraIssues(KarateRunExecutionSummary karateTestsExecutionSummary, TeamA
           e.printStackTrace()
         }
 
-        // Issue fixed and no any activity have been started on the issue
-        if (issue.status == KarateConstants.ISSUE_OPEN_STATUS && !featureSummary.failed) {
-          jiraClient.issueTransition(issue.id, KarateConstants.ISSUE_CLOSED_STATUS)
-          echo "Jira ticket '${issue.getKey()}' status changed to 'Closed'"
-          // Issue is in "In Review" status
-        } else if (issue.status == KarateConstants.ISSUE_IN_REVIEW_STATUS) {
-          // Feature us still failing
-          if (featureSummary.failed) {
-            jiraClient.issueTransition(issue.id, KarateConstants.ISSUE_OPEN_STATUS)
-            echo "Jira ticket '${issue.getKey()}' status changed to 'Open'"
-            // Feature has been fixed
-          } else {
+        try {
+          if (issue.status == KarateConstants.ISSUE_OPEN_STATUS && !featureSummary.failed) {
             jiraClient.issueTransition(issue.id, KarateConstants.ISSUE_CLOSED_STATUS)
             echo "Jira ticket '${issue.getKey()}' status changed to 'Closed'"
+          } else if (issue.status == KarateConstants.ISSUE_IN_REVIEW_STATUS) {
+            if (featureSummary.failed) {
+              jiraClient.issueTransition(issue.id, KarateConstants.ISSUE_OPEN_STATUS)
+              echo "Jira ticket '${issue.getKey()}' status changed to 'Open'"
+            } else {
+              jiraClient.issueTransition(issue.id, KarateConstants.ISSUE_CLOSED_STATUS)
+              echo "Jira ticket '${issue.getKey()}' status changed to 'Closed'"
+            }
           }
+        } catch (Exception e) {
+          echo "Error transitioning jira ticket '${issue.getKey()}': ${e.message}"
         }
       }
     }

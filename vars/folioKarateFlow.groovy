@@ -13,7 +13,8 @@ import java.time.Instant
 KarateRunExecutionSummary call(KarateTestsParameters args) {
   Logger logger = new Logger(this, 'Karate flow')
   PodTemplates podTemplates = new PodTemplates(this, true)
-  KarateRunExecutionSummary karateTestsExecutionSummary
+  KarateRunExecutionSummary karateTestsExecutionSummary = new KarateRunExecutionSummary()
+  String failedStage = null
 
   podTemplates.javaKarateAgent(args.javaVersion) {
     dir('folio-integration-tests') {
@@ -86,79 +87,106 @@ KarateRunExecutionSummary call(KarateTestsParameters args) {
                         }
           }
         }
+        if (currentBuild.currentResult == 'FAILURE' && !failedStage) failedStage = STAGE_NAME
 
         stage('[Report] Publish results') {
-          cucumber(
-            buildStatus: 'UNSTABLE',
-            fileIncludePattern: '**/target/karate-reports*/*.json',
-            sortingMethod: 'ALPHABETICAL')
+          catchError(stageResult: 'FAILURE') {
+            cucumber(
+              buildStatus: 'UNSTABLE',
+              fileIncludePattern: '**/target/karate-reports*/*.json',
+              sortingMethod: 'ALPHABETICAL')
 
-          junit(
-            testResults: '**/target/karate-reports*/*.xml',
-            allowEmptyResults: true,
-            skipPublishingChecks: true,)
+            junit(
+              testResults: '**/target/karate-reports*/*.xml',
+              allowEmptyResults: true,
+              skipPublishingChecks: true,)
+          }
+          if (currentBuild.currentResult == 'FAILURE' && !failedStage) failedStage = STAGE_NAME
         }
 
         if (args.reportPortalProjectName && args.reportPortalProjectId) {
           stage('[ReportPortal] Finish run') {
-            stopReportPortalRun(args.reportPortalProjectName, args.reportPortalProjectId)
+            catchError(stageResult: 'FAILURE') {
+              stopReportPortalRun(args.reportPortalProjectName, args.reportPortalProjectId)
+            }
+            if (currentBuild.currentResult == 'FAILURE' && !failedStage) failedStage = STAGE_NAME
           }
         }
 
         stage('[Report] Analyze results') {
-          karateTestsExecutionSummary = karateTestUtils.collectTestsResults('**/target/karate-reports*/karate-summary-json.txt')
-          karateTestUtils.attachCucumberReports(karateTestsExecutionSummary)
+          catchError(stageResult: 'FAILURE') {
+            karateTestsExecutionSummary = karateTestUtils.collectTestsResults('**/target/karate-reports*/karate-summary-json.txt')
+            karateTestUtils.attachCucumberReports(karateTestsExecutionSummary)
+          }
+          if (currentBuild.currentResult == 'FAILURE' && !failedStage) failedStage = STAGE_NAME
         }
 
         stage('[Archive] Archive artifacts') {
-          zip zipFile: 'cucumber.zip', glob: '**/target/karate-reports*/*.json'
-          zip zipFile: 'junit.zip', glob: '**/target/karate-reports*/*.xml'
-          zip zipFile: 'karate-summary.zip', glob: '**/target/karate-reports*/karate-summary-json.txt'
+          catchError(stageResult: 'FAILURE') {
+            zip zipFile: 'cucumber.zip', glob: '**/target/karate-reports*/*.json'
+            zip zipFile: 'junit.zip', glob: '**/target/karate-reports*/*.xml'
+            zip zipFile: 'karate-summary.zip', glob: '**/target/karate-reports*/karate-summary-json.txt'
 
-          archiveArtifacts allowEmptyArchive: true, artifacts: 'cucumber.zip', fingerprint: true, defaultExcludes: false
-          archiveArtifacts allowEmptyArchive: true, artifacts: 'junit.zip', fingerprint: true, defaultExcludes: false
-          archiveArtifacts allowEmptyArchive: true, artifacts: 'karate-summary.zip', fingerprint: true, defaultExcludes: false
-          archiveArtifacts allowEmptyArchive: true, artifacts: 'teams-assignment.json', fingerprint: true, defaultExcludes: false
+            archiveArtifacts allowEmptyArchive: true, artifacts: 'cucumber.zip', fingerprint: true, defaultExcludes: false
+            archiveArtifacts allowEmptyArchive: true, artifacts: 'junit.zip', fingerprint: true, defaultExcludes: false
+            archiveArtifacts allowEmptyArchive: true, artifacts: 'karate-summary.zip', fingerprint: true, defaultExcludes: false
+            archiveArtifacts allowEmptyArchive: true, artifacts: 'teams-assignment.json', fingerprint: true, defaultExcludes: false
+          }
+          if (currentBuild.currentResult == 'FAILURE' && !failedStage) failedStage = STAGE_NAME
         }
 
         if (args.syncWithJira) {
           stage('[Jira] Sync issues') {
-            karateTestUtils.syncJiraIssues(karateTestsExecutionSummary, args.teamAssignment)
+            catchError(stageResult: 'FAILURE') {
+              karateTestUtils.syncJiraIssues(karateTestsExecutionSummary, args.teamAssignment)
+            }
+            if (currentBuild.currentResult == 'FAILURE' && !failedStage) failedStage = STAGE_NAME
           }
         }
 
         if (args.sendSlackNotification) {
           stage('[Slack] Send notification') {
-            slackSend(attachments: folioSlackNotificationUtils
-              .renderBuildAndTestResultMessage(
-                TestType.KARATE
-                , karateTestsExecutionSummary
-                , ''
-                , true
-                , "${env.BUILD_URL}cucumber-html-reports/overview-features.html"
-              )
-              , channel: '#rancher_tests_notifications')
+            catchError(stageResult: 'FAILURE') {
+              slackSend(attachments: folioSlackNotificationUtils
+                .renderBuildAndTestResultMessage(
+                  TestType.KARATE
+                  , karateTestsExecutionSummary
+                  , ''
+                  , true
+                  , "${env.BUILD_URL}cucumber-html-reports/overview-features.html"
+                  , failedStage
+                )
+                , channel: '#rancher_tests_notifications')
+            }
+            if (currentBuild.currentResult == 'FAILURE' && !failedStage) failedStage = STAGE_NAME
           }
         }
 
         if (args.sendTeamsSlackNotification) {
           stage('Send slack notifications to teams') {
-            folioSlackNotificationUtils.renderTeamsTestResultMessages(
-              TestType.KARATE
-              , karateTestsExecutionSummary
-              , args.teamAssignment
-              , ''
-              , true
-              , "${env.BUILD_URL}cucumber-html-reports/overview-features.html")
-              .each {
-                slackSend(attachments: it.value, channel: it.key.getSlackChannel())
-              }
+            catchError(stageResult: 'FAILURE') {
+              folioSlackNotificationUtils.renderTeamsTestResultMessages(
+                TestType.KARATE
+                , karateTestsExecutionSummary
+                , args.teamAssignment
+                , ''
+                , true
+                , "${env.BUILD_URL}cucumber-html-reports/overview-features.html"
+                , failedStage)
+                .each {
+                  slackSend(attachments: it.value, channel: it.key.getSlackChannel())
+                }
+            }
+            if (currentBuild.currentResult == 'FAILURE' && !failedStage) failedStage = STAGE_NAME
           }
         }
 
         if (args.cleanupTenants) {
           stage('Cleanup test tenants') {
-            folioTools.karateTenantsCleanUpUnified(args.okapiUrl, args.keycloakUrl, args.clientId, args.clientSecret)
+            catchError(stageResult: 'FAILURE') {
+              folioTools.karateTenantsCleanUpUnified(args.okapiUrl, args.keycloakUrl, args.clientId, args.clientSecret)
+            }
+            if (currentBuild.currentResult == 'FAILURE' && !failedStage) failedStage = STAGE_NAME
           }
         }
       }
