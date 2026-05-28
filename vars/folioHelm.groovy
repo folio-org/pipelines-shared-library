@@ -424,6 +424,11 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
     moduleConfig['extraJavaOpts'] += ["-Djwt.signing.key=${folioTools.generateRandomString(16)}"]
   }
 
+//https://folio-org.atlassian.net/browse/RANCHER-3002
+  if (moduleName == 'mod-scheduler' && ns.getNamespaceName() == 'cikarate') {
+    moduleConfig['extraEnvVars'] += [name: 'SCHEDULER_API_ALLOW_SYSTEM_TIMER_MUTATION', value: 'true']
+  }
+
   //Bulk operations bucket configuration
   if (moduleName == 'mod-bulk-operations' && ns.getNamespaceName() == 'sprint') {
     moduleConfig['extraJavaOpts'] += ['-Dspring.servlet.multipart.max-file-size=40MB',
