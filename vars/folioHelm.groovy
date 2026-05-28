@@ -277,6 +277,10 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
     moduleConfig.integrations.db.existingSecret = "db-credentials-${ns.getNamespaceName()}-eureka"
   }
 
+  if (ns.getNamespaceName() == 'cikarate' && moduleName.startsWith('mgr-') && moduleConfig.integrations?.kafka?.existingSecret == 'kafka-credentials') {
+    moduleConfig.integrations.kafka.existingSecret = 'kafka-credentials-2'
+  }
+
 /**
  * Modules feature switcher*/
 
