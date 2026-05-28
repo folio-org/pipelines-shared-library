@@ -25,7 +25,7 @@ resource "helm_release" "kong" {
   values = [
     <<-EOF
 image:
-  registry: ${var.kong_version == "latest" || can(regex("SNAPSHOT", var.kong_version)) ? "folioci" : "folioorg"}
+  registry: ${local.kong_image_registry}
   repository: folio-kong
   tag: ${var.kong_version}
   pullPolicy: Always

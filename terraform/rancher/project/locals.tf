@@ -45,4 +45,11 @@ EOF
     runix      = "https://helm.runix.net"
   }
 
+  keycloak_custom_snapshot   = can(regex("^.+-SNAPSHOT\\.[0-9a-f]{7}$", var.keycloak_version))
+  keycloak_standard_snapshot = var.keycloak_version == "latest" || can(regex("^.+-SNAPSHOT\\.[0-9]+$", var.keycloak_version))
+  keycloak_image_registry    = local.keycloak_custom_snapshot ? "732722833398.dkr.ecr.us-west-2.amazonaws.com" : local.keycloak_standard_snapshot ? "folioci" : "folioorg"
+  kong_custom_snapshot       = can(regex("^.+-SNAPSHOT\\.[0-9a-f]{7}$", var.kong_version))
+  kong_standard_snapshot     = var.kong_version == "latest" || can(regex("^.+-SNAPSHOT\\.[0-9]+$", var.kong_version))
+  kong_image_registry        = local.kong_custom_snapshot ? "732722833398.dkr.ecr.us-west-2.amazonaws.com" : local.kong_standard_snapshot ? "folioci" : "folioorg"
+
 }

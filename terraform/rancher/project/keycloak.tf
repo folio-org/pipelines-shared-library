@@ -28,7 +28,7 @@ resource "helm_release" "keycloak" {
   values = [
     <<-EOF
 image:
-  registry: ${var.keycloak_version == "latest" || can(regex("SNAPSHOT", var.keycloak_version)) ? "folioci" : "folioorg"}
+  registry: ${local.keycloak_image_registry}
   repository: folio-keycloak
   tag: ${var.keycloak_version}
   pullPolicy: Always
