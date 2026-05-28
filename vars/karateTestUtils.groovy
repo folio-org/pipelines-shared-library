@@ -25,7 +25,7 @@ KarateRunExecutionSummary collectTestsResults(String karateSummaryFolder) {
     String[] split = path.split("/")
     String moduleName = split[split.size() - 4]
 
-    def contents = readJSON file: path
+    def contents = readJSON text: readFile(file: path).replaceAll(/\bNaN\b/, '0')
 
     // find corresponding cucumber reports to get feature display name
     Map<String, String> displayNames = [:]
