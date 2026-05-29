@@ -1,7 +1,6 @@
 package org.folio.models.parameters
 
 import org.folio.Constants
-import org.folio.rest_v2.EntitlementApproach
 import org.folio.rest_v2.FolioRelease
 import org.folio.rest_v2.PlatformType
 
@@ -24,8 +23,6 @@ class DependentParametersResolver {
     }
 
     // Release-driven
-    result.entitlementApproach = (releaseType == FolioRelease.SUNFLOWER) ? EntitlementApproach.CREATE : EntitlementApproach.STATE
-    result.setBaseUrl = (releaseType != FolioRelease.SUNFLOWER)
     result.configExtensions = (releaseType == FolioRelease.SUNFLOWER) ? ['sunflower'] : []
 
     // Cluster-driven
