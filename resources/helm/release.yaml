@@ -5042,8 +5042,6 @@ mod-roles-keycloak:
     failureThreshold: 30
 mod-users-keycloak:
   extraEnvVars:
-  - name: MOD_USERS_URL
-    value: "http://mod-users"
   - name: KAFKA_SYS_USER_TOPIC_PATTERN
     value: '(${application.environment}\.)(.*\.)mgr-tenant-entitlements.system-user'
   - name: KAFKA_SYS_USER_TOPIC_RETRY_DELAY
