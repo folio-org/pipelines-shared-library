@@ -277,6 +277,10 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
     moduleConfig.integrations.db.existingSecret = "db-credentials-${ns.getNamespaceName()}-eureka"
   }
 
+  if (ns.getNamespaceName() == 'cikarate' && (moduleName.startsWith('mgr-') || moduleName ==~ /mod-.*-keycloak/) && moduleConfig.integrations?.kafka?.existingSecret == 'kafka-credentials') {
+    moduleConfig.integrations.kafka.existingSecret = 'kafka-credentials-2'
+  }
+
 /**
  * Modules feature switcher*/
 
@@ -418,6 +422,11 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
       moduleConfig['extraEnvVars'] += [name: 'LEGACY_TOKEN_TENANTS', value: '']
     }
     moduleConfig['extraJavaOpts'] += ["-Djwt.signing.key=${folioTools.generateRandomString(16)}"]
+  }
+
+//https://folio-org.atlassian.net/browse/RANCHER-3002
+  if (moduleName == 'mod-scheduler' && ns.getNamespaceName() == 'cikarate') {
+    moduleConfig['extraEnvVars'] += [name: 'SCHEDULER_API_ALLOW_SYSTEM_TIMER_MUTATION', value: 'true']
   }
 
   //Bulk operations bucket configuration

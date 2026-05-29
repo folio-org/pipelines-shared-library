@@ -43,6 +43,23 @@ module "vpc_cni_irsa_role" {
   )
 }
 
+resource "aws_iam_role_policy" "vpc_cni_describe_security_groups" {
+  name = "vpc-cni-describe-security-groups"
+  role = module.vpc_cni_irsa_role.iam_role_name
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid      = "DescribeSecurityGroups"
+        Effect   = "Allow"
+        Action   = ["ec2:DescribeSecurityGroups"]
+        Resource = "*"
+      }
+    ]
+  })
+}
+
 module "ebs_csi_irsa_role" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
   version = "~>5.47.0"

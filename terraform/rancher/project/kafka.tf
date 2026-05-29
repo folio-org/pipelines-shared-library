@@ -9,6 +9,18 @@ resource "rancher2_secret" "kafka-credentials" {
   }
 }
 
+resource "rancher2_secret" "kafka-credentials-2" {
+  count        = var.rancher_project_name == "cikarate" ? 1 : 0
+  name         = "kafka-credentials-2"
+  project_id   = rancher2_project.this.id
+  namespace_id = rancher2_namespace.this.id
+  data = {
+    ENV        = base64encode(local.env_name)
+    KAFKA_HOST = base64encode("kafka-${var.rancher_project_name}-2")
+    KAFKA_PORT = base64encode("9092")
+  }
+}
+
 # Kafka deployment
 resource "helm_release" "kafka" {
   count      = var.kafka_shared ? 0 : 1
@@ -74,6 +86,99 @@ controller:
   extraEnvVars:
     - name: KAFKA_CFG_ADVERTISED_LISTENERS
       value: "PLAINTEXT://kafka-${var.rancher_project_name}:9092"
+  ${indent(2, local.schedule_value)}
+broker:
+  replicaCount: 0
+service:
+  ports:
+    client: 9092
+metrics:
+  jmx:
+    image:
+      tag: 1.5.0-debian-12-r8
+      registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
+      repository: jmx-exporter
+      pullPolicy: IfNotPresent
+    enabled: true
+    resources:
+      limits:
+        memory: 2048Mi
+      requests:
+        memory: 1024Mi
+  serviceMonitor:
+    enabled: true
+    namespace: monitoring
+    interval: 30s
+    scrapeTimeout: 30s
+EOF
+  ]
+}
+
+# Kafka deployment (2nd instance for cikarate)
+resource "helm_release" "kafka_2" {
+  count      = !var.kafka_shared && var.rancher_project_name == "cikarate" ? 1 : 0
+  namespace  = rancher2_namespace.this.name
+  repository = local.catalogs.bitnami
+  name       = "kafka-${var.rancher_project_name}-2"
+  chart      = "kafka"
+  version    = "31.2.0"
+  values = [<<-EOF
+global:
+  security:
+    allowInsecureImages: true
+podSecurityContext:
+  fsGroup: 1001
+securityContext:
+  runAsUser: 1001
+  runAsNonRoot: true
+image:
+  tag: 4.2.0-debian-12-r2
+  registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
+  repository: kafka
+  pullPolicy: IfNotPresent
+clusterId: "MkU3OEVBNTcwNTJENDM2Qk"
+listeners:
+  client:
+    name: PLAINTEXT
+    protocol: PLAINTEXT
+    containerPort: 9092
+  controller:
+    name: CONTROLLER
+    protocol: PLAINTEXT
+  interbroker:
+    name: INTERBROKER
+    protocol: PLAINTEXT
+controller:
+  replicaCount: ${var.kafka_number_of_broker_nodes}
+  controllerOnly: false
+  heapOpts: "-XX:MaxRAMPercentage=75.0"
+  resources:
+    requests:
+      memory: 4Gi
+    limits:
+      memory: '${var.kafka_max_mem_size}Mi'
+  persistence:
+    enabled: true
+    size: ${join("", [var.kafka_ebs_volume_size, "Gi"])}
+    storageClass: gp2
+  livenessProbe:
+    enabled: false
+  readinessProbe:
+    enabled: false
+  extraConfig: |
+    offsets.topic.replication.factor=${var.kafka_number_of_broker_nodes}
+    transaction.state.log.replication.factor=${var.kafka_number_of_broker_nodes}
+    transaction.state.log.min.isr=1
+    min.insync.replicas=1
+    default.replication.factor=${var.kafka_number_of_broker_nodes}
+    num.partitions=1
+    auto.create.topics.enable=true
+    delete.topic.enable=true
+    group.initial.rebalance.delay.ms=3000
+    group.coordinator.rebalance.protocols=classic
+  extraEnvVars:
+    - name: KAFKA_CFG_ADVERTISED_LISTENERS
+      value: "PLAINTEXT://kafka-${var.rancher_project_name}-2:9092"
   ${indent(2, local.schedule_value)}
 broker:
   replicaCount: 0
