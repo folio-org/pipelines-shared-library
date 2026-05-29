@@ -11,7 +11,7 @@ import org.jenkinsci.plugins.workflow.libs.Library
 import static groovy.json.JsonOutput.prettyPrint
 import static groovy.json.JsonOutput.toJson
 
-@Library('pipelines-shared-library@test-sunflower') _
+@Library('pipelines-shared-library') _
 
 @Field final String createNamespaceJobName = Constants.JENKINS_CREATE_NAMESPACE_FROM_BRANCH_JOB
 @Field final String deleteNamespaceJobName = Constants.JENKINS_DELETE_NAMESPACE_JOB
