@@ -2,7 +2,6 @@ package org.folio.models.parameters
 
 import com.cloudbees.groovy.cps.NonCPS
 import org.folio.Constants
-import org.folio.rest_v2.EntitlementApproach
 import org.folio.rest_v2.FolioRelease
 import org.folio.rest_v2.PlatformType
 
@@ -436,9 +435,7 @@ class CreateNamespaceParameters implements Cloneable {
         }
       }
 
-      if (parameters.initParams.entitlementApproach == null && defaults.entitlementApproach != null)
-        parameters.initParams.entitlementApproach = defaults.entitlementApproach as EntitlementApproach
-
+      parameters.initParams.applyDefaults(parameters.releaseType)
       parameters.folioExtensions = (parameters.folioExtensions + DependentParametersResolver.resolveFolioExtensions(parameters)).unique()
 
       return parameters
