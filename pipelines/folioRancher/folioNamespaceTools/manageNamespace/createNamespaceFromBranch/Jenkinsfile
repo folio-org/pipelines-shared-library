@@ -127,7 +127,7 @@ CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builde
   .dataset(params.DATASET)
   .type(params.TYPE)
   .scNative(params.SC_NATIVE)
-  .initParams(params.PLATFORM_BRANCH == 'R1-2025-ci' ? new InitializeFromScratchParameters()
+  .initParams(params.PLATFORM_BRANCH == 'pjacob/sunflower-keycloak-26.6.2' || params.PLATFORM_BRANCH == 'R1-2025-ci' ? new InitializeFromScratchParameters()
     .withEntitlementApproach(EntitlementApproach.valueOf(params.ENTITLEMENT_APPROACH)) :
     new InitializeFromScratchParameters()
       .withEntitlementApproach(EntitlementApproach.valueOf(params.ENTITLEMENT_APPROACH))
