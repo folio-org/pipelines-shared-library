@@ -5,7 +5,11 @@ import groovy.transform.Field
 import org.folio.Constants
 import org.folio.jenkins.PodTemplates
 import org.folio.models.parameters.CreateNamespaceParameters
+import org.folio.utilities.Logger
 import org.jenkinsci.plugins.workflow.libs.Library
+
+import static groovy.json.JsonOutput.prettyPrint
+import static groovy.json.JsonOutput.toJson
 
 @Library('pipelines-shared-library') _
 
@@ -98,6 +102,9 @@ ansiColor('xterm') {
     }
 
     stage('Spinning up env') {
+      Logger logger = new Logger(this, 'createNamespace')
+      logger.info("Create namespace parameters:\n${prettyPrint(toJson(namespace))}")
+
       folioTriggerJob.createNamespaceFromBranch(createNamespaceJobName, namespace)
     }
   }
