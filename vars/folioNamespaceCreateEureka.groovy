@@ -8,6 +8,7 @@ import org.folio.models.parameters.CreateNamespaceParameters
 import org.folio.rest_v2.FolioRelease
 import org.folio.rest_v2.PlatformType
 import org.folio.rest_v2.eureka.Eureka
+import org.folio.rest_v2.eureka.Keycloak
 import org.folio.rest_v2.eureka.kong.Applications
 import org.folio.rest_v2.eureka.kong.Edge
 import org.folio.utilities.Logger
@@ -262,6 +263,7 @@ void call(CreateNamespaceParameters args) {
             check = true
           } catch (Exception e) {
             logger.warning("Keycloak TTL increase failed: ${e.getMessage()}")
+            new Keycloak(this, namespace.generateDomain('keycloak')).fixAuth403error(namespace.getNamespaceName())
             sleep time: 5, unit: 'SECONDS'
             check = false
           }

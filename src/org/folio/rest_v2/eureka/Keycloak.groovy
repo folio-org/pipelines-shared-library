@@ -116,6 +116,42 @@ class Keycloak extends Base {
     }
   }
 
+  Keycloak fixAuth403error(String namespaceName) {
+    logger.info("Fixing Keycloak auth flow in namespace $namespaceName ....")
+
+    String getClientUrl = generateUrl("/admin/realms/master/clients?clientId=${MASTER_TENANT_CLIENT_ID}")
+    Map<String, String> headers = ['Content-Type': 'application/json'] + getAuthMasterTenantHeaders()
+
+    List clients = restClient.get(getClientUrl, headers).body as List
+    if (clients && !clients.isEmpty()) {
+      String clientUuid = clients.first()['id'] as String
+      String deleteClientUrl = generateUrl("/admin/realms/master/clients/${clientUuid}")
+      restClient.delete(deleteClientUrl, headers).body
+      logger.info("Client ${MASTER_TENANT_CLIENT_ID} has been deleted from master realm")
+    } else {
+      logger.info("Client ${MASTER_TENANT_CLIENT_ID} was not found in master realm")
+    }
+
+    String statefulSetNames = context.kubectl.getKubernetesStsNames(namespaceName)
+    String keycloakStatefulSet = statefulSetNames
+      .tokenize(' ')
+      .find { it.contains('keycloak') }
+
+    if (!keycloakStatefulSet) {
+      throw new Exception("Keycloak statefulset was not found in namespace ${namespaceName}")
+    }
+
+    String replicaCount = context.kubectl.getKubernetesResourceCount('statefulset', keycloakStatefulSet, namespaceName).trim()
+
+    context.kubectl.setKubernetesResourceCount('statefulset', keycloakStatefulSet, namespaceName, '0')
+    context.kubectl.setKubernetesResourceCount('statefulset', keycloakStatefulSet, namespaceName, replicaCount)
+    context.kubectl.waitPodIsRunning(namespaceName, "${keycloakStatefulSet}-0")
+
+    logger.info("Keycloak statefulset ${keycloakStatefulSet} has been restarted and is running")
+
+    return this
+  }
+
   static String getRealmTokenPath(String tenantId){
     return (new StreamingTemplateEngine()
       .createTemplate(REALM_TOKEN_PATH_TEMPLATE)
