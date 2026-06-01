@@ -2861,6 +2861,16 @@ mod-login:
   pdb:
     enabled: true
     maxUnavailable: 1
+  sidecarContainers:
+  eureka:
+    extraEnvVars: []
+    - name: JAVA_OPTS
+      value: "-Dquarkus.log.level=INFO -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseZGC -Xms160m -Xmx160m -Dquarkus.log.category.'org.apache.kafka'.level=INFO"
+    resources:
+      limits:
+        memory: 256Mi
+      requests:
+        memory: 128Mi        
 mod-login-saml:
   extraEnvVars:
   - name: DB_MAXPOOLSIZE
