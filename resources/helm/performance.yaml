@@ -5094,7 +5094,7 @@ mod-scheduler:
   - name: QUARTZ_SCHEDULER_IDLE_WAIT_TIME
     value: "10000"
   - name: QUARTZ_MISFIRE_THRESHOLD
-    value: "250"
+    value: "500"
   - name: QUARTZ_CLUSTER_CHECKIN_INTERVAL
     value: "500"
   - name: QUARTZ_POOL_THREAD_COUNT
