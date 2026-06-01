@@ -2085,9 +2085,9 @@ mod-locations:
   replicaCount: 1
   resources:
     limits:
-      memory: 296Mi
+      memory: 1024Mi
     requests:
-      memory: 258Mi
+      memory: 512Mi
   extraJavaOpts:
     - -XX:MaxRAMPercentage=85.0
   startupProbe:
