@@ -3409,6 +3409,9 @@ mgr-applications:
       value: "true"
     - name: SECURITY_ENABLED
       value: "true"
+    - name: KONG_TENANT_CHECKS_ENABLED
+      value: "true"
+    - name:     
   extraJavaOpts:
     - "-Dlogging.level.root=INFO -Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties"
   integrations:
