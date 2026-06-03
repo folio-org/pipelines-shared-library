@@ -275,8 +275,16 @@ ansiColor('xterm') {
     }
 
     stage('Generate context') {
+      def excludedTenantPattern = ~/(?i)^(university|central|college|testtenant)[0-9]+$/
+
       eureka.getExistedTenantsForModule("${namespace.getClusterName()}-${namespace.getNamespaceName()}", module.getName())
-        .values().each { if (!(it.name ==~ /(university|central|college|testtenant)[0-9]+$/)) namespace.addTenant(it) }
+        .values().each { tenant ->
+          String tenantName = (tenant.tenantName ?: tenant.tenantId ?: '').trim()
+
+          if (!(tenantName ==~ excludedTenantPattern)) {
+            namespace.addTenant(tenant)
+          }
+        }
 
       namespace.tenants.values().each { it.getModules().addModule(module) }
 
