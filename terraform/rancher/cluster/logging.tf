@@ -683,11 +683,11 @@ spec:
             - DAC_READ_SEARCH
         resources:
           limits:
-            memory: 512Mi
+            memory: 640Mi
             cpu: 200m
           requests:
             cpu: 50m
-            memory: 128Mi
+            memory: 160Mi
         volumeMounts:
         - name: config
           mountPath: /etc/filebeat.yml
