@@ -2376,6 +2376,8 @@ mod-inventory-storage:
     value: "2"
   - name: S3_LOCAL_SUB_PATH
     value: "mod-inventory-storage"
+  - name: DB_EXPLAIN_QUERY_THRESHOLD
+    value: "30000"
   integrations:
     db:
       enabled: true
@@ -4107,7 +4109,7 @@ mod-search:
     maxReplicas: 2
     targetMemoryUtilizationPercentage: 50
   extraJavaOpts:
-  - -XX:MaxRAMPercentage=60.0
+  - -XX:MaxRAMPercentage=75.0
   startupProbe:
     httpGet:
       path: /admin/health
