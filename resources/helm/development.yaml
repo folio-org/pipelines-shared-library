@@ -3392,7 +3392,7 @@ mod-z3950:
 mgr-applications:
   extraEnvVars:
     - name: SECURE_STORE_ENV
-      value: '(${application.environment})'    
+      value: '${application.environment}'    
     - name: ROUTEMANAGEMENT_ENABLE
       value: "true"
     - name: MODULE_URL
@@ -3479,7 +3479,7 @@ mgr-tenant-entitlements:
     - -XX:MaxRAMPercentage=80.0
   extraEnvVars:
     - name: SECURE_STORE_ENV
-      value: '(${application.environment})'
+      value: '${application.environment}'
     - name: ROUTEMANAGEMENT_ENABLE
       value: "false"
     - name: MODULE_URL
