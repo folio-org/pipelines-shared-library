@@ -15,10 +15,14 @@ void withK8sClient(Closure closure) {
   }
 }
 
-void withKubeConfig(String clusterName, Closure closure) {
+void withKubeConfig(String clusterName, Closure closure, boolean testActive = false) {
   withK8sClient {
     awscli.getKubeConfig(Constants.AWS_REGION, clusterName)
-    addHelmRepository(Constants.FOLIO_HELM_V2_REPO_NAME, Constants.FOLIO_HELM_V2_REPO_URL, true)
+    if (testActive) {
+      addHelmRepository(Constants.FOLIO_HELM_V2_TEST_REPO_NAME, Constants.FOLIO_HELM_V2_TEST_REPO_URL, true)
+    } else {
+      addHelmRepository(Constants.FOLIO_HELM_V2_REPO_NAME, Constants.FOLIO_HELM_V2_REPO_URL, true)
+    }
     closure.call()
   }
 }
@@ -349,13 +353,13 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
 //            value: '1'
 //          ] : []
         break
-        
+
       case 'mod-search':
           moduleConfig['extraEnvVars'] +=  ['cikarate', 'karate'].contains(ns.getNamespaceName()) ? [
             name : 'spring.cache.type',
             value: 'none'
           ] : []
-        break          
+        break
 
       case ~/mod-.*-keycloak/:
         moduleConfig['extraEnvVars'] += [

@@ -327,7 +327,7 @@ void call(CreateNamespaceParameters args) {
       }
 
       stage('[Helm] Deploy modules') {
-        folioHelm.withKubeConfig(namespace.getClusterName()) {
+        folioHelm.withKubeConfig(namespace.getClusterName(), true) {
           logger.info(namespace.getModules().getBackendModules())
 
           folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getBackendModules())
@@ -336,7 +336,7 @@ void call(CreateNamespaceParameters args) {
       }
 
       stage('[Helm] Deploy edge') {
-        folioHelm.withKubeConfig(namespace.getClusterName()) {
+        folioHelm.withKubeConfig(namespace.getClusterName(), true) {
           folioEdge.renderEphemeralPropertiesEureka(namespace)
           namespace.getModules().getEdgeModules().each { module ->
             kubectl.createConfigMap("${module.name}-ephemeral-properties", namespace.getNamespaceName(), "./${module.name}-ephemeral-properties")
