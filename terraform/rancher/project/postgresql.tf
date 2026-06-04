@@ -508,7 +508,7 @@ resource "postgresql_database" "eureka_keycloak" {
 
 resource "postgresql_database" "folio2" {
   depends_on = [kubernetes_job_v1.adjust_rds_db]
-  count      = var.eureka && !var.pg_embedded ? 1 : 0
+  count      = var.eureka && var.pg_embedded ? 1 : 0
   name       = "folio2"
   owner      = "postgres"
   connection {
