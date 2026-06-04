@@ -3434,6 +3434,8 @@ mgr-applications:
     initialDelaySeconds: 20
 mgr-tenants:
   extraEnvVars:
+    - name: SECURE_STORE_ENV
+      value: '(${application.environment})'
     - name: MODULE_URL
       value: "http://mgr-tenants"
     - name: FOLIO_CLIENT_CONNECT_TIMEOUT
@@ -3477,6 +3479,8 @@ mgr-tenant-entitlements:
     - "-Dlogging.level.root=INFO -Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties"
     - -XX:MaxRAMPercentage=80.0
   extraEnvVars:
+    - name: SECURE_STORE_ENV
+      value: '(${application.environment})'
     - name: ROUTEMANAGEMENT_ENABLE
       value: "false"
     - name: MODULE_URL

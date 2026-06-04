@@ -33,6 +33,29 @@ resource "rancher2_secret" "db-credentials" {
   } : {})
 }
 
+resource "rancher2_secret" "db-credentials2" {
+  name         = "db-credentials2"
+  project_id   = rancher2_project.this.id
+  namespace_id = rancher2_namespace.this.id
+  data = merge({
+    ENV             = base64encode(local.env_name)
+    DB_HOST         = base64encode(var.pg_embedded ? local.pg_service_writer : module.rds[0].cluster_endpoint)
+    DB_PORT         = base64encode("5432")
+    DB_USERNAME     = base64encode(var.pg_embedded ? var.pg_username : module.rds[0].cluster_master_username)
+    DB_PASSWORD     = base64encode(local.pg_password)
+    DB_DATABASE     = base64encode(var.eureka ? "folio2" : var.pg_dbname)
+    DB_MAXPOOLSIZE  = base64encode("50")
+    #DB_MAXSHAREDPOOLSIZE = base64encode("50")
+    DB_CHARSET      = base64encode("UTF-8")
+    DB_QUERYTIMEOUT = base64encode("14400000")
+    },
+    var.enable_rw_split ? {
+      DB_HOST_READER = base64encode(var.pg_embedded ? local.pg_service_reader : module.rds[0].cluster_reader_endpoint)
+      DB_PORT_READER = base64encode("5432")
+  } : {})
+}
+
+
 resource "rancher2_secret" "db-credentials-eureka-components" {
   count        = contains(["cikarate", "cicypress", "cypress", "karate"], var.rancher_project_name) ? 1 : 0
   name         = "db-credentials-${var.rancher_project_name}-eureka"
@@ -475,6 +498,19 @@ resource "postgresql_database" "eureka_keycloak" {
   count      = var.eureka && !var.pg_embedded ? 1 : 0
   name       = "keycloak"
   owner      = "keycloak"
+  connection {
+    host     = module.rds[0].cluster_endpoint
+    port     = 5432
+    username = module.rds[0].cluster_master_username
+    password = local.pg_password
+  }
+}
+
+resource "postgresql_database" "folio2" {
+  depends_on = [kubernetes_job_v1.adjust_rds_db]
+  count      = var.eureka && !var.pg_embedded ? 1 : 0
+  name       = "folio2"
+  owner      = "postgres"
   connection {
     host     = module.rds[0].cluster_endpoint
     port     = 5432
