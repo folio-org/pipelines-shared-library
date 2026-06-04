@@ -153,7 +153,7 @@ primary:
   initdb:
     scripts:
       init.sql: |
-        ${indent(8, var.eureka ? templatefile("${path.module}/resources/eureka.db.tpl", { dbs = [local.pg_eureka_db_name, "kong", "keycloak"], pg_password = var.pg_password }) : "--fail safe")}
+        ${indent(8, var.eureka ? templatefile("${path.module}/resources/eureka.db.tpl", { dbs = [local.pg_eureka_db_name, "kong", "keycloak", "folio2"], pg_password = var.pg_password }) : "--fail safe")}
         ${var.eureka ? "" : "CREATE DATABASE ${var.pg_dbname};"}
         CREATE DATABASE ldp;
         CREATE USER ldpadmin PASSWORD '${var.pg_ldp_user_password}';
@@ -506,18 +506,18 @@ resource "postgresql_database" "eureka_keycloak" {
   }
 }
 
-resource "postgresql_database" "folio2" {
-  depends_on = [kubernetes_job_v1.adjust_rds_db]
-  count      = var.eureka && var.pg_embedded ? 1 : 0
-  name       = "folio2"
-  owner      = "postgres"
-  connection {
-    host     = module.rds[0].cluster_endpoint
-    port     = 5432
-    username = module.rds[0].cluster_master_username
-    password = local.pg_password
-  }
-}
+# resource "postgresql_database" "folio2" {
+#   depends_on = [kubernetes_job_v1.adjust_rds_db]
+#   count      = var.eureka && var.pg_embedded ? 1 : 0
+#   name       = "folio2"
+#   owner      = "postgres"
+#   connection {
+#     host     = module.rds[0].cluster_endpoint
+#     port     = 5432
+#     username = module.rds[0].cluster_master_username
+#     password = local.pg_password
+#   }
+# }
 
 # pgAdmin service deployment
 resource "helm_release" "pgadmin" {
