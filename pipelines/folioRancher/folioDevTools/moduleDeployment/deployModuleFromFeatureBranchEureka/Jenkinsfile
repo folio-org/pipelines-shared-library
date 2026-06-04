@@ -278,11 +278,14 @@ ansiColor('xterm') {
       def excludedTenantPattern = ~/(?i)^(university|central|college|testtenant)[0-9]+$/
       eureka.getExistedTenantsForModule("${namespace.getClusterName()}-${namespace.getNamespaceName()}", module.getName())
         .values().each { tenant ->
-          String tenantName = (tenant.tenantName ?: tenant.tenantId ?: '').trim()
+          if (!tenant) {
+            return
+          }
+          String tenantName = ((tenant.name ?: tenant.id ?: tenant.tenantName ?: tenant.tenantId ?: '') as String).trim()
           if (tenantName ==~ excludedTenantPattern) {
           logger.info("Skipping generated tenant ${tenantName}")
           } else { 
-          namespace.addTenant(it) 
+          namespace.addTenant(tenant)
           }
         }  
 
