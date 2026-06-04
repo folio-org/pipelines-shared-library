@@ -281,13 +281,12 @@ ansiColor('xterm') {
           if (!tenant) {
             return
           }
-          String tenantName = ((tenant.name ?: tenant.id ?: tenant.tenantName ?: tenant.tenantId ?: '') as String).trim()
-          if (tenantName ==~ excludedTenantPattern) {
+          if (tenant.tenantName ==~ excludedTenantPattern) {
           logger.info("Skipping generated tenant ${tenantName}")
-          } else { 
+          } else {
           namespace.addTenant(tenant)
           }
-        }  
+        }
 
       namespace.tenants.values().each { it.getModules().addModule(module) }
 
