@@ -1,6 +1,7 @@
 import groovy.json.JsonException
 import org.folio.Constants
 import org.folio.client.reportportal.ReportPortalClient
+import org.folio.client.reportportal.ReportPortalConstants
 import org.folio.models.parameters.CypressTestsParameters
 import org.folio.testing.TestType
 import org.folio.testing.cypress.results.CypressRunExecutionSummary
@@ -241,11 +242,17 @@ String archiveTestResults(String workerId) {
     String stashName = "allure-results-${workerId}"
     String tarName = "allure-results-${workerId}.tar.gz"
 
-    sh """
-      tar -zcf ${tarName} allure-results/*
-      md5sum ${tarName} > ${tarName}.md5
-      test -f ${tarName}
-    """
+    try {
+      sh """
+        tar -zcf ${tarName} allure-results/*
+        md5sum ${tarName} > ${tarName}.md5
+        test -f ${tarName}
+      """
+    } catch (Exception e) {
+      echo("Archiving test results was interrupted: ${e.getMessage()}")
+      currentBuild.result = 'UNSTABLE'
+      return null
+    }
 
     archiveArtifacts artifacts: "${tarName}, ${tarName}.md5", allowEmptyArchive: true, fingerprint: true, defaultExcludes: false
     stash name: stashName, includes: "${tarName}, ${tarName}.md5"
@@ -337,6 +344,31 @@ void finalizeReportPortal(ReportPortalClient reportPortalClient) {
       echo("Couldn't stop run in ReportPortal\nError: ${e.getMessage()}")
     }
   }
+}
+
+int runFailedTestsRecheck(String launchName) {
+  validateParameter(launchName, 'launchName')
+
+  int flakyCount = 0
+  stage('[Cypress & ReportPortal] Re-check "To Investigate" tests') {
+    try {
+      withCredentials([string(credentialsId: ReportPortalConstants.CREDENTIALS_ID, variable: 'CI_API_KEY')]) {
+        String countFile = 'flaky-recheck-count.txt'
+
+        timeout(time: 5, unit: 'HOURS') {
+          sh "node scripts/report-portal/runFailedTests.js --launchName ${launchName}"
+        }
+
+        if (fileExists(countFile)) {
+          flakyCount = readFile(countFile).trim().toInteger()
+          sh "rm -f ${countFile}"
+        }
+      }
+    } catch (Exception e) {
+      echo("runFailedTests re-check failed: ${e.getMessage()}")
+    }
+  }
+  return flakyCount
 }
 
 /**
@@ -432,7 +464,7 @@ CypressRunExecutionSummary analyzeResults() {
  * @param channel The Slack channel to send notifications to. Defaults to '#rancher_tests_notifications'.
  */
 void sendNotifications(CypressRunExecutionSummary testRunExecutionSummary, String ciBuildId, boolean useReportPortal,
-                       String channel = '#rancher_tests_notifications') {
+                       String channel = '#rancher_tests_notifications', int flakyCount = 0) {
   validateParameter(testRunExecutionSummary, 'Test run execution summary')
   validateParameter(ciBuildId, 'CI build ID')
   validateParameter(useReportPortal, 'Use Report Portal')
@@ -443,7 +475,9 @@ void sendNotifications(CypressRunExecutionSummary testRunExecutionSummary, Strin
         testRunExecutionSummary,
         ciBuildId,
         useReportPortal,
-        "${env.BUILD_URL}allure/"),
+        "${env.BUILD_URL}allure/",
+        null,
+        flakyCount),
       channel: channel)
   }
 }

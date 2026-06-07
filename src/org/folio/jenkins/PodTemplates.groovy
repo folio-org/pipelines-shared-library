@@ -395,7 +395,7 @@ spec:
         storageClassName: 'gp3'),
       volumes: [steps.persistentVolumeClaim(claimName: YARN_CACHE_PVC, mountPath: "${WORKING_DIR}/.yarn/cache")],
       containers: [
-        buildCypressContainer([], '2048Mi', '4096Mi'),
+        buildCypressContainer([], '4096Mi', '4096Mi'),
       ]
     )) {
       steps.node(JenkinsAgentLabel.CYPRESS_AGENT.getLabel()) {

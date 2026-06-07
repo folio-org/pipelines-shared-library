@@ -52,7 +52,8 @@ private static def cypressStash(String key = null) {
  * @throws Exception            Propagates any exceptions encountered during the execution flow.
  */
 CypressRunExecutionSummary call(String ciBuildId, List<CypressTestsParameters> testsToRun, boolean sendNotification = false,
-                                boolean reportPortalUse = false, String reportPortalRunType = '') {
+                                boolean reportPortalUse = false, String reportPortalRunType = '',
+                                boolean recheckFailedTests = false) {
   folioCypress.validateParameter(ciBuildId, 'ciBuildId')
   folioCypress.validateParameter(testsToRun, 'testsToRun')
 
@@ -64,6 +65,9 @@ CypressRunExecutionSummary call(String ciBuildId, List<CypressTestsParameters> t
   String reportPortalExecParameters = ''
 
   List allureResultsList = []
+
+  boolean mainPhaseSucceeded = false
+  int flakyCount = 0
 
   try {
     testsToRun.each { CypressTestsParameters testParams ->
@@ -148,7 +152,10 @@ CypressRunExecutionSummary call(String ciBuildId, List<CypressTestsParameters> t
                   testParams.testrailProjectID,
                   testParams.testrailRunID)
 
-                localAllureResults.add(folioCypress.archiveTestResults(workerId))
+                String stashName = folioCypress.archiveTestResults(workerId)
+                if (stashName) {
+                  localAllureResults.add(stashName)
+                }
               }
             }
           }
@@ -157,9 +164,11 @@ CypressRunExecutionSummary call(String ciBuildId, List<CypressTestsParameters> t
         timeout(time: testParams.timeout, unit: 'MINUTES') {
           parallel(workers)
         }
+
         allureResultsList.addAll(localAllureResults)
       }
     }
+    mainPhaseSucceeded = true
   } catch (Exception e) {
     logger.error("Error during Cypress tests execution: ${e.getMessage()}")
   } finally {
@@ -177,10 +186,30 @@ CypressRunExecutionSummary call(String ciBuildId, List<CypressTestsParameters> t
       }
 
       testRunExecutionSummary = folioCypress.analyzeResults()
+    }
 
+    if (recheckFailedTests && reportPortalUse && reportPortalClient != null && mainPhaseSucceeded
+      && testRunExecutionSummary != null && testRunExecutionSummary.getPassRate() > 80) {
+      podTemplates.cypressAgent {
+        container('cypress') {
+          stage('[Stash] Extract tests') {
+            unstash name: cypressStash('name')
+            sh """
+              md5sum -c ${cypressStash('checksum')}
+              tar -zxf ${cypressStash('archive')}
+              rm -rf ${cypressStash('archive')} ${cypressStash('checksum')}
+            """
+          }
+          flakyCount = folioCypress.runFailedTestsRecheck(ciBuildId)
+        }
+      }
+    }
+
+    podTemplates.rancherJavaAgent {
       try {
         if (sendNotification) {
-          folioCypress.sendNotifications(testRunExecutionSummary, ciBuildId, reportPortalUse)
+          folioCypress.sendNotifications(testRunExecutionSummary, ciBuildId, reportPortalUse,
+            '#rancher_tests_notifications', flakyCount)
         }
       } catch (Exception e) {
         logger.warning("Error sending notifications: ${e.getMessage()}")
