@@ -169,6 +169,18 @@ class Keycloak extends Base {
       context.kubectl.waitPodIsRunning(namespaceName, "${keycloakStatefulSet}-0")
     }
 
+    logger.info("Waiting for Keycloak to become fully operational in namespace ${namespaceName} ....")
+    context.timeout(time: 5, unit: 'MINUTES') {
+      context.waitUntil(quiet: true) {
+        try {
+          def response = restClient.get(generateUrl("/health/ready"), [:])
+          return response.responseCode == 200
+        } catch (Exception ignored) {
+          return false
+        }
+      }
+    }
+
     logger.info("Keycloak statefulset in namespace ${namespaceName} has been restarted and is running")
 
     return this
