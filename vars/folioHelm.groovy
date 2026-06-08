@@ -58,7 +58,7 @@ void upgrade(String release_name, String namespace, String values_path, String c
 
 void deployFolioModule(RancherNamespace ns, String moduleName, String moduleVersion, boolean customModule = false, String tenantId = ns.defaultTenantId, boolean release2 = false) {
   String valuesFilePath = ""
-  String releaseName = moduleName
+  String releaseName = release2 ? "${moduleName}2" : moduleName
   String chartName = moduleName
   switch (moduleName) {
     case "okapi":
