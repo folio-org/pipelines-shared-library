@@ -263,7 +263,7 @@ void call(CreateNamespaceParameters args) {
             check = true
           } catch (Exception e) {
             logger.warning("Keycloak TTL increase failed: ${e.getMessage()}")
-            new Keycloak(this, namespace.generateDomain('keycloak')).fixAuth403error(namespace.getNamespaceName())
+            new Keycloak(this, namespace.generateDomain('keycloak')).fixAuth403error(namespace.getClusterName(), namespace.getNamespaceName())
             sleep time: 5, unit: 'SECONDS'
             check = false
           }
