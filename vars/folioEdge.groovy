@@ -60,7 +60,7 @@ void renderEphemeralProperties(RancherNamespace namespace) {
   }
 }
 
-void renderEphemeralPropertiesEureka(RancherNamespace namespace) {
+void renderEphemeralPropertiesEureka(RancherNamespace namespace, boolean release2 = false) {
   Tools tools = new Tools(this)
   Common common = new Common(this, "https://${namespace.generateDomain('kong')}")
   Map edgeConfig = tools.steps.readYaml file: tools.copyResourceFileToCurrentDirectory("edge/config_eureka.yaml")
@@ -82,8 +82,10 @@ void renderEphemeralPropertiesEureka(RancherNamespace namespace) {
   if ('fs09000000' == namespace.getDefaultTenantId()) {
     mappings.add('fs09000000')
   } else {
-    mappings.add('diku')
+    mappings.add(namespace.getDefaultTenantId())
   }
+
+  String fileSuffix = release2 ? '2' : ''
 
   namespace.getModules().getEdgeModules().each { module ->
     String institutionalUsers = ''
@@ -93,12 +95,12 @@ void renderEphemeralPropertiesEureka(RancherNamespace namespace) {
         institutionalUsers += "${institutional.tenant}=${institutional.username},${institutional.password}\n"
       }
       LinkedHashMap config_data = [edge_tenants: "${tenants.join(",")}", edge_mappings: "${mappings.getAt(0)}", edge_users: users + institutionalUsers, institutional_users: '']
-      tools.steps.writeFile file: "${module.name}-ephemeral-properties", text: (new StreamingTemplateEngine().createTemplate(config_template).make(config_data)).toString()
-      common.logger.info("ephemeralProperties file for module ${module.name} created.")
+      tools.steps.writeFile file: "${module.name}${fileSuffix}-ephemeral-properties", text: (new StreamingTemplateEngine().createTemplate(config_template).make(config_data)).toString()
+      common.logger.info("ephemeralProperties file for module ${module.name}${fileSuffix} created.")
     } else {
       LinkedHashMap config_data = [edge_tenants: "${tenants.join(",")}", edge_mappings: "${mappings.getAt(0)}", edge_users: users, institutional_users: '']
-      tools.steps.writeFile file: "${module.name}-ephemeral-properties", text: (new StreamingTemplateEngine().createTemplate(config_template).make(config_data)).toString()
-      common.logger.info("ephemeralProperties file for module ${module.name} created.")
+      tools.steps.writeFile file: "${module.name}${fileSuffix}-ephemeral-properties", text: (new StreamingTemplateEngine().createTemplate(config_template).make(config_data)).toString()
+      common.logger.info("ephemeralProperties file for module ${module.name}${fileSuffix} created.")
     }
   }
 }

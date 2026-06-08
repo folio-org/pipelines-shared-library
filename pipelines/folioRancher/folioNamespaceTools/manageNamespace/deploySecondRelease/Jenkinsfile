@@ -216,9 +216,9 @@ ansiColor('xterm') {
 
       stage('[Helm] Deploy edge (2nd release)') {
         folioHelm.withKubeConfig(namespace.getClusterName(), {
-          folioEdge.renderEphemeralPropertiesEureka(namespace)
+          folioEdge.renderEphemeralPropertiesEureka(namespace, true)
           namespace.getModules().getEdgeModules().each { module ->
-            kubectl.createConfigMap("${module.name}-ephemeral-properties", namespace.getNamespaceName(), "./${module.name}-ephemeral-properties")
+            kubectl.createConfigMap("${module.name}2-ephemeral-properties", namespace.getNamespaceName(), "./${module.name}2-ephemeral-properties")
           }
           folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getEdgeModules(), false, namespace.getDefaultTenantId(), true)
           folioHelm.checkDeploymentsRunning(namespace.getNamespaceName(), namespace.getModules().getEdgeModules(), true)
