@@ -10,7 +10,6 @@ import org.folio.models.module.FolioModule
 import org.folio.models.parameters.InitializeFromScratchParameters
 import org.folio.rest_v2.EntitlementApproach
 import org.folio.rest_v2.eureka.Eureka
-import org.folio.rest_v2.eureka.kong.Applications
 import org.folio.rest_v2.eureka.kong.Edge
 import org.folio.utilities.Logger
 import org.jenkinsci.plugins.workflow.libs.Library
@@ -161,19 +160,6 @@ ansiColor('xterm') {
 
           namespace.addTenant(tenant)
         }
-
-      stage('[Helm] Deploy mgr-* (2nd release)') {
-        folioHelm.withKubeConfig(namespace.getClusterName(), {
-          folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getMgrModules())
-
-          int counter = 0
-          retry(10) {
-            sleep time: (counter == 0 ? 0 : 30), unit: 'SECONDS'
-            counter++
-            Applications.get(eureka.kong).getRegisteredApplications()
-          }
-        }, true)
-      }
 
       stage('[Rest] Preinstall') {
         int counter = 0
