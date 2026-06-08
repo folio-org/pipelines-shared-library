@@ -133,7 +133,7 @@ class Keycloak extends Base {
    * @param adminUsername   Keycloak master-realm admin username (typically 'admin').
    * @param adminPassword   Keycloak master-realm admin password.
    */
-  Keycloak fixAuth403error(String namespaceName, String adminUsername, Secret adminPassword) {
+  Keycloak fixAuth403error(String clusterName, String namespaceName, String adminUsername, Secret adminPassword) {
     logger.info("Fixing Keycloak auth flow in namespace $namespaceName ....")
 
     // Bootstrap with admin-cli (public client, always present) instead of
@@ -153,22 +153,24 @@ class Keycloak extends Base {
       logger.info("Client ${MASTER_TENANT_CLIENT_ID} was not found in master realm")
     }
 
-    String statefulSetNames = context.kubectl.getKubernetesStsNames(namespaceName)
-    String keycloakStatefulSet = statefulSetNames
-      .tokenize(' ')
-      .find { it.contains('keycloak') }
+    context.folioHelm.withKubeConfig(clusterName) {
+      String statefulSetNames = context.kubectl.getKubernetesStsNames(namespaceName)
+      String keycloakStatefulSet = statefulSetNames
+        .tokenize(' ')
+        .find { it.contains('keycloak') }
 
-    if (!keycloakStatefulSet) {
-      throw new Exception("Keycloak statefulset was not found in namespace ${namespaceName}")
+      if (!keycloakStatefulSet) {
+        throw new Exception("Keycloak statefulset was not found in namespace ${namespaceName}")
+      }
+
+      String replicaCount = context.kubectl.getKubernetesResourceCount('statefulset', keycloakStatefulSet, namespaceName).trim()
+
+      context.kubectl.setKubernetesResourceCount('statefulset', keycloakStatefulSet, namespaceName, '0')
+      context.kubectl.setKubernetesResourceCount('statefulset', keycloakStatefulSet, namespaceName, replicaCount)
+      context.kubectl.waitPodIsRunning(namespaceName, "${keycloakStatefulSet}-0")
     }
 
-    String replicaCount = context.kubectl.getKubernetesResourceCount('statefulset', keycloakStatefulSet, namespaceName).trim()
-
-    context.kubectl.setKubernetesResourceCount('statefulset', keycloakStatefulSet, namespaceName, '0')
-    context.kubectl.setKubernetesResourceCount('statefulset', keycloakStatefulSet, namespaceName, replicaCount)
-    context.kubectl.waitPodIsRunning(namespaceName, "${keycloakStatefulSet}-0")
-
-    logger.info("Keycloak statefulset ${keycloakStatefulSet} has been restarted and is running")
+    logger.info("Keycloak statefulset in namespace ${namespaceName} has been restarted and is running")
 
     return this
   }
