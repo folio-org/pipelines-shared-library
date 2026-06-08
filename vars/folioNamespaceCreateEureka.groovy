@@ -327,7 +327,7 @@ void call(CreateNamespaceParameters args) {
       }
 
       stage('[Helm] Deploy modules') {
-        folioHelm.withKubeConfig(namespace.getClusterName()) {
+        folioHelm.withKubeConfig(namespace.getClusterName(), true) {
           logger.info(namespace.getModules().getBackendModules())
 
           folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getBackendModules())
@@ -336,7 +336,7 @@ void call(CreateNamespaceParameters args) {
       }
 
       stage('[Helm] Deploy edge') {
-        folioHelm.withKubeConfig(namespace.getClusterName()) {
+        folioHelm.withKubeConfig(namespace.getClusterName(), true) {
           folioEdge.renderEphemeralPropertiesEureka(namespace)
           namespace.getModules().getEdgeModules().each { module ->
             kubectl.createConfigMap("${module.name}-ephemeral-properties", namespace.getNamespaceName(), "./${module.name}-ephemeral-properties")
@@ -430,8 +430,8 @@ void call(CreateNamespaceParameters args) {
     } catch (Exception e) {
       currentBuild.description = e.getMessage()
       currentBuild.result = 'FAILURE'
-      //TODO: Add adequate slack notification https://folio-org.atlassian.net/browse/RANCHER-1892
-      slackSend(color: 'danger', message: args.clusterName + "-" + args.namespaceName + " env build failed...\n" + "Console output: ${env.BUILD_URL}", channel: args.dataset ? '#eureka-sprint-testing' : Constants.SLACK_CHANNEL)
+      // TODO: Add adequate slack notification https://folio-org.atlassian.net/browse/RANCHER-1892
+      // slackSend(color: 'danger', message: args.clusterName + "-" + args.namespaceName + " env build failed...\n" + "Console output: ${env.BUILD_URL}", channel: args.dataset ? '#eureka-sprint-testing' : Constants.SLACK_CHANNEL)
       logger.error(e)
     }
   }

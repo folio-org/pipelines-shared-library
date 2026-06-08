@@ -15,10 +15,14 @@ void withK8sClient(Closure closure) {
   }
 }
 
-void withKubeConfig(String clusterName, Closure closure) {
+void withKubeConfig(String clusterName, Closure closure, boolean testActive = false) {
   withK8sClient {
     awscli.getKubeConfig(Constants.AWS_REGION, clusterName)
-    addHelmRepository(Constants.FOLIO_HELM_V2_REPO_NAME, Constants.FOLIO_HELM_V2_REPO_URL, true)
+    if (testActive) {
+      addHelmRepository(Constants.FOLIO_HELM_V2_TEST_REPO_NAME, Constants.FOLIO_HELM_V2_TEST_REPO_URL, true)
+    } else {
+      addHelmRepository(Constants.FOLIO_HELM_V2_REPO_NAME, Constants.FOLIO_HELM_V2_REPO_URL, true)
+    }
     closure.call()
   }
 }
@@ -52,7 +56,7 @@ void upgrade(String release_name, String namespace, String values_path, String c
   }
 }
 
-void deployFolioModule(RancherNamespace ns, String moduleName, String moduleVersion, boolean customModule = false, String tenantId = ns.defaultTenantId) {
+void deployFolioModule(RancherNamespace ns, String moduleName, String moduleVersion, boolean customModule = false, String tenantId = ns.defaultTenantId, boolean release2 = false) {
   String valuesFilePath = ""
   String releaseName = moduleName
   String chartName = moduleName
@@ -78,14 +82,15 @@ void deployFolioModule(RancherNamespace ns, String moduleName, String moduleVers
       new Logger(this, "folioHelm").warning("${moduleName} is not a folio or known module")
       break
   }
-  upgrade(releaseName, ns.namespaceName, valuesFilePath, Constants.FOLIO_HELM_V2_REPO_NAME, chartName)
+  String repoName = release2 ? Constants.FOLIO_HELM_V2_TEST_REPO_NAME : Constants.FOLIO_HELM_V2_REPO_NAME
+  upgrade(releaseName, ns.namespaceName, valuesFilePath, repoName, chartName)
 }
 
-void deployFolioModules(RancherNamespace ns, List<FolioModule> modules, boolean customModule = false, String tenantId = ns.defaultTenantId) {
-  modules.each { module -> deployFolioModule(ns, module.name, module.version, customModule, tenantId) }
+void deployFolioModules(RancherNamespace ns, List<FolioModule> modules, boolean customModule = false, String tenantId = ns.defaultTenantId, boolean release2 = false) {
+  modules.each { module -> deployFolioModule(ns, module.name, module.version, customModule, tenantId, release2) }
 }
 
-void deployFolioModulesParallel(RancherNamespace ns, List<FolioModule> modules, boolean customModule = false, String tenantId = ns.defaultTenantId) {
+void deployFolioModulesParallel(RancherNamespace ns, List<FolioModule> modules, boolean customModule = false, String tenantId = ns.defaultTenantId, boolean release2 = false) {
   int limit = 10
   modules.collate(limit).each { moduleGroup ->
     def branches = [:]
@@ -93,7 +98,7 @@ void deployFolioModulesParallel(RancherNamespace ns, List<FolioModule> modules, 
       branches[module.name] = {
 //        String deployedModuleId = kubectl.getDeploymentImageTag(moduleName, ns.getNamespaceName())
 //        if (deployedModuleId != "${moduleName}:${moduleVersion}") {
-        deployFolioModule(ns, module.name, module.version, customModule, tenantId)
+        deployFolioModule(ns, module.name, module.version, customModule, tenantId, release2)
 //        }
       }
     }
@@ -174,11 +179,11 @@ void checkAllPodsRunning(String ns) {
   }
 }
 
-void checkDeploymentsRunning(String ns, FolioModule deploymentModule) {
-  checkDeploymentsRunning(ns, [deploymentModule])
+void checkDeploymentsRunning(String ns, FolioModule deploymentModule, boolean release2 = false) {
+  checkDeploymentsRunning(ns, [deploymentModule], release2)
 }
 
-void checkDeploymentsRunning(String ns, List<FolioModule> deploymentsList) {
+void checkDeploymentsRunning(String ns, List<FolioModule> deploymentsList, boolean release2 = false) {
   println('Starting deployment monitoring...')
 
   kubectl.deleteEvictedPods(ns)
@@ -217,7 +222,8 @@ void checkDeploymentsRunning(String ns, List<FolioModule> deploymentsList) {
 
       // Check each deployment from the list
       deploymentsList.each { folioModule ->
-        def deployment = deploymentsJson.items.find { it.metadata.name == folioModule.name }
+        String lookupName = release2 ? "${folioModule.name}2" : folioModule.name
+        def deployment = deploymentsJson.items.find { it.metadata.name == lookupName }
         if (deployment) {
           def status = deployment.status
           def specReplicas = deployment.spec.replicas
@@ -228,7 +234,7 @@ void checkDeploymentsRunning(String ns, List<FolioModule> deploymentsList) {
             unfinishedDeployments << folioModule.name
           }
         } else {
-          println("Warning: Deployment '${folioModule.name}' not found in namespace '${ns}'")
+          println("Warning: Deployment '${lookupName}' not found in namespace '${ns}'")
         }
       }
 
@@ -349,13 +355,13 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
 //            value: '1'
 //          ] : []
         break
-        
+
       case 'mod-search':
           moduleConfig['extraEnvVars'] +=  ['cikarate', 'karate'].contains(ns.getNamespaceName()) ? [
             name : 'spring.cache.type',
             value: 'none'
           ] : []
-        break          
+        break
 
       case ~/mod-.*-keycloak/:
         moduleConfig['extraEnvVars'] += [
