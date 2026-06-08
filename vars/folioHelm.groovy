@@ -82,9 +82,6 @@ void deployFolioModule(RancherNamespace ns, String moduleName, String moduleVers
       new Logger(this, "folioHelm").warning("${moduleName} is not a folio or known module")
       break
   }
-  if (release2 && moduleName != 'ui-bundle') {
-    releaseName = "${releaseName}2"
-  }
   String repoName = release2 ? Constants.FOLIO_HELM_V2_TEST_REPO_NAME : Constants.FOLIO_HELM_V2_REPO_NAME
   upgrade(releaseName, ns.namespaceName, valuesFilePath, repoName, chartName)
 }
