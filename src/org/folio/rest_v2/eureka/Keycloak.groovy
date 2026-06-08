@@ -18,6 +18,8 @@ class Keycloak extends Base {
   static Secret MASTER_TENANT_CLIENT_SECRET = Secret.fromString("SecretPassword")
   // admin-cli is Keycloak's built-in public client; always present in master realm
   static String KEYCLOAK_ADMIN_CLI_CLIENT_ID = "admin-cli"
+  static String KEYCLOAK_BOOTSTRAP_ADMIN_USERNAME = "admin"
+  static Secret KEYCLOAK_BOOTSTRAP_ADMIN_PASSWORD = Secret.fromString("SecretPassword")
 
   String keycloakURL
 
@@ -129,16 +131,13 @@ class Keycloak extends Base {
    * because folio-backend-admin-client may be absent or have invalid credentials —
    * which is exactly the condition this method is meant to repair.
    *
+   * @param clusterName     The Kubernetes cluster name.
    * @param namespaceName   The Kubernetes namespace where Keycloak is running.
-   * @param adminUsername   Keycloak master-realm admin username (typically 'admin').
-   * @param adminPassword   Keycloak master-realm admin password.
    */
-  Keycloak fixAuth403error(String clusterName, String namespaceName, String adminUsername, Secret adminPassword) {
+  Keycloak fixAuth403error(String clusterName, String namespaceName) {
     logger.info("Fixing Keycloak auth flow in namespace $namespaceName ....")
 
-    // Bootstrap with admin-cli (public client, always present) instead of
-    // folio-backend-admin-client, which may be the broken client we're about to delete.
-    String adminToken = getAuthToken("master", KEYCLOAK_ADMIN_CLI_CLIENT_ID, null, adminUsername, adminPassword)
+    String adminToken = getAuthToken("master", KEYCLOAK_ADMIN_CLI_CLIENT_ID, null, KEYCLOAK_BOOTSTRAP_ADMIN_USERNAME, KEYCLOAK_BOOTSTRAP_ADMIN_PASSWORD)
     Map<String, String> headers = ['Content-Type': 'application/json'] + getAuthorizedHeaders(adminToken)
 
     String getClientUrl = generateUrl("/admin/realms/master/clients?clientId=${MASTER_TENANT_CLIENT_ID}")
