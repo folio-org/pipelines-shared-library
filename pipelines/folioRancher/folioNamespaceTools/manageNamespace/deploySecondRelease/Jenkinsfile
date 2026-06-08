@@ -209,8 +209,8 @@ ansiColor('xterm') {
       stage('[Helm] Deploy modules (2nd release)') {
         folioHelm.withKubeConfig(namespace.getClusterName(), {
           logger.info(namespace.getModules().getBackendModules())
-          folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getBackendModules())
-          folioHelm.checkDeploymentsRunning(namespace.getNamespaceName(), namespace.getModules().getBackendModules())
+          folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getBackendModules(), false, namespace.getDefaultTenantId(), true)
+          folioHelm.checkDeploymentsRunning(namespace.getNamespaceName(), namespace.getModules().getBackendModules(), true)
         }, true)
       }
 
@@ -220,8 +220,8 @@ ansiColor('xterm') {
           namespace.getModules().getEdgeModules().each { module ->
             kubectl.createConfigMap("${module.name}-ephemeral-properties", namespace.getNamespaceName(), "./${module.name}-ephemeral-properties")
           }
-          folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getEdgeModules())
-          folioHelm.checkDeploymentsRunning(namespace.getNamespaceName(), namespace.getModules().getEdgeModules())
+          folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getEdgeModules(), false, namespace.getDefaultTenantId(), true)
+          folioHelm.checkDeploymentsRunning(namespace.getNamespaceName(), namespace.getModules().getEdgeModules(), true)
         }, true)
       }
 
