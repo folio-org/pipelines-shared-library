@@ -95,6 +95,19 @@ ansiColor('xterm') {
       boolean isRelease = (params.CONFIG_TYPE == 'release')
       String commitHash = common.getLastCommitHash('platform-lsp', params.PLATFORM_BRANCH)
 
+      apps.each { application ->
+        application.modules.each { module ->
+          if (module.discovery?.location) {
+            String name = module.discovery.name as String
+            String loc = module.discovery.location as String
+            if (!loc.contains("${name}2")) {
+              module.setDiscovery(module.discovery + [location: loc.replace("http://${name}", "http://${name}2")])
+            }
+          }
+        }
+      }
+      logger.info("Applied '2' suffix to all module discovery locations for 2nd release")
+
       List<Map<String, String>> installJson = appModules.getInstallJson()
 
       writeJSON(file: 'used-install-release2.json', json: installJson, pretty: 4)
