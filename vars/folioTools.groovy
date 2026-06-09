@@ -249,7 +249,7 @@ void karateTenantsCleanUp(String cluster, String namespace) {
         String uninstallPayload = JsonOutput.toJson([tenantId: tenantId, applications: applications])
         String uninstallPayloadFile = "entitlements-uninstall-${tenantId}.json"
         writeFile(file: uninstallPayloadFile, text: uninstallPayload)
-        def uninstallResp = sh(script: "curl -s -X DELETE -H 'Authorization: Bearer ${token}' -H 'Content-Type: application/json' 'https://${cluster}-${namespace}-kong.ci.folio.org/entitlements?purge=true&ignoreErrors=true' --data @${uninstallPayloadFile}", returnStdout: true).trim()
+        def uninstallResp = sh(script: "curl -s -X DELETE -H 'Authorization: Bearer ${token}' -H 'x-okapi-token: ${token}' -H 'Content-Type: application/json' 'https://${cluster}-${namespace}-kong.ci.folio.org/entitlements?purge=true&ignoreErrors=true' --data @${uninstallPayloadFile}", returnStdout: true).trim()
         sh(script: "rm -f ${uninstallPayloadFile}", returnStdout: false)
         echo "Entitlements uninstall response for tenant ${tenantName}: ${uninstallResp}"
       }
@@ -318,7 +318,7 @@ void karateTenantsCleanUpUnified(String kongURL, String keycloakURL, String clie
         String uninstallPayload = JsonOutput.toJson([tenantId: tenantId, applications: applications])
         String uninstallPayloadFile = "entitlements-uninstall-${tenantId}.json"
         writeFile(file: uninstallPayloadFile, text: uninstallPayload)
-        def uninstallResp = sh(script: "curl -s -X DELETE -H 'Authorization: Bearer ${token}' -H 'Content-Type: application/json' '${kongURL}/entitlements?purge=true&ignoreErrors=true' --data @${uninstallPayloadFile}", returnStdout: true).trim()
+        def uninstallResp = sh(script: "curl -s -X DELETE -H 'Authorization: Bearer ${token}' -H 'x-okapi-token: ${token}' -H 'Content-Type: application/json' '${kongURL}/entitlements?purge=true&ignoreErrors=true' --data @${uninstallPayloadFile}", returnStdout: true).trim()
         sh(script: "rm -f ${uninstallPayloadFile}", returnStdout: false)
         echo "Entitlements uninstall response for tenant ${tenantName}: ${uninstallResp}"
       }
