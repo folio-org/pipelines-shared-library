@@ -199,7 +199,7 @@ primary:
         sed -i "s/#*jit_above_cost = .*/jit_above_cost = 25000000/" /bitnami/postgresql/data/postgresql.conf
         sed -i "s/#*jit_inline_above_cost = .*/jit_inline_above_cost = 500000/" /bitnami/postgresql/data/postgresql.conf
         sed -i "s/#*jit_optimize_above_cost = .*/jit_optimize_above_cost = 25000000/" /bitnami/postgresql/data/postgresql.conf
-        ${contains(["cikarate", "karate"], var.rancher_project_name) ? "sed -i \"s/#*fsync = .*/fsync = off/\" /bitnami/postgresql/data/postgresql.conf\n        sed -i \"s/#*synchronous_commit = .*/synchronous_commit = off/\" /bitnami/postgresql/data/postgresql.conf\n        sed -i \"s/#*full_page_writes = .*/full_page_writes = off/\" /bitnami/postgresql/data/postgresql.conf" : ""}
+        ${contains(["cikarate", "karate", "cicypress", "cypress"], var.rancher_project_name) ? "sed -i \"s/#*fsync = .*/fsync = off/\" /bitnami/postgresql/data/postgresql.conf\n        sed -i \"s/#*synchronous_commit = .*/synchronous_commit = off/\" /bitnami/postgresql/data/postgresql.conf\n        sed -i \"s/#*full_page_writes = .*/full_page_writes = off/\" /bitnami/postgresql/data/postgresql.conf" : ""}
         echo "PostgreSQL configuration updated"
   containerSecurityContext:
     enabled: true
