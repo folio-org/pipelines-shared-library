@@ -104,6 +104,6 @@ ansiColor('xterm') {
         throw new Exception("Provision of the environment is failed: " + new_ex)
       }
     }
-    folioCypressFlow.call(cypressParameters.getCiBuildId(), [cypressParameters], false, reportPortalUse, reportPortalRunType)
+    folioCypressFlow.call(cypressParameters.getCiBuildId(), [cypressParameters], true, reportPortalUse, reportPortalRunType, true)
   }
 }
