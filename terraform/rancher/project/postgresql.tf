@@ -199,6 +199,7 @@ primary:
         sed -i "s/#*jit_above_cost = .*/jit_above_cost = 25000000/" /bitnami/postgresql/data/postgresql.conf
         sed -i "s/#*jit_inline_above_cost = .*/jit_inline_above_cost = 500000/" /bitnami/postgresql/data/postgresql.conf
         sed -i "s/#*jit_optimize_above_cost = .*/jit_optimize_above_cost = 25000000/" /bitnami/postgresql/data/postgresql.conf
+        ${contains(["cikarate", "karate"], var.rancher_project_name) ? "sed -i \"s/#*fsync = .*/fsync = off/\" /bitnami/postgresql/data/postgresql.conf\n        sed -i \"s/#*synchronous_commit = .*/synchronous_commit = off/\" /bitnami/postgresql/data/postgresql.conf\n        sed -i \"s/#*full_page_writes = .*/full_page_writes = off/\" /bitnami/postgresql/data/postgresql.conf" : ""}
         echo "PostgreSQL configuration updated"
   containerSecurityContext:
     enabled: true
@@ -230,7 +231,7 @@ EOF
 
 resource "helm_release" "postgresql_qg" {
   depends_on = [rancher2_secret.s3-postgres-backups-credentials, rancher2_secret.db-credentials-eureka-components]
-  count      = var.pg_embedded && contains(["cikarate", "cicypress", "cypress", "karate"], var.rancher_project_name) ? 1 : 0
+  count      = var.pg_embedded && contains(["cikarate", "karate"], var.rancher_project_name) ? 1 : 0
   namespace  = rancher2_namespace.this.name
   name       = "postgresql-${var.rancher_project_name}-eureka"
   repository = local.catalogs.bitnami
@@ -298,6 +299,9 @@ primary:
         sed -i "s/#*work_mem = .*/work_mem = 2MB/" /bitnami/postgresql/data/postgresql.conf
         sed -i "s/#*min_wal_size = .*/min_wal_size = 1GB/" /bitnami/postgresql/data/postgresql.conf
         sed -i "s/#*max_wal_size = .*/max_wal_size = 4GB/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*fsync = .*/fsync = off/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*synchronous_commit = .*/synchronous_commit = off/" /bitnami/postgresql/data/postgresql.conf
+        sed -i "s/#*full_page_writes = .*/full_page_writes = off/" /bitnami/postgresql/data/postgresql.conf
         echo "PostgreSQL configuration updated"
   containerSecurityContext:
     enabled: true
