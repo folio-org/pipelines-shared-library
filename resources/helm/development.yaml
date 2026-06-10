@@ -3391,6 +3391,8 @@ mod-z3950:
     maxUnavailable: 1
 mgr-applications:
   extraEnvVars:
+    - name: SECURE_STORE_ENV
+      value: '${application.environment}'    
     - name: ROUTEMANAGEMENT_ENABLE
       value: "true"
     - name: MODULE_URL
@@ -3409,6 +3411,8 @@ mgr-applications:
       value: "true"
     - name: SECURITY_ENABLED
       value: "true"
+    - name: KONG_TENANT_CHECKS_ENABLED
+      value: "true"  
   extraJavaOpts:
     - "-Dlogging.level.root=INFO -Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties"
   integrations:
@@ -3474,6 +3478,8 @@ mgr-tenant-entitlements:
     - "-Dlogging.level.root=INFO -Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties"
     - -XX:MaxRAMPercentage=80.0
   extraEnvVars:
+    - name: SECURE_STORE_ENV
+      value: '${application.environment}'
     - name: ROUTEMANAGEMENT_ENABLE
       value: "false"
     - name: MODULE_URL

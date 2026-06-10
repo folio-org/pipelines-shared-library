@@ -263,7 +263,11 @@ void call(CreateNamespaceParameters args) {
             check = true
           } catch (Exception e) {
             logger.warning("Keycloak TTL increase failed: ${e.getMessage()}")
-            new Keycloak(this, namespace.generateDomain('keycloak')).fixAuth403error(namespace.getNamespaceName())
+            try {
+              new Keycloak(this, namespace.generateDomain('keycloak')).fixAuth403error(namespace.getClusterName(), namespace.getNamespaceName())
+            } catch (Exception fixErr) {
+              logger.warning("Keycloak auth fix attempt failed: ${fixErr.getMessage()}")
+            }
             sleep time: 5, unit: 'SECONDS'
             check = false
           }
@@ -430,8 +434,8 @@ void call(CreateNamespaceParameters args) {
     } catch (Exception e) {
       currentBuild.description = e.getMessage()
       currentBuild.result = 'FAILURE'
-      //TODO: Add adequate slack notification https://folio-org.atlassian.net/browse/RANCHER-1892
-      slackSend(color: 'danger', message: args.clusterName + "-" + args.namespaceName + " env build failed...\n" + "Console output: ${env.BUILD_URL}", channel: args.dataset ? '#eureka-sprint-testing' : Constants.SLACK_CHANNEL)
+      // TODO: Add adequate slack notification https://folio-org.atlassian.net/browse/RANCHER-1892
+      // slackSend(color: 'danger', message: args.clusterName + "-" + args.namespaceName + " env build failed...\n" + "Console output: ${env.BUILD_URL}", channel: args.dataset ? '#eureka-sprint-testing' : Constants.SLACK_CHANNEL)
       logger.error(e)
     }
   }
