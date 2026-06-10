@@ -39,7 +39,7 @@ resource "rancher2_secret" "db-credentials2" {
   project_id   = rancher2_project.this.id
   namespace_id = rancher2_namespace.this.id
   data = merge({
-    ENV              = base64encode("${local.env_name}")
+    ENV              = base64encode("${local.env_name}2")
     SECURE_STORE_ENV = base64encode("${local.env_name}2")
     DB_HOST          = base64encode(var.pg_embedded ? local.pg_service_writer : module.rds[0].cluster_endpoint)
     DB_PORT          = base64encode("5432")
