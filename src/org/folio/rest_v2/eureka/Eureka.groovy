@@ -13,8 +13,6 @@ import org.folio.rest_v2.eureka.kong.*
 
 class Eureka extends Base {
 
-  static final String GENERATED_TENANT_PATTERN = /(?i)^(university|central|college|testtenant)[0-9]+$/
-
   Kong kong
 
   Eureka(def context, String kongUrl, String keycloakUrl, boolean debug = false) {
@@ -260,9 +258,8 @@ class Eureka extends Base {
    * @return Map of EurekaTenant objects.
    */
   Map<String, EurekaTenant> getExistedTenantsFlow(String namespace) {
-    return Tenants.get(kong).getTenants()
-      .findAll { tenant -> !(tenant.getTenantId() ==~ GENERATED_TENANT_PATTERN) }
-      .collectEntries { tenant ->
+    return Tenants.get(kong).getTenants().collectEntries {
+      tenant ->
         tenant
           .withClientSecret(
             retrieveTenantClientSecretFromAWSSSM(
@@ -276,15 +273,15 @@ class Eureka extends Base {
 
         TenantConsortiaConfiguration consortiaConfig = Consortia.get(kong).getTenantConsortiaConfiguration(tenant)
 
-        if (consortiaConfig) {
+        if(consortiaConfig){
           EurekaTenantConsortia consortiaTenant = tenant.convertTo(EurekaTenantConsortia.class)
           consortiaTenant.setIsCentralConsortiaTenant(consortiaConfig.centralTenantId == tenant.getTenantId())
 
           return [consortiaTenant.tenantName, consortiaTenant]
-        } else {
+        }else {
           return [tenant.tenantName, tenant]
         }
-      }
+    }
   }
 
   /**
