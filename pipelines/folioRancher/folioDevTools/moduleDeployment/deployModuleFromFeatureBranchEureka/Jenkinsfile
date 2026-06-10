@@ -15,7 +15,7 @@ import org.folio.utilities.Logger
 import org.folio.utilities.RestClient
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library@featureBranch') _
+@Library('pipelines-shared-library') _
 
 /** Job properties and parameters */
 properties([
@@ -39,7 +39,7 @@ properties([
 ])
 
 if (params.REFRESH_PARAMETERS) {
-  currentBuild.result = 'ABORTED'g
+  currentBuild.result = 'ABORTED'
   return
 }
 
