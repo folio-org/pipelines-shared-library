@@ -275,7 +275,7 @@ ansiColor('xterm') {
     }
 
     stage('Generate context') {
-      def excludedTenantPattern = ~/(?i)^(university|central|college|testtenant)[0-9]+$/
+      def excludedTenantPattern = ~/(?i)^(university|central|college|consortium|testtenant)[a-z0-9]+$/
       eureka.getExistedTenantsForModule("${namespace.getClusterName()}-${namespace.getNamespaceName()}", module.getName())
         .findAll { tenantName, tenant ->
           if (!tenant) {
