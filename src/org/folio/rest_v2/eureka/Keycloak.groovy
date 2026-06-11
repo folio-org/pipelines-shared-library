@@ -16,6 +16,10 @@ class Keycloak extends Base {
   static String REALM_TOKEN_PATH_TEMPLATE = 'realms/${tenant}/protocol/openid-connect/token'
   static String MASTER_TENANT_CLIENT_ID = "folio-backend-admin-client"
   static Secret MASTER_TENANT_CLIENT_SECRET = Secret.fromString("SecretPassword")
+  // admin-cli is Keycloak's built-in public client; always present in master realm
+  static String KEYCLOAK_ADMIN_CLI_CLIENT_ID = "admin-cli"
+  static String KEYCLOAK_BOOTSTRAP_ADMIN_USERNAME = "admin"
+  static Secret KEYCLOAK_BOOTSTRAP_ADMIN_PASSWORD = Secret.fromString("SecretPassword")
 
   String keycloakURL
 
@@ -73,7 +77,7 @@ class Keycloak extends Base {
     )
   }
 
-  String getAuthToken(String tenantId, String clientId, Secret clientSecret, String username = null, Secret password = null){
+  String getAuthToken(String tenantId, String clientId, Secret clientSecret = null, String username = null, Secret password = null){
     logger.info("Getting access token from Keycloak service for tenant $tenantId with client ID $clientId ${username ? "and username $username" : ""} ...")
 
     String url = generateUrl("/${getRealmTokenPath(tenantId)}")
@@ -85,7 +89,10 @@ class Keycloak extends Base {
 
     String grantType = (username && password) ? "&grant_type=password" : "&grant_type=client_credentials"
 
-    String requestBody = "client_id=${clientId}&client_secret=${clientSecret.getPlainText()}${grantType}${userCredentials}"
+    // Omit client_secret for public clients (e.g. admin-cli); include it only when provided
+    String clientSecretParam = (clientSecret && clientSecret.getPlainText()) ? "&client_secret=${clientSecret.getPlainText()}" : ""
+
+    String requestBody = "client_id=${clientId}${clientSecretParam}${grantType}${userCredentials}"
 
     def response = restClient.post(url, requestBody, headers).body
 
@@ -116,11 +123,24 @@ class Keycloak extends Base {
     }
   }
 
-  Keycloak fixAuth403error(String namespaceName) {
+  /**
+   * Fixes the Keycloak auth flow by deleting the broken folio-backend-admin-client
+   * and restarting the Keycloak StatefulSet.
+   *
+   * Uses the built-in admin-cli public client (password grant) to bootstrap auth,
+   * because folio-backend-admin-client may be absent or have invalid credentials —
+   * which is exactly the condition this method is meant to repair.
+   *
+   * @param clusterName     The Kubernetes cluster name.
+   * @param namespaceName   The Kubernetes namespace where Keycloak is running.
+   */
+  Keycloak fixAuth403error(String clusterName, String namespaceName) {
     logger.info("Fixing Keycloak auth flow in namespace $namespaceName ....")
 
+    String adminToken = getAuthToken("master", KEYCLOAK_ADMIN_CLI_CLIENT_ID, null, KEYCLOAK_BOOTSTRAP_ADMIN_USERNAME, KEYCLOAK_BOOTSTRAP_ADMIN_PASSWORD)
+    Map<String, String> headers = ['Content-Type': 'application/json'] + getAuthorizedHeaders(adminToken)
+
     String getClientUrl = generateUrl("/admin/realms/master/clients?clientId=${MASTER_TENANT_CLIENT_ID}")
-    Map<String, String> headers = ['Content-Type': 'application/json'] + getAuthMasterTenantHeaders()
 
     List clients = restClient.get(getClientUrl, headers).body as List
     if (clients && !clients.isEmpty()) {
@@ -132,22 +152,26 @@ class Keycloak extends Base {
       logger.info("Client ${MASTER_TENANT_CLIENT_ID} was not found in master realm")
     }
 
-    String statefulSetNames = context.kubectl.getKubernetesStsNames(namespaceName)
-    String keycloakStatefulSet = statefulSetNames
-      .tokenize(' ')
-      .find { it.contains('keycloak') }
+    context.folioHelm.withKubeConfig(clusterName) {
+      String statefulSetNames = context.kubectl.getKubernetesStsNames(namespaceName)
+      String keycloakStatefulSet = statefulSetNames
+        .tokenize(' ')
+        .find { it.contains('keycloak') }
 
-    if (!keycloakStatefulSet) {
-      throw new Exception("Keycloak statefulset was not found in namespace ${namespaceName}")
-    }
+      if (!keycloakStatefulSet) {
+        throw new Exception("Keycloak statefulset was not found in namespace ${namespaceName}")
+      }
 
-    String replicaCount = context.kubectl.getKubernetesResourceCount('statefulset', keycloakStatefulSet, namespaceName).trim()
+      String replicaCount = context.kubectl.getKubernetesResourceCount('statefulset', keycloakStatefulSet, namespaceName).trim()
 
     context.kubectl.setKubernetesResourceCount('statefulset', keycloakStatefulSet, namespaceName, '0')
-    context.kubectl.setKubernetesResourceCount('statefulset', keycloakStatefulSet, namespaceName, replicaCount)
-    context.kubectl.waitPodIsRunning(namespaceName, "${keycloakStatefulSet}-0")
+      context.kubectl.setKubernetesResourceCount('statefulset', keycloakStatefulSet, namespaceName, replicaCount)
 
-    logger.info("Keycloak statefulset ${keycloakStatefulSet} has been restarted and is running")
+      logger.info("Waiting for Keycloak pod ${keycloakStatefulSet}-0 to become ready in namespace ${namespaceName} ....")
+      context.sh("kubectl wait pod/${keycloakStatefulSet}-0 --for=condition=Ready -n ${namespaceName} --timeout=300s")
+    }
+
+    logger.info("Keycloak statefulset in namespace ${namespaceName} has been restarted and is running")
 
     return this
   }
