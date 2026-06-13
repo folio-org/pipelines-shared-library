@@ -9,6 +9,17 @@ resource "rancher2_secret" "kafka-credentials" {
   }
 }
 
+resource "rancher2_secret" "kafka-credentials2" {
+  name         = "kafka-credentials2"
+  project_id   = rancher2_project.this.id
+  namespace_id = rancher2_namespace.this.id
+  data = {
+    ENV        = base64encode("${local.env_name}2")
+    KAFKA_HOST = base64encode(var.kafka_shared ? local.msk_value["KAFKA_HOST"] : "kafka-${var.rancher_project_name}")
+    KAFKA_PORT = base64encode("9092")
+  }
+}
+
 resource "rancher2_secret" "kafka-credentials-2" {
   count        = var.rancher_project_name == "cikarate" ? 1 : 0
   name         = "kafka-credentials-2"
