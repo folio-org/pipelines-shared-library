@@ -253,7 +253,7 @@ spec:
   private Object buildCypressContainer(
     List<KeyValueEnvVar> extraEnvVars = [],
     String resourceRequestMemory = '3072Mi',
-    String resourceLimitMemory = '12228Mi'
+    String resourceLimitMemory = '15285Mi'
   ) {
     return steps.containerTemplate(
       name: 'cypress',
