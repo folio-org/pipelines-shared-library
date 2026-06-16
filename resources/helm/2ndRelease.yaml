@@ -3605,14 +3605,14 @@ mod-login-keycloak:
     failureThreshold: 30
 mod-roles-keycloak:
   extraEnvVars:
+    - name: KAFKA_TENANT_FILTER_ENABLED
+      value: "true"
     - name: KAFKA_CAPABILITIES_TOPIC_PATTERN
       value: '(${application.environment}\.)(.*\.)mgr-tenant-entitlements.capability'
     - name: CAPABILITY_TOPIC_RETRY_DELAY
       value: "1s"
     - name: CAPABILITY_TOPIC_RETRY_ATTEMPTS
       value: "9223372036854775807"
-    - name: KAFKA_TENANT_FILTER_ENABLED
-      value: "true"      
   integrations:
     db:
       enabled: true
@@ -3643,6 +3643,8 @@ mod-roles-keycloak:
       memory: 814Mi
 mod-users-keycloak:
   extraEnvVars:
+    - name: KAFKA_TENANT_FILTER_ENABLED
+      value: "true"  
     - name: KAFKA_SYS_USER_TOPIC_PATTERN
       value: '(${application.environment}\.)(.*\.)mgr-tenant-entitlements.system-user'
     - name: KAFKA_SYS_USER_TOPIC_RETRY_DELAY
@@ -3657,8 +3659,6 @@ mod-users-keycloak:
       value: "20"
     - name: INCLUDE_ONLY_VISIBLE_PERMISSIONS
       value: "false"
-    - name: KAFKA_TENANT_FILTER_ENABLED
-      value: "true"       
   integrations:
     db:
       enabled: true
@@ -3689,6 +3689,8 @@ mod-users-keycloak:
     failureThreshold: 30
 mod-scheduler:
   extraEnvVars:
+    - name: KAFKA_TENANT_FILTER_ENABLED
+      value: "true"  
     - name: KC_IMPERSONATION_CLIENT
       value: "impersonation-client"
     - name: KAFKA_JOB_CONSUMER_PATTERN
@@ -3707,8 +3709,8 @@ mod-scheduler:
       value: "500"
     - name: QUARTZ_POOL_THREAD_COUNT
       value: "5"
-    - name: KAFKA_TENANT_FILTER_ENABLED
-      value: "true"       
+    - name: KAFKA_ENTITLEMENT_CONSUMER_PATTERN
+      value: '(${folio.environment}\.)entitlement'  
   integrations:
     db:
       enabled: true
