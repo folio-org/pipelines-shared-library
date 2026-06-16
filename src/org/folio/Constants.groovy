@@ -69,7 +69,8 @@ class Constants {
   static List AWS_EKS_NAMESPACE_CONFIGS = ['development',
                                            'performance',
                                            'testing',
-                                           'release']
+                                           'release',
+                                           '2ndRelease']
 
   static List AWS_EKS_CLUSTERS = [
     [
