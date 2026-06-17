@@ -100,7 +100,7 @@ void call(CreateNamespaceParameters args) {
       tfConfig.addVar('keycloak_version', keycloakVersion)
       tfConfig.addVar('setup_type', args.type)
       if (args.dataset) {
-        tfConfig.addVar('pg_rds_snapshot_name', Constants.BUGFEST_SNAPSHOT_NAME)
+        tfConfig.addVar('pg_rds_snapshot_name', args.dbBackupName ?: Constants.BUGFEST_SNAPSHOT_NAME)
         tfConfig.addVar('pg_dbname', Constants.BUGFEST_SNAPSHOT_DBNAME)
         tfConfig.addVar('pg_instance_type', 'db.r6g.xlarge')
       }
@@ -118,16 +118,17 @@ void call(CreateNamespaceParameters args) {
             break
           case 'terraform':
             folioTerraformFlow.manageNamespace('apply', tfConfig)
-
             currentBuild.result = 'ABORTED'
             currentBuild.description = 'Terraform refresh complete'
-            return
-
             break
           case 'update':
             logger.info("Skip [Terraform] Provision stage")
             break
         }
+      }
+
+      if (args.type == 'terraform') {
+        return
       }
 
       if (args.greenmail) {
@@ -234,8 +235,8 @@ void call(CreateNamespaceParameters args) {
           }
       }
 
-      //In case update environment the reindex is not needed
-      if (args.type == 'update')
+      //In case update environment or reindex skip is requested, the reindex is not needed
+      if (args.type == 'update' || args.skipReindex)
         namespace.getTenants().values().each { tenant -> tenant.indexes.clear() }
 
       // TODO: Move this part to one of Eureka classes later. | DO NOT REMOVE | FIX FOR DNS PROPAGATION ISSUE!!!
@@ -366,6 +367,7 @@ void call(CreateNamespaceParameters args) {
         retry(15) {
           sleep time: (counter == 0 ? 0 : 1), unit: 'MINUTES'
           counter++
+          logger.info("Initialize: retry attempt ${counter} of 15")
 
           eureka.initializeFromScratch(
             namespace.getTenants()

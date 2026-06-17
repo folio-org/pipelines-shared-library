@@ -21,6 +21,10 @@ class EurekaTenantConsortia extends EurekaTenant {
 
   /** Code associated with the tenant. */
   String tenantCode
+  boolean consortiaInitialized = false
+  boolean centralTenantProvisionedInConsortia = false
+  boolean tenantAddedToConsortia = false
+  boolean shadowAdminConfigured = false
 
   EurekaTenantConsortia(){}
 

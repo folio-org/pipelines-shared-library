@@ -37,6 +37,8 @@ class EurekaTenant extends OkapiTenant {
   ApplicationList applications = new ApplicationList()
 
   boolean isSecureTenant = false
+  boolean initialized = false
+  boolean indexed = false
 
   EurekaTenant(){}
 
@@ -181,6 +183,22 @@ class EurekaTenant extends OkapiTenant {
     return new EurekaTenant(content.name as String, content.id as String)
       .withTenantName(content.name as String)
       .withTenantDescription(content.description as String) as EurekaTenant
+  }
+
+  @Override
+  public <T extends DTO> T convertTo(Class<T> classTo) {
+    T converted = super.convertTo(classTo)
+    if (converted instanceof EurekaTenant) {
+      converted.initialized = false
+      converted.indexed = false
+    }
+    if (converted instanceof EurekaTenantConsortia) {
+      converted.consortiaInitialized = false
+      converted.centralTenantProvisionedInConsortia = false
+      converted.tenantAddedToConsortia = false
+      converted.shadowAdminConfigured = false
+    }
+    return converted
   }
 
   @NonCPS

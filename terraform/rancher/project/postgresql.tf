@@ -555,7 +555,7 @@ EOF
 }
 
 resource "rancher2_secret" "adjust_rds_db" {
-  count        = var.setup_type == "full" && !var.pg_embedded ? 1 : 0
+  count        = contains(["full", "terraform"], var.setup_type) && !var.pg_embedded ? 1 : 0
   name         = "adjust-rds-db"
   project_id   = rancher2_project.this.id
   namespace_id = rancher2_namespace.this.id
@@ -568,7 +568,7 @@ resource "rancher2_secret" "adjust_rds_db" {
 
 
 resource "kubernetes_job_v1" "adjust_rds_db" {
-  count      = var.setup_type == "full" && !var.pg_embedded ? 1 : 0
+  count      = contains(["full", "terraform"], var.setup_type) && !var.pg_embedded ? 1 : 0
   depends_on = [module.rds, rancher2_secret.db-credentials, rancher2_secret.adjust_rds_db]
   provider   = kubernetes
   metadata {
