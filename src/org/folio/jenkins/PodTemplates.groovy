@@ -108,7 +108,7 @@ spec:
           ttyEnabled: true,
           workingDir: WORKING_DIR,
           resourceRequestMemory: '1024Mi',
-          resourceLimitMemory: '12228Mi',
+          resourceLimitMemory: '1024Mi',
           envVars: [
             new KeyValueEnvVar('JENKINS_JAVA_OPTS',
               '-Dorg.jenkinsci.remoting.engine.JnlpAgentEndpointResolver.PING_INTERVAL=60' +
