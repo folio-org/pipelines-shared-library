@@ -33,6 +33,7 @@ class Eureka extends Base {
 
   Eureka createTenantFlow(EurekaTenant tenant, String cluster, String namespace,
                           InitializeFromScratchParameters params) {
+    // createTenant is expected to be idempotent: returns the existing tenant if already created
     EurekaTenant createdTenant = Tenants.get(kong).createTenant(tenant)
 
     tenant.withUUID(createdTenant.getUuid())
@@ -73,6 +74,7 @@ class Eureka extends Base {
 
     configureTenant(tenant, params)
 
+    tenant.initialized = true
     return this
   }
 
@@ -202,12 +204,20 @@ class Eureka extends Base {
       consortiaTenants.findAll { it.isCentralConsortiaTenant }
 
     centralConsortiaTenants.each { centralConsortiaTenant ->
-      // Create consortia for each central tenant
-      Consortia.get(kong).createConsortia(centralConsortiaTenant)
+      if (centralConsortiaTenant.consortiaInitialized) {
+        logger.info("Consortia '${centralConsortiaTenant.consortiaName}' already configured, skipping.")
+        return
+      }
 
-      Consortia.get(kong)
-        .addCentralConsortiaTenant(centralConsortiaTenant)
-        .checkConsortiaStatus(centralConsortiaTenant, centralConsortiaTenant)
+      if (!centralConsortiaTenant.centralTenantProvisionedInConsortia) {
+        // Create consortia for each central tenant
+        Consortia.get(kong).createConsortia(centralConsortiaTenant)
+
+        Consortia.get(kong)
+          .addCentralConsortiaTenant(centralConsortiaTenant)
+          .checkConsortiaStatus(centralConsortiaTenant, centralConsortiaTenant)
+        centralConsortiaTenant.centralTenantProvisionedInConsortia = true
+      }
 
       // Find institutional tenants for this central tenant
       List<EurekaTenantConsortia> institutionalTenants = consortiaTenants.findAll {
@@ -215,15 +225,23 @@ class Eureka extends Base {
       }
 
       institutionalTenants.each { institutionalTenant ->
-        Consortia.get(kong)
-          .addConsortiaTenant(centralConsortiaTenant, institutionalTenant)
-          .checkConsortiaStatus(centralConsortiaTenant, institutionalTenant)
+        if (!institutionalTenant.tenantAddedToConsortia) {
+          Consortia.get(kong)
+            .addConsortiaTenant(centralConsortiaTenant, institutionalTenant)
+            .checkConsortiaStatus(centralConsortiaTenant, institutionalTenant)
+          institutionalTenant.tenantAddedToConsortia = true
+        }
       }
 
       institutionalTenants.each { institutionalTenant ->
-        Consortia.get(kong)
-          .addRoleToShadowAdminUser(centralConsortiaTenant, institutionalTenant, true)
+        if (!institutionalTenant.shadowAdminConfigured) {
+          Consortia.get(kong)
+            .addRoleToShadowAdminUser(centralConsortiaTenant, institutionalTenant, true)
+          institutionalTenant.shadowAdminConfigured = true
+        }
       }
+
+      centralConsortiaTenant.consortiaInitialized = true
     }
 
     return this
@@ -232,6 +250,10 @@ class Eureka extends Base {
   Eureka initializeFromScratch(Map<String, EurekaTenant> tenants, String cluster, String namespace,
                                boolean enableConsortia, InitializeFromScratchParameters params) {
     tenants.each { tenantId, tenant ->
+      if (tenant.initialized) {
+        logger.info("Tenant '${tenantId}' already initialized, skipping.")
+        return
+      }
       createTenantFlow(tenant, cluster, namespace, params)
     }
 
@@ -243,10 +265,15 @@ class Eureka extends Base {
       )
 
     tenants.each { tenantId, tenant ->
+      if (tenant.indexed) {
+        logger.info("Tenant '${tenantId}' indexes already run, skipping.")
+        return
+      }
       if (tenant.indexes) {
         tenant.indexes.each { index ->
           Indexes.get(kong).runIndexFlow(tenant, index)
         }
+        tenant.indexed = true
       }
     }
 

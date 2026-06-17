@@ -58,6 +58,7 @@ class CreateNamespaceParameters implements Cloneable {
   boolean uiBuild = true
 
   boolean dataset = false
+  boolean skipReindex = false
 
   boolean scNative = true
 
@@ -295,6 +296,8 @@ class CreateNamespaceParameters implements Cloneable {
      * @return
      */
     Builder dataset(boolean dataset) { return setParam('dataset', dataset) }
+
+    Builder skipReindex(boolean skipReindex) { return setParam('skipReindex', skipReindex) }
 
     /**
      * Specifies the application names list for Eureka platform.
