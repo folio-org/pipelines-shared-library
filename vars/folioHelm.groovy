@@ -370,15 +370,15 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
         ]
         if (release2) {
           moduleConfig['extraEnvVars'] += [[name : 'KAFKA_CAPABILITIES_TOPIC_PATTERN',
-                                            value: "(${ns.getClusterName()}-${ns.getNamespaceName()}.)(.*.)mgr-tenant-entitlements.capability"]]
+                                            value: "${ns.getClusterName()}-${ns.getNamespaceName()}\\..*\\.mgr-tenant-entitlements\\.capability"]]
           moduleConfig['extraEnvVars'] += [[name : 'KAFKA_SYS_USER_TOPIC_PATTERN',
-                                            value: "(${ns.getClusterName()}-${ns.getNamespaceName()}.)(.*.)mgr-tenant-entitlements.system-user"]]
+                                            value: "(${ns.getClusterName()}-${ns.getNamespaceName()}\\.)(.*\\.)mgr-tenant-entitlements.system-user"]]
         }
         break
       case 'mod-scheduler':
         if (release2) {
           moduleConfig['extraEnvVars'] += [[name : 'KAFKA_ENTITLEMENT_CONSUMER_PATTERN',
-                                            value: "(${ns.getClusterName()}-${ns.getNamespaceName()}.)entitlement"]]
+                                            value: "${ns.getClusterName()}-${ns.getNamespaceName()}.entitlement"]]
         }
         break
       case 'mod-circulation-bff':
