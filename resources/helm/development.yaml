@@ -352,7 +352,7 @@ edge-users:
     requests:
       memory: 294Mi
   extraJavaOpts:
-    - -Dserver.port=8081      
+    - -Dserver.port=8081
 edge-ncip:
   ingress:
     enabled: true
@@ -1176,6 +1176,9 @@ mod-data-export-worker:
     s3:
       enabled: true
       existingSecret: s3-credentials
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
   replicaCount: 1
   resources:
     limits:
@@ -2081,7 +2084,7 @@ mod-locations:
       existingSecret: db-credentials
     kafka:
       enabled: true
-      existingSecret: kafka-credentials  
+      existingSecret: kafka-credentials
   replicaCount: 1
   resources:
     limits:
@@ -2101,7 +2104,7 @@ mod-locations:
     failureThreshold: 30
   pdb:
     enabled: true
-    maxUnavailable: 1    
+    maxUnavailable: 1
 mod-login:
   extraEnvVars: []
   integrations:

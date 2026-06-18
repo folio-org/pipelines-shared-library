@@ -1437,6 +1437,9 @@ mod-data-export-worker:
     s3:
       enabled: true
       existingSecret: s3-credentials
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
   replicaCount: 1
   resources:
     limits:
@@ -2367,7 +2370,7 @@ mod-inventory-storage:
   - name: S3_LOCAL_SUB_PATH
     value: "mod-inventory-storage"
   - name: DB_EXPLAIN_QUERY_THRESHOLD_MS
-    value: "30000"      
+    value: "30000"
   integrations:
     db:
       enabled: true
@@ -2806,7 +2809,7 @@ mod-locations:
       existingSecret: db-credentials
     kafka:
       enabled: true
-      existingSecret: kafka-credentials        
+      existingSecret: kafka-credentials
   replicaCount: 1
   resources:
     limits:
@@ -2872,7 +2875,7 @@ mod-login:
     failureThreshold: 30
   pdb:
     enabled: true
-    maxUnavailable: 1       
+    maxUnavailable: 1
 mod-login-saml:
   extraEnvVars:
   - name: DB_MAXPOOLSIZE
