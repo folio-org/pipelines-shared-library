@@ -231,7 +231,7 @@ void karateTenantsCleanUp(String cluster, String namespace) {
   tenantsJson.tenants.each { tenantObj ->
     String tenantName = tenantObj.name
     String tenantId = tenantObj.id
-    if (tenantName ==~ /(university|central|college|testtenant)[0-9]+$/) {
+    if (tenantName ==~ /(?i)^(university|central|college|consortium|testtenant)[a-z0-9]+$/) {
       String entitlementsUrl = "https://${cluster}-${namespace}-kong.ci.folio.org/entitlements?query=tenantId==${tenantId}&limit=500"
       def entitlementsResp = sh(script: "curl -s -H 'Authorization: Bearer ${token}' '${entitlementsUrl}'", returnStdout: true).trim()
       def entitlementsJson = readJSON(text: entitlementsResp)
@@ -249,7 +249,7 @@ void karateTenantsCleanUp(String cluster, String namespace) {
         String uninstallPayload = JsonOutput.toJson([tenantId: tenantId, applications: applications])
         String uninstallPayloadFile = "entitlements-uninstall-${tenantId}.json"
         writeFile(file: uninstallPayloadFile, text: uninstallPayload)
-        def uninstallResp = sh(script: "curl -s -X DELETE -H 'Authorization: Bearer ${token}' -H 'Content-Type: application/json' 'https://${cluster}-${namespace}-kong.ci.folio.org/entitlements?purge=true&ignoreErrors=true' --data @${uninstallPayloadFile}", returnStdout: true).trim()
+        def uninstallResp = sh(script: "curl -s -X DELETE -H 'Authorization: Bearer ${token}' -H 'x-okapi-token: ${token}' -H 'Content-Type: application/json' 'https://${cluster}-${namespace}-kong.ci.folio.org/entitlements?purge=true&ignoreErrors=true' --data @${uninstallPayloadFile}", returnStdout: true).trim()
         sh(script: "rm -f ${uninstallPayloadFile}", returnStdout: false)
         echo "Entitlements uninstall response for tenant ${tenantName}: ${uninstallResp}"
       }
@@ -300,7 +300,7 @@ void karateTenantsCleanUpUnified(String kongURL, String keycloakURL, String clie
   tenantsJson.tenants.each { tenantObj ->
     String tenantName = tenantObj.name
     String tenantId = tenantObj.id
-    if (tenantName ==~ /(university|central|college|testtenant)[0-9]+$/) {
+    if (tenantName ==~ /(?i)^(university|central|college|consortium|testtenant)[a-z0-9]+$/) {
       String entitlementsUrl = "${kongURL}/entitlements?query=tenantId==${tenantId}&limit=500"
       def entitlementsResp = sh(script: "curl -s -H 'Authorization: Bearer ${token}' '${entitlementsUrl}'", returnStdout: true).trim()
       def entitlementsJson = readJSON(text: entitlementsResp)
@@ -318,7 +318,7 @@ void karateTenantsCleanUpUnified(String kongURL, String keycloakURL, String clie
         String uninstallPayload = JsonOutput.toJson([tenantId: tenantId, applications: applications])
         String uninstallPayloadFile = "entitlements-uninstall-${tenantId}.json"
         writeFile(file: uninstallPayloadFile, text: uninstallPayload)
-        def uninstallResp = sh(script: "curl -s -X DELETE -H 'Authorization: Bearer ${token}' -H 'Content-Type: application/json' '${kongURL}/entitlements?purge=true&ignoreErrors=true' --data @${uninstallPayloadFile}", returnStdout: true).trim()
+        def uninstallResp = sh(script: "curl -s -X DELETE -H 'Authorization: Bearer ${token}' -H 'x-okapi-token: ${token}' -H 'Content-Type: application/json' '${kongURL}/entitlements?purge=true&ignoreErrors=true' --data @${uninstallPayloadFile}", returnStdout: true).trim()
         sh(script: "rm -f ${uninstallPayloadFile}", returnStdout: false)
         echo "Entitlements uninstall response for tenant ${tenantName}: ${uninstallResp}"
       }

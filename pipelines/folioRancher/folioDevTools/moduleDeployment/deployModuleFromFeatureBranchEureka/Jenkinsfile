@@ -39,7 +39,7 @@ properties([
 ])
 
 if (params.REFRESH_PARAMETERS) {
-  currentBuild.result = 'ABORTED'g
+  currentBuild.result = 'ABORTED'
   return
 }
 
@@ -275,18 +275,19 @@ ansiColor('xterm') {
     }
 
     stage('Generate context') {
-      def excludedTenantPattern = ~/(?i)^(university|central|college|testtenant)[0-9]+$/
+      def excludedTenantPattern = ~/(?i)^(university|central|college|consortium|testtenant)[a-z0-9]+$/
       eureka.getExistedTenantsForModule("${namespace.getClusterName()}-${namespace.getNamespaceName()}", module.getName())
-        .values().each { tenant ->
+        .findAll { tenantName, tenant ->
           if (!tenant) {
-            return
+            return false
           }
-          if (tenant.tenantName ==~ excludedTenantPattern) {
-          logger.info("Skipping generated tenant ${tenantName}")
-          } else {
-          namespace.addTenant(tenant)
+          if (tenantName ==~ excludedTenantPattern) {
+            logger.info("Skipping generated tenant ${tenantName}")
+            return false
           }
+          return true
         }
+        .values().each { tenant -> namespace.addTenant(tenant) }
 
       namespace.tenants.values().each { it.getModules().addModule(module) }
 

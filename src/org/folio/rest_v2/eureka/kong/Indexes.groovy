@@ -41,7 +41,15 @@ class Indexes extends Kong{
       "indexSettings": []
     ]
 
-    restClient.post(url, body, headers).body
+    try {
+      restClient.post(url, body, headers).body
+    } catch (Exception e) {
+      if (e.getMessage()?.contains('Reindex is already in progress')) {
+        logger.warning("[${tenant.getTenantId()}] Instance reindex is already in progress, skipping: ${e.getMessage()}")
+        return this
+      }
+      throw e
+    }
 
     return this
   }

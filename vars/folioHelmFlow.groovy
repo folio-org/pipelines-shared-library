@@ -62,7 +62,7 @@ void deployMockServer(RancherNamespace ns) {
 
   // Add Helm repository and upgrade
   folioHelm.addHelmRepository(MOCK_SERVER_REPO_NAME, MOCK_SERVER_REPO_URL, false)
-  folioHelm.upgrade("mockserver", ns.namespaceName, valuesFilePath, MOCK_SERVER_REPO_NAME, "mockserver")
+  sh "helm upgrade --install mockserver --namespace=${ns.namespaceName} -f ${valuesFilePath} ${MOCK_SERVER_REPO_NAME}/mockserver --version ${version}"
 }
 
 void deployLdp(RancherNamespace namespace) {

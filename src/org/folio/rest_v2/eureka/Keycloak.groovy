@@ -164,11 +164,13 @@ class Keycloak extends Base {
 
       String replicaCount = context.kubectl.getKubernetesResourceCount('statefulset', keycloakStatefulSet, namespaceName).trim()
 
-      context.kubectl.setKubernetesResourceCount('statefulset', keycloakStatefulSet, namespaceName, '0')
+    context.kubectl.setKubernetesResourceCount('statefulset', keycloakStatefulSet, namespaceName, '0')
       context.kubectl.setKubernetesResourceCount('statefulset', keycloakStatefulSet, namespaceName, replicaCount)
 
       logger.info("Waiting for Keycloak pod ${keycloakStatefulSet}-0 to become ready in namespace ${namespaceName} ....")
       context.sh("kubectl wait pod/${keycloakStatefulSet}-0 --for=condition=Ready -n ${namespaceName} --timeout=300s")
+      logger.info("Waiting 3 minutes for keycloak to become ready in namespace ${namespaceName} ....")
+      context.sh("sleep 180")
     }
 
     logger.info("Keycloak statefulset in namespace ${namespaceName} has been restarted and is running")

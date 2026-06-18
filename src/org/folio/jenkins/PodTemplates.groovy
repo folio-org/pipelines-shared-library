@@ -108,7 +108,7 @@ spec:
           ttyEnabled: true,
           workingDir: WORKING_DIR,
           resourceRequestMemory: '1024Mi',
-          resourceLimitMemory: '12228Mi',
+          resourceLimitMemory: '1024Mi',
           envVars: [
             new KeyValueEnvVar('JENKINS_JAVA_OPTS',
               '-Dorg.jenkinsci.remoting.engine.JnlpAgentEndpointResolver.PING_INTERVAL=60' +
@@ -253,7 +253,7 @@ spec:
   private Object buildCypressContainer(
     List<KeyValueEnvVar> extraEnvVars = [],
     String resourceRequestMemory = '3072Mi',
-    String resourceLimitMemory = '12228Mi'
+    String resourceLimitMemory = '15285Mi'
   ) {
     return steps.containerTemplate(
       name: 'cypress',
@@ -395,7 +395,7 @@ spec:
         storageClassName: 'gp3'),
       volumes: [steps.persistentVolumeClaim(claimName: YARN_CACHE_PVC, mountPath: "${WORKING_DIR}/.yarn/cache")],
       containers: [
-        buildCypressContainer([], '2048Mi', '4096Mi'),
+        buildCypressContainer([], '4096Mi', '4096Mi'),
       ]
     )) {
       steps.node(JenkinsAgentLabel.CYPRESS_AGENT.getLabel()) {
