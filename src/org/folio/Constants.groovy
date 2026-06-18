@@ -203,8 +203,8 @@ class Constants {
   static String FOLIO_NPM_REPO_URL = 'https://repository.folio.org/repository/npm-folioci/'
 
   static String NEXUS_BASE_URL = 'https://repository.folio.org/repository'
-  static String FOLIO_HELM_V2_REPO_NAME = "folio-helm-v2"
-  static String FOLIO_HELM_V2_REPO_URL = 'https://repository.folio.org/repository/folio-helm-v2/'
+  static String FOLIO_HELM_V2_REPO_NAME = "folio-helm-v2-main"
+  static String FOLIO_HELM_V2_REPO_URL = 'https://repository.folio.org/repository/folio-helm-v2-main/'
   static String FOLIO_HELM_V2_TEST_REPO_NAME = "folio-helm-v2-test"
   static String FOLIO_HELM_V2_TEST_REPO_URL = 'https://repository.folio.org/repository/folio-helm-v2-test/'
 
