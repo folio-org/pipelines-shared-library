@@ -352,7 +352,7 @@ edge-users:
     requests:
       memory: 294Mi
   extraJavaOpts:
-    - -Dserver.port=8081      
+    - -Dserver.port=8081
 edge-ncip:
   ingress:
     enabled: true
@@ -2081,7 +2081,7 @@ mod-locations:
       existingSecret: db-credentials
     kafka:
       enabled: true
-      existingSecret: kafka-credentials  
+      existingSecret: kafka-credentials
   replicaCount: 1
   resources:
     limits:
@@ -2101,7 +2101,7 @@ mod-locations:
     failureThreshold: 30
   pdb:
     enabled: true
-    maxUnavailable: 1    
+    maxUnavailable: 1
 mod-login:
   extraEnvVars: []
   integrations:
@@ -3392,7 +3392,7 @@ mod-z3950:
 mgr-applications:
   extraEnvVars:
     - name: SECURE_STORE_ENV
-      value: '${application.environment}'    
+      value: '${application.environment}'
     - name: ROUTEMANAGEMENT_ENABLE
       value: "true"
     - name: MODULE_URL
@@ -3412,7 +3412,7 @@ mgr-applications:
     - name: SECURITY_ENABLED
       value: "true"
     - name: KONG_TENANT_CHECKS_ENABLED
-      value: "true"  
+      value: "true"
   extraJavaOpts:
     - "-Dlogging.level.root=INFO -Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties"
   integrations:
@@ -3607,8 +3607,6 @@ mod-roles-keycloak:
   extraEnvVars:
     - name: KAFKA_TENANT_FILTER_ENABLED
       value: "true"
-    - name: KAFKA_CAPABILITIES_TOPIC_PATTERN
-      value: '(${application.environment}\.)(.*\.)mgr-tenant-entitlements.capability'
     - name: CAPABILITY_TOPIC_RETRY_DELAY
       value: "1s"
     - name: CAPABILITY_TOPIC_RETRY_ATTEMPTS
@@ -3644,9 +3642,7 @@ mod-roles-keycloak:
 mod-users-keycloak:
   extraEnvVars:
     - name: KAFKA_TENANT_FILTER_ENABLED
-      value: "true"  
-    - name: KAFKA_SYS_USER_TOPIC_PATTERN
-      value: '(${application.environment}\.)(.*\.)mgr-tenant-entitlements.system-user'
+      value: "true"
     - name: KAFKA_SYS_USER_TOPIC_RETRY_DELAY
       value: "1s"
     - name: KAFKA_SYS_USER_TOPIC_RETRY_ATTEMPTS
@@ -3690,11 +3686,9 @@ mod-users-keycloak:
 mod-scheduler:
   extraEnvVars:
     - name: KAFKA_TENANT_FILTER_ENABLED
-      value: "true"  
+      value: "true"
     - name: KC_IMPERSONATION_CLIENT
       value: "impersonation-client"
-    - name: KAFKA_JOB_CONSUMER_PATTERN
-      value: '(${folio.environment}\.)(.*\.)mgr-tenant-entitlements\.scheduled-job'
     - name: KAFKA_JOB_CONCURRENCY
       value: "1"
     - name: KAFKA_CONSUMER_MAX_POLL_RECORDS
@@ -3710,7 +3704,7 @@ mod-scheduler:
     - name: QUARTZ_POOL_THREAD_COUNT
       value: "5"
     - name: KAFKA_ENTITLEMENT_CONSUMER_PATTERN
-      value: '(${folio.environment}\.)entitlement'  
+      value: '(${folio.environment}\.)entitlement'
   integrations:
     db:
       enabled: true

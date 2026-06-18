@@ -65,7 +65,7 @@ void deployFolioModule(RancherNamespace ns, String moduleName, String moduleVers
       valuesFilePath = generateModuleValues(ns, moduleName, moduleVersion, ns.domains['okapi'], customModule)
       break
     case ~/mod-.*/:
-      valuesFilePath = generateModuleValues(ns, moduleName, moduleVersion, "", customModule)
+      valuesFilePath = generateModuleValues(ns, moduleName, moduleVersion, "", customModule, tenantId, release2)
       break
     case ~/mgr-.*/:
       valuesFilePath = generateModuleValues(ns, moduleName, moduleVersion, "", customModule)
@@ -270,7 +270,7 @@ static String valuesPathOption(String path) {
   return path.trim() ? "-f ${path}" : ''
 }
 
-String generateModuleValues(RancherNamespace ns, String moduleName, String moduleVersion, String domain = "", boolean customModule = false, String filePostfix = '') {
+String generateModuleValues(RancherNamespace ns, String moduleName, String moduleVersion, String domain = "", boolean customModule = false, String filePostfix = '', boolean release2 = false) {
   String valuesFilePath = filePostfix.trim().isEmpty() ? "./values/${moduleName}.yaml" : "./values/${moduleName}-${filePostfix}.yaml"
   Map moduleConfig = ns.deploymentConfig[moduleName] ? ns.deploymentConfig[moduleName] : new Logger(this, 'folioHelm').error("Values for ${moduleName} not found!")
   String repository = determineModulePlacement(moduleName, moduleVersion, customModule)
@@ -365,10 +365,21 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
 
       case ~/mod-.*-keycloak/:
         moduleConfig['extraEnvVars'] += [
-          name: 'MOD_USERS_ID',
+          name : 'MOD_USERS_ID',
           value: 'mod-users-' + ns.getModules().getModuleByName('mod-users').getVersion()
         ]
-
+        if (release2) {
+          moduleConfig['extraEnvVars'] += [[name : 'KAFKA_CAPABILITIES_TOPIC_PATTERN',
+                                            value: "(${ns.getClusterName()}-${ns.getNamespaceName()}.)(.*.)mgr-tenant-entitlements.capability"]]
+          moduleConfig['extraEnvVars'] += [[name : 'KAFKA_SYS_USER_TOPIC_PATTERN',
+                                            value: "(${ns.getClusterName()}-${ns.getNamespaceName()}.)(.*.)mgr-tenant-entitlements.system-user"]]
+        }
+        break
+      case 'mod-scheduler':
+        if (release2) {
+          moduleConfig['extraEnvVars'] += [[name : 'KAFKA_ENTITLEMENT_CONSUMER_PATTERN',
+                                            value: "(${ns.getClusterName()}-${ns.getNamespaceName()}.)entitlement"]]
+        }
         break
       case 'mod-circulation-bff':
         moduleConfig['extraEnvVars'] += ns.hasSecureTenant ? [
