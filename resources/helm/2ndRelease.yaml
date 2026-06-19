@@ -3703,8 +3703,6 @@ mod-scheduler:
       value: "500"
     - name: QUARTZ_POOL_THREAD_COUNT
       value: "5"
-    - name: KAFKA_ENTITLEMENT_CONSUMER_PATTERN
-      value: '(${folio.environment}\.)entitlement'
   integrations:
     db:
       enabled: true
