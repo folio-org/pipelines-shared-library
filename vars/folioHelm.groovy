@@ -277,7 +277,7 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
     moduleConfig.integrations.db.existingSecret = "db-credentials-${ns.getNamespaceName()}-eureka"
   }
 
-  if (ns.getNamespaceName() == 'cikarate' && (moduleName.startsWith('mgr-') || moduleName ==~ /mod-.*-keycloak/) && moduleConfig.integrations?.kafka?.existingSecret == 'kafka-credentials') {
+  if (ns.getNamespaceName() == 'cikarate' && (moduleName.startsWith('mgr-') || moduleName ==~ /mod-.*-keycloak/ && moduleName != 'mod-consortia-keycloak') && moduleConfig.integrations?.kafka?.existingSecret == 'kafka-credentials') {
     moduleConfig.integrations.kafka.existingSecret = 'kafka-credentials-2'
   }
 
@@ -349,13 +349,13 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
 //            value: '1'
 //          ] : []
         break
-        
+
       case 'mod-search':
           moduleConfig['extraEnvVars'] +=  ['cikarate', 'karate'].contains(ns.getNamespaceName()) ? [
             name : 'spring.cache.type',
             value: 'none'
           ] : []
-        break          
+        break
 
       case ~/mod-.*-keycloak/:
         moduleConfig['extraEnvVars'] += [
