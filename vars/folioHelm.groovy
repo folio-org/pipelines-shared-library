@@ -379,6 +379,8 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
         if (release2) {
           moduleConfig['extraEnvVars'] += [[name : 'KAFKA_ENTITLEMENT_CONSUMER_PATTERN',
                                             value: "${ns.getClusterName()}-${ns.getNamespaceName()}.entitlement"]]
+          moduleConfig['extraEnvVars'] += [[name : 'KAFKA_JOB_CONSUMER_PATTERN',
+                                            value: "(${ns.getClusterName()}-${ns.getNamespaceName()}\\.)(.*\\.)mgr-tenant-entitlements\\.scheduled-job"]]
         }
         break
       case 'mod-circulation-bff':
