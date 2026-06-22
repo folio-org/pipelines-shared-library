@@ -24,7 +24,7 @@ properties([
     string(name: 'KARATE_BRANCH', defaultValue: 'master', description: "(Required) Karate tests repository branch to checkout"),
     string(name: 'CYPRESS_BRANCH', defaultValue: 'master', description: "(Required) 'stripes-testing' branch to use for Cypress tests"),
     string(name: 'THREADS_COUNT', defaultValue: '4', description: "(Required) Number of parallel threads for Karate tests"),
-    string(name: 'NUMBER_WORKERS', defaultValue: '4', description: "(Required) Number of parallel workers for Cypress tests"),
+    string(name: 'NUMBER_WORKERS', defaultValue: '12', description: "(Required) Number of parallel workers for Cypress tests"),
     folioParameters.refreshParameters()
   ])
 ])
@@ -79,7 +79,7 @@ karateTestsParams.testrailRunID = '3610'
 karateTestsParams.sendSlackNotification = currentBuild.rawBuild.getCauses().any { it.toString().contains("TimerTriggerCause") } ? true : false
 karateTestsParams.sendTeamsSlackNotification = currentBuild.rawBuild.getCauses().any { it.toString().contains("TimerTriggerCause") } ? true : false
 karateTestsParams.syncWithJira = currentBuild.rawBuild.getCauses().any { it.toString().contains("TimerTriggerCause") } ? true : false
-karateTestsParams.timeout = '6'
+karateTestsParams.timeout = '12'
 
 /**
  * Cypress non-ECS test parameters — smoke + criticalPath + extendedPath
