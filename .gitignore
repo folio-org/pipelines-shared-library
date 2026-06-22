@@ -28,6 +28,8 @@ claude*
 .github/*prompts*
 .github/*chatmodes*
 graphify-out/
+.memsearch/
+.opencode/
 
 # Miscellaneous
 *.class
