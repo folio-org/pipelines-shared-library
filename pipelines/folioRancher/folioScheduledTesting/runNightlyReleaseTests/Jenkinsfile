@@ -1,0 +1,167 @@
+#!groovy
+import groovy.transform.Field
+import org.folio.Constants
+import org.folio.jenkins.PodTemplates
+import org.folio.models.OkapiTenant
+import org.folio.models.OkapiUser
+import org.folio.models.RancherNamespace
+import org.folio.models.parameters.CreateNamespaceParameters
+import org.folio.models.parameters.CypressTestsParameters
+import org.folio.models.parameters.KarateTestsParameters
+import org.folio.utilities.Logger
+import org.jenkinsci.plugins.workflow.libs.Library
+
+@Library('pipelines-shared-library') _
+
+/**
+ * Job properties and parameters
+ */
+properties([
+  pipelineTriggers([cron('H 21 * * 1-5')]),
+  buildDiscarder(logRotator(numToKeepStr: '30')),
+  disableConcurrentBuilds(),
+  parameters([
+    string(name: 'KARATE_BRANCH', defaultValue: 'master', description: "(Required) Karate tests repository branch to checkout"),
+    string(name: 'CYPRESS_BRANCH', defaultValue: 'master', description: "(Required) 'stripes-testing' branch to use for Cypress tests"),
+    string(name: 'THREADS_COUNT', defaultValue: '4', description: "(Required) Number of parallel threads for Karate tests"),
+    string(name: 'NUMBER_WORKERS', defaultValue: '4', description: "(Required) Number of parallel workers for Cypress tests"),
+    folioParameters.refreshParameters()
+  ])
+])
+
+if (params.REFRESH_PARAMETERS) {
+  currentBuild.result = 'ABORTED'
+  return
+}
+
+/**
+ * Job variables
+ */
+PodTemplates podTemplates = new PodTemplates(this)
+Logger logger = new Logger(this, env.JOB_BASE_NAME)
+
+@Field final String deleteNamespaceJobName = Constants.JENKINS_DELETE_NAMESPACE_JOB
+@Field final String createNamespaceJobName = Constants.JENKINS_CREATE_NAMESPACE_FROM_BRANCH_JOB
+
+final String releaseBranch = 'R1-2026'
+
+CreateNamespaceParameters namespaceBaseParams = new CreateNamespaceParameters.Builder()
+  .clusterName('folio-etesting')
+  .namespaceName('release-validation')
+  .kafkaType('aws')
+  .build(this)
+
+CreateNamespaceParameters namespaceFromBranchParams = namespaceBaseParams.toBuilder()
+  .platformBranch(releaseBranch)
+  .scNative(true)
+  .build(this)
+
+RancherNamespace namespace = new RancherNamespace(namespaceBaseParams.getClusterName(), namespaceBaseParams.getNamespaceName())
+namespace.withDefaultTenant('diku')
+namespace.withSuperTenantAdminUser('diku_admin', 'admin')
+
+/**
+ * Karate test parameters — targeted E2E subset for the release (not the full suite)
+ */
+KarateTestsParameters karateTestsParams = new KarateTestsParameters()
+karateTestsParams.gitBranch = params.KARATE_BRANCH
+karateTestsParams.okapiUrl = "https://${namespace.getDomains().kong}"
+karateTestsParams.keycloakUrl = "https://${namespace.getDomains().keycloak}"
+karateTestsParams.edgeUrl = "https://${namespace.getDomains().edge}"
+karateTestsParams.tenant = namespace.getDefaultTenantId()
+karateTestsParams.prototypeTenant = 'consortium'
+karateTestsParams.adminUserName = namespace.getSuperTenant().getAdminUser().getUsername()
+karateTestsParams.adminPassword = namespace.getSuperTenant().getAdminUser().getPassword()
+karateTestsParams.threadsCount = params.THREADS_COUNT
+karateTestsParams.reportPortalProjectName = 'karate-eureka'
+karateTestsParams.testrailProjectID = '14'
+karateTestsParams.testrailRunID = '3610'
+karateTestsParams.sendSlackNotification = currentBuild.rawBuild.getCauses().any { it.toString().contains("TimerTriggerCause") } ? true : false
+karateTestsParams.sendTeamsSlackNotification = currentBuild.rawBuild.getCauses().any { it.toString().contains("TimerTriggerCause") } ? true : false
+karateTestsParams.syncWithJira = currentBuild.rawBuild.getCauses().any { it.toString().contains("TimerTriggerCause") } ? true : false
+karateTestsParams.timeout = '6'
+
+/**
+ * Cypress non-ECS test parameters — smoke + criticalPath + extendedPath
+ */
+CypressTestsParameters cypressNonEcsParams = new CypressTestsParameters()
+cypressNonEcsParams.setCiBuildId("${env.JOB_BASE_NAME}-non-ecs")
+cypressNonEcsParams.setTestsSrcBranch(params.CYPRESS_BRANCH)
+cypressNonEcsParams.setTenantUrl("https://${namespace.generateDomain('diku')}")
+cypressNonEcsParams.setOkapiUrl("https://${namespace.getDomains().kong}")
+cypressNonEcsParams.setTenant(new OkapiTenant('diku')
+  .withAdminUser(new OkapiUser('diku_admin', 'admin')))
+cypressNonEcsParams.setCompileExecParameters('tags="smoke criticalPath extendedPath --nonParallel"')
+cypressNonEcsParams.setTestrailProjectID('14')
+cypressNonEcsParams.setTestrailRunID('3608')
+cypressNonEcsParams.setNumberOfWorkers(params.NUMBER_WORKERS.toInteger())
+cypressNonEcsParams.setTimeout('1080')
+
+/**
+ * Cypress ECS test parameters — ECS scenario subset
+ */
+CypressTestsParameters cypressEcsParams = new CypressTestsParameters()
+cypressEcsParams.setCiBuildId("${env.JOB_BASE_NAME}-ecs")
+cypressEcsParams.setTestsSrcBranch(params.CYPRESS_BRANCH)
+cypressEcsParams.setTenantUrl("https://${namespace.generateDomain('consortium')}")
+cypressEcsParams.setOkapiUrl("https://${namespace.getDomains().kong}")
+cypressEcsParams.setTenant(new OkapiTenant('consortium')
+  .withAdminUser(new OkapiUser('consortium_admin', 'admin')))
+cypressEcsParams.setCompileExecParameters('tags="smokeECS criticalPathECS extendedPathECS --nonParallel" env=ecs_env_name="release-validation",eureka=true,ecsEnabled=true')
+cypressEcsParams.setTestrailProjectID('14')
+cypressEcsParams.setTestrailRunID('3609')
+cypressEcsParams.setNumberOfWorkers(params.NUMBER_WORKERS.toInteger())
+cypressEcsParams.setTimeout('1080')
+
+boolean reportPortalUse = true
+String reportPortalRunType = 'evrk'
+
+/**
+ * Pipeline
+ */
+ansiColor('xterm') {
+  podTemplates.rancherAgent {
+    stage('Ini') {
+      buildDescription "Karate branch: ${params.KARATE_BRANCH}\nCypress branch: ${params.CYPRESS_BRANCH}\nEnv: ${namespaceBaseParams.getClusterName()}/${namespaceBaseParams.getNamespaceName()} (${releaseBranch})"
+    }
+
+    stage('[Job] Destroy environment') {
+      def nsExists
+      folioHelm.withKubeConfig(namespaceBaseParams.getClusterName()) {
+        nsExists = kubectl.checkNamespaceExistence("${namespaceBaseParams.getNamespaceName()}")
+      }
+      if (nsExists) {
+        retry(2) {
+          folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceBaseParams)
+        }
+      } else {
+        logger.info("${namespaceBaseParams.getNamespaceName()} namespace does not exist!")
+      }
+    }
+
+    stage('[Job] Provision environment') {
+      try {
+        folioTriggerJob.createNamespaceFromBranch(createNamespaceJobName, namespaceFromBranchParams)
+      } catch (Exception new_ex) {
+        slackSend(attachments: folioSlackNotificationUtils.renderFailedBuildResultMessage()
+          , channel: "#rancher_tests_notifications")
+        throw new Exception("Provision of the environment is failed: " + new_ex)
+      }
+    }
+
+    stage('[Flow] Execute Karate tests') {
+      logger.info("Running Karate E2E subset against release-validation (R1-2026)")
+      folioKarateFlow.call(karateTestsParams)
+    }
+
+    stage('[Flow] Execute Cypress non-ECS tests') {
+      logger.info("Running Cypress non-ECS tests against release-validation (R1-2026)")
+      folioCypressFlow.call(cypressNonEcsParams.getCiBuildId(), [cypressNonEcsParams], true, reportPortalUse, reportPortalRunType, true)
+    }
+
+    stage('[Flow] Execute Cypress ECS tests') {
+      logger.info("Running Cypress ECS tests against release-validation (R1-2026)")
+      folioCypressFlow.call(cypressEcsParams.getCiBuildId(), [cypressEcsParams], true, reportPortalUse, reportPortalRunType, true)
+    }
+  }
+}
