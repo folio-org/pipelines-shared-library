@@ -36,9 +36,9 @@ properties([
     , 'PLATFORM')
   ]),
   pipelineTriggers([
+    //  RANCHER-3024 || H 20 * * * %CLUSTER=folio-etesting;NAMESPACE=release-validation;PLATFORM_BRANCH=R1-2026;FORCE_DELETE_IF_EXISTS=true
     parameterizedCron('''
       H 22 * * * %CLUSTER=folio-edev;NAMESPACE=eureka;PLATFORM_BRANCH=snapshot;FORCE_DELETE_IF_EXISTS=true
-      H 20 * * * %CLUSTER=folio-etesting;NAMESPACE=release-validation;PLATFORM_BRANCH=R1-2026;FORCE_DELETE_IF_EXISTS=true
     ''')])
 ])
 
