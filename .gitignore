@@ -27,6 +27,7 @@ claude*
 .github/*agents*
 .github/*prompts*
 .github/*chatmodes*
+graphify-out/
 
 # Miscellaneous
 *.class
