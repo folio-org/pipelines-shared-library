@@ -149,10 +149,10 @@ ansiColor('xterm') {
 //      }
 //    }
 
-//    stage('[Flow] Execute Karate tests') {
-//      logger.info("Running Karate E2E subset against release-validation (R1-2026)")
-//      folioKarateFlow.call(karateTestsParams)
-//    }
+    stage('[Flow] Execute Karate tests') {
+      logger.info("Running Karate E2E subset against release-validation (R1-2026)")
+      folioKarateFlow.call(karateTestsParams)
+    }
 
     stage('[Flow] Execute Cypress non-ECS tests') {
       logger.info("Running Cypress non-ECS tests against release-validation (R1-2026)")
