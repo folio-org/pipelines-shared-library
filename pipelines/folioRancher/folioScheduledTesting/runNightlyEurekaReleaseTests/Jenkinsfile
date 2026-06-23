@@ -21,7 +21,7 @@ properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
   disableConcurrentBuilds(),
   parameters([
-    string(name: 'KARATE_BRANCH', defaultValue: 'master', description: "(Required) Karate tests repository branch to checkout"),
+    string(name: 'KARATE_BRANCH', defaultValue: 'R1-2026', description: "(Required) Karate tests repository branch to checkout"),
     string(name: 'CYPRESS_BRANCH', defaultValue: 'master', description: "(Required) 'stripes-testing' branch to use for Cypress tests"),
     string(name: 'THREADS_COUNT', defaultValue: '4', description: "(Required) Number of parallel threads for Karate tests"),
     string(name: 'NUMBER_WORKERS', defaultValue: '12', description: "(Required) Number of parallel workers for Cypress tests"),
