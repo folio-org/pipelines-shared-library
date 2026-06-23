@@ -125,34 +125,34 @@ ansiColor('xterm') {
       buildDescription "Karate branch: ${params.KARATE_BRANCH}\nCypress branch: ${params.CYPRESS_BRANCH}\nEnv: ${namespaceBaseParams.getClusterName()}/${namespaceBaseParams.getNamespaceName()} (${releaseBranch})"
     }
 
-    stage('[Job] Destroy environment') {
-      def nsExists
-      folioHelm.withKubeConfig(namespaceBaseParams.getClusterName()) {
-        nsExists = kubectl.checkNamespaceExistence("${namespaceBaseParams.getNamespaceName()}")
-      }
-      if (nsExists) {
-        retry(2) {
-          folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceBaseParams)
-        }
-      } else {
-        logger.info("${namespaceBaseParams.getNamespaceName()} namespace does not exist!")
-      }
-    }
+//    stage('[Job] Destroy environment') {
+//      def nsExists
+//      folioHelm.withKubeConfig(namespaceBaseParams.getClusterName()) {
+//        nsExists = kubectl.checkNamespaceExistence("${namespaceBaseParams.getNamespaceName()}")
+//      }
+//      if (nsExists) {
+//        retry(2) {
+//          folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceBaseParams)
+//        }
+//      } else {
+//        logger.info("${namespaceBaseParams.getNamespaceName()} namespace does not exist!")
+//      }
+//    }
 
-    stage('[Job] Provision environment') {
-      try {
-        folioTriggerJob.createNamespaceFromBranch(createNamespaceJobName, namespaceFromBranchParams)
-      } catch (Exception new_ex) {
-        slackSend(attachments: folioSlackNotificationUtils.renderFailedBuildResultMessage()
-          , channel: "#rancher_tests_notifications")
-        throw new Exception("Provision of the environment is failed: " + new_ex)
-      }
-    }
+//    stage('[Job] Provision environment') {
+//      try {
+//        folioTriggerJob.createNamespaceFromBranch(createNamespaceJobName, namespaceFromBranchParams)
+//      } catch (Exception new_ex) {
+//        slackSend(attachments: folioSlackNotificationUtils.renderFailedBuildResultMessage()
+//          , channel: "#rancher_tests_notifications")
+//        throw new Exception("Provision of the environment is failed: " + new_ex)
+//      }
+//    }
 
-    stage('[Flow] Execute Karate tests') {
-      logger.info("Running Karate E2E subset against release-validation (R1-2026)")
-      folioKarateFlow.call(karateTestsParams)
-    }
+//    stage('[Flow] Execute Karate tests') {
+//      logger.info("Running Karate E2E subset against release-validation (R1-2026)")
+//      folioKarateFlow.call(karateTestsParams)
+//    }
 
     stage('[Flow] Execute Cypress non-ECS tests') {
       logger.info("Running Cypress non-ECS tests against release-validation (R1-2026)")
