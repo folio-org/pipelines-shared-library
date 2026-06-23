@@ -273,7 +273,7 @@ void deleteTestTenantSSMParameters(String cluster, String namespace, List tenant
     totalDeleted += toDelete.size()
   }
 
-  buildDescription("${clusterNs}: #parameters deleted: ${totalDeleted}")
+  return totalDeleted
 }
 
 void karateTenantsCleanUp(String cluster, String namespace) {

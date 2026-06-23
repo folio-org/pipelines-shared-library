@@ -41,9 +41,11 @@ ansiColor('xterm') {
     stage('[AWS Parameter Store] Cleanup') {
       awscli.withAwsClient {
         List tenantPrefixes = params.TENANT_PATTERNS.tokenize(',').collect { it.trim() }
+        int totalDeleted = 0
         Constants.AWS_EKS_DEV_NAMESPACES.each { namespace ->
-          folioTools.deleteTestTenantSSMParameters('folio-edev', namespace, tenantPrefixes)
+          totalDeleted += folioTools.deleteTestTenantSSMParameters('folio-edev', namespace, tenantPrefixes)
         }
+        buildDescription("Total #parameters deleted: ${totalDeleted}")
       }
     }
   }
