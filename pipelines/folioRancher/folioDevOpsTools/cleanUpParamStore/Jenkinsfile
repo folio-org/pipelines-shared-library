@@ -3,15 +3,15 @@ import org.folio.Constants
 import org.folio.jenkins.PodTemplates
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@ssm-cleanup') _
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
   pipelineTriggers([cron('0 22 * * 0')]),
   parameters([
-    string(name: 'SSM_PATTERN',
-           defaultValue: '_test',
-           description: 'SSM parameter name pattern to match for deletion (e.g. "_test" matches all parameters containing "_test")'),
+    string(name: 'TENANT_PATTERNS',
+           defaultValue: 'test,university,college,central',
+           description: 'Comma-separated list of tenant ID prefixes to match for deletion. Applied per namespace as: folio-edev-<namespace>_<prefix>. Examples: "testtenant,university,college,central"'),
     folioParameters.refreshParameters()
   ])
 ])
@@ -27,7 +27,7 @@ ansiColor('xterm') {
   podTemplates.rancherAgent {
     stage('Ini') {
       buildName("#${env.BUILD_ID}")
-      buildDescription("SSM pattern: ${params.SSM_PATTERN}")
+      buildDescription("Tenant patterns: ${params.TENANT_PATTERNS}")
     }
 
     stage('Checkout') {
@@ -40,7 +40,10 @@ ansiColor('xterm') {
 
     stage('[AWS Parameter Store] Cleanup') {
       awscli.withAwsClient {
-        folioTools.deleteSSMParametersByPattern(params.SSM_PATTERN)
+        List tenantPrefixes = params.TENANT_PATTERNS.tokenize(',').collect { it.trim() }
+        Constants.AWS_EKS_DEV_NAMESPACES.each { namespace ->
+          folioTools.deleteTestTenantSSMParameters('folio-edev', namespace, tenantPrefixes)
+        }
       }
     }
   }
