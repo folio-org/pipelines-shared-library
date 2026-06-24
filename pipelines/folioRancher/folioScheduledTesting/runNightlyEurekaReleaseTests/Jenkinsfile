@@ -67,6 +67,7 @@ karateTestsParams.adminUserName = namespace.getSuperTenant().getAdminUser().getU
 karateTestsParams.adminPassword = namespace.getSuperTenant().getAdminUser().getPassword()
 karateTestsParams.threadsCount = params.THREADS_COUNT
 karateTestsParams.reportPortalProjectName = 'karate-eureka'
+karateTestsParams.modulesToTest = 'Smoke,CriticalPath,ExtendedPath'
 karateTestsParams.testrailProjectID = '14'
 karateTestsParams.testrailRunID = '3610'
 karateTestsParams.sendSlackNotification = currentBuild.rawBuild.getCauses().any { it.toString().contains("TimerTriggerCause") } ? true : false
