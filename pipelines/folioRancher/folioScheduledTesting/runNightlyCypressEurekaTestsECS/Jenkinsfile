@@ -46,7 +46,7 @@ cypressParameters.setTenantUrl("https://${namespace.generateDomain('consortium')
 cypressParameters.setOkapiUrl("https://${namespace.getDomains().kong}")
 cypressParameters.setTenant(new OkapiTenant('consortium')
   .withAdminUser(new OkapiUser('consortium_admin', 'admin')))
-cypressParameters.setCompileExecParameters('tags="smokeECS criticalPathECS extendedPathECS" env=ecs_env_name="snapshot",eureka=true,ecsEnabled=true')
+cypressParameters.setCompileExecParameters('tags="smokeECS criticalPathECS extendedPathECS --nonParallel" env=ecs_env_name="snapshot",eureka=true,ecsEnabled=true')
 cypressParameters.setNumberOfWorkers(params.NUMBER_WORKERS.toInteger())
 cypressParameters.setTimeout('1080')
 
