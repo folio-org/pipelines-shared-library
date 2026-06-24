@@ -352,7 +352,7 @@ edge-users:
     requests:
       memory: 294Mi
   extraJavaOpts:
-    - -Dserver.port=8081      
+    - -Dserver.port=8081
 edge-ncip:
   ingress:
     enabled: true
@@ -2081,7 +2081,7 @@ mod-locations:
       existingSecret: db-credentials
     kafka:
       enabled: true
-      existingSecret: kafka-credentials  
+      existingSecret: kafka-credentials
   replicaCount: 1
   resources:
     limits:
@@ -2101,7 +2101,7 @@ mod-locations:
     failureThreshold: 30
   pdb:
     enabled: true
-    maxUnavailable: 1    
+    maxUnavailable: 1
 mod-login:
   extraEnvVars: []
   integrations:
@@ -3392,7 +3392,7 @@ mod-z3950:
 mgr-applications:
   extraEnvVars:
     - name: SECURE_STORE_ENV
-      value: '${application.environment}'    
+      value: '${application.environment}'
     - name: ROUTEMANAGEMENT_ENABLE
       value: "true"
     - name: MODULE_URL
@@ -3412,7 +3412,7 @@ mgr-applications:
     - name: SECURITY_ENABLED
       value: "true"
     - name: KONG_TENANT_CHECKS_ENABLED
-      value: "true"  
+      value: "true"
   extraJavaOpts:
     - "-Dlogging.level.root=INFO -Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties"
   integrations:
@@ -3435,6 +3435,8 @@ mgr-applications:
     initialDelaySeconds: 20
 mgr-tenants:
   extraEnvVars:
+    - name: SECURE_STORE_ENV
+      value: '${application.environment}'
     - name: MODULE_URL
       value: "http://mgr-tenants"
     - name: FOLIO_CLIENT_CONNECT_TIMEOUT
@@ -3534,6 +3536,8 @@ mgr-tenant-entitlements:
     initialDelaySeconds: 20
 mod-consortia-keycloak:
   extraEnvVars:
+    - name: SECURE_STORE_ENV
+    - value: '${application.environment}'
     - name: CUSTOM_FIELDS_RETRY_BACKOFF_DELAY
       value: "5000"
     - name: CUSTOM_FIELDS_RETRY_MAX_RETRIES
@@ -3605,6 +3609,8 @@ mod-login-keycloak:
     failureThreshold: 30
 mod-roles-keycloak:
   extraEnvVars:
+    - name: SECURE_STORE_ENV
+    - value: '${application.environment}'
     - name: KAFKA_CAPABILITIES_TOPIC_PATTERN
       value: '(${application.environment}\.)(.*\.)mgr-tenant-entitlements.capability'
     - name: CAPABILITY_TOPIC_RETRY_DELAY
@@ -3612,7 +3618,7 @@ mod-roles-keycloak:
     - name: CAPABILITY_TOPIC_RETRY_ATTEMPTS
       value: "9223372036854775807"
     - name: KAFKA_TENANT_FILTER_ENABLED
-      value: "true"      
+      value: "true"
   integrations:
     db:
       enabled: true
@@ -3643,6 +3649,8 @@ mod-roles-keycloak:
       memory: 814Mi
 mod-users-keycloak:
   extraEnvVars:
+    - name: SECURE_STORE_ENV
+    - value: '${application.environment}'
     - name: KAFKA_SYS_USER_TOPIC_PATTERN
       value: '(${application.environment}\.)(.*\.)mgr-tenant-entitlements.system-user'
     - name: KAFKA_SYS_USER_TOPIC_RETRY_DELAY
@@ -3658,7 +3666,7 @@ mod-users-keycloak:
     - name: INCLUDE_ONLY_VISIBLE_PERMISSIONS
       value: "false"
     - name: KAFKA_TENANT_FILTER_ENABLED
-      value: "true"       
+      value: "true"
   integrations:
     db:
       enabled: true
@@ -3689,6 +3697,8 @@ mod-users-keycloak:
     failureThreshold: 30
 mod-scheduler:
   extraEnvVars:
+    - name: SECURE_STORE_ENV
+    - value: '${application.environment}'
     - name: KC_IMPERSONATION_CLIENT
       value: "impersonation-client"
     - name: KAFKA_JOB_CONSUMER_PATTERN
@@ -3708,7 +3718,7 @@ mod-scheduler:
     - name: QUARTZ_POOL_THREAD_COUNT
       value: "5"
     - name: KAFKA_TENANT_FILTER_ENABLED
-      value: "true"       
+      value: "true"
   integrations:
     db:
       enabled: true
