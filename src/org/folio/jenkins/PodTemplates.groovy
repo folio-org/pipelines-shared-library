@@ -230,7 +230,7 @@ spec:
   ) {
     return steps.containerTemplate(
       name: 'werf',
-      image: 'registry.werf.io/werf/werf:2-stable',
+      image: 'ghcr.io/werf/werf:2-stable',
       alwaysPullImage: true,
       envVars: extraEnvVars,
       command: 'sleep',
