@@ -3539,8 +3539,6 @@ mgr-tenant-entitlements:
     initialDelaySeconds: 20
 mod-consortia-keycloak:
   extraEnvVars:
-    - name: SECURE_STORE_ENV
-      value: '${application.environment}'
     - name: CUSTOM_FIELDS_RETRY_BACKOFF_DELAY
       value: "5000"
     - name: CUSTOM_FIELDS_RETRY_MAX_RETRIES
@@ -3700,8 +3698,6 @@ mod-users-keycloak:
     failureThreshold: 30
 mod-scheduler:
   extraEnvVars:
-    - name: SECURE_STORE_ENV
-      value: '${application.environment}'
     - name: KC_IMPERSONATION_CLIENT
       value: "impersonation-client"
     - name: KAFKA_JOB_CONSUMER_PATTERN
