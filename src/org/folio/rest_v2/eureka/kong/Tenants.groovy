@@ -151,7 +151,7 @@ class Tenants extends Kong{
         headers,
         responseCodes
       )
-      return trackEntitlementFlow(response, tenant, headers)
+      return response.body
     } catch (RequestException ex) {
       logger.error("Enabling (entitle) applications on tenant ${tenant.tenantId} with ${tenant.uuid} failed with error: ${ex.getMessage()}")
       return this
