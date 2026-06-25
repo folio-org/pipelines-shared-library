@@ -3537,7 +3537,7 @@ mgr-tenant-entitlements:
 mod-consortia-keycloak:
   extraEnvVars:
     - name: SECURE_STORE_ENV
-    - value: '${application.environment}'
+      value: '${application.environment}'
     - name: CUSTOM_FIELDS_RETRY_BACKOFF_DELAY
       value: "5000"
     - name: CUSTOM_FIELDS_RETRY_MAX_RETRIES
@@ -3694,7 +3694,7 @@ mod-users-keycloak:
 mod-scheduler:
   extraEnvVars:
     - name: SECURE_STORE_ENV
-    - value: '${application.environment}'
+      value: '${application.environment}'
     - name: KAFKA_TENANT_FILTER_ENABLED
       value: "true"
     - name: KC_IMPERSONATION_CLIENT

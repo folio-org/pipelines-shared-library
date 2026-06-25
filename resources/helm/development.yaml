@@ -3540,7 +3540,7 @@ mgr-tenant-entitlements:
 mod-consortia-keycloak:
   extraEnvVars:
     - name: SECURE_STORE_ENV
-    - value: '${application.environment}'
+      value: '${application.environment}'
     - name: CUSTOM_FIELDS_RETRY_BACKOFF_DELAY
       value: "5000"
     - name: CUSTOM_FIELDS_RETRY_MAX_RETRIES
@@ -3613,7 +3613,7 @@ mod-login-keycloak:
 mod-roles-keycloak:
   extraEnvVars:
     - name: SECURE_STORE_ENV
-    - value: '${application.environment}'
+      value: '${application.environment}'
     - name: KAFKA_CAPABILITIES_TOPIC_PATTERN
       value: '(${application.environment}\.)(.*\.)mgr-tenant-entitlements.capability'
     - name: CAPABILITY_TOPIC_RETRY_DELAY
@@ -3653,7 +3653,7 @@ mod-roles-keycloak:
 mod-users-keycloak:
   extraEnvVars:
     - name: SECURE_STORE_ENV
-    - value: '${application.environment}'
+      value: '${application.environment}'
     - name: KAFKA_SYS_USER_TOPIC_PATTERN
       value: '(${application.environment}\.)(.*\.)mgr-tenant-entitlements.system-user'
     - name: KAFKA_SYS_USER_TOPIC_RETRY_DELAY
@@ -3701,7 +3701,7 @@ mod-users-keycloak:
 mod-scheduler:
   extraEnvVars:
     - name: SECURE_STORE_ENV
-    - value: '${application.environment}'
+      value: '${application.environment}'
     - name: KC_IMPERSONATION_CLIENT
       value: "impersonation-client"
     - name: KAFKA_JOB_CONSUMER_PATTERN
