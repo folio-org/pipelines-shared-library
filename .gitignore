@@ -27,8 +27,9 @@ claude*
 .github/*agents*
 .github/*prompts*
 .github/*chatmodes*
-.opencode/
+graphify-out/
 .memsearch/
+.opencode/
 
 # Miscellaneous
 *.class

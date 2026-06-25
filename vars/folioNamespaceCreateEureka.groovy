@@ -2,6 +2,7 @@ import org.folio.Constants
 import org.folio.far.Far
 import org.folio.jenkins.PodTemplates
 import org.folio.models.*
+import org.folio.models.application.Application
 import org.folio.models.application.ApplicationList
 import org.folio.models.module.FolioModule
 import org.folio.models.parameters.CreateNamespaceParameters
@@ -40,16 +41,28 @@ void call(CreateNamespaceParameters args) {
       Map platformDescriptor = folioDefault.getPlatformDescriptor(args.platformBranch)
       List<Map<String, String>> allPlatformApps = folioDefault.getAllPlatformApps(args.platformBranch, platformDescriptor)
 
-      List<String> appIds = args.applications.collect { appName ->
+      List<Map<String, String>> selectedApps = args.applications.collect { appName ->
         Map<String, String> appEntry = allPlatformApps.find { it.name == appName } as Map<String, String>
         if (!appEntry) {
           throw new Exception("Application '${appName}' not found in platform-descriptor.json")
         }
-        appEntry.name + "-" + appEntry.version
+        appEntry
       }
 
+      List<List<Map<String, String>>> partitioned = selectedApps.split { (it.version as String).startsWith('#') }
+      List<Map<String, String>> branchApps = partitioned[0]
+      List<Map<String, String>> farApps = partitioned[1]
+
       Far far = new Far(this)
-      ApplicationList apps = far.getApplicationsByIds(appIds)
+      ApplicationList apps = far.getApplicationsByIds(farApps.collect { "${it.name}-${it.version}" as String })
+
+      branchApps.each { appEntry ->
+        String branch = (appEntry.version as String).substring(1)
+        Map descriptor = folioDefault.getAppDescriptorFromBranch(appEntry.name as String, branch)
+        apps.add(new Application().withDescriptor(descriptor))
+        logger.info("Resolved application '${appEntry.name}' from GitHub branch '${branch}'")
+      }
+
       FolioInstallJson appModules = apps.getInstallJson()
 
       platformDescriptor['eureka-components']?.each { component ->

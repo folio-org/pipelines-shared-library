@@ -1176,6 +1176,9 @@ mod-data-export-worker:
     s3:
       enabled: true
       existingSecret: s3-credentials
+    okapi:
+      enabled: true
+      existingSecret: okapi-credentials
   replicaCount: 1
   resources:
     limits:

@@ -43,7 +43,7 @@ void stsKafkaLag(String cluster, String namespace, String tenantId) {
     }
 
     def check = kubectl.execCommand("${namespace}", 'kafka-sh', "${lag}")
-  
+
     if (check ==~ /^\d+$/) {
       while (check.toInteger() != 0) {
         logger.debug("Waiting for capabilities to be propagated on tenant: ${tenantId}\nCurrent lag: ${check}")
@@ -209,14 +209,81 @@ void deleteSSMParametersByPattern(String pattern) {
   }
 }
 
+// Deletes SSM parameters for test tenants that have an alphanumeric suffix after a known prefix
+// (e.g. university77c7b0dab1), while preserving bare real-tenant params (e.g. university).
+void deleteTestTenantSSMParameters(String cluster, String namespace, List tenantPrefixes) {
+  String clusterNs = "${cluster}-${namespace}"
+  int totalDeleted = 0
+
+  tenantPrefixes.each { prefix ->
+    String searchPattern = "${clusterNs}_${prefix}"
+    def rawOutput = ""
+
+    retry(5) {
+      try {
+        rawOutput = sh(script: """aws ssm describe-parameters --parameter-filters "Key=Name,Option=Contains,Values=${searchPattern}" --query Parameters[].Name --output text --region ${Constants.AWS_REGION}""", returnStdout: true).trim()
+      } catch (Exception e) {
+        if (e.getMessage().contains('ThrottlingException') || e.getMessage().contains('Rate exceeded')) {
+          echo "AWS SSM throttling detected, retrying with exponential backoff..."
+          sleep(time: (2 ** (currentBuild.getNumber() % 4)) * 5, unit: 'SECONDS')
+          throw e
+        } else {
+          throw e
+        }
+      }
+    }
+
+    if (!rawOutput) {
+      echo "No SSM parameters found for pattern: ${searchPattern}"
+      return
+    }
+
+    // param format: folio-edev-<namespace>_<tenant>_<module>
+    // only delete if the tenant part is longer than the bare prefix (i.e. has a generated suffix)
+    List toDelete = rawOutput.tokenize().findAll { paramName ->
+      String tenant = paramName.substring(clusterNs.length() + 1).split('_')[0]
+      return tenant.length() > prefix.length()
+    }
+
+    if (!toDelete) {
+      echo "No test tenant parameters to delete for pattern: ${searchPattern} (all matched params are bare real tenants)"
+      return
+    }
+
+    echo "Deleting ${toDelete.size()} test tenant SSM parameters matching: ${searchPattern}*"
+    toDelete.collate(10).each { batch ->
+      def branches = [:]
+      batch.each { param ->
+        branches[param.toString().trim()] = {
+          retry(3) {
+            try {
+              sh(script: "aws ssm delete-parameter --name ${param.toString().trim()} --region ${Constants.AWS_REGION} || true", returnStdout: true)
+            } catch (Exception e) {
+              if (e.getMessage().contains('ThrottlingException') || e.getMessage().contains('Rate exceeded')) {
+                sleep(time: 3, unit: 'SECONDS')
+                throw e
+              }
+            }
+          }
+        }
+      }
+      parallel branches
+      sleep(5)
+    }
+    totalDeleted += toDelete.size()
+  }
+
+  return totalDeleted
+}
+
 void karateTenantsCleanUp(String cluster, String namespace) {
   String url = "https://${cluster}-${namespace}-keycloak.ci.folio.org/realms/master/protocol/openid-connect/token"
   String body = "grant_type=client_credentials&client_id=folio-backend-admin-client&client_secret=SecretPassword"
-  
+
   def tokenResp = sh(script: "curl -s -X POST -d \"${body}\" \"${url}\"", returnStdout: true).trim()
-  
+
   echo "Token response: ${tokenResp}"
-  
+
   def tokenJson = readJSON(text: tokenResp)
   String token = tokenJson.access_token
 
@@ -276,11 +343,11 @@ void karateTenantsCleanUpUnified(String kongURL, String keycloakURL, String clie
 
   String url = "${keycloakURL}/realms/master/protocol/openid-connect/token"
   String body = "grant_type=client_credentials&client_id=${clientId}&client_secret=${clientSecret}"
-  
+
   def tokenResp = sh(script: "curl -s -X POST -d \"${body}\" \"${url}\"", returnStdout: true).trim()
-  
+
   echo "Token response: ${tokenResp}"
-  
+
   def tokenJson = readJSON(text: tokenResp)
 
   if (tokenJson.error) {

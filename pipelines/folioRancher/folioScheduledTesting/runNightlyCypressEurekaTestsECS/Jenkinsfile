@@ -13,7 +13,7 @@ import org.jenkinsci.plugins.workflow.libs.Library
 @Library('pipelines-shared-library') _
 
 properties([
-  pipelineTriggers([cron('H 0 * * 2-6')]),
+  pipelineTriggers([cron('H 9 * * 2-6')]),
   buildDiscarder(logRotator(numToKeepStr: '30')),
   disableConcurrentBuilds(),
   parameters([
@@ -46,7 +46,7 @@ cypressParameters.setTenantUrl("https://${namespace.generateDomain('consortium')
 cypressParameters.setOkapiUrl("https://${namespace.getDomains().kong}")
 cypressParameters.setTenant(new OkapiTenant('consortium')
   .withAdminUser(new OkapiUser('consortium_admin', 'admin')))
-cypressParameters.setCompileExecParameters('tags="smokeECS criticalPathECS extendedPathECS" env=ecs_env_name="snapshot",eureka=true,ecsEnabled=true')
+cypressParameters.setCompileExecParameters('tags="smokeECS criticalPathECS extendedPathECS --nonParallel" env=ecs_env_name="snapshot",eureka=true,ecsEnabled=true')
 cypressParameters.setNumberOfWorkers(params.NUMBER_WORKERS.toInteger())
 cypressParameters.setTimeout('1080')
 

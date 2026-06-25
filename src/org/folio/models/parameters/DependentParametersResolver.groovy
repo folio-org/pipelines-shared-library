@@ -34,7 +34,7 @@ class DependentParametersResolver {
 
     // Cluster + namespace combined
     result.dataset = resolveDataset(clusterName, namespaceName)
-    result.members = resolveMembers(clusterName, namespaceName)
+    result.members = resolveMembers(namespaceName)
 
     Map overrides = NAMESPACE_OVERRIDES.get(clusterName)?.get(namespaceName) ?: [:]
     result.putAll(overrides)
@@ -76,14 +76,8 @@ class DependentParametersResolver {
     return isPerfCluster && isBugfestNs
   }
 
-  private static final List<String> SHARED_NAMESPACES = ['sprint', 'snapshot', 'snapshot2']
-  private static final List<String> EUREKA_CLUSTERS = ['folio-etesting', 'folio-edev', 'folio-eperf']
-  private static final String SHARED_ENV_MEMBERS = 'thunderjet,folijet,spitfire,vega,thor,Eureka,volaris,corsair,Bama,Aggies,Dreamliner,Leipzig,firebird,dojo,erm'
-
-  private static String resolveMembers(String clusterName, String namespaceName) {
-    if (!clusterName || !namespaceName) return ''
-    if (EUREKA_CLUSTERS.contains(clusterName) && SHARED_NAMESPACES.contains(namespaceName))
-      return SHARED_ENV_MEMBERS
+  private static String resolveMembers(String namespaceName) {
+    if (!namespaceName) return ''
     return Constants.ENVS_MEMBERS_LIST.getOrDefault(namespaceName, '') as String
   }
 
