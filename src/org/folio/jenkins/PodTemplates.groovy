@@ -384,12 +384,26 @@ spec:
   /**
    * Defines an agent specialized for Cypress end-to-end testing.
    *
+   * <p>Each call generates a unique pod label so that parallel Cypress workers
+   * never share the same label pool.  This prevents the Jenkins scheduler from
+   * accidentally routing multiple parallel branches to the same pod and eliminates
+   * label-contention races that silently mark agents offline.</p>
+   *
+   * <p>{@code idleMinutes: 0} ensures pods are terminated immediately after the
+   * build step completes.  Reusing a pod that ran compilation (with its stale
+   * workspace, yarn-cache locks, or a lingering Xvfb process) as a test-execution
+   * worker was the second most common cause of non-deterministic ContainerErrors.</p>
+   *
    * @param body Pipeline steps to execute inside this agent.
    */
   void cypressAgent(Closure body) {
+    // Unique label per invocation — mirrors the pattern used by javaBuildAgent.
+    // All 14 parallel workers call this method; without unique labels they all
+    // compete in the same pod pool and can cause scheduling races / stale reuse.
+    String podLabel = generatePodLabel(JenkinsAgentLabel.CYPRESS_AGENT, generateRandomId(5))
     createTemplate(new PodTemplateConfig(
-      label: JenkinsAgentLabel.CYPRESS_AGENT.getLabel(),
-      idleMinutes: 5,
+      label: podLabel,
+      idleMinutes: 0,   // Terminate immediately; never reuse pods across build steps.
       workspaceVolume: steps.genericEphemeralVolume(accessModes: 'ReadWriteOnce',
         requestsSize: '20Gi',
         storageClassName: 'gp3'),
@@ -398,7 +412,7 @@ spec:
         buildCypressContainer([], '4096Mi', '4096Mi'),
       ]
     )) {
-      steps.node(JenkinsAgentLabel.CYPRESS_AGENT.getLabel()) {
+      steps.node(podLabel) {
         body.call()
       }
     }
