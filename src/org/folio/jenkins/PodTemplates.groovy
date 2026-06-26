@@ -110,12 +110,18 @@ spec:
           resourceRequestMemory: '1024Mi',
           resourceLimitMemory: '1024Mi',
           envVars: [
+            // Ping intervals are set to 30 s — half the AWS ALB/NLB default idle timeout.
+            // The previous value of 60 s was equal to the ALB idle timeout; network jitter
+            // caused pings to arrive at 61-62 s intervals, letting the LB silently drop the
+            // TCP session and producing the "Broken pipe" WebSocket error observed in prod.
+            // Timeout values remain at 3600 s (1 h) so a slow-running build is never
+            // disconnected merely because a single ping ACK is delayed.
             new KeyValueEnvVar('JENKINS_JAVA_OPTS',
-              '-Dorg.jenkinsci.remoting.engine.JnlpAgentEndpointResolver.PING_INTERVAL=60' +
+              '-Dorg.jenkinsci.remoting.engine.JnlpAgentEndpointResolver.PING_INTERVAL=30' +
                 ' -Dorg.jenkinsci.remoting.engine.JnlpAgentEndpointResolver.PING_TIMEOUT=3600' +
-                ' -Dorg.jenkinsci.remoting.websocket.WebSocketSession.pingInterval=60' +
+                ' -Dorg.jenkinsci.remoting.websocket.WebSocketSession.pingInterval=30' +
                 ' -Dorg.jenkinsci.remoting.websocket.WebSocketSession.pingTimeout=3600' +
-                ' -Dhudson.remoting.Launcher.pingIntervalSec=60' +
+                ' -Dhudson.remoting.Launcher.pingIntervalSec=30' +
                 ' -Dhudson.remoting.Launcher.pingTimeoutSec=3600')
           ]
         )]) {
