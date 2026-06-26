@@ -167,16 +167,21 @@ String createExecString(String ciBuildId, String browserName, String execParamet
   validateParameter(browserName, 'Browser name')
   validateParameter(execParameters, 'Execution parameters')
 
-  // Generate a random screen ID for Xvfb
-  String screenId = (new Random().nextInt(90) + 10).toString()
-  return """export HOME=\$(pwd)
+  // Use BUILD_NUMBER + random suffix to avoid DISPLAY collisions when multiple
+  // workers run on the same node.  Range 10-199 stays within X11 socket limits.
+  String screenId = ((env.BUILD_NUMBER?.toInteger() ?: 0) % 190 + 10).toString()
+  return """set -euo pipefail
+    export HOME=\$(pwd)
     export CYPRESS_CACHE_FOLDER=\$(pwd)/cache
     export DISPLAY=:${screenId}
 
     mkdir -p /tmp/.X11-unix
     Xvfb \$DISPLAY -screen 0 1920x1080x24 &
+    XVFB_PID=\$!
+    # Guarantee Xvfb is killed on any exit path (normal, error, or signal)
+    trap 'kill \$XVFB_PID 2>/dev/null || true' EXIT INT TERM
+
     npx cypress run --browser ${browserName} ${execParameters}
-    pkill Xvfb
   """.stripIndent()
 }
 
@@ -190,13 +195,23 @@ String createExecString(String ciBuildId, String browserName, String execParamet
 void runTests(String execString) {
   validateParameter(execString, 'Execution string')
 
+  // Emit a timestamped keep-alive line to stdout every 60 s so Jenkins sees
+  // log activity and does not disconnect the JNLP agent during long Cypress runs.
+  // The previous curl-based approach sent output to /dev/null, so Jenkins never
+  // saw any activity and still marked the agent idle.
+  sh """
+    ( while true; do echo "[keep-alive] \$(date -u '+%Y-%m-%dT%H:%M:%SZ')"; sleep 60; done ) &
+    echo \$! > /tmp/.cypress-keepalive.pid
+  """
+
   try {
-    def numCurl = 'curl https://jenkins.ci.folio.org > /dev/null 2>&1'
-    sh """nohup bash -c 'for i in \$(seq 1 86400); do sleep 1 && ${numCurl}; done' &"""
     sh execString
   } catch (Exception e) {
     echo("Error executing tests: ${e.getMessage()}")
     currentBuild.result = 'UNSTABLE'
+  } finally {
+    // Always kill the keep-alive background process when tests finish or fail.
+    sh "kill \"\$(cat /tmp/.cypress-keepalive.pid)\" 2>/dev/null || true"
   }
 }
 
