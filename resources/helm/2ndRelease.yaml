@@ -3391,8 +3391,6 @@ mod-z3950:
     maxUnavailable: 1
 mgr-applications:
   extraEnvVars:
-    - name: SECURE_STORE_ENV
-      value: '${application.environment}'
     - name: ROUTEMANAGEMENT_ENABLE
       value: "true"
     - name: MODULE_URL
@@ -3435,8 +3433,6 @@ mgr-applications:
     initialDelaySeconds: 20
 mgr-tenants:
   extraEnvVars:
-    - name: SECURE_STORE_ENV
-      value: '${application.environment}'
     - name: MODULE_URL
       value: "http://mgr-tenants"
     - name: FOLIO_CLIENT_CONNECT_TIMEOUT
@@ -3480,8 +3476,6 @@ mgr-tenant-entitlements:
     - "-Dlogging.level.root=INFO -Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties"
     - -XX:MaxRAMPercentage=80.0
   extraEnvVars:
-    - name: SECURE_STORE_ENV
-      value: '${application.environment}'
     - name: ROUTEMANAGEMENT_ENABLE
       value: "false"
     - name: MODULE_URL
@@ -3607,8 +3601,6 @@ mod-login-keycloak:
     failureThreshold: 30
 mod-roles-keycloak:
   extraEnvVars:
-    - name: SECURE_STORE_ENV
-      value: '${application.environment}'
     - name: KAFKA_TENANT_FILTER_ENABLED
       value: "true"
     - name: CAPABILITY_TOPIC_RETRY_DELAY
@@ -3645,8 +3637,6 @@ mod-roles-keycloak:
       memory: 814Mi
 mod-users-keycloak:
   extraEnvVars:
-    - name: SECURE_STORE_ENV
-      value: '${application.environment}'
     - name: KAFKA_TENANT_FILTER_ENABLED
       value: "true"
     - name: KAFKA_SYS_USER_TOPIC_RETRY_DELAY
