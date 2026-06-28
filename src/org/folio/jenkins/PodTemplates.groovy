@@ -410,12 +410,20 @@ spec:
     createTemplate(new PodTemplateConfig(
       label: podLabel,
       idleMinutes: 0,   // Terminate immediately; never reuse pods across build steps.
+      yaml: """
+metadata:
+  annotations:
+    cluster-autoscaler.kubernetes.io/safe-to-evict: "false"
+spec:
+  securityContext:
+    fsGroup: 1000
+""",
       workspaceVolume: steps.genericEphemeralVolume(accessModes: 'ReadWriteOnce',
         requestsSize: '20Gi',
         storageClassName: 'gp3'),
       volumes: [steps.persistentVolumeClaim(claimName: YARN_CACHE_PVC, mountPath: "${WORKING_DIR}/.yarn/cache")],
       containers: [
-        buildCypressContainer([], '4096Mi', '4096Mi'),
+        buildCypressContainer([], '5120Mi', '5120Mi'),
       ]
     )) {
       steps.node(podLabel) {
