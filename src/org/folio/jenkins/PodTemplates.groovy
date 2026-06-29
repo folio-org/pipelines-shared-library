@@ -110,12 +110,18 @@ spec:
           resourceRequestMemory: '1024Mi',
           resourceLimitMemory: '1024Mi',
           envVars: [
+            // Ping intervals are set to 30 s — half the AWS ALB/NLB default idle timeout.
+            // The previous value of 60 s was equal to the ALB idle timeout; network jitter
+            // caused pings to arrive at 61-62 s intervals, letting the LB silently drop the
+            // TCP session and producing the "Broken pipe" WebSocket error observed in prod.
+            // Timeout values remain at 3600 s (1 h) so a slow-running build is never
+            // disconnected merely because a single ping ACK is delayed.
             new KeyValueEnvVar('JENKINS_JAVA_OPTS',
-              '-Dorg.jenkinsci.remoting.engine.JnlpAgentEndpointResolver.PING_INTERVAL=60' +
+              '-Dorg.jenkinsci.remoting.engine.JnlpAgentEndpointResolver.PING_INTERVAL=30' +
                 ' -Dorg.jenkinsci.remoting.engine.JnlpAgentEndpointResolver.PING_TIMEOUT=3600' +
-                ' -Dorg.jenkinsci.remoting.websocket.WebSocketSession.pingInterval=60' +
+                ' -Dorg.jenkinsci.remoting.websocket.WebSocketSession.pingInterval=30' +
                 ' -Dorg.jenkinsci.remoting.websocket.WebSocketSession.pingTimeout=3600' +
-                ' -Dhudson.remoting.Launcher.pingIntervalSec=60' +
+                ' -Dhudson.remoting.Launcher.pingIntervalSec=30' +
                 ' -Dhudson.remoting.Launcher.pingTimeoutSec=3600')
           ]
         )]) {
@@ -384,21 +390,43 @@ spec:
   /**
    * Defines an agent specialized for Cypress end-to-end testing.
    *
+   * <p>Each call generates a unique pod label so that parallel Cypress workers
+   * never share the same label pool.  This prevents the Jenkins scheduler from
+   * accidentally routing multiple parallel branches to the same pod and eliminates
+   * label-contention races that silently mark agents offline.</p>
+   *
+   * <p>{@code idleMinutes: 0} ensures pods are terminated immediately after the
+   * build step completes.  Reusing a pod that ran compilation (with its stale
+   * workspace, yarn-cache locks, or a lingering Xvfb process) as a test-execution
+   * worker was the second most common cause of non-deterministic ContainerErrors.</p>
+   *
    * @param body Pipeline steps to execute inside this agent.
    */
   void cypressAgent(Closure body) {
+    // Unique label per invocation — mirrors the pattern used by javaBuildAgent.
+    // All 14 parallel workers call this method; without unique labels they all
+    // compete in the same pod pool and can cause scheduling races / stale reuse.
+    String podLabel = generatePodLabel(JenkinsAgentLabel.CYPRESS_AGENT, generateRandomId(5))
     createTemplate(new PodTemplateConfig(
-      label: JenkinsAgentLabel.CYPRESS_AGENT.getLabel(),
-      idleMinutes: 5,
+      label: podLabel,
+      idleMinutes: 0,   // Terminate immediately; never reuse pods across build steps.
+      yaml: """
+metadata:
+  annotations:
+    cluster-autoscaler.kubernetes.io/safe-to-evict: "false"
+spec:
+  securityContext:
+    fsGroup: 1000
+""",
       workspaceVolume: steps.genericEphemeralVolume(accessModes: 'ReadWriteOnce',
         requestsSize: '20Gi',
         storageClassName: 'gp3'),
       volumes: [steps.persistentVolumeClaim(claimName: YARN_CACHE_PVC, mountPath: "${WORKING_DIR}/.yarn/cache")],
       containers: [
-        buildCypressContainer([], '4096Mi', '4096Mi'),
+        buildCypressContainer([], '5120Mi', '5120Mi'),
       ]
     )) {
-      steps.node(JenkinsAgentLabel.CYPRESS_AGENT.getLabel()) {
+      steps.node(podLabel) {
         body.call()
       }
     }
