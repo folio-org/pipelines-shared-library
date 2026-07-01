@@ -36,7 +36,7 @@ class Constants {
   static String AWS_S3_DATA_EXPORT_ID = 'ci-data-export-s3'
   static String AWS_S3_POSTGRES_BACKUPS = 'aws-s3-db-backups-credentials'
   static String AWS_EKS_VPC_NAME = 'folio-rancher-vpc'
-  static String AWS_EKS_ADMIN_USERS = 'rancher-port-forward,jenkins-service-user,oleksandrhaimanov,eldiiarduishenaliev,stanislav,vasylavramenko'
+  static String AWS_EKS_ADMIN_USERS = 'rancher-port-forward,jenkins-service-user,KonstantinVishnivetskii,eldiiarduishenaliev,stanislav,vasylavramenko'
   static List AWS_EKS_TMP_NAMESPACES = ['test', 'test-1', 'test-2', 'tdspora']
   static List AWS_EKS_TESTING_NAMESPACES = ['cypress', 'data-migration', 'data-anonymization', 'release-validation', 'ecs-snapshot', 'karate', 'snapshot', 'snapshot2', 'sprint', 'sprint2', 'pre-bugfest', 'orchid-migration', 'lsdi']
   static List AWS_EKS_RELEASE_NAMESPACES = ['sunflower', 'trillium']
