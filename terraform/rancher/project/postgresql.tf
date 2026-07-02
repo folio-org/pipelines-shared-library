@@ -45,7 +45,7 @@ resource "rancher2_secret" "db-credentials2" {
     DB_PORT          = base64encode("5432")
     DB_USERNAME      = base64encode(var.pg_embedded ? var.pg_username : module.rds[0].cluster_master_username)
     DB_PASSWORD      = base64encode(local.pg_password)
-    DB_DATABASE      = base64encode(var.eureka ? "folio2" : var.pg_dbname)
+    DB_DATABASE      = base64encode(var.eureka ? "folio" : var.pg_dbname)
     DB_MAXPOOLSIZE   = base64encode("50")
     #DB_MAXSHAREDPOOLSIZE = base64encode("50")
     DB_CHARSET      = base64encode("UTF-8")
