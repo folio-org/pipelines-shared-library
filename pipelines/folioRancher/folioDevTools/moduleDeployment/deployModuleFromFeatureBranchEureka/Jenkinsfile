@@ -363,7 +363,7 @@ ansiColor('xterm') {
             updatedAppInfoMap = eureka.updateAppDescriptorFlow(namespace.applications, module)
           } catch (e) {
             logger.warning("Failed to register new application descriptor: ${e}")
-            eureka.removeResourcesOnFailFlow(updatedAppInfoMap, module)
+            // eureka.removeResourcesOnFailFlow(updatedAppInfoMap, module)
             throw e
           }
         }
@@ -374,7 +374,7 @@ ansiColor('xterm') {
             eureka.registerModulesFlow(new FolioInstallJson<FolioModule>(EurekaModule.class).addModule(module))
           } catch (e) {
             logger.warning("Failed to perform new module discovery: ${e}")
-            eureka.removeResourcesOnFailFlow(updatedAppInfoMap, module)
+            // eureka.removeResourcesOnFailFlow(updatedAppInfoMap, module)
             throw e
           }
         }
@@ -428,7 +428,7 @@ ansiColor('xterm') {
                 } catch (retryException) {
                   logger.warning("Retry after cleanup failed: ${retryException}")
                   try {
-                    eureka.removeResourcesOnFailFlow(updatedAppInfoMap, module)
+                    // eureka.removeResourcesOnFailFlow(updatedAppInfoMap, module)
                   } catch (cleanupException) {
                     if (cleanupException.toString().contains('cannot be removed')) {
                       logger.warning('Cleanup failed due to active entitlements, which is expected after partial success. Continuing...')
@@ -465,7 +465,7 @@ ansiColor('xterm') {
                   }
 
                   try {
-                    eureka.removeResourcesOnFailFlow(updatedAppInfoMap, module)
+                    // eureka.removeResourcesOnFailFlow(updatedAppInfoMap, module)
                   } catch (cleanupException) {
                     if (cleanupException.toString().contains('cannot be removed')) {
                       logger.warning('Cleanup failed due to active entitlements, which is expected after partial success. Continuing...')
@@ -477,7 +477,7 @@ ansiColor('xterm') {
                 } catch (parseException) {
                   logger.warning("Failed to parse 'cannot be removed' error: ${parseException}")
                   try {
-                    eureka.removeResourcesOnFailFlow(updatedAppInfoMap, module)
+                    // eureka.removeResourcesOnFailFlow(updatedAppInfoMap, module)
                   } catch (cleanupException) {
                     if (cleanupException.toString().contains('cannot be removed')) {
                       logger.warning('Cleanup failed due to active entitlements, which is expected after partial success. Continuing...')
@@ -489,7 +489,7 @@ ansiColor('xterm') {
                 }
               } else {
                 try {
-                  eureka.removeResourcesOnFailFlow(updatedAppInfoMap, module)
+                  // eureka.removeResourcesOnFailFlow(updatedAppInfoMap, module)
                 } catch (cleanupException) {
                   if (cleanupException.toString().contains('cannot be removed')) {
                     logger.warning('Cleanup failed due to active entitlements, which is expected after partial success. Continuing...')
@@ -505,7 +505,7 @@ ansiColor('xterm') {
       }
 
       stage('[Rest] Remove Stale Resources') {
-        eureka.removeStaleResourcesFlow(namespace.applications, updatedAppInfoMap, module)
+        // eureka.removeStaleResourcesFlow(namespace.applications, updatedAppInfoMap, module)
       }
     }
   }
