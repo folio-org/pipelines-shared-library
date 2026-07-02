@@ -290,7 +290,12 @@ class RestClient {
       logger.debug("[CURL COMMAND] ${curlCmd}")
     }
 
-    String curlOutput = steps.sh(script: curlCmd, returnStdout: true).trim()
+    String curlOutput
+    try {
+      curlOutput = steps.sh(script: curlCmd, returnStdout: true).trim()
+    } catch (Exception e) {
+      throw new RequestException("Curl command failed for URL [${url}]: ${e.getMessage()}", 0, "")
+    }
 
     Map parsed = parseCurlOutput(curlOutput)
 

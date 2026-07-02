@@ -73,7 +73,7 @@ class Configurations extends Kong {
     ]]
 
     logger.info("Setting rmapi key")
-    restClient.put(url, body, headers)
+    // restClient.put(url, body, headers)
     logger.info("KB rmapi key successfully set")
   }
 

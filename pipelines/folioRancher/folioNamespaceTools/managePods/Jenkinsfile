@@ -26,7 +26,9 @@ properties([
     25 22 * * * %ACTION=stop;CLUSTER=folio-tmp;NAMESPACE=test
     30 22 * * * %ACTION=stop;CLUSTER=folio-tmp;NAMESPACE=test-1
     35 22 * * * %ACTION=stop;CLUSTER=folio-tmp;NAMESPACE=test-2
+    19 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=aggies
     0 0 * * * %ACTION=stop;CLUSTER=folio-eperf;NAMESPACE=corsair
+    02 17 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=data-anonymization
     30 23 * * * %ACTION=stop;CLUSTER=folio-eperf;NAMESPACE=spitfire
     19 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=aggies
     0 2 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=citation

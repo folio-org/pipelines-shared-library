@@ -93,6 +93,13 @@ resource "rancher2_secret" "s3-credentials" {
     S3_SECRET_ACCESS_KEY = base64encode(var.s3_embedded ? random_password.secret_access_key[0].result : var.s3_secret_key)
 
     GLOBAL_S3_SECRET_KEY = base64encode(var.s3_embedded ? random_password.secret_access_key[0].result : var.s3_secret_key)
+# https://folio-org.atlassian.net/browse/RANCHER-3029 SF compatibility issue
+    AWS_SDK               = base64encode(var.s3_embedded ? "false" : "true")
+    AWS_URL               = base64encode(var.s3_embedded ? join("", ["https://", local.minio_url]) : "https://s3.amazonaws.com")
+    AWS_REGION            = base64encode(var.aws_region)
+    AWS_BUCKET            = base64encode(aws_s3_bucket.s3-bucket-for-backend-modules[0].bucket)
+    AWS_ACCESS_KEY_ID     = base64encode(var.s3_embedded ? random_string.access_key[0].result : var.s3_access_key)
+    AWS_SECRET_ACCESS_KEY = base64encode(var.s3_embedded ? random_password.secret_access_key[0].result : var.s3_secret_key)    
   }
 }
 
