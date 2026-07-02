@@ -12,7 +12,8 @@ import org.folio.rest_v2.EntitlementApproach
 import org.folio.rest_v2.PlatformType
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library') _
+//TODO remove branch before merge to master
+@Library('pipelines-shared-library@RANCHER-2894') _
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
