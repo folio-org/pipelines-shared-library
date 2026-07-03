@@ -247,6 +247,69 @@ class Eureka extends Base {
     return this
   }
 
+  private Eureka applyConsortiaHridSettingsFlow(Map<String, EurekaTenant> tenants) {
+    tenants.each { tenantId, tenant ->
+      logger.debug("HRID settings flow: evaluating tenant key='${tenantId}', tenantId='${tenant.getTenantId()}'")
+      if (!(tenant instanceof EurekaTenantConsortia)) {
+        logger.debug("HRID settings flow: skip tenant '${tenant.getTenantId()}' because it is not consortia tenant")
+        return
+      }
+
+      Map<String, String> prefixes = getConsortiaHridPrefixes(tenant.getTenantId())
+      if (!prefixes) {
+        logger.debug("HRID settings flow: skip tenant '${tenant.getTenantId()}' because prefixes are not configured")
+        return
+      }
+
+      Map<String, String> headers = kong.getTenantHttpHeaders(tenant, true)
+      String hridSettingsUrl = kong.generateUrl("/hrid-settings-storage/hrid-settings")
+      Map payload = [
+        instances                 : [
+          prefix       : prefixes.instance,
+          startNumber  : 1,
+          currentNumber: 0
+        ],
+        holdings                  : [
+          prefix       : prefixes.holdings,
+          startNumber  : 1,
+          currentNumber: 0
+        ],
+        items                     : [
+          prefix       : prefixes.items,
+          startNumber  : 1,
+          currentNumber: 0
+        ],
+        commonRetainLeadingZeroes: true
+      ]
+
+      logger.debug("HRID settings flow: sending PUT ${hridSettingsUrl} for tenant '${tenant.getTenantId()}' with payload ${payload}")
+      def response = restClient.put(hridSettingsUrl, payload, headers, [204])
+      logger.debug("HRID settings flow: PUT result for tenant '${tenant.getTenantId()}', status=${response.responseCode}")
+      logger.info("Applied HRID prefixes for tenant ${tenant.getTenantId()} -> ${prefixes}")
+    }
+
+    return this
+  }
+
+  private static Map<String, String> getConsortiaHridPrefixes(String tenantId) {
+    switch (tenantId) {
+      case 'consortium':
+        return [instance: 'cein', holdings: 'ceho', items: 'ceit']
+      case 'university':
+        return [instance: 'unin', holdings: 'unho', items: 'unit']
+      case 'college':
+        return [instance: 'coin', holdings: 'coho', items: 'coit']
+      case 'consortium2':
+        return [instance: 'c2in', holdings: 'c2ho', items: 'c2it']
+      case 'university2':
+        return [instance: 'u2in', holdings: 'u2ho', items: 'u2it']
+      case 'college2':
+        return [instance: 'co2i', holdings: 'co2h', items: 'co2t']
+      default:
+        return [:]
+    }
+  }
+
   Eureka initializeFromScratch(Map<String, EurekaTenant> tenants, String cluster, String namespace,
                                boolean enableConsortia, InitializeFromScratchParameters params) {
     tenants.each { tenantId, tenant ->
@@ -257,12 +320,14 @@ class Eureka extends Base {
       createTenantFlow(tenant, cluster, namespace, params)
     }
 
-    if (enableConsortia)
+    if (enableConsortia) {
       setUpConsortiaFlow(
         tenants.values().findAll {
           it instanceof EurekaTenantConsortia
         } as List<EurekaTenantConsortia>
       )
+      applyConsortiaHridSettingsFlow(tenants)
+    }
 
     tenants.each { tenantId, tenant ->
       if (tenant.indexed) {
