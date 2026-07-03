@@ -11,7 +11,7 @@ import org.folio.models.parameters.KarateTestsParameters
 import org.folio.utilities.Logger
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-3038') _
 
 /**
  * Job properties and parameters*/
@@ -21,7 +21,7 @@ properties([pipelineTriggers([cron('H 21 * * 1-5')]),
             parameters([string(name: 'KARATE_BRANCH', defaultValue: 'R1-2026', description: "(Required) Karate tests repository branch to checkout"),
                         string(name: 'CYPRESS_BRANCH', defaultValue: 'trillium', description: "(Required) 'stripes-testing' branch to use for Cypress tests"),
                         string(name: 'THREADS_COUNT', defaultValue: '4', description: "(Required) Number of parallel threads for Karate tests"),
-                        string(name: 'NUMBER_WORKERS', defaultValue: '15', description: "(Required) Number of parallel workers for Cypress tests"),
+                        string(name: 'NUMBER_WORKERS', defaultValue: '20', description: "(Required) Number of parallel workers for Cypress tests"),
                         folioParameters.refreshParameters()])])
 
 if (params.REFRESH_PARAMETERS) {
