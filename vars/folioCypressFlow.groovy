@@ -49,13 +49,13 @@ private static def cypressStash(String key = null) {
  *                              Defaults to false.
  * @param reportPortalRunType Specifies the Report Portal run type; applicable when integration is enabled.
  * @param recheckFailedTests Flag to enable re-running of failed tests. Defaults to false.
- * @param numberOfRecheckRunners The number of parallel runners for re-checking failed tests. Defaults to 5.
+ * @param numberOfRecheckRunners The number of parallel runners for re-checking failed tests. Defaults to 6 (3 pods with 2 threads each).
  * @return An CypressRunExecutionSummary instance summarizing the test execution.
  * @throws Exception            Propagates any exceptions encountered during the execution flow.
  */
 CypressRunExecutionSummary call(String ciBuildId, List<CypressTestsParameters> testsToRun, boolean sendNotification = false,
                                 boolean reportPortalUse = false, String reportPortalRunType = '',
-                                boolean recheckFailedTests = false, int numberOfRecheckRunners = 5) {
+                                boolean recheckFailedTests = false, int numberOfRecheckRunners = 6) {
   folioCypress.validateParameter(ciBuildId, 'ciBuildId')
   folioCypress.validateParameter(testsToRun, 'testsToRun')
 

@@ -368,14 +368,15 @@ void finalizeReportPortal(ReportPortalClient reportPortalClient) {
  * Re-runs failed tests from Report Portal with parallel execution support.
  *
  * This function retrieves failed tests from Report Portal and re-runs them
- * using parallel workers for faster execution.
+ * using parallel workers distributed across multiple Cypress pods for better resource isolation.
  *
  * @param launchName The name of the Report Portal launch. Must not be null or empty.
- * @param numberOfRunners The number of parallel runners to use for re-checking failed tests. Defaults to 5.
+ * @param numberOfRunners The number of parallel runners to use for re-checking failed tests. Defaults to 6.
+ *                        Runners are distributed across pods (e.g., 6 runners = 3 pods with 2 threads each).
  * @param timeoutHours The timeout in hours for the entire re-check phase. Defaults to 5.
  * @return The count of flaky tests that failed on re-check.
  */
-int runFailedTestsRecheck(String launchName, int numberOfRunners = 5, int timeoutHours = 5) {
+int runFailedTestsRecheck(String launchName, int numberOfRunners = 6, int timeoutHours = 5) {
   validateParameter(launchName, 'launchName')
 
   int flakyCount = 0
@@ -406,36 +407,61 @@ int runFailedTestsRecheck(String launchName, int numberOfRunners = 5, int timeou
 
           echo("Re-checking ${workers.size()} test batches with ${numberOfRunners} parallel runners")
 
-          def parallelWorkers = [failFast: false]
-          workers.eachWithIndex { worker, index ->
-            String workerId = "recheck-${index}"
-            parallelWorkers["Worker#${workerId}"] = {
-              try {
-                sh """#!/bin/bash
-                  set -euo pipefail
-                  export HOME=\$(pwd)
-                  export CYPRESS_CACHE_FOLDER=\$(pwd)/cache
-                  export DISPLAY=:\$((10 + ${index}))
+          // Distribute workers across pods (2 threads per pod)
+          int threadsPerPod = 2
+          int numberOfPods = Math.ceil(numberOfRunners / threadsPerPod)
+          
+          def parallelPods = [failFast: false]
+          
+          numberOfPods.times { int podIndex ->
+            String podId = "recheck-pod-${podIndex}"
+            parallelPods["Pod#${podId}"] = {
+              retry(2) {
+                PodTemplates podTemplates = new PodTemplates(this, true)
+                podTemplates.cypressAgent {
+                  container('cypress') {
+                    // Calculate worker indices for this pod
+                    int startWorkerIndex = podIndex * threadsPerPod
+                    int endWorkerIndex = Math.min(startWorkerIndex + threadsPerPod, workers.size())
+                    
+                    def podWorkers = [failFast: false]
+                    
+                    (startWorkerIndex..<endWorkerIndex).each { int workerIndex ->
+                      String workerId = "recheck-${workerIndex}"
+                      podWorkers["Worker#${workerId}"] = {
+                        try {
+                          sh """#!/bin/bash
+                            set -euo pipefail
+                            export HOME=\$(pwd)
+                            export CYPRESS_CACHE_FOLDER=\$(pwd)/cache
+                            export DISPLAY=:\$((10 + ${workerIndex}))
 
-                  mkdir -p /tmp/.X11-unix
-                  Xvfb \$DISPLAY -screen 0 1920x1080x24 &
-                  XVFB_PID=\$!
+                            mkdir -p /tmp/.X11-unix
+                            Xvfb \$DISPLAY -screen 0 1920x1080x24 &
+                            XVFB_PID=\$!
 
-                  ( while true; do echo "[keep-alive] \$(date -u '+%Y-%m-%dT%H:%M:%SZ')"; sleep 60; done ) &
-                  KEEPALIVE_PID=\$!
+                            ( while true; do echo "[keep-alive] \$(date -u '+%Y-%m-%dT%H:%M:%SZ')"; sleep 60; done ) &
+                            KEEPALIVE_PID=\$!
 
-                  trap 'kill \$XVFB_PID \$KEEPALIVE_PID 2>/dev/null || true' EXIT INT TERM
+                            trap 'kill \$XVFB_PID \$KEEPALIVE_PID 2>/dev/null || true' EXIT INT TERM
 
-                  ${worker}
-                """
-              } catch (Exception e) {
-                echo("Worker ${workerId} failed: ${e.getMessage()}")
-                currentBuild.result = 'UNSTABLE'
+                            ${workers[workerIndex]}
+                          """
+                        } catch (Exception e) {
+                          echo("Worker ${workerId} failed: ${e.getMessage()}")
+                          currentBuild.result = 'UNSTABLE'
+                        }
+                      }
+                    }
+                    
+                    parallel(podWorkers)
+                  }
+                }
               }
             }
           }
 
-          parallel(parallelWorkers)
+          parallel(parallelPods)
         }
 
         if (fileExists(countFile)) {
