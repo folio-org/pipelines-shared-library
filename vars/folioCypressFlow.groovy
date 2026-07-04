@@ -48,6 +48,7 @@ private static def cypressStash(String key = null) {
  * @param reportPortalUse Flag to enable Report Portal integration.
  *                              Defaults to false.
  * @param reportPortalRunType Specifies the Report Portal run type; applicable when integration is enabled.
+ * @param recheckFailedTests Flag to enable re-running of failed tests. Defaults to false.
  * @return An CypressRunExecutionSummary instance summarizing the test execution.
  * @throws Exception            Propagates any exceptions encountered during the execution flow.
  */
@@ -71,9 +72,10 @@ CypressRunExecutionSummary call(String ciBuildId, List<CypressTestsParameters> t
 
   try {
     testsToRun.each { CypressTestsParameters testParams ->
-      retry(2) {
-        List execBatches = []
+      List execBatches = []
 
+      // Retry agent provisioning and test compilation in case of eviction
+      retry(2) {
         podTemplates.cypressAgent {
           if (reportPortalUse) {
             folioCypress.validateParameter(reportPortalRunType, 'reportPortalRunType')
@@ -87,7 +89,6 @@ CypressRunExecutionSummary call(String ciBuildId, List<CypressTestsParameters> t
 
             reportPortalExecParameters = folioCypress.setupReportPortal(reportPortalClient)
           }
-
           container('cypress') {
             testParams.addExecParameter(reportPortalExecParameters)
 
@@ -109,34 +110,37 @@ CypressRunExecutionSummary call(String ciBuildId, List<CypressTestsParameters> t
 
             stage('[Stash] Archive tests') {
               sh """
-            touch ${cypressStash('archive')}
-            tar --exclude=${cypressStash('archive')} -zcf ${cypressStash('archive')} .
-            md5sum ${cypressStash('archive')} > ${cypressStash('checksum')}
-          """.stripIndent()
+                touch ${cypressStash('archive')}
+                tar --exclude=${cypressStash('archive')} -zcf ${cypressStash('archive')} .
+                md5sum ${cypressStash('archive')} > ${cypressStash('checksum')}
+              """.stripIndent()
               stash(name: cypressStash('name'),
                 includes: "${cypressStash('archive')},${cypressStash('checksum')}")
             }
           }
         }
+      }
 
-        stage('Run tests') {
-          def workers = [failFast: false]
-          String runId = folioCypress.generateRandomId(3)
-          testParams.ciBuildId = "${ciBuildId}-${runId}"
-          List localAllureResults = []
+      stage('Run tests') {
+        def workers = [failFast: false]
+        String runId = folioCypress.generateRandomId(3)
+        testParams.ciBuildId = "${ciBuildId}-${runId}"
+        List localAllureResults = []
 
-          execBatches.size().times { int batchIndex ->
-            String workerId = "${runId}${batchIndex}"
-            workers["Worker#${workerId}"] = {
+        execBatches.size().times { int batchIndex ->
+          String workerId = "${runId}${batchIndex}"
+          workers["Worker#${workerId}"] = {
+            // Retry agent provisioning and batch execution in case of eviction
+            retry(2) {
               podTemplates.cypressAgent {
                 container('cypress') {
                   stage('[Stash] Extract tests') {
                     unstash name: cypressStash('name')
                     sh """
-                    md5sum -c ${cypressStash('checksum')}
-                    tar -zxf ${cypressStash('archive')}
-                    rm -rf ${cypressStash('archive')} ${cypressStash('checksum')}
-                  """
+                      md5sum -c ${cypressStash('checksum')}
+                      tar -zxf ${cypressStash('archive')}
+                      rm -rf ${cypressStash('archive')} ${cypressStash('checksum')}
+                    """.stripIndent()
                   }
 
                   folioCypress.setupCommonEnvironmentVariables(testParams.tenantUrl,
@@ -161,13 +165,13 @@ CypressRunExecutionSummary call(String ciBuildId, List<CypressTestsParameters> t
               }
             }
           }
-
-          timeout(time: testParams.timeout, unit: 'MINUTES') {
-            parallel(workers)
-          }
-
-          allureResultsList.addAll(localAllureResults)
         }
+
+        timeout(time: testParams.timeout, unit: 'MINUTES') {
+          parallel(workers)
+        }
+
+        allureResultsList.addAll(localAllureResults)
       }
     }
     mainPhaseSucceeded = true
@@ -192,17 +196,19 @@ CypressRunExecutionSummary call(String ciBuildId, List<CypressTestsParameters> t
 
     if (recheckFailedTests && reportPortalUse && reportPortalClient != null && mainPhaseSucceeded
       && testRunExecutionSummary != null && testRunExecutionSummary.getPassRate() > 80) {
-      podTemplates.cypressAgent {
-        container('cypress') {
-          stage('[Stash] Extract tests') {
-            unstash name: cypressStash('name')
-            sh """
-              md5sum -c ${cypressStash('checksum')}
-              tar -zxf ${cypressStash('archive')}
-              rm -rf ${cypressStash('archive')} ${cypressStash('checksum')}
-            """
+      retry(2) {
+        podTemplates.cypressAgent {
+          container('cypress') {
+            stage('[Stash] Extract tests') {
+              unstash name: cypressStash('name')
+              sh """
+                md5sum -c ${cypressStash('checksum')}
+                tar -zxf ${cypressStash('archive')}
+                rm -rf ${cypressStash('archive')} ${cypressStash('checksum')}
+              """.stripIndent()
+            }
+            flakyCount = folioCypress.runFailedTestsRecheck(ciBuildId)
           }
-          flakyCount = folioCypress.runFailedTestsRecheck(ciBuildId)
         }
       }
     }
