@@ -364,7 +364,18 @@ void finalizeReportPortal(ReportPortalClient reportPortalClient) {
   }
 }
 
-int runFailedTestsRecheck(String launchName) {
+/**
+ * Re-runs failed tests from Report Portal with parallel execution support.
+ *
+ * This function retrieves failed tests from Report Portal and re-runs them
+ * using parallel workers for faster execution.
+ *
+ * @param launchName The name of the Report Portal launch. Must not be null or empty.
+ * @param numberOfRunners The number of parallel runners to use for re-checking failed tests. Defaults to 5.
+ * @param timeoutHours The timeout in hours for the entire re-check phase. Defaults to 5.
+ * @return The count of flaky tests that failed on re-check.
+ */
+int runFailedTestsRecheck(String launchName, int numberOfRunners = 5, int timeoutHours = 5) {
   validateParameter(launchName, 'launchName')
 
   int flakyCount = 0
@@ -372,9 +383,59 @@ int runFailedTestsRecheck(String launchName) {
     try {
       withCredentials([string(credentialsId: ReportPortalConstants.CREDENTIALS_ID, variable: 'CI_API_KEY')]) {
         String countFile = 'flaky-recheck-count.txt'
+        String workersFile = 'failedTestsWorkers.json'
 
-        timeout(time: 5, unit: 'HOURS') {
-          sh "node scripts/report-portal/runFailedTests.js --launchName ${launchName}"
+        timeout(time: timeoutHours, unit: 'HOURS') {
+          // Generate parallel worker batches for failed tests
+          sh """#!/bin/bash
+            set -euo pipefail
+            node scripts/report-portal/runFailedTests.js --launchName ${launchName} --threads ${numberOfRunners}
+          """
+
+          // Wait for workers file to be generated
+          waitUntil(quiet: true) { fileExists(workersFile) }
+
+          // Parse and execute workers in parallel
+          def json = readJSON(file: workersFile)
+          def workers = json['workers'] ?: []
+
+          if (workers.isEmpty()) {
+            echo("No failed tests to re-check")
+            return
+          }
+
+          echo("Re-checking ${workers.size()} test batches with ${numberOfRunners} parallel runners")
+
+          def parallelWorkers = [failFast: false]
+          workers.eachWithIndex { worker, index ->
+            String workerId = "recheck-${index}"
+            parallelWorkers["Worker#${workerId}"] = {
+              try {
+                sh """#!/bin/bash
+                  set -euo pipefail
+                  export HOME=\$(pwd)
+                  export CYPRESS_CACHE_FOLDER=\$(pwd)/cache
+                  export DISPLAY=:\$((10 + ${index}))
+
+                  mkdir -p /tmp/.X11-unix
+                  Xvfb \$DISPLAY -screen 0 1920x1080x24 &
+                  XVFB_PID=\$!
+
+                  ( while true; do echo "[keep-alive] \$(date -u '+%Y-%m-%dT%H:%M:%SZ')"; sleep 60; done ) &
+                  KEEPALIVE_PID=\$!
+
+                  trap 'kill \$XVFB_PID \$KEEPALIVE_PID 2>/dev/null || true' EXIT INT TERM
+
+                  ${worker}
+                """
+              } catch (Exception e) {
+                echo("Worker ${workerId} failed: ${e.getMessage()}")
+                currentBuild.result = 'UNSTABLE'
+              }
+            }
+          }
+
+          parallel(parallelWorkers)
         }
 
         if (fileExists(countFile)) {
