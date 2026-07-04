@@ -2,6 +2,7 @@ import groovy.json.JsonException
 import org.folio.Constants
 import org.folio.client.reportportal.ReportPortalClient
 import org.folio.client.reportportal.ReportPortalConstants
+import org.folio.jenkins.PodTemplates
 import org.folio.models.parameters.CypressTestsParameters
 import org.folio.testing.TestType
 import org.folio.testing.cypress.results.CypressRunExecutionSummary
@@ -364,7 +365,19 @@ void finalizeReportPortal(ReportPortalClient reportPortalClient) {
   }
 }
 
-int runFailedTestsRecheck(String launchName) {
+/**
+ * Re-runs failed tests from Report Portal with parallel execution support.
+ *
+ * This function retrieves failed tests from Report Portal and re-runs them
+ * using parallel workers distributed across multiple Cypress pods for better resource isolation.
+ *
+ * @param launchName The name of the Report Portal launch. Must not be null or empty.
+ * @param numberOfRunners The number of parallel runners to use for re-checking failed tests. Defaults to 6.
+ *                        Runners are distributed across pods (e.g., 6 runners = 3 pods with 2 threads each).
+ * @param timeoutHours The timeout in hours for the entire re-check phase. Defaults to 5.
+ * @return The count of flaky tests that failed on re-check.
+ */
+int runFailedTestsRecheck(String launchName, int numberOfRunners = 6, int timeoutHours = 5) {
   validateParameter(launchName, 'launchName')
 
   int flakyCount = 0
@@ -372,9 +385,84 @@ int runFailedTestsRecheck(String launchName) {
     try {
       withCredentials([string(credentialsId: ReportPortalConstants.CREDENTIALS_ID, variable: 'CI_API_KEY')]) {
         String countFile = 'flaky-recheck-count.txt'
+        String workersFile = 'failedTestsWorkers.json'
 
-        timeout(time: 5, unit: 'HOURS') {
-          sh "node scripts/report-portal/runFailedTests.js --launchName ${launchName}"
+        timeout(time: timeoutHours, unit: 'HOURS') {
+          // Generate parallel worker batches for failed tests
+          sh """#!/bin/bash
+            set -euo pipefail
+            node scripts/report-portal/runFailedTests.js --launchName ${launchName} --threads ${numberOfRunners}
+          """
+
+          // Wait for workers file to be generated
+          waitUntil(quiet: true) { fileExists(workersFile) }
+
+          // Parse and execute workers in parallel
+          def json = readJSON(file: workersFile)
+          def workers = json['workers'] ?: []
+
+          if (workers.isEmpty()) {
+            echo("No failed tests to re-check")
+            return
+          }
+
+          echo("Re-checking ${workers.size()} test batches with ${numberOfRunners} parallel runners")
+
+          // Distribute workers across pods (2 threads per pod)
+          int threadsPerPod = 2
+          int numberOfPods = Math.ceil(numberOfRunners / threadsPerPod)
+          
+          def parallelPods = [failFast: false]
+          
+          numberOfPods.times { int podIndex ->
+            String podId = "recheck-pod-${podIndex}"
+            parallelPods["Pod#${podId}"] = {
+              retry(2) {
+                PodTemplates podTemplates = new PodTemplates(this, true)
+                podTemplates.cypressAgent {
+                  container('cypress') {
+                    // Calculate worker indices for this pod
+                    int startWorkerIndex = podIndex * threadsPerPod
+                    int endWorkerIndex = Math.min(startWorkerIndex + threadsPerPod, workers.size())
+                    
+                    def podWorkers = [failFast: false]
+                    
+                    (startWorkerIndex..<endWorkerIndex).each { int workerIndex ->
+                      String workerId = "recheck-${workerIndex}"
+                      podWorkers["Worker#${workerId}"] = {
+                        try {
+                          sh """#!/bin/bash
+                            set -euo pipefail
+                            export HOME=\$(pwd)
+                            export CYPRESS_CACHE_FOLDER=\$(pwd)/cache
+                            export DISPLAY=:\$((10 + ${workerIndex}))
+
+                            mkdir -p /tmp/.X11-unix
+                            Xvfb \$DISPLAY -screen 0 1920x1080x24 &
+                            XVFB_PID=\$!
+
+                            ( while true; do echo "[keep-alive] \$(date -u '+%Y-%m-%dT%H:%M:%SZ')"; sleep 60; done ) &
+                            KEEPALIVE_PID=\$!
+
+                            trap 'kill \$XVFB_PID \$KEEPALIVE_PID 2>/dev/null || true' EXIT INT TERM
+
+                            ${workers[workerIndex]}
+                          """
+                        } catch (Exception e) {
+                          echo("Worker ${workerId} failed: ${e.getMessage()}")
+                          currentBuild.result = 'UNSTABLE'
+                        }
+                      }
+                    }
+                    
+                    parallel(podWorkers)
+                  }
+                }
+              }
+            }
+          }
+
+          parallel(parallelPods)
         }
 
         if (fileExists(countFile)) {
