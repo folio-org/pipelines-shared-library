@@ -132,7 +132,7 @@ CypressRunExecutionSummary call(String ciBuildId, List<CypressTestsParameters> t
           String workerId = "${runId}${batchIndex}"
           workers["Worker#${workerId}"] = {
             // Retry agent provisioning and batch execution in case of eviction
-            retry(2) {
+            retry(3) {
               podTemplates.cypressAgent {
                 container('cypress') {
                   stage('[Stash] Extract tests') {
