@@ -2,6 +2,7 @@ import groovy.json.JsonException
 import org.folio.Constants
 import org.folio.client.reportportal.ReportPortalClient
 import org.folio.client.reportportal.ReportPortalConstants
+import org.folio.jenkins.PodTemplates
 import org.folio.models.parameters.CypressTestsParameters
 import org.folio.testing.TestType
 import org.folio.testing.cypress.results.CypressRunExecutionSummary
