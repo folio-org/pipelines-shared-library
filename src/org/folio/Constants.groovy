@@ -301,7 +301,7 @@ class Constants {
   //Cypress
   static String CYPRESS_REPOSITORY_URL = "${FOLIO_GITHUB_URL}/stripes-testing.git"
   static String CYPRESS_SSH_REPOSITORY_URL = "${FOLIO_SSH_GITHUB_URL}/stripes-testing.git"
-  static String CYPRESS_ALLURE_VERSION = '2.34.0'
+  static String CYPRESS_ALLURE_VERSION = '2.35.2'
   static String CYPRESS_SC_URL = 'https://folio-testing-sc-director.ci.folio.org'
   static String CYPRESS_SC_KEY = 'secretCypressKey'
   static String CYPRESS_PROJECT = 'stripes'
