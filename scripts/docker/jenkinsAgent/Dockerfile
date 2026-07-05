@@ -7,7 +7,7 @@ FROM alpine:3.21 AS builder
 ARG TERRAFORM_VERSION="1.6.6"
 ARG HELM_VERSION="3.15.4"
 ARG KUBECTL_VERSION="1.28.0"
-ARG KAFKA_VERSION="3.8.0"
+ARG KAFKA_VERSION="3.9.2"
 ARG SCALA_VERSION="2.13"
 
 # Install only what is needed to download & extract
@@ -52,11 +52,11 @@ RUN curl -fsSL "https://downloads.apache.org/kafka/${KAFKA_VERSION}/kafka_${SCAL
 
 # -------------------------------------------------------------------
 # 2) Final Stage
-#    - Jenkins inbound agent (Alpine + JDK17)
+#    - Jenkins inbound agent (Alpine + JDK21)
 #    - Install only runtime packages (bash, aws-cli, docker-cli, etc.)
 #    - Copy final binaries from builder.
 # -------------------------------------------------------------------
-FROM jenkins/inbound-agent:latest-alpine3.21-jdk17
+FROM jenkins/inbound-agent:latest-alpine3.21-jdk21
 
 USER root
 
