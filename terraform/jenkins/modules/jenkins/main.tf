@@ -20,10 +20,10 @@ resource "aws_instance" "jenkins" {
   vpc_security_group_ids = [aws_security_group.jenkins_sg.id]
   iam_instance_profile   = aws_iam_instance_profile.jenkins_instance_profile.name # Attach IAM Role
 
-  # Root volume settings (20GB, gp3 by default)
+  # Root volume settings (100GB, gp3 by default)
   root_block_device {
     volume_type = "gp3"
-    volume_size = 20
+    volume_size = 100
   }
 
   # SSH key for access
