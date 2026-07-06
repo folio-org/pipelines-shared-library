@@ -68,7 +68,7 @@ variable "restore_snapshot_id" {
 variable "jenkins_version" {
   type        = string
   description = "The version of Jenkins to install."
-  default     = "2.492.1"
+  default     = "2.555.3"
 }
 
 variable "backup_bucket" {
