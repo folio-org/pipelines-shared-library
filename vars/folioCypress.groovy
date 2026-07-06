@@ -81,11 +81,12 @@ void setupCommonEnvironmentVariables(String tenantUrl, String okapiUrl, String t
     env.CYPRESS_BASE_URL = tenantUrl
     env.CYPRESS_OKAPI_HOST = okapiUrl
     env.CYPRESS_OKAPI_TENANT = tenantId
-    env.CYPRESS_diku_login = adminUsername
-    env.CYPRESS_diku_password = adminPassword
+    // Dynamically construct credential env var names based on tenantId (e.g., diku, consortium)
+    env["CYPRESS_${tenantId}_login"] = adminUsername
+    env["CYPRESS_${tenantId}_password"] = adminPassword
     env.AWS_DEFAULT_REGION = Constants.AWS_REGION
 
-    echo('Environment variables set for Cypress testing.')
+    echo("Environment variables set for Cypress testing (tenant: ${tenantId}).")
   }
 }
 
@@ -421,6 +422,12 @@ int runFailedTestsRecheck(String launchName, int numberOfRunners = 6, int timeou
                 PodTemplates podTemplates = new PodTemplates(this, true)
                 podTemplates.cypressAgent {
                   container('cypress') {
+                    // Clone the Cypress repo in each worker pod
+                    cloneCypressRepo(env.BRANCH_NAME ?: 'master')
+                    
+                    // Compile Cypress tests in the worker pod
+                    compileCypressTests()
+                    
                     // Calculate worker indices for this pod
                     int startWorkerIndex = podIndex * threadsPerPod
                     int endWorkerIndex = Math.min(startWorkerIndex + threadsPerPod, workers.size())
@@ -436,6 +443,12 @@ int runFailedTestsRecheck(String launchName, int numberOfRunners = 6, int timeou
                             export HOME=\$(pwd)
                             export CYPRESS_CACHE_FOLDER=\$(pwd)/cache
                             export DISPLAY=:\$((10 + ${workerIndex}))
+                            export CI_API_KEY=\${CI_API_KEY}
+                            export CYPRESS_BASE_URL=\${CYPRESS_BASE_URL}
+                            export CYPRESS_OKAPI_HOST=\${CYPRESS_OKAPI_HOST}
+                            export CYPRESS_OKAPI_TENANT=\${CYPRESS_OKAPI_TENANT}
+                            export CYPRESS_diku_login=\${CYPRESS_diku_login}
+                            export CYPRESS_diku_password=\${CYPRESS_diku_password}
 
                             mkdir -p /tmp/.X11-unix
                             Xvfb \$DISPLAY -screen 0 1920x1080x24 &
