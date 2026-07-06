@@ -81,7 +81,10 @@ void setupCommonEnvironmentVariables(String tenantUrl, String okapiUrl, String t
     env.CYPRESS_BASE_URL = tenantUrl
     env.CYPRESS_OKAPI_HOST = okapiUrl
     env.CYPRESS_OKAPI_TENANT = tenantId
-    // Dynamically construct credential env var names based on tenantId (e.g., diku, consortium)
+    // Set hardcoded diku credentials for backward compatibility with existing tests
+    env.CYPRESS_diku_login = adminUsername
+    env.CYPRESS_diku_password = adminPassword
+    // Also set dynamic tenant-specific credentials (e.g., CYPRESS_consortium_login for consortium tenant)
     env["CYPRESS_${tenantId}_login"] = adminUsername
     env["CYPRESS_${tenantId}_password"] = adminPassword
     env.AWS_DEFAULT_REGION = Constants.AWS_REGION
