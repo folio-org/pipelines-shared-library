@@ -438,17 +438,28 @@ int runFailedTestsRecheck(String launchName, int numberOfRunners = 6, int timeou
                       String workerId = "recheck-${workerIndex}"
                       podWorkers["Worker#${workerId}"] = {
                         try {
+                          // Build environment variable exports dynamically
+                          // Export all CYPRESS_* variables that match the tenant pattern (e.g., CYPRESS_diku_login, CYPRESS_consortium_login)
+                          String cypressEnvExports = """
+                            export CI_API_KEY=\${CI_API_KEY}
+                            export CYPRESS_BASE_URL=\${CYPRESS_BASE_URL}
+                            export CYPRESS_OKAPI_HOST=\${CYPRESS_OKAPI_HOST}
+                            export CYPRESS_OKAPI_TENANT=\${CYPRESS_OKAPI_TENANT}
+                          """.stripIndent()
+                          
+                          // Export all CYPRESS_*_login and CYPRESS_*_password variables
+                          env.each { key, value ->
+                            if (key.startsWith('CYPRESS_') && (key.endsWith('_login') || key.endsWith('_password'))) {
+                              cypressEnvExports += "export ${key}=\${${key}}\n"
+                            }
+                          }
+                          
                           sh """#!/bin/bash
                             set -euo pipefail
                             export HOME=\$(pwd)
                             export CYPRESS_CACHE_FOLDER=\$(pwd)/cache
                             export DISPLAY=:\$((10 + ${workerIndex}))
-                            export CI_API_KEY=\${CI_API_KEY}
-                            export CYPRESS_BASE_URL=\${CYPRESS_BASE_URL}
-                            export CYPRESS_OKAPI_HOST=\${CYPRESS_OKAPI_HOST}
-                            export CYPRESS_OKAPI_TENANT=\${CYPRESS_OKAPI_TENANT}
-                            export CYPRESS_diku_login=\${CYPRESS_diku_login}
-                            export CYPRESS_diku_password=\${CYPRESS_diku_password}
+                            ${cypressEnvExports}
 
                             mkdir -p /tmp/.X11-unix
                             Xvfb \$DISPLAY -screen 0 1920x1080x24 &
