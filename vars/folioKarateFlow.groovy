@@ -55,8 +55,6 @@ KarateRunExecutionSummary call(KarateTestsParameters args) {
                String modules = args.modulesToTest ? '-pl common,testrail-integration,' + args.modulesToTest : args.modulesToTest
                catchError(stageResult: 'FAILURE') {
                  String execParams = "-DfailIfNoTests=false -Dsurefire.failIfNoSpecifiedTests=false -Dkarate.env=${args.karateConfig}"
-                 // Set JAVA_OPTS for JVM memory and performance tuning
-                 env.JAVA_OPTS = '-Xmx2g -XX:+UseG1GC -XX:MaxGCPauseMillis=200'
 
                 if (args.testGroup && !args.testGroup.isEmpty()) {
                   String testPatterns = args.testGroup.collect { "**/*${it}*" }.join(',')
