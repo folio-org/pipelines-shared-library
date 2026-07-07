@@ -143,36 +143,46 @@ spec:
   // ========= Container Builders =========
 
   /**
-   * Builds a Java container definition for a specified Java version.
-   *
-   * @param javaVersion Java version tag (e.g., {@code 17}, {@code 21}).
-   * @param extraEnvVars Optional extra environment variables.
-   * @param resourceRequestMemory Minimum memory request (default {@code 2Gi}).
-   * @param resourceLimitMemory Memory limit (default {@code 12Gi}).
-   * @return Java container definition.
-   */
-  private Object buildJavaContainer(
-    String javaVersion,
-    List<KeyValueEnvVar> extraEnvVars = [],
-    String resourceRequestMemory = '2Gi',
-    String resourceLimitMemory = '12Gi'
-  ) {
-    return steps.containerTemplate(
-      name: 'java',
-      image: "${ECR_REPOSITORY}/amazoncorretto:${javaVersion}-alpine-jdk",
-      alwaysPullImage: true,
-      envVars: [new KeyValueEnvVar('HOME', WORKING_DIR),
-                new KeyValueEnvVar('MAVEN_OPTS', '-XX:MaxRAMPercentage=75.0 ' +
-                  '-javaagent:/jmx_exporter/jmx_prometheus_javaagent.jar=9991:/jmx_exporter/jmx_prometheus_config.yaml')] + extraEnvVars,
-      ports: [[name: 'jmx', containerPort: '9991']],
-      command: 'sleep',
-      args: '99d',
-      runAsGroup: '1000',
-      runAsUser: '1000',
-      resourceRequestMemory: resourceRequestMemory,
-      resourceLimitMemory: resourceLimitMemory
-    )
-  }
+    * Builds a Java container definition for a specified Java version.
+    *
+    * @param javaVersion Java version tag (e.g., {@code 17}, {@code 21}).
+    * @param extraEnvVars Optional extra environment variables.
+    * @param resourceRequestMemory Minimum memory request (default {@code 2Gi}).
+    * @param resourceLimitMemory Memory limit (default {@code 12Gi}).
+    * @param javaOpts Optional JAVA_OPTS for JVM tuning (e.g., heap size, GC settings).
+    * @return Java container definition.
+    */
+   private Object buildJavaContainer(
+     String javaVersion,
+     List<KeyValueEnvVar> extraEnvVars = [],
+     String resourceRequestMemory = '2Gi',
+     String resourceLimitMemory = '12Gi',
+     String javaOpts = null
+   ) {
+     List<KeyValueEnvVar> envVars = [
+       new KeyValueEnvVar('HOME', WORKING_DIR),
+       new KeyValueEnvVar('MAVEN_OPTS', '-XX:MaxRAMPercentage=75.0 ' +
+         '-javaagent:/jmx_exporter/jmx_prometheus_javaagent.jar=9991:/jmx_exporter/jmx_prometheus_config.yaml')
+     ]
+     
+     if (javaOpts) {
+       envVars.add(new KeyValueEnvVar('JAVA_OPTS', javaOpts))
+     }
+     
+     return steps.containerTemplate(
+       name: 'java',
+       image: "${ECR_REPOSITORY}/amazoncorretto:${javaVersion}-alpine-jdk",
+       alwaysPullImage: true,
+       envVars: envVars + extraEnvVars,
+       ports: [[name: 'jmx', containerPort: '9991']],
+       command: 'sleep',
+       args: '99d',
+       runAsGroup: '1000',
+       runAsUser: '1000',
+       resourceRequestMemory: resourceRequestMemory,
+       resourceLimitMemory: resourceLimitMemory
+     )
+   }
 
   /**
    * Builds a Docker-in-Docker (DIND) container.
@@ -335,27 +345,27 @@ spec:
   }
 
   /**
-   * Defines a Java agent optimized for Karate tests.
-   *
-   * @param javaVersion Java version to install.
-   * @param body Pipeline steps to execute inside this agent.
-   */
-  void javaKarateAgent(String javaVersion, Closure body) {
-    createTemplate(new PodTemplateConfig(
-      label: JenkinsAgentLabel.JAVA_KARATE_AGENT.getLabel(),
-      workspaceVolume: steps.genericEphemeralVolume(accessModes: 'ReadWriteOnce',
-        requestsSize: '20Gi',
-        storageClassName: 'gp3'),
-      volumes: [steps.persistentVolumeClaim(claimName: MAVEN_CACHE_PVC, mountPath: "${WORKING_DIR}/.m2/repository")],
-      containers: [
-        buildJavaContainer(javaVersion, [], '5120Mi', '12228Mi')
-      ]
-    )) {
-      steps.node(JenkinsAgentLabel.JAVA_KARATE_AGENT.getLabel()) {
-        body.call()
-      }
-    }
-  }
+    * Defines a Java agent optimized for Karate tests.
+    *
+    * @param javaVersion Java version to install.
+    * @param body Pipeline steps to execute inside this agent.
+    */
+   void javaKarateAgent(String javaVersion, Closure body) {
+     createTemplate(new PodTemplateConfig(
+       label: JenkinsAgentLabel.JAVA_KARATE_AGENT.getLabel(),
+       workspaceVolume: steps.genericEphemeralVolume(accessModes: 'ReadWriteOnce',
+         requestsSize: '20Gi',
+         storageClassName: 'gp3'),
+       volumes: [steps.persistentVolumeClaim(claimName: MAVEN_CACHE_PVC, mountPath: "${WORKING_DIR}/.m2/repository")],
+       containers: [
+         buildJavaContainer(javaVersion, [], '5120Mi', '12228Mi', '-Xmx2g -XX:+UseG1GC -XX:MaxGCPauseMillis=200')
+       ]
+     )) {
+       steps.node(JenkinsAgentLabel.JAVA_KARATE_AGENT.getLabel()) {
+         body.call()
+       }
+     }
+   }
 
   /**
    * Defines a Stripes UI build agent.
