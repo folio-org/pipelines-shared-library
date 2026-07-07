@@ -197,18 +197,29 @@ CypressRunExecutionSummary call(String ciBuildId, List<CypressTestsParameters> t
 
     if (recheckFailedTests && reportPortalUse && reportPortalClient != null && mainPhaseSucceeded
       && testRunExecutionSummary != null && testRunExecutionSummary.getPassRate() > 80) {
-      retry(2) {
-        podTemplates.cypressAgent {
-          container('cypress') {
-            stage('[Stash] Extract tests') {
-              unstash name: cypressStash('name')
-              sh """
-                md5sum -c ${cypressStash('checksum')}
-                tar -zxf ${cypressStash('archive')}
-                rm -rf ${cypressStash('archive')} ${cypressStash('checksum')}
-              """.stripIndent()
+      // Run recheck for each tenant configuration
+      testsToRun.each { CypressTestsParameters testParams ->
+        retry(2) {
+          podTemplates.cypressAgent {
+            container('cypress') {
+              stage('[Stash] Extract tests') {
+                unstash name: cypressStash('name')
+                sh """
+                  md5sum -c ${cypressStash('checksum')}
+                  tar -zxf ${cypressStash('archive')}
+                  rm -rf ${cypressStash('archive')} ${cypressStash('checksum')}
+                """.stripIndent()
+              }
+              
+              // Set up environment for this tenant
+              folioCypress.setupCommonEnvironmentVariables(testParams.tenantUrl,
+                testParams.okapiUrl,
+                testParams.tenant.tenantId,
+                testParams.tenant.adminUser.username,
+                testParams.tenant.adminUser.getPasswordPlainText())
+              
+              flakyCount = folioCypress.runFailedTestsRecheck(ciBuildId, numberOfRecheckRunners)
             }
-            flakyCount = folioCypress.runFailedTestsRecheck(ciBuildId, numberOfRecheckRunners)
           }
         }
       }
