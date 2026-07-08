@@ -81,11 +81,15 @@ void setupCommonEnvironmentVariables(String tenantUrl, String okapiUrl, String t
     env.CYPRESS_BASE_URL = tenantUrl
     env.CYPRESS_OKAPI_HOST = okapiUrl
     env.CYPRESS_OKAPI_TENANT = tenantId
+    // Set hardcoded diku credentials for backward compatibility with existing tests
     env.CYPRESS_diku_login = adminUsername
     env.CYPRESS_diku_password = adminPassword
+    // Also set dynamic tenant-specific credentials (e.g., CYPRESS_consortium_login for consortium tenant)
+    env["CYPRESS_${tenantId}_login"] = adminUsername
+    env["CYPRESS_${tenantId}_password"] = adminPassword
     env.AWS_DEFAULT_REGION = Constants.AWS_REGION
 
-    echo('Environment variables set for Cypress testing.')
+    echo("Environment variables set for Cypress testing (tenant: ${tenantId}).")
   }
 }
 
@@ -421,6 +425,12 @@ int runFailedTestsRecheck(String launchName, int numberOfRunners = 6, int timeou
                 PodTemplates podTemplates = new PodTemplates(this, true)
                 podTemplates.cypressAgent {
                   container('cypress') {
+                    // Clone the Cypress repo in each worker pod
+                    cloneCypressRepo(env.BRANCH_NAME ?: 'master')
+                    
+                    // Compile Cypress tests in the worker pod
+                    compileCypressTests()
+                    
                     // Calculate worker indices for this pod
                     int startWorkerIndex = podIndex * threadsPerPod
                     int endWorkerIndex = Math.min(startWorkerIndex + threadsPerPod, workers.size())
@@ -431,11 +441,28 @@ int runFailedTestsRecheck(String launchName, int numberOfRunners = 6, int timeou
                       String workerId = "recheck-${workerIndex}"
                       podWorkers["Worker#${workerId}"] = {
                         try {
+                          // Build environment variable exports dynamically
+                          // Export all CYPRESS_* variables that match the tenant pattern (e.g., CYPRESS_diku_login, CYPRESS_consortium_login)
+                          String cypressEnvExports = """
+                            export CI_API_KEY=\${CI_API_KEY}
+                            export CYPRESS_BASE_URL=\${CYPRESS_BASE_URL}
+                            export CYPRESS_OKAPI_HOST=\${CYPRESS_OKAPI_HOST}
+                            export CYPRESS_OKAPI_TENANT=\${CYPRESS_OKAPI_TENANT}
+                          """.stripIndent()
+                          
+                          // Export all CYPRESS_*_login and CYPRESS_*_password variables
+                          env.each { key, value ->
+                            if (key.startsWith('CYPRESS_') && (key.endsWith('_login') || key.endsWith('_password'))) {
+                              cypressEnvExports += "export ${key}=\${${key}}\n"
+                            }
+                          }
+                          
                           sh """#!/bin/bash
                             set -euo pipefail
                             export HOME=\$(pwd)
                             export CYPRESS_CACHE_FOLDER=\$(pwd)/cache
                             export DISPLAY=:\$((10 + ${workerIndex}))
+                            ${cypressEnvExports}
 
                             mkdir -p /tmp/.X11-unix
                             Xvfb \$DISPLAY -screen 0 1920x1080x24 &

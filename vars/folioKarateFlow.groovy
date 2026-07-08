@@ -42,19 +42,19 @@ KarateRunExecutionSummary call(KarateTestsParameters args) {
         }
       }
 
-      stage('[Maven] Execute karate tests') {
-        timeout(time: args.timeout, unit: 'HOURS') {
-          container('java') {
-            withMaven(jdk: args.javaToolName, maven: args.mavenToolName,
-              mavenLocalRepo: "${podTemplates.WORKING_DIR}/.m2/repository",
-              traceability: true,
-              options: [artifactsPublisher(disabled: true),
-                        junitPublisher(disabled: true),
-                        jacocoPublisher(disabled: true)]) {
-              logger.debug(sh(returnStdout: true, script: 'echo $JAVA_HOME').trim())
-              String modules = args.modulesToTest ? '-pl common,testrail-integration,' + args.modulesToTest : args.modulesToTest
-              catchError(stageResult: 'FAILURE') {
-                String execParams = "-DfailIfNoTests=false -Dsurefire.failIfNoSpecifiedTests=false -Dkarate.env=${args.karateConfig}"
+       stage('[Maven] Execute karate tests') {
+         timeout(time: args.timeout, unit: 'HOURS') {
+           container('java') {
+             withMaven(jdk: args.javaToolName, maven: args.mavenToolName,
+               mavenLocalRepo: "${podTemplates.WORKING_DIR}/.m2/repository",
+               traceability: true,
+               options: [artifactsPublisher(disabled: true),
+                         junitPublisher(disabled: true),
+                         jacocoPublisher(disabled: true)]) {
+               logger.debug(sh(returnStdout: true, script: 'echo $JAVA_HOME').trim())
+               String modules = args.modulesToTest ? '-pl common,testrail-integration,' + args.modulesToTest : args.modulesToTest
+               catchError(stageResult: 'FAILURE') {
+                 String execParams = "-DfailIfNoTests=false -Dsurefire.failIfNoSpecifiedTests=false -Dkarate.env=${args.karateConfig}"
 
                 if (args.testGroup && !args.testGroup.isEmpty()) {
                   String testPatterns = args.testGroup.collect { "**/*${it}*" }.join(',')
