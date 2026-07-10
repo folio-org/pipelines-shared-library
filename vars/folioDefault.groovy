@@ -24,7 +24,15 @@ List<String> getApplicationNamesFromPlatform(String branch = 'snapshot') {
 }
 
 Map getAppDescriptorFromBranch(String appName, String branch) {
-  String content = new GitHubClient(this).getFileContent(branch, 'application.lock.json', appName)
+  // Use withCredentials so the token is resolved at the correct scope (folder / job / global).
+  // The default GitHubClient constructor uses SystemCredentialsProvider which only searches the
+  // global store and misses folder-scoped credentials, causing unauthenticated API calls that
+  // hit the IP-based rate limit (60 req/hr) instead of the token-based limit (5000 req/hr).
+  String content
+  withCredentials([string(credentialsId: Constants.GITHUB_CREDENTIALS_ID, variable: 'githubToken')]) {
+    content = new GitHubClient(this, githubToken as String).getFileContent(branch, 'application.lock.json', appName)
+  }
+
   if (!content) {
     throw new Exception("Could not fetch application.lock.json from '${appName}' at branch '${branch}'")
   }

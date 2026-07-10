@@ -21,6 +21,24 @@ class GitHubClient {
       .getCredentials(Domain.global()).find { it.getId().equals(GITHUB_TOKEN_CREDENTIAL_ID) }.getSecret()
   }
 
+  /**
+   * Alternative constructor that accepts a pre-bound plaintext token.
+   * Use this inside a {@code withCredentials} block to ensure the credential is
+   * resolved at the correct scope (global, folder, or job-level) rather than
+   * relying on {@link SystemCredentialsProvider} which only searches the global store.
+   *
+   * <pre>
+   * withCredentials([string(credentialsId: Constants.GITHUB_CREDENTIALS_ID, variable: 'githubToken')]) {
+   *   new GitHubClient(this, githubToken).getFileContent(branch, 'application.lock.json', appName)
+   * }
+   * </pre>
+   */
+  GitHubClient(Object context, String plainTextToken) {
+    this.logger = new Logger(context, this.getClass().getCanonicalName())
+    this.restClient = new RestClient(context, true)
+    this.gitHubToken = Secret.fromString(plainTextToken)
+  }
+
   Map getBranchInfo(String repository, String branch) {
     String url = "${Constants.FOLIO_GITHUB_REPOS_URL}/${repository}/branches/${branch}"
     Map<String, String> headers = authorizedHeaders()
