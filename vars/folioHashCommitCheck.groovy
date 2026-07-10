@@ -2,8 +2,10 @@ import org.folio.Constants
 import org.folio.utilities.GitHubClient
 
 String getCurrentBuildSha(String branch, String repo = 'platform-lsp') {
-  Map branchInfo = new GitHubClient(this).getBranchInfo(repo, branch)
-
+  Map branchInfo
+  withCredentials([string(credentialsId: Constants.GITHUB_CREDENTIALS_ID, variable: 'githubToken')]) {
+    branchInfo = new GitHubClient(this, githubToken as String).getBranchInfo(repo, branch)
+  }
   return branchInfo?.commit?.sha
 }
 
@@ -88,7 +90,10 @@ boolean isInstallJsonChanged(String previousSha, String currentSha) {
   if (previousSha == currentSha) {
     return false
   } else {
-    Map commitsDiff = new GitHubClient(this).getTwoCommitsDiff(previousSha, currentSha, 'platform-lsp')
+    Map commitsDiff
+    withCredentials([string(credentialsId: Constants.GITHUB_CREDENTIALS_ID, variable: 'githubToken')]) {
+      commitsDiff = new GitHubClient(this, githubToken as String).getTwoCommitsDiff(previousSha, currentSha, 'platform-lsp')
+    }
 
     println("Changed files: ${commitsDiff?.files*.filename}")
 

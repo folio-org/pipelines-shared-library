@@ -1,7 +1,7 @@
 import org.folio.Constants
 import org.folio.models.*
 import org.folio.rest.GitHubUtility
-import org.folio.utilities.GitHubClient
+import org.folio.utilities.RestClient
 
 Map getPlatformDescriptor(String branch = 'snapshot') {
   Map platformDescriptor = new GitHubUtility(this).getJsonModulesList('platform-lsp', branch, 'platform-descriptor.json') as Map
@@ -24,17 +24,27 @@ List<String> getApplicationNamesFromPlatform(String branch = 'snapshot') {
 }
 
 Map getAppDescriptorFromBranch(String appName, String branch) {
-  // Use withCredentials so the token is resolved at the correct scope (folder / job / global).
-  // The default GitHubClient constructor uses SystemCredentialsProvider which only searches the
-  // global store and misses folder-scoped credentials, causing unauthenticated API calls that
-  // hit the IP-based rate limit (60 req/hr) instead of the token-based limit (5000 req/hr).
-  String content
-  withCredentials([string(credentialsId: Constants.GITHUB_CREDENTIALS_ID, variable: 'githubToken')]) {
-    content = new GitHubClient(this, githubToken as String).getFileContent(branch, 'application.lock.json', appName)
+  // Use raw.githubusercontent.com to fetch application.lock.json directly.
+  // The GitHub Contents API base64-encodes file content and embeds literal newlines inside the
+  // JSON "content" field.  RestClient.parseCurlOutput splits on '\n' and then re-joins the body
+  // lines, so those embedded newlines are preserved — but for large files (app-platform-complete
+  // is ~580 KB raw / ~800 KB base64) the resulting JSON string fails readJSON, causing
+  // getFileContent to silently return ''.  raw.githubusercontent.com returns the file as plain
+  // text (text/plain), has no 1 MB limit, and does not require authentication for public
+  // folio-org repositories.
+  String url = "${Constants.FOLIO_GITHUB_RAW_URL}/${appName}/${branch}/application.lock.json"
+
+  def response
+  try {
+    response = new RestClient(this).get(url)
+  } catch (Exception e) {
+    throw new Exception("Could not fetch application.lock.json from '${appName}' at branch '${branch}': ${e.getMessage()}", e)
   }
 
+  // raw.githubusercontent.com returns text/plain — RestClient hands back a raw String body
+  String content = response?.body?.toString() ?: ''
   if (!content) {
-    throw new Exception("Could not fetch application.lock.json from '${appName}' at branch '${branch}'")
+    throw new Exception("Could not fetch application.lock.json from '${appName}' at branch '${branch}' (empty response)")
   }
 
   Map descriptor = readJSON(text: content) as Map

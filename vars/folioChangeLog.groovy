@@ -1,5 +1,6 @@
 import com.cloudbees.groovy.cps.NonCPS
 import groovy.json.JsonSlurper
+import org.folio.Constants
 import org.folio.models.ChangelogEntry
 import org.folio.models.module.FolioModule
 import org.folio.slack.SlackHelper
@@ -7,12 +8,19 @@ import org.folio.utilities.GitHubClient
 
 List<ChangelogEntry> call(String previousSha, String currentSha) {
 
-  GitHubClient gitHubClient = new GitHubClient(this)
   String platformRepo = 'platform-lsp'
   String descriptorFile = 'platform-descriptor.json'
 
-  String previousContent = gitHubClient.getFileContent(previousSha, descriptorFile, platformRepo)
-  String currentContent = gitHubClient.getFileContent(currentSha, descriptorFile, platformRepo)
+  // Declare outside the closure so CPS can assign and later read them.
+  // Use withCredentials so the token is resolved at the correct scope (folder / job / global)
+  // rather than relying on SystemCredentialsProvider which only searches the global store.
+  String previousContent
+  String currentContent
+  withCredentials([string(credentialsId: Constants.GITHUB_CREDENTIALS_ID, variable: 'githubToken')]) {
+    GitHubClient gitHubClient = new GitHubClient(this, githubToken as String)
+    previousContent = gitHubClient.getFileContent(previousSha, descriptorFile, platformRepo)
+    currentContent = gitHubClient.getFileContent(currentSha, descriptorFile, platformRepo)
+  }
 
   if (!previousContent || !currentContent) {
     echo "Could not fetch ${descriptorFile} at one or both SHAs (previous=${previousSha}, current=${currentSha})"
