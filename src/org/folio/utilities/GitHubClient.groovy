@@ -2,7 +2,6 @@ package org.folio.utilities
 
 import com.cloudbees.plugins.credentials.CredentialsProvider
 import org.jenkinsci.plugins.plaincredentials.StringCredentials
-import hudson.security.ACL
 import jenkins.model.Jenkins
 import org.folio.Constants
 
@@ -11,6 +10,7 @@ class GitHubClient {
   private static final String GITHUB_TOKEN_CREDENTIAL_ID = "github-jenkins-service-user-token"
 
   private String gitHubToken
+  private boolean tokenInitialized = false
 
   Logger logger
   RestClient restClient
@@ -18,15 +18,22 @@ class GitHubClient {
   GitHubClient(Object context) {
     this.logger = new Logger(context, this.getClass().getCanonicalName())
     this.restClient = new RestClient(context, true)
-    this.gitHubToken = retrieveGitHubToken()
   }
 
-  private String retrieveGitHubToken() {
+  private String getGitHubToken() {
+    if (!tokenInitialized) {
+      this.gitHubToken = retrieveGitHubToken()
+      this.tokenInitialized = true
+    }
+    return this.gitHubToken
+  }
+
+  private static String retrieveGitHubToken() {
     try {
       StringCredentials credential = CredentialsProvider.lookupCredentials(
         StringCredentials.class,
         Jenkins.getInstance(),
-        ACL.SYSTEM,
+        null,
         null
       ).find { it.id == GITHUB_TOKEN_CREDENTIAL_ID }
 
@@ -166,6 +173,6 @@ class GitHubClient {
 
   Map<String, String> authorizedHeaders() {
     return ['Accept'       : 'application/vnd.github+json',
-            'Authorization': "token ${this.gitHubToken}"]
+            'Authorization': "token ${getGitHubToken()}"]
   }
 }
