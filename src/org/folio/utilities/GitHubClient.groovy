@@ -147,6 +147,6 @@ class GitHubClient {
 
   Map<String, String> authorizedHeaders() {
     return ['Accept'       : 'application/vnd.github+json',
-            'Authorization': "Bearer ${this.gitHubToken}"]
+            'Authorization': "token ${this.gitHubToken}"]
   }
 }
