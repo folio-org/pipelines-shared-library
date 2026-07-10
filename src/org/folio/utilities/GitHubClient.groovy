@@ -1,24 +1,33 @@
 package org.folio.utilities
 
-import com.cloudbees.plugins.credentials.SystemCredentialsProvider
-import com.cloudbees.plugins.credentials.domains.Domain
-import hudson.util.Secret
 import org.folio.Constants
 
 class GitHubClient {
 
   private static final String GITHUB_TOKEN_CREDENTIAL_ID = "github-jenkins-service-user-token"
 
-  private Secret gitHubToken
+  private String gitHubToken
 
   Logger logger
   RestClient restClient
+  Object context
 
   GitHubClient(Object context) {
+    this.context = context
     this.logger = new Logger(context, this.getClass().getCanonicalName())
     this.restClient = new RestClient(context, true)
-    this.gitHubToken = SystemCredentialsProvider.getInstance().getStore()
-      .getCredentials(Domain.global()).find { it.getId().equals(GITHUB_TOKEN_CREDENTIAL_ID) }.getSecret()
+    this.gitHubToken = retrieveGitHubToken()
+  }
+
+  private String retrieveGitHubToken() {
+    String token = null
+    context.withCredentials([context.string(credentialsId: GITHUB_TOKEN_CREDENTIAL_ID, variable: 'GITHUB_TOKEN')]) {
+      token = context.env.GITHUB_TOKEN
+    }
+    if (!token) {
+      throw new RuntimeException("Failed to retrieve GitHub token from credentials ID: ${GITHUB_TOKEN_CREDENTIAL_ID}")
+    }
+    return token
   }
 
   Map getBranchInfo(String repository, String branch) {
