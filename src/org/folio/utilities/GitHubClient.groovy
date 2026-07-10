@@ -10,7 +10,6 @@ class GitHubClient {
   private static final String GITHUB_TOKEN_CREDENTIAL_ID = "github-jenkins-service-user-token"
 
   private String gitHubToken
-  private boolean tokenInitialized = false
 
   Logger logger
   RestClient restClient
@@ -18,14 +17,14 @@ class GitHubClient {
   GitHubClient(Object context) {
     this.logger = new Logger(context, this.getClass().getCanonicalName())
     this.restClient = new RestClient(context, true)
+    // Retrieve token immediately but outside of CPS context
+    this.gitHubToken = null
   }
 
-  private String getGitHubToken() {
-    if (!tokenInitialized) {
+  private void ensureTokenLoaded() {
+    if (this.gitHubToken == null) {
       this.gitHubToken = retrieveGitHubToken()
-      this.tokenInitialized = true
     }
-    return this.gitHubToken
   }
 
   private static String retrieveGitHubToken() {
@@ -172,7 +171,8 @@ class GitHubClient {
   }
 
   Map<String, String> authorizedHeaders() {
+    ensureTokenLoaded()
     return ['Accept'       : 'application/vnd.github+json',
-            'Authorization': "token ${getGitHubToken()}"]
+            'Authorization': "token ${this.gitHubToken}"]
   }
 }
