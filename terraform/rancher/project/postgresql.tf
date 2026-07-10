@@ -376,7 +376,7 @@ resource "aws_security_group" "allow_rds" {
     from_port   = 5432
     to_port     = 5432
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = ["10.0.0.0/16", "192.168.0.0/16", "174.109.100.15/32", "68.253.135.153/32"] #RANCHER-3054
   }
 
   egress {
