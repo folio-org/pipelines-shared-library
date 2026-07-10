@@ -1,7 +1,6 @@
 import org.folio.Constants
 import org.folio.models.*
 import org.folio.rest.GitHubUtility
-import org.folio.utilities.GitHubClient
 
 Map getPlatformDescriptor(String branch = 'snapshot') {
   Map platformDescriptor = new GitHubUtility(this).getJsonModulesList('platform-lsp', branch, 'platform-descriptor.json') as Map
@@ -24,7 +23,9 @@ List<String> getApplicationNamesFromPlatform(String branch = 'snapshot') {
 }
 
 Map getAppDescriptorFromBranch(String appName, String branch) {
-  String content = new GitHubClient(this).getFileContent(branch, 'application.lock.json', appName)
+  String content = githubApiClient { client ->
+    client.getFileContent(branch, 'application.lock.json', appName)
+  }
   if (!content) {
     throw new Exception("Could not fetch application.lock.json from '${appName}' at branch '${branch}'")
   }

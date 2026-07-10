@@ -3,31 +3,30 @@ import groovy.json.JsonSlurper
 import org.folio.models.ChangelogEntry
 import org.folio.models.module.FolioModule
 import org.folio.slack.SlackHelper
-import org.folio.utilities.GitHubClient
 
 List<ChangelogEntry> call(String previousSha, String currentSha) {
 
-  GitHubClient gitHubClient = new GitHubClient(this)
-  String platformRepo = 'platform-lsp'
-  String descriptorFile = 'platform-descriptor.json'
+  List<ChangelogEntry> result = githubApiClient { gitHubClient ->
+    String platformRepo = 'platform-lsp'
+    String descriptorFile = 'platform-descriptor.json'
 
-  String previousContent = gitHubClient.getFileContent(previousSha, descriptorFile, platformRepo)
-  String currentContent = gitHubClient.getFileContent(currentSha, descriptorFile, platformRepo)
+    String previousContent = gitHubClient.getFileContent(previousSha, descriptorFile, platformRepo)
+    String currentContent = gitHubClient.getFileContent(currentSha, descriptorFile, platformRepo)
 
-  if (!previousContent || !currentContent) {
-    echo "Could not fetch ${descriptorFile} at one or both SHAs (previous=${previousSha}, current=${currentSha})"
-    return []
-  }
+    if (!previousContent || !currentContent) {
+      echo "Could not fetch ${descriptorFile} at one or both SHAs (previous=${previousSha}, current=${currentSha})"
+      return []
+    }
 
-  List<String> previousAppIds = parseAppIds(previousContent)
-  List<String> currentAppIds = parseAppIds(currentContent)
+    List<String> previousAppIds = parseAppIds(previousContent)
+    List<String> currentAppIds = parseAppIds(currentContent)
 
-  echo "Previous app count: ${previousAppIds.size()}, Current app count: ${currentAppIds.size()}"
+    echo "Previous app count: ${previousAppIds.size()}, Current app count: ${currentAppIds.size()}"
 
-  List<Map> changedApps = diffApps(previousAppIds, currentAppIds)
-  echo "Changed apps: ${changedApps.size()}"
+    List<Map> changedApps = diffApps(previousAppIds, currentAppIds)
+    echo "Changed apps: ${changedApps.size()}"
 
-  Map<String, ChangelogEntry> changeLogEntriesMap = [:]
+    Map<String, ChangelogEntry> changeLogEntriesMap = [:]
 
   changedApps.each { appChange ->
     String oldId = appChange.oldId
@@ -50,6 +49,9 @@ List<ChangelogEntry> call(String previousSha, String currentSha) {
   }
 
   return changeLogEntriesMap.values().toList()
+  }
+
+  return result
 }
 
 /**
