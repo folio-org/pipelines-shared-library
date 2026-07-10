@@ -17,32 +17,30 @@ class GitHubClient {
   GitHubClient(Object context) {
     this.logger = new Logger(context, this.getClass().getCanonicalName())
     this.restClient = new RestClient(context, true)
-    // Retrieve token immediately but outside of CPS context
     this.gitHubToken = null
   }
 
   private void ensureTokenLoaded() {
     if (this.gitHubToken == null) {
-      this.gitHubToken = retrieveGitHubToken()
-    }
-  }
+      try {
+        StringCredentials credential = CredentialsProvider.lookupCredentials(
+          StringCredentials.class,
+          Jenkins.getInstance(),
+          null,
+          null
+        ).find { it.id == GITHUB_TOKEN_CREDENTIAL_ID }
 
-  private static String retrieveGitHubToken() {
-    try {
-      StringCredentials credential = CredentialsProvider.lookupCredentials(
-        StringCredentials.class,
-        Jenkins.getInstance(),
-        null,
-        null
-      ).find { it.id == GITHUB_TOKEN_CREDENTIAL_ID }
+        if (!credential) {
+          logger.error("GitHub token credential not found with ID: ${GITHUB_TOKEN_CREDENTIAL_ID}")
+          throw new RuntimeException("GitHub token credential not found: ${GITHUB_TOKEN_CREDENTIAL_ID}")
+        }
 
-      if (!credential) {
-        throw new RuntimeException("GitHub token credential not found: ${GITHUB_TOKEN_CREDENTIAL_ID}")
+        this.gitHubToken = credential.secret.plainText
+        logger.info("GitHub token loaded successfully, length: ${this.gitHubToken?.length()}")
+      } catch (Exception e) {
+        logger.error("Failed to retrieve GitHub token: ${e.getMessage()}")
+        throw new RuntimeException("Failed to retrieve GitHub token: ${e.getMessage()}", e)
       }
-
-      return credential.getSecret().getPlainText()
-    } catch (Exception e) {
-      throw new RuntimeException("Failed to retrieve GitHub token: ${e.getMessage()}", e)
     }
   }
 
