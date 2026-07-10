@@ -1,7 +1,7 @@
 package org.folio.utilities
 
 import com.cloudbees.plugins.credentials.CredentialsProvider
-import com.cloudbees.plugins.credentials.common.StandardStringCredentials
+import org.jenkinsci.plugins.plaincredentials.StringCredentials
 import hudson.security.ACL
 import jenkins.model.Jenkins
 import org.folio.Constants
@@ -23,8 +23,8 @@ class GitHubClient {
 
   private String retrieveGitHubToken() {
     try {
-      StandardStringCredentials credential = CredentialsProvider.lookupCredentials(
-        StandardStringCredentials.class,
+      StringCredentials credential = CredentialsProvider.lookupCredentials(
+        StringCredentials.class,
         Jenkins.getInstance(),
         ACL.SYSTEM,
         null
