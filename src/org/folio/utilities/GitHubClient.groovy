@@ -1,46 +1,20 @@
 package org.folio.utilities
 
-import com.cloudbees.plugins.credentials.CredentialsProvider
-import org.jenkinsci.plugins.plaincredentials.StringCredentials
-import jenkins.model.Jenkins
 import org.folio.Constants
 
 class GitHubClient {
-
-  private static final String GITHUB_TOKEN_CREDENTIAL_ID = "github-jenkins-service-user-token"
 
   private String gitHubToken
 
   Logger logger
   RestClient restClient
 
-  GitHubClient(Object context) {
+  GitHubClient(Object context, String token = null) {
     this.logger = new Logger(context, this.getClass().getCanonicalName())
     this.restClient = new RestClient(context, true)
-    this.gitHubToken = null
-  }
-
-  private void ensureTokenLoaded() {
-    if (this.gitHubToken == null) {
-      try {
-        StringCredentials credential = CredentialsProvider.lookupCredentials(
-          StringCredentials.class,
-          Jenkins.getInstance(),
-          null,
-          null
-        ).find { it.id == GITHUB_TOKEN_CREDENTIAL_ID }
-
-        if (!credential) {
-          logger.error("GitHub token credential not found with ID: ${GITHUB_TOKEN_CREDENTIAL_ID}")
-          throw new RuntimeException("GitHub token credential not found: ${GITHUB_TOKEN_CREDENTIAL_ID}")
-        }
-
-        this.gitHubToken = credential.secret.plainText
-        logger.info("GitHub token loaded successfully, length: ${this.gitHubToken?.length()}")
-      } catch (Exception e) {
-        logger.error("Failed to retrieve GitHub token: ${e.getMessage()}")
-        throw new RuntimeException("Failed to retrieve GitHub token: ${e.getMessage()}", e)
-      }
+    this.gitHubToken = token
+    if (!this.gitHubToken) {
+      logger.warning("GitHub token not provided to GitHubClient constructor")
     }
   }
 
@@ -169,7 +143,6 @@ class GitHubClient {
   }
 
   Map<String, String> authorizedHeaders() {
-    ensureTokenLoaded()
     if (!this.gitHubToken) {
       logger.error("GitHub token is empty or null!")
       throw new RuntimeException("GitHub token is empty or null")
