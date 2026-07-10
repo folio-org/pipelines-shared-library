@@ -1,5 +1,9 @@
 package org.folio.utilities
 
+import com.cloudbees.plugins.credentials.CredentialsProvider
+import com.cloudbees.plugins.credentials.common.StandardStringCredentials
+import hudson.security.ACL
+import jenkins.model.Jenkins
 import org.folio.Constants
 
 class GitHubClient {
@@ -10,24 +14,30 @@ class GitHubClient {
 
   Logger logger
   RestClient restClient
-  Object context
 
   GitHubClient(Object context) {
-    this.context = context
     this.logger = new Logger(context, this.getClass().getCanonicalName())
     this.restClient = new RestClient(context, true)
     this.gitHubToken = retrieveGitHubToken()
   }
 
   private String retrieveGitHubToken() {
-    String token = null
-    context.withCredentials([context.string(credentialsId: GITHUB_TOKEN_CREDENTIAL_ID, variable: 'GITHUB_TOKEN')]) {
-      token = context.env.GITHUB_TOKEN
+    try {
+      StandardStringCredentials credential = CredentialsProvider.lookupCredentials(
+        StandardStringCredentials.class,
+        Jenkins.getInstance(),
+        ACL.SYSTEM,
+        null
+      ).find { it.id == GITHUB_TOKEN_CREDENTIAL_ID }
+
+      if (!credential) {
+        throw new RuntimeException("GitHub token credential not found: ${GITHUB_TOKEN_CREDENTIAL_ID}")
+      }
+
+      return credential.getSecret().getPlainText()
+    } catch (Exception e) {
+      throw new RuntimeException("Failed to retrieve GitHub token: ${e.getMessage()}", e)
     }
-    if (!token) {
-      throw new RuntimeException("Failed to retrieve GitHub token from credentials ID: ${GITHUB_TOKEN_CREDENTIAL_ID}")
-    }
-    return token
   }
 
   Map getBranchInfo(String repository, String branch) {
