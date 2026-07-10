@@ -170,7 +170,13 @@ class GitHubClient {
 
   Map<String, String> authorizedHeaders() {
     ensureTokenLoaded()
-    return ['Accept'       : 'application/vnd.github+json',
-            'Authorization': "token ${this.gitHubToken}"]
+    if (!this.gitHubToken) {
+      logger.error("GitHub token is empty or null!")
+      throw new RuntimeException("GitHub token is empty or null")
+    }
+    Map headers = ['Accept': 'application/vnd.github+json',
+                   'Authorization': "token ${this.gitHubToken}"]
+    logger.debug("Authorization header set with token of length: ${this.gitHubToken.length()}")
+    return headers
   }
 }
