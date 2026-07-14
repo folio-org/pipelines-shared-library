@@ -232,6 +232,7 @@ ansiColor('xterm') {
       stage('[Helm] Deploy modules (2nd release)') {
         folioHelm.withKubeConfig(namespace.getClusterName(), {
           logger.info(namespace.getModules().getBackendModules())
+          sh "kubectl delete cm mod-reporting22 -n ${namespace.getNamespaceName()} || true"
           folioHelm.deployFolioModulesParallel(namespace, namespace.getModules().getBackendModules(), false, namespace.getDefaultTenantId(), true)
           folioHelm.checkDeploymentsRunning(namespace.getNamespaceName(), namespace.getModules().getBackendModules(), true)
         }, true)
