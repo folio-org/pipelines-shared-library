@@ -3677,11 +3677,6 @@ mod-users-keycloak:
       memory: 769Mi
     requests:
       memory: 577Mi
-  sidecarContainers:
-    eureka:
-      extraEnvVars:
-        - name: HANDLER_EGRESS_IGNORE_SYSTEM_USER_TOKEN_ERROR
-          value: "true"
   startupProbe:
     httpGet:
       path: /admin/health
