@@ -5095,6 +5095,8 @@ mod-users-keycloak:
   sidecarContainers:
     eureka:
       extraEnvVars:
+      - name: HANDLER_EGRESS_IGNORE_SYSTEM_USER_TOKEN_ERROR
+        value: "true"
       - name: WEB_CLIENT_INGRESS_POOL_MAX_SIZE
         value: "1500"
       - name: WEB_CLIENT_EGRESS_POOL_MAX_SIZE
