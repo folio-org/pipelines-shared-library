@@ -679,6 +679,9 @@ mod-agreements:
     s3:
       enabled: true
       existingSecret: s3-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
   replicaCount: 2
   resources:
     limits:
@@ -2678,6 +2681,9 @@ mod-licenses:
     s3:
       enabled: true
       existingSecret: s3-credentials
+    kafka:
+      enabled: true
+      existingSecret: kafka-credentials
   replicaCount: 1
   resources:
     limits:
