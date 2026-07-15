@@ -45,7 +45,7 @@ resource "helm_release" "opensearch-single-node" {
   version    = "2.16.0"
   values = [<<-EOF
 image:
-  tag: 3.1.0
+  tag: 3.5.0
   repository: 732722833398.dkr.ecr.us-west-2.amazonaws.com/opensearch
   pullPolicy: IfNotPresent
 clusterName: "opensearch-${var.rancher_project_name}"
@@ -120,7 +120,7 @@ resource "helm_release" "opensearch-master" {
   version    = "2.16.0"
   values = [<<-EOF
 image:
-  tag: 3.1.0
+  tag: 3.5.0
   repository: 732722833398.dkr.ecr.us-west-2.amazonaws.com/opensearch
   pullPolicy: IfNotPresent
 clusterName: "opensearch-${var.rancher_project_name}"
@@ -155,7 +155,7 @@ resource "helm_release" "opensearch-data" {
   version    = "2.16.0"
   values = [<<-EOF
 image:
-  tag: 3.1.0
+  tag: 3.5.0
   repository: 732722833398.dkr.ecr.us-west-2.amazonaws.com/opensearch
   pullPolicy: IfNotPresent
 clusterName: "opensearch-${var.rancher_project_name}"
@@ -193,7 +193,7 @@ resource "helm_release" "opensearch-client" {
   version    = "2.16.0"
   values = [<<-EOF
 image:
-  tag: 3.1.0
+  tag: 3.5.0
   pullPolicy: IfNotPresent
   repository: 732722833398.dkr.ecr.us-west-2.amazonaws.com/opensearch
 service:
@@ -243,7 +243,7 @@ resource "helm_release" "opensearch-dashboards" {
   version    = "2.14.0"
   values = [<<-EOF
 image:
-  tag: 3.1.0
+  tag: 3.5.0
   repository: 732722833398.dkr.ecr.us-west-2.amazonaws.com/opensearch-dashboards
   pullPolicy: IfNotPresent
 clusterName: "opensearch-${var.rancher_project_name}"
