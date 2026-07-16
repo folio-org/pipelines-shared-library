@@ -39,6 +39,10 @@ jobs:
     # Pin to @main to always get the latest, or use a tag like @v1
     # for stable versioning.
     uses: folio-org/folio-ai-agents/.github/workflows/ai-code-review.yml@main
+    with:
+      pr_number: ${{ github.event.pull_request.number }}
+      owner: ${{ github.event.repository.owner.login }}
+      repo: ${{ github.event.repository.name }}
     secrets:
       ai_pr_reviewer: ${{ secrets.AI_PR_REVIEWER }}
       gh_token: ${{ github.token }}
