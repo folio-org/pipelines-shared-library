@@ -1,0 +1,42 @@
+# =====================================================================
+# AI Code Review — for folio-org repositories
+# =====================================================================
+# Copy this file into your repo at:
+#   .github/workflows/ai-code-review.yml
+#
+# The actual review logic lives in the reusable workflow at
+# folio-org/folio-ai-agents — updates there roll out to all repos
+# automatically. No per-repo maintenance needed.
+#
+# Pin to a specific version (e.g. @v1) if you want to control
+# when updates are picked up.
+# =====================================================================
+
+name: AI Code Review
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+  pull_request_review_comment:
+    types: [created]
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: "PR number to review"
+        required: true
+        type: number
+      review_type:
+        description: "Review type"
+        required: true
+        default: "full"
+        type: choice
+        options:
+          - full
+          - comment
+
+jobs:
+  review:
+    # Pin to @main to always get the latest, or use a tag like @v1
+    # for stable versioning.
+    uses: folio-org/folio-ai-agents/.github/workflows/ai-code-review.yml@main
+    secrets: inherit
