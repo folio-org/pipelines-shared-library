@@ -126,7 +126,6 @@ CypressRunExecutionSummary call(String ciBuildId, List<CypressTestsParameters> t
         def workers = [failFast: false]
         String runId = folioCypress.generateRandomId(3)
         testParams.ciBuildId = "${ciBuildId}-${runId}"
-        List localAllureResults = []
 
         execBatches.size().times { int batchIndex ->
           String workerId = "${runId}${batchIndex}"
@@ -158,10 +157,12 @@ CypressRunExecutionSummary call(String ciBuildId, List<CypressTestsParameters> t
                     testParams.testrailProjectID,
                     testParams.testrailRunID)
 
-                  String stashName = folioCypress.archiveTestResults(workerId)
-                  if (stashName) {
-                    localAllureResults.add(stashName)
-                  }
+                  // Archive and stash test results.
+                  // Stash name is deterministic (allure-results-${workerId})
+                  // so we reconstruct the list after parallel() instead of
+                  // capturing it via CPS closure variable, which gets lost
+                  // across CPS serialization boundaries.
+                  folioCypress.archiveTestResults(workerId)
                 }
               }
             }
@@ -172,12 +173,18 @@ CypressRunExecutionSummary call(String ciBuildId, List<CypressTestsParameters> t
           parallel(workers)
         }
 
-        allureResultsList.addAll(localAllureResults)
+        // Reconstruct stash names deterministically — see note above.
+        // Each workerId is "${runId}${batchIndex}" so the stash name is
+        // "allure-results-${runId}${batchIndex}".
+        execBatches.size().times { int batchIndex ->
+          String workerId = "${runId}${batchIndex}"
+          allureResultsList.add("allure-results-${workerId}")
+        }
       }
     }
     mainPhaseSucceeded = true
   } catch (Exception e) {
-    logger.error("Error during Cypress tests execution: ${e.getMessage()}")
+    logger.warning("Error during Cypress tests execution: ${e.getMessage()}")
   } finally {
     podTemplates.rancherJavaAgent {
       if (reportPortalUse && reportPortalClient != null) {

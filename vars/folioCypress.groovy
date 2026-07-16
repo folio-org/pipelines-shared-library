@@ -517,8 +517,12 @@ void unpackAllureReport(List stashesList) {
 
   stage('[Stash] Unpack report') {
     for (stashName in stashesList) {
-      unstash name: stashName
-      sh "tar --one-top-level=${stashName} -zxf ${stashName}.tar.gz"
+      try {
+        unstash name: stashName
+        sh "tar --one-top-level=${stashName} -zxf ${stashName}.tar.gz"
+      } catch (Exception e) {
+        echo("Warning: Could not unpack ${stashName} — the worker may have failed before archiving: ${e.getMessage()}")
+      }
     }
   }
 }
