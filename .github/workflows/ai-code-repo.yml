@@ -41,4 +41,4 @@ jobs:
     uses: folio-org/folio-ai-agents/.github/workflows/ai-code-review.yml@main
     secrets:
       ai_pr_reviewer: ${{ secrets.AI_PR_REVIEWER }}
-      github_token: ${{ github.token }}
+      gh_token: ${{ github.token }}
