@@ -2,7 +2,7 @@
 # AI Code Review — for folio-org repositories
 # =====================================================================
 # Copy this file into your repo at:
-#   .github/workflows/ai-code-review.yml
+#   .github/workflows/ai-code-review-repo.yml
 #
 # The actual review logic lives in the reusable workflow at
 # folio-org/folio-ai-agents — updates there roll out to all repos
@@ -10,6 +10,9 @@
 #
 # Pin to a specific version (e.g. @v1) if you want to control
 # when updates are picked up.
+#
+# Important: Pass PR metadata explicitly via `with:` — GitHub Actions
+# does not provide event context to reusable workflows.
 # =====================================================================
 
 name: AI Code Review
@@ -39,4 +42,9 @@ jobs:
     # Pin to @main to always get the latest, or use a tag like @v1
     # for stable versioning.
     uses: folio-org/folio-ai-agents/.github/workflows/ai-code-review.yml@main
-    secrets: inherit
+    with:
+      pr_number: ${{ github.event.pull_request.number }}
+      owner: ${{ github.event.repository.owner.login }}
+      repo: ${{ github.event.repository.name }}
+    secrets:
+      gh_token: ${{ secrets.AI_PR_REVIEWER }}
