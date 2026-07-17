@@ -48,4 +48,4 @@ jobs:
       repo: ${{ github.event.repository.name }}
     secrets:
       ai_pr_reviewer: ${{ secrets.AI_PR_REVIEWER }}
-      gh_token: ${{ secrets.AI_PR_REVIEWER }}
+      gh_token: ${{ github.token }}
