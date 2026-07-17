@@ -70,6 +70,7 @@ CypressRunExecutionSummary call(String ciBuildId, List<CypressTestsParameters> t
 
   boolean mainPhaseSucceeded = false
   int flakyCount = 0
+  String allureRunDir = "allure-report-${env.BUILD_ID}"
 
   try {
     testsToRun.each { CypressTestsParameters testParams ->
@@ -180,19 +181,23 @@ CypressRunExecutionSummary call(String ciBuildId, List<CypressTestsParameters> t
     logger.error("Error during Cypress tests execution: ${e.getMessage()}")
   } finally {
     podTemplates.rancherJavaAgent {
-      if (reportPortalUse && reportPortalClient != null) {
-        folioCypress.finalizeReportPortal(reportPortalClient)
-      }
-
-      if (!allureResultsList.isEmpty()) {
-        folioCypress.unpackAllureReport(allureResultsList)
-
-        container('java') {
-          folioCypress.generateAndPublishAllureReport(allureResultsList)
+      try {
+        if (reportPortalUse && reportPortalClient != null) {
+          folioCypress.finalizeReportPortal(reportPortalClient)
         }
-      }
 
-      testRunExecutionSummary = folioCypress.analyzeResults()
+        if (!allureResultsList.isEmpty()) {
+          folioCypress.unpackAllureReport(allureResultsList, allureRunDir)
+
+          container('java') {
+            folioCypress.generateAndPublishAllureReport(allureResultsList, allureRunDir)
+          }
+        }
+
+        testRunExecutionSummary = folioCypress.analyzeResults(allureRunDir)
+      } finally {
+        sh "rm -rf ${allureRunDir}"
+      }
     }
 
     if (recheckFailedTests && reportPortalUse && reportPortalClient != null && mainPhaseSucceeded

@@ -183,6 +183,8 @@ String createExecString(String ciBuildId, String browserName, String execParamet
     export CYPRESS_CACHE_FOLDER=\$(pwd)/cache
     export DISPLAY=:${screenId}
 
+    rm -rf allure-results
+
     mkdir -p /tmp/.X11-unix
     Xvfb \$DISPLAY -screen 0 1920x1080x24 &
     XVFB_PID=\$!
@@ -459,6 +461,8 @@ int runFailedTestsRecheck(String launchName, int numberOfRunners = 6, int timeou
                           
                           sh """#!/bin/bash
                             set -euo pipefail
+                            rm -rf allure-results
+
                             export HOME=\$(pwd)
                             export CYPRESS_CACHE_FOLDER=\$(pwd)/cache
                             export DISPLAY=:\$((10 + ${workerIndex}))
@@ -512,13 +516,18 @@ int runFailedTestsRecheck(String launchName, int numberOfRunners = 6, int timeou
  * @param stashesList The list of stashes to unpack. Must not be null or empty.
  * @throws IllegalArgumentException if stashesList is null or empty.
  */
-void unpackAllureReport(List stashesList) {
+void unpackAllureReport(List stashesList, String reportDir) {
   validateParameter(stashesList, 'Result paths')
+  validateParameter(reportDir, 'Report directory')
 
   stage('[Stash] Unpack report') {
-    for (stashName in stashesList) {
-      unstash name: stashName
-      sh "tar --one-top-level=${stashName} -zxf ${stashName}.tar.gz"
+    sh "rm -rf ${reportDir} && mkdir -p ${reportDir}"
+
+    dir(reportDir) {
+      for (stashName in stashesList) {
+        unstash name: stashName
+        sh "tar --one-top-level=${stashName} -zxf ${stashName}.tar.gz"
+      }
     }
   }
 }
@@ -531,34 +540,38 @@ void unpackAllureReport(List stashesList) {
  * @param resultPaths The list of result paths to generate the report from. Must not be null or empty.
  * @throws IllegalArgumentException if resultPaths is null or empty.
  */
-void generateAndPublishAllureReport(List resultPaths) {
+void generateAndPublishAllureReport(List resultPaths, String reportDir) {
   validateParameter(resultPaths, 'Result paths')
+  validateParameter(reportDir, 'Report directory')
 
   stage('[Allure] Generate and publish report') {
     def allureHome = tool type: 'allure', name: Constants.CYPRESS_ALLURE_VERSION
-    List allureResultPaths = resultPaths.collect { path -> "${path}/allure-results" }
-    List validPaths = allureResultPaths.findAll { path -> fileExists(path) }
 
-    if (validPaths.isEmpty()) {
-      error('No valid allure result paths found. Cannot generate report.')
-    }
+    dir(reportDir) {
+      List allureResultPaths = resultPaths.collect { path -> "${path}/allure-results" }
+      List validPaths = allureResultPaths.findAll { path -> fileExists(path) }
 
-    List missingPaths = allureResultPaths - validPaths
-    if (!missingPaths.isEmpty()) {
-      echo "Warning: Skipping ${missingPaths.size()} missing paths: ${missingPaths.join(', ')}"
-    }
+      if (validPaths.isEmpty()) {
+        error('No valid allure result paths found. Cannot generate report.')
+      }
 
-    echo "Processing ${validPaths.size()} result directories"
+      List missingPaths = allureResultPaths - validPaths
+      if (!missingPaths.isEmpty()) {
+        echo "Warning: Skipping ${missingPaths.size()} missing paths: ${missingPaths.join(', ')}"
+      }
 
-    sh "JAVA_TOOL_OPTIONS='-Xmx6G -Xms1G -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp -XX:MaxDirectMemorySize=1G -Djava.util.concurrent.ForkJoinPool.common.parallelism=2' ${allureHome}/bin/allure generate --clean ${validPaths.join(' ')}"
+      echo "Processing ${validPaths.size()} result directories"
 
-    withEnv(['JAVA_TOOL_OPTIONS=-Xmx8G -Xms1G -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp -XX:MaxDirectMemorySize=1G -Djava.util.concurrent.ForkJoinPool.common.parallelism=2']) {
-      allure([includeProperties: false,
-              jdk              : '',
-              commandline      : Constants.CYPRESS_ALLURE_VERSION,
-              properties       : [],
-              reportBuildPolicy: 'ALWAYS',
-              results          : validPaths.collect { path -> [path: path] }])
+      sh "JAVA_TOOL_OPTIONS='-Xmx6G -Xms1G -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp -XX:MaxDirectMemorySize=1G -Djava.util.concurrent.ForkJoinPool.common.parallelism=2' ${allureHome}/bin/allure generate --clean -o allure-report ${validPaths.join(' ')}"
+
+      withEnv(['JAVA_TOOL_OPTIONS=-Xmx8G -Xms1G -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp -XX:MaxDirectMemorySize=1G -Djava.util.concurrent.ForkJoinPool.common.parallelism=2']) {
+        allure([includeProperties: false,
+                jdk              : '',
+                commandline      : Constants.CYPRESS_ALLURE_VERSION,
+                properties       : [],
+                reportBuildPolicy: 'ALWAYS',
+                results          : validPaths.collect { path -> [path: path] }])
+      }
     }
   }
 }
@@ -570,11 +583,12 @@ void generateAndPublishAllureReport(List resultPaths) {
  *
  * @return The test run summary.
  */
-CypressRunExecutionSummary analyzeResults() {
+CypressRunExecutionSummary analyzeResults(String reportDir) {
+  validateParameter(reportDir, 'Report directory')
   stage('[Report] Analyze results') {
     CypressRunExecutionSummary testRunExecutionSummary
-    String suitesPath = "${env.WORKSPACE}/allure-report/data/suites.json"
-    String categoriesPath = "${env.WORKSPACE}/allure-report/data/categories.json"
+    String suitesPath = "${reportDir}/allure-report/data/suites.json"
+    String categoriesPath = "${reportDir}/allure-report/data/categories.json"
 
     Map jsonSuites = fileExists(suitesPath) ? readJSON(file: suitesPath) : [:]
     Map jsonDefects = fileExists(categoriesPath) ? readJSON(file: categoriesPath) : [:]
@@ -582,7 +596,7 @@ CypressRunExecutionSummary analyzeResults() {
     testRunExecutionSummary = CypressRunExecutionSummary.addFromJSON(jsonSuites)
     testRunExecutionSummary.addDefectsFromJSON(jsonDefects)
     return testRunExecutionSummary
-  }
+  } as CypressRunExecutionSummary
 }
 
 /**
