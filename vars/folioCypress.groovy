@@ -522,13 +522,19 @@ void unpackAllureReport(List stashesList, String reportDir) {
 
   stage('[Stash] Unpack report') {
     sh "rm -rf ${reportDir} && mkdir -p ${reportDir}"
+    echo "Unpacking ${stashesList.size()} stash(es) into: ${reportDir}"
 
-    dir(reportDir) {
-      for (stashName in stashesList) {
+    for (stashName in stashesList) {
+      try {
         unstash name: stashName
-        sh "tar --one-top-level=${stashName} -zxf ${stashName}.tar.gz"
+        sh "tar --one-top-level=${reportDir}/${stashName} -zxf ${stashName}.tar.gz && rm -f ${stashName}.tar.gz ${stashName}.tar.gz.md5"
+        echo "Unpacked: ${reportDir}/${stashName}"
+      } catch (Exception e) {
+        echo("Warning: Could not unpack ${stashName}: ${e.getMessage()}")
       }
     }
+
+    sh "echo 'Report dir contents:' && ls -la ${reportDir}/"
   }
 }
 
@@ -546,32 +552,31 @@ void generateAndPublishAllureReport(List resultPaths, String reportDir) {
 
   stage('[Allure] Generate and publish report') {
     def allureHome = tool type: 'allure', name: Constants.CYPRESS_ALLURE_VERSION
+    List allureResultPaths = resultPaths.collect { path -> "${reportDir}/${path}/allure-results" }
+    List validPaths = allureResultPaths.findAll { path -> fileExists(path) }
 
-    dir(reportDir) {
-      List allureResultPaths = resultPaths.collect { path -> "${path}/allure-results" }
-      List validPaths = allureResultPaths.findAll { path -> fileExists(path) }
+    echo "Run report dir: ${reportDir}"
+    echo "Expected result paths:\n  ${allureResultPaths.join('\n  ')}"
+    echo "Valid paths found: ${validPaths.size()} / ${allureResultPaths.size()}"
 
-      if (validPaths.isEmpty()) {
-        error('No valid allure result paths found. Cannot generate report.')
-      }
+    if (validPaths.isEmpty()) {
+      error('No valid allure result paths found. Cannot generate report.')
+    }
 
-      List missingPaths = allureResultPaths - validPaths
-      if (!missingPaths.isEmpty()) {
-        echo "Warning: Skipping ${missingPaths.size()} missing paths: ${missingPaths.join(', ')}"
-      }
+    List missingPaths = allureResultPaths - validPaths
+    if (!missingPaths.isEmpty()) {
+      echo "Warning: Skipping ${missingPaths.size()} missing paths: ${missingPaths.join(', ')}"
+    }
 
-      echo "Processing ${validPaths.size()} result directories"
+    sh "JAVA_TOOL_OPTIONS='-Xmx6G -Xms1G -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp -XX:MaxDirectMemorySize=1G -Djava.util.concurrent.ForkJoinPool.common.parallelism=2' ${allureHome}/bin/allure generate --clean ${validPaths.join(' ')}"
 
-      sh "JAVA_TOOL_OPTIONS='-Xmx6G -Xms1G -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp -XX:MaxDirectMemorySize=1G -Djava.util.concurrent.ForkJoinPool.common.parallelism=2' ${allureHome}/bin/allure generate --clean -o allure-report ${validPaths.join(' ')}"
-
-      withEnv(['JAVA_TOOL_OPTIONS=-Xmx8G -Xms1G -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp -XX:MaxDirectMemorySize=1G -Djava.util.concurrent.ForkJoinPool.common.parallelism=2']) {
-        allure([includeProperties: false,
-                jdk              : '',
-                commandline      : Constants.CYPRESS_ALLURE_VERSION,
-                properties       : [],
-                reportBuildPolicy: 'ALWAYS',
-                results          : validPaths.collect { path -> [path: path] }])
-      }
+    withEnv(['JAVA_TOOL_OPTIONS=-Xmx8G -Xms1G -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp -XX:MaxDirectMemorySize=1G -Djava.util.concurrent.ForkJoinPool.common.parallelism=2']) {
+      allure([includeProperties: false,
+              jdk              : '',
+              commandline      : Constants.CYPRESS_ALLURE_VERSION,
+              properties       : [],
+              reportBuildPolicy: 'ALWAYS',
+              results          : validPaths.collect { path -> [path: path] }])
     }
   }
 }
@@ -585,18 +590,20 @@ void generateAndPublishAllureReport(List resultPaths, String reportDir) {
  */
 CypressRunExecutionSummary analyzeResults(String reportDir) {
   validateParameter(reportDir, 'Report directory')
+  CypressRunExecutionSummary testRunExecutionSummary
+
   stage('[Report] Analyze results') {
-    CypressRunExecutionSummary testRunExecutionSummary
-    String suitesPath = "${reportDir}/allure-report/data/suites.json"
-    String categoriesPath = "${reportDir}/allure-report/data/categories.json"
+    String suitesPath = "${env.WORKSPACE}/allure-report/data/suites.json"
+    String categoriesPath = "${env.WORKSPACE}/allure-report/data/categories.json"
 
     Map jsonSuites = fileExists(suitesPath) ? readJSON(file: suitesPath) : [:]
     Map jsonDefects = fileExists(categoriesPath) ? readJSON(file: categoriesPath) : [:]
 
     testRunExecutionSummary = CypressRunExecutionSummary.addFromJSON(jsonSuites)
     testRunExecutionSummary.addDefectsFromJSON(jsonDefects)
-    return testRunExecutionSummary
-  } as CypressRunExecutionSummary
+  }
+
+  return testRunExecutionSummary
 }
 
 /**
