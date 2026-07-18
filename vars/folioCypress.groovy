@@ -415,9 +415,9 @@ int runFailedTestsRecheck(String launchName, int numberOfRunners = 6, int timeou
           // Distribute workers across pods (2 threads per pod)
           int threadsPerPod = 2
           int numberOfPods = Math.ceil(numberOfRunners / threadsPerPod)
-          
+
           def parallelPods = [failFast: false]
-          
+
           numberOfPods.times { int podIndex ->
             String podId = "recheck-pod-${podIndex}"
             parallelPods["Pod#${podId}"] = {
@@ -427,16 +427,16 @@ int runFailedTestsRecheck(String launchName, int numberOfRunners = 6, int timeou
                   container('cypress') {
                     // Clone the Cypress repo in each worker pod
                     cloneCypressRepo(env.BRANCH_NAME ?: 'master')
-                    
+
                     // Compile Cypress tests in the worker pod
                     compileCypressTests()
-                    
+
                     // Calculate worker indices for this pod
                     int startWorkerIndex = podIndex * threadsPerPod
                     int endWorkerIndex = Math.min(startWorkerIndex + threadsPerPod, workers.size())
-                    
+
                     def podWorkers = [failFast: false]
-                    
+
                     (startWorkerIndex..<endWorkerIndex).each { int workerIndex ->
                       String workerId = "recheck-${workerIndex}"
                       podWorkers["Worker#${workerId}"] = {
@@ -449,14 +449,14 @@ int runFailedTestsRecheck(String launchName, int numberOfRunners = 6, int timeou
                             export CYPRESS_OKAPI_HOST=\${CYPRESS_OKAPI_HOST}
                             export CYPRESS_OKAPI_TENANT=\${CYPRESS_OKAPI_TENANT}
                           """.stripIndent()
-                          
+
                           // Export all CYPRESS_*_login and CYPRESS_*_password variables
                           env.each { key, value ->
                             if (key.startsWith('CYPRESS_') && (key.endsWith('_login') || key.endsWith('_password'))) {
                               cypressEnvExports += "export ${key}=\${${key}}\n"
                             }
                           }
-                          
+
                           sh """#!/bin/bash
                             set -euo pipefail
                             export HOME=\$(pwd)
@@ -481,7 +481,7 @@ int runFailedTestsRecheck(String launchName, int numberOfRunners = 6, int timeou
                         }
                       }
                     }
-                    
+
                     parallel(podWorkers)
                   }
                 }
@@ -517,8 +517,12 @@ void unpackAllureReport(List stashesList) {
 
   stage('[Stash] Unpack report') {
     for (stashName in stashesList) {
-      unstash name: stashName
-      sh "tar --one-top-level=${stashName} -zxf ${stashName}.tar.gz"
+      try {
+        unstash name: stashName
+        sh "tar --one-top-level=${stashName} -zxf ${stashName}.tar.gz"
+      } catch (Exception e) {
+        echo("Warning: Could not unpack ${stashName} — the worker may have failed before archiving: ${e.getMessage()}")
+      }
     }
   }
 }

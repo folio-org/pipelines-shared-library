@@ -126,7 +126,6 @@ CypressRunExecutionSummary call(String ciBuildId, List<CypressTestsParameters> t
         def workers = [failFast: false]
         String runId = folioCypress.generateRandomId(3)
         testParams.ciBuildId = "${ciBuildId}-${runId}"
-        List localAllureResults = []
 
         execBatches.size().times { int batchIndex ->
           String workerId = "${runId}${batchIndex}"
@@ -158,10 +157,12 @@ CypressRunExecutionSummary call(String ciBuildId, List<CypressTestsParameters> t
                     testParams.testrailProjectID,
                     testParams.testrailRunID)
 
-                  String stashName = folioCypress.archiveTestResults(workerId)
-                  if (stashName) {
-                    localAllureResults.add(stashName)
-                  }
+                  // Archive and stash test results. Ref: RANCHER-3062
+                  // Stash name is deterministic (allure-results-${workerId})
+                  // so we reconstruct the list after parallel() instead of
+                  // capturing it via CPS closure variable, which gets lost
+                  // across CPS serialization boundaries.
+                  folioCypress.archiveTestResults(workerId)
                 }
               }
             }
@@ -172,7 +173,13 @@ CypressRunExecutionSummary call(String ciBuildId, List<CypressTestsParameters> t
           parallel(workers)
         }
 
-        allureResultsList.addAll(localAllureResults)
+        // Reconstruct stash names deterministically — see note above. Ref: RANCHER-3062
+        // Each workerId is "${runId}${batchIndex}" so the stash name is
+        // "allure-results-${runId}${batchIndex}".
+        execBatches.size().times { int batchIndex ->
+          String workerId = "${runId}${batchIndex}"
+          allureResultsList.add("allure-results-${workerId}")
+        }
       }
     }
     mainPhaseSucceeded = true
@@ -195,8 +202,7 @@ CypressRunExecutionSummary call(String ciBuildId, List<CypressTestsParameters> t
       testRunExecutionSummary = folioCypress.analyzeResults()
     }
 
-    if (recheckFailedTests && reportPortalUse && reportPortalClient != null && mainPhaseSucceeded
-      && testRunExecutionSummary != null && testRunExecutionSummary.getPassRate() > 80) {
+    if (recheckFailedTests && reportPortalUse && reportPortalClient != null && mainPhaseSucceeded && testRunExecutionSummary != null && testRunExecutionSummary.getPassRate() > 80) {
       // Run recheck for each tenant configuration
       testsToRun.each { CypressTestsParameters testParams ->
         retry(2) {
@@ -210,14 +216,14 @@ CypressRunExecutionSummary call(String ciBuildId, List<CypressTestsParameters> t
                   rm -rf ${cypressStash('archive')} ${cypressStash('checksum')}
                 """.stripIndent()
               }
-              
+
               // Set up environment for this tenant
               folioCypress.setupCommonEnvironmentVariables(testParams.tenantUrl,
                 testParams.okapiUrl,
                 testParams.tenant.tenantId,
                 testParams.tenant.adminUser.username,
                 testParams.tenant.adminUser.getPasswordPlainText())
-              
+
               flakyCount = folioCypress.runFailedTestsRecheck(ciBuildId, numberOfRecheckRunners)
             }
           }
