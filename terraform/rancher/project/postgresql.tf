@@ -679,16 +679,6 @@ resource "kubernetes_deployment_v1" "pg_mcp_server" {
       }
 
       spec {
-        # Honour QA-namespace node scheduling (cicypress/cikarate/cypress)
-        dynamic "node_selector" {
-          for_each = local.schedule_value != "" ? [1] : []
-          content {
-            # populated via local.schedule_value Helm values block — replicated manually here
-            # If schedule_value targets specific nodes, mirror that selector key/value here.
-            # For most environments this block is empty and pods run on any node.
-          }
-        }
-
         container {
           name              = "pg-mcp-server"
           image             = "732722833398.dkr.ecr.us-west-2.amazonaws.com/db-mcp:latest"
