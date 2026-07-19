@@ -44,9 +44,12 @@ import asyncio
 import json
 import logging
 import os
+import re
 import secrets
 import textwrap
+import time
 from contextlib import asynccontextmanager
+from threading import Lock as ThreadLock
 from typing import Any
 
 import asyncpg
@@ -69,6 +72,9 @@ logging.basicConfig(
     format="%(asctime)s  %(levelname)-8s  %(name)s  %(message)s",
 )
 log = logging.getLogger("db-mcp")
+# Separate audit logger — wire this to a separate sink (CloudWatch, Splunk, etc.)
+# if you need tamper-evident audit trails. At minimum it is searchable in pod logs.
+_audit_log = logging.getLogger("db-mcp.audit")
 
 # ---------------------------------------------------------------------------
 # Configuration
@@ -94,24 +100,129 @@ if not _MCP_TOKEN:
     )
 
 # ---------------------------------------------------------------------------
-# Database helpers
+# Input validation helpers
 # ---------------------------------------------------------------------------
 
-def _get_rds_iam_password() -> str:
-    """Generate a temporary RDS IAM auth token (valid 15 min)."""
-    client = boto3.client("rds", region_name=AWS_REGION)
-    token = client.generate_db_auth_token(
-        DBHostname=PGHOST,
-        Port=PGPORT,
-        DBUsername=PGUSER,
-        Region=AWS_REGION,
+# PostgreSQL maximum identifier length is 63 bytes (NAMEDATALEN - 1).
+_IDENT_RE = re.compile(r"^[a-zA-Z_][a-zA-Z0-9_$]*$")
+_IDENT_MAX_LEN = 63
+
+
+def _safe_ident(value: str, field: str = "identifier") -> str:
+    """Validate *value* as a safe PostgreSQL identifier (schema/table/role/db name).
+
+    Raises ValueError if the value contains characters that could cause SQL
+    injection when interpolated into identifier positions (where $1 params
+    cannot be used).  Returns the value unchanged when valid.
+
+    >>> _safe_ident("public")
+    'public'
+    >>> _safe_ident("my_table")
+    'my_table'
+    >>> _safe_ident("'; DROP TABLE users; --")
+    ValueError: Invalid identifier ...
+    """
+    if not isinstance(value, str):
+        raise ValueError(f"{field} must be a string, got {type(value).__name__}")
+    if not value:
+        raise ValueError(f"{field} must not be empty")
+    if len(value) > _IDENT_MAX_LEN:
+        raise ValueError(
+            f"{field} exceeds maximum PostgreSQL identifier length of "
+            f"{_IDENT_MAX_LEN} characters (got {len(value)})"
+        )
+    if not _IDENT_RE.match(value):
+        raise ValueError(
+            f"Invalid {field}: {value!r}. "
+            "Identifiers must match [a-zA-Z_][a-zA-Z0-9_$]* "
+            "(no spaces, quotes, semicolons, or other special characters)."
+        )
+    return value
+
+
+def _safe_int(
+    value: Any,
+    field: str,
+    min_val: int | None = None,
+    max_val: int | None = None,
+) -> int:
+    """Coerce *value* to int and validate against optional range bounds.
+
+    Raises ValueError with a descriptive message on any failure.
+    """
+    try:
+        v = int(value)
+    except (TypeError, ValueError):
+        raise ValueError(f"{field} must be an integer, got {value!r}")
+    if min_val is not None and v < min_val:
+        raise ValueError(f"{field} must be >= {min_val}, got {v}")
+    if max_val is not None and v > max_val:
+        raise ValueError(f"{field} must be <= {max_val}, got {v}")
+    return v
+
+
+def _audit(operation: str, params: dict[str, Any], result: str = "ok") -> None:
+    """Emit a structured audit log entry for destructive / privileged operations.
+
+    Format is intentionally machine-parseable so log aggregators (CloudWatch
+    Insights, Splunk, etc.) can create alerts on unexpected destructive actions.
+    """
+    _audit_log.warning(
+        "AUDIT op=%s params=%s result=%s",
+        operation,
+        json.dumps(params, default=str),
+        result,
     )
-    log.info("RDS IAM auth token refreshed")
-    return token
 
 
-async def _get_pool(database: str = PGDATABASE) -> asyncpg.Pool:
-    """Create a short-lived connection pool for one operation."""
+# ---------------------------------------------------------------------------
+# IAM auth token cache
+# ---------------------------------------------------------------------------
+# RDS IAM auth tokens are valid for 15 minutes.  We cache with a 12-minute TTL
+# to avoid expiry mid-connection while keeping boto3 calls to a minimum.
+
+_IAM_TOKEN_TTL_SECONDS = 720  # 12 min
+_iam_token: dict[str, Any] = {"value": None, "expires_at": 0.0}
+_iam_token_lock = ThreadLock()  # boto3 is synchronous; ThreadLock is appropriate
+
+
+def _get_rds_iam_password() -> str:
+    """Return a valid RDS IAM auth token, refreshing if expired or not yet fetched.
+
+    Thread-safe: uses a threading.Lock so that concurrent FastAPI worker threads
+    (if any) do not each trigger a boto3 call simultaneously.
+    """
+    with _iam_token_lock:
+        if _iam_token["value"] and time.monotonic() < _iam_token["expires_at"]:
+            return _iam_token["value"]  # type: ignore[return-value]
+        client = boto3.client("rds", region_name=AWS_REGION)
+        token: str = client.generate_db_auth_token(
+            DBHostname=PGHOST,
+            Port=PGPORT,
+            DBUsername=PGUSER,
+            Region=AWS_REGION,
+        )
+        _iam_token["value"] = token
+        _iam_token["expires_at"] = time.monotonic() + _IAM_TOKEN_TTL_SECONDS
+        log.info("RDS IAM auth token refreshed (TTL=%ds)", _IAM_TOKEN_TTL_SECONDS)
+        return token
+
+
+# ---------------------------------------------------------------------------
+# Connection pool management
+# ---------------------------------------------------------------------------
+# Pools are created once at startup (or on first use of a non-default database)
+# and reused for the lifetime of the process.  A per-database pool dict allows
+# agents to query secondary databases without paying pool-creation overhead.
+
+_pools: dict[str, asyncpg.Pool] = {}
+# asyncio.Lock must be created inside a running event loop, so we initialise it
+# in the lifespan context manager below rather than at module level.
+_pool_creation_lock: asyncio.Lock
+
+
+async def _build_pool(database: str) -> asyncpg.Pool:
+    """Create a new asyncpg pool for *database*."""
     password = _get_rds_iam_password() if USE_IAM_AUTH else PGPASSWORD
     ssl_ctx: Any = "require" if USE_IAM_AUTH else None
     return await asyncpg.create_pool(
@@ -127,26 +238,47 @@ async def _get_pool(database: str = PGDATABASE) -> asyncpg.Pool:
     )
 
 
-async def _query(sql: str, database: str = PGDATABASE) -> list[dict]:
-    """Execute *sql* and return rows as a list of dicts."""
-    pool = await _get_pool(database)
-    try:
-        async with pool.acquire() as conn:
-            rows = await conn.fetch(sql)
-            return [dict(r) for r in rows]
-    finally:
-        await pool.close()
+async def _get_pool(database: str = PGDATABASE) -> asyncpg.Pool:
+    """Return a live pool for *database*, creating one lazily if needed.
+
+    Double-checked locking prevents redundant pool creation when multiple
+    coroutines request the same new database concurrently (the check before the
+    lock is a fast-path; the check inside the lock is the authoritative guard).
+    """
+    # Fast path — no lock needed for a database we've already pooled
+    if database in _pools:
+        return _pools[database]
+    # Slow path — need to create a new pool; serialise creation
+    async with _pool_creation_lock:
+        if database not in _pools:  # re-check inside lock (another coroutine may have won)
+            log.info("Creating new connection pool for database=%s", database)
+            _pools[database] = await _build_pool(database)
+        return _pools[database]
 
 
-async def _execute(sql: str, database: str = PGDATABASE) -> str:
-    """Execute a DML/DDL statement and return the command tag."""
+# ---------------------------------------------------------------------------
+# Database helpers
+# ---------------------------------------------------------------------------
+
+async def _query(sql: str, *params: Any, database: str = PGDATABASE) -> list[dict]:
+    """Execute *sql* with positional *params* and return rows as a list of dicts.
+
+    Use $1, $2, … placeholders in *sql* for value-position parameters.
+    Identifier-position values (table/schema names) must be pre-validated with
+    _safe_ident() before interpolation.
+    """
     pool = await _get_pool(database)
-    try:
-        async with pool.acquire() as conn:
-            result = await conn.execute(sql)
-            return str(result)
-    finally:
-        await pool.close()
+    async with pool.acquire() as conn:
+        rows = await conn.fetch(sql, *params)
+        return [dict(r) for r in rows]
+
+
+async def _execute(sql: str, *params: Any, database: str = PGDATABASE) -> str:
+    """Execute a DML/DDL statement with positional *params* and return the command tag."""
+    pool = await _get_pool(database)
+    async with pool.acquire() as conn:
+        result = await conn.execute(sql, *params)
+        return str(result)
 
 
 def _rows_to_text(rows: list[dict]) -> str:
@@ -494,9 +626,9 @@ async def _dispatch(name: str, args: dict) -> str:  # noqa: C901  (complex but i
         if first_word not in read_only_prefixes and not allow_write:
             return "BLOCKED: Non-SELECT statement requires allow_write=true."
         if first_word in {"SELECT", "WITH", "TABLE", "EXPLAIN", "SHOW"}:
-            rows = await _query(sql, db)
+            rows = await _query(sql, database=db)
             return _rows_to_text(rows)
-        tag = await _execute(sql, db)
+        tag = await _execute(sql, database=db)
         return f"OK: {tag}"
 
     # ── explain_query ──────────────────────────────────────────────────────
@@ -513,7 +645,7 @@ async def _dispatch(name: str, args: dict) -> str:  # noqa: C901  (complex but i
         options.append(f"FORMAT {fmt}")
         opts_str = ", ".join(options)
         explain_sql = f"EXPLAIN ({opts_str}) {sql}"
-        rows = await _query(explain_sql, db)
+        rows = await _query(explain_sql, database=db)
         if fmt == "JSON":
             return json.dumps([dict(r) for r in rows], indent=2, default=str)
         return "\n".join(str(list(r.values())[0]) for r in rows)
@@ -524,7 +656,7 @@ async def _dispatch(name: str, args: dict) -> str:  # noqa: C901  (complex but i
             "SELECT datname, pg_catalog.pg_encoding_to_char(encoding) AS encoding, "
             "datcollate, datctype, pg_size_pretty(pg_database_size(datname)) AS size "
             "FROM pg_catalog.pg_database ORDER BY datname;",
-            db,
+            database=db,
         )
         return _rows_to_text(rows)
 
@@ -533,53 +665,65 @@ async def _dispatch(name: str, args: dict) -> str:  # noqa: C901  (complex but i
         rows = await _query(
             "SELECT schema_name, schema_owner "
             "FROM information_schema.schemata ORDER BY schema_name;",
-            db,
+            database=db,
         )
         return _rows_to_text(rows)
 
     # ── list_tables ────────────────────────────────────────────────────────
     elif name == "list_tables":
-        schema = args.get("schema", "public")
+        # schema is an identifier here but the WHERE clause filters a text
+        # column value, so we use a $1 parameter for the actual comparison.
+        # _safe_ident() is still called to ensure no unintended characters are
+        # passed in (belt-and-suspenders: the $1 param is the true guard).
+        schema = _safe_ident(args.get("schema", "public"), "schema")
         rows = await _query(
-            f"SELECT table_name, table_type "
-            f"FROM information_schema.tables "
-            f"WHERE table_schema = '{schema}' ORDER BY table_type, table_name;",
-            db,
+            "SELECT table_name, table_type "
+            "FROM information_schema.tables "
+            "WHERE table_schema = $1 ORDER BY table_type, table_name;",
+            schema,
+            database=db,
         )
         return _rows_to_text(rows)
 
     # ── describe_table ─────────────────────────────────────────────────────
     elif name == "describe_table":
-        table = args["table"]
-        schema = args.get("schema", "public")
+        table = _safe_ident(args["table"], "table")
+        schema = _safe_ident(args.get("schema", "public"), "schema")
+        # All three queries use $1/$2 parameters for the WHERE clause values;
+        # the pg_indexes JOIN uses the validated identifiers only in the SELECT
+        # target, not user-controlled WHERE clauses.
         cols = await _query(
-            textwrap.dedent(f"""
+            textwrap.dedent("""
                 SELECT column_name, data_type, character_maximum_length,
                        is_nullable, column_default
                 FROM information_schema.columns
-                WHERE table_schema = '{schema}' AND table_name = '{table}'
+                WHERE table_schema = $1 AND table_name = $2
                 ORDER BY ordinal_position;
             """),
-            db,
+            schema, table,
+            database=db,
         )
         idx = await _query(
-            textwrap.dedent(f"""
-                SELECT indexname, indexdef, indisprimary, indisunique
+            textwrap.dedent("""
+                SELECT indexname, indexdef,
+                       indisprimary, indisunique
                 FROM pg_indexes
                 JOIN pg_index ON pg_indexes.indexname = (
                     SELECT relname FROM pg_class WHERE oid = pg_index.indexrelid
                 )
-                WHERE schemaname = '{schema}' AND tablename = '{table}';
+                WHERE schemaname = $1 AND tablename = $2;
             """),
-            db,
+            schema, table,
+            database=db,
         )
         con = await _query(
-            textwrap.dedent(f"""
+            textwrap.dedent("""
                 SELECT constraint_name, constraint_type
                 FROM information_schema.table_constraints
-                WHERE table_schema = '{schema}' AND table_name = '{table}';
+                WHERE table_schema = $1 AND table_name = $2;
             """),
-            db,
+            schema, table,
+            database=db,
         )
         out = ["=== COLUMNS ===", _rows_to_text(cols),
                "\n=== INDEXES ===", _rows_to_text(idx),
@@ -588,36 +732,56 @@ async def _dispatch(name: str, args: dict) -> str:  # noqa: C901  (complex but i
 
     # ── table_stats ────────────────────────────────────────────────────────
     elif name == "table_stats":
-        schema = args.get("schema", "public")
-        table_filter = f"AND relname = '{args['table']}'" if args.get("table") else ""
-        rows = await _query(
-            textwrap.dedent(f"""
-                SELECT schemaname, relname AS table_name,
-                       seq_scan, seq_tup_read, idx_scan, idx_tup_fetch,
-                       n_tup_ins, n_tup_upd, n_tup_del,
-                       n_live_tup, n_dead_tup,
-                       last_autovacuum, last_autoanalyze
-                FROM pg_stat_user_tables
-                WHERE schemaname = '{schema}' {table_filter}
-                ORDER BY n_dead_tup DESC;
-            """),
-            db,
-        )
+        schema = _safe_ident(args.get("schema", "public"), "schema")
+        # table name is optional; validate only when provided
+        table_raw: str | None = args.get("table")
+        if table_raw is not None:
+            table_val = _safe_ident(table_raw, "table")
+            rows = await _query(
+                textwrap.dedent("""
+                    SELECT schemaname, relname AS table_name,
+                           seq_scan, seq_tup_read, idx_scan, idx_tup_fetch,
+                           n_tup_ins, n_tup_upd, n_tup_del,
+                           n_live_tup, n_dead_tup,
+                           last_autovacuum, last_autoanalyze
+                    FROM pg_stat_user_tables
+                    WHERE schemaname = $1 AND relname = $2
+                    ORDER BY n_dead_tup DESC;
+                """),
+                schema, table_val,
+                database=db,
+            )
+        else:
+            rows = await _query(
+                textwrap.dedent("""
+                    SELECT schemaname, relname AS table_name,
+                           seq_scan, seq_tup_read, idx_scan, idx_tup_fetch,
+                           n_tup_ins, n_tup_upd, n_tup_del,
+                           n_live_tup, n_dead_tup,
+                           last_autovacuum, last_autoanalyze
+                    FROM pg_stat_user_tables
+                    WHERE schemaname = $1
+                    ORDER BY n_dead_tup DESC;
+                """),
+                schema,
+                database=db,
+            )
         return _rows_to_text(rows)
 
     # ── index_stats ────────────────────────────────────────────────────────
     elif name == "index_stats":
-        schema = args.get("schema", "public")
+        schema = _safe_ident(args.get("schema", "public"), "schema")
         rows = await _query(
-            textwrap.dedent(f"""
+            textwrap.dedent("""
                 SELECT relname AS table_name, indexrelname AS index_name,
                        idx_scan, idx_tup_read, idx_tup_fetch,
                        pg_size_pretty(pg_relation_size(indexrelid)) AS index_size
                 FROM pg_stat_user_indexes
-                WHERE schemaname = '{schema}'
+                WHERE schemaname = $1
                 ORDER BY idx_scan ASC;
             """),
-            db,
+            schema,
+            database=db,
         )
         return _rows_to_text(rows)
 
@@ -643,57 +807,65 @@ async def _dispatch(name: str, args: dict) -> str:  # noqa: C901  (complex but i
                 JOIN pg_stat_activity AS blocking ON blocking.pid = blocking_l.pid
                 ORDER BY blocked_duration DESC NULLS LAST;
             """),
-            db,
+            database=db,
         )
         return _rows_to_text(rows)
 
     # ── long_running_queries ───────────────────────────────────────────────
     elif name == "long_running_queries":
-        min_sec = args.get("min_seconds", 30)
+        min_sec = _safe_int(args.get("min_seconds", 30), "min_seconds", min_val=0)
         rows = await _query(
-            textwrap.dedent(f"""
+            textwrap.dedent("""
                 SELECT pid, usename, datname, state,
                        now() - query_start AS duration,
                        left(query, 200) AS query_snippet
                 FROM pg_stat_activity
                 WHERE state != 'idle'
                   AND query_start IS NOT NULL
-                  AND now() - query_start > interval '{min_sec} seconds'
+                  AND extract(epoch from (now() - query_start)) > $1
                 ORDER BY duration DESC;
             """),
-            db,
+            min_sec,
+            database=db,
         )
         return _rows_to_text(rows)
 
     # ── vacuum_table ───────────────────────────────────────────────────────
     elif name == "vacuum_table":
-        table = args["table"]
-        schema = args.get("schema", "public")
+        table = _safe_ident(args["table"], "table")
+        schema = _safe_ident(args.get("schema", "public"), "schema")
+        full = bool(args.get("full", False))
+        analyze = bool(args.get("analyze", False))
         opts = []
-        if args.get("full"):
+        if full:
             opts.append("FULL")
-        if args.get("analyze"):
+        if analyze:
             opts.append("ANALYZE")
         opts_str = f"({', '.join(opts)})" if opts else ""
+        # VACUUM/ANALYZE/REINDEX do not support $1 params for table names —
+        # identifier validation via _safe_ident() is the correct mitigation.
         sql = f"VACUUM {opts_str} {schema}.{table};"
-        tag = await _execute(sql, db)
+        if full:
+            _audit("vacuum_full", {"schema": schema, "table": table, "database": db})
+        tag = await _execute(sql, database=db)
         return f"OK: {tag}"
 
     # ── analyze_table ──────────────────────────────────────────────────────
     elif name == "analyze_table":
-        schema = args.get("schema", "public")
+        schema = _safe_ident(args.get("schema", "public"), "schema")
         if args.get("table"):
-            sql = f"ANALYZE {schema}.{args['table']};"
+            table = _safe_ident(args["table"], "table")
+            sql = f"ANALYZE {schema}.{table};"
         else:
             sql = "ANALYZE;"
-        tag = await _execute(sql, db)
+        tag = await _execute(sql, database=db)
         return f"OK: {tag}"
 
     # ── reindex_table ──────────────────────────────────────────────────────
     elif name == "reindex_table":
-        table = args["table"]
-        schema = args.get("schema", "public")
-        tag = await _execute(f"REINDEX TABLE {schema}.{table};", db)
+        table = _safe_ident(args["table"], "table")
+        schema = _safe_ident(args.get("schema", "public"), "schema")
+        tag = await _execute(f"REINDEX TABLE {schema}.{table};", database=db)
         return f"OK: {tag}"
 
     # ── replication_status ─────────────────────────────────────────────────
@@ -702,13 +874,13 @@ async def _dispatch(name: str, args: dict) -> str:  # noqa: C901  (complex but i
             "SELECT client_addr, usename, application_name, state, "
             "sent_lsn, write_lsn, flush_lsn, replay_lsn, sync_state "
             "FROM pg_stat_replication ORDER BY client_addr;",
-            db,
+            database=db,
         )
         slots = await _query(
             "SELECT slot_name, plugin, slot_type, database, active, "
             "pg_size_pretty(pg_wal_lsn_diff(pg_current_wal_lsn(), confirmed_flush_lsn)) AS lag "
             "FROM pg_replication_slots ORDER BY slot_name;",
-            db,
+            database=db,
         )
         return "\n=== REPLICATION CONNECTIONS ===\n" + _rows_to_text(repl) + \
                "\n\n=== REPLICATION SLOTS ===\n" + _rows_to_text(slots)
@@ -719,50 +891,68 @@ async def _dispatch(name: str, args: dict) -> str:  # noqa: C901  (complex but i
             "SELECT rolname, rolsuper, rolinherit, rolcreaterole, rolcreatedb, "
             "rolcanlogin, rolreplication, rolconnlimit "
             "FROM pg_roles ORDER BY rolname;",
-            db,
+            database=db,
         )
         return _rows_to_text(rows)
 
     # ── create_role ────────────────────────────────────────────────────────
     elif name == "create_role":
-        role = args["role_name"]
+        role = _safe_ident(args["role_name"], "role_name")
         attrs = []
         attrs.append("LOGIN" if args.get("login", True) else "NOLOGIN")
         if args.get("superuser"):
             attrs.append("SUPERUSER")
         if args.get("create_db"):
             attrs.append("CREATEDB")
+        # Two-step approach: CREATE ROLE sets structural attributes (no password
+        # in the DDL string), then ALTER ROLE uses a $1 parameter for the
+        # password so it never appears in the query string or server logs.
+        create_sql = f"CREATE ROLE {role} {' '.join(attrs)};"
+        tag = await _execute(create_sql, database=db)
         if args.get("password"):
-            attrs.append(f"PASSWORD '{args['password']}'")
-        sql = f"CREATE ROLE {role} {' '.join(attrs)};"
-        tag = await _execute(sql, db)
+            await _execute(
+                f"ALTER ROLE {role} PASSWORD $1;",
+                args["password"],
+                database=db,
+            )
+        _audit("create_role", {"role": role, "attrs": attrs, "has_password": bool(args.get("password"))})
         return f"OK: {tag}"
 
     # ── drop_role ──────────────────────────────────────────────────────────
     elif name == "drop_role":
-        tag = await _execute(f"DROP ROLE IF EXISTS {args['role_name']};", db)
+        role = _safe_ident(args["role_name"], "role_name")
+        _audit("drop_role", {"role": role})
+        tag = await _execute(f"DROP ROLE IF EXISTS {role};", database=db)
         return f"OK: {tag}"
 
     # ── create_database ────────────────────────────────────────────────────
     elif name == "create_database":
-        sql = f"CREATE DATABASE {args['db_name']}"
+        db_name = _safe_ident(args["db_name"], "db_name")
+        sql = f"CREATE DATABASE {db_name}"
+        owner_params: dict[str, Any] = {"db_name": db_name}
         if args.get("owner"):
-            sql += f" OWNER {args['owner']}"
+            owner = _safe_ident(args["owner"], "owner")
+            sql += f" OWNER {owner}"
+            owner_params["owner"] = owner
         sql += ";"
-        tag = await _execute(sql, "postgres")
+        _audit("create_database", owner_params)
+        tag = await _execute(sql, database="postgres")
         return f"OK: {tag}"
 
     # ── drop_database ──────────────────────────────────────────────────────
     elif name == "drop_database":
-        name_ = args["db_name"]
+        name_ = _safe_ident(args["db_name"], "db_name")
         force = args.get("force", False)
+        _audit("drop_database", {"db_name": name_, "force": force})
         if force:
+            # datname comparison uses a $1 parameter (value position → safe)
             await _execute(
-                f"SELECT pg_terminate_backend(pid) FROM pg_stat_activity "
-                f"WHERE datname = '{name_}' AND pid <> pg_backend_pid();",
-                "postgres",
+                "SELECT pg_terminate_backend(pid) FROM pg_stat_activity "
+                "WHERE datname = $1 AND pid <> pg_backend_pid();",
+                name_,
+                database="postgres",
             )
-        tag = await _execute(f"DROP DATABASE IF EXISTS {name_};", "postgres")
+        tag = await _execute(f"DROP DATABASE IF EXISTS {name_};", database="postgres")
         return f"OK: {tag}"
 
     # ── list_extensions ────────────────────────────────────────────────────
@@ -770,24 +960,24 @@ async def _dispatch(name: str, args: dict) -> str:  # noqa: C901  (complex but i
         installed = await _query(
             "SELECT extname, extversion, obj_description(oid, 'pg_extension') AS description "
             "FROM pg_extension ORDER BY extname;",
-            db,
+            database=db,
         )
         result = "=== INSTALLED EXTENSIONS ===\n" + _rows_to_text(installed)
         if args.get("available"):
             avail = await _query(
                 "SELECT name, default_version, comment FROM pg_available_extensions "
                 "ORDER BY name;",
-                db,
+                database=db,
             )
             result += "\n\n=== AVAILABLE EXTENSIONS ===\n" + _rows_to_text(avail)
         return result
 
     # ── table_bloat ────────────────────────────────────────────────────────
     elif name == "table_bloat":
-        schema = args.get("schema", "public")
-        min_dead = args.get("min_dead_tuples", 10000)
+        schema = _safe_ident(args.get("schema", "public"), "schema")
+        min_dead = _safe_int(args.get("min_dead_tuples", 10000), "min_dead_tuples", min_val=0)
         rows = await _query(
-            textwrap.dedent(f"""
+            textwrap.dedent("""
                 SELECT schemaname, relname AS table_name,
                        n_dead_tup AS dead_tuples,
                        n_live_tup AS live_tuples,
@@ -798,39 +988,41 @@ async def _dispatch(name: str, args: dict) -> str:  # noqa: C901  (complex but i
                        pg_size_pretty(pg_total_relation_size(relid)) AS total_size,
                        last_autovacuum, last_vacuum
                 FROM pg_stat_user_tables
-                WHERE schemaname = '{schema}'
-                  AND n_dead_tup >= {min_dead}
+                WHERE schemaname = $1
+                  AND n_dead_tup >= $2
                 ORDER BY n_dead_tup DESC;
             """),
-            db,
+            schema, min_dead,
+            database=db,
         )
         return _rows_to_text(rows)
 
     # ── missing_indexes ────────────────────────────────────────────────────
     elif name == "missing_indexes":
-        min_scans = args.get("min_seq_scans", 100)
+        min_scans = _safe_int(args.get("min_seq_scans", 100), "min_seq_scans", min_val=0)
         rows = await _query(
-            textwrap.dedent(f"""
+            textwrap.dedent("""
                 SELECT schemaname, relname AS table_name,
                        seq_scan, seq_tup_read,
                        idx_scan,
                        pg_size_pretty(pg_relation_size(relid)) AS table_size,
                        round(seq_scan::numeric / NULLIF(idx_scan, 0), 2) AS seq_to_idx_ratio
                 FROM pg_stat_user_tables
-                WHERE seq_scan > {min_scans}
+                WHERE seq_scan > $1
                   AND (idx_scan IS NULL OR seq_scan > idx_scan * 2)
                 ORDER BY seq_tup_read DESC;
             """),
-            db,
+            min_scans,
+            database=db,
         )
         return _rows_to_text(rows)
 
     # ── unused_indexes ─────────────────────────────────────────────────────
     elif name == "unused_indexes":
-        schema = args.get("schema", "public")
-        max_scans = args.get("max_idx_scans", 0)
+        schema = _safe_ident(args.get("schema", "public"), "schema")
+        max_scans = _safe_int(args.get("max_idx_scans", 0), "max_idx_scans", min_val=0)
         rows = await _query(
-            textwrap.dedent(f"""
+            textwrap.dedent("""
                 SELECT s.schemaname, s.relname AS table_name, s.indexrelname AS index_name,
                        s.idx_scan, pg_size_pretty(pg_relation_size(s.indexrelid)) AS index_size,
                        i.indexdef
@@ -839,12 +1031,13 @@ async def _dispatch(name: str, args: dict) -> str:  # noqa: C901  (complex but i
                     ON i.schemaname = s.schemaname
                     AND i.tablename = s.relname
                     AND i.indexname = s.indexrelname
-                WHERE s.schemaname = '{schema}'
-                  AND s.idx_scan <= {max_scans}
+                WHERE s.schemaname = $1
+                  AND s.idx_scan <= $2
                   AND NOT i.indexdef LIKE '%UNIQUE%'
                 ORDER BY pg_relation_size(s.indexrelid) DESC;
             """),
-            db,
+            schema, max_scans,
+            database=db,
         )
         return _rows_to_text(rows)
 
@@ -853,15 +1046,15 @@ async def _dispatch(name: str, args: dict) -> str:  # noqa: C901  (complex but i
         rows = await _query(
             "SELECT datname, pg_size_pretty(pg_database_size(datname)) AS size "
             "FROM pg_database ORDER BY pg_database_size(datname) DESC;",
-            db,
+            database=db,
         )
         return _rows_to_text(rows)
 
     # ── table_sizes ────────────────────────────────────────────────────────
     elif name == "table_sizes":
-        schema = args.get("schema", "public")
+        schema = _safe_ident(args.get("schema", "public"), "schema")
         rows = await _query(
-            textwrap.dedent(f"""
+            textwrap.dedent("""
                 SELECT table_schema, table_name,
                        pg_size_pretty(pg_total_relation_size(
                            quote_ident(table_schema) || '.' || quote_ident(table_name)
@@ -876,13 +1069,14 @@ async def _dispatch(name: str, args: dict) -> str:  # noqa: C901  (complex but i
                                quote_ident(table_schema) || '.' || quote_ident(table_name))
                        ) AS index_size
                 FROM information_schema.tables
-                WHERE table_schema = '{schema}'
+                WHERE table_schema = $1
                   AND table_type = 'BASE TABLE'
                 ORDER BY pg_total_relation_size(
                     quote_ident(table_schema) || '.' || quote_ident(table_name)
                 ) DESC;
             """),
-            db,
+            schema,
+            database=db,
         )
         return _rows_to_text(rows)
 
@@ -910,7 +1104,7 @@ async def _dispatch(name: str, args: dict) -> str:  # noqa: C901  (complex but i
                     )
                 FROM pg_statio_user_indexes;
             """),
-            db,
+            database=db,
         )
         return _rows_to_text(rows)
 
@@ -922,7 +1116,7 @@ async def _dispatch(name: str, args: dict) -> str:  # noqa: C901  (complex but i
             "buffers_checkpoint, buffers_clean, buffers_backend, "
             "buffers_alloc, stats_reset "
             "FROM pg_stat_bgwriter;",
-            db,
+            database=db,
         )
         return _rows_to_text(rows)
 
@@ -936,16 +1130,18 @@ async def _dispatch(name: str, args: dict) -> str:  # noqa: C901  (complex but i
                 GROUP BY usename, datname, state
                 ORDER BY connections DESC;
             """),
-            db,
+            database=db,
         )
         return _rows_to_text(rows)
 
     # ── kill_query ─────────────────────────────────────────────────────────
     elif name == "kill_query":
-        pid = args["pid"]
+        # PostgreSQL PIDs are OS PIDs; valid range on Linux is 1–4194304.
+        pid = _safe_int(args["pid"], "pid", min_val=1, max_val=4_194_304)
         cancel_only = args.get("cancel_only", False)
         fn = "pg_cancel_backend" if cancel_only else "pg_terminate_backend"
-        rows = await _query(f"SELECT {fn}({pid}) AS result;", db)
+        _audit("kill_query", {"pid": pid, "cancel_only": cancel_only})
+        rows = await _query(f"SELECT {fn}($1) AS result;", pid, database=db)
         return _rows_to_text(rows)
 
     else:
@@ -972,12 +1168,25 @@ async def handle_sse(request: Request):
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):  # noqa: ARG001
+    global _pool_creation_lock
+    # asyncio.Lock must be created inside a running event loop
+    _pool_creation_lock = asyncio.Lock()
+    # Pre-warm the default database pool so the first request is not slow
+    _pools[PGDATABASE] = await _build_pool(PGDATABASE)
     log.info(
-        "db-mcp starting — host=%s port=%s db=%s use_iam=%s",
+        "db-mcp started — host=%s port=%s db=%s use_iam=%s",
         PGHOST, PGPORT, PGDATABASE, USE_IAM_AUTH,
     )
     yield
-    log.info("db-mcp shutting down")
+    # Gracefully close all pools on shutdown
+    for pool_db, pool in list(_pools.items()):
+        try:
+            await pool.close()
+            log.info("Connection pool closed for database=%s", pool_db)
+        except Exception:  # noqa: BLE001
+            log.warning("Error closing pool for database=%s", pool_db, exc_info=True)
+    _pools.clear()
+    log.info("db-mcp shut down — all pools closed")
 
 
 app = FastAPI(lifespan=lifespan, title="db-mcp", version="1.0.0")
