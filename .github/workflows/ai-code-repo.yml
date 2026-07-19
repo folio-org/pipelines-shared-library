@@ -48,4 +48,7 @@ jobs:
       repo: ${{ github.event.repository.name }}
     secrets:
       ai_pr_reviewer: ${{ secrets.AI_PR_REVIEWER }}
-      gh_token: ${{ github.token }}
+      # Use secrets.GITHUB_TOKEN (not github.token) — the latter evaluates to
+      # an empty string in the secrets: block of workflow_call callers on some
+      # GitHub Actions runner versions.
+      gh_token: ${{ secrets.GITHUB_TOKEN }}
