@@ -70,7 +70,6 @@ CypressRunExecutionSummary call(String ciBuildId, List<CypressTestsParameters> t
 
   boolean mainPhaseSucceeded = false
   int flakyCount = 0
-  String allureRunDir = "allure-report-${env.BUILD_ID}"
 
   try {
     testsToRun.each { CypressTestsParameters testParams ->
@@ -83,11 +82,11 @@ CypressRunExecutionSummary call(String ciBuildId, List<CypressTestsParameters> t
             folioCypress.validateParameter(reportPortalRunType, 'reportPortalRunType')
 
             reportPortalClient = new ReportPortalClient(this,
-              TestType.CYPRESS,
-              ciBuildId,
-              env.BUILD_NUMBER,
-              env.WORKSPACE,
-              reportPortalRunType)
+                    TestType.CYPRESS,
+                    ciBuildId,
+                    env.BUILD_NUMBER,
+                    env.WORKSPACE,
+                    reportPortalRunType)
 
             reportPortalExecParameters = folioCypress.setupReportPortal(reportPortalClient)
           }
@@ -97,10 +96,10 @@ CypressRunExecutionSummary call(String ciBuildId, List<CypressTestsParameters> t
             folioCypress.cloneCypressRepo(testParams.testsSrcBranch)
 
             folioCypress.setupCommonEnvironmentVariables(testParams.tenantUrl,
-              testParams.okapiUrl,
-              testParams.tenant.tenantId,
-              testParams.tenant.adminUser.username,
-              testParams.tenant.adminUser.getPasswordPlainText())
+                    testParams.okapiUrl,
+                    testParams.tenant.tenantId,
+                    testParams.tenant.adminUser.username,
+                    testParams.tenant.adminUser.getPasswordPlainText())
 
             folioCypress.compileCypressTests()
 
@@ -117,7 +116,7 @@ CypressRunExecutionSummary call(String ciBuildId, List<CypressTestsParameters> t
                 md5sum ${cypressStash('archive')} > ${cypressStash('checksum')}
               """.stripIndent()
               stash(name: cypressStash('name'),
-                includes: "${cypressStash('archive')},${cypressStash('checksum')}")
+                      includes: "${cypressStash('archive')},${cypressStash('checksum')}")
             }
           }
         }
@@ -127,7 +126,6 @@ CypressRunExecutionSummary call(String ciBuildId, List<CypressTestsParameters> t
         def workers = [failFast: false]
         String runId = folioCypress.generateRandomId(3)
         testParams.ciBuildId = "${ciBuildId}-${runId}"
-        List localAllureResults = []
 
         execBatches.size().times { int batchIndex ->
           String workerId = "${runId}${batchIndex}"
@@ -146,23 +144,25 @@ CypressRunExecutionSummary call(String ciBuildId, List<CypressTestsParameters> t
                   }
 
                   folioCypress.setupCommonEnvironmentVariables(testParams.tenantUrl,
-                    testParams.okapiUrl,
-                    testParams.tenant.tenantId,
-                    testParams.tenant.adminUser.username,
-                    testParams.tenant.adminUser.getPasswordPlainText())
+                          testParams.okapiUrl,
+                          testParams.tenant.tenantId,
+                          testParams.tenant.adminUser.username,
+                          testParams.tenant.adminUser.getPasswordPlainText())
 
                   String execParameters = "${execBatches[batchIndex]} ${testParams.execParameters}"
 
                   folioCypress.executeTests(testParams.ciBuildId,
-                    testParams.browserName,
-                    execParameters,
-                    testParams.testrailProjectID,
-                    testParams.testrailRunID)
+                          testParams.browserName,
+                          execParameters,
+                          testParams.testrailProjectID,
+                          testParams.testrailRunID)
 
-                  String stashName = folioCypress.archiveTestResults(workerId)
-                  if (stashName) {
-                    localAllureResults.add(stashName)
-                  }
+                  // Archive and stash test results. Ref: RANCHER-3062
+                  // Stash name is deterministic (allure-results-${workerId})
+                  // so we reconstruct the list after parallel() instead of
+                  // capturing it via CPS closure variable, which gets lost
+                  // across CPS serialization boundaries.
+                  folioCypress.archiveTestResults(workerId)
                 }
               }
             }
@@ -173,7 +173,13 @@ CypressRunExecutionSummary call(String ciBuildId, List<CypressTestsParameters> t
           parallel(workers)
         }
 
-        allureResultsList.addAll(localAllureResults)
+        // Reconstruct stash names deterministically — see note above. Ref: RANCHER-3062
+        // Each workerId is "${runId}${batchIndex}" so the stash name is
+        // "allure-results-${runId}${batchIndex}".
+        execBatches.size().times { int batchIndex ->
+          String workerId = "${runId}${batchIndex}"
+          allureResultsList.add("allure-results-${workerId}")
+        }
       }
     }
     mainPhaseSucceeded = true
@@ -181,27 +187,22 @@ CypressRunExecutionSummary call(String ciBuildId, List<CypressTestsParameters> t
     logger.error("Error during Cypress tests execution: ${e.getMessage()}")
   } finally {
     podTemplates.rancherJavaAgent {
-      try {
-        if (reportPortalUse && reportPortalClient != null) {
-          folioCypress.finalizeReportPortal(reportPortalClient)
-        }
-
-        if (!allureResultsList.isEmpty()) {
-          folioCypress.unpackAllureReport(allureResultsList, allureRunDir)
-
-          container('java') {
-            folioCypress.generateAndPublishAllureReport(allureResultsList, allureRunDir)
-          }
-        }
-
-        testRunExecutionSummary = folioCypress.analyzeResults(allureRunDir)
-      } finally {
-        sh "rm -rf ${allureRunDir}"
+      if (reportPortalUse && reportPortalClient != null) {
+        folioCypress.finalizeReportPortal(reportPortalClient)
       }
+
+      if (!allureResultsList.isEmpty()) {
+        folioCypress.unpackAllureReport(allureResultsList)
+
+        container('java') {
+          folioCypress.generateAndPublishAllureReport(allureResultsList)
+        }
+      }
+
+      testRunExecutionSummary = folioCypress.analyzeResults()
     }
 
-    if (recheckFailedTests && reportPortalUse && reportPortalClient != null && mainPhaseSucceeded
-      && testRunExecutionSummary != null && testRunExecutionSummary.getPassRate() > 80) {
+    if (recheckFailedTests && reportPortalUse && reportPortalClient != null && mainPhaseSucceeded && testRunExecutionSummary != null && testRunExecutionSummary.getPassRate() > 80) {
       // Run recheck for each tenant configuration
       testsToRun.each { CypressTestsParameters testParams ->
         retry(2) {
@@ -215,14 +216,14 @@ CypressRunExecutionSummary call(String ciBuildId, List<CypressTestsParameters> t
                   rm -rf ${cypressStash('archive')} ${cypressStash('checksum')}
                 """.stripIndent()
               }
-              
+
               // Set up environment for this tenant
               folioCypress.setupCommonEnvironmentVariables(testParams.tenantUrl,
-                testParams.okapiUrl,
-                testParams.tenant.tenantId,
-                testParams.tenant.adminUser.username,
-                testParams.tenant.adminUser.getPasswordPlainText())
-              
+                      testParams.okapiUrl,
+                      testParams.tenant.tenantId,
+                      testParams.tenant.adminUser.username,
+                      testParams.tenant.adminUser.getPasswordPlainText())
+
               flakyCount = folioCypress.runFailedTestsRecheck(ciBuildId, numberOfRecheckRunners)
             }
           }
@@ -234,7 +235,7 @@ CypressRunExecutionSummary call(String ciBuildId, List<CypressTestsParameters> t
       try {
         if (sendNotification) {
           folioCypress.sendNotifications(testRunExecutionSummary, ciBuildId, reportPortalUse,
-            '#rancher_tests_notifications', flakyCount)
+                  '#rancher_tests_notifications', flakyCount)
         }
       } catch (Exception e) {
         logger.warning("Error sending notifications: ${e.getMessage()}")

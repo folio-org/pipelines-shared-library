@@ -50,10 +50,10 @@ void cloneCypressRepo(String branch) {
   stage('[Git] Checkout Cypress repo') {
     echo("Checking out branch: ${branch}")
     checkout(scmGit(
-      branches: [[name: "*/${branch}"]],
-      extensions: [cloneOption(depth: 50, noTags: true, reference: '', shallow: true)],
-      userRemoteConfigs: [[credentialsId: Constants.PRIVATE_GITHUB_CREDENTIALS_ID,
-                           url          : Constants.CYPRESS_REPOSITORY_URL]]))
+            branches: [[name: "*/${branch}"]],
+            extensions: [cloneOption(depth: 50, noTags: true, reference: '', shallow: true)],
+            userRemoteConfigs: [[credentialsId: Constants.PRIVATE_GITHUB_CREDENTIALS_ID,
+                                 url          : Constants.CYPRESS_REPOSITORY_URL]]))
   }
 }
 
@@ -98,7 +98,7 @@ void prepareTenantForCypressTests(CypressTestsParameters prepare) {
     echo 'Preparing tenant for Cypress tests...'
     try {
       sh "set +x; export EHOLDINGS_KB_URL=${prepare.kbUrl}; export EHOLDINGS_KB_ID=${prepare.kbId}; export EHOLDINGS_KB_KEY=${prepare.kbKey}; export OKAPI_HOST=${prepare.okapiUrl}; " +
-        "export OKAPI_TENANT=${prepare.tenant.tenantId}; export DIKU_LOGIN=${prepare.tenant.adminUser.username}; export DIKU_PASSWORD=${prepare.tenant.adminUser.getPasswordPlainText()}"
+              "export OKAPI_TENANT=${prepare.tenant.tenantId}; export DIKU_LOGIN=${prepare.tenant.adminUser.username}; export DIKU_PASSWORD=${prepare.tenant.adminUser.getPasswordPlainText()}"
       sh 'set -x; node ./scripts/prepare.js'
     } catch (Exception e) {
       currentBuild.result = 'ABORTED'
@@ -183,8 +183,6 @@ String createExecString(String ciBuildId, String browserName, String execParamet
     export CYPRESS_CACHE_FOLDER=\$(pwd)/cache
     export DISPLAY=:${screenId}
 
-    rm -rf allure-results
-
     mkdir -p /tmp/.X11-unix
     Xvfb \$DISPLAY -screen 0 1920x1080x24 &
     XVFB_PID=\$!
@@ -249,8 +247,8 @@ void runTestsWithTestRail(String testrailProjectID, String testrailRunID, String
   echo("Test results will be posted to TestRail.\nProjectID: ${testrailProjectID},\nRunID: ${testrailRunID}")
 
   withCredentials([usernamePassword(credentialsId: Constants.TESTRAIL_CREDENTIALS_ID,
-    passwordVariable: 'TESTRAIL_PASSWORD',
-    usernameVariable: 'TESTRAIL_USERNAME')]) {
+          passwordVariable: 'TESTRAIL_PASSWORD',
+          usernameVariable: 'TESTRAIL_USERNAME')]) {
     runTests(execString)
   }
 }
@@ -417,9 +415,9 @@ int runFailedTestsRecheck(String launchName, int numberOfRunners = 6, int timeou
           // Distribute workers across pods (2 threads per pod)
           int threadsPerPod = 2
           int numberOfPods = Math.ceil(numberOfRunners / threadsPerPod)
-          
+
           def parallelPods = [failFast: false]
-          
+
           numberOfPods.times { int podIndex ->
             String podId = "recheck-pod-${podIndex}"
             parallelPods["Pod#${podId}"] = {
@@ -429,16 +427,16 @@ int runFailedTestsRecheck(String launchName, int numberOfRunners = 6, int timeou
                   container('cypress') {
                     // Clone the Cypress repo in each worker pod
                     cloneCypressRepo(env.BRANCH_NAME ?: 'master')
-                    
+
                     // Compile Cypress tests in the worker pod
                     compileCypressTests()
-                    
+
                     // Calculate worker indices for this pod
                     int startWorkerIndex = podIndex * threadsPerPod
                     int endWorkerIndex = Math.min(startWorkerIndex + threadsPerPod, workers.size())
-                    
+
                     def podWorkers = [failFast: false]
-                    
+
                     (startWorkerIndex..<endWorkerIndex).each { int workerIndex ->
                       String workerId = "recheck-${workerIndex}"
                       podWorkers["Worker#${workerId}"] = {
@@ -451,18 +449,16 @@ int runFailedTestsRecheck(String launchName, int numberOfRunners = 6, int timeou
                             export CYPRESS_OKAPI_HOST=\${CYPRESS_OKAPI_HOST}
                             export CYPRESS_OKAPI_TENANT=\${CYPRESS_OKAPI_TENANT}
                           """.stripIndent()
-                          
+
                           // Export all CYPRESS_*_login and CYPRESS_*_password variables
                           env.each { key, value ->
                             if (key.startsWith('CYPRESS_') && (key.endsWith('_login') || key.endsWith('_password'))) {
                               cypressEnvExports += "export ${key}=\${${key}}\n"
                             }
                           }
-                          
+
                           sh """#!/bin/bash
                             set -euo pipefail
-                            rm -rf allure-results
-
                             export HOME=\$(pwd)
                             export CYPRESS_CACHE_FOLDER=\$(pwd)/cache
                             export DISPLAY=:\$((10 + ${workerIndex}))
@@ -485,7 +481,7 @@ int runFailedTestsRecheck(String launchName, int numberOfRunners = 6, int timeou
                         }
                       }
                     }
-                    
+
                     parallel(podWorkers)
                   }
                 }
@@ -516,25 +512,18 @@ int runFailedTestsRecheck(String launchName, int numberOfRunners = 6, int timeou
  * @param stashesList The list of stashes to unpack. Must not be null or empty.
  * @throws IllegalArgumentException if stashesList is null or empty.
  */
-void unpackAllureReport(List stashesList, String reportDir) {
+void unpackAllureReport(List stashesList) {
   validateParameter(stashesList, 'Result paths')
-  validateParameter(reportDir, 'Report directory')
 
   stage('[Stash] Unpack report') {
-    sh "rm -rf ${reportDir} && mkdir -p ${reportDir}"
-    echo "Unpacking ${stashesList.size()} stash(es) into: ${reportDir}"
-
     for (stashName in stashesList) {
       try {
         unstash name: stashName
-        sh "tar --one-top-level=${reportDir}/${stashName} -zxf ${stashName}.tar.gz && rm -f ${stashName}.tar.gz ${stashName}.tar.gz.md5"
-        echo "Unpacked: ${reportDir}/${stashName}"
+        sh "tar --one-top-level=${stashName} -zxf ${stashName}.tar.gz"
       } catch (Exception e) {
-        echo("Warning: Could not unpack ${stashName}: ${e.getMessage()}")
+        echo("Warning: Could not unpack ${stashName} — the worker may have failed before archiving: ${e.getMessage()}")
       }
     }
-
-    sh "echo 'Report dir contents:' && ls -la ${reportDir}/"
   }
 }
 
@@ -546,18 +535,13 @@ void unpackAllureReport(List stashesList, String reportDir) {
  * @param resultPaths The list of result paths to generate the report from. Must not be null or empty.
  * @throws IllegalArgumentException if resultPaths is null or empty.
  */
-void generateAndPublishAllureReport(List resultPaths, String reportDir) {
+void generateAndPublishAllureReport(List resultPaths) {
   validateParameter(resultPaths, 'Result paths')
-  validateParameter(reportDir, 'Report directory')
 
   stage('[Allure] Generate and publish report') {
     def allureHome = tool type: 'allure', name: Constants.CYPRESS_ALLURE_VERSION
-    List allureResultPaths = resultPaths.collect { path -> "${reportDir}/${path}/allure-results" }
+    List allureResultPaths = resultPaths.collect { path -> "${path}/allure-results" }
     List validPaths = allureResultPaths.findAll { path -> fileExists(path) }
-
-    echo "Run report dir: ${reportDir}"
-    echo "Expected result paths:\n  ${allureResultPaths.join('\n  ')}"
-    echo "Valid paths found: ${validPaths.size()} / ${allureResultPaths.size()}"
 
     if (validPaths.isEmpty()) {
       error('No valid allure result paths found. Cannot generate report.')
@@ -567,6 +551,8 @@ void generateAndPublishAllureReport(List resultPaths, String reportDir) {
     if (!missingPaths.isEmpty()) {
       echo "Warning: Skipping ${missingPaths.size()} missing paths: ${missingPaths.join(', ')}"
     }
+
+    echo "Processing ${validPaths.size()} result directories"
 
     sh "JAVA_TOOL_OPTIONS='-Xmx6G -Xms1G -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp -XX:MaxDirectMemorySize=1G -Djava.util.concurrent.ForkJoinPool.common.parallelism=2' ${allureHome}/bin/allure generate --clean ${validPaths.join(' ')}"
 
@@ -588,11 +574,9 @@ void generateAndPublishAllureReport(List resultPaths, String reportDir) {
  *
  * @return The test run summary.
  */
-CypressRunExecutionSummary analyzeResults(String reportDir) {
-  validateParameter(reportDir, 'Report directory')
-  CypressRunExecutionSummary testRunExecutionSummary
-
+CypressRunExecutionSummary analyzeResults() {
   stage('[Report] Analyze results') {
+    CypressRunExecutionSummary testRunExecutionSummary
     String suitesPath = "${env.WORKSPACE}/allure-report/data/suites.json"
     String categoriesPath = "${env.WORKSPACE}/allure-report/data/categories.json"
 
@@ -601,9 +585,8 @@ CypressRunExecutionSummary analyzeResults(String reportDir) {
 
     testRunExecutionSummary = CypressRunExecutionSummary.addFromJSON(jsonSuites)
     testRunExecutionSummary.addDefectsFromJSON(jsonDefects)
+    return testRunExecutionSummary
   }
-
-  return testRunExecutionSummary
 }
 
 /**
@@ -625,14 +608,14 @@ void sendNotifications(CypressRunExecutionSummary testRunExecutionSummary, Strin
 
   stage('[Slack] Send notification') {
     slackSend(attachments: folioSlackNotificationUtils
-      .renderBuildAndTestResultMessage(TestType.CYPRESS,
-        testRunExecutionSummary,
-        ciBuildId,
-        useReportPortal,
-        "${env.BUILD_URL}allure/",
-        null,
-        flakyCount),
-      channel: channel)
+            .renderBuildAndTestResultMessage(TestType.CYPRESS,
+                    testRunExecutionSummary,
+                    ciBuildId,
+                    useReportPortal,
+                    "${env.BUILD_URL}allure/",
+                    null,
+                    flakyCount),
+            channel: channel)
   }
 }
 
