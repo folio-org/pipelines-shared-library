@@ -549,7 +549,7 @@ void generateAndPublishAllureReport(List resultPaths, String reportWorkspace, St
 
   stage('[Allure] Generate and publish report') {
     def allureHome = tool type: 'allure', name: Constants.CYPRESS_ALLURE_VERSION
-    List allureResultPaths = resultPaths.collect { path -> "${reportWorkspace}/${path}" }
+    List allureResultPaths = resultPaths.collect { path -> "${reportWorkspace}/${path}/allure-results" }
     List validPaths = allureResultPaths.findAll { path -> fileExists(path) }
 
     echo "Using isolated Allure workspace: ${reportWorkspace}"
