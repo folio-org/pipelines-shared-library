@@ -519,8 +519,7 @@ void unpackAllureReport(List stashesList, String reportWorkspace) {
   stage('[Stash] Unpack report') {
     echo "Using isolated Allure workspace: ${reportWorkspace}"
 
-    ws(reportWorkspace) {
-      deleteDir()
+    dir(reportWorkspace) {
       sh "pwd"
       for (stashName in stashesList) {
         try {
