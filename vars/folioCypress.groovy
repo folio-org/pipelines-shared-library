@@ -568,8 +568,15 @@ void generateAndPublishAllureReport(List resultPaths, String reportWorkspace) {
 
     echo "Processing ${validPaths.size()} result directories"
 
-    sh 'rm -rf allure-report'
-    sh "JAVA_TOOL_OPTIONS='-Xmx6G -Xms1G -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp -XX:MaxDirectMemorySize=1G -Djava.util.concurrent.ForkJoinPool.common.parallelism=2' ${allureHome}/bin/allure generate --clean ${validPaths.join(' ')}"
+//    sh 'rm -rf allure-report'
+//    sh "JAVA_TOOL_OPTIONS='-Xmx6G -Xms1G -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp -XX:MaxDirectMemorySize=1G -Djava.util.concurrent.ForkJoinPool.common.parallelism=2' ${allureHome}/bin/allure generate --clean ${validPaths.join(' ')}"
+
+    sh '''
+      echo "BUILD=$BUILD_NUMBER"
+      echo "EXECUTOR=$EXECUTOR_NUMBER"
+      echo "WORKSPACE=$WORKSPACE"
+      ls -ld "$WORKSPACE"
+    '''
 
     withEnv(['JAVA_TOOL_OPTIONS=-Xmx8G -Xms1G -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp -XX:MaxDirectMemorySize=1G -Djava.util.concurrent.ForkJoinPool.common.parallelism=2']) {
       allure([includeProperties: false,
