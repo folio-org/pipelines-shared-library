@@ -67,7 +67,8 @@ CypressRunExecutionSummary call(String ciBuildId, List<CypressTestsParameters> t
   String reportPortalExecParameters = ''
 
   List allureResultsList = []
-  String reportWorkspace = "allure-${java.util.UUID.randomUUID().toString()}"
+  String reportWorkspaceName = "allure-${java.util.UUID.randomUUID().toString()}"
+  String reportWorkspace = null
 
   boolean mainPhaseSucceeded = false
   int flakyCount = 0
@@ -189,6 +190,8 @@ CypressRunExecutionSummary call(String ciBuildId, List<CypressTestsParameters> t
   } finally {
     podTemplates.rancherJavaAgent {
       try {
+        reportWorkspace = "${pwd()}/${reportWorkspaceName}"
+
         if (reportPortalUse && reportPortalClient != null) {
           folioCypress.finalizeReportPortal(reportPortalClient)
         }

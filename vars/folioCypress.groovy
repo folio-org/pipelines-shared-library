@@ -520,9 +520,7 @@ void unpackAllureReport(List stashesList, String reportWorkspace) {
     sh "rm -rf ${reportWorkspace} && mkdir -p ${reportWorkspace}"
     echo "Using isolated Allure workspace: ${reportWorkspace}"
 
-    ws(reportWorkspace) {
-      echo "Verify reportWorkspace"
-      sh "pwd"
+    dir(reportWorkspace) {
       for (stashName in stashesList) {
         try {
           unstash name: stashName
@@ -548,7 +546,7 @@ void generateAndPublishAllureReport(List resultPaths, String reportWorkspace) {
   validateParameter(reportWorkspace, 'Report workspace')
 
   stage('[Allure] Generate and publish report') {
-    ws(reportWorkspace) {
+    dir(reportWorkspace) {
       def allureHome = tool type: 'allure', name: Constants.CYPRESS_ALLURE_VERSION
       List allureResultPaths = resultPaths.collect { path -> "${path}" }
       List validPaths = allureResultPaths.findAll { path -> fileExists(path) }
