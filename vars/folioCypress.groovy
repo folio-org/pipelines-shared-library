@@ -546,35 +546,33 @@ void generateAndPublishAllureReport(List resultPaths, String reportWorkspace) {
   validateParameter(reportWorkspace, 'Report workspace')
 
   stage('[Allure] Generate and publish report') {
-    dir(reportWorkspace) {
-      def allureHome = tool type: 'allure', name: Constants.CYPRESS_ALLURE_VERSION
-      List allureResultPaths = resultPaths.collect { path -> "${path}" }
-      List validPaths = allureResultPaths.findAll { path -> fileExists(path) }
+    def allureHome = tool type: 'allure', name: Constants.CYPRESS_ALLURE_VERSION
+    List allureResultPaths = resultPaths.collect { path -> "${reportWorkspace}/${path}" }
+    List validPaths = allureResultPaths.findAll { path -> fileExists(path) }
 
-      echo "Using isolated Allure workspace: ${reportWorkspace}"
-      echo "Expected result paths:\n  ${allureResultPaths.join('\n  ')}"
+    echo "Using isolated Allure workspace: ${reportWorkspace}"
+    echo "Expected result paths:\n  ${allureResultPaths.join('\n  ')}"
 
-      if (validPaths.isEmpty()) {
-        error('No valid allure result paths found. Cannot generate report.')
-      }
+    if (validPaths.isEmpty()) {
+      error('No valid allure result paths found. Cannot generate report.')
+    }
 
-      List missingPaths = allureResultPaths - validPaths
-      if (!missingPaths.isEmpty()) {
-        echo "Warning: Skipping ${missingPaths.size()} missing paths: ${missingPaths.join(', ')}"
-      }
+    List missingPaths = allureResultPaths - validPaths
+    if (!missingPaths.isEmpty()) {
+      echo "Warning: Skipping ${missingPaths.size()} missing paths: ${missingPaths.join(', ')}"
+    }
 
-      echo "Processing ${validPaths.size()} result directories"
+    echo "Processing ${validPaths.size()} result directories"
 
-      sh "JAVA_TOOL_OPTIONS='-Xmx6G -Xms1G -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp -XX:MaxDirectMemorySize=1G -Djava.util.concurrent.ForkJoinPool.common.parallelism=2' ${allureHome}/bin/allure generate --clean ${validPaths.join(' ')}"
+    sh "JAVA_TOOL_OPTIONS='-Xmx6G -Xms1G -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp -XX:MaxDirectMemorySize=1G -Djava.util.concurrent.ForkJoinPool.common.parallelism=2' ${allureHome}/bin/allure generate --clean ${validPaths.join(' ')}"
 
-      withEnv(['JAVA_TOOL_OPTIONS=-Xmx8G -Xms1G -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp -XX:MaxDirectMemorySize=1G -Djava.util.concurrent.ForkJoinPool.common.parallelism=2']) {
-        allure([includeProperties: false,
-                jdk              : '',
-                commandline      : Constants.CYPRESS_ALLURE_VERSION,
-                properties       : [],
-                reportBuildPolicy: 'ALWAYS',
-                results          : validPaths.collect { path -> [path: path] }])
-      }
+    withEnv(['JAVA_TOOL_OPTIONS=-Xmx8G -Xms1G -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp -XX:MaxDirectMemorySize=1G -Djava.util.concurrent.ForkJoinPool.common.parallelism=2']) {
+      allure([includeProperties: false,
+              jdk              : '',
+              commandline      : Constants.CYPRESS_ALLURE_VERSION,
+              properties       : [],
+              reportBuildPolicy: 'ALWAYS',
+              results          : validPaths.collect { path -> [path: path] }])
     }
   }
 }
@@ -591,8 +589,8 @@ CypressRunExecutionSummary analyzeResults(String reportWorkspace) {
 
   stage('[Report] Analyze results') {
     CypressRunExecutionSummary testRunExecutionSummary
-    String suitesPath = "${reportWorkspace}/allure-report/data/suites.json"
-    String categoriesPath = "${reportWorkspace}/allure-report/data/categories.json"
+    String suitesPath = "${env.WORKSPACE}/allure-report/data/suites.json"
+    String categoriesPath = "${env.WORKSPACE}/allure-report/data/categories.json"
 
     Map jsonSuites = fileExists(suitesPath) ? readJSON(file: suitesPath) : [:]
     Map jsonDefects = fileExists(categoriesPath) ? readJSON(file: categoriesPath) : [:]
