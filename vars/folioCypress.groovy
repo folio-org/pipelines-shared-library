@@ -1,1 +1,684 @@
-import groovy.json.JsonExceptionimport org.folio.Constantsimport org.folio.client.reportportal.ReportPortalClientimport org.folio.client.reportportal.ReportPortalConstantsimport org.folio.jenkins.PodTemplatesimport org.folio.models.parameters.CypressTestsParametersimport org.folio.testing.TestTypeimport org.folio.testing.cypress.results.CypressRunExecutionSummary/** * Validates the specified parameter. * * This function checks if the parameter is null or empty and throws an exception if it is. * * @param param The parameter to validate. * @param paramName The name of the parameter. * @throws IllegalArgumentException if the parameter is null or empty. */void validateParameter(param, String paramName) {  // Check for null values  if (param == null) {    throw new IllegalArgumentException("${paramName} must be provided and cannot be null.")  }  // For Strings, ensure they are not empty after trimming  if (param instanceof String && param.trim().isEmpty()) {    throw new IllegalArgumentException("${paramName} must be provided and cannot be empty.")  }  // For Collections (like List, Set) and Maps, ensure they are not empty  if ((param instanceof Collection || param instanceof Map) && param.isEmpty()) {    throw new IllegalArgumentException("${paramName} must be provided and cannot be empty.")  }// For booleans and other types (e.g., CypressRunExecutionSummary), a non-null value is considered valid}/** * Clones the specified branch of the Cypress repository from Git. * * This function checks out the specified branch of the Cypress repository, * using the provided SSH credentials for authentication. * * @param branch The name of the branch to check out. Must not be null or empty. * @throws IllegalArgumentException if the branch name is null or empty. */void cloneCypressRepo(String branch) {  validateParameter(branch, 'Branch name')  stage('[Git] Checkout Cypress repo') {    echo("Checking out branch: ${branch}")    checkout(scmGit(      branches: [[name: "*/${branch}"]],      extensions: [cloneOption(depth: 50, noTags: true, reference: '', shallow: true)],      userRemoteConfigs: [[credentialsId: Constants.PRIVATE_GITHUB_CREDENTIALS_ID,                           url          : Constants.CYPRESS_REPOSITORY_URL]]))  }}/** * Sets up common environment variables for Cypress testing. * * This function sets the environment variables required for Cypress testing. * * @param tenantUrl The URL of the tenant. Must not be null or empty. * @param okapiUrl The URL of the Okapi service. Must not be null or empty. * @param tenantId The ID of the tenant. Must not be null or empty. * @param adminUsername The username of the admin user. Must not be null or empty. * @param adminPassword The password of the admin user. Must not be null or empty. * @throws IllegalArgumentException if any of the parameters are null or empty. */void setupCommonEnvironmentVariables(String tenantUrl, String okapiUrl, String tenantId, String adminUsername,                                     String adminPassword) {  validateParameter(tenantUrl, 'Tenant URL')  validateParameter(okapiUrl, 'Okapi URL')  validateParameter(tenantId, 'Tenant ID')  validateParameter(adminUsername, 'Admin username')  validateParameter(adminPassword, 'Admin password')  stage('Set env variables') {    env.CYPRESS_BASE_URL = tenantUrl    env.CYPRESS_OKAPI_HOST = okapiUrl    env.CYPRESS_OKAPI_TENANT = tenantId    // Set hardcoded diku credentials for backward compatibility with existing tests    env.CYPRESS_diku_login = adminUsername    env.CYPRESS_diku_password = adminPassword    // Also set dynamic tenant-specific credentials (e.g., CYPRESS_consortium_login for consortium tenant)    env["CYPRESS_${tenantId}_login"] = adminUsername    env["CYPRESS_${tenantId}_password"] = adminPassword    env.AWS_DEFAULT_REGION = Constants.AWS_REGION    echo("Environment variables set for Cypress testing (tenant: ${tenantId}).")  }}void prepareTenantForCypressTests(CypressTestsParameters prepare) {  stage('[Prepare] Tenant') {    echo 'Preparing tenant for Cypress tests...'    try {      sh "set +x; export EHOLDINGS_KB_URL=${prepare.kbUrl}; export EHOLDINGS_KB_ID=${prepare.kbId}; export EHOLDINGS_KB_KEY=${prepare.kbKey}; export OKAPI_HOST=${prepare.okapiUrl}; " +        "export OKAPI_TENANT=${prepare.tenant.tenantId}; export DIKU_LOGIN=${prepare.tenant.adminUser.username}; export DIKU_PASSWORD=${prepare.tenant.adminUser.getPasswordPlainText()}"      sh 'set -x; node ./scripts/prepare.js'    } catch (Exception e) {      currentBuild.result = 'ABORTED'      throw new Exception("Failed to prepare tenant for Cypress tests: ${e.getMessage()}")    }  }}/** * Compiles the Cypress tests. * * This function installs the required dependencies and compiles the Cypress tests. */void compileCypressTests() {  stage('[Yarn] Compile Cypress tests') {    sh """export HOME=\$(pwd)      export CYPRESS_CACHE_FOLDER=\$(pwd)/cache      node -v      yarn -v      yarn config set @folio:registry ${Constants.FOLIO_NPM_REPO_URL}      yarn install --network-timeout 300000      yarn add -D cypress-testrail-simple@${readPackageJsonDependencyVersion('./package.json', 'cypress-testrail-simple')}      yarn global add cypress-cloud@${readPackageJsonDependencyVersion('./package.json', 'cypress-cloud')}    """.stripIndent()    // Uncomment to add Report Portal agent for Cypress    // sh "yarn add @reportportal/agent-js-cypress@latest"  }}/** * Executes the Cypress tests. * * This function runs the Cypress tests using the specified parameters. * * @param ciBuildId The name of the custom build. Must not be null or empty. * @param browserName The name of the browser to run tests on. Must not be null or empty. * @param execParameters Additional parameters for executing tests. Must not be null. * @param testrailProjectID The TestRail project ID. Defaults to an empty string. * @param testrailRunID The TestRail run ID. Defaults to an empty string. */void executeTests(String ciBuildId, String browserName, String execParameters,                  String testrailProjectID = '', String testrailRunID = '') {  validateParameter(ciBuildId, 'ciBuildId')  validateParameter(browserName, 'Browser name')  validateParameter(execParameters, 'Execution parameters')  stage('[Cypress] Run tests') {    String execString = createExecString(ciBuildId, browserName, execParameters)    if (testrailProjectID?.trim() && testrailRunID?.trim()) {      runTestsWithTestRail(testrailProjectID, testrailRunID, execString)    } else {      runTests(execString)    }  }}/** * Creates the command string for executing Cypress tests. * * This function generates the command string for running Cypress tests. * * @param browserName The name of the browser to run tests on. Must not be null or empty. * @param ciBuildId The name of the custom build. Must not be null or empty. * @param execParameters Additional parameters for executing tests. Must not be null. * @return The command string for executing tests. */String createExecString(String ciBuildId, String browserName, String execParameters) {  validateParameter(ciBuildId, 'ciBuildId')  validateParameter(browserName, 'Browser name')  validateParameter(execParameters, 'Execution parameters')  // Use BUILD_NUMBER to select a DISPLAY number in range 10-199 (avoids reserved  // X11 sockets <:10 and stays within the 200-socket default limit).  // Containers are isolated — each pod has its own /tmp — so DISPLAY collisions  // between workers are impossible even when pods land on the same node.  String screenId = ((env.BUILD_NUMBER?.toInteger() ?: 0) % 190 + 10).toString()  return """set -euo pipefail    export HOME=\$(pwd)    export CYPRESS_CACHE_FOLDER=\$(pwd)/cache    export DISPLAY=:${screenId}    mkdir -p /tmp/.X11-unix    Xvfb \$DISPLAY -screen 0 1920x1080x24 &    XVFB_PID=\$!    # Emit a timestamped keep-alive line every 60 s so Jenkins sees log activity    # and does NOT disconnect the JNLP agent during long Cypress runs.    # CRITICAL: the keep-alive MUST run in the SAME shell as Cypress.    # A separate 'sh' step spawns a NEW subshell — any background process started    # there dies when that sh step exits, leaving Cypress running silently until    # Jenkins marks the agent idle and terminates the pod (ContainerError).    ( while true; do echo "[keep-alive] \$(date -u '+%Y-%m-%dT%H:%M:%SZ')"; sleep 60; done ) &    KEEPALIVE_PID=\$!    # Single trap cleans up both background processes on any exit path.    trap 'kill \$XVFB_PID \$KEEPALIVE_PID 2>/dev/null || true' EXIT INT TERM    npx cypress run --browser ${browserName} ${execParameters}  """.stripIndent()}/** * Runs the specified command string for executing tests. * * This function executes the specified command string for running tests. * The keep-alive loop is embedded inside execString (generated by createExecString) * so it shares the same shell process as Cypress and remains alive for the full run. * * @param execString The command string for executing tests. Must not be null or empty. */void runTests(String execString) {  validateParameter(execString, 'Execution string')  try {    sh execString  } catch (Exception e) {    echo("Error executing tests: ${e.getMessage()}")    currentBuild.result = 'UNSTABLE'  }}/** * Runs the tests with TestRail integration. * * This function runs the tests with TestRail integration and posts the results to TestRail. * * @param testrailProjectID The TestRail project ID. Must not be null or empty. * @param testrailRunID The TestRail run ID. Must not be null or empty. * @param execString The command string for executing tests. Must not be null or empty. */void runTestsWithTestRail(String testrailProjectID, String testrailRunID, String execString) {  validateParameter(testrailProjectID, 'TestRail project ID')  validateParameter(testrailRunID, 'TestRail run ID')  validateParameter(execString, 'Execution string')  execString = """    export TESTRAIL_HOST=${Constants.TESTRAIL_HOST}    export TESTRAIL_PROJECTID=${testrailProjectID}    export TESTRAIL_RUN_ID=${testrailRunID}    export CYPRESS_allureReuseAfterSpec=true  """.stripIndent() + execString  echo("Test results will be posted to TestRail.\nProjectID: ${testrailProjectID},\nRunID: ${testrailRunID}")  withCredentials([usernamePassword(credentialsId: Constants.TESTRAIL_CREDENTIALS_ID,    passwordVariable: 'TESTRAIL_PASSWORD',    usernameVariable: 'TESTRAIL_USERNAME')]) {    runTests(execString)  }}/** * Archives the test results for the specified worker. * @param workerId * @return */String archiveTestResults(String workerId) {  validateParameter(workerId, 'Worker ID')  stage('[Stash] Archive test results') {    String stashName = "allure-results-${workerId}"    String tarName = "allure-results-${workerId}.tar.gz"    try {      sh """        tar -zcf ${tarName} allure-results/*        md5sum ${tarName} > ${tarName}.md5        test -f ${tarName}      """    } catch (Exception e) {      echo("Archiving test results was interrupted: ${e.getMessage()}")      currentBuild.result = 'UNSTABLE'      return null    }    archiveArtifacts artifacts: "${tarName}, ${tarName}.md5", allowEmptyArchive: true, fingerprint: true, defaultExcludes: false    stash name: stashName, includes: "${tarName}, ${tarName}.md5"    echo("Test results archived and stashed: ${stashName}")    return stashName  }}/** * Reads the version of the specified dependency from the package.json file. * * This function reads the version of the specified dependency from the package.json file. * * @param filePath The path to the package.json file. Must not be null or empty. * @param dependencyName The name of the dependency to read the version for. Must not be null or empty. * @return The version of the specified dependency. * @throws IllegalArgumentException if the file path or dependency name is null or empty. * @throws FileNotFoundException if the specified file does not exist. * @throws IOException if an error occurs while reading the file. * @throws JsonException if the file is not a valid JSON. */String readPackageJsonDependencyVersion(String filePath, String dependencyName) {  validateParameter(filePath, 'File path')  validateParameter(dependencyName, 'Dependency name')  def packageJson  try {    packageJson = readJSON(file: filePath)  } catch (FileNotFoundException e) {    throw new FileNotFoundException("The specified file does not exist: ${filePath}")  } catch (IOException e) {    throw new IOException("Error reading the file: ${filePath}")  } catch (JsonException e) {    throw new JsonException("The file is not a valid JSON: ${filePath}")  }  def version = packageJson['dependencies'][dependencyName] ?: packageJson['devDependencies'][dependencyName]  if (!version) {    echo("Dependency '${dependencyName}' not found in package.json.")  }  return version}/** * Sets up the Report Portal session. * * This function initializes the Report Portal session and returns the execution parameters. * * @param reportPortalClient The Report Portal client. Must not be null. * @return The execution parameters for Report Portal. * @throws IllegalArgumentException if reportPortalClient is null. */String setupReportPortal(ReportPortalClient reportPortalClient) {  validateParameter(reportPortalClient, 'Report Portal client')  stage('[ReportPortal] Config bind & launch') {    try {      String rpLaunchID = reportPortalClient.launch()      echo("Report Portal Launch ID: ${rpLaunchID}")      String portalExecParams = reportPortalClient.getExecParams()      echo("Report portal execution parameters: ${portalExecParams}")      return portalExecParams    } catch (Exception e) {      echo("Error during Report Portal setup\nError: ${e.getMessage()}")    }  }}/** * Finalizes the Report Portal session. * * This function stops the Report Portal session and prints the response. * * @param reportPortalClient The Report Portal client. Must not be null. * @throws IllegalArgumentException if reportPortalClient is null. */void finalizeReportPortal(ReportPortalClient reportPortalClient) {  validateParameter(reportPortalClient, 'Report Portal client')  stage('[ReportPortal] Finish run') {    try {      def response = reportPortalClient.launchFinish()      echo("${response}")    } catch (Exception e) {      echo("Couldn't stop run in ReportPortal\nError: ${e.getMessage()}")    }  }}/** * Re-runs failed tests from Report Portal with parallel execution support. * * This function retrieves failed tests from Report Portal and re-runs them * using parallel workers distributed across multiple Cypress pods for better resource isolation. * * @param launchName The name of the Report Portal launch. Must not be null or empty. * @param numberOfRunners The number of parallel runners to use for re-checking failed tests. Defaults to 6. *                        Runners are distributed across pods (e.g., 6 runners = 3 pods with 2 threads each). * @param timeoutHours The timeout in hours for the entire re-check phase. Defaults to 5. * @return The count of flaky tests that failed on re-check. */int runFailedTestsRecheck(String launchName, int numberOfRunners = 6, int timeoutHours = 5) {  validateParameter(launchName, 'launchName')  int flakyCount = 0  stage('[Cypress & ReportPortal] Re-check "To Investigate" tests') {    try {      withCredentials([string(credentialsId: ReportPortalConstants.CREDENTIALS_ID, variable: 'CI_API_KEY')]) {        String countFile = 'flaky-recheck-count.txt'        String workersFile = 'failedTestsWorkers.json'        timeout(time: timeoutHours, unit: 'HOURS') {          // Generate parallel worker batches for failed tests          sh """#!/bin/bash            set -euo pipefail            node scripts/report-portal/runFailedTests.js --launchName ${launchName} --threads ${numberOfRunners}          """          // Wait for workers file to be generated          waitUntil(quiet: true) { fileExists(workersFile) }          // Parse and execute workers in parallel          def json = readJSON(file: workersFile)          def workers = json['workers'] ?: []          if (workers.isEmpty()) {            echo("No failed tests to re-check")            return          }          echo("Re-checking ${workers.size()} test batches with ${numberOfRunners} parallel runners")          // Distribute workers across pods (2 threads per pod)          int threadsPerPod = 2          int numberOfPods = Math.ceil(numberOfRunners / threadsPerPod)          def parallelPods = [failFast: false]          numberOfPods.times { int podIndex ->            String podId = "recheck-pod-${podIndex}"            parallelPods["Pod#${podId}"] = {              retry(2) {                PodTemplates podTemplates = new PodTemplates(this, true)                podTemplates.cypressAgent {                  container('cypress') {                    // Clone the Cypress repo in each worker pod                    cloneCypressRepo(env.BRANCH_NAME ?: 'master')                    // Compile Cypress tests in the worker pod                    compileCypressTests()                    // Calculate worker indices for this pod                    int startWorkerIndex = podIndex * threadsPerPod                    int endWorkerIndex = Math.min(startWorkerIndex + threadsPerPod, workers.size())                    def podWorkers = [failFast: false]                    (startWorkerIndex..<endWorkerIndex).each { int workerIndex ->                      String workerId = "recheck-${workerIndex}"                      podWorkers["Worker#${workerId}"] = {                        try {                          // Build environment variable exports dynamically                          // Export all CYPRESS_* variables that match the tenant pattern (e.g., CYPRESS_diku_login, CYPRESS_consortium_login)                          String cypressEnvExports = """                            export CI_API_KEY=\${CI_API_KEY}                            export CYPRESS_BASE_URL=\${CYPRESS_BASE_URL}                            export CYPRESS_OKAPI_HOST=\${CYPRESS_OKAPI_HOST}                            export CYPRESS_OKAPI_TENANT=\${CYPRESS_OKAPI_TENANT}                          """.stripIndent()                          // Export all CYPRESS_*_login and CYPRESS_*_password variables                          env.each { key, value ->                            if (key.startsWith('CYPRESS_') && (key.endsWith('_login') || key.endsWith('_password'))) {                              cypressEnvExports += "export ${key}=\${${key}}\n"                            }                          }                          sh """#!/bin/bash                            set -euo pipefail                            export HOME=\$(pwd)                            export CYPRESS_CACHE_FOLDER=\$(pwd)/cache                            export DISPLAY=:\$((10 + ${workerIndex}))                            ${cypressEnvExports}                            mkdir -p /tmp/.X11-unix                            Xvfb \$DISPLAY -screen 0 1920x1080x24 &                            XVFB_PID=\$!                            ( while true; do echo "[keep-alive] \$(date -u '+%Y-%m-%dT%H:%M:%SZ')"; sleep 60; done ) &                            KEEPALIVE_PID=\$!                            trap 'kill \$XVFB_PID \$KEEPALIVE_PID 2>/dev/null || true' EXIT INT TERM                            ${workers[workerIndex]}                          """                        } catch (Exception e) {                          echo("Worker ${workerId} failed: ${e.getMessage()}")                          currentBuild.result = 'UNSTABLE'                        }                      }                    }                    parallel(podWorkers)                  }                }              }            }          }          parallel(parallelPods)        }        if (fileExists(countFile)) {          flakyCount = readFile(countFile).trim().toInteger()          sh "rm -f ${countFile}"        }      }    } catch (Exception e) {      echo("runFailedTests re-check failed: ${e.getMessage()}")    }  }  return flakyCount}/** * Unpacks the Allure report from the specified stashes. * * This function unpacks the Allure report from the specified stashes. * * @param stashesList The list of stashes to unpack. Must not be null or empty. * @throws IllegalArgumentException if stashesList is null or empty. */void unpackAllureReport(List stashesList) {  validateParameter(stashesList, 'Result paths')  stage('[Stash] Unpack report') {    for (stashName in stashesList) {      try {        unstash name: stashName        sh "tar --one-top-level=${stashName} -zxf ${stashName}.tar.gz"      } catch (Exception e) {        echo("Warning: Could not unpack ${stashName} — the worker may have failed before archiving: ${e.getMessage()}")      }    }  }}/** * Generates and publishes the Allure report. * * This function generates and publishes the Allure report from the specified result paths. * * @param resultPaths The list of result paths to generate the report from. Must not be null or empty. * @throws IllegalArgumentException if resultPaths is null or empty. */void generateAndPublishAllureReport(List resultPaths) {  validateParameter(resultPaths, 'Result paths')  stage('[Allure] Generate and publish report') {    def allureHome = tool type: 'allure', name: Constants.CYPRESS_ALLURE_VERSION    List allureResultPaths = resultPaths.collect { path -> "${path}/allure-results" }    List validPaths = allureResultPaths.findAll { path -> fileExists(path) }    if (validPaths.isEmpty()) {      error('No valid allure result paths found. Cannot generate report.')    }    List missingPaths = allureResultPaths - validPaths    if (!missingPaths.isEmpty()) {      echo "Warning: Skipping ${missingPaths.size()} missing paths: ${missingPaths.join(', ')}"    }    echo "Processing ${validPaths.size()} result directories"    sh "JAVA_TOOL_OPTIONS='-Xmx6G -Xms1G -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp -XX:MaxDirectMemorySize=1G -Djava.util.concurrent.ForkJoinPool.common.parallelism=2' ${allureHome}/bin/allure generate --clean ${validPaths.join(' ')}"    withEnv(['JAVA_TOOL_OPTIONS=-Xmx8G -Xms1G -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp -XX:MaxDirectMemorySize=1G -Djava.util.concurrent.ForkJoinPool.common.parallelism=2']) {      allure([includeProperties: false,              jdk              : '',              commandline      : Constants.CYPRESS_ALLURE_VERSION,              properties       : [],              reportBuildPolicy: 'ALWAYS',              results          : validPaths.collect { path -> [path: path] }])    }  }}/** * Analyzes the test results and generates the test run summary. * * This function analyzes the test results and generates the test run summary. * * @return The test run summary. */CypressRunExecutionSummary analyzeResults() {  stage('[Report] Analyze results') {    CypressRunExecutionSummary testRunExecutionSummary    String suitesPath = "${env.WORKSPACE}/allure-report/data/suites.json"    String categoriesPath = "${env.WORKSPACE}/allure-report/data/categories.json"    Map jsonSuites = fileExists(suitesPath) ? readJSON(file: suitesPath) : [:]    Map jsonDefects = fileExists(categoriesPath) ? readJSON(file: categoriesPath) : [:]    testRunExecutionSummary = CypressRunExecutionSummary.addFromJSON(jsonSuites)    testRunExecutionSummary.addDefectsFromJSON(jsonDefects)    return testRunExecutionSummary  }}/** * Sends notifications to Slack if required. * * This function sends notifications to a specified Slack channel based on the test run summary. * * @param sendSlackNotification Indicates whether to send Slack notifications. * @param testRunExecutionSummary The summary of the test run execution. Must not be null. * @param ciBuildId The name of the build. Must not be null or empty. * @param useReportPortal Indicates whether Report Portal is used. * @param channel The Slack channel to send notifications to. Defaults to '#rancher_tests_notifications'. */void sendNotifications(CypressRunExecutionSummary testRunExecutionSummary, String ciBuildId, boolean useReportPortal,                       String channel = '#rancher_tests_notifications', int flakyCount = 0) {  validateParameter(testRunExecutionSummary, 'Test run execution summary')  validateParameter(ciBuildId, 'CI build ID')  validateParameter(useReportPortal, 'Use Report Portal')  stage('[Slack] Send notification') {    slackSend(attachments: folioSlackNotificationUtils      .renderBuildAndTestResultMessage(TestType.CYPRESS,        testRunExecutionSummary,        ciBuildId,        useReportPortal,        "${env.BUILD_URL}allure/",        null,        flakyCount),      channel: channel)  }}/** * Generates a random ID of the specified length. * * This function generates a random ID of the specified length. * * @param length The length of the random ID. Must be greater than 0. * @return The generated random ID. * @throws IllegalArgumentException if the length is less than or equal to 0. */String generateRandomId(int length) {  validateParameter(length, 'ID length')  // Define the character pool  def chars = ('a'..'z') + ('0'..'9')  Random random = new Random()  // Generate the random ID  return (1..length).collect { chars[random.nextInt(chars.size())] }.join()}/** * Run parallel-run.js and wait for 'parallelWorkers.json' to be produced. * @param timeoutMinutes number of minutes to wait for the file (default: 5) * @param workersFile the filename to wait for (default: 'parallelWorkers.json') * @return the list of worker entries parsed from the JSON file (json['workers']) */List compileExecBatches(String compileExecParameters, int numberOfWorkers = 1, int timeoutMinutes = 5) {  String workersFile = 'parallelWorkers.json'  stage('Compile Exec Batch') {    try {      sh """#!/bin/bash        set -euo pipefail        node -v        yarn -v        node ./scripts/parallel-run.js threads=${numberOfWorkers} ${compileExecParameters}      """      timeout(time: timeoutMinutes, unit: 'MINUTES') {        waitUntil(quiet: true) { fileExists(workersFile) }      }      try {        def json = readJSON(file: workersFile)        def workers = json['workers']        if (!(workers instanceof Collection)) {          echo "${workersFile} parsed but 'workers' is missing or not a list"          currentBuild.result = 'FAILURE'          throw new Exception("'workers' is missing or not a list in ${workersFile}")        }        echo "${workersFile} parsed OK (entries: ${workers.size()})"        return workers      } catch (Exception parseErr) {        echo "${workersFile} exists but is invalid: ${parseErr.message}"        currentBuild.result = 'FAILURE'        throw parseErr      }    } catch (Exception e) {      echo "Failed waiting for '${workersFile}': ${e.getMessage()}"      sh 'ls -la || true'      currentBuild.result = 'FAILURE'      throw e    }  }}
+import groovy.json.JsonException
+import org.folio.Constants
+import org.folio.client.reportportal.ReportPortalClient
+import org.folio.client.reportportal.ReportPortalConstants
+import org.folio.jenkins.PodTemplates
+import org.folio.models.parameters.CypressTestsParameters
+import org.folio.testing.TestType
+import org.folio.testing.cypress.results.CypressRunExecutionSummary
+
+/**
+ * Validates the specified parameter.
+ *
+ * This function checks if the parameter is null or empty and throws an exception if it is.
+ *
+ * @param param The parameter to validate.
+ * @param paramName The name of the parameter.
+ * @throws IllegalArgumentException if the parameter is null or empty.
+ */
+void validateParameter(param, String paramName) {
+  // Check for null values
+  if (param == null) {
+    throw new IllegalArgumentException("${paramName} must be provided and cannot be null.")
+  }
+
+  // For Strings, ensure they are not empty after trimming
+  if (param instanceof String && param.trim().isEmpty()) {
+    throw new IllegalArgumentException("${paramName} must be provided and cannot be empty.")
+  }
+
+  // For Collections (like List, Set) and Maps, ensure they are not empty
+  if ((param instanceof Collection || param instanceof Map) && param.isEmpty()) {
+    throw new IllegalArgumentException("${paramName} must be provided and cannot be empty.")
+  }
+
+// For booleans and other types (e.g., CypressRunExecutionSummary), a non-null value is considered valid
+}
+
+/**
+ * Clones the specified branch of the Cypress repository from Git.
+ *
+ * This function checks out the specified branch of the Cypress repository,
+ * using the provided SSH credentials for authentication.
+ *
+ * @param branch The name of the branch to check out. Must not be null or empty.
+ * @throws IllegalArgumentException if the branch name is null or empty.
+ */
+void cloneCypressRepo(String branch) {
+  validateParameter(branch, 'Branch name')
+
+  stage('[Git] Checkout Cypress repo') {
+    echo("Checking out branch: ${branch}")
+    checkout(scmGit(
+      branches: [[name: "*/${branch}"]],
+      extensions: [cloneOption(depth: 50, noTags: true, reference: '', shallow: true)],
+      userRemoteConfigs: [[credentialsId: Constants.PRIVATE_GITHUB_CREDENTIALS_ID,
+                           url          : Constants.CYPRESS_REPOSITORY_URL]]))
+  }
+}
+
+/**
+ * Sets up common environment variables for Cypress testing.
+ *
+ * This function sets the environment variables required for Cypress testing.
+ *
+ * @param tenantUrl The URL of the tenant. Must not be null or empty.
+ * @param okapiUrl The URL of the Okapi service. Must not be null or empty.
+ * @param tenantId The ID of the tenant. Must not be null or empty.
+ * @param adminUsername The username of the admin user. Must not be null or empty.
+ * @param adminPassword The password of the admin user. Must not be null or empty.
+ * @throws IllegalArgumentException if any of the parameters are null or empty.
+ */
+void setupCommonEnvironmentVariables(String tenantUrl, String okapiUrl, String tenantId, String adminUsername,
+                                     String adminPassword) {
+  validateParameter(tenantUrl, 'Tenant URL')
+  validateParameter(okapiUrl, 'Okapi URL')
+  validateParameter(tenantId, 'Tenant ID')
+  validateParameter(adminUsername, 'Admin username')
+  validateParameter(adminPassword, 'Admin password')
+
+  stage('Set env variables') {
+    env.CYPRESS_BASE_URL = tenantUrl
+    env.CYPRESS_OKAPI_HOST = okapiUrl
+    env.CYPRESS_OKAPI_TENANT = tenantId
+    // Set hardcoded diku credentials for backward compatibility with existing tests
+    env.CYPRESS_diku_login = adminUsername
+    env.CYPRESS_diku_password = adminPassword
+    // Also set dynamic tenant-specific credentials (e.g., CYPRESS_consortium_login for consortium tenant)
+    env["CYPRESS_${tenantId}_login"] = adminUsername
+    env["CYPRESS_${tenantId}_password"] = adminPassword
+    env.AWS_DEFAULT_REGION = Constants.AWS_REGION
+
+    echo("Environment variables set for Cypress testing (tenant: ${tenantId}).")
+  }
+}
+
+void prepareTenantForCypressTests(CypressTestsParameters prepare) {
+  stage('[Prepare] Tenant') {
+    echo 'Preparing tenant for Cypress tests...'
+    try {
+      sh "set +x; export EHOLDINGS_KB_URL=${prepare.kbUrl}; export EHOLDINGS_KB_ID=${prepare.kbId}; export EHOLDINGS_KB_KEY=${prepare.kbKey}; export OKAPI_HOST=${prepare.okapiUrl}; " +
+        "export OKAPI_TENANT=${prepare.tenant.tenantId}; export DIKU_LOGIN=${prepare.tenant.adminUser.username}; export DIKU_PASSWORD=${prepare.tenant.adminUser.getPasswordPlainText()}"
+      sh 'set -x; node ./scripts/prepare.js'
+    } catch (Exception e) {
+      currentBuild.result = 'ABORTED'
+      throw new Exception("Failed to prepare tenant for Cypress tests: ${e.getMessage()}")
+    }
+  }
+}
+
+/**
+ * Compiles the Cypress tests.
+ *
+ * This function installs the required dependencies and compiles the Cypress tests.
+ */
+void compileCypressTests() {
+  stage('[Yarn] Compile Cypress tests') {
+    sh """export HOME=\$(pwd)
+      export CYPRESS_CACHE_FOLDER=\$(pwd)/cache
+
+      node -v
+      yarn -v
+
+      yarn config set @folio:registry ${Constants.FOLIO_NPM_REPO_URL}
+      yarn install --network-timeout 300000
+      yarn add -D cypress-testrail-simple@${readPackageJsonDependencyVersion('./package.json', 'cypress-testrail-simple')}
+      yarn global add cypress-cloud@${readPackageJsonDependencyVersion('./package.json', 'cypress-cloud')}
+    """.stripIndent()
+    // Uncomment to add Report Portal agent for Cypress
+    // sh "yarn add @reportportal/agent-js-cypress@latest"
+  }
+}
+
+/**
+ * Executes the Cypress tests.
+ *
+ * This function runs the Cypress tests using the specified parameters.
+ *
+ * @param ciBuildId The name of the custom build. Must not be null or empty.
+ * @param browserName The name of the browser to run tests on. Must not be null or empty.
+ * @param execParameters Additional parameters for executing tests. Must not be null.
+ * @param testrailProjectID The TestRail project ID. Defaults to an empty string.
+ * @param testrailRunID The TestRail run ID. Defaults to an empty string.
+ */
+void executeTests(String ciBuildId, String browserName, String execParameters,
+                  String testrailProjectID = '', String testrailRunID = '') {
+  validateParameter(ciBuildId, 'ciBuildId')
+  validateParameter(browserName, 'Browser name')
+  validateParameter(execParameters, 'Execution parameters')
+
+  stage('[Cypress] Run tests') {
+    String execString = createExecString(ciBuildId, browserName, execParameters)
+    if (testrailProjectID?.trim() && testrailRunID?.trim()) {
+      runTestsWithTestRail(testrailProjectID, testrailRunID, execString)
+    } else {
+      runTests(execString)
+    }
+  }
+}
+
+/**
+ * Creates the command string for executing Cypress tests.
+ *
+ * This function generates the command string for running Cypress tests.
+ *
+ * @param browserName The name of the browser to run tests on. Must not be null or empty.
+ * @param ciBuildId The name of the custom build. Must not be null or empty.
+ * @param execParameters Additional parameters for executing tests. Must not be null.
+ * @return The command string for executing tests.
+ */
+String createExecString(String ciBuildId, String browserName, String execParameters) {
+  validateParameter(ciBuildId, 'ciBuildId')
+  validateParameter(browserName, 'Browser name')
+  validateParameter(execParameters, 'Execution parameters')
+
+  // Use BUILD_NUMBER to select a DISPLAY number in range 10-199 (avoids reserved
+  // X11 sockets <:10 and stays within the 200-socket default limit).
+  // Containers are isolated — each pod has its own /tmp — so DISPLAY collisions
+  // between workers are impossible even when pods land on the same node.
+  String screenId = ((env.BUILD_NUMBER?.toInteger() ?: 0) % 190 + 10).toString()
+
+  return """set -euo pipefail
+    export HOME=\$(pwd)
+    export CYPRESS_CACHE_FOLDER=\$(pwd)/cache
+    export DISPLAY=:${screenId}
+
+    mkdir -p /tmp/.X11-unix
+    Xvfb \$DISPLAY -screen 0 1920x1080x24 &
+    XVFB_PID=\$!
+
+    # Emit a timestamped keep-alive line every 60 s so Jenkins sees log activity
+    # and does NOT disconnect the JNLP agent during long Cypress runs.
+    # CRITICAL: the keep-alive MUST run in the SAME shell as Cypress.
+    # A separate 'sh' step spawns a NEW subshell — any background process started
+    # there dies when that sh step exits, leaving Cypress running silently until
+    # Jenkins marks the agent idle and terminates the pod (ContainerError).
+    ( while true; do echo "[keep-alive] \$(date -u '+%Y-%m-%dT%H:%M:%SZ')"; sleep 60; done ) &
+    KEEPALIVE_PID=\$!
+
+    # Single trap cleans up both background processes on any exit path.
+    trap 'kill \$XVFB_PID \$KEEPALIVE_PID 2>/dev/null || true' EXIT INT TERM
+
+    npx cypress run --browser ${browserName} ${execParameters}
+  """.stripIndent()
+}
+
+/**
+ * Runs the specified command string for executing tests.
+ *
+ * This function executes the specified command string for running tests.
+ * The keep-alive loop is embedded inside execString (generated by createExecString)
+ * so it shares the same shell process as Cypress and remains alive for the full run.
+ *
+ * @param execString The command string for executing tests. Must not be null or empty.
+ */
+void runTests(String execString) {
+  validateParameter(execString, 'Execution string')
+
+  try {
+    sh execString
+  } catch (Exception e) {
+    echo("Error executing tests: ${e.getMessage()}")
+    currentBuild.result = 'UNSTABLE'
+  }
+}
+
+/**
+ * Runs the tests with TestRail integration.
+ *
+ * This function runs the tests with TestRail integration and posts the results to TestRail.
+ *
+ * @param testrailProjectID The TestRail project ID. Must not be null or empty.
+ * @param testrailRunID The TestRail run ID. Must not be null or empty.
+ * @param execString The command string for executing tests. Must not be null or empty.
+ */
+void runTestsWithTestRail(String testrailProjectID, String testrailRunID, String execString) {
+  validateParameter(testrailProjectID, 'TestRail project ID')
+  validateParameter(testrailRunID, 'TestRail run ID')
+  validateParameter(execString, 'Execution string')
+
+  execString = """
+    export TESTRAIL_HOST=${Constants.TESTRAIL_HOST}
+    export TESTRAIL_PROJECTID=${testrailProjectID}
+    export TESTRAIL_RUN_ID=${testrailRunID}
+    export CYPRESS_allureReuseAfterSpec=true
+  """.stripIndent() + execString
+
+  echo("Test results will be posted to TestRail.\nProjectID: ${testrailProjectID},\nRunID: ${testrailRunID}")
+
+  withCredentials([usernamePassword(credentialsId: Constants.TESTRAIL_CREDENTIALS_ID,
+    passwordVariable: 'TESTRAIL_PASSWORD',
+    usernameVariable: 'TESTRAIL_USERNAME')]) {
+    runTests(execString)
+  }
+}
+
+/**
+ * Archives the test results for the specified worker.
+ * @param workerId
+ * @return
+ */
+String archiveTestResults(String workerId) {
+  validateParameter(workerId, 'Worker ID')
+
+  stage('[Stash] Archive test results') {
+    String stashName = "allure-results-${workerId}"
+    String tarName = "allure-results-${workerId}.tar.gz"
+
+    try {
+      sh """
+        tar -zcf ${tarName} allure-results/*
+        md5sum ${tarName} > ${tarName}.md5
+        test -f ${tarName}
+      """
+    } catch (Exception e) {
+      echo("Archiving test results was interrupted: ${e.getMessage()}")
+      currentBuild.result = 'UNSTABLE'
+      return null
+    }
+
+    archiveArtifacts artifacts: "${tarName}, ${tarName}.md5", allowEmptyArchive: true, fingerprint: true, defaultExcludes: false
+    stash name: stashName, includes: "${tarName}, ${tarName}.md5"
+
+    echo("Test results archived and stashed: ${stashName}")
+    return stashName
+  }
+}
+
+/**
+ * Reads the version of the specified dependency from the package.json file.
+ *
+ * This function reads the version of the specified dependency from the package.json file.
+ *
+ * @param filePath The path to the package.json file. Must not be null or empty.
+ * @param dependencyName The name of the dependency to read the version for. Must not be null or empty.
+ * @return The version of the specified dependency.
+ * @throws IllegalArgumentException if the file path or dependency name is null or empty.
+ * @throws FileNotFoundException if the specified file does not exist.
+ * @throws IOException if an error occurs while reading the file.
+ * @throws JsonException if the file is not a valid JSON.
+ */
+String readPackageJsonDependencyVersion(String filePath, String dependencyName) {
+  validateParameter(filePath, 'File path')
+  validateParameter(dependencyName, 'Dependency name')
+
+  def packageJson
+  try {
+    packageJson = readJSON(file: filePath)
+  } catch (FileNotFoundException e) {
+    throw new FileNotFoundException("The specified file does not exist: ${filePath}")
+  } catch (IOException e) {
+    throw new IOException("Error reading the file: ${filePath}")
+  } catch (JsonException e) {
+    throw new JsonException("The file is not a valid JSON: ${filePath}")
+  }
+
+  def version = packageJson['dependencies'][dependencyName] ?: packageJson['devDependencies'][dependencyName]
+
+  if (!version) {
+    echo("Dependency '${dependencyName}' not found in package.json.")
+  }
+  return version
+}
+
+/**
+ * Sets up the Report Portal session.
+ *
+ * This function initializes the Report Portal session and returns the execution parameters.
+ *
+ * @param reportPortalClient The Report Portal client. Must not be null.
+ * @return The execution parameters for Report Portal.
+ * @throws IllegalArgumentException if reportPortalClient is null.
+ */
+String setupReportPortal(ReportPortalClient reportPortalClient) {
+  validateParameter(reportPortalClient, 'Report Portal client')
+
+  stage('[ReportPortal] Config bind & launch') {
+    try {
+      String rpLaunchID = reportPortalClient.launch()
+      echo("Report Portal Launch ID: ${rpLaunchID}")
+
+      String portalExecParams = reportPortalClient.getExecParams()
+      echo("Report portal execution parameters: ${portalExecParams}")
+
+      return portalExecParams
+    } catch (Exception e) {
+      echo("Error during Report Portal setup\nError: ${e.getMessage()}")
+    }
+  }
+}
+
+/**
+ * Finalizes the Report Portal session.
+ *
+ * This function stops the Report Portal session and prints the response.
+ *
+ * @param reportPortalClient The Report Portal client. Must not be null.
+ * @throws IllegalArgumentException if reportPortalClient is null.
+ */
+void finalizeReportPortal(ReportPortalClient reportPortalClient) {
+  validateParameter(reportPortalClient, 'Report Portal client')
+
+  stage('[ReportPortal] Finish run') {
+    try {
+      def response = reportPortalClient.launchFinish()
+      echo("${response}")
+    } catch (Exception e) {
+      echo("Couldn't stop run in ReportPortal\nError: ${e.getMessage()}")
+    }
+  }
+}
+
+/**
+ * Re-runs failed tests from Report Portal with parallel execution support.
+ *
+ * This function retrieves failed tests from Report Portal and re-runs them
+ * using parallel workers distributed across multiple Cypress pods for better resource isolation.
+ *
+ * @param launchName The name of the Report Portal launch. Must not be null or empty.
+ * @param numberOfRunners The number of parallel runners to use for re-checking failed tests. Defaults to 6.
+ *                        Runners are distributed across pods (e.g., 6 runners = 3 pods with 2 threads each).
+ * @param timeoutHours The timeout in hours for the entire re-check phase. Defaults to 5.
+ * @return The count of flaky tests that failed on re-check.
+ */
+int runFailedTestsRecheck(String launchName, int numberOfRunners = 6, int timeoutHours = 5) {
+  validateParameter(launchName, 'launchName')
+
+  int flakyCount = 0
+  stage('[Cypress & ReportPortal] Re-check "To Investigate" tests') {
+    try {
+      withCredentials([string(credentialsId: ReportPortalConstants.CREDENTIALS_ID, variable: 'CI_API_KEY')]) {
+        String countFile = 'flaky-recheck-count.txt'
+        String workersFile = 'failedTestsWorkers.json'
+
+        timeout(time: timeoutHours, unit: 'HOURS') {
+          // Generate parallel worker batches for failed tests
+          sh """#!/bin/bash
+            set -euo pipefail
+            node scripts/report-portal/runFailedTests.js --launchName ${launchName} --threads ${numberOfRunners}
+          """
+
+          // Wait for workers file to be generated
+          waitUntil(quiet: true) { fileExists(workersFile) }
+
+          // Parse and execute workers in parallel
+          def json = readJSON(file: workersFile)
+          def workers = json['workers'] ?: []
+
+          if (workers.isEmpty()) {
+            echo("No failed tests to re-check")
+            return
+          }
+
+          echo("Re-checking ${workers.size()} test batches with ${numberOfRunners} parallel runners")
+
+          // Distribute workers across pods (2 threads per pod)
+          int threadsPerPod = 2
+          int numberOfPods = Math.ceil(numberOfRunners / threadsPerPod)
+
+          def parallelPods = [failFast: false]
+
+          numberOfPods.times { int podIndex ->
+            String podId = "recheck-pod-${podIndex}"
+            parallelPods["Pod#${podId}"] = {
+              retry(2) {
+                PodTemplates podTemplates = new PodTemplates(this, true)
+                podTemplates.cypressAgent {
+                  container('cypress') {
+                    // Clone the Cypress repo in each worker pod
+                    cloneCypressRepo(env.BRANCH_NAME ?: 'master')
+
+                    // Compile Cypress tests in the worker pod
+                    compileCypressTests()
+
+                    // Calculate worker indices for this pod
+                    int startWorkerIndex = podIndex * threadsPerPod
+                    int endWorkerIndex = Math.min(startWorkerIndex + threadsPerPod, workers.size())
+
+                    def podWorkers = [failFast: false]
+
+                    (startWorkerIndex..<endWorkerIndex).each { int workerIndex ->
+                      String workerId = "recheck-${workerIndex}"
+                      podWorkers["Worker#${workerId}"] = {
+                        try {
+                          // Build environment variable exports dynamically
+                          // Export all CYPRESS_* variables that match the tenant pattern (e.g., CYPRESS_diku_login, CYPRESS_consortium_login)
+                          String cypressEnvExports = """
+                            export CI_API_KEY=\${CI_API_KEY}
+                            export CYPRESS_BASE_URL=\${CYPRESS_BASE_URL}
+                            export CYPRESS_OKAPI_HOST=\${CYPRESS_OKAPI_HOST}
+                            export CYPRESS_OKAPI_TENANT=\${CYPRESS_OKAPI_TENANT}
+                          """.stripIndent()
+
+                          // Export all CYPRESS_*_login and CYPRESS_*_password variables
+                          env.each { key, value ->
+                            if (key.startsWith('CYPRESS_') && (key.endsWith('_login') || key.endsWith('_password'))) {
+                              cypressEnvExports += "export ${key}=\${${key}}\n"
+                            }
+                          }
+
+                          sh """#!/bin/bash
+                            set -euo pipefail
+                            export HOME=\$(pwd)
+                            export CYPRESS_CACHE_FOLDER=\$(pwd)/cache
+                            export DISPLAY=:\$((10 + ${workerIndex}))
+                            ${cypressEnvExports}
+
+                            mkdir -p /tmp/.X11-unix
+                            Xvfb \$DISPLAY -screen 0 1920x1080x24 &
+                            XVFB_PID=\$!
+
+                            ( while true; do echo "[keep-alive] \$(date -u '+%Y-%m-%dT%H:%M:%SZ')"; sleep 60; done ) &
+                            KEEPALIVE_PID=\$!
+
+                            trap 'kill \$XVFB_PID \$KEEPALIVE_PID 2>/dev/null || true' EXIT INT TERM
+
+                            ${workers[workerIndex]}
+                          """
+                        } catch (Exception e) {
+                          echo("Worker ${workerId} failed: ${e.getMessage()}")
+                          currentBuild.result = 'UNSTABLE'
+                        }
+                      }
+                    }
+
+                    parallel(podWorkers)
+                  }
+                }
+              }
+            }
+          }
+
+          parallel(parallelPods)
+        }
+
+        if (fileExists(countFile)) {
+          flakyCount = readFile(countFile).trim().toInteger()
+          sh "rm -f ${countFile}"
+        }
+      }
+    } catch (Exception e) {
+      echo("runFailedTests re-check failed: ${e.getMessage()}")
+    }
+  }
+  return flakyCount
+}
+
+/**
+ * Unpacks the Allure report from the specified stashes.
+ *
+ * This function unpacks the Allure report from the specified stashes.
+ *
+ * @param stashesList The list of stashes to unpack. Must not be null or empty.
+ * @throws IllegalArgumentException if stashesList is null or empty.
+ */
+void unpackAllureReport(List stashesList) {
+  validateParameter(stashesList, 'Result paths')
+
+  stage('[Stash] Unpack report') {
+    for (stashName in stashesList) {
+      try {
+        unstash name: stashName
+        sh "tar --one-top-level=${stashName} -zxf ${stashName}.tar.gz"
+      } catch (Exception e) {
+        echo("Warning: Could not unpack ${stashName} — the worker may have failed before archiving: ${e.getMessage()}")
+      }
+    }
+  }
+}
+
+/**
+ * Generates and publishes the Allure report.
+ *
+ * This function generates and publishes the Allure report from the specified result paths.
+ *
+ * @param resultPaths The list of result paths to generate the report from. Must not be null or empty.
+ * @throws IllegalArgumentException if resultPaths is null or empty.
+ */
+void generateAndPublishAllureReport(List resultPaths) {
+  validateParameter(resultPaths, 'Result paths')
+
+  stage('[Allure] Generate and publish report') {
+    def allureHome = tool type: 'allure', name: Constants.CYPRESS_ALLURE_VERSION
+    List allureResultPaths = resultPaths.collect { path -> "${path}/allure-results" }
+    List validPaths = allureResultPaths.findAll { path -> fileExists(path) }
+
+    if (validPaths.isEmpty()) {
+      error('No valid allure result paths found. Cannot generate report.')
+    }
+
+    List missingPaths = allureResultPaths - validPaths
+    if (!missingPaths.isEmpty()) {
+      echo "Warning: Skipping ${missingPaths.size()} missing paths: ${missingPaths.join(', ')}"
+    }
+
+    echo "Processing ${validPaths.size()} result directories"
+
+    sh "JAVA_TOOL_OPTIONS='-Xmx6G -Xms1G -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp -XX:MaxDirectMemorySize=1G -Djava.util.concurrent.ForkJoinPool.common.parallelism=2' ${allureHome}/bin/allure generate --clean ${validPaths.join(' ')}"
+
+    withEnv(['JAVA_TOOL_OPTIONS=-Xmx8G -Xms1G -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp -XX:MaxDirectMemorySize=1G -Djava.util.concurrent.ForkJoinPool.common.parallelism=2']) {
+      allure([includeProperties: false,
+              jdk              : '',
+              commandline      : Constants.CYPRESS_ALLURE_VERSION,
+              properties       : [],
+              reportBuildPolicy: 'ALWAYS',
+              results          : validPaths.collect { path -> [path: path] }])
+    }
+  }
+}
+
+/**
+ * Analyzes the test results and generates the test run summary.
+ *
+ * This function analyzes the test results and generates the test run summary.
+ *
+ * @return The test run summary.
+ */
+CypressRunExecutionSummary analyzeResults() {
+  stage('[Report] Analyze results') {
+    CypressRunExecutionSummary testRunExecutionSummary
+    String suitesPath = "${env.WORKSPACE}/allure-report/data/suites.json"
+    String categoriesPath = "${env.WORKSPACE}/allure-report/data/categories.json"
+
+    Map jsonSuites = fileExists(suitesPath) ? readJSON(file: suitesPath) : [:]
+    Map jsonDefects = fileExists(categoriesPath) ? readJSON(file: categoriesPath) : [:]
+
+    testRunExecutionSummary = CypressRunExecutionSummary.addFromJSON(jsonSuites)
+    testRunExecutionSummary.addDefectsFromJSON(jsonDefects)
+    return testRunExecutionSummary
+  }
+}
+
+/**
+ * Sends notifications to Slack if required.
+ *
+ * This function sends notifications to a specified Slack channel based on the test run summary.
+ *
+ * @param sendSlackNotification Indicates whether to send Slack notifications.
+ * @param testRunExecutionSummary The summary of the test run execution. Must not be null.
+ * @param ciBuildId The name of the build. Must not be null or empty.
+ * @param useReportPortal Indicates whether Report Portal is used.
+ * @param channel The Slack channel to send notifications to. Defaults to '#rancher_tests_notifications'.
+ */
+void sendNotifications(CypressRunExecutionSummary testRunExecutionSummary, String ciBuildId, boolean useReportPortal,
+                       String channel = '#rancher_tests_notifications', int flakyCount = 0) {
+  validateParameter(testRunExecutionSummary, 'Test run execution summary')
+  validateParameter(ciBuildId, 'CI build ID')
+  validateParameter(useReportPortal, 'Use Report Portal')
+
+  stage('[Slack] Send notification') {
+    slackSend(attachments: folioSlackNotificationUtils
+      .renderBuildAndTestResultMessage(TestType.CYPRESS,
+        testRunExecutionSummary,
+        ciBuildId,
+        useReportPortal,
+        "${env.BUILD_URL}allure/",
+        null,
+        flakyCount),
+      channel: channel)
+  }
+}
+
+/**
+ * Generates a random ID of the specified length.
+ *
+ * This function generates a random ID of the specified length.
+ *
+ * @param length The length of the random ID. Must be greater than 0.
+ * @return The generated random ID.
+ * @throws IllegalArgumentException if the length is less than or equal to 0.
+ */
+String generateRandomId(int length) {
+  validateParameter(length, 'ID length')
+
+  // Define the character pool
+  def chars = ('a'..'z') + ('0'..'9')
+  Random random = new Random()
+
+  // Generate the random ID
+  return (1..length).collect { chars[random.nextInt(chars.size())] }.join()
+}
+
+/**
+ * Run parallel-run.js and wait for 'parallelWorkers.json' to be produced.
+ * @param timeoutMinutes number of minutes to wait for the file (default: 5)
+ * @param workersFile the filename to wait for (default: 'parallelWorkers.json')
+ * @return the list of worker entries parsed from the JSON file (json['workers'])
+ */
+List compileExecBatches(String compileExecParameters, int numberOfWorkers = 1, int timeoutMinutes = 5) {
+  String workersFile = 'parallelWorkers.json'
+  stage('Compile Exec Batch') {
+    try {
+      sh """#!/bin/bash
+        set -euo pipefail
+        node -v
+        yarn -v
+        node ./scripts/parallel-run.js threads=${numberOfWorkers} ${compileExecParameters}
+      """
+      timeout(time: timeoutMinutes, unit: 'MINUTES') {
+        waitUntil(quiet: true) { fileExists(workersFile) }
+      }
+
+      try {
+        def json = readJSON(file: workersFile)
+        def workers = json['workers']
+        if (!(workers instanceof Collection)) {
+          echo "${workersFile} parsed but 'workers' is missing or not a list"
+          currentBuild.result = 'FAILURE'
+          throw new Exception("'workers' is missing or not a list in ${workersFile}")
+        }
+        echo "${workersFile} parsed OK (entries: ${workers.size()})"
+        return workers
+      } catch (Exception parseErr) {
+        echo "${workersFile} exists but is invalid: ${parseErr.message}"
+        currentBuild.result = 'FAILURE'
+        throw parseErr
+      }
+    } catch (Exception e) {
+      echo "Failed waiting for '${workersFile}': ${e.getMessage()}"
+      sh 'ls -la || true'
+      currentBuild.result = 'FAILURE'
+      throw e
+    }
+  }
+}
