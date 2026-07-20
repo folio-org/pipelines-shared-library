@@ -601,9 +601,8 @@ CypressRunExecutionSummary analyzeResults(String reportWorkspace) {
 
     testRunExecutionSummary = CypressRunExecutionSummary.addFromJSON(jsonSuites)
     testRunExecutionSummary.addDefectsFromJSON(jsonDefects)
+    return testRunExecutionSummary
   }
-
-  return testRunExecutionSummary
 }
 
 /**
