@@ -548,37 +548,35 @@ void generateAndPublishAllureReport(List resultPaths, String reportWorkspace, St
   validateParameter(publishWorkspace, 'Publish workspace')
 
   stage('[Allure] Generate and publish report') {
-    ws(publishWorkspace) {
-      def allureHome = tool type: 'allure', name: Constants.CYPRESS_ALLURE_VERSION
-      List allureResultPaths = resultPaths.collect { path -> "${reportWorkspace}/${path}" }
-      List validPaths = allureResultPaths.findAll { path -> fileExists(path) }
+    def allureHome = tool type: 'allure', name: Constants.CYPRESS_ALLURE_VERSION
+    List allureResultPaths = resultPaths.collect { path -> "${reportWorkspace}/${path}" }
+    List validPaths = allureResultPaths.findAll { path -> fileExists(path) }
 
-      echo "Using isolated Allure workspace: ${reportWorkspace}"
-      echo "Publishing Allure report in workspace: ${publishWorkspace}"
-      echo "Expected result paths:\n  ${allureResultPaths.join('\n  ')}"
+    echo "Using isolated Allure workspace: ${reportWorkspace}"
+    echo "Publishing Allure report from current workspace root"
+    echo "Expected result paths:\n  ${allureResultPaths.join('\n  ')}"
 
-      if (validPaths.isEmpty()) {
-        error('No valid allure result paths found. Cannot generate report.')
-      }
+    if (validPaths.isEmpty()) {
+      error('No valid allure result paths found. Cannot generate report.')
+    }
 
-      List missingPaths = allureResultPaths - validPaths
-      if (!missingPaths.isEmpty()) {
-        echo "Warning: Skipping ${missingPaths.size()} missing paths: ${missingPaths.join(', ')}"
-      }
+    List missingPaths = allureResultPaths - validPaths
+    if (!missingPaths.isEmpty()) {
+      echo "Warning: Skipping ${missingPaths.size()} missing paths: ${missingPaths.join(', ')}"
+    }
 
-      echo "Processing ${validPaths.size()} result directories"
+    echo "Processing ${validPaths.size()} result directories"
 
-      sh 'rm -rf allure-report'
-      sh "JAVA_TOOL_OPTIONS='-Xmx6G -Xms1G -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp -XX:MaxDirectMemorySize=1G -Djava.util.concurrent.ForkJoinPool.common.parallelism=2' ${allureHome}/bin/allure generate --clean -o allure-report ${validPaths.join(' ')}"
+    sh 'rm -rf allure-report'
+    sh "JAVA_TOOL_OPTIONS='-Xmx6G -Xms1G -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp -XX:MaxDirectMemorySize=1G -Djava.util.concurrent.ForkJoinPool.common.parallelism=2' ${allureHome}/bin/allure generate --clean ${validPaths.join(' ')}"
 
-      withEnv(['JAVA_TOOL_OPTIONS=-Xmx8G -Xms1G -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp -XX:MaxDirectMemorySize=1G -Djava.util.concurrent.ForkJoinPool.common.parallelism=2']) {
-        allure([includeProperties: false,
-                jdk              : '',
-                commandline      : Constants.CYPRESS_ALLURE_VERSION,
-                properties       : [],
-                reportBuildPolicy: 'ALWAYS',
-                results          : validPaths.collect { path -> [path: path] }])
-      }
+    withEnv(['JAVA_TOOL_OPTIONS=-Xmx8G -Xms1G -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp -XX:MaxDirectMemorySize=1G -Djava.util.concurrent.ForkJoinPool.common.parallelism=2']) {
+      allure([includeProperties: false,
+              jdk              : '',
+              commandline      : Constants.CYPRESS_ALLURE_VERSION,
+              properties       : [],
+              reportBuildPolicy: 'ALWAYS',
+              results          : validPaths.collect { path -> [path: path] }])
     }
   }
 }
