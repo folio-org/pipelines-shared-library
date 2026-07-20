@@ -67,7 +67,7 @@ CypressRunExecutionSummary call(String ciBuildId, List<CypressTestsParameters> t
   String reportPortalExecParameters = ''
 
   List allureResultsList = []
-  String reportWorkspace = "${env.WORKSPACE}/allure-${java.util.UUID.randomUUID().toString()}"
+  String reportWorkspace = "allure-${java.util.UUID.randomUUID().toString()}"
 
   boolean mainPhaseSucceeded = false
   int flakyCount = 0
