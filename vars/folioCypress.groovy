@@ -512,16 +512,24 @@ int runFailedTestsRecheck(String launchName, int numberOfRunners = 6, int timeou
  * @param stashesList The list of stashes to unpack. Must not be null or empty.
  * @throws IllegalArgumentException if stashesList is null or empty.
  */
-void unpackAllureReport(List stashesList) {
+void unpackAllureReport(List stashesList, String reportWorkspace) {
   validateParameter(stashesList, 'Result paths')
+  validateParameter(reportWorkspace, 'Report workspace')
 
   stage('[Stash] Unpack report') {
-    for (stashName in stashesList) {
-      try {
-        unstash name: stashName
-        sh "tar --one-top-level=${stashName} -zxf ${stashName}.tar.gz"
-      } catch (Exception e) {
-        echo("Warning: Could not unpack ${stashName} — the worker may have failed before archiving: ${e.getMessage()}")
+    sh "rm -rf ${reportWorkspace} && mkdir -p ${reportWorkspace}"
+    echo "Using isolated Allure workspace: ${reportWorkspace}"
+
+    ws(reportWorkspace) {
+      echo "Verify reportWorkspace"
+      sh "pwd"
+      for (stashName in stashesList) {
+        try {
+          unstash name: stashName
+          sh "tar --one-top-level=${stashName} -zxf ${stashName}.tar.gz && rm -f ${stashName}.tar.gz ${stashName}.tar.gz.md5"
+        } catch (Exception e) {
+          echo("Warning: Could not unpack ${stashName} — the worker may have failed before archiving: ${e.getMessage()}")
+        }
       }
     }
   }
@@ -535,34 +543,40 @@ void unpackAllureReport(List stashesList) {
  * @param resultPaths The list of result paths to generate the report from. Must not be null or empty.
  * @throws IllegalArgumentException if resultPaths is null or empty.
  */
-void generateAndPublishAllureReport(List resultPaths) {
+void generateAndPublishAllureReport(List resultPaths, String reportWorkspace) {
   validateParameter(resultPaths, 'Result paths')
+  validateParameter(reportWorkspace, 'Report workspace')
 
   stage('[Allure] Generate and publish report') {
-    def allureHome = tool type: 'allure', name: Constants.CYPRESS_ALLURE_VERSION
-    List allureResultPaths = resultPaths.collect { path -> "${path}/allure-results" }
-    List validPaths = allureResultPaths.findAll { path -> fileExists(path) }
+    ws(reportWorkspace) {
+      def allureHome = tool type: 'allure', name: Constants.CYPRESS_ALLURE_VERSION
+      List allureResultPaths = resultPaths.collect { path -> "${path}" }
+      List validPaths = allureResultPaths.findAll { path -> fileExists(path) }
 
-    if (validPaths.isEmpty()) {
-      error('No valid allure result paths found. Cannot generate report.')
-    }
+      echo "Using isolated Allure workspace: ${reportWorkspace}"
+      echo "Expected result paths:\n  ${allureResultPaths.join('\n  ')}"
 
-    List missingPaths = allureResultPaths - validPaths
-    if (!missingPaths.isEmpty()) {
-      echo "Warning: Skipping ${missingPaths.size()} missing paths: ${missingPaths.join(', ')}"
-    }
+      if (validPaths.isEmpty()) {
+        error('No valid allure result paths found. Cannot generate report.')
+      }
 
-    echo "Processing ${validPaths.size()} result directories"
+      List missingPaths = allureResultPaths - validPaths
+      if (!missingPaths.isEmpty()) {
+        echo "Warning: Skipping ${missingPaths.size()} missing paths: ${missingPaths.join(', ')}"
+      }
 
-    sh "JAVA_TOOL_OPTIONS='-Xmx6G -Xms1G -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp -XX:MaxDirectMemorySize=1G -Djava.util.concurrent.ForkJoinPool.common.parallelism=2' ${allureHome}/bin/allure generate --clean ${validPaths.join(' ')}"
+      echo "Processing ${validPaths.size()} result directories"
 
-    withEnv(['JAVA_TOOL_OPTIONS=-Xmx8G -Xms1G -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp -XX:MaxDirectMemorySize=1G -Djava.util.concurrent.ForkJoinPool.common.parallelism=2']) {
-      allure([includeProperties: false,
-              jdk              : '',
-              commandline      : Constants.CYPRESS_ALLURE_VERSION,
-              properties       : [],
-              reportBuildPolicy: 'ALWAYS',
-              results          : validPaths.collect { path -> [path: path] }])
+      sh "JAVA_TOOL_OPTIONS='-Xmx6G -Xms1G -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp -XX:MaxDirectMemorySize=1G -Djava.util.concurrent.ForkJoinPool.common.parallelism=2' ${allureHome}/bin/allure generate --clean ${validPaths.join(' ')}"
+
+      withEnv(['JAVA_TOOL_OPTIONS=-Xmx8G -Xms1G -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp -XX:MaxDirectMemorySize=1G -Djava.util.concurrent.ForkJoinPool.common.parallelism=2']) {
+        allure([includeProperties: false,
+                jdk              : '',
+                commandline      : Constants.CYPRESS_ALLURE_VERSION,
+                properties       : [],
+                reportBuildPolicy: 'ALWAYS',
+                results          : validPaths.collect { path -> [path: path] }])
+      }
     }
   }
 }
@@ -574,19 +588,22 @@ void generateAndPublishAllureReport(List resultPaths) {
  *
  * @return The test run summary.
  */
-CypressRunExecutionSummary analyzeResults() {
+CypressRunExecutionSummary analyzeResults(String reportWorkspace) {
+  validateParameter(reportWorkspace, 'Report workspace')
+
   stage('[Report] Analyze results') {
     CypressRunExecutionSummary testRunExecutionSummary
-    String suitesPath = "${env.WORKSPACE}/allure-report/data/suites.json"
-    String categoriesPath = "${env.WORKSPACE}/allure-report/data/categories.json"
+    String suitesPath = "${reportWorkspace}/allure-report/data/suites.json"
+    String categoriesPath = "${reportWorkspace}/allure-report/data/categories.json"
 
     Map jsonSuites = fileExists(suitesPath) ? readJSON(file: suitesPath) : [:]
     Map jsonDefects = fileExists(categoriesPath) ? readJSON(file: categoriesPath) : [:]
 
     testRunExecutionSummary = CypressRunExecutionSummary.addFromJSON(jsonSuites)
     testRunExecutionSummary.addDefectsFromJSON(jsonDefects)
-    return testRunExecutionSummary
   }
+
+  return testRunExecutionSummary
 }
 
 /**
