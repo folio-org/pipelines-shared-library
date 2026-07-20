@@ -542,10 +542,9 @@ void unpackAllureReport(List stashesList, String reportWorkspace) {
  * @param resultPaths The list of result paths to generate the report from. Must not be null or empty.
  * @throws IllegalArgumentException if resultPaths is null or empty.
  */
-void generateAndPublishAllureReport(List resultPaths, String reportWorkspace, String publishWorkspace) {
+void generateAndPublishAllureReport(List resultPaths, String reportWorkspace) {
   validateParameter(resultPaths, 'Result paths')
   validateParameter(reportWorkspace, 'Report workspace')
-  validateParameter(publishWorkspace, 'Publish workspace')
 
   stage('[Allure] Generate and publish report') {
     def allureHome = tool type: 'allure', name: Constants.CYPRESS_ALLURE_VERSION
@@ -568,7 +567,7 @@ void generateAndPublishAllureReport(List resultPaths, String reportWorkspace, St
     echo "Processing ${validPaths.size()} result directories"
 
     sh 'rm -rf allure-report'
-    sh "JAVA_TOOL_OPTIONS='-Xmx6G -Xms1G -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp -XX:MaxDirectMemorySize=1G -Djava.util.concurrent.ForkJoinPool.common.parallelism=2' ${allureHome}/bin/allure generate --clean -o allure-report ${validPaths.join(' ')}"
+    sh "JAVA_TOOL_OPTIONS='-Xmx6G -Xms1G -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp -XX:MaxDirectMemorySize=1G -Djava.util.concurrent.ForkJoinPool.common.parallelism=2' ${allureHome}/bin/allure generate --clean ${validPaths.join(' ')}"
 
     withEnv(['JAVA_TOOL_OPTIONS=-Xmx8G -Xms1G -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp -XX:MaxDirectMemorySize=1G -Djava.util.concurrent.ForkJoinPool.common.parallelism=2']) {
       allure([includeProperties: false,
@@ -588,13 +587,11 @@ void generateAndPublishAllureReport(List resultPaths, String reportWorkspace, St
  *
  * @return The test run summary.
  */
-CypressRunExecutionSummary analyzeResults(String publishWorkspace) {
-  validateParameter(publishWorkspace, 'Publish workspace')
-
+CypressRunExecutionSummary analyzeResults() {
   stage('[Report] Analyze results') {
     CypressRunExecutionSummary testRunExecutionSummary
-    String suitesPath = "${publishWorkspace}/allure-report/data/suites.json"
-    String categoriesPath = "${publishWorkspace}/allure-report/data/categories.json"
+    String suitesPath = "${env.WORKSPACE}/allure-report/data/suites.json"
+    String categoriesPath = "${env.WORKSPACE}/allure-report/data/categories.json"
 
     Map jsonSuites = fileExists(suitesPath) ? readJSON(file: suitesPath) : [:]
     Map jsonDefects = fileExists(categoriesPath) ? readJSON(file: categoriesPath) : [:]
