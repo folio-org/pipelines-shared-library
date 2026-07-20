@@ -82,11 +82,11 @@ CypressRunExecutionSummary call(String ciBuildId, List<CypressTestsParameters> t
             folioCypress.validateParameter(reportPortalRunType, 'reportPortalRunType')
 
             reportPortalClient = new ReportPortalClient(this,
-                    TestType.CYPRESS,
-                    ciBuildId,
-                    env.BUILD_NUMBER,
-                    env.WORKSPACE,
-                    reportPortalRunType)
+              TestType.CYPRESS,
+              ciBuildId,
+              env.BUILD_NUMBER,
+              env.WORKSPACE,
+              reportPortalRunType)
 
             reportPortalExecParameters = folioCypress.setupReportPortal(reportPortalClient)
           }
@@ -96,10 +96,10 @@ CypressRunExecutionSummary call(String ciBuildId, List<CypressTestsParameters> t
             folioCypress.cloneCypressRepo(testParams.testsSrcBranch)
 
             folioCypress.setupCommonEnvironmentVariables(testParams.tenantUrl,
-                    testParams.okapiUrl,
-                    testParams.tenant.tenantId,
-                    testParams.tenant.adminUser.username,
-                    testParams.tenant.adminUser.getPasswordPlainText())
+              testParams.okapiUrl,
+              testParams.tenant.tenantId,
+              testParams.tenant.adminUser.username,
+              testParams.tenant.adminUser.getPasswordPlainText())
 
             folioCypress.compileCypressTests()
 
@@ -116,7 +116,7 @@ CypressRunExecutionSummary call(String ciBuildId, List<CypressTestsParameters> t
                 md5sum ${cypressStash('archive')} > ${cypressStash('checksum')}
               """.stripIndent()
               stash(name: cypressStash('name'),
-                      includes: "${cypressStash('archive')},${cypressStash('checksum')}")
+                includes: "${cypressStash('archive')},${cypressStash('checksum')}")
             }
           }
         }
@@ -144,18 +144,18 @@ CypressRunExecutionSummary call(String ciBuildId, List<CypressTestsParameters> t
                   }
 
                   folioCypress.setupCommonEnvironmentVariables(testParams.tenantUrl,
-                          testParams.okapiUrl,
-                          testParams.tenant.tenantId,
-                          testParams.tenant.adminUser.username,
-                          testParams.tenant.adminUser.getPasswordPlainText())
+                    testParams.okapiUrl,
+                    testParams.tenant.tenantId,
+                    testParams.tenant.adminUser.username,
+                    testParams.tenant.adminUser.getPasswordPlainText())
 
                   String execParameters = "${execBatches[batchIndex]} ${testParams.execParameters}"
 
                   folioCypress.executeTests(testParams.ciBuildId,
-                          testParams.browserName,
-                          execParameters,
-                          testParams.testrailProjectID,
-                          testParams.testrailRunID)
+                    testParams.browserName,
+                    execParameters,
+                    testParams.testrailProjectID,
+                    testParams.testrailRunID)
 
                   // Archive and stash test results. Ref: RANCHER-3062
                   // Stash name is deterministic (allure-results-${workerId})
@@ -219,10 +219,10 @@ CypressRunExecutionSummary call(String ciBuildId, List<CypressTestsParameters> t
 
               // Set up environment for this tenant
               folioCypress.setupCommonEnvironmentVariables(testParams.tenantUrl,
-                      testParams.okapiUrl,
-                      testParams.tenant.tenantId,
-                      testParams.tenant.adminUser.username,
-                      testParams.tenant.adminUser.getPasswordPlainText())
+                testParams.okapiUrl,
+                testParams.tenant.tenantId,
+                testParams.tenant.adminUser.username,
+                testParams.tenant.adminUser.getPasswordPlainText())
 
               flakyCount = folioCypress.runFailedTestsRecheck(ciBuildId, numberOfRecheckRunners)
             }
@@ -235,7 +235,7 @@ CypressRunExecutionSummary call(String ciBuildId, List<CypressTestsParameters> t
       try {
         if (sendNotification) {
           folioCypress.sendNotifications(testRunExecutionSummary, ciBuildId, reportPortalUse,
-                  '#rancher_tests_notifications', flakyCount)
+            '#rancher_tests_notifications', flakyCount)
         }
       } catch (Exception e) {
         logger.warning("Error sending notifications: ${e.getMessage()}")
