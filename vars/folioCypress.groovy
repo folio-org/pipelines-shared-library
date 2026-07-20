@@ -542,17 +542,19 @@ void unpackAllureReport(List stashesList, String reportWorkspace) {
  * @param resultPaths The list of result paths to generate the report from. Must not be null or empty.
  * @throws IllegalArgumentException if resultPaths is null or empty.
  */
-void generateAndPublishAllureReport(List resultPaths, String reportWorkspace) {
+void generateAndPublishAllureReport(List resultPaths, String reportWorkspace, String publishWorkspace) {
   validateParameter(resultPaths, 'Result paths')
   validateParameter(reportWorkspace, 'Report workspace')
+  validateParameter(publishWorkspace, 'Publish workspace')
 
   stage('[Allure] Generate and publish report') {
-    ws(reportWorkspace) {
+    ws(publishWorkspace) {
       def allureHome = tool type: 'allure', name: Constants.CYPRESS_ALLURE_VERSION
-      List allureResultPaths = resultPaths.collect { path -> path }
+      List allureResultPaths = resultPaths.collect { path -> "${reportWorkspace}/${path}" }
       List validPaths = allureResultPaths.findAll { path -> fileExists(path) }
 
       echo "Using isolated Allure workspace: ${reportWorkspace}"
+      echo "Publishing Allure report in workspace: ${publishWorkspace}"
       echo "Expected result paths:\n  ${allureResultPaths.join('\n  ')}"
 
       if (validPaths.isEmpty()) {
@@ -566,6 +568,7 @@ void generateAndPublishAllureReport(List resultPaths, String reportWorkspace) {
 
       echo "Processing ${validPaths.size()} result directories"
 
+      sh 'rm -rf allure-report'
       sh "JAVA_TOOL_OPTIONS='-Xmx6G -Xms1G -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp -XX:MaxDirectMemorySize=1G -Djava.util.concurrent.ForkJoinPool.common.parallelism=2' ${allureHome}/bin/allure generate --clean ${validPaths.join(' ')}"
 
       withEnv(['JAVA_TOOL_OPTIONS=-Xmx8G -Xms1G -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp -XX:MaxDirectMemorySize=1G -Djava.util.concurrent.ForkJoinPool.common.parallelism=2']) {
@@ -587,13 +590,13 @@ void generateAndPublishAllureReport(List resultPaths, String reportWorkspace) {
  *
  * @return The test run summary.
  */
-CypressRunExecutionSummary analyzeResults(String reportWorkspace) {
-  validateParameter(reportWorkspace, 'Report workspace')
+CypressRunExecutionSummary analyzeResults(String publishWorkspace) {
+  validateParameter(publishWorkspace, 'Publish workspace')
 
   stage('[Report] Analyze results') {
     CypressRunExecutionSummary testRunExecutionSummary
-    String suitesPath = "${reportWorkspace}/allure-report/data/suites.json"
-    String categoriesPath = "${reportWorkspace}/allure-report/data/categories.json"
+    String suitesPath = "${publishWorkspace}/allure-report/data/suites.json"
+    String categoriesPath = "${publishWorkspace}/allure-report/data/categories.json"
 
     Map jsonSuites = fileExists(suitesPath) ? readJSON(file: suitesPath) : [:]
     Map jsonDefects = fileExists(categoriesPath) ? readJSON(file: categoriesPath) : [:]
