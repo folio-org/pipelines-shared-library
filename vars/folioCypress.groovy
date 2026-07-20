@@ -521,7 +521,7 @@ void unpackAllureReport(List stashesList, String reportWorkspace) {
 
     ws(reportWorkspace) {
       deleteDir()
-
+      sh "pwd"
       for (stashName in stashesList) {
         try {
           unstash name: stashName
@@ -550,6 +550,9 @@ void generateAndPublishAllureReport(List resultPaths, String reportWorkspace) {
     def allureHome = tool type: 'allure', name: Constants.CYPRESS_ALLURE_VERSION
     List allureResultPaths = resultPaths.collect { path -> "${reportWorkspace}/${path}/allure-results" }
     List validPaths = allureResultPaths.findAll { path -> fileExists(path) }
+
+    sh "ls -la ${reportWorkspace} || true"
+    sh "pwd"
 
     echo "Using isolated Allure workspace: ${reportWorkspace}"
     echo "Publishing Allure report from current workspace root"
