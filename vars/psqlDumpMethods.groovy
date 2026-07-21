@@ -14,7 +14,7 @@ def configureHelm(String repo_name, String repo_url) {
 }
 
 
-def backupHelmInstall(String build_id, String repo_name, String chart_name, String chart_version, String project_namespace, String cluster_name, db_backup_name, String psql_dump_backups_bucket_name, String postgresql_backups_directory, String timeout = '360m') {
+def backupHelmInstall(String build_id, String repo_name, String chart_name, String chart_version, String project_namespace, String cluster_name, db_backup_name, String psql_dump_backups_bucket_name, String postgresql_backups_directory, String timeout = '360m', String pvcSize = '100Gi') {
   stage('Helm install') {
     sh "helm install psql-dump-build-id-${build_id} ${repo_name}/${chart_name} --version ${chart_version} --set psql.projectNamespace=${project_namespace} \
         --set psql.dbBackupName=${db_backup_name} --set psql.job.action='backup' --set psql.clusterName=${cluster_name} \
@@ -22,6 +22,8 @@ def backupHelmInstall(String build_id, String repo_name, String chart_name, Stri
         --set psql.s3BackupsBucketDirectory=${postgresql_backups_directory} \
         --set psql.job.initContainer.image.repository=${Constants.ECR_FOLIO_REPOSITORY}/busybox \
         --set psql.job.initContainer.image.tag=latest \
+        --set psql.pvc.storageSize=${pvcSize} \
+        --set psql.pvc.storageClassName=gp3 \
         --namespace=${project_namespace} --timeout ${timeout} --wait --wait-for-jobs"
   }
 }
