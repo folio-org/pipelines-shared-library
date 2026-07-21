@@ -522,6 +522,12 @@ void unpackAllureReport(List stashesList) {
         sh "tar --one-top-level=${stashName} -zxf ${stashName}.tar.gz"
       } catch (Exception e) {
         echo("Warning: Could not unpack ${stashName} — the worker may have failed before archiving: ${e.getMessage()}")
+      } finally {
+        try {
+          sh "rm -f ${stashName}.tar.gz ${stashName}.tar.gz.md5"
+        } catch (Exception cleanupException) {
+          echo("Warning: Failed to clean up stash archives for ${stashName}: ${cleanupException.getMessage()}")
+        }
       }
     }
   }
@@ -553,8 +559,6 @@ void generateAndPublishAllureReport(List resultPaths) {
     }
 
     echo "Processing ${validPaths.size()} result directories"
-
-    sh "JAVA_TOOL_OPTIONS='-Xmx6G -Xms1G -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp -XX:MaxDirectMemorySize=1G -Djava.util.concurrent.ForkJoinPool.common.parallelism=2' ${allureHome}/bin/allure generate --clean ${validPaths.join(' ')}"
 
     withEnv(['JAVA_TOOL_OPTIONS=-Xmx8G -Xms1G -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp -XX:MaxDirectMemorySize=1G -Djava.util.concurrent.ForkJoinPool.common.parallelism=2']) {
       allure([includeProperties: false,
