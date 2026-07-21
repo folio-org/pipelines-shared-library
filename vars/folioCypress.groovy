@@ -512,22 +512,16 @@ int runFailedTestsRecheck(String launchName, int numberOfRunners = 6, int timeou
  * @param stashesList The list of stashes to unpack. Must not be null or empty.
  * @throws IllegalArgumentException if stashesList is null or empty.
  */
-void unpackAllureReport(List stashesList, String reportWorkspace) {
+void unpackAllureReport(List stashesList) {
   validateParameter(stashesList, 'Result paths')
-  validateParameter(reportWorkspace, 'Report workspace')
 
   stage('[Stash] Unpack report') {
-    echo "Using isolated Allure workspace: ${reportWorkspace}"
-
-    dir(reportWorkspace) {
-      sh "pwd"
-      for (stashName in stashesList) {
-        try {
-          unstash name: stashName
-          sh "tar --one-top-level=${stashName} -zxf ${stashName}.tar.gz && rm -f ${stashName}.tar.gz ${stashName}.tar.gz.md5"
-        } catch (Exception e) {
-          echo("Warning: Could not unpack ${stashName} — the worker may have failed before archiving: ${e.getMessage()}")
-        }
+    for (stashName in stashesList) {
+      try {
+        unstash name: stashName
+        sh "tar --one-top-level=${stashName} -zxf ${stashName}.tar.gz && rm -f ${stashName}.tar.gz ${stashName}.tar.gz.md5"
+      } catch (Exception e) {
+        echo("Warning: Could not unpack ${stashName} — the worker may have failed before archiving: ${e.getMessage()}")
       }
     }
   }
@@ -541,21 +535,13 @@ void unpackAllureReport(List stashesList, String reportWorkspace) {
  * @param resultPaths The list of result paths to generate the report from. Must not be null or empty.
  * @throws IllegalArgumentException if resultPaths is null or empty.
  */
-void generateAndPublishAllureReport(List resultPaths, String reportWorkspace) {
+void generateAndPublishAllureReport(List resultPaths) {
   validateParameter(resultPaths, 'Result paths')
-  validateParameter(reportWorkspace, 'Report workspace')
 
   stage('[Allure] Generate and publish report') {
     def allureHome = tool type: 'allure', name: Constants.CYPRESS_ALLURE_VERSION
-    List allureResultPaths = resultPaths.collect { path -> "${reportWorkspace}/${path}/allure-results" }
+    List allureResultPaths = resultPaths.collect { path -> "${path}/allure-results" }
     List validPaths = allureResultPaths.findAll { path -> fileExists(path) }
-
-    sh "ls -la ${reportWorkspace} || true"
-    sh "pwd"
-
-    echo "Using isolated Allure workspace: ${reportWorkspace}"
-    echo "Publishing Allure report from current workspace root"
-    echo "Expected result paths:\n  ${allureResultPaths.join('\n  ')}"
 
     if (validPaths.isEmpty()) {
       error('No valid allure result paths found. Cannot generate report.')
@@ -568,15 +554,7 @@ void generateAndPublishAllureReport(List resultPaths, String reportWorkspace) {
 
     echo "Processing ${validPaths.size()} result directories"
 
-//    sh 'rm -rf allure-report'
 //    sh "JAVA_TOOL_OPTIONS='-Xmx6G -Xms1G -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp -XX:MaxDirectMemorySize=1G -Djava.util.concurrent.ForkJoinPool.common.parallelism=2' ${allureHome}/bin/allure generate --clean ${validPaths.join(' ')}"
-
-    sh '''
-      echo "BUILD=$BUILD_NUMBER"
-      echo "EXECUTOR=$EXECUTOR_NUMBER"
-      echo "WORKSPACE=$WORKSPACE"
-      ls -ld "$WORKSPACE"
-    '''
 
     withEnv(['JAVA_TOOL_OPTIONS=-Xmx8G -Xms1G -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp -XX:MaxDirectMemorySize=1G -Djava.util.concurrent.ForkJoinPool.common.parallelism=2']) {
       allure([includeProperties: false,
