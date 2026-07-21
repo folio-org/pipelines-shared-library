@@ -20,6 +20,8 @@ def backupHelmInstall(String build_id, String repo_name, String chart_name, Stri
         --set psql.dbBackupName=${db_backup_name} --set psql.job.action='backup' --set psql.clusterName=${cluster_name} \
         --set psql.s3BackupsBucketName=${psql_dump_backups_bucket_name} \
         --set psql.s3BackupsBucketDirectory=${postgresql_backups_directory} \
+        --set psql.job.initContainer.image.repository=${Constants.ECR_FOLIO_REPOSITORY}/busybox \
+        --set psql.job.initContainer.image.tag=latest \
         --namespace=${project_namespace} --timeout ${timeout} --wait --wait-for-jobs"
   }
 }
