@@ -12,7 +12,7 @@ properties([
   parameters([
     folioParameters.cluster(),
     folioParameters.namespace(),
-    string(name: 'BACKUP_NAME', defaultValue: '', description: '(Optional) Custom backup name. If empty, auto-generated as <CLUSTER>-<NAMESPACE>-<BUILD_ID>'),
+    string(name: 'BACKUP_NAME', defaultValue: '', description: '(Optional) Custom backup name. If empty, auto-generated as CLUSTER-NAMESPACE-BUILD_ID'),
     choice(name: 'BACKUP_SCOPE', choices: ['full', 'db-only'], description: 'full = DB dump + tenant/entitlements JSON metadata; db-only = PostgreSQL dump only'),
     folioParameters.refreshParameters()
   ])
