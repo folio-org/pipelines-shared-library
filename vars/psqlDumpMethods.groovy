@@ -14,13 +14,13 @@ def configureHelm(String repo_name, String repo_url) {
 }
 
 
-def backupHelmInstall(String build_id, String repo_name, String chart_name, String chart_version, String project_namespace, String cluster_name, db_backup_name, String psql_dump_backups_bucket_name, String postgresql_backups_directory) {
+def backupHelmInstall(String build_id, String repo_name, String chart_name, String chart_version, String project_namespace, String cluster_name, db_backup_name, String psql_dump_backups_bucket_name, String postgresql_backups_directory, String timeout = '360m') {
   stage('Helm install') {
     sh "helm install psql-dump-build-id-${build_id} ${repo_name}/${chart_name} --version ${chart_version} --set psql.projectNamespace=${project_namespace} \
         --set psql.dbBackupName=${db_backup_name} --set psql.job.action='backup' --set psql.clusterName=${cluster_name} \
         --set psql.s3BackupsBucketName=${psql_dump_backups_bucket_name} \
         --set psql.s3BackupsBucketDirectory=${postgresql_backups_directory} \
-        --namespace=${project_namespace} --timeout 240m --wait --wait-for-jobs"
+        --namespace=${project_namespace} --timeout ${timeout} --wait --wait-for-jobs"
   }
 }
 
@@ -30,7 +30,7 @@ def restoreHelmInstall(String build_id, String repo_name, String chart_name, Str
         --set psql.dbBackupName=${db_backup_name} --set psql.job.action='restore' \
         --set psql.s3BackupsBucketName=${psql_dump_backups_bucket_name} \
         --set psql.s3BackupsBucketDirectory=${postgresql_backups_directory} \
-        --namespace=${project_namespace} --timeout 240m --wait --wait-for-jobs"
+        --namespace=${project_namespace} --timeout 360m --wait --wait-for-jobs"
   }
 }
 

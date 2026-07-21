@@ -14,6 +14,7 @@ properties([
     folioParameters.namespace(),
     string(name: 'BACKUP_NAME', defaultValue: '', description: '(Optional) Custom backup name. If empty, auto-generated as CLUSTER-NAMESPACE-BUILD_ID'),
     choice(name: 'BACKUP_SCOPE', choices: ['full', 'db-only'], description: 'full = DB dump + tenant/entitlements JSON metadata; db-only = PostgreSQL dump only'),
+    string(name: 'TIMEOUT', defaultValue: '360m', description: 'Helm install timeout (e.g. 360m, 6h, 90m)'),
     folioParameters.refreshParameters()
   ])
 ])
@@ -93,7 +94,7 @@ ansiColor('xterm') {
         psqlDumpMethods.backupHelmInstall(
           env.BUILD_ID, helmRepoName, chartName, chartVersion,
           params.NAMESPACE, params.CLUSTER, backupName,
-          bucketName, s3Directory
+          bucketName, s3Directory, params.TIMEOUT
         )
       }
     }
