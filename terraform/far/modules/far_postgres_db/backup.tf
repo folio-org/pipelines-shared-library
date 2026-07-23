@@ -142,7 +142,10 @@ resource "aws_dlm_lifecycle_policy" "postgres_backup" {
         count = 180 // Retain backups for 180 days
       }
 
-      copy_tags = true
+      copy_tags = false
+      tags_to_add = {
+        Name = "${var.cluster_name}-${var.namespace_name}-postgres-ebs"
+      }
     }
 
     target_tags = {
