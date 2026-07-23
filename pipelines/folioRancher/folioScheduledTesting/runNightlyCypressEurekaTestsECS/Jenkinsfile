@@ -47,6 +47,8 @@ cypressParameters.setOkapiUrl("https://${namespace.getDomains().kong}")
 cypressParameters.setTenant(new OkapiTenant('consortium')
   .withAdminUser(new OkapiUser('consortium_admin', 'admin')))
 cypressParameters.setCompileExecParameters('tags="smokeECS criticalPathECS extendedPathECS --nonParallel" env=ecs_env_name="snapshot",eureka=true,ecsEnabled=true')
+cypressParameters.setTestrailProjectID('14')
+cypressParameters.setTestrailRunID('3695')
 cypressParameters.setNumberOfWorkers(params.NUMBER_WORKERS.toInteger())
 cypressParameters.setTimeout('1080')
 
