@@ -96,7 +96,7 @@ spec:
 ''',
       podRetention: podRetention,
       inheritYamlMergeStrategy: true,
-      slaveConnectTimeout: 1800,
+      slaveConnectTimeout: 7200,
       hostNetwork: false,
       workspaceVolume: steps.genericEphemeralVolume(accessModes: 'ReadWriteOnce',
         requestsSize: '5Gi',
