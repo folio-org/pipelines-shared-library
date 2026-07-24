@@ -65,7 +65,7 @@ cypressParameters.setTenant(new OkapiTenant('diku')
   .withAdminUser(new OkapiUser('diku_admin', 'admin')))
 cypressParameters.setCompileExecParameters('tags="smoke criticalPath extendedPath --nonParallel"')
 cypressParameters.setTestrailProjectID('14')
-cypressParameters.setTestrailRunID('3461')
+cypressParameters.setTestrailRunID('3694')
 cypressParameters.setNumberOfWorkers(params.NUMBER_WORKERS.toInteger())
 cypressParameters.setTimeout('1080')
 
