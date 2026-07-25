@@ -215,7 +215,7 @@ def fetchAllModules(String initialUrl, String token) {
 
 def filterModules(List<String> modules, String platform) {
   modules.findAll { name ->
-    def isStandardModule = name.startsWith('mod-') || name.startsWith('edge-')
+    def isStandardModule = name.startsWith('mod-') || name.startsWith('edge-') || name.startsWith('ui-')
     def isOkapiSpecific = name == 'okapi'
     def isEurekaSpecific = ['folio-kong', 'folio-keycloak', 'folio-module-sidecar'].contains(name) || name.startsWith('mgr-')
 
