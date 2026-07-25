@@ -167,18 +167,20 @@ void buildAndPublishUiModuleDescriptor(String moduleName, String branch, Logger 
         Map packageJson = readJSON(file: 'package.json')
         String cliVersion = packageJson.devDependencies?.getAt('@folio/stripes-cli') ?: 'latest'
 
-        sh(
-          label: 'Generate module descriptor via stripes-cli',
-          script: """
-            export HOME=\$(pwd)
-            yarn config set @folio:registry ${Constants.FOLIO_NPM_REPO_URL}
-            cp package.json package.json.orig
-            rm package.json
-            yarn add @folio/stripes-cli@${cliVersion}
-            mv package.json.orig package.json
-            yarn --silent stripes mod descriptor --full --strict > module-descriptors.json
-          """.stripIndent().trim()
-        )
+        withEnv(["STRIPES_CLI_VERSION=${cliVersion}"]) {
+          sh(
+            label: 'Generate module descriptor via stripes-cli',
+            script: """
+              export HOME=\$(pwd)
+              yarn config set @folio:registry ${Constants.FOLIO_NPM_REPO_URL}
+              cp package.json package.json.orig
+              rm package.json
+              yarn add "@folio/stripes-cli@\${STRIPES_CLI_VERSION}"
+              mv package.json.orig package.json
+              yarn --silent stripes mod descriptor --full --strict > module-descriptors.json
+            """.stripIndent().trim()
+          )
+        }
 
         def generated = readJSON(file: 'module-descriptors.json')
         def descriptor = (generated instanceof List) ? generated[0] : generated
