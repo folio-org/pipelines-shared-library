@@ -456,10 +456,10 @@ class Eureka extends Base {
     String descriptorsKey = module.type == ModuleType.FRONTEND ? 'uiModuleDescriptors' : 'moduleDescriptors'
 
     // Remove any URL links from previous module updates
-    appDescriptor[modulesKey].each { it.containsKey('url') ? it.remove('url') : '' }
+    (appDescriptor[modulesKey] ?: []).each { it.containsKey('url') ? it.remove('url') : '' }
 
     // Update Application Descriptor with new Module Version
-    for (item in appDescriptor[modulesKey]) {
+    for (item in (appDescriptor[modulesKey] ?: [])) {
       if (item['name'] == module.name) {
         /** Module ID to update */
         String staleModuleId = item['id'] // save stale module id for descriptor removal
