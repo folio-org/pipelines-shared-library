@@ -159,7 +159,7 @@ static String getModuleId(String moduleName) {
   }
 }
 
-static String getModulesList(String reference){
+static String getModulesList(String reference, boolean includeUi = false){
   return """import groovy.json.JsonSlurperClassic
 import com.cloudbees.plugins.credentials.CredentialsProvider
 import org.jenkinsci.plugins.plaincredentials.StringCredentials
@@ -213,9 +213,9 @@ def fetchAllModules(String initialUrl, String token) {
   return modules
 }
 
-def filterModules(List<String> modules, String platform) {
+def filterModules(List<String> modules, String platform, boolean includeUi) {
   modules.findAll { name ->
-    def isStandardModule = name.startsWith('mod-') || name.startsWith('edge-') || name.startsWith('ui-')
+    def isStandardModule = name.startsWith('mod-') || name.startsWith('edge-')
     def isOkapiSpecific = name == 'okapi'
     def isEurekaSpecific = ['folio-kong', 'folio-keycloak', 'folio-module-sidecar'].contains(name) || name.startsWith('mgr-')
 
@@ -226,6 +226,9 @@ def filterModules(List<String> modules, String platform) {
     if (platform?.toUpperCase() == 'EUREKA') {
       result = result || isEurekaSpecific
     }
+    if (includeUi) {
+      result = result || name.startsWith('ui-')
+    }
     return result
   }.sort()
 }
@@ -234,11 +237,12 @@ def apiUrl = "https://api.github.com/orgs/folio-org/repos"
 def perPage = 100
 def credentialId = "github-jenkins-service-user-token"
 def platform = "${reference}" // Provided at runtime
+def includeUi = ${includeUi}   // Injected at generation time; only buildPush opts in
 
 try {
   def token = getGithubToken(credentialId)
   def modules = fetchAllModules("\${apiUrl}?per_page=\${perPage}", token)
-  def filteredModules = filterModules(modules, platform)
+  def filteredModules = filterModules(modules, platform, includeUi)
 
   return filteredModules
 } catch (Exception e) {
