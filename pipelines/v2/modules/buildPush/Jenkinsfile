@@ -2,7 +2,6 @@ package v2.modules.buildPush
 
 import org.folio.Constants
 import org.folio.jenkins.PodTemplates
-import org.folio.models.module.EurekaModule
 import org.folio.models.module.FolioModule
 import org.folio.models.module.ModuleBuildTool
 import org.folio.models.module.ModuleType
@@ -161,7 +160,7 @@ void buildAndPublishUiModuleDescriptor(String moduleName, String branch, Logger 
       return
     }
 
-    EurekaModule module = new EurekaModule()
+    FolioModule module = new FolioModule()
     container('node') {
       dir(moduleName) {
         Map packageJson = readJSON(file: 'package.json')
