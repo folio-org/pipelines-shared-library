@@ -451,7 +451,7 @@ class Eureka extends Base {
     appDescriptor.version = newAppVersion
     appDescriptor.id = "${appDescriptor.name}-${newAppVersion}"
 
-    // UI (Stripes) modules live under uiModules/uiModuleDescriptors; backend/edge under modules/moduleDescriptors.
+    // UI modules live under uiModules/uiModuleDescriptors; backend/edge under modules/moduleDescriptors.
     String modulesKey = module.type == ModuleType.FRONTEND ? 'uiModules' : 'modules'
     String descriptorsKey = module.type == ModuleType.FRONTEND ? 'uiModuleDescriptors' : 'moduleDescriptors'
 
