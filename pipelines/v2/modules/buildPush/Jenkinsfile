@@ -182,6 +182,9 @@ void buildAndPublishUiModuleDescriptor(String moduleName, String branch, Logger 
 
         def generated = readJSON(file: 'module-descriptors.json')
         def descriptor = (generated instanceof List) ? generated[0] : generated
+        if (!descriptor?.id) {
+          error("stripes mod descriptor produced no valid descriptor (missing id) for ${moduleName}")
+        }
         writeJSON file: 'module-descriptor.json', json: descriptor, pretty: 2
 
         module.loadModuleDetails(descriptor.id as String)
@@ -211,7 +214,7 @@ void uploadModuleDescriptor(FolioModule module) {
   sh(
     label: "Upload Module Descriptor to Module Registry",
     returnStdout: false,
-    script: "[ -e ${module.modDescriptorPath} ] && curl -sS -X PUT ${Constants.EUREKA_REGISTRY_DESCRIPTORS_URL}${module.name}-${module.version} --upload-file ${module.modDescriptorPath}"
+    script: "[ -e ${module.modDescriptorPath} ] && curl -sS --retry 3 --retry-delay 5 --retry-connrefused --connect-timeout 30 -X PUT ${Constants.EUREKA_REGISTRY_DESCRIPTORS_URL}${module.name}-${module.version} --upload-file ${module.modDescriptorPath}"
   )
 }
 
