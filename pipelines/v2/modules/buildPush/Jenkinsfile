@@ -17,7 +17,7 @@ properties([
   buildDiscarder(logRotator(numToKeepStr: '10')),
   parameters([
     folioParameters.platform(),
-    folioParameters.moduleName(), // MODULE_NAME, Folio Module moduleName
+    folioParameters.moduleName('PLATFORM', 'MODULE_NAME', true), // MODULE_NAME - includeUi=true so UI modules are selectable
     folioParameters.branchWithRef('MODULE_BRANCH', 'MODULE_NAME'), // MODULE_BRANCH, Module Github branch
     string(name: 'MAVEN_ARGS', defaultValue: '-DskipTests', description: 'Maven build arguments'),
     choice(name: 'JAVA_VERSION', choices: ['21', '17'], description: 'Java version to use for tests'),
@@ -35,14 +35,23 @@ if (params.REFRESH_PARAMETERS) {
 PodTemplates podTemplates = new PodTemplates(this, true)
 Logger logger = new Logger(this, env.JOB_BASE_NAME)
 
+String moduleName = params.MODULE_NAME
+String branch = params.MODULE_BRANCH
+ModuleType moduleType = ModuleType.determineModuleType(moduleName)
+
 ansiColor('xterm') {
-  podTemplates.javaBuildAgent(params.JAVA_VERSION) {
-    String moduleName = params.MODULE_NAME
-    String branch = params.MODULE_BRANCH
-    String mavenArgs = params.MAVEN_ARGS.trim()
-    String gradleOpts = '--quiet --console plain --no-daemon'
+  if (moduleType == ModuleType.FRONTEND) {
+    podTemplates.stripesLightweightAgent {
+      buildAndPublishUiModuleDescriptor(moduleName, branch, logger)
+    }
+  } else {
+    podTemplates.javaBuildAgent(params.JAVA_VERSION) {
+      buildAndPushBackendModule(moduleName, branch, params.MAVEN_ARGS.trim(), '--quiet --console plain --no-daemon', logger)
+    }
+  }
+}
 
-
+void buildAndPushBackendModule(String moduleName, String branch, String mavenArgs, String gradleOpts, Logger logger) {
     FolioModule module = new FolioModule()
     String commitHash = ""
     String args = ""
@@ -118,17 +127,96 @@ Build tool: ${module.buildTool.toString()}"""
 
         module.descriptor = [readJSON(file: module.modDescriptorPath)]
 
-        sh(
-          label: "Upload Module Descriptor to Module Registry",
-          returnStdout: false,
-          script: "[ -e ${module.modDescriptorPath} ] && curl -sS -X PUT ${Constants.EUREKA_REGISTRY_DESCRIPTORS_URL}${module.name}-${module.version} --upload-file ${module.modDescriptorPath}"
-        )
+        uploadModuleDescriptor(module)
 
         zip zipFile: "ModuleDescriptor.json.zip", glob: "**/ModuleDescriptor.json"
         archiveArtifacts allowEmptyArchive: true, artifacts: "ModuleDescriptor.json.zip", fingerprint: true, defaultExcludes: false
       }
     }
+}
+
+/**
+ * Builds and publishes a UI (Stripes) module descriptor to the Eureka registry (S3).
+ * UI modules have no jar/image - the descriptor is generated from the module's package.json
+ * via @folio/stripes-cli.
+ */
+void buildAndPublishUiModuleDescriptor(String moduleName, String branch, Logger logger) {
+  stage('[Git] Checkout module source') {
+    checkout([
+      $class           : 'GitSCM',
+      branches         : [[name: "*/${branch}"]],
+      extensions       : [[$class: 'RelativeTargetDirectory', relativeTargetDir: moduleName],
+                          [$class: 'CleanBeforeCheckout', deleteUntrackedNestedRepositories: true],
+                          [$class: 'AuthorInChangelog'],
+                          [$class: 'SubmoduleOption', recursiveSubmodules: true]],
+      userRemoteConfigs: [[url: "https://github.com/folio-org/${moduleName}.git"]]
+    ])
   }
+
+  stage('[Yarn] Generate & publish module descriptor') {
+    if (!params.PUSH_DESCRIPTOR_TO_ECR) {
+      logger.info("Skip [Yarn] Generate & publish module descriptor stage")
+      Utils.markStageSkippedForConditional('[Yarn] Generate & publish module descriptor')
+      return
+    }
+
+    FolioModule module = new FolioModule()
+    container('node') {
+      dir(moduleName) {
+        Map packageJson = readJSON(file: 'package.json')
+        String cliVersion = packageJson.devDependencies?.getAt('@folio/stripes-cli') ?: 'latest'
+
+        withEnv(["STRIPES_CLI_VERSION=${cliVersion}"]) {
+          sh(
+            label: 'Generate module descriptor via stripes-cli',
+            script: """
+              export HOME=\$(pwd)
+              yarn config set @folio:registry ${Constants.FOLIO_NPM_REPO_URL}
+              cp package.json package.json.orig
+              rm package.json
+              yarn add "@folio/stripes-cli@\${STRIPES_CLI_VERSION}"
+              mv package.json.orig package.json
+              yarn --silent stripes mod descriptor --full --strict > module-descriptors.json
+            """.stripIndent().trim()
+          )
+        }
+
+        def generated = readJSON(file: 'module-descriptors.json')
+        def descriptor = (generated instanceof List) ? generated[0] : generated
+        if (!descriptor?.id) {
+          error("stripes mod descriptor produced no valid descriptor (missing id) for ${moduleName}")
+        }
+        writeJSON file: 'module-descriptor.json', json: descriptor, pretty: 2
+
+        module.loadModuleDetails(descriptor.id as String)
+        module.descriptor = [descriptor]
+      }
+    }
+
+    module.modDescriptorPath = "${moduleName}/module-descriptor.json"
+    uploadModuleDescriptor(module)
+
+    buildName "${moduleName}.${env.BUILD_ID}"
+    buildDescription """Module: ${module.id}
+Branch: ${branch}
+Type: UI (Stripes)"""
+
+    writeJSON file: 'execution_results.json', json: [
+      moduleId: module.id
+    ] // Export module ID to be used in the upstream jobs. DO NOT REMOVE!!!
+    archiveArtifacts allowEmptyArchive: true, artifacts: "execution_results.json", fingerprint: true, defaultExcludes: false
+
+    zip zipFile: "module-descriptor.json.zip", glob: "**/module-descriptor.json"
+    archiveArtifacts allowEmptyArchive: true, artifacts: "module-descriptor.json.zip", fingerprint: true, defaultExcludes: false
+  }
+}
+
+void uploadModuleDescriptor(FolioModule module) {
+  sh(
+    label: "Upload Module Descriptor to Module Registry",
+    returnStdout: false,
+    script: "[ -e ${module.modDescriptorPath} ] && curl -sS --retry 3 --retry-delay 5 --retry-connrefused --connect-timeout 30 -X PUT ${Constants.EUREKA_REGISTRY_DESCRIPTORS_URL}${module.name}-${module.version} --upload-file ${module.modDescriptorPath}"
+  )
 }
 
 void compile(FolioModule module, String args) {
@@ -221,7 +309,7 @@ def buildAndPushImage(FolioModule module, String args) {
           String shellCmd = """
             echo '[INFO] Build Container Image'
             ./gradlew ${args} -PdockerRepo=folioci -PappVersion=${module.version} buildImage
-  
+
             echo '[INFO] Get rid of BUILD_NUMBER in Module Descriptor'
             [ -e ${module.modDescriptorPath} ] && sed -i 's#${module.version}.${env.BUILD_NUMBER}#${module.version}#g' ${module.modDescriptorPath}
           """.stripIndent().trim()
@@ -235,7 +323,7 @@ def buildAndPushImage(FolioModule module, String args) {
 
           withAWS(credentials: Constants.ECR_FOLIO_REPOSITORY_CREDENTIALS_ID, region: Constants.AWS_REGION) {
             sh """
-              set +x 
+              set +x
               ${ecrLogin()}
             """
             docker.withRegistry("https://${Constants.ECR_FOLIO_REPOSITORY}") {

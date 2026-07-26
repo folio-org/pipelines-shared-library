@@ -18,6 +18,8 @@ enum ModuleType {
         return EDGE
       case ~/^folio_.*/:
         return FRONTEND
+      case ~/^ui-.*/:
+        return FRONTEND
       case ~/^mgr-.*/:
         return MGR
       case ~/.*sidecar.*/:

@@ -289,6 +289,37 @@ spec:
   }
 
   /**
+   * Builds a lightweight Node.js container for running Stripes CLI tooling
+   * (e.g. generating a UI module descriptor). No browsers/test tooling - much lighter than Cypress.
+   *
+   * @param extraEnvVars Optional environment variables.
+   * @param resourceRequestMemory Minimum memory request (default {@code 512Mi}).
+   * @param resourceLimitMemory Memory limit (default {@code 2Gi}).
+   * @return Node container definition.
+   */
+  private Object buildNodeContainer(
+    List<KeyValueEnvVar> extraEnvVars = [],
+    String resourceRequestMemory = '512Mi',
+    String resourceLimitMemory = '2Gi'
+  ) {
+    return steps.containerTemplate(
+      name: 'node',
+      image: "${ECR_REPOSITORY}/node:22-alpine",
+      alwaysPullImage: true,
+      command: 'sleep',
+      args: '99d',
+      envVars: [
+        new KeyValueEnvVar('HOME', WORKING_DIR),
+        new KeyValueEnvVar('YARN_CACHE_FOLDER', "${WORKING_DIR}/.yarn/cache")
+      ] + extraEnvVars,
+      runAsGroup: '1000',
+      runAsUser: '1000',
+      resourceRequestMemory: resourceRequestMemory,
+      resourceLimitMemory: resourceLimitMemory
+    )
+  }
+
+  /**
    * Creates a customized pod template and executes a pipeline body inside.
    *
    * @param config Configuration object defining the template (volumes, containers, yaml, etc.).
@@ -389,6 +420,27 @@ spec:
 """,
       containers: [
         buildWerfContainer([], '10Gi', '10Gi'),
+      ]
+    )) {
+      steps.node(JenkinsAgentLabel.STRIPES_AGENT.getLabel()) {
+        body.call()
+      }
+    }
+  }
+
+  /**
+   * Defines a lightweight Stripes agent for module-level Node.js tooling (e.g. generating a UI
+   * module descriptor via @folio/stripes-cli). Reuses the Stripes agent label (node group) but
+   * provides only a Node container instead of Werf - no ui-bundle build tooling.
+   *
+   * @param body Pipeline steps to execute inside this agent.
+   */
+  void stripesLightweightAgent(Closure body) {
+    createTemplate(new PodTemplateConfig(
+      label: JenkinsAgentLabel.STRIPES_AGENT.getLabel(),
+      volumes: [steps.persistentVolumeClaim(claimName: YARN_CACHE_PVC, mountPath: "${WORKING_DIR}/.yarn/cache")],
+      containers: [
+        buildNodeContainer()
       ]
     )) {
       steps.node(JenkinsAgentLabel.STRIPES_AGENT.getLabel()) {

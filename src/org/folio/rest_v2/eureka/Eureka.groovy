@@ -7,6 +7,7 @@ import org.folio.models.application.Application
 import org.folio.models.application.ApplicationList
 import org.folio.models.module.EurekaModule
 import org.folio.models.module.FolioModule
+import org.folio.models.module.ModuleType
 import org.folio.models.parameters.InitializeFromScratchParameters
 import org.folio.rest_v2.EntitlementApproach
 import org.folio.rest_v2.eureka.kong.*
@@ -450,11 +451,15 @@ class Eureka extends Base {
     appDescriptor.version = newAppVersion
     appDescriptor.id = "${appDescriptor.name}-${newAppVersion}"
 
+    // UI modules live under uiModules/uiModuleDescriptors; backend/edge under modules/moduleDescriptors.
+    String modulesKey = module.type == ModuleType.FRONTEND ? 'uiModules' : 'modules'
+    String descriptorsKey = module.type == ModuleType.FRONTEND ? 'uiModuleDescriptors' : 'moduleDescriptors'
+
     // Remove any URL links from previous module updates
-    appDescriptor['modules'].each { it.containsKey('url') ? it.remove('url') : '' }
+    (appDescriptor[modulesKey] ?: []).each { it.containsKey('url') ? it.remove('url') : '' }
 
     // Update Application Descriptor with new Module Version
-    for (item in appDescriptor['modules']) {
+    for (item in (appDescriptor[modulesKey] ?: [])) {
       if (item['name'] == module.name) {
         /** Module ID to update */
         String staleModuleId = item['id'] // save stale module id for descriptor removal
@@ -466,10 +471,10 @@ class Eureka extends Base {
         logger.info("Updated Module info:\n${item}")
 
         // Remove stale module descriptor from Updated Application Descriptor
-        for (descriptor in appDescriptor['moduleDescriptors']) {
+        for (descriptor in (appDescriptor[descriptorsKey] ?: [])) {
           if (descriptor['id'] == staleModuleId) {
             logger.info("Removing stale module descriptor \"${descriptor['id']}\" from Updated Application Descriptor")
-            appDescriptor['moduleDescriptors'].remove(descriptor)
+            appDescriptor[descriptorsKey].remove(descriptor)
             break
           }
         }
