@@ -35,6 +35,11 @@ resource "rancher2_app_v2" "metrics-server" {
   repo_name     = rancher2_catalog_v2.metrics-server[0].name
   chart_name    = "metrics-server"
   chart_version = "3.12.1"
+  values        = <<-EOT
+    image:
+      # Use ECR pull-through cache for registry.k8s.io
+      repository: ${local.ecr_pull_through_cache_registry}/metrics-server/metrics-server
+  EOT
 }
 
 # Create prometheus app in monitoring namespace
@@ -50,6 +55,10 @@ resource "rancher2_app_v2" "prometheus" {
   force_upgrade = "true"
   values        = <<-EOT
     cleanPrometheusOperatorObjectNames: true
+    # Use ECR pull-through cache for registry.k8s.io images (kube-state-metrics subchart)
+    kube-state-metrics:
+      image:
+        repository: ${local.ecr_pull_through_cache_registry}/kube-state-metrics/kube-state-metrics
 #     alertmanager:
 #       config:
 #         global:

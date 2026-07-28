@@ -131,4 +131,9 @@ resource "helm_release" "aws_cluster_autoscaler" {
     name  = "rbac.serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn"
     value = module.cluster_autoscaler_role.iam_role_arn
   }
+  # Use ECR pull-through cache for registry.k8s.io instead of upstream
+  set {
+    name  = "image.repository"
+    value = "${local.ecr_pull_through_cache_registry}/autoscaling/cluster-autoscaler"
+  }
 }
