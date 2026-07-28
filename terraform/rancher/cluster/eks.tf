@@ -32,10 +32,6 @@ locals {
   testing_cluster  = "folio-testing"
   etesting_cluster = "folio-etesting"
 
-  # ECR pull-through cache rule is global per AWS account/region.
-  # Only create it from one workspace (folio-testing) to avoid conflicts.
-  create_ecr_pull_through_cache = terraform.workspace == local.testing_cluster
-
   # ECR pull-through cache registry URL for registry.k8s.io
   # Used by Helm chart values to override the upstream registry.
   ecr_pull_through_cache_registry = "${data.aws_caller_identity.current.account_id}.dkr.ecr.${var.aws_region}.amazonaws.com/ecr-pullthrough/k8s"
@@ -231,27 +227,7 @@ module "eks_cluster" {
   })
 }
 
-# ---------------------------------------------------------------------------
-# ECR Pull-through Cache for registry.k8s.io
-# ---------------------------------------------------------------------------
-# Caches images from registry.k8s.io into the local ECR to reduce external
-# dependency and improve pull performance.  The cache rule is global per
-# account/region and is created only from folio-testing to avoid conflicts.
-#
-# Once the rule is in place, images are accessed at:
-#   <account>.dkr.ecr.<region>.amazonaws.com/ecr-pullthrough/k8s/<image-path>
-#
-# See: https://docs.aws.amazon.com/AmazonECR/latest/userguide/pull-through-cache.html
-# ---------------------------------------------------------------------------
-
-resource "aws_ecr_pull_through_cache_rule" "registry_k8s_io" {
-  count = local.create_ecr_pull_through_cache ? 1 : 0
-
-  ecr_repository_prefix = "ecr-pullthrough/k8s"
-  upstream_registry_url = "registry.k8s.io"
-}
-
-# IAM policy allowing EKS nodes to pull images from the ECR pull-through cache.
+# IAM policy allowing EKS nodes to pull from ECR pull-through cache for registry.k8s.io.
 # Required for kubelet to auto-create repositories on first pull and to
 # download cached images.
 resource "aws_iam_policy" "ecr_pull_through_cache" {
