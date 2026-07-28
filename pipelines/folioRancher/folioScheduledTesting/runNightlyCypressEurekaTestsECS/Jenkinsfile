@@ -2,6 +2,7 @@
 import groovy.transform.Field
 import jenkins.model.Jenkins
 import org.folio.jenkins.PodTemplates
+import org.folio.Constants
 import org.folio.models.OkapiTenant
 import org.folio.models.OkapiUser
 import org.folio.models.RancherNamespace
@@ -60,5 +61,9 @@ ansiColor('xterm') {
       buildDescription "Branch: ${params.CYPRESS_BRANCH}\nEnv: ${cypressParameters.tenantUrl}"
     }
     folioCypressFlow.call(cypressParameters.getCiBuildId(), [cypressParameters], true, reportPortalUse, reportPortalRunType, true)
+    //Destroy after tests execution
+    stage('[Job] Destroy environment (after)') {
+      folioTriggerJob.deleteNamespace(Constants.JENKINS_DELETE_NAMESPACE_JOB, namespaceBaseParams)
+    }
   }
 }
