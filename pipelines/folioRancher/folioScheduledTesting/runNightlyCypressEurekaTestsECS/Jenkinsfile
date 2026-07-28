@@ -2,6 +2,7 @@
 import groovy.transform.Field
 import jenkins.model.Jenkins
 import org.folio.jenkins.PodTemplates
+import org.folio.Constants
 import org.folio.models.OkapiTenant
 import org.folio.models.OkapiUser
 import org.folio.models.RancherNamespace
@@ -56,9 +57,16 @@ String reportPortalRunType = 'evrk'
 
 ansiColor('xterm') {
   podTemplates.rancherAgent {
-    stage('Ini') {
-      buildDescription "Branch: ${params.CYPRESS_BRANCH}\nEnv: ${cypressParameters.tenantUrl}"
+    try {
+      stage('Ini') {
+        buildDescription "Branch: ${params.CYPRESS_BRANCH}\nEnv: ${cypressParameters.tenantUrl}"
+      }
+      folioCypressFlow.call(cypressParameters.getCiBuildId(), [cypressParameters], true, reportPortalUse, reportPortalRunType, true)
+    } finally {
+      // Always destroy — runs even when the test flow throws
+      stage('[Job] Destroy environment (after)') {
+        folioTriggerJob.deleteNamespace(Constants.JENKINS_DELETE_NAMESPACE_JOB, namespaceBaseParams)
+      }
     }
-    folioCypressFlow.call(cypressParameters.getCiBuildId(), [cypressParameters], true, reportPortalUse, reportPortalRunType, true)
   }
 }
