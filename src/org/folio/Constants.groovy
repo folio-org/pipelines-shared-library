@@ -236,6 +236,7 @@ class Constants {
   static String JENKINS_JOB_DATA_MIGRATION = '/Rancher/folioDataMigrationExecutionTime'
 
   static final String JENKINS_FOLIO_RANCHER_FOLDER = '/folioRancher'
+  static final String JENKINS_CYPRESS_ECS_JOB = "/folioScheduledTesting/runNightlyCypressEurekaTestsECS"
 
   static final String JENKINS_CREATE_NAMESPACE_FROM_BRANCH_JOB = "$JENKINS_FOLIO_RANCHER_FOLDER/manageNamespace/createNamespaceFromBranch"
 
