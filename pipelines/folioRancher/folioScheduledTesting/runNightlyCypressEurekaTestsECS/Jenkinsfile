@@ -13,7 +13,6 @@ import org.jenkinsci.plugins.workflow.libs.Library
 @Library('pipelines-shared-library') _
 
 properties([
-  pipelineTriggers([cron('H 9 * * 2-6')]),
   buildDiscarder(logRotator(numToKeepStr: '30')),
   disableConcurrentBuilds(),
   parameters([
@@ -55,26 +54,11 @@ cypressParameters.setTimeout('1080')
 boolean reportPortalUse = true
 String reportPortalRunType = 'evrk'
 
-@Field final String mainPipelineJobName = 'folioScheduledTesting/runNightlyCypressEurekaTests'
-
 ansiColor('xterm') {
   podTemplates.rancherAgent {
     stage('Ini') {
       buildDescription "Branch: ${params.CYPRESS_BRANCH}\nEnv: ${cypressParameters.tenantUrl}"
     }
-
-    stage('[Wait] Main pipeline completion') {
-      timeout(time: 4, unit: 'HOURS') {
-        waitUntil(initialRecurrencePeriod: 60000, quiet: true) {
-          boolean isRunning = Jenkins.instance.getItemByFullName(mainPipelineJobName)?.isBuilding() ?: false
-          if (isRunning) {
-            logger.info("'${mainPipelineJobName}' is still running. Waiting...")
-          }
-          return !isRunning
-        }
-      }
-    }
-
     folioCypressFlow.call(cypressParameters.getCiBuildId(), [cypressParameters], true, reportPortalUse, reportPortalRunType, true)
   }
 }
