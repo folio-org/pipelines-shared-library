@@ -159,10 +159,10 @@ ansiColor('xterm') {
     stage('[Flow] Execute Cypress ECS tests') {
       logger.info("Running Cypress ECS tests against release-validation (R1-2026)")
       folioCypressFlow.call(cypressEcsParams.getCiBuildId(), [cypressEcsParams], true, reportPortalUse, reportPortalRunType, true)
-      //Destroy after tests execution
-      stage('[Job] Destroy environment (after)') {
-        folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceBaseParams)
-      }
+    }
+    //Destroy after tests execution
+    stage('[Job] Destroy environment (after)') {
+      folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceBaseParams)
     }
   }
 }
