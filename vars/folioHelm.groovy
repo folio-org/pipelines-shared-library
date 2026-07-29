@@ -437,7 +437,6 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
 
   // Enable extra PVC and initContainer for folio-perf with firebird namespace and folio-testing and sprint namespace
   boolean isSuitableNamespaceAndCluster =
-      (ns.getClusterName() == 'folio-dev' && ns.getNamespaceName() == 'firebird') ||
       (ns.getClusterName() == 'folio-etesting' && ns.getNamespaceName() == 'sprint')
 
   if (isSuitableNamespaceAndCluster && moduleName == 'mod-data-export') {
