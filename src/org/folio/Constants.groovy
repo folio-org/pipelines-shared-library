@@ -72,24 +72,6 @@ class Constants {
 
   static List AWS_EKS_CLUSTERS = [
     [
-      name: 'folio-testing'
-      , platform: [ PlatformType.OKAPI ]
-      , namespaces: AWS_EKS_TESTING_NAMESPACES
-      , disabled: false
-    ],
-    [
-      name: 'folio-dev'
-      , platform: [ PlatformType.OKAPI ]
-      , namespaces: AWS_EKS_DEV_NAMESPACES
-      , disabled: false
-    ],
-    [
-      name: 'folio-perf'
-      , platform: [ PlatformType.OKAPI ]
-      , namespaces: AWS_EKS_DEV_NAMESPACES + AWS_EKS_RELEASE_NAMESPACES
-      , disabled: false
-    ],
-    [
       name: 'folio-etesting'
       , platform: [ PlatformType.EUREKA ]
       , namespaces: AWS_EKS_TESTING_NAMESPACES
