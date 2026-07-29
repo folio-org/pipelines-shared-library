@@ -65,7 +65,6 @@ class DependentParametersResolver {
 
   private static String resolveInfraType(String clusterName) {
     // Performance clusters use AWS-managed services; everything else defaults to built-in.
-    if (clusterName == 'folio-perf') return 'aws'
     return 'built-in'
   }
 
