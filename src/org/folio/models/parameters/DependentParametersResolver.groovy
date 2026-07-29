@@ -70,9 +70,8 @@ class DependentParametersResolver {
 
   private static boolean resolveDataset(String clusterName, String namespaceName) {
     if (!clusterName || !namespaceName) return false
-    boolean isPerfCluster = (clusterName == 'folio-perf')
     boolean isBugfestNs = namespaceName.toLowerCase().contains('bugfest')
-    return isPerfCluster && isBugfestNs
+    return isBugfestNs
   }
 
   private static String resolveMembers(String namespaceName) {
