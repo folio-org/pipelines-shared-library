@@ -92,7 +92,6 @@ private void requestApproval() {
 void validateNamespace(String namespace) {
   Map cause = getRelevantCause()
   List allNamespaces = []
-  allNamespaces.addAll(Constants.AWS_EKS_TMP_NAMESPACES)
   allNamespaces.addAll(Constants.AWS_EKS_TESTING_NAMESPACES)
   allNamespaces.addAll(Constants.AWS_EKS_RELEASE_NAMESPACES)
   allNamespaces.addAll(Constants.AWS_EKS_DEV_NAMESPACES)
