@@ -105,5 +105,6 @@ ansiColor('xterm') {
       }
     }
     folioCypressFlow.call(cypressParameters.getCiBuildId(), [cypressParameters], true, reportPortalUse, reportPortalRunType, true)
+    folioTriggerJob.downStreamJob(Constants.JENKINS_CYPRESS_ECS_JOB)
   }
 }

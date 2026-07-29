@@ -52,3 +52,8 @@ def createNamespaceFromBranch(String jobName, CreateNamespaceParameters namespac
       string(name: 'MEMBERS', value: namespaceParams.getMembers())]
   return jobResult
 }
+
+def downStreamJob(String jobName, def parameters = [], boolean propagateJobRunStatus = false, boolean waitJobComplete = false) {
+  def jobResult = build job: jobName, wait: waitJobComplete, propagate: propagateJobRunStatus, parameters: parameters
+  return jobResult
+}

@@ -111,54 +111,63 @@ String reportPortalRunType = 'evrk'
 /**
  * Pipeline*/
 ansiColor('xterm') {
-  podTemplates.rancherAgent {
-    stage('Ini') {
-      buildDescription "Karate branch: ${params.KARATE_BRANCH}\nCypress branch: ${params.CYPRESS_BRANCH}\nEnv: ${namespaceBaseParams.getClusterName()}/${namespaceBaseParams.getNamespaceName()} (${releaseBranch})"
-    }
-
-    stage('[Job] Destroy environment') {
-      def nsExists
-      folioHelm.withKubeConfig(namespaceBaseParams.getClusterName()) {
-        nsExists = kubectl.checkNamespaceExistence("${namespaceBaseParams.getNamespaceName()}")
+  try {
+    podTemplates.rancherAgent {
+      stage('Ini') {
+        buildDescription "Karate branch: ${params.KARATE_BRANCH}\nCypress branch: ${params.CYPRESS_BRANCH}\nEnv: ${namespaceBaseParams.getClusterName()}/${namespaceBaseParams.getNamespaceName()} (${releaseBranch})"
       }
-      if (nsExists) {
-        retry(2) {
-          folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceBaseParams)
+
+      stage('[Job] Destroy environment') {
+        def nsExists
+        folioHelm.withKubeConfig(namespaceBaseParams.getClusterName()) {
+          nsExists = kubectl.checkNamespaceExistence("${namespaceBaseParams.getNamespaceName()}")
         }
-      } else {
-        logger.info("${namespaceBaseParams.getNamespaceName()} namespace does not exist!")
+        if (nsExists) {
+          retry(2) {
+            folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceBaseParams)
+          }
+        } else {
+          logger.info("${namespaceBaseParams.getNamespaceName()} namespace does not exist!")
+        }
+      }
+
+      stage('[Job] Provision environment') {
+        try {
+          folioTriggerJob.createNamespaceFromBranch(createNamespaceJobName, namespaceFromBranchParams)
+        } catch (Exception new_ex) {
+          slackSend(attachments: folioSlackNotificationUtils.renderFailedBuildResultMessage()
+            , channel: "#rancher_tests_notifications")
+          throw new Exception("Provision of the environment is failed: " + new_ex)
+        }
       }
     }
 
-    stage('[Job] Provision environment') {
-      try {
-        folioTriggerJob.createNamespaceFromBranch(createNamespaceJobName, namespaceFromBranchParams)
-      } catch (Exception new_ex) {
-        slackSend(attachments: folioSlackNotificationUtils.renderFailedBuildResultMessage()
-          , channel: "#rancher_tests_notifications")
-        throw new Exception("Provision of the environment is failed: " + new_ex)
+    podTemplates.rancherAgent {
+      stage('[Flow] Execute Karate tests') {
+        logger.info("Running Karate E2E subset against release-validation (R1-2026)")
+        folioKarateFlow.call(karateTestsParams)
       }
     }
-  }
 
-  podTemplates.rancherAgent {
-    stage('[Flow] Execute Karate tests') {
-      logger.info("Running Karate E2E subset against release-validation (R1-2026)")
-      folioKarateFlow.call(karateTestsParams)
+    podTemplates.rancherAgent {
+      stage('[Flow] Execute Cypress non-ECS tests') {
+        logger.info("Running Cypress non-ECS tests against release-validation (R1-2026)")
+        folioCypressFlow.call(cypressNonEcsParams.getCiBuildId(), [cypressNonEcsParams], true, reportPortalUse, reportPortalRunType, true)
+      }
     }
-  }
 
-  podTemplates.rancherAgent {
-    stage('[Flow] Execute Cypress non-ECS tests') {
-      logger.info("Running Cypress non-ECS tests against release-validation (R1-2026)")
-      folioCypressFlow.call(cypressNonEcsParams.getCiBuildId(), [cypressNonEcsParams], true, reportPortalUse, reportPortalRunType, true)
+    podTemplates.rancherAgent {
+      stage('[Flow] Execute Cypress ECS tests') {
+        logger.info("Running Cypress ECS tests against release-validation (R1-2026)")
+        folioCypressFlow.call(cypressEcsParams.getCiBuildId(), [cypressEcsParams], true, reportPortalUse, reportPortalRunType, true)
+      }
     }
-  }
-
-  podTemplates.rancherAgent {
-    stage('[Flow] Execute Cypress ECS tests') {
-      logger.info("Running Cypress ECS tests against release-validation (R1-2026)")
-      folioCypressFlow.call(cypressEcsParams.getCiBuildId(), [cypressEcsParams], true, reportPortalUse, reportPortalRunType, true)
+  } finally {
+    // Always destroy — runs even when provision or any test flow throws
+    podTemplates.rancherAgent {
+      stage('[Job] Destroy environment (after)') {
+        folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceBaseParams)
+      }
     }
   }
 }
