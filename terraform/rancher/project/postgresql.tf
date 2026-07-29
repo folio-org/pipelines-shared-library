@@ -120,9 +120,9 @@ primary:
   name: main
   resources:
     requests:
-      memory: 8Gi
+      memory: ${local.pg_memory_request}
     limits:
-      memory: 10Gi
+      memory: ${local.pg_memory_limit}
   persistence:
     enabled: true
     size: '${var.pg_vol_size}Gi'
