@@ -44,6 +44,7 @@ class Constants {
                                         'bienenvolk',
                                         'big-fc',
                                         'citation',
+                                        'corsair',
                                         'data-anonymization',
                                         'dreamliner',
                                         'dresden',
