@@ -37,8 +37,7 @@ class Constants {
   static String AWS_S3_POSTGRES_BACKUPS = 'aws-s3-db-backups-credentials'
   static String AWS_EKS_VPC_NAME = 'folio-rancher-vpc'
   static String AWS_EKS_ADMIN_USERS = 'rancher-port-forward,jenkins-service-user,KonstantinVishnivetskii,eldiiarduishenaliev,stanislav,vasylavramenko'
-  static List AWS_EKS_TMP_NAMESPACES = ['test', 'test-1', 'test-2', 'tdspora']
-  static List AWS_EKS_TESTING_NAMESPACES = ['cypress', 'data-migration', 'data-anonymization', 'release-validation', 'ecs-snapshot', 'karate', 'snapshot', 'snapshot2', 'sprint', 'sprint2', 'pre-bugfest', 'orchid-migration', 'lsdi']
+  static List AWS_EKS_TESTING_NAMESPACES = ['athena','cypress', 'data-anonymization', 'release-validation', 'karate', 'snapshot', 'snapshot2', 'sprint', 'pre-bugfest', 'lsdi']
   static List AWS_EKS_RELEASE_NAMESPACES = ['sunflower', 'trillium']
   static List AWS_EKS_DEV_NAMESPACES = ['aggies',
                                         'bama',
@@ -73,24 +72,6 @@ class Constants {
 
   static List AWS_EKS_CLUSTERS = [
     [
-      name: 'folio-testing'
-      , platform: [ PlatformType.OKAPI ]
-      , namespaces: AWS_EKS_TESTING_NAMESPACES
-      , disabled: false
-    ],
-    [
-      name: 'folio-dev'
-      , platform: [ PlatformType.OKAPI ]
-      , namespaces: AWS_EKS_DEV_NAMESPACES
-      , disabled: false
-    ],
-    [
-      name: 'folio-perf'
-      , platform: [ PlatformType.OKAPI ]
-      , namespaces: AWS_EKS_DEV_NAMESPACES + AWS_EKS_RELEASE_NAMESPACES
-      , disabled: false
-    ],
-    [
       name: 'folio-etesting'
       , platform: [ PlatformType.EUREKA ]
       , namespaces: AWS_EKS_TESTING_NAMESPACES
@@ -100,18 +81,6 @@ class Constants {
       name: 'folio-edev'
       , platform: [ PlatformType.EUREKA ]
       , namespaces: AWS_EKS_DEV_NAMESPACES
-      , disabled: false
-    ],
-    [
-      name: 'folio-eperf'
-      , platform: [ PlatformType.EUREKA ]
-      , namespaces: AWS_EKS_DEV_NAMESPACES + AWS_EKS_RELEASE_NAMESPACES
-      , disabled: false
-    ],
-    [
-      name: 'folio-tmp'
-      , platform: [ PlatformType.EUREKA, PlatformType.OKAPI ]
-      , namespaces: AWS_EKS_TMP_NAMESPACES
       , disabled: false
     ]
   ]
@@ -257,6 +226,7 @@ class Constants {
 
   //Teams
   static Map ENVS_MEMBERS_LIST = ['bama'          : 'Bama',
+                                  'athena'        : 'Athena',
                                   'big-fc'        : 'Big FC',
                                   'citation'      : 'Citation',
                                   'concorde'      : 'concorde',
