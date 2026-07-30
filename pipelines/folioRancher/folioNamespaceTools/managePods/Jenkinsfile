@@ -19,6 +19,7 @@ properties([
               folioParameters.refreshParameters()]),
   pipelineTriggers([parameterizedCron('''
     50 22 * * 5 %ACTION=stop;CLUSTER=folio-etesting;NAMESPACE=sprint
+    50 22 * * 5 %ACTION=stop;CLUSTER=folio-etesting;NAMESPACE=release-validation
     50 23 * * 0 %ACTION=start;CLUSTER=folio-etesting;NAMESPACE=sprint
     0 2 * * 5 %ACTION=stop;CLUSTER=folio-etesting;NAMESPACE=snapshot
     0 22 * * 0 %ACTION=start;CLUSTER=folio-etesting;NAMESPACE=snapshot
