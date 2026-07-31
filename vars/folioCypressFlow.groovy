@@ -76,7 +76,7 @@ CypressRunExecutionSummary call(String ciBuildId, List<CypressTestsParameters> t
       List execBatches = []
 
       // Retry agent provisioning and test compilation in case of eviction
-      retry(2) {
+      retry(testParams.retryCount) {
         podTemplates.cypressAgent {
           if (reportPortalUse) {
             folioCypress.validateParameter(reportPortalRunType, 'reportPortalRunType')
@@ -103,7 +103,11 @@ CypressRunExecutionSummary call(String ciBuildId, List<CypressTestsParameters> t
 
             folioCypress.compileCypressTests()
 
-            execBatches = folioCypress.compileExecBatches(testParams.compileExecParameters, testParams.numberOfWorkers)
+            // Compile test batches: in multi-thread mode each worker pod runs
+            // 2 concurrent cypress threads, so compile threadsPerPod times more batches.
+            int threadsPerPod = testParams.multiThread ? 2 : 1
+            execBatches = folioCypress.compileExecBatches(testParams.compileExecParameters,
+              testParams.numberOfWorkers * threadsPerPod)
 
             if (testParams.prepare) {
               folioCypress.prepareTenantForCypressTests(testParams)
@@ -123,46 +127,64 @@ CypressRunExecutionSummary call(String ciBuildId, List<CypressTestsParameters> t
       }
 
       stage('Run tests') {
+        int threadsPerPod = testParams.multiThread ? 2 : 1
+        int numberOfPods = Math.ceil(execBatches.size() / threadsPerPod)
+
         def workers = [failFast: false]
         String runId = folioCypress.generateRandomId(3)
         testParams.ciBuildId = "${ciBuildId}-${runId}"
 
-        execBatches.size().times { int batchIndex ->
-          String workerId = "${runId}${batchIndex}"
-          workers["Worker#${workerId}"] = {
+        numberOfPods.times { int podIndex ->
+          workers["Pod#${podIndex}"] = {
             // Retry agent provisioning and batch execution in case of eviction
-            retry(3) {
+            retry(testParams.retryCount) {
               podTemplates.cypressAgent {
                 container('cypress') {
-                  stage('[Stash] Extract tests') {
-                    unstash name: cypressStash('name')
-                    sh """
-                      md5sum -c ${cypressStash('checksum')}
-                      tar -zxf ${cypressStash('archive')}
-                      rm -rf ${cypressStash('archive')} ${cypressStash('checksum')}
-                    """.stripIndent()
+                  // Distribute exec batches across this pod: up to threadsPerPod
+                  // cypress threads run concurrently inside the same pod.
+                  int startBatchIndex = podIndex * threadsPerPod
+                  int endBatchIndex = Math.min(startBatchIndex + threadsPerPod, execBatches.size())
+
+                  def podThreads = [failFast: false]
+                  (startBatchIndex..<endBatchIndex).each { int batchIndex ->
+                    String workerId = "${runId}${batchIndex}"
+                    podThreads["Thread#${workerId}"] = {
+                      stage('[Stash] Extract tests') {
+                        unstash name: cypressStash('name')
+                        sh """
+                          md5sum -c ${cypressStash('checksum')}
+                          tar -zxf ${cypressStash('archive')}
+                          rm -rf ${cypressStash('archive')} ${cypressStash('checksum')}
+                        """.stripIndent()
+                      }
+
+                      folioCypress.setupCommonEnvironmentVariables(testParams.tenantUrl,
+                        testParams.okapiUrl,
+                        testParams.tenant.tenantId,
+                        testParams.tenant.adminUser.username,
+                        testParams.tenant.adminUser.getPasswordPlainText())
+
+                      String execParameters = "${execBatches[batchIndex]} ${testParams.execParameters}"
+
+                      // Threads sharing a pod must use distinct DISPLAY sockets —
+                      // the offset differentiates them (0-based within the pod).
+                      folioCypress.executeTests(testParams.ciBuildId,
+                        testParams.browserName,
+                        execParameters,
+                        testParams.testrailProjectID,
+                        testParams.testrailRunID,
+                        batchIndex % threadsPerPod)
+
+                      // Archive and stash test results. Ref: RANCHER-3062
+                      // Stash name is deterministic (allure-results-${workerId})
+                      // so we reconstruct the list after parallel() instead of
+                      // capturing it via CPS closure variable, which gets lost
+                      // across CPS serialization boundaries.
+                      folioCypress.archiveTestResults(workerId)
+                    }
                   }
 
-                  folioCypress.setupCommonEnvironmentVariables(testParams.tenantUrl,
-                    testParams.okapiUrl,
-                    testParams.tenant.tenantId,
-                    testParams.tenant.adminUser.username,
-                    testParams.tenant.adminUser.getPasswordPlainText())
-
-                  String execParameters = "${execBatches[batchIndex]} ${testParams.execParameters}"
-
-                  folioCypress.executeTests(testParams.ciBuildId,
-                    testParams.browserName,
-                    execParameters,
-                    testParams.testrailProjectID,
-                    testParams.testrailRunID)
-
-                  // Archive and stash test results. Ref: RANCHER-3062
-                  // Stash name is deterministic (allure-results-${workerId})
-                  // so we reconstruct the list after parallel() instead of
-                  // capturing it via CPS closure variable, which gets lost
-                  // across CPS serialization boundaries.
-                  folioCypress.archiveTestResults(workerId)
+                  parallel(podThreads)
                 }
               }
             }
@@ -205,7 +227,7 @@ CypressRunExecutionSummary call(String ciBuildId, List<CypressTestsParameters> t
     if (recheckFailedTests && reportPortalUse && reportPortalClient != null && mainPhaseSucceeded && testRunExecutionSummary != null && testRunExecutionSummary.getPassRate() > 80) {
       // Run recheck for each tenant configuration
       testsToRun.each { CypressTestsParameters testParams ->
-        retry(2) {
+        retry(testParams.retryCount) {
           podTemplates.cypressAgent {
             container('cypress') {
               stage('[Stash] Extract tests') {

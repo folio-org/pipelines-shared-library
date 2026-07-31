@@ -140,15 +140,18 @@ void compileCypressTests() {
  * @param execParameters Additional parameters for executing tests. Must not be null.
  * @param testrailProjectID The TestRail project ID. Defaults to an empty string.
  * @param testrailRunID The TestRail run ID. Defaults to an empty string.
+ * @param displayOffset The DISPLAY offset for this cypress thread (0-based within
+ *                      a worker pod). Used to keep X11 sockets unique when multiple
+ *                      threads share a pod. Defaults to 0.
  */
 void executeTests(String ciBuildId, String browserName, String execParameters,
-                  String testrailProjectID = '', String testrailRunID = '') {
+                  String testrailProjectID = '', String testrailRunID = '', int displayOffset = 0) {
   validateParameter(ciBuildId, 'ciBuildId')
   validateParameter(browserName, 'Browser name')
   validateParameter(execParameters, 'Execution parameters')
 
   stage('[Cypress] Run tests') {
-    String execString = createExecString(ciBuildId, browserName, execParameters)
+    String execString = createExecString(ciBuildId, browserName, execParameters, displayOffset)
     if (testrailProjectID?.trim() && testrailRunID?.trim()) {
       runTestsWithTestRail(testrailProjectID, testrailRunID, execString)
     } else {
@@ -165,9 +168,12 @@ void executeTests(String ciBuildId, String browserName, String execParameters,
  * @param browserName The name of the browser to run tests on. Must not be null or empty.
  * @param ciBuildId The name of the custom build. Must not be null or empty.
  * @param execParameters Additional parameters for executing tests. Must not be null.
+ * @param displayOffset The DISPLAY offset for this cypress thread (0-based within
+ *                      a worker pod). Used to keep X11 sockets unique when multiple
+ *                      threads share a pod. Defaults to 0.
  * @return The command string for executing tests.
  */
-String createExecString(String ciBuildId, String browserName, String execParameters) {
+String createExecString(String ciBuildId, String browserName, String execParameters, int displayOffset = 0) {
   validateParameter(ciBuildId, 'ciBuildId')
   validateParameter(browserName, 'Browser name')
   validateParameter(execParameters, 'Execution parameters')
@@ -176,7 +182,9 @@ String createExecString(String ciBuildId, String browserName, String execParamet
   // X11 sockets <:10 and stays within the 200-socket default limit).
   // Containers are isolated — each pod has its own /tmp — so DISPLAY collisions
   // between workers are impossible even when pods land on the same node.
-  String screenId = ((env.BUILD_NUMBER?.toInteger() ?: 0) % 190 + 10).toString()
+  // displayOffset differentiates threads sharing the same pod (0-based within
+  // the pod), keeping their X11 sockets unique.
+  int screenId = ((env.BUILD_NUMBER?.toInteger() ?: 0) + displayOffset) % 190 + 10
 
   return """set -euo pipefail
     export HOME=\$(pwd)

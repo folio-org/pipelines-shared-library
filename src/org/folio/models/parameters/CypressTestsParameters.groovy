@@ -47,6 +47,14 @@ class CypressTestsParameters implements Cloneable {
   // Number of workers to use for running tests, defaults to 1
   int numberOfWorkers = 1
 
+  // Number of Jenkins retry attempts for agent provisioning / test execution,
+  // guarding against agent failures (pod eviction etc.). Defaults to 1 (single attempt).
+  int retryCount = 1
+
+  // When true, each worker pod runs 2 concurrent cypress threads instead of 1.
+  // Defaults to true.
+  boolean multiThread = true
+
   // Timeout duration for tests in minutes, defaults to 480 (8 hours)
   String timeout = '480'
 

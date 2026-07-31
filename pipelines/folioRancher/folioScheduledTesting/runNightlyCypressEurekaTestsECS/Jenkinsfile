@@ -11,14 +11,14 @@ import org.folio.models.parameters.CypressTestsParameters
 import org.folio.utilities.Logger
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-3088') _
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
   disableConcurrentBuilds(),
   parameters([
     string(name: 'CYPRESS_BRANCH', defaultValue: 'master', description: "(Required) Insert what 'stripes-testing' branch use for build"),
-    string(name: 'NUMBER_WORKERS', defaultValue: '15', description: "(Required) Define number of workers for Cypress tests execution"),
+    string(name: 'NUMBER_WORKERS', defaultValue: '5', description: "(Required) Define number of workers for Cypress tests execution"),
     folioParameters.refreshParameters()
   ])
 ])
