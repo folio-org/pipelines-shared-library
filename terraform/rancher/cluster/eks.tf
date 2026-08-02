@@ -36,6 +36,10 @@ locals {
   # Used by Helm chart values to override the upstream registry.
   ecr_pull_through_cache_registry = "${data.aws_caller_identity.current.account_id}.dkr.ecr.${var.aws_region}.amazonaws.com/ecr-pullthrough/k8s"
 
+  # Registry host only (no path). Charts that render image as <registry>/<repository>
+  # (e.g. the kube-state-metrics subchart) need registry and repository split.
+  ecr_pull_through_cache_registry_host = "${data.aws_caller_identity.current.account_id}.dkr.ecr.${var.aws_region}.amazonaws.com"
+
   # Define dedicated node groups for quality gate namespaces
   dedicated_node_groups = ["cicypress", "cikarate", "cypress"]
 
