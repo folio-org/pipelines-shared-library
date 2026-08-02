@@ -55,10 +55,13 @@ resource "rancher2_app_v2" "prometheus" {
   force_upgrade = "true"
   values        = <<-EOT
     cleanPrometheusOperatorObjectNames: true
-    # Use ECR pull-through cache for registry.k8s.io images (kube-state-metrics subchart)
+    # Use ECR pull-through cache for registry.k8s.io images (kube-state-metrics subchart).
+    # The kube-state-metrics subchart renders image as <registry>/<repository>, so the
+    # registry host and repository path must be overridden separately.
     kube-state-metrics:
       image:
-        repository: ${local.ecr_pull_through_cache_registry}/kube-state-metrics/kube-state-metrics
+        registry: ${local.ecr_pull_through_cache_registry_host}
+        repository: ecr-pullthrough/k8s/kube-state-metrics/kube-state-metrics
 #     alertmanager:
 #       config:
 #         global:
