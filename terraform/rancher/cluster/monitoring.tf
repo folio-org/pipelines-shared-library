@@ -35,6 +35,11 @@ resource "rancher2_app_v2" "metrics-server" {
   repo_name     = rancher2_catalog_v2.metrics-server[0].name
   chart_name    = "metrics-server"
   chart_version = "3.12.1"
+  values        = <<-EOT
+    image:
+      # Use ECR pull-through cache for registry.k8s.io
+      repository: ${local.ecr_pull_through_cache_registry}/metrics-server/metrics-server
+  EOT
 }
 
 # Create prometheus app in monitoring namespace
@@ -50,6 +55,13 @@ resource "rancher2_app_v2" "prometheus" {
   force_upgrade = "true"
   values        = <<-EOT
     cleanPrometheusOperatorObjectNames: true
+    # Use ECR pull-through cache for registry.k8s.io images (kube-state-metrics subchart).
+    # The kube-state-metrics subchart renders image as <registry>/<repository>, so the
+    # registry host and repository path must be overridden separately.
+    kube-state-metrics:
+      image:
+        registry: ${local.ecr_pull_through_cache_registry_host}
+        repository: ecr-pullthrough/k8s/kube-state-metrics/kube-state-metrics
 #     alertmanager:
 #       config:
 #         global:

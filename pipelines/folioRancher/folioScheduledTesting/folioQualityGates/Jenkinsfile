@@ -147,7 +147,7 @@ ansiColor('xterm') {
     podTemplates.rancherAgent {
       stage('[AWS] Update ssm') {
         if (currentBuildSha) {
-          folioHashCommitCheck.updateBuildSha(currentBuildSha, 'platform-lsp')
+          folioChangeLog.updateShaOnSuccess(currentBuildSha, 'platform-lsp')
         }
       }
 

@@ -32,6 +32,14 @@ locals {
   testing_cluster  = "folio-testing"
   etesting_cluster = "folio-etesting"
 
+  # ECR pull-through cache registry URL for registry.k8s.io
+  # Used by Helm chart values to override the upstream registry.
+  ecr_pull_through_cache_registry = "${data.aws_caller_identity.current.account_id}.dkr.ecr.${var.aws_region}.amazonaws.com/ecr-pullthrough/k8s"
+
+  # Registry host only (no path). Charts that render image as <registry>/<repository>
+  # (e.g. the kube-state-metrics subchart) need registry and repository split.
+  ecr_pull_through_cache_registry_host = "${data.aws_caller_identity.current.account_id}.dkr.ecr.${var.aws_region}.amazonaws.com"
+
   # Define dedicated node groups for quality gate namespaces
   dedicated_node_groups = ["cicypress", "cikarate", "cypress"]
 
@@ -45,6 +53,7 @@ locals {
       iam_role_additional_policies = {
         AmazonSSMFullAccess = "arn:aws:iam::aws:policy/AmazonSSMFullAccess"
         S3BucketAccess      = aws_iam_policy.s3_bucket_access.arn
+        ECRPullThroughCache = aws_iam_policy.ecr_pull_through_cache.arn
       }
 
       capacity_type = var.eks_nodes_type
@@ -206,6 +215,7 @@ module "eks_cluster" {
       iam_role_additional_policies = {
         AmazonSSMFullAccess = "arn:aws:iam::aws:policy/AmazonSSMFullAccess"
         S3BucketAccess      = aws_iam_policy.s3_bucket_access.arn
+        ECRPullThroughCache = aws_iam_policy.ecr_pull_through_cache.arn
       }
 
       # For future schedule https://registry.terraform.io/modules/terraform-aws-modules/eks/aws/latest/submodules/eks-managed-node-group#input_schedules
@@ -219,6 +229,36 @@ module "eks_cluster" {
     {
       kubernetes_cluster = terraform.workspace
   })
+}
+
+# IAM policy allowing EKS nodes to pull from ECR pull-through cache for registry.k8s.io.
+# Required for kubelet to auto-create repositories on first pull and to
+# download cached images.
+resource "aws_iam_policy" "ecr_pull_through_cache" {
+  name        = join("-", [terraform.workspace, "ecr-pullthrough-k8s"])
+  description = "Allow EKS nodes to pull from ECR pull-through cache for registry.k8s.io"
+  policy      = data.aws_iam_policy_document.ecr_pull_through_cache.json
+
+  tags = merge(
+    {
+      Name = "ecr-pullthrough-k8s"
+    },
+    var.tags
+  )
+}
+
+data "aws_iam_policy_document" "ecr_pull_through_cache" {
+  statement {
+    sid    = "ECRPullThroughCacheAccess"
+    effect = "Allow"
+    actions = [
+      "ecr:BatchCheckLayerAvailability",
+      "ecr:BatchGetImage",
+      "ecr:GetDownloadUrlForLayer",
+      "ecr:CreateRepository" # Required for auto-creating repos on first pull
+    ]
+    resources = ["arn:aws:ecr:*:${data.aws_caller_identity.current.account_id}:repository/ecr-pullthrough/k8s/*"]
+  }
 }
 
 # AWS Auth ConfigMap management moved to separate module in v20.x

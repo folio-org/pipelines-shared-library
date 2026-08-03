@@ -67,7 +67,7 @@ variable "eks_nodes_group_size" {
 
 variable "asg_instance_types" {
   type        = list(string)
-  default     = ["r5a.xlarge"]
+  default     = ["r6a.xlarge"]
   description = "List of EC2 instance machine types to be used in EKS."
 }
 

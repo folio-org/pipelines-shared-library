@@ -19,24 +19,21 @@ properties([
               folioParameters.refreshParameters()]),
   pipelineTriggers([parameterizedCron('''
     50 22 * * 5 %ACTION=stop;CLUSTER=folio-etesting;NAMESPACE=sprint
+    50 22 * * 5 %ACTION=stop;CLUSTER=folio-etesting;NAMESPACE=release-validation
     50 23 * * 0 %ACTION=start;CLUSTER=folio-etesting;NAMESPACE=sprint
-    55 22 * * 5 %ACTION=stop;CLUSTER=folio-etesting;NAMESPACE=sprint2
-    55 23 * * 0 %ACTION=start;CLUSTER=folio-etesting;NAMESPACE=sprint2
+    0 23 * * 5 %ACTION=stop;CLUSTER=folio-etesting;NAMESPACE=snapshot
+    0 22 * * 0 %ACTION=start;CLUSTER=folio-etesting;NAMESPACE=snapshot
     00 17 * * * %ACTION=stop;CLUSTER=folio-etesting;NAMESPACE=data-anonymization
-    25 22 * * * %ACTION=stop;CLUSTER=folio-tmp;NAMESPACE=test
-    30 22 * * * %ACTION=stop;CLUSTER=folio-tmp;NAMESPACE=test-1
-    35 22 * * * %ACTION=stop;CLUSTER=folio-tmp;NAMESPACE=test-2
-    0 0 * * * %ACTION=stop;CLUSTER=folio-eperf;NAMESPACE=corsair
-    30 23 * * * %ACTION=stop;CLUSTER=folio-eperf;NAMESPACE=spitfire
+    0 0 * * * %ACTION=stop;CLUSTER=folio-etesting;NAMESPACE=athena
     19 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=aggies
     0 2 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=citation
     02 17 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=data-anonymization
     17 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=dresden
     10 2 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=big-fc
     10 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=corsair
-    10 0 * * * %ACTION=stop;CLUSTER=folio-eperf;NAMESPACE=corsair
+    10 0 * * * %ACTION=stop;CLUSTER=folio-etesting;NAMESPACE=athena
     0 1 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=eureka
-    0 1 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=eureka-2nd
+    5 1 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=eureka-2nd
     0 1 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=dreamliner
     0 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=firebird
     5 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=folijet

@@ -65,15 +65,13 @@ class DependentParametersResolver {
 
   private static String resolveInfraType(String clusterName) {
     // Performance clusters use AWS-managed services; everything else defaults to built-in.
-    if (clusterName == 'folio-perf' || clusterName == 'folio-eperf') return 'aws'
     return 'built-in'
   }
 
   private static boolean resolveDataset(String clusterName, String namespaceName) {
     if (!clusterName || !namespaceName) return false
-    boolean isPerfCluster = (clusterName == 'folio-perf' || clusterName == 'folio-eperf')
     boolean isBugfestNs = namespaceName.toLowerCase().contains('bugfest')
-    return isPerfCluster && isBugfestNs
+    return isBugfestNs
   }
 
   private static String resolveMembers(String namespaceName) {

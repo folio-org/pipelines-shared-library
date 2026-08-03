@@ -5,6 +5,27 @@ import org.folio.models.module.FolioModule
 import org.folio.slack.SlackHelper
 import org.folio.utilities.GitHubClient
 
+/**
+ * Persist the current build SHA to SSM so the next build can use it as its
+ * changelog comparison baseline.  Only updates the parameter when the build
+ * has succeeded — failed/aborted builds are skipped so that the last known
+ * good SHA remains as the baseline.
+ *
+ * Callers MUST use this method instead of directly calling
+ * {@code folioHashCommitCheck.updateBuildSha()}, otherwise the changelog may
+ * compare against a failed build's SHA, causing missing or inaccurate entries
+ * (see RANCHER-2918 comment 316729).
+ */
+@SuppressWarnings('GrMethodMayBeStatic')
+void updateShaOnSuccess(String sha, String repo = 'platform-lsp') {
+  if (currentBuild.result in [null, 'SUCCESS']) {
+    folioHashCommitCheck.updateBuildSha(sha, repo)
+  } else {
+    echo "Build result is '${currentBuild.result}' — skipping SSM update for ${repo} SHA. " +
+         "Next build will still diff against the last successful SHA."
+  }
+}
+
 List<ChangelogEntry> call(String previousSha, String currentSha) {
 
   GitHubClient gitHubClient = new GitHubClient(this)
@@ -149,7 +170,7 @@ List renderChangelogBlock(List<ChangelogEntry> changeLogEntriesList) {
 
   for (entry in sortedChangeLogEntriesList) {
     String elementHeader = "*${entry.module.id}*"
-    String elementCommit = "`${entry.sha.take(7)}`"
+    String elementCommit = "`${entry.sha}`"
     String elementMessage = entry.commitLink ? "<${entry.commitLink}|${entry.commitMessage}>" : entry.commitMessage
     String elementAuthor = entry.author ? "by ${entry.author}" : ''
     String element = ">${elementHeader}\\n>${elementCommit} ${elementMessage} ${elementAuthor}\\n\\n"
@@ -177,7 +198,7 @@ String renderChangelogSection(List<ChangelogEntry> changeLogEntriesList) {
 
   for (entry in sortedChangeLogEntriesList) {
     String elementHeader = "*${entry.module.id}*"
-    String elementCommit = "`${entry.sha.take(7)}`"
+    String elementCommit = "`${entry.sha}`"
     String elementMessage = entry.commitLink ? "<${entry.commitLink}|${entry.commitMessage}>" : entry.commitMessage
     String elementAuthor = entry.author ? "by ${entry.author}" : ''
     String element = "${elementHeader}\\n${elementCommit} ${elementMessage} ${elementAuthor}\\n\\n"
@@ -201,7 +222,7 @@ String getPlainText(List<ChangelogEntry> changeLogEntriesList) {
 
   changeLogEntriesList.each { entry ->
     String moduleId = entry.module.id
-    String sha = entry.sha.take(7)
+    String sha = entry.sha
     String commitMessage = entry.commitMessage
     String author = entry?.author ?: "Unknown author"
 

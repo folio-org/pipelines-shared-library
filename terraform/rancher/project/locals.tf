@@ -52,4 +52,8 @@ EOF
   kong_standard_snapshot     = var.kong_version == "latest" || can(regex("^.+-SNAPSHOT\\.[0-9]+$", var.kong_version))
   kong_image_registry        = local.kong_custom_snapshot ? "732722833398.dkr.ecr.us-west-2.amazonaws.com" : local.kong_standard_snapshot ? "folioci" : "folioorg"
 
+  # Conditional PostgreSQL resource sizing based on cluster
+  # folio-edev uses reduced resources since actual memory consumption averages ~2Gi (24% of default 8Gi request)
+  pg_memory_request = data.rancher2_cluster.this.name == "folio-edev" ? "4Gi" : "8Gi"
+  pg_memory_limit   = data.rancher2_cluster.this.name == "folio-edev" ? "8Gi" : "10Gi"
 }
