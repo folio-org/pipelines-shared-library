@@ -353,7 +353,7 @@ data:
       # Multiline configuration to handle various log formats
       # Match lines that start with timestamp patterns or are continuations
       multiline.type: pattern
-      multiline.pattern: '^(\d{4}-\d{2}-\d{2}[T ]|\d{2}:\d{2}:\d{2}|\[[\d-]+\s+\d{2}:\d{2}:\d{2}|[\d.]+\s+-\s+|\{"log":)'
+      multiline.pattern: '^(\d{4}-\d{2}-\d{2}[T ]|\d{2}:\d{2}:\d{2}|\[[\d-]+\s+\d{2}:\d{2}:\d{2}|[\w.:\[\]-]+(?:,[[:space:]]*[\w.:\[\]-]+)*[[:space:]]+-[[:space:]]+[\w.:\[\]-]+:\d+[[:space:]]+-[[:space:]]+\[\d{2}/\d{2}/\d{4}:\d{2}:\d{2}:\d{2}[[:space:]]+[^\]]+\][[:space:]]+"\S+[[:space:]]+/[^"]*[[:space:]]+HTTP_[12](_[0-9]+)?"[[:space:]]+[0-9]{3}[[:space:]]+[0-9]+[[:space:]]+rt=|[[:space:]]*-[[:space:]]+-[[:space:]]+\[\d{2}/\d{2}/\d{4}:\d{2}:\d{2}:\d{2}[[:space:]]+[^\]]+\][[:space:]]+"|[\d.]+\s+-\s+|\{"log":)'
       multiline.negate: true
       multiline.match: after
       multiline.max_lines: 10000
@@ -427,7 +427,7 @@ data:
           ignore_failure: true
           when:
             regexp:
-              log: '^[\d.:.]+ - [\w.:]+:\d+ -  \[\d{2}/\d{2}/\d{4}:\d{2}:\d{2}:\d{2} GMT\] "[\w]+ /'
+              log: '^[\w.:\[\]-]+(?:,[[:space:]]*[\w.:\[\]-]+)*[[:space:]]+-[[:space:]]+[\w.:\[\]-]+:\d+[[:space:]]+-[[:space:]]+\[\d{2}/\d{2}/\d{4}:\d{2}:\d{2}:\d{2}[[:space:]]+[^\]]+\][[:space:]]+"\S+[[:space:]]+/'
       # Parse FOLIO sidecar application logs (Java logs from sidecar)
       - dissect:
           tokenizer: "%%{timestamp} %%{level} [%%{logger}] (%%{thread}) %%{message}"
