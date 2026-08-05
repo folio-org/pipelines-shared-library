@@ -389,7 +389,7 @@ spec:
          storageClassName: 'gp3'),
        volumes: [steps.persistentVolumeClaim(claimName: MAVEN_CACHE_PVC, mountPath: "${WORKING_DIR}/.m2/repository")],
        containers: [
-         buildJavaContainer(javaVersion, [], '5120Mi', '12228Mi', '-Xmx2g -XX:+UseG1GC -XX:MaxGCPauseMillis=200')
+         buildJavaContainer(javaVersion, [], '5120Mi', '12228Mi', '-Xmx4g -XX:+UseG1GC -XX:MaxGCPauseMillis=200')
        ]
      )) {
        steps.node(JenkinsAgentLabel.JAVA_KARATE_AGENT.getLabel()) {
