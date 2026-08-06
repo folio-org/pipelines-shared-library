@@ -49,10 +49,9 @@ resource "helm_release" "postgres" {
   cleanup_on_fail = true
   values          = [local.helm_values]
 
-  atomic       = true
-  timeout      = var.helm_timeout
-  wait         = true
-  force_update = true
+  atomic  = true
+  timeout = var.helm_timeout
+  wait    = true
 
   depends_on = [
     kubernetes_persistent_volume_claim.postgres
