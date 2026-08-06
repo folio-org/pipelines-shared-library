@@ -3,10 +3,8 @@ global:
     allowInsecureImages: true
 
 image:
-#  registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
-#  repository: postgresql
+  registry: public.ecr.aws
   tag: 16.4.0
-#  pullPolicy: IfNotPresent
 
 auth:
   postgresPassword: "${db_password}"
@@ -41,11 +39,8 @@ primary:
 
 volumePermissions:
   enabled: true
-#  image:
-#    registry: 732722833398.dkr.ecr.us-west-2.amazonaws.com
-#    repository: os-shell
-#    tag: 11-debian-11-r91
-#    pullPolicy: IfNotPresent
+  image:
+    registry: public.ecr.aws
 
 audit:
   enabled: true
