@@ -69,5 +69,13 @@ void call(CreateNamespaceParameters args) {
     stage('[Terraform] Destroy') {
       folioTerraformFlow.manageNamespace('destroy', tfConfig)
     }
+
+    stage('[AWS Route53] Cleanup DNS records') {
+      retry(2) {
+        awscli.withAwsClient {
+          folioTools.deleteRoute53Records(args.clusterName, args.namespaceName)
+        }
+      }
+    }
   }
 }

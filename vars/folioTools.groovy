@@ -30,6 +30,38 @@ void deleteKafkaTopics(String cluster, String namespace) {
   kubectl.deletePod("${namespace}", 'kafka')
 }
 
+void deleteRoute53Records(String cluster, String namespace) {
+  if (!cluster?.trim() || !namespace?.trim()) {
+    error("deleteRoute53Records: cluster and namespace must not be empty")
+  }
+
+  String recordsJson = sh(
+    script: """aws route53 list-resource-record-sets \
+      --hosted-zone-id ${Constants.ROUTE53_CI_HOSTED_ZONE_ID} \
+      --query "ResourceRecordSets[?starts_with(Name,'${cluster}-${namespace}-') && ends_with(Name,'.${Constants.CI_ROOT_DOMAIN}.')]" \
+      --output json""",
+    returnStdout: true
+  ).trim()
+
+  def recordSets = readJSON(text: recordsJson)
+  if (!recordSets || recordSets.isEmpty()) {
+    echo "No Route53 records found for ${cluster}-${namespace}"
+    return
+  }
+
+  echo "Deleting ${recordSets.size()} Route53 records for ${cluster}-${namespace}"
+  def changes = recordSets.collect { record -> [Action: 'DELETE', ResourceRecordSet: record] }
+  String changeBatchFile = "/tmp/route53-delete-${cluster}-${namespace}.json"
+  try {
+    writeJSON(file: changeBatchFile, json: [Changes: changes])
+    sh(script: """aws route53 change-resource-record-sets \
+      --hosted-zone-id ${Constants.ROUTE53_CI_HOSTED_ZONE_ID} \
+      --change-batch file://${changeBatchFile}""")
+  } finally {
+    sh(script: "rm -f ${changeBatchFile}")
+  }
+}
+
 void stsKafkaLag(String cluster, String namespace, String tenantId) {
   folioHelm.withKubeConfig(cluster) {
     Logger logger = new Logger(this, 'CapabilitiesChecker')
