@@ -1,5 +1,6 @@
 import hudson.util.Secret
 import groovy.json.JsonOutput
+import java.util.regex.Pattern
 import org.folio.Constants
 import org.folio.utilities.Logger
 import org.folio.utilities.RestClient
@@ -35,16 +36,44 @@ void deleteRoute53Records(String cluster, String namespace) {
     error("deleteRoute53Records: cluster and namespace must not be empty")
   }
 
-  String recordsJson = sh(
-    script: """aws route53 list-resource-record-sets \
-      --hosted-zone-id ${Constants.ROUTE53_CI_HOSTED_ZONE_ID} \
-      --query "ResourceRecordSets[?starts_with(Name,'${cluster}-${namespace}-') && ends_with(Name,'.${Constants.CI_ROOT_DOMAIN}.')]" \
-      --output json""",
-    returnStdout: true
-  ).trim()
+  String nameFilter = "${cluster}-${namespace}"
+  List recordSets = []
 
-  def recordSets = readJSON(text: recordsJson)
-  if (!recordSets || recordSets.isEmpty()) {
+  // Records are named <prefix>-<cluster>-<namespace>-<service>.ci.folio.org,
+  // where <prefix> may be empty, cname-, ecs-, fs02-, etc. Match the
+  // cluster-namespace as a whole label (followed by '-' or '.') so that a
+  // namespace like 'snapshot' does not also match 'snapshot2'.
+  Pattern recordPattern = Pattern.compile(Pattern.quote(nameFilter) + '(?=[.-])')
+
+  // list-resource-record-sets returns at most 300 records per page, so paginate
+  // explicitly with --max-items/--starting-token to gather every record in the
+  // hosted zone regardless of the AWS CLI's auto-pagination behavior.
+  String nextToken = null
+  while (true) {
+    String tokenArgs = nextToken ? "--starting-token '${nextToken}'" : ''
+    String pageJson = sh(
+      script: """aws route53 list-resource-record-sets \
+        --hosted-zone-id ${Constants.ROUTE53_CI_HOSTED_ZONE_ID} \
+        --max-items 300 \
+        ${tokenArgs} \
+        --output json""",
+      returnStdout: true
+    ).trim()
+
+    def page = readJSON(text: pageJson)
+    page.ResourceRecordSets.each { record ->
+      if (record.Name && recordPattern.matcher(record.Name).find()) {
+        recordSets.add(record)
+      }
+    }
+
+    nextToken = page.NextToken
+    if (!nextToken) {
+      break
+    }
+  }
+
+  if (recordSets.isEmpty()) {
     echo "No Route53 records found for ${cluster}-${namespace}"
     return
   }
