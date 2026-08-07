@@ -31,6 +31,10 @@ void deleteKafkaTopics(String cluster, String namespace) {
 }
 
 void deleteRoute53Records(String cluster, String namespace) {
+  if (!cluster?.trim() || !namespace?.trim()) {
+    error("deleteRoute53Records: cluster and namespace must not be empty")
+  }
+
   String recordsJson = sh(
     script: """aws route53 list-resource-record-sets \
       --hosted-zone-id ${Constants.ROUTE53_CI_HOSTED_ZONE_ID} \
