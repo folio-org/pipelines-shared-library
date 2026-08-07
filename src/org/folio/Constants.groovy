@@ -130,6 +130,7 @@ class Constants {
   static String FOLIO_GITHUB_REPOS_URL = 'https://api.github.com/repos/folio-org'
   static String FOLIO_GITHUB_RAW_URL = 'https://raw.githubusercontent.com/folio-org'
   static String CI_ROOT_DOMAIN = 'ci.folio.org'
+  static String ROUTE53_CI_HOSTED_ZONE_ID = 'Z3T7T50VQ846GQ'
   static String FOLIO_OPEN_SEARCH_URL = 'https://vpc-folio-opensearch-yq77h7fbng7nq6esvgparhiida.us-west-2.es.amazonaws.com'
 
   static String GITHUB_CREDENTIALS_ID = 'github-jenkins-service-user-token'
