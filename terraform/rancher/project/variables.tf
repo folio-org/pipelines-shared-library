@@ -75,6 +75,12 @@ variable "pgadmin4" {
   description = "Deploy pgadmin4 tool if true"
 }
 
+variable "pg_mcp_server" {
+  type        = bool
+  default     = true
+  description = "Deploy PostgreSQL MCP Server (DBA AI agent) if true"
+}
+
 variable "pg_embedded" {
   type        = bool
   default     = true
