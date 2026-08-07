@@ -1,0 +1,3 @@
+# Helm values templates are rendered into terraform state, so their line endings must not
+# depend on the operator's checkout - otherwise plan shows a whitespace-only diff.
+*.tmpl text eol=lf
