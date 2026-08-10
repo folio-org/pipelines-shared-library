@@ -12,6 +12,7 @@ import org.jenkinsci.plugins.workflow.libs.Library
 
 @Field final String platformRepository = 'platform-lsp'
 @Field final String platformBranch = 'snapshot'
+@Field final String updateConfigPath = '.github/update-config.yml'
 @Field final String snapshotJobName = Constants.JENKINS_CREATE_DAILY_SNAPSHOT_EUREKA_JOB
 
 properties([
@@ -54,10 +55,28 @@ ansiColor('xterm') {
 }
 
 /**
+ * Resolve the update branch of a release branch from platform-lsp's own configuration, so the
+ * naming convention is declared in exactly one place. Read from master, which is where the
+ * release workflows read it from as well.
+ */
+String resolveUpdateBranch(String releaseBranch) {
+  Logger logger = new Logger(this, 'promoteDailySnapshotEureka')
+  String config = new GitHubClient(this).getFileContent('master', updateConfigPath, platformRepository)
+
+  if (!config) {
+    logger.error("Could not read ${updateConfigPath} from ${platformRepository}@master")
+  }
+
+  String format = readYaml(text: config)?.update_config?.update_branch_format
+  if (!format) {
+    logger.error("'update_config.update_branch_format' is missing from ${platformRepository} ${updateConfigPath}")
+  }
+
+  return format.replace('{0}', releaseBranch)
+}
+
+/**
  * Look up the open descriptor-update pull request for a platform-lsp release branch.
- *
- * The update branch name follows the `update_branch_format` declared in platform-lsp's
- * .github/update-config.yml, so the two have to stay in step.
  *
  * Returns a flat map of primitives rather than the raw API body, because the value is held
  * across stages and the pipeline's program state must serialize at every step boundary.
@@ -65,7 +84,7 @@ ansiColor('xterm') {
  */
 Map findOpenUpdatePr(String releaseBranch) {
   Map pullRequest = new GitHubClient(this)
-    .getOpenPullRequest(platformRepository, releaseBranch, "version-update/${releaseBranch}")
+    .getOpenPullRequest(platformRepository, releaseBranch, resolveUpdateBranch(releaseBranch))
 
   if (!pullRequest) {
     return [:]
