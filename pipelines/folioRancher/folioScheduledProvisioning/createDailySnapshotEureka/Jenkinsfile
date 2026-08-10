@@ -15,8 +15,10 @@ import org.jenkinsci.plugins.workflow.libs.Library
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
   disableConcurrentBuilds(),
-  parameters([folioParameters.refreshParameters()]),
-  pipelineTriggers([parameterizedCron('''H 4 * * 1-5''')])
+  parameters([
+    folioParameters.platformBranch('PLATFORM_BRANCH', 'platform-lsp', ''),
+    folioParameters.refreshParameters()
+  ])
 ])
 
 
@@ -30,7 +32,7 @@ PodTemplates podTemplates = new PodTemplates(this)
 CreateNamespaceParameters namespace1 = new CreateNamespaceParameters.Builder()
   .clusterName('folio-etesting')
   .namespaceName('snapshot')
-  .platformBranch('snapshot')
+  .platformBranch(params.PLATFORM_BRANCH)
   .splitFiles(true)
   .ecsCCL(true)
   .build(this)
@@ -38,7 +40,7 @@ CreateNamespaceParameters namespace1 = new CreateNamespaceParameters.Builder()
 CreateNamespaceParameters namespace2 = new CreateNamespaceParameters.Builder()
   .clusterName('folio-etesting')
   .namespaceName('snapshot2')
-  .platformBranch('snapshot')
+  .platformBranch(params.PLATFORM_BRANCH)
   .splitFiles(true)
   .ecsCCL(true)
   .build(this)
@@ -100,7 +102,7 @@ ansiColor('xterm') {
 
     stage('Build name') {
       buildName "${createdEnv.getClusterName()}-${createdEnv.getNamespaceName()}.${env.BUILD_ID}"
-      buildDescription "Config: ${createdEnv.getConfigType()}"
+      buildDescription "Config: ${createdEnv.getConfigType()}\nPlatform branch: ${params.PLATFORM_BRANCH}"
     }
 
     spinUpNamespaces(createdEnv, eliminatedEnv)
