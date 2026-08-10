@@ -129,6 +129,7 @@ class Constants {
   static String FOLIO_SSH_GITHUB_URL = 'git@github.com:folio-org'
   static String FOLIO_GITHUB_REPOS_URL = 'https://api.github.com/repos/folio-org'
   static String FOLIO_GITHUB_RAW_URL = 'https://raw.githubusercontent.com/folio-org'
+  static String GITHUB_GRAPHQL_URL = 'https://api.github.com/graphql'
   static String CI_ROOT_DOMAIN = 'ci.folio.org'
   static String ROUTE53_CI_HOSTED_ZONE_ID = 'Z3T7T50VQ846GQ'
   static String FOLIO_OPEN_SEARCH_URL = 'https://vpc-folio-opensearch-yq77h7fbng7nq6esvgparhiida.us-west-2.es.amazonaws.com'
@@ -207,6 +208,7 @@ class Constants {
 
   static final String JENKINS_FOLIO_RANCHER_FOLDER = '/folioRancher'
   static final String JENKINS_CYPRESS_ECS_JOB = "/folioScheduledTesting/runNightlyCypressEurekaTestsECS"
+  static final String JENKINS_CREATE_DAILY_SNAPSHOT_EUREKA_JOB = "/folioScheduledProvisioning/createDailySnapshotEureka"
 
   static final String JENKINS_CREATE_NAMESPACE_FROM_BRANCH_JOB = "$JENKINS_FOLIO_RANCHER_FOLDER/manageNamespace/createNamespaceFromBranch"
 

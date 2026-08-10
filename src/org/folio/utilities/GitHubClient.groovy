@@ -16,7 +16,8 @@ class GitHubClient {
 
   GitHubClient(Object context) {
     this.logger = new Logger(context, this.getClass().getCanonicalName())
-    this.restClient = new RestClient(context, true)
+    // Debug mode logs the assembled curl command, which carries the bearer token in clear text.
+    this.restClient = new RestClient(context)
     this.gitHubToken = SystemCredentialsProvider.getInstance().getStore()
       .getCredentials(Domain.global()).find { it.getId().equals(GITHUB_TOKEN_CREDENTIAL_ID) }.getSecret()
   }
@@ -142,6 +143,57 @@ class GitHubClient {
     } catch (Exception e) {
       logger.warning("Failed to get file content for ${repository}/${filePath}@${sha}: ${e.getMessage()}")
       return ''
+    }
+  }
+
+  /**
+   * Fetch the open pull request from headBranch into baseBranch.
+   * Returns an empty map when none is open, or on any lookup failure.
+   */
+  Map getOpenPullRequest(String repository, String baseBranch, String headBranch) {
+    String url = "${Constants.FOLIO_GITHUB_REPOS_URL}/${repository}/pulls" +
+      "?state=open&base=${baseBranch}&head=${Constants.FOLIO_ORG}:${headBranch}"
+    Map<String, String> headers = authorizedHeaders()
+
+    try {
+      def response = restClient.get(url, headers)
+      if (response.responseCode >= 200 && response.responseCode < 300) {
+        return (response.body as List)?.getAt(0) as Map ?: [:]
+      } else {
+        logger.warning("GitHub API returned ${response.responseCode} for pull request lookup: ${url}")
+        return [:]
+      }
+    } catch (Exception e) {
+      logger.warning("Failed to look up pull request ${repository} ${headBranch} -> ${baseBranch}: ${e.getMessage()}")
+      return [:]
+    }
+  }
+
+  /**
+   * Add a pull request to the merge queue of its base branch, identified by its GraphQL node id.
+   * Returns the merge queue entry, or an empty map when GitHub declined.
+   *
+   * Enqueueing exists only in the GraphQL API, which answers 200 with an `errors` array instead
+   * of an HTTP error code, so the body has to be inspected rather than the status.
+   */
+  Map enqueuePullRequest(String pullRequestId) {
+    String mutation = 'mutation($id: ID!) { enqueuePullRequest(input: {pullRequestId: $id}) ' +
+      '{ mergeQueueEntry { id position state } } }'
+    Map<String, String> headers = authorizedHeaders()
+
+    try {
+      def response = restClient.post(Constants.GITHUB_GRAPHQL_URL,
+        [query: mutation, variables: [id: pullRequestId]], headers)
+      Map body = response.body as Map ?: [:]
+
+      if (body.errors) {
+        logger.warning("GitHub declined to enqueue ${pullRequestId}: ${body.errors}")
+        return [:]
+      }
+      return body.data?.enqueuePullRequest?.mergeQueueEntry as Map ?: [:]
+    } catch (Exception e) {
+      logger.warning("Failed to enqueue ${pullRequestId}: ${e.getMessage()}")
+      return [:]
     }
   }
 
