@@ -1,0 +1,95 @@
+#!groovy
+package folioRancher.folioScheduledProvisioning.promoteDailySnapshotEureka
+
+import groovy.transform.Field
+import org.folio.Constants
+import org.folio.jenkins.PodTemplates
+import org.folio.utilities.GitHubClient
+import org.folio.utilities.Logger
+import org.jenkinsci.plugins.workflow.libs.Library
+
+@Library('pipelines-shared-library') _
+
+@Field final String platformRepository = 'platform-lsp'
+@Field final String platformBranch = 'snapshot'
+@Field final String snapshotJobName = Constants.JENKINS_CREATE_DAILY_SNAPSHOT_EUREKA_JOB
+
+properties([
+  buildDiscarder(logRotator(numToKeepStr: '30')),
+  disableConcurrentBuilds(),
+  parameters([folioParameters.refreshParameters()]),
+  pipelineTriggers([parameterizedCron('''H 4 * * 1-5''')])
+])
+
+
+if (params.REFRESH_PARAMETERS) {
+  currentBuild.result = 'ABORTED'
+  return
+}
+
+PodTemplates podTemplates = new PodTemplates(this)
+
+ansiColor('xterm') {
+  podTemplates.rancherAgent {
+    Map updatePr = [:]
+
+    stage('Determination') {
+      updatePr = findOpenUpdatePr(platformBranch)
+      buildDescription(updatePr
+        ? "Queueing '${updatePr.branch}' (PR #${updatePr.number})"
+        : "No pending update. Deploying '${platformBranch}'")
+    }
+
+    if (updatePr) {
+      stage('Queue platform update') {
+        enqueueUpdatePr(updatePr)
+      }
+    } else {
+      stage('Deploy platform branch') {
+        folioTriggerJob.downStreamJob(snapshotJobName,
+          [string(name: 'PLATFORM_BRANCH', value: platformBranch)], true, true)
+      }
+    }
+  }
+}
+
+/**
+ * Look up the open descriptor-update pull request for a platform-lsp release branch.
+ *
+ * The update branch name follows the `update_branch_format` declared in platform-lsp's
+ * .github/update-config.yml, so the two have to stay in step.
+ *
+ * Returns a flat map of primitives rather than the raw API body, because the value is held
+ * across stages and the pipeline's program state must serialize at every step boundary.
+ * An empty map means the branch carries no pending update.
+ */
+Map findOpenUpdatePr(String releaseBranch) {
+  Map pullRequest = new GitHubClient(this)
+    .getOpenPullRequest(platformRepository, releaseBranch, "version-update/${releaseBranch}")
+
+  if (!pullRequest) {
+    return [:]
+  }
+
+  return [number: pullRequest.number as int,
+          nodeId: pullRequest.node_id as String,
+          branch: pullRequest.head.ref as String,
+          url   : pullRequest.html_url as String]
+}
+
+/**
+ * Add the update pull request to the merge queue of its base branch.
+ *
+ * GitHub owns the rest: it builds an immutable queue ref, holds the update branch locked while
+ * the deployment check runs against that ref, and merges only on success. A failed or timed-out
+ * check ejects the entry and leaves the release branch at its last validated state.
+ */
+void enqueueUpdatePr(Map updatePr) {
+  Logger logger = new Logger(this, 'promoteDailySnapshotEureka')
+
+  if (new GitHubClient(this).enqueuePullRequest(updatePr.nodeId)) {
+    logger.info("Queued ${updatePr.url}. GitHub will merge it once the deployment check passes.")
+  } else {
+    logger.error("Could not queue ${updatePr.url}. '${updatePr.branch}' stays unmerged.")
+  }
+}
