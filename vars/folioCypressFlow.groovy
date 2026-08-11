@@ -224,7 +224,10 @@ CypressRunExecutionSummary call(String ciBuildId, List<CypressTestsParameters> t
                 testParams.tenant.adminUser.username,
                 testParams.tenant.adminUser.getPasswordPlainText())
 
-              flakyCount = folioCypress.runFailedTestsRecheck(ciBuildId, numberOfRecheckRunners)
+              flakyCount = folioCypress.runFailedTestsRecheck(ciBuildId,
+                      testParams.testrailProjectID,
+                      testParams.testrailRunID,
+                      numberOfRecheckRunners)
             }
           }
         }

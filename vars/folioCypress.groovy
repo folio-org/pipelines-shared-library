@@ -376,18 +376,27 @@ void finalizeReportPortal(ReportPortalClient reportPortalClient) {
  * using parallel workers distributed across multiple Cypress pods for better resource isolation.
  *
  * @param launchName The name of the Report Portal launch. Must not be null or empty.
+ * @param testrailProjectID The TestRail project ID for recheck reporting. Must not be null or empty.
+ * @param testrailRunID The TestRail run ID for recheck reporting. Must not be null or empty.
  * @param numberOfRunners The number of parallel runners to use for re-checking failed tests. Defaults to 6.
  *                        Runners are distributed across pods (e.g., 6 runners = 3 pods with 2 threads each).
  * @param timeoutHours The timeout in hours for the entire re-check phase. Defaults to 5.
  * @return The count of flaky tests that failed on re-check.
  */
-int runFailedTestsRecheck(String launchName, int numberOfRunners = 6, int timeoutHours = 5) {
+int runFailedTestsRecheck(String launchName, String testrailProjectID, String testrailRunID, int numberOfRunners = 6, int timeoutHours = 5) {
+  validateParameter(testrailProjectID, 'TestRail project ID')
+  validateParameter(testrailRunID, 'TestRail run ID')
   validateParameter(launchName, 'launchName')
 
   int flakyCount = 0
   stage('[Cypress & ReportPortal] Re-check "To Investigate" tests') {
     try {
-      withCredentials([string(credentialsId: ReportPortalConstants.CREDENTIALS_ID, variable: 'CI_API_KEY')]) {
+      List credList = [string(credentialsId: ReportPortalConstants.CREDENTIALS_ID, variable: 'CI_API_KEY'),
+                       usernamePassword(credentialsId: Constants.TESTRAIL_CREDENTIALS_ID,
+                         passwordVariable: 'TESTRAIL_PASSWORD',
+                         usernameVariable: 'TESTRAIL_USERNAME')]
+
+      withCredentials(credList) {
         String countFile = 'flaky-recheck-count.txt'
         String workersFile = 'failedTestsWorkers.json'
 
@@ -456,6 +465,12 @@ int runFailedTestsRecheck(String launchName, int numberOfRunners = 6, int timeou
                               cypressEnvExports += "export ${key}=\${${key}}\n"
                             }
                           }
+
+                          cypressEnvExports = """
+                            export TESTRAIL_HOST=${Constants.TESTRAIL_HOST}
+                            export TESTRAIL_PROJECTID=${testrailProjectID}
+                            export TESTRAIL_RUN_ID=${testrailRunID}
+                          """.stripIndent() + cypressEnvExports
 
                           sh """#!/bin/bash
                             set -euo pipefail
