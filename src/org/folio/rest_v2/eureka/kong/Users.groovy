@@ -125,6 +125,11 @@ class Users extends Kong{
 
     List servicePointsIds = restClient.get(url, headers).body.servicepoints*.id
 
+    if (servicePointsIds.isEmpty()) {
+      logger.warning("Service points list is empty for tenant ${tenant.tenantId}, skipping service point assignment for user ${user.username}(${user.uuid})")
+      return this
+    }
+
     Map body = [userId               : user.uuid,
                 servicePointsIds     : servicePointsIds,
                 defaultServicePointId: servicePointsIds.first()]
