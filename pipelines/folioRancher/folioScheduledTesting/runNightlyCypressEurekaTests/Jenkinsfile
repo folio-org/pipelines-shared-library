@@ -52,6 +52,9 @@ CreateNamespaceParameters namespaceBaseParams = new CreateNamespaceParameters.Bu
 CreateNamespaceParameters namespaceFromBranchParams = namespaceBaseParams.toBuilder()
   .folioBranch(platformCompleteBranch)
   .platformBranch(platformCompleteBranch)
+  .consortia(true)
+  .loadReference(true)
+  .loadSample(true)
   .build(this)
 
 RancherNamespace namespace = new RancherNamespace(namespaceBaseParams.getClusterName(), namespaceBaseParams.getNamespaceName())
