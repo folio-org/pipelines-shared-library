@@ -461,8 +461,9 @@ int runFailedTestsRecheck(String launchName, String testrailProjectID, String te
 
                           // Export all CYPRESS_*_login and CYPRESS_*_password variables
                           env.each { key, value ->
-                            if (key.startsWith('CYPRESS_') && (key.endsWith('_login') || key.endsWith('_password'))) {
-                              cypressEnvExports += "export ${key}=\${${key}}\n"
+                            String keyName = key.toString()
+                            if (keyName.startsWith('CYPRESS_') && (keyName.endsWith('_login') || keyName.endsWith('_password'))) {
+                              cypressEnvExports += "export ${keyName}=\${${keyName}}\n"
                             }
                           }
 
