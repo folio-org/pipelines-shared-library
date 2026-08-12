@@ -4,7 +4,7 @@ edge-users:
     username: edgeUser
     firstName: edge
     lastName: SYSTEM
-    password: edgeUser123!
+    password: Ab7@Kx9!FipsAlphaBravo#Zr3Qp!Xt
     create: true
   capabilitiesSet:
     - users.manage
@@ -15,7 +15,7 @@ edge-inventory:
   tenants:
   - tenant: testinventory
     username: test-user
-    password: test
+    password: Ab7@Kx9!FipsAlphaBravo#Zr3Qp!Xt
     create: true
   capabilities:
     - inventory_instances_item.view
@@ -23,26 +23,26 @@ edge-rtac:
   tenants:
   - tenant: testrtac
     username: test-user
-    password: test
+    password: Ab7@Kx9!FipsAlphaBravo#Zr3Qp!Xt
   capabilitiesSet:
   - rtac.manage
 edge-oai-pmh:
   tenants:
   - tenant: testoaipmh
     username: test-user
-    password: test
+    password: Ab7@Kx9!FipsAlphaBravo#Zr3Qp!Xt
     create: true
   - tenant: testconsortium
     username: test_edge_admin
-    password: admin
+    password: Ab7@Kx9!FipsAlphaBravo#Zr3Qp!Xt
     create: false
   - tenant: testuniversity
     username: test_edge_admin
-    password: admin
+    password: Ab7@Kx9!FipsAlphaBravo#Zr3Qp!Xt
     create: false
   - tenant: testcollege
     username: test_edge_admin
-    password: admin
+    password: Ab7@Kx9!FipsAlphaBravo#Zr3Qp!Xt
     create: false
   capabilitiesSet:
   - oai-pmh.manage
@@ -52,7 +52,7 @@ edge-patron:
   tenants:
   - tenant: ttttpatron
     username: testpatron
-    password: password
+    password: Ab7@Kx9!FipsAlphaBravo#Zr3Qp!Xt
   capabilitiesSet:
   - patron.manage
   capabilities:
@@ -62,7 +62,7 @@ edge-orders:
   tenants:
   - tenant: testedgeorders
     username: test-user
-    password: test
+    password: Ab7@Kx9!FipsAlphaBravo#Zr3Qp!Xt
   capabilitiesSet:
   - gobi.manage
   - ebsconet.manage
@@ -91,7 +91,7 @@ edge-dematic:
     username: stagingDirector
     firstName: stagingDirector
     lastName: SYSTEM
-    password: default
+    password: Ab7@Kx9!FipsAlphaBravo#Zr3Qp!Xt
     create: true
   capabilitiesSet:
   - remote-storage.manage
@@ -101,7 +101,7 @@ edge-caiasoft:
     username: caiaSoftClient
     firstName: caiaSoftClient
     lastName: SYSTEM
-    password: default
+    password: Ab7@Kx9!FipsAlphaBravo#Zr3Qp!Xt
     create: true
   capabilitiesSet:
   - remote-storage.manage
@@ -111,7 +111,7 @@ edge-inn-reach:
     username: innreachClient
     firstName: innreachClient
     lastName: SYSTEM
-    password: default
+    password: Ab7@Kx9!FipsAlphaBravo#Zr3Qp!Xt
     create: true
   capabilitiesSet:
   - inn-reach.manage
@@ -126,7 +126,7 @@ edge-fqm:
     username: testFqmUser
     firstName: testFqmUser
     lastName: SYSTEM
-    password: test
+    password: Ab7@Kx9!FipsAlphaBravo#Zr3Qp!Xt
     create: true
   capabilitiesSet:
   - fqm_query.manage
@@ -134,7 +134,7 @@ edge-dcb:
   tenants:
   - tenant: testedgedcb
     username: dcbClient
-    password: password
+    password: Ab7@Kx9!FipsAlphaBravo#Zr3Qp!Xt
   capabilitiesSet:
   - dcb.manage
 edge-erm: {}
