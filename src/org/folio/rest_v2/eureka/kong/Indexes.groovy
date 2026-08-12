@@ -21,13 +21,13 @@ class Indexes extends Kong{
     this(kong.context, kong.kongUrl, kong.keycloak, kong.getDebug())
   }
 
-  //TODO: Fix that clutch/workaround/shit in the near future
-  String runIndexFlow(EurekaTenant tenant, Index index){
-    if(index.getType() == 'instance'){
+  //TODO: Unify instance vs. generic index flow so both return the same type
+  String runIndexFlow(EurekaTenant tenant, Index index) {
+    if (index.getType() == 'instance') {
       runInstanceIndex(tenant)
-    }else{
-      runIndex(tenant, index)
+      return null   // instance reindex has no job-id concept; callers must not rely on return value
     }
+    return runIndex(tenant, index)
   }
 
   Indexes runInstanceIndex(EurekaTenant tenant){
@@ -66,10 +66,22 @@ class Indexes extends Kong{
       "resourceName" : index.getType()
     ]
 
-    logger.info("[${tenant.getTenantId()}]Starting Elastic Search '${index.getType()}' reindex with recreate flag = ${index.getRecreate()}")
+    logger.info("[${tenant.getTenantId()}] Starting Elastic Search '${index.getType()}' reindex with recreate flag = ${index.getRecreate()}")
 
-    def response = restClient.post(url, body, headers).body
-    String jobId = response.id
+    def responseBody = restClient.post(url, body, headers).body
+
+    // Guard: some reindex endpoints return HTTP 200 with an empty/null body
+    // (reindex was accepted and started) but no job id is provided.
+    String jobId = responseBody?.id
+
+    if (!jobId) {
+      logger.warning("[${tenant.getTenantId()}] Reindex POST for '${index.getType()}' succeeded but " +
+        "response body contained no 'id' field (body=${responseBody}). " +
+        "Reindex has started; status polling will be skipped.")
+      return null
+    }
+
+    logger.info("[${tenant.getTenantId()}] Reindex job started with id: ${jobId}")
 
     if (index.getWaitComplete()) {
       checkIndexStatus(tenant, jobId)
