@@ -18,22 +18,22 @@ properties([
               booleanParam(defaultValue: false, description: 'Check this parameter, if you would like to suspend auto shutdown', name: 'SUSPEND'),
               folioParameters.refreshParameters()]),
   pipelineTriggers([parameterizedCron('''
-    H 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=vega
+    H 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=athena
+    H 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=dresden
+    H 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=eureka
     H 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=helios
     H 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=leipzig
     H 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=promin
     H 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=kitfox
     H 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=test
     H 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=tmp
-    H 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=dresden
-    H 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=eureka
+    H 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=vega
     H 22 * * 5 %ACTION=stop;CLUSTER=folio-etesting;NAMESPACE=sprint
     H 22 * * 5 %ACTION=stop;CLUSTER=folio-etesting;NAMESPACE=release-validation
     H 22 * * 0 %ACTION=start;CLUSTER=folio-etesting;NAMESPACE=snapshot
     H 23 * * 0 %ACTION=start;CLUSTER=folio-etesting;NAMESPACE=sprint
     H 23 * * 5 %ACTION=stop;CLUSTER=folio-etesting;NAMESPACE=snapshot
     H 23 * * 5 %ACTION=stop;CLUSTER=folio-etesting;NAMESPACE=snapshot2
-    H 0 * * * %ACTION=stop;CLUSTER=folio-etesting;NAMESPACE=athena
     H 0 * * * %ACTION=stop;CLUSTER=folio-etesting;NAMESPACE=athena
   ''')])
 ])
