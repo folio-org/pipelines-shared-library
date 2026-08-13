@@ -18,38 +18,23 @@ properties([
               booleanParam(defaultValue: false, description: 'Check this parameter, if you would like to suspend auto shutdown', name: 'SUSPEND'),
               folioParameters.refreshParameters()]),
   pipelineTriggers([parameterizedCron('''
-    50 22 * * 5 %ACTION=stop;CLUSTER=folio-etesting;NAMESPACE=sprint
-    50 22 * * 5 %ACTION=stop;CLUSTER=folio-etesting;NAMESPACE=release-validation
-    50 23 * * 0 %ACTION=start;CLUSTER=folio-etesting;NAMESPACE=sprint
-    0 23 * * 5 %ACTION=stop;CLUSTER=folio-etesting;NAMESPACE=snapshot
-    0 22 * * 0 %ACTION=start;CLUSTER=folio-etesting;NAMESPACE=snapshot
-    00 17 * * * %ACTION=stop;CLUSTER=folio-etesting;NAMESPACE=data-anonymization
-    0 0 * * * %ACTION=stop;CLUSTER=folio-etesting;NAMESPACE=athena
-    19 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=aggies
-    0 2 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=citation
-    02 17 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=data-anonymization
-    17 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=dresden
-    10 2 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=big-fc
-    10 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=corsair
-    10 0 * * * %ACTION=stop;CLUSTER=folio-etesting;NAMESPACE=athena
-    0 1 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=eureka
-    5 1 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=eureka-2nd
-    0 1 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=dreamliner
-    0 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=firebird
-    5 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=folijet
-    11 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=spitfire
-    19 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=spitfire-2nd
-    15 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=thunderjet
-    22 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=thunderjet-2nd
-    25 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=vega
-    28 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=vega-2nd
-    15 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=volaris
-    20 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=volaris-2nd
-    33 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=thor
-    10 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=erm
-    15 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=k-int
-    17 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=leipzig
-    23 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=bama
+    H 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=vega
+    H 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=helios
+    H 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=leipzig
+    H 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=promin
+    H 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=kitfox
+    H 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=test
+    H 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=tmp
+    H 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=dresden
+    H 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=eureka
+    H 22 * * 5 %ACTION=stop;CLUSTER=folio-etesting;NAMESPACE=sprint
+    H 22 * * 5 %ACTION=stop;CLUSTER=folio-etesting;NAMESPACE=release-validation
+    H 22 * * 0 %ACTION=start;CLUSTER=folio-etesting;NAMESPACE=snapshot
+    H 23 * * 0 %ACTION=start;CLUSTER=folio-etesting;NAMESPACE=sprint
+    H 23 * * 5 %ACTION=stop;CLUSTER=folio-etesting;NAMESPACE=snapshot
+    H 23 * * 5 %ACTION=stop;CLUSTER=folio-etesting;NAMESPACE=snapshot2
+    H 0 * * * %ACTION=stop;CLUSTER=folio-etesting;NAMESPACE=athena
+    H 0 * * * %ACTION=stop;CLUSTER=folio-etesting;NAMESPACE=athena
   ''')])
 ])
 
