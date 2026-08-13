@@ -41,13 +41,14 @@ class Constants {
   static List AWS_EKS_RELEASE_NAMESPACES = ['sunflower', 'trillium']
   static List AWS_EKS_DEV_NAMESPACES = ['athena',
                                         'dresden',
+                                        'dreamliner',
                                         'eureka',
                                         'leipzig',
                                         'helios',
                                         'kitfox',
                                         'promin',
+                                        'thunderjet',
                                         'test',
-                                        'tmp',
                                         'vega']
 
   static List AWS_EKS_NAMESPACE_CONFIGS = ['development',

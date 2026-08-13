@@ -19,6 +19,7 @@ properties([
               folioParameters.refreshParameters()]),
   pipelineTriggers([parameterizedCron('''
     H 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=athena
+    H 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=dreamliner
     H 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=dresden
     H 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=eureka
     H 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=helios
@@ -27,6 +28,7 @@ properties([
     H 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=kitfox
     H 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=test
     H 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=tmp
+    H 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=thunderjet
     H 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=vega
     H 22 * * 5 %ACTION=stop;CLUSTER=folio-etesting;NAMESPACE=sprint
     H 22 * * 5 %ACTION=stop;CLUSTER=folio-etesting;NAMESPACE=release-validation
