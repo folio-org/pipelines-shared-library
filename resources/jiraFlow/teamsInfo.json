@@ -208,17 +208,7 @@
           "ui-checkin",
           "ui-checkout",
           "ui-circulation",
-          "ui-requests"
-        ]
-      }
-    }
-  },
-  {
-    "Volaris": {
-      "info": {
-        "id": "11807",
-        "slack": "#volaris-dev",
-        "modules": [
+          "ui-requests",
           "edge-caiasoft",
           "edge-dematic",
           "edge-dcb",
