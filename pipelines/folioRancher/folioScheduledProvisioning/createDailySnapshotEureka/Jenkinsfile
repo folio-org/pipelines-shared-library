@@ -121,6 +121,7 @@ void spinUpNamespaces(CreateNamespaceParameters createdEnv, CreateNamespaceParam
       sh(script: "helm list --short --namespace ${createdEnv.getNamespaceName()} | grep -w minio || true",
         returnStdout: true).trim() != ''
     }
+    println minioExists ? "MinIO found" : "MinIO not found"
     def deleteParams = minioExists
       ? createdEnv.toBuilder().s3Type('built-in').build(this)
       : createdEnv
@@ -141,6 +142,7 @@ void spinUpNamespaces(CreateNamespaceParameters createdEnv, CreateNamespaceParam
       sh(script: "helm list --short --namespace ${eliminatedEnv.getNamespaceName()} | grep -w minio || true",
         returnStdout: true).trim() != ''
     }
+    println minioExistsOld ? "MinIO found" : "MinIO not found"
     def deleteParamsOld = minioExistsOld
       ? eliminatedEnv.toBuilder().s3Type('built-in').build(this)
       : eliminatedEnv
