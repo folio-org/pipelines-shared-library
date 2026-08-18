@@ -39,31 +39,17 @@ class Constants {
   static String AWS_EKS_ADMIN_USERS = 'rancher-port-forward,jenkins-service-user,KonstantinVishnivetskii,eldiiarduishenaliev,stanislav,vasylavramenko'
   static List AWS_EKS_TESTING_NAMESPACES = ['athena','cypress', 'data-anonymization', 'release-validation', 'karate', 'snapshot', 'snapshot2', 'sprint', 'pre-bugfest', 'lsdi']
   static List AWS_EKS_RELEASE_NAMESPACES = ['sunflower', 'trillium']
-  static List AWS_EKS_DEV_NAMESPACES = ['aggies',
-                                        'bama',
-                                        'bienenvolk',
-                                        'big-fc',
-                                        'citation',
-                                        'corsair',
-                                        'data-anonymization',
-                                        'dreamliner',
+  static List AWS_EKS_DEV_NAMESPACES = ['athena',
                                         'dresden',
+                                        'dreamliner',
                                         'eureka',
-                                        'eureka-2nd',
-                                        'erm',
-                                        'firebird',
-                                        'folijet',
-                                        'k-int',
                                         'leipzig',
-                                        'spitfire',
-                                        'spitfire-2nd',
-                                        'thor',
+                                        'helios',
+                                        'kitfox',
+                                        'promin',
                                         'thunderjet',
-                                        'thunderjet-2nd',
-                                        'vega',
-                                        'vega-2nd',
-                                        'volaris',
-                                        'volaris-2nd']
+                                        'test',
+                                        'vega']
 
   static List AWS_EKS_NAMESPACE_CONFIGS = ['development',
                                            'performance',
@@ -191,7 +177,7 @@ class Constants {
   static List<String> DOCKERHUB_REPO_NAMES_LIST = ['folioci', 'folioorg']
 
   //Jenkins
-  static List JENKINS_KITFOX_USER_IDS = ['ohaimanov', 'eldiiar-duishenaliev', 'epam-avramenko']
+  static List JENKINS_KITFOX_USER_IDS = ['KonstantinVishnivetskii', 'eldiiar-duishenaliev', 'epam-avramenko']
   static String JENKINS_MASTER_NODE = 'controller'
   static String JENKINS_JOB_PROJECT = '/Rancher/Project'
   static String JENKINS_JOB_RESTORE_PG_BACKUP = 'Rancher/Create-Restore-PosgreSQL-DB-backup'
@@ -270,7 +256,9 @@ class Constants {
                                   'volaris-2nd'   : 'volaris',
                                   'rtr'           : 'volaris',
                                   'snapshot'      : '',
-                                  'leipzig'       : 'leipzig']
+                                  'leipzig'       : 'leipzig',
+                                  'kitfox'        : 'kitfox',
+                                  'promin'        : 'promin']
 
   //Cypress
   static String CYPRESS_REPOSITORY_URL = "${FOLIO_GITHUB_URL}/stripes-testing.git"
@@ -331,7 +319,7 @@ class Constants {
   static String GLOBAL_BUILD_TIMEOUT = '4'
 
   static List KITFOX_MEMBERS = ["oleksii_petrenko1@epam.com",
-                                "oleksandr_haimanov@epam.com",
+                                "konstantin_vishnivetskii@epam.com",
                                 "vasyl_avramenko@epam.com",
                                 "eldiiar_duishenaliev@epam.com"]
 
