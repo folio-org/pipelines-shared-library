@@ -19,6 +19,7 @@ properties([
               folioParameters.refreshParameters()]),
   pipelineTriggers([parameterizedCron('''
     H 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=athena
+    H 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=bama
     H 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=dreamliner
     H 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=dresden
     H 22 * * * %ACTION=stop;CLUSTER=folio-edev;NAMESPACE=eureka
