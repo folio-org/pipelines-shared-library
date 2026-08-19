@@ -40,6 +40,7 @@ class Constants {
   static List AWS_EKS_TESTING_NAMESPACES = ['athena','cypress', 'data-anonymization', 'release-validation', 'karate', 'snapshot', 'snapshot2', 'sprint', 'pre-bugfest', 'lsdi']
   static List AWS_EKS_RELEASE_NAMESPACES = ['sunflower', 'trillium']
   static List AWS_EKS_DEV_NAMESPACES = ['athena',
+                                        'bama',
                                         'dresden',
                                         'dreamliner',
                                         'eureka',
