@@ -191,7 +191,7 @@ variable "es_ebs_volume_size" {
 # Minio variables
 variable "s3_embedded" {
   type        = bool
-  default     = true
+  default     = false
   description = "Embedded Minio if true and AWS S3 if false"
 }
 

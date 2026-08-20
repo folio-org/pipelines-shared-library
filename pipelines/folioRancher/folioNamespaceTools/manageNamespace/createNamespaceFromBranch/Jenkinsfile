@@ -61,7 +61,7 @@ properties([
     folioParameters.pgVersion(),
     folioParameters.kafkaType(),
     folioParameters.opensearchType(),
-    folioParameters.s3Type(),
+    folioParameters.s3Type(['aws']),
     folioParameters.runSanityCheck(),
     folioParameters.refreshParameters()
     , folioParameters.hideParameters(

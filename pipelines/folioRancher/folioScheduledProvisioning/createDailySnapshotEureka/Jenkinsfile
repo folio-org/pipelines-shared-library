@@ -117,7 +117,15 @@ ansiColor('xterm') {
 
 void spinUpNamespaces(CreateNamespaceParameters createdEnv, CreateNamespaceParameters eliminatedEnv) {
   stage('Cleaning new env') {
-    folioTriggerJob.deleteNamespace(deleteNamespaceJobName, createdEnv)
+    def minioExists = folioHelm.withKubeConfig(createdEnv.getClusterName()) {
+      sh(script: "helm list --short --namespace ${createdEnv.getNamespaceName()} | grep -w minio || true",
+        returnStdout: true).trim() != ''
+    }
+    println minioExists ? "MinIO found" : "MinIO not found"
+    def deleteParams = minioExists
+      ? createdEnv.toBuilder().s3Type('built-in').build(this)
+      : createdEnv
+    folioTriggerJob.deleteNamespace(deleteNamespaceJobName, deleteParams)
   }
 
   stage('Spinning up new env') {
@@ -130,7 +138,15 @@ void spinUpNamespaces(CreateNamespaceParameters createdEnv, CreateNamespaceParam
   }
 
   stage('Deleting old env') {
-    folioTriggerJob.deleteNamespace(deleteNamespaceJobName, eliminatedEnv)
+    def minioExistsOld = folioHelm.withKubeConfig(eliminatedEnv.getClusterName()) {
+      sh(script: "helm list --short --namespace ${eliminatedEnv.getNamespaceName()} | grep -w minio || true",
+        returnStdout: true).trim() != ''
+    }
+    println minioExistsOld ? "MinIO found" : "MinIO not found"
+    def deleteParamsOld = minioExistsOld
+      ? eliminatedEnv.toBuilder().s3Type('built-in').build(this)
+      : eliminatedEnv
+    folioTriggerJob.deleteNamespace(deleteNamespaceJobName, deleteParamsOld)
   }
 }
 
