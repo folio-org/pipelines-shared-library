@@ -82,7 +82,7 @@ class CreateNamespaceParameters implements Cloneable {
 
   String opensearchType = 'aws'
 
-  String s3Type = 'aws'
+  String s3Type = 'built-in'
 
   boolean runSanityCheck
 
