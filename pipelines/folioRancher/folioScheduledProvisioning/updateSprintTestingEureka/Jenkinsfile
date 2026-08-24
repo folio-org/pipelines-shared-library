@@ -92,7 +92,7 @@ ansiColor('xterm') {
   }
 
   stage('Update Sprint Testing') {
-    if(params.TYPE == 'full') {
+    if(params.TYPE == 'full' ) {
       folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespace)
     }
 
