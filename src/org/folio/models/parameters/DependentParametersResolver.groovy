@@ -30,7 +30,7 @@ class DependentParametersResolver {
     result.configType = resolveConfigType(clusterName)
     result.pgType = resolveInfraType(clusterName)
     result.kafkaType = resolveInfraType(clusterName)
-    result.s3Type = resolveInfraType(clusterName)
+    result.s3Type = 'aws'
 
     // Cluster + namespace combined
     result.dataset = resolveDataset(clusterName, namespaceName)
