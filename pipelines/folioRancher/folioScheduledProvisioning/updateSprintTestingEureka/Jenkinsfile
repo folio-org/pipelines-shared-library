@@ -93,15 +93,7 @@ ansiColor('xterm') {
 
   stage('Update Sprint Testing') {
     if (params.TYPE == 'full') {
-      def minioExists = folioHelm.withKubeConfig(namespace.getClusterName()) {
-        sh(script: "helm list --short --namespace ${namespace.getNamespaceName()} | grep -w minio || true",
-          returnStdout: true).trim() != ''
-      }
-      println minioExists ? "MinIO found" : "MinIO not found"
-      def deleteParams = minioExists
-        ? namespace.toBuilder().s3Type('built-in').build(this)
-        : namespace
-      folioTriggerJob.deleteNamespace(deleteNamespaceJobName, deleteParams)
+      folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespace)
     }
 
     folioTriggerJob.createNamespaceFromBranch(createNamespaceJobName, namespace)
