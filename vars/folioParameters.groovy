@@ -191,8 +191,8 @@ def opensearchType(List value = Constants.AWS_INTEGRATED_SERVICE_TYPE.reverse())
   return _paramChoice('OPENSEARCH', value, 'Select OpenSearch type, built-in OpenSearch or AWS OpenSearch')
 }
 
-def s3Type(List value = Constants.AWS_INTEGRATED_SERVICE_TYPE) {
-  return _paramChoice('S3_BUCKET', value, 'Select object storage type, built-in Minio or AWS S3')
+def s3Type(List value = ['aws']) {
+  return _paramChoice('S3_BUCKET', value, 'Select S3 storage type (AWS S3 only)')
 }
 
 def uiBundleBuild() {
