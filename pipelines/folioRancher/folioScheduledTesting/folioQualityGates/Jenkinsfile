@@ -59,6 +59,7 @@ if (params.INCLUDE_KARATE) {
 CreateNamespaceParameters namespaceBaseParams = new CreateNamespaceParameters.Builder()
   .mockServer(true)
   .opensearchType('built-in')
+  .s3Type('aws')
   .build()
 
 CreateNamespaceParameters namespaceFromBranchParams = namespaceBaseParams.toBuilder()
