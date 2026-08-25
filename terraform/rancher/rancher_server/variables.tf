@@ -6,8 +6,14 @@ variable "aws_region" {
 
 variable "rancher_version" {
   type        = string
-  default     = "2.7.1"
-  description = "Rancher version"
+  default     = "2.12.3" # target version; actual running state is 2.8.1 — see upgrade notes below
+  # SEQUENTIAL UPGRADE REQUIRED — Rancher does not support skipping minor versions.
+  # Apply with explicit -var overrides in this order before relying on the default:
+  #   terraform apply -var rancher_version=2.9.3   # 2.8.1 -> 2.9.x
+  #   terraform apply -var rancher_version=2.10.3  # 2.9.x -> 2.10.x
+  #   terraform apply -var rancher_version=2.11.3  # 2.10.x -> 2.11.x
+  #   terraform apply                              # 2.11.x -> 2.12.3 (uses default)
+  description = "Rancher Helm chart version. Must be upgraded sequentially through each minor version."
 }
 
 variable "rancher_cluster_name" {
