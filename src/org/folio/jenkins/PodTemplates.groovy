@@ -384,6 +384,14 @@ spec:
    void javaKarateAgent(String javaVersion, Closure body) {
      createTemplate(new PodTemplateConfig(
        label: JenkinsAgentLabel.JAVA_KARATE_AGENT.getLabel(),
+       yaml: '''
+metadata:
+  annotations:
+    cluster-autoscaler.kubernetes.io/safe-to-evict: "false"
+spec:
+  securityContext:
+    fsGroup: 1000
+''',
        workspaceVolume: steps.genericEphemeralVolume(accessModes: 'ReadWriteOnce',
          requestsSize: '20Gi',
          storageClassName: 'gp3'),
