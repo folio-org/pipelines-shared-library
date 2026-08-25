@@ -79,14 +79,14 @@ resource "rancher2_secret" "s3-credentials" {
   data = {
 
     LOCAL_FS_COMPOSE_WITH_AWS_SDK = base64encode(var.s3_embedded ? "false" : "true")
-    LOCAL_FS_URL                  = base64encode(var.s3_embedded ? join("", ["https://", local.minio_url]) : "https://s3.amazonaws.com")
+    LOCAL_FS_URL                  = base64encode(var.s3_embedded ? join("", ["https://", local.minio_url]) : "https://s3.us-west-2.amazonaws.com")
     LOCAL_FS_REGION               = base64encode(var.aws_region)
     LOCAL_FS_BUCKET               = base64encode("local-files")
     LOCAL_FS_ACCESS_KEY_ID        = base64encode(var.s3_embedded ? random_string.access_key[0].result : var.s3_access_key)
     LOCAL_FS_SECRET_ACCESS_KEY    = base64encode(var.s3_embedded ? random_password.secret_access_key[0].result : var.s3_secret_key)
 
     S3_IS_AWS            = base64encode(var.s3_embedded ? "false" : "true")
-    S3_URL               = base64encode(var.s3_embedded ? join("", ["https://", local.minio_url]) : "https://s3.amazonaws.com")
+    S3_URL               = base64encode(var.s3_embedded ? join("", ["https://", local.minio_url]) : "https://s3.us-west-2.amazonaws.com")
     S3_REGION            = base64encode(var.aws_region)
     S3_BUCKET            = base64encode(local.s3_bucket_name)
     S3_ACCESS_KEY_ID     = base64encode(var.s3_embedded ? random_string.access_key[0].result : var.s3_access_key)
