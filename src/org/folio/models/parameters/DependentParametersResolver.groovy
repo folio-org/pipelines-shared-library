@@ -30,7 +30,7 @@ class DependentParametersResolver {
     result.configType = resolveConfigType(clusterName)
     result.pgType = resolveInfraType(clusterName)
     result.kafkaType = resolveInfraType(clusterName)
-    result.s3Type = resolveInfraType(clusterName)
+    result.s3Type = 'aws'                             // MinIO removed; S3 always uses AWS-managed storage
 
     // Cluster + namespace combined
     result.dataset = resolveDataset(clusterName, namespaceName)
