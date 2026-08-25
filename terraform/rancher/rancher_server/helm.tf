@@ -7,6 +7,13 @@ resource "helm_release" "rancher" {
   namespace        = "cattle-system"
   create_namespace = true
 
+  # Safety net: if the upgrade fails, Helm auto-rolls back to the previous revision
+  # and Terraform marks this resource as failed (clean state for retry/investigation).
+  # timeout must exceed Rancher startup time (~3-5 min per replica with cert negotiation).
+  atomic          = true
+  cleanup_on_fail = true
+  timeout         = 600 # 10 min
+
   set {
     name  = "hostname"
     value = var.rancher_hostname
