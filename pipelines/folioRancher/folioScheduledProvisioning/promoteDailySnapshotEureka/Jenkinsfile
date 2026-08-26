@@ -19,7 +19,7 @@ properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
   disableConcurrentBuilds(),
   parameters([folioParameters.refreshParameters()]),
-  pipelineTriggers([parameterizedCron('''H 4 * * 1-5''')])
+  pipelineTriggers([parameterizedCron('''H 1 * * 1-5''')])
 ])
 
 
