@@ -43,6 +43,7 @@ final String releaseBranch = 'R1-2026'
 CreateNamespaceParameters namespaceBaseParams = new CreateNamespaceParameters.Builder()
   .clusterName('folio-etesting')
   .namespaceName('release-validation')
+  .splitFiles(true)
   .kafkaType('aws')
   .build(this)
 
