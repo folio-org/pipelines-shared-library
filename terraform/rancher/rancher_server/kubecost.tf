@@ -21,7 +21,7 @@ resource "helm_release" "kubecost" {
   name             = "kubecost"
   repository       = "https://kubecost.github.io/cost-analyzer"
   chart            = "cost-analyzer"
-  version          = "1.101.3"
+  version          = "2.7.1"
   namespace        = "kubecost"
   create_namespace = true
   values = [<<EOF
@@ -52,12 +52,10 @@ resource "helm_release" "kubecost" {
       type: NodePort
     kubecostProductConfigs:
       clusters:
-        - name: folio-dev
-          address: "https://folio-dev-kubecost.ci.folio.org"
-        - name: folio-testing
-          address: "https://folio-testing-kubecost.ci.folio.org"
-        - name: folio-perf
-          address: "https://folio-perf-kubecost.ci.folio.org"
+        - name: folio-edev
+          address: "https://folio-edev-kubecost.ci.folio.org"
+        - name: folio-etesting
+          address: "https://folio-etesting-kubecost.ci.folio.org"
       currencyCode: "USD"
       clusterName: "kubecost-main"
       labelMappingConfigs:

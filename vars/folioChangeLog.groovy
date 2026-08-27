@@ -7,22 +7,24 @@ import org.folio.utilities.GitHubClient
 
 /**
  * Persist the current build SHA to SSM so the next build can use it as its
- * changelog comparison baseline.  Only updates the parameter when the build
- * has succeeded — failed/aborted builds are skipped so that the last known
- * good SHA remains as the baseline.
+ * changelog comparison baseline.
+ *
+ * Updates whenever the platform was successfully deployed and tests ran —
+ * including UNSTABLE (tests completed but had failures).  Skips only on
+ * hard infrastructure failures (FAILURE) or ABORTED runs, so the baseline
+ * stays at the last known-good deployment state rather than freezing
+ * indefinitely while test flakiness accumulates (see RANCHER-2918).
  *
  * Callers MUST use this method instead of directly calling
- * {@code folioHashCommitCheck.updateBuildSha()}, otherwise the changelog may
- * compare against a failed build's SHA, causing missing or inaccurate entries
- * (see RANCHER-2918 comment 316729).
+ * {@code folioHashCommitCheck.updateBuildSha()}.
  */
 @SuppressWarnings('GrMethodMayBeStatic')
 void updateShaOnSuccess(String sha, String repo = 'platform-lsp') {
-  if (currentBuild.result in [null, 'SUCCESS']) {
+  if (currentBuild.result in [null, 'SUCCESS', 'UNSTABLE']) {
     folioHashCommitCheck.updateBuildSha(sha, repo)
   } else {
     echo "Build result is '${currentBuild.result}' — skipping SSM update for ${repo} SHA. " +
-         "Next build will still diff against the last successful SHA."
+         "Next build will still diff against the last successfully deployed SHA."
   }
 }
 
