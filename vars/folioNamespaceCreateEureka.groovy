@@ -148,9 +148,9 @@ void call(CreateNamespaceParameters args) {
             folioPrint.colored("Restoring psql ecs dump...\nEstimated duration: ~ 1-2 hours", "green")
             //S3_PATH="s3://${S3_BACKUPS_BUCKET}/${S3_BACKUPS_DIRECTORY}/${DB_BACKUP_NAME}/${DB_BACKUP_NAME}.sql"
             psqlDumpMethods.restoreHelmData(
-                    "psql-restore",
+                    "helm-hosted",
                     "psql-dump",
-                    "1.0.6",
+                    "1.0.10",
                     args.dbBackupName,
                     "",
                     Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME,
