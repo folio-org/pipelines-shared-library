@@ -38,7 +38,7 @@ def restoreHelmInstall(String build_id, String repo_name, String chart_name, Str
   }
 }
 
-def restoreHelmData(String repo_name, String chart_name, String chart_version, String db_backup_name, String db_backup_data, String bucket_name, String backups_directory, String namespace) {
+def restoreHelmData(String repo_name, String chart_name, String chart_version, String db_backup_name, String db_backup_data, String bucket_name, String backups_directory, String namespace, String pvcSize = '100Gi') {
   stage('[Restore data]') {
     folioHelm.addHelmRepository("${repo_name}", Constants.NEXUS_BASE_URL + "/${repo_name}/", true)
     try {
@@ -48,6 +48,7 @@ def restoreHelmData(String repo_name, String chart_name, String chart_version, S
         --set psql.dbBackupData=${db_backup_data} \
         --set psql.s3BackupsBucketDirectory=${backups_directory} \
         --set psql.projectNamespace=${namespace} \
+        --set psql.pvc.storageSize=${pvcSize} \
         --namespace=${namespace} --timeout 360m --wait --wait-for-jobs"
     } catch (Error error) {
       folioPrint.colored("Helm psql dump restore failed, error: ${error.getMessage()}", "red")

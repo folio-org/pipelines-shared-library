@@ -113,6 +113,8 @@ void call(CreateNamespaceParameters args) {
       tfConfig.addVar('keycloak_version', keycloakVersion)
       tfConfig.addVar('setup_type', args.type)
       if (args.dataset) {
+        tfConfig.addVar('pg_vol_size', 300)
+        tfConfig.addVar('restore_required', args.dataset)
         tfConfig.addVar('pg_rds_snapshot_name', args.dbBackupName ?: Constants.BUGFEST_SNAPSHOT_NAME)
         tfConfig.addVar('pg_dbname', Constants.BUGFEST_SNAPSHOT_DBNAME)
         tfConfig.addVar('pg_instance_type', 'db.r6g.xlarge')
@@ -137,6 +139,25 @@ void call(CreateNamespaceParameters args) {
           case 'update':
             logger.info("Skip [Terraform] Provision stage")
             break
+        }
+      }
+
+      if (args.dataset) {
+        stage('[DB and Indices] Restore') {
+          folioHelm.withKubeConfig(args.clusterName) {
+            folioPrint.colored("Restoring psql ecs dump...\nEstimated duration: ~ 1-2 hours", "green")
+            //S3_PATH="s3://${S3_BACKUPS_BUCKET}/${S3_BACKUPS_DIRECTORY}/${DB_BACKUP_NAME}/${DB_BACKUP_NAME}.sql"
+            psqlDumpMethods.restoreHelmData(
+                    "psql-restore",
+                    "psql-dump",
+                    "1.0.10",
+                    args.dbBackupName,
+                    "",
+                    Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME,
+                    "bf-dataset",
+                    args.namespaceName,
+                    "300Gb")
+          }
         }
       }
 

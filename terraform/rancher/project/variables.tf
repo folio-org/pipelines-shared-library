@@ -136,6 +136,11 @@ variable "pg_rds_snapshot_name" {
   default = ""
 }
 
+variable "pg_restore_required" {
+  type = bool
+  default = false
+}
+
 # Kafka variables
 variable "kafka_shared" {
   type        = bool
