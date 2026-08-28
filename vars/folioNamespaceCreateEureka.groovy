@@ -150,7 +150,7 @@ void call(CreateNamespaceParameters args) {
             psqlDumpMethods.restoreHelmData(
                     "psql-restore",
                     "psql-dump",
-                    "1.0.10",
+                    "1.0.6",
                     args.dbBackupName,
                     "",
                     Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME,
