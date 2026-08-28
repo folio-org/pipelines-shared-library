@@ -114,7 +114,7 @@ void call(CreateNamespaceParameters args) {
       tfConfig.addVar('setup_type', args.type)
       if (args.dataset) {
         tfConfig.addVar('pg_vol_size', 300)
-        tfConfig.addVar('restore_required', args.dataset)
+        tfConfig.addVar('pg_restore_required', args.dataset)
         tfConfig.addVar('pg_rds_snapshot_name', args.dbBackupName ?: Constants.BUGFEST_SNAPSHOT_NAME)
         tfConfig.addVar('pg_dbname', Constants.BUGFEST_SNAPSHOT_DBNAME)
         tfConfig.addVar('pg_instance_type', 'db.r6g.xlarge')
