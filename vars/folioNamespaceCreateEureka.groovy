@@ -156,7 +156,7 @@ void call(CreateNamespaceParameters args) {
                     Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME,
                     "bf-dataset",
                     args.namespaceName,
-                    "300Gb")
+                    "300Gi")
           }
         }
       }
