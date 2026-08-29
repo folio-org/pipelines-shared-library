@@ -255,7 +255,9 @@ data "aws_iam_policy_document" "ecr_pull_through_cache" {
       "ecr:BatchCheckLayerAvailability",
       "ecr:BatchGetImage",
       "ecr:GetDownloadUrlForLayer",
-      "ecr:CreateRepository" # Required for auto-creating repos on first pull
+      "ecr:CreateRepository",        # Auto-creates the repo on first pull of any image
+      "ecr:BatchImportUpstreamImage" # Required to trigger pull-through fetch on cache miss;
+                                     # without this ECR silently returns NotFound for uncached tags
     ]
     resources = ["arn:aws:ecr:*:${data.aws_caller_identity.current.account_id}:repository/ecr-pullthrough/k8s/*"]
   }
