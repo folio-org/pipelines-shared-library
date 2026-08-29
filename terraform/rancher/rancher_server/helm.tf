@@ -1,7 +1,7 @@
 # install rancher
 resource "helm_release" "rancher" {
   name             = "rancher"
-  repository       = "https://releases.rancher.com/server-charts/stable"
+  repository       = var.rancher_chart_repository
   chart            = "rancher"
   version          = var.rancher_version
   namespace        = "cattle-system"
@@ -57,6 +57,17 @@ resource "helm_release" "rancher" {
   set {
     name  = "tls"
     value = "external"
+  }
+
+  # The Rancher chart defaults ingress.path to "/" (exact match in ALB terms).
+  # AWS LBC translates Ingress path to ALB listener rule path-patterns literally:
+  #   "/"  → matches ONLY the root path (ALB exact match)
+  #   "/*" → matches ALL paths (ALB prefix match)
+  # Without "/*", requests to /dashboard/, /ping, etc. fall through to the ALB
+  # default fixed-response rule and return 404.
+  set {
+    name  = "ingress.path"
+    value = "/*"
   }
 }
 
