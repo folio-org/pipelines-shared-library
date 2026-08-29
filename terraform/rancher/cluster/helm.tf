@@ -98,7 +98,7 @@ resource "helm_release" "aws_cluster_autoscaler" {
   chart      = "cluster-autoscaler"
   # https://github.com/kubernetes/autoscaler/tree/master/cluster-autoscaler#releases
   # https://artifacthub.io/packages/helm/cluster-autoscaler/cluster-autoscaler
-  version = "9.24.0"
+  version = "9.59.0" # CA v1.35.0 — matches cluster_version in eks.tf
   set {
     name  = "cloudProvider"
     value = "aws"
