@@ -49,7 +49,7 @@ def restoreHelmData(String repo_name, String chart_name, String chart_version, S
         --set psql.s3BackupsBucketDirectory=${backups_directory} \
         --set psql.projectNamespace=${namespace} \
         --set psql.pvc.storageSize=${pvcSize} \
-        --namespace=${namespace} --timeout 360m --wait --wait-for-jobs"
+        --namespace=${namespace} --timeout 600m --wait --wait-for-jobs"
     } catch (Error error) {
       folioPrint.colored("Helm psql dump restore failed, error: ${error.getMessage()}", "red")
     }
