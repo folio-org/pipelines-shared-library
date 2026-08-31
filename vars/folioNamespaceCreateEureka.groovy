@@ -143,6 +143,23 @@ void call(CreateNamespaceParameters args) {
       }
 
       if (args.dataset) {
+        stage('[DB Roles] Restore') {
+          folioHelm.withKubeConfig(args.clusterName) {
+            folioPrint.colored("Restoring psql ecs dump...\nEstimated duration: ~ 1-2 hours", "green")
+            //S3_PATH="s3://${S3_BACKUPS_BUCKET}/${S3_BACKUPS_DIRECTORY}/${DB_BACKUP_NAME}/${DB_BACKUP_NAME}.sql"
+            psqlDumpMethods.restoreHelmData(
+                    "helm-hosted",
+                    "psql-dump",
+                    "1.0.10",
+                    "folio-roles-create-only",
+                    "",
+                    Constants.PSQL_DUMP_BACKUPS_BUCKET_NAME,
+                    "bf-dataset",
+                    args.namespaceName,
+                    "300Gi")
+          }
+        }
+
         stage('[DB and Indices] Restore') {
           folioHelm.withKubeConfig(args.clusterName) {
             folioPrint.colored("Restoring psql ecs dump...\nEstimated duration: ~ 1-2 hours", "green")
