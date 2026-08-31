@@ -19,7 +19,11 @@ terraform {
     }
     rancher2 = {
       source  = "rancher/rancher2"
-      version = "4.1.0"
+      # Provider major version mirrors Rancher server minor version (from v13 onwards).
+      # v14.x is the correct provider for Rancher 2.14.x.
+      # (v4.1.0 fails on 2.13+ with "Unknown schema type [rkeK8sSystemImage]" because
+      # the v4 provider probes RKE1 schemas at init time, which 2.13+ no longer exposes.)
+      version = "~>14.0"
     }
     kubectl = {
       source  = "gavinbunney/kubectl"

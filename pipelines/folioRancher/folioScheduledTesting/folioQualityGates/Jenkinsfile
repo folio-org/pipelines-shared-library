@@ -158,7 +158,6 @@ ansiColor('xterm') {
             karateTestsExecutionSummary, "", true,
             "${env.BUILD_URL}cucumber-html-reports/overview-features.html"
           )
-          return karateTestsResultMessage
         }
 
         String cypressTestsResultMessage = folioSlackNotificationUtils.renderTestResultSection(TestType.CYPRESS,
@@ -172,14 +171,14 @@ ansiColor('xterm') {
           buildDescription "Changelog:\n${folioChangeLog.getPlainText(changelogEntriesList)}"
         }
 
-        String attachments = SlackHelper.renderMessage([
+        List<String> sections = [
           folioSlackNotificationUtils.renderBuildResultSection(),
           cypressTestsResultMessage,
           params.INCLUDE_KARATE ? karateTestsResultMessage : null,
-          changelog
-        ])
+          changelog ?: null
+        ].findAll { it }
 
-        slackSend(attachments: attachments, channel: globalSlackChannel)
+        slackSend(attachments: SlackHelper.renderMessage(sections), channel: globalSlackChannel)
       }
     }
   } catch (e) {

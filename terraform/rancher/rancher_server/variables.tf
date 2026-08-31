@@ -5,9 +5,18 @@ variable "aws_region" {
 }
 
 variable "rancher_version" {
-  type        = string
-  default     = "2.7.1"
-  description = "Rancher version"
+  type    = string
+  default = "2.14.3"
+  # SEQUENTIAL UPGRADE REQUIRED — Rancher does not support skipping minor versions.
+  # Next minor upgrade: bump to 2.15.x once available and update rancher2 provider to ~>15.0.
+  description = "Rancher Helm chart version. Must be upgraded sequentially through each minor version."
+}
+
+variable "rancher_chart_repository" {
+  type    = string
+  default = "https://releases.rancher.com/server-charts/stable"
+  # 2.14.3 is available on the stable channel (kubeVersion < 1.36.0-0), which supports EKS 1.34.
+  description = "Rancher Helm chart repository URL."
 }
 
 variable "rancher_cluster_name" {
