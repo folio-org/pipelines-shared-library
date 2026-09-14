@@ -107,7 +107,12 @@ ansiColor('xterm') {
         throw new Exception("Provision of the environment is failed: " + new_ex)
       }
     }
-    folioCypressFlow.call(cypressParameters.getCiBuildId(), [cypressParameters], true, reportPortalUse, reportPortalRunType, true)
+    try {
+      folioCypressFlow.call(cypressParameters.getCiBuildId(), [cypressParameters], true, reportPortalUse, reportPortalRunType, true)
+    } catch (Exception new_ex) {
+      slackSend(attachments: folioSlackNotificationUtils.renderFailedBuildResultMessage()
+        , channel: "#rancher_tests_notifications")
+    }
     folioTriggerJob.downStreamJob(Constants.JENKINS_CYPRESS_ECS_JOB)
   }
 }
