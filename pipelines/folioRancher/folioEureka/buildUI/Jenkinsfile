@@ -20,11 +20,11 @@ properties([
     folioParameters.branch('FOLIO_BRANCH', 'platform-lsp'),
     string(name: 'CUSTOM_HASH', defaultValue: '', description: 'Commit hash for bundle build from specific commit'),
     folioParameters.tenantId(),
+    string(name: 'IDLE_SESSION_TTL', defaultValue: '1h', description: '(Optional) rtr.idleSessionTTL injected into stripes.config.js (e.g. 1h, 30m, 120s). Leave empty to keep the value from the cloned repository'),
     booleanParam(name: 'CONSORTIA', defaultValue: false, description: '(Optional) Enable Consortia'),
     booleanParam(name: 'CONSORTIA_SINGLE_UI', defaultValue: true, description: '(Optional) Set true to build Single UX bundle, instead of Drop down for ECS'),
     booleanParam(name: 'LINKED_DATA', defaultValue: false, description: '(Optional) Include linked-data module in UI bundle'),
     booleanParam(name: 'ECS_CCL', defaultValue: false, description: '(Optional) Set true to enable ECS Circulation + Congressional loans functionality'),
-    string(name: 'IDLE_SESSION_TTL', defaultValue: '1h', description: '(Optional) rtr.idleSessionTTL injected into stripes.config.js (e.g. 1h, 30m, 120s). Leave empty to keep the value from the cloned repository'),
     folioParameters.refreshParameters()])
 ])
 
