@@ -139,8 +139,37 @@ private String _renderConfig(String stripesConfig, EurekaTenant tenant, TenantUi
     ]
 
     String renderedConfig = _makeTpl(stripesConfig, tplData)
-    return renderedConfig
+    return _overrideIdleSessionTTL(renderedConfig, tenantUi.getIdleSessionTTL())
   }
+}
+
+/**
+ * Overrides the {@code rtr.idleSessionTTL} value in the rendered stripes.config.js.
+ * The config file comes from the repository cloned during the build, therefore the value
+ * is patched in the workspace instead of being committed to platform-lsp/platform-complete.
+ *
+ * @param stripesConfig Rendered stripes.config.js content.
+ * @param idleSessionTTL Desired idle session TTL (e.g. '1h', '30m', '120s').
+ *                       When blank the value from the repository is kept as-is.
+ * @return stripes.config.js content with the idleSessionTTL value replaced.
+ */
+private String _overrideIdleSessionTTL(String stripesConfig, String idleSessionTTL) {
+  String ttl = idleSessionTTL?.trim()
+  if (!ttl) {
+    echo '[UI] IDLE_SESSION_TTL is not set, keeping rtr.idleSessionTTL from the repository'
+    return stripesConfig
+  }
+
+  String escapedTtl = ttl.replace('\\', '\\\\').replace('$', '\\$')
+  String updatedConfig = stripesConfig.replaceAll(/(idleSessionTTL\s*:\s*)(['"]).*?\2/, "\$1'${escapedTtl}'")
+
+  if (updatedConfig == stripesConfig) {
+    echo "[UI] rtr.idleSessionTTL was not found in stripes.config.js, nothing to override"
+  } else {
+    echo "[UI] rtr.idleSessionTTL overridden with '${ttl}'"
+  }
+
+  return updatedConfig
 }
 
 // Deploy workflow methods
