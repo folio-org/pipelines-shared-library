@@ -56,6 +56,13 @@ class TenantUi implements Cloneable {
   List<EurekaModule> removeUIComponents = []
 
   /**
+   * RTR idle session TTL (rtr.idleSessionTTL) injected into the rendered stripes.config.js.
+   * Empty value means the value from the config file is kept as-is.
+   * @see <a href="https://folio-org.atlassian.net/wiki/spaces/DEV/pages/46858271/stripes.config.js+properties">stripes.config.js properties</a>
+   */
+  String idleSessionTTL
+
+  /**
    * Constructor that sets the workspace, hash, and branch for the TenantUi.
    * @param workspace The workspace of the tenant.
    * @param hash The hash of the tenant's repository.
@@ -137,7 +144,8 @@ class TenantUi implements Cloneable {
       "isConsortiaSingleUi": ${isConsortiaSingleUi},
       "customUiModules": ${customUiModules ? customUiModules.size() : 0} modules (deprecated),
       "addUIComponents": ${addUIComponents ? addUIComponents.size() : 0} components,
-      "removeUIComponents": ${removeUIComponents ? removeUIComponents.size() : 0} components
+      "removeUIComponents": ${removeUIComponents ? removeUIComponents.size() : 0} components,
+      "idleSessionTTL": "${idleSessionTTL ?: 'null'}"
     """
   }
 

@@ -24,6 +24,7 @@ properties([
     booleanParam(name: 'CONSORTIA_SINGLE_UI', defaultValue: true, description: '(Optional) Set true to build Single UX bundle, instead of Drop down for ECS'),
     booleanParam(name: 'LINKED_DATA', defaultValue: false, description: '(Optional) Include linked-data module in UI bundle'),
     booleanParam(name: 'ECS_CCL', defaultValue: false, description: '(Optional) Set true to enable ECS Circulation + Congressional loans functionality'),
+    string(name: 'IDLE_SESSION_TTL', defaultValue: '1h', description: '(Optional) rtr.idleSessionTTL injected into stripes.config.js (e.g. 1h, 30m, 120s). Leave empty to keep the value from the cloned repository'),
     folioParameters.refreshParameters()])
 ])
 
@@ -61,6 +62,7 @@ namespace.setIsConsortiaSingleUi(params.CONSORTIA_SINGLE_UI)
 TenantUi tenantUi = new TenantUi(namespace.getWorkspaceName(), commitHash, params.FOLIO_BRANCH as String)
 tenantUi.setKongDomain(namespace.getDomains()['kong'])
 tenantUi.setKeycloakDomain(namespace.getDomains()['keycloak'])
+tenantUi.setIdleSessionTTL(params.IDLE_SESSION_TTL)
 if (params.CONSORTIA) {
   tenantUi.setIsConsortia(params.CONSORTIA)
   tenantUi.setIsConsortiaSingleUi(params.CONSORTIA_SINGLE_UI)
