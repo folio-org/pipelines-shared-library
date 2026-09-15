@@ -55,7 +55,7 @@ class TenantUi implements Cloneable {
   /** List of Eureka modules to be removed from the tenant's UI. */
   List<EurekaModule> removeUIComponents = []
 
-  /** Idle session TTL for RTR (Request Token Revocation) configuration. */
+  /** Idle session TTL for RTR configuration. */
   String idleSessionTTL = '1h'
 
   /**
