@@ -23,7 +23,6 @@ properties([
     folioParameters.tenantId(),
     booleanParam(name: 'CONSORTIA', defaultValue: false, description: '(Optional) Include consortia module in UI bundle'),
     booleanParam(name: 'LINKED_DATA', defaultValue: false, description: '(Optional) Include linked-data module in UI bundle'),
-    string(name: 'IDLE_SESSION_TTL', defaultValue: '1h', description: '(Optional) Idle session TTL for RTR configuration (e.g., 1h, 30m, 120s)'),
     folioParameters.refreshParameters()])
 ])
 
@@ -59,7 +58,6 @@ RancherNamespace namespace = new RancherNamespace(params.CLUSTER, params.NAMESPA
   .withDeploymentConfigType(deploymentConfigType)
 
 TenantUi tenantUi = new TenantUi(namespace.getWorkspaceName(), commitHash, params.FOLIO_BRANCH)
-tenantUi.idleSessionTTL = params.IDLE_SESSION_TTL
 
 OkapiTenant tenant = new OkapiTenant(params.TENANT_ID)
   .withTenantUi(tenantUi.clone())
