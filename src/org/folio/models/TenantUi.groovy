@@ -56,7 +56,7 @@ class TenantUi implements Cloneable {
   List<EurekaModule> removeUIComponents = []
 
   /** Idle session TTL for RTR (Request Token Revocation) configuration. */
-  String idleSessionTTL = '1h'
+  private String idleSessionTTL = '1h'
 
   /**
    * Constructor that sets the workspace, hash, and branch for the TenantUi.
@@ -77,6 +77,22 @@ class TenantUi implements Cloneable {
   void setTenantId(String tenantId) {
     this.tenantId = tenantId
     updateTagAndImageName()
+  }
+
+  /**
+   * Gets the idle session TTL for RTR configuration.
+   * @return The idle session TTL value.
+   */
+  String getIdleSessionTTL() {
+    return this.idleSessionTTL
+  }
+
+  /**
+   * Sets the idle session TTL for RTR configuration.
+   * @param idleSessionTTL The idle session TTL value (e.g., '1h', '30m', '120s').
+   */
+  void setIdleSessionTTL(String idleSessionTTL) {
+    this.idleSessionTTL = idleSessionTTL
   }
 
   /**
