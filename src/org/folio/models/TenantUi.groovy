@@ -55,6 +55,9 @@ class TenantUi implements Cloneable {
   /** List of Eureka modules to be removed from the tenant's UI. */
   List<EurekaModule> removeUIComponents = []
 
+  /** Idle session TTL for RTR (Request Token Revocation) configuration. */
+  String idleSessionTTL = '1h'
+
   /**
    * Constructor that sets the workspace, hash, and branch for the TenantUi.
    * @param workspace The workspace of the tenant.
@@ -137,7 +140,8 @@ class TenantUi implements Cloneable {
       "isConsortiaSingleUi": ${isConsortiaSingleUi},
       "customUiModules": ${customUiModules ? customUiModules.size() : 0} modules (deprecated),
       "addUIComponents": ${addUIComponents ? addUIComponents.size() : 0} components,
-      "removeUIComponents": ${removeUIComponents ? removeUIComponents.size() : 0} components
+      "removeUIComponents": ${removeUIComponents ? removeUIComponents.size() : 0} components,
+      "idleSessionTTL": "${idleSessionTTL ?: 'null'}"
     """
   }
 

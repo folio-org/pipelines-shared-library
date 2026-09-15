@@ -135,7 +135,8 @@ private String _renderConfig(String stripesConfig, EurekaTenant tenant, TenantUi
       tenantOptions    : tenantOptionsJson,
       enableEcsRequests: enableEcsRequests,
       aboutInstallDate : String.format("'%s'", new Date().format('MMMM dd, yyyy')),
-      aboutInstallMsg  : String.format("'%s'", "Branch: ${tenantUi.getBranch()}. Commit: ${tenantUi.getHash()}")
+      aboutInstallMsg  : String.format("'%s'", "Branch: ${tenantUi.getBranch()}. Commit: ${tenantUi.getHash()}"),
+      rtr              : "{ idleSessionTTL: '${tenantUi.idleSessionTTL}' }"
     ]
 
     String renderedConfig = _makeTpl(stripesConfig, tplData)
