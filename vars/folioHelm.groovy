@@ -314,6 +314,17 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
       ]
     ]
 
+    //MOD_USERS_KEYCLOAK_URL is required by folio-module-sidecar only on Sunflower (R1-2025).
+    //Newer releases discover mod-users-keycloak dynamically (MODSIDECAR-211). See RANCHER-3171.
+    if (ns.configExtensions.contains('sunflower')) {
+      List sidecarExtraEnvVars = (moduleConfig.sidecarContainers.eureka.extraEnvVars ?: []) as List
+      sidecarExtraEnvVars.add([
+        name     : 'MOD_USERS_KEYCLOAK_URL',
+        valueFrom: [secretKeyRef: [name: 'eureka-common', key: 'MOD_USERS_KEYCLOAK_URL']]
+      ])
+      moduleConfig.sidecarContainers.eureka.extraEnvVars = sidecarExtraEnvVars
+    }
+
     switch (moduleName) { // let it still be switch in case we need to add an additional module
       case 'mod-consortia-keycloak':
         println('https://folio-org.atlassian.net/browse/RANCHER-2035')
