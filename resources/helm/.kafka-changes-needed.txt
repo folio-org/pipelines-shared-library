@@ -1,0 +1,3 @@
+# Kafka Credentials Changes
+
+Add kafka-credentials to mod-feesfines and mod-patron-blocks.
