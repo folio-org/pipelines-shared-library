@@ -8,7 +8,21 @@ resource "random_password" "pg_password" {
   min_numeric      = 2
   min_special      = 2
   min_upper        = 2
-  override_special = "‘~!@#$%^&*()_-+={}[]\\/<>,.;?':|"
+  override_special = "’~!@#$%^&*()_-+={}[]\\/<>,.;?’:|"
+}
+
+# Protection token for the PostgreSQL MCP Server.
+# Passed as a Bearer token in the Authorization header on every MCP request.
+# Stored in both db-credentials (shared app secret) and db-mcp (server secret).
+resource "random_password" "pg_mcp_token" {
+  length      = 32   # ≥16 chars; 32 gives 192 bits of entropy
+  special     = false # URL/header-safe: only [A-Za-z0-9]
+  numeric     = true
+  upper       = true
+  lower       = true
+  min_lower   = 6
+  min_numeric = 6
+  min_upper   = 6
 }
 
 resource "rancher2_secret" "db-credentials" {
@@ -26,6 +40,7 @@ resource "rancher2_secret" "db-credentials" {
     #DB_MAXSHAREDPOOLSIZE = base64encode("50")
     DB_CHARSET      = base64encode("UTF-8")
     DB_QUERYTIMEOUT = base64encode("14400000")
+    DB_MCP_TOKEN    = base64encode(random_password.pg_mcp_token.result)
     },
     var.enable_rw_split ? {
       DB_HOST_READER = base64encode(var.pg_embedded ? local.pg_service_reader : module.rds[0].cluster_reader_endpoint)
@@ -63,6 +78,10 @@ locals {
   pg_service_writer = var.enable_rw_split ? "postgresql-${var.rancher_project_name}-primary" : "postgresql-${var.rancher_project_name}"
   pg_auth           = local.pg_architecture == "replication" ? "false" : "true"
   pg_eureka_db_name = var.eureka ? "folio" : var.pg_dbname
+
+  # MCP server is disabled for the "sprint" project — that namespace is ephemeral/lightweight
+  # and does not need the DBA agent. In all other projects the var toggle is respected as-is.
+  pg_mcp_enabled = var.pg_mcp_server && var.rancher_project_name != "sprint"
 }
 
 resource "kubectl_manifest" "postgresql-pdb" {
@@ -614,4 +633,202 @@ resource "kubernetes_job_v1" "adjust_rds_db" {
     create = "5m"
     update = "5m"
   }
+}
+
+# ──────────────────────────────────────────────────────────────────────────────
+# PostgreSQL MCP Server — DBA AI agent over SSE / MCP protocol
+#
+# Gated by local.pg_mcp_enabled (var.pg_mcp_server && project != "sprint").
+# Works with both embedded Bitnami PostgreSQL and AWS RDS Aurora.
+#
+# Architecture: Internet → ALB (shared group) → Ingress → Service → Deployment
+#               Deployment reads DB credentials from rancher2_secret.db-mcp
+# ──────────────────────────────────────────────────────────────────────────────
+
+
+# Kubernetes Deployment for the MCP server
+resource "kubernetes_deployment_v1" "pg_mcp_server" {
+  count      = local.pg_mcp_enabled ? 1 : 0
+  depends_on = [helm_release.postgresql, module.rds, rancher2_secret.db-credentials]
+  provider   = kubernetes
+
+  metadata {
+    name      = "pg-mcp-server"
+    namespace = rancher2_namespace.this.name
+    labels = {
+      app       = "pg-mcp-server"
+      component = "pg-mcp"
+    }
+  }
+
+  spec {
+    replicas = 1
+
+    selector {
+      match_labels = {
+        app = "pg-mcp-server"
+      }
+    }
+
+    template {
+      metadata {
+        labels = {
+          app       = "pg-mcp-server"
+          component = "pg-mcp"
+        }
+      }
+
+      spec {
+        container {
+          name              = "pg-mcp-server"
+          image             = "732722833398.dkr.ecr.us-west-2.amazonaws.com/db-mcp:latest"
+          image_pull_policy = "Always"
+
+          port {
+            name           = "http"
+            container_port = 8000
+            protocol       = "TCP"
+          }
+
+          # Reuse the shared db-credentials secret — already contains DB_HOST,
+          # DB_PORT, DB_USERNAME, DB_PASSWORD, DB_DATABASE, DB_MCP_TOKEN, etc.
+          env_from {
+            secret_ref {
+              name = rancher2_secret.db-credentials.name
+            }
+          }
+
+          # MCP-specific settings not present in db-credentials
+          env {
+            name  = "USE_IAM_AUTH"
+            value = "false"
+          }
+          env {
+            name  = "AWS_REGION"
+            value = var.aws_region
+          }
+          env {
+            name  = "MCP_PORT"
+            value = "8000"
+          }
+
+          resources {
+            requests = {
+              cpu    = "100m"
+              memory = "256Mi"
+            }
+            limits = {
+              cpu    = "500m"
+              memory = "512Mi"
+            }
+          }
+
+          liveness_probe {
+            http_get {
+              path = "/health"
+              port = 8000
+            }
+            initial_delay_seconds = 20
+            period_seconds        = 30
+            failure_threshold     = 3
+            timeout_seconds       = 5
+          }
+
+          readiness_probe {
+            http_get {
+              path = "/health"
+              port = 8000
+            }
+            initial_delay_seconds = 10
+            period_seconds        = 10
+            failure_threshold     = 3
+            timeout_seconds       = 5
+          }
+
+          security_context {
+            run_as_non_root             = true
+            run_as_user                 = 1001
+            allow_privilege_escalation  = false
+            read_only_root_filesystem   = false
+          }
+        }
+
+        # Graceful shutdown — allow in-flight SSE streams to drain
+        termination_grace_period_seconds = 30
+      }
+    }
+  }
+}
+
+# NodePort service — exposes the MCP server to the ALB via the ingress controller
+resource "kubernetes_service_v1" "pg_mcp_server" {
+  count    = local.pg_mcp_enabled ? 1 : 0
+  provider = kubernetes
+
+  metadata {
+    name      = "pg-mcp-server"
+    namespace = rancher2_namespace.this.name
+    labels = {
+      app       = "pg-mcp-server"
+      component = "pg-mcp"
+    }
+  }
+
+  spec {
+    type = "NodePort"
+
+    selector = {
+      app = "pg-mcp-server"
+    }
+
+    port {
+      name        = "http"
+      port        = 80
+      target_port = 8000
+      protocol    = "TCP"
+    }
+  }
+}
+
+# ALB Ingress — shares the same group as all project services
+resource "kubectl_manifest" "pg_mcp_ingress" {
+  count = local.pg_mcp_enabled ? 1 : 0
+  yaml_body = yamlencode({
+    apiVersion = "networking.k8s.io/v1"
+    kind       = "Ingress"
+    metadata = {
+      name      = "pg-mcp-server"
+      namespace = rancher2_namespace.this.name
+      annotations = {
+        "kubernetes.io/ingress.class"                        = "alb"
+        "alb.ingress.kubernetes.io/scheme"                   = "internet-facing"
+        "alb.ingress.kubernetes.io/group.name"               = local.group_name
+        "alb.ingress.kubernetes.io/listen-ports"             = "[{\"HTTPS\":443}]"
+        "alb.ingress.kubernetes.io/success-codes"            = "200-499"
+        "alb.ingress.kubernetes.io/healthcheck-path"         = "/health"
+        "alb.ingress.kubernetes.io/healthcheck-port"         = "80"
+        "alb.ingress.kubernetes.io/target-type"              = "instance"
+      }
+    }
+    spec = {
+      rules = [{
+        host = join(".", [
+          join("-", [data.rancher2_cluster.this.name, var.rancher_project_name, "pg-mcp"]),
+          var.root_domain
+        ])
+        http = {
+          paths = [{
+            path     = "/*"
+            pathType = "ImplementationSpecific"
+            backend = {
+              service = {
+                name = "pg-mcp-server"
+                port = { number = 80 }
+              }
+            }
+          }]
+        }
+      }]
+    }
+  })
 }
