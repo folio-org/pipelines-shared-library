@@ -268,7 +268,11 @@ ansiColor('xterm') {
       }
 
       // Upload Module Descriptor to Eureka Module Registry
-      sh(script: "[ -e ${module.modDescriptorPath} ] && curl -sS -X PUT ${Constants.EUREKA_REGISTRY_DESCRIPTORS_URL}${module.name}-${module.version} --upload-file ${module.modDescriptorPath}")
+      // --fail makes HTTP errors (4xx/5xx) fail the stage instead of being silently ignored,
+      // which previously left mgr-applications without the module and caused 404 EntityNotFoundException
+      // at the Module Discovery stage (RANCHER-3182)
+      sh(label: 'Upload Module Descriptor to Eureka Module Registry',
+        script: "[ -e ${module.modDescriptorPath} ] && curl -sS --fail --retry 3 --retry-delay 5 --retry-connrefused --connect-timeout 30 -X PUT ${Constants.EUREKA_REGISTRY_DESCRIPTORS_URL}${module.name}-${module.version} --upload-file ${module.modDescriptorPath}")
 
       // Save Module Descriptor to Module instance for further usage
       module.descriptor = [readJSON(file: module.modDescriptorPath)]
