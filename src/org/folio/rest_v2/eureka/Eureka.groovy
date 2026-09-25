@@ -411,13 +411,49 @@ class Eureka extends Base {
     Map<String, String> updatedAppInfoMap = [:]
 
     appWithDescriptors.each { app ->
-      String newBuildNumber = app.build ? (app.build.toLong() + 1).toString() : ""
+      String newModuleId = "${module.name}-${module.version}"
+      long baseBuildNumber = app.build ? app.build.toLong() : 0L
 
-      Map updatedAppDescriptor = getUpdatedApplicationDescriptor(app.descriptor, module, newBuildNumber)
+      Map updatedAppDescriptor = null
+      String updatedAppId = null
+
+      // A previously failed run can leave an application descriptor registered under the same
+      // id while tenants remain entitled to the previous version. Registering over it is
+      // rejected with 409 and the stale descriptor does not reference the new module version,
+      // which makes the following module discovery fail with 404 EntityNotFoundException.
+      // Verify the existing descriptor and replace it when it is stale.
+      for (int attempt = 1; attempt <= 3; attempt++) {
+        updatedAppDescriptor = getUpdatedApplicationDescriptor(
+          Applications.get(kong).getRegisteredApplicationDescriptors(app.id, true) as Map,
+          module, (baseBuildNumber + attempt).toString())
+        updatedAppId = updatedAppDescriptor['id'] as String
+
+        if (!Applications.get(kong).isApplicationRegistered(updatedAppId)) {
+          break
+        }
+
+        Map existingDescriptor = Applications.get(kong).getRegisteredApplicationDescriptors(updatedAppId, true) as Map
+        List existingModuleIds = ((existingDescriptor['modules'] ?: []) + (existingDescriptor['uiModules'] ?: []))
+          .collect { it['id'] as String }
+
+        if (existingModuleIds.contains(newModuleId)) {
+          logger.info("Application descriptor ${updatedAppId} already exists and references module ${newModuleId}. Reusing it.")
+          break
+        }
+
+        logger.warning("Application descriptor ${updatedAppId} already exists but does not reference module ${newModuleId} (stale modules: ${existingModuleIds}).")
+        try {
+          Applications.get(kong).deleteRegisteredApplication(updatedAppId)
+          logger.info("Stale application descriptor ${updatedAppId} was removed and will be re-registered.")
+          break
+        } catch (deleteException) {
+          logger.warning("Failed to remove stale application descriptor ${updatedAppId}: ${deleteException.message}. Trying the next build number.")
+        }
+      }
 
       Applications.get(kong).registerApplication(updatedAppDescriptor)
 
-      updatedAppInfoMap.put(updatedAppDescriptor['name'] as String, updatedAppDescriptor['id'] as String)
+      updatedAppInfoMap.put(updatedAppDescriptor['name'] as String, updatedAppId)
     }
 
     return updatedAppInfoMap
