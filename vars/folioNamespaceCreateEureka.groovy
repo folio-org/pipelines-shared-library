@@ -78,8 +78,8 @@ void call(CreateNamespaceParameters args) {
       }
 
       String keycloakVersion = appModules.getKeycloakModule()?.getVersion()
-      // Determine gateway type; default is kong for backward compatibility
-      boolean useApisix = args.useApisix
+      // Detect gateway from install JSON: folio-apisix presence means APISIX, otherwise fall back to kong.
+      boolean useApisix = appModules.getApisixModule() != null
       String gatewayType = useApisix ? 'apisix' : 'kong'
       String kongVersion = useApisix ? null : appModules.getKongModule()?.getVersion()
       if (useApisix) {
