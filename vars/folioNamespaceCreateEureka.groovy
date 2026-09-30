@@ -77,9 +77,16 @@ void call(CreateNamespaceParameters args) {
         appModules.addModule("folio-module-sidecar-${tag.replace(",", "")}", 'enable')
       }
 
-      String kongVersion = appModules.getKongModule()?.getVersion()
       String keycloakVersion = appModules.getKeycloakModule()?.getVersion()
-      logger.info("Using Kong version: ${kongVersion}, Keycloak version: ${keycloakVersion}")
+      // Determine gateway type; default is kong for backward compatibility
+      boolean useApisix = args.useApisix
+      String gatewayType = useApisix ? 'apisix' : 'kong'
+      String kongVersion = useApisix ? null : appModules.getKongModule()?.getVersion()
+      if (useApisix) {
+        logger.info("Using APISIX gateway (latest tag from folioci), Keycloak version: ${keycloakVersion}")
+      } else {
+        logger.info("Using Kong version: ${kongVersion}, Keycloak version: ${keycloakVersion}")
+      }
 
       def defaultTenantId = args.dataset ? 'fs09000000' : 'diku'
       boolean isRelease = (args.releaseType != null && args.releaseType != FolioRelease.SNAPSHOT)
@@ -109,7 +116,11 @@ void call(CreateNamespaceParameters args) {
       tfConfig.addVar('github_team_ids', folioTools.getGitHubTeamsIds("${Constants.ENVS_MEMBERS_LIST[args.namespaceName]},${args.members}").collect { "\"${it}\"" })
       tfConfig.addVar('pg_version', args.pgVersion)
       tfConfig.addVar('eureka', args.platform == PlatformType.EUREKA)
-      tfConfig.addVar('kong_version', kongVersion)
+      tfConfig.addVar('use_apisix', useApisix)
+      if (!useApisix) {
+        // folio-apisix always uses :latest — no version tracking needed
+        tfConfig.addVar('kong_version', kongVersion)
+      }
       tfConfig.addVar('keycloak_version', keycloakVersion)
       tfConfig.addVar('setup_type', args.type)
       if (args.dataset) {
@@ -166,7 +177,7 @@ void call(CreateNamespaceParameters args) {
 
       TenantUi tenantUi = new TenantUi("${namespace.getClusterName()}-${namespace.getNamespaceName()}",
         commitHash, args.platformBranch)
-      tenantUi.setKongDomain(namespace.getDomains()['kong'])
+      tenantUi.setKongDomain(namespace.getDomains()[gatewayType])
       tenantUi.setKeycloakDomain(namespace.getDomains()['keycloak'])
 
       EurekaRequestParams installRequestParams = new EurekaRequestParams()
@@ -268,7 +279,7 @@ void call(CreateNamespaceParameters args) {
       }
 
       //Don't move from here because it increases Keycloak TTL before mgr modules to be deployed
-      Eureka eureka = new Eureka(this, namespace.generateDomain('kong'), namespace.generateDomain('keycloak'))
+      Eureka eureka = new Eureka(this, namespace.generateDomain(gatewayType), namespace.generateDomain('keycloak'))
       Boolean check = false
       timeout(time: 15, unit: 'MINUTES') {
         while (!check) {
@@ -394,7 +405,7 @@ void call(CreateNamespaceParameters args) {
 
       stage('[Rest] Configure edge') {
         retry(5) {
-          new Edge(this, "${namespace.generateDomain('kong')}", "${namespace.generateDomain('keycloak')}").createEurekaUsers(namespace)
+          new Edge(this, "${namespace.generateDomain(gatewayType)}", "${namespace.generateDomain('keycloak')}").createEurekaUsers(namespace)
         }
       }
 

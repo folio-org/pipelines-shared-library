@@ -97,6 +97,8 @@ class CreateNamespaceParameters implements Cloneable {
 
   boolean isConsortiaSingleUi
 
+  boolean useApisix = false
+
   private CreateNamespaceParameters() {}
 
   @NonCPS
@@ -427,6 +429,15 @@ class CreateNamespaceParameters implements Cloneable {
      * @return
      */
     Builder isConsortiaSingleUi(boolean isConsortiaSingleUi) { return setParam('isConsortiaSingleUi', isConsortiaSingleUi) }
+
+    /**
+     * Deploys folio-apisix as the API gateway instead of folio-kong.
+     * When true, Terraform skips kong resources and PostgreSQL kong DB, and deploys
+     * a folio-apisix Kubernetes Deployment using the :latest tag from folioci instead.
+     * @param useApisix {@code true} to use APISIX; {@code false} (default) to use Kong.
+     * @return Builder instance for method chaining.
+     */
+    Builder useApisix(boolean useApisix) { return setParam('useApisix', useApisix) }
 
     CreateNamespaceParameters build(def context = null) {
       Map<String, Object> defaults = DependentParametersResolver.resolve(

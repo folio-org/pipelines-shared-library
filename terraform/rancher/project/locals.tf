@@ -8,6 +8,7 @@ locals {
   okapi_url         = join(".", [join("-", [data.rancher2_cluster.this.name, var.rancher_project_name, "okapi"]), var.root_domain])
   minio_url         = join(".", [join("-", [data.rancher2_cluster.this.name, var.rancher_project_name, "minio"]), var.root_domain])
   kong_url          = join(".", [join("-", [data.rancher2_cluster.this.name, var.rancher_project_name, "kong"]), var.root_domain])
+  apisix_url        = join(".", [join("-", [data.rancher2_cluster.this.name, var.rancher_project_name, "apisix"]), var.root_domain])
   keycloak_url      = join(".", [join("-", [data.rancher2_cluster.this.name, var.rancher_project_name, "keycloak"]), var.root_domain])
   minio_console_url = join(".", [join("-", [data.rancher2_cluster.this.name, var.rancher_project_name, "minio-console"]), var.root_domain])
   db_snapshot_arn   = "arn:aws:rds:${var.aws_region}:${data.aws_caller_identity.current.account_id}:cluster-snapshot:${var.pg_rds_snapshot_name}"

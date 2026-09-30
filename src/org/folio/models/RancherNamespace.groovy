@@ -12,7 +12,7 @@ import org.yaml.snakeyaml.error.YAMLException
 class RancherNamespace {
   protected static final String DEPLOYMENT_CONFIG_BRANCH = "master"
 
-  protected static final List DOMAINS_LIST = ['okapi', 'edge', 'kong', 'keycloak']
+  protected static final List DOMAINS_LIST = ['okapi', 'edge', 'kong', 'keycloak', 'apisix']
 
   protected static final String GITHUB_SHARED_LIBRARY_RAW = "https://raw.githubusercontent.com/folio-org/pipelines-shared-library"
 

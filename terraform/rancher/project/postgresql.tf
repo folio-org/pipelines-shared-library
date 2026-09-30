@@ -130,7 +130,7 @@ primary:
   initdb:
     scripts:
       init.sql: |
-        ${indent(8, var.eureka ? templatefile("${path.module}/resources/eureka.db.tpl", { dbs = [local.pg_eureka_db_name, "kong", "keycloak"], pg_password = var.pg_password }) : "--fail safe")}
+        ${indent(8, var.eureka ? templatefile("${path.module}/resources/eureka.db.tpl", { dbs = var.use_apisix ? [local.pg_eureka_db_name, "keycloak"] : [local.pg_eureka_db_name, "kong", "keycloak"], pg_password = var.pg_password }) : "--fail safe")}
         ${var.eureka ? "" : "CREATE DATABASE ${var.pg_dbname};"}
         CREATE DATABASE ldp;
         CREATE USER ldpadmin PASSWORD '${var.pg_ldp_user_password}';
@@ -271,7 +271,7 @@ primary:
   initdb:
     scripts:
       init.sql: |
-        ${indent(8, var.eureka ? templatefile("${path.module}/resources/eureka.db.tpl", { dbs = [var.eureka ? "folio" : var.pg_dbname, "kong", "keycloak"], pg_password = var.pg_password }) : "--fail safe")}
+        ${indent(8, var.eureka ? templatefile("${path.module}/resources/eureka.db.tpl", { dbs = var.use_apisix ? [var.eureka ? "folio" : var.pg_dbname, "keycloak"] : [var.eureka ? "folio" : var.pg_dbname, "kong", "keycloak"], pg_password = var.pg_password }) : "--fail safe")}
         CREATE DATABASE ldp;
         CREATE USER ldpadmin PASSWORD '${var.pg_ldp_user_password}';
         CREATE USER ldpconfig PASSWORD '${var.pg_ldp_user_password}';
@@ -434,7 +434,7 @@ module "rds" {
 }
 
 resource "postgresql_role" "kong" {
-  count      = var.eureka && !var.pg_embedded ? 1 : 0
+  count      = var.eureka && !var.pg_embedded && !var.use_apisix ? 1 : 0
   name       = "kong"
   login      = true
   password   = local.pg_password
@@ -463,7 +463,7 @@ resource "postgresql_role" "keycloak" {
 
 resource "postgresql_database" "eureka_kong" {
   depends_on = [postgresql_role.kong, kubernetes_job_v1.adjust_rds_db]
-  count      = var.eureka && !var.pg_embedded ? 1 : 0
+  count      = var.eureka && !var.pg_embedded && !var.use_apisix ? 1 : 0
   name       = "kong"
   owner      = "kong"
   connection {
@@ -598,11 +598,11 @@ resource "kubernetes_job_v1" "adjust_rds_db" {
           }
           env {
             name  = "DBS_2_DROP"
-            value = "keycloak kong"
+            value = var.use_apisix ? "keycloak" : "keycloak kong"
           }
           env {
             name  = "ROLES_2_DROP"
-            value = "keycloak keycloak_admin kong kong_admin"
+            value = var.use_apisix ? "keycloak keycloak_admin" : "keycloak keycloak_admin kong kong_admin"
           }
         }
       }
