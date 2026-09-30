@@ -19,6 +19,7 @@ properties([
   parameters([
     string(name: 'CYPRESS_BRANCH', defaultValue: 'master', description: "(Required) Insert what 'stripes-testing' branch use for build"),
     string(name: 'NUMBER_WORKERS', defaultValue: '15', description: "(Required) Define number of workers for Cypress tests execution"),
+    choice(name: 'GATEWAY_TYPE', choices: ['kong', 'apisix'], description: '(Eureka only) API gateway in the target namespace.'),
     folioParameters.refreshParameters()
   ])
 ])
@@ -43,7 +44,7 @@ CypressTestsParameters cypressParameters = new CypressTestsParameters()
 cypressParameters.setCiBuildId(env.JOB_BASE_NAME)
 cypressParameters.setTestsSrcBranch(params.CYPRESS_BRANCH)
 cypressParameters.setTenantUrl("https://${namespace.generateDomain('consortium')}")
-cypressParameters.setOkapiUrl("https://${namespace.getDomains().kong}")
+cypressParameters.setOkapiUrl("https://${namespace.getDomains()[params.GATEWAY_TYPE ?: 'kong']}")
 cypressParameters.setTenant(new OkapiTenant('consortium')
   .withAdminUser(new OkapiUser('consortium_admin', 'admin')))
 cypressParameters.setCompileExecParameters('tags="smokeECS criticalPathECS extendedPathECS --nonParallel" env=ecs_env_name="snapshot",eureka=true,ecsEnabled=true')

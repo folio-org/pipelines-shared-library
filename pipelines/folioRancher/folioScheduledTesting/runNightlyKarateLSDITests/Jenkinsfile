@@ -22,6 +22,7 @@ parameters([
   string(name: 'THREADS_COUNT', defaultValue: '1', description: "(Required) Number of parallel threads"),
   booleanParam(name: 'DESTROY_AFTER', defaultValue: true, description: '(Optional) Set to false to not destroy namespace after tests execution'),
   booleanParam(name: 'RETRY_FAILED', defaultValue: false, description: '(Optional) Set to true to retry failed tests'),
+  choice(name: 'GATEWAY_TYPE', choices: ['kong', 'apisix'], description: '(Eureka only) API gateway in the target namespace.'),
   folioParameters.refreshParameters()
 ])
 ])
@@ -49,6 +50,7 @@ CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builde
   .opensearchType('built-in')
   .scNative(true)
   .members('folijet')
+  .useApisix(params.GATEWAY_TYPE == 'apisix')
   .build(this)
 
 RancherNamespace namespace = new RancherNamespace(namespaceParams.getClusterName(), namespaceParams.getNamespaceName())
@@ -56,7 +58,7 @@ namespace.withSuperTenantAdminUser()
 
 KarateTestsParameters karateTestsParams = new KarateTestsParameters()
 karateTestsParams.gitBranch = params.TESTS_BRANCH
-karateTestsParams.okapiUrl = "https://${namespace.getDomains().kong}"
+karateTestsParams.okapiUrl = "https://${namespace.getDomains()[params.GATEWAY_TYPE ?: 'kong']}"
 karateTestsParams.keycloakUrl = "https://${namespace.getDomains().keycloak}"
 karateTestsParams.edgeUrl = "https://${namespace.getDomains().edge}"
 karateTestsParams.tenant = namespace.getSuperTenant().getTenantId()

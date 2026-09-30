@@ -15,7 +15,7 @@ properties([
     folioParameters.branch('TESTS_BRANCH', 'folio-integration-tests'),
     string(name: 'TESTS', defaultValue: '', description: 'Comma separated modules list to test (no spaces).\nLeave empty to launch all.'),
     folioParameters.testGroup(),
-    string(name: 'OKAPI_URL', defaultValue: 'https://folio-etesting-karate-kong.ci.folio.org', description: 'Target environment OKAPI URL'),
+    string(name: 'OKAPI_URL', defaultValue: 'https://folio-etesting-karate-kong.ci.folio.org', description: 'Target environment gateway URL (Kong or APISIX)'),
     string(name: 'KEYCLOAK_URL', defaultValue: 'https://folio-etesting-karate-keycloak.ci.folio.org', description: 'Target environment KEYCLOAK URL'),
     string(name: 'EDGE_URL', defaultValue: 'https://folio-etesting-karate-edge.ci.folio.org', description: 'Target environment EDGE URL'),
     string(name: 'CLIENT_ID', defaultValue: 'folio-backend-admin-client', description: 'Client ID in Keycloak for tests'),

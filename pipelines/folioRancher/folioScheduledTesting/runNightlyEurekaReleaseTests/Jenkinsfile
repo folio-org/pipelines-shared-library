@@ -23,6 +23,7 @@ properties([pipelineTriggers([cron('H 21 * * 1-5')]),
                         string(name: 'THREADS_COUNT', defaultValue: '4', description: "(Required) Number of parallel threads for Karate tests"),
                         string(name: 'NUMBER_WORKERS', defaultValue: '15', description: "(Required) Number of parallel workers for Cypress tests"),
                         booleanParam(name: 'DESTROY_AFTER', defaultValue: false, description: "(Optional) Destroy the environment after the tests are completed"),
+                        choice(name: 'GATEWAY_TYPE', choices: ['kong', 'apisix'], description: '(Eureka only) API gateway in the target namespace.'),
                         folioParameters.refreshParameters()])])
 
 if (params.REFRESH_PARAMETERS) {
@@ -50,6 +51,7 @@ CreateNamespaceParameters namespaceBaseParams = new CreateNamespaceParameters.Bu
 CreateNamespaceParameters namespaceFromBranchParams = namespaceBaseParams.toBuilder()
   .platformBranch(releaseBranch)
   .scNative(true)
+  .useApisix(params.GATEWAY_TYPE == 'apisix')
   .build(this)
 
 RancherNamespace namespace = new RancherNamespace(namespaceBaseParams.getClusterName(), namespaceBaseParams.getNamespaceName())
@@ -60,7 +62,7 @@ namespace.withSuperTenantAdminUser('diku_admin', 'admin')
  * Karate test parameters — targeted E2E subset for the release (not the full suite)*/
 KarateTestsParameters karateTestsParams = new KarateTestsParameters()
 karateTestsParams.gitBranch = params.KARATE_BRANCH
-karateTestsParams.okapiUrl = "https://${namespace.getDomains().kong}"
+karateTestsParams.okapiUrl = "https://${namespace.getDomains()[params.GATEWAY_TYPE ?: 'kong']}"
 karateTestsParams.keycloakUrl = "https://${namespace.getDomains().keycloak}"
 karateTestsParams.edgeUrl = "https://${namespace.getDomains().edge}"
 karateTestsParams.tenant = namespace.getDefaultTenantId()
@@ -83,7 +85,7 @@ CypressTestsParameters cypressNonEcsParams = new CypressTestsParameters()
 cypressNonEcsParams.setCiBuildId("${env.JOB_BASE_NAME}-non-ecs")
 cypressNonEcsParams.setTestsSrcBranch(params.CYPRESS_BRANCH)
 cypressNonEcsParams.setTenantUrl("https://${namespace.generateDomain('diku')}")
-cypressNonEcsParams.setOkapiUrl("https://${namespace.getDomains().kong}")
+cypressNonEcsParams.setOkapiUrl("https://${namespace.getDomains()[params.GATEWAY_TYPE ?: 'kong']}")
 cypressNonEcsParams.setTenant(new OkapiTenant('diku')
   .withAdminUser(new OkapiUser('diku_admin', 'admin')))
 cypressNonEcsParams.setCompileExecParameters('tags="smoke criticalPath extendedPath --nonParallel"')
@@ -98,7 +100,7 @@ CypressTestsParameters cypressEcsParams = new CypressTestsParameters()
 cypressEcsParams.setCiBuildId("${env.JOB_BASE_NAME}-ecs")
 cypressEcsParams.setTestsSrcBranch(params.CYPRESS_BRANCH)
 cypressEcsParams.setTenantUrl("https://${namespace.generateDomain('consortium')}")
-cypressEcsParams.setOkapiUrl("https://${namespace.getDomains().kong}")
+cypressEcsParams.setOkapiUrl("https://${namespace.getDomains()[params.GATEWAY_TYPE ?: 'kong']}")
 cypressEcsParams.setTenant(new OkapiTenant('consortium')
   .withAdminUser(new OkapiUser('consortium_admin', 'admin')))
 cypressEcsParams.setCompileExecParameters('tags="smokeECS criticalPathECS extendedPathECS --nonParallel" env=ecs_env_name="trillium",ecsEnabled=true')

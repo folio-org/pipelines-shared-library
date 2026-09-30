@@ -16,6 +16,7 @@ properties([
     choice(name: 'BACKUP_SCOPE', choices: ['full', 'db-only'], description: 'full = DB dump + tenant/entitlements JSON metadata; db-only = PostgreSQL dump only'),
     string(name: 'TIMEOUT', defaultValue: '360m', description: 'Helm install timeout (e.g. 360m, 6h, 90m)'),
     string(name: 'PVC_SIZE', defaultValue: '100Gi', description: 'PVC storage size for the dump volume (e.g. 100Gi, 500Gi)'),
+    choice(name: 'GATEWAY_TYPE', choices: ['kong', 'apisix'], description: '(Eureka only) API gateway in the target namespace. Tenant metadata is fetched through this gateway.'),
     folioParameters.refreshParameters()
   ])
 ])
@@ -59,10 +60,10 @@ ansiColor('xterm') {
 
     // Collect tenant/entitlements metadata for Eureka clusters when scope=full
     if (params.BACKUP_SCOPE == 'full') {
-      stage('Fetch tenants from Kong') {
+      stage('Fetch tenants from gateway') {
         awscli.withAwsClient {
-          String kongUrl = psqlDumpMethods.getKongUrl(params.CLUSTER, params.NAMESPACE)
-          def tenantsJson = psqlDumpMethods.fetchTenants(kongUrl)
+          String gatewayUrl = psqlDumpMethods.getGatewayUrl(params.CLUSTER, params.NAMESPACE, params.GATEWAY_TYPE)
+          def tenantsJson = psqlDumpMethods.fetchTenants(gatewayUrl)
           List tenants = tenantsJson.tenants ?: []
 
           echo "Found ${tenants.size()} tenants in ${params.CLUSTER}/${params.NAMESPACE}"
@@ -76,7 +77,7 @@ ansiColor('xterm') {
           // Fetch entitlements for all tenants and save to S3
           psqlDumpMethods.saveEntitlementsMetadataToS3(
             bucketName, s3Directory, backupName,
-            kongUrl, tenants
+            gatewayUrl, tenants
           )
         }
       }
