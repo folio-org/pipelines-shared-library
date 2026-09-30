@@ -3,6 +3,168 @@
 # folio-apisix always uses the :latest tag from the folioci Docker Hub registry.
 # Unlike folio-kong, no PostgreSQL database or Bitnami Helm chart is required.
 # Ports: 9080 (proxy HTTP), 9443 (proxy HTTPS), 9180 (admin API).
+#
+# etcd is APISIX's config store — it must be running before APISIX starts.
+# The Kubernetes service is named "etcd" so APISIX can resolve the default
+# endpoint http://etcd:2379 without any custom config.
+
+# ---------------------------------------------------------------------------
+# etcd (APISIX config store)
+# ---------------------------------------------------------------------------
+
+resource "kubernetes_deployment" "etcd" {
+  count = var.eureka && var.use_apisix ? 1 : 0
+
+  metadata {
+    name      = "etcd-${var.rancher_project_name}"
+    namespace = rancher2_namespace.this.id
+    labels = {
+      "app"                          = "etcd-${var.rancher_project_name}"
+      "app.kubernetes.io/name"       = "etcd"
+      "app.kubernetes.io/instance"   = "etcd-${var.rancher_project_name}"
+      "app.kubernetes.io/managed-by" = "terraform"
+    }
+  }
+
+  spec {
+    replicas = 1
+
+    selector {
+      match_labels = {
+        "app"                        = "etcd-${var.rancher_project_name}"
+        "app.kubernetes.io/name"     = "etcd"
+        "app.kubernetes.io/instance" = "etcd-${var.rancher_project_name}"
+      }
+    }
+
+    template {
+      metadata {
+        labels = {
+          "app"                        = "etcd-${var.rancher_project_name}"
+          "app.kubernetes.io/name"     = "etcd"
+          "app.kubernetes.io/instance" = "etcd-${var.rancher_project_name}"
+        }
+      }
+
+      spec {
+        container {
+          # Exact image used in folio-apisix docker-compose.yaml upstream.
+          # config.yaml inside the folio-apisix image hardcodes http://etcd:2379 — the
+          # Kubernetes service below MUST be named "etcd" or APISIX will not start.
+          name              = "etcd"
+          image             = "quay.io/coreos/etcd:v3.5.21"
+          image_pull_policy = "IfNotPresent"
+
+          port {
+            name           = "client"
+            container_port = 2379
+            protocol       = "TCP"
+          }
+
+          port {
+            name           = "peer"
+            container_port = 2380
+            protocol       = "TCP"
+          }
+
+          # Environment variables match folio-apisix docker-compose.yaml exactly.
+          env {
+            name  = "ETCD_DATA_DIR"
+            value = "/etcd-data"
+          }
+
+          env {
+            name  = "ETCD_ADVERTISE_CLIENT_URLS"
+            value = "http://etcd:2379"
+          }
+
+          env {
+            name  = "ETCD_LISTEN_CLIENT_URLS"
+            value = "http://0.0.0.0:2379"
+          }
+
+          # etcdctl is on PATH in the coreos image; v3 API is the default in 3.5.
+          readiness_probe {
+            exec {
+              command = ["etcdctl", "endpoint", "health", "--endpoints=http://127.0.0.1:2379"]
+            }
+            initial_delay_seconds = 5
+            period_seconds        = 5
+            failure_threshold     = 6
+          }
+
+          liveness_probe {
+            exec {
+              command = ["etcdctl", "endpoint", "health", "--endpoints=http://127.0.0.1:2379"]
+            }
+            initial_delay_seconds = 15
+            period_seconds        = 10
+            failure_threshold     = 3
+          }
+
+          resources {
+            requests = {
+              memory = "128Mi"
+              cpu    = "100m"
+            }
+            limits = {
+              memory = "512Mi"
+              cpu    = "500m"
+            }
+          }
+
+          # emptyDir is sufficient for CI/testing — etcd data does not need to survive
+          # pod restarts; APISIX re-syncs routes from mgr-* on tenant entitlement.
+          volume_mount {
+            name       = "etcd-data"
+            mount_path = "/etcd-data"
+          }
+        }
+
+        volume {
+          name = "etcd-data"
+          empty_dir {}
+        }
+      }
+    }
+  }
+
+  lifecycle {
+    ignore_changes = [metadata]
+  }
+}
+
+# Named "etcd" so APISIX resolves the default http://etcd:2379 endpoint without
+# any custom configuration.
+resource "kubernetes_service" "etcd" {
+  count = var.eureka && var.use_apisix ? 1 : 0
+
+  metadata {
+    name      = "etcd"
+    namespace = rancher2_namespace.this.id
+  }
+
+  spec {
+    selector = {
+      "app"                        = "etcd-${var.rancher_project_name}"
+      "app.kubernetes.io/name"     = "etcd"
+      "app.kubernetes.io/instance" = "etcd-${var.rancher_project_name}"
+    }
+
+    port {
+      name        = "client"
+      port        = 2379
+      target_port = 2379
+      protocol    = "TCP"
+    }
+
+    type = "ClusterIP"
+  }
+
+  lifecycle {
+    ignore_changes = [metadata]
+  }
+}
 
 resource "rancher2_secret" "apisix-credentials" {
   count        = var.eureka && var.use_apisix ? 1 : 0
@@ -16,6 +178,11 @@ resource "rancher2_secret" "apisix-credentials" {
 
 resource "kubernetes_deployment" "apisix" {
   count = var.eureka && var.use_apisix ? 1 : 0
+
+  # Wait for etcd to be fully available before starting APISIX.
+  # Terraform's kubernetes_deployment resource waits for the deployment to reach
+  # its desired replica count, so APISIX will not start until etcd is ready.
+  depends_on = [kubernetes_deployment.etcd]
 
   metadata {
     name      = "apisix-${var.rancher_project_name}"
