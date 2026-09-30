@@ -26,7 +26,7 @@ properties([
     folioParameters.applicationsFromPlatform(),
     folioParameters.configType(),
     booleanParam(name: 'SC_NATIVE', defaultValue: true, description: '(Optional) Set false to use Java based SC image'),
-    choice(name: 'GATEWAY_TYPE', choices: ['kong', 'apisix'], description: '(Eureka only) API gateway — auto-detected from install JSON; select apisix here when folio-apisix is present in the platform descriptor'),
+    choice(name: 'GATEWAY_TYPE', choices: ['kong', 'apisix'], description: '(Eureka only) API gateway to deploy. apisix always uses folioci/folio-apisix:latest'),
     folioParameters.groupParameters('Environment features'
       , ['LOAD_REFERENCE', 'LOAD_SAMPLE', 'BUILD_UI', 'CONSORTIA', 'CONSORTIA_SINGLE_UI', 'CONSORTIA_EXTRA', 'LINKED_DATA', 'MARC_MIGRATIONS', 'RTAC_CACHE',  'EDGE_LOCATE'
          , 'SPLIT_FILES', 'RW_SPLIT', 'ECS_CCL', 'GREENMAIL', 'MOCK_SERVER', 'RTR', 'TYPE', 'ENTITLEMENT_APPROACH', 'SET_BASE_URL'
@@ -131,6 +131,7 @@ CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builde
   .dbBackupName(params.DB_BACKUP_NAME)
   .type(params.TYPE)
   .scNative(params.SC_NATIVE)
+  .useApisix(params.GATEWAY_TYPE == 'apisix')
   .initParams(new InitializeFromScratchParameters()
     .withEntitlementApproach(EntitlementApproach.valueOf(params.ENTITLEMENT_APPROACH))
     .withSetBaseUrl(params.SET_BASE_URL))

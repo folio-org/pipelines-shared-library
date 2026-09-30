@@ -62,6 +62,8 @@ class CreateNamespaceParameters implements Cloneable {
 
   boolean scNative = true
 
+  boolean useApisix = false
+
   InitializeFromScratchParameters initParams = new InitializeFromScratchParameters()
 
   String dmSnapshot
@@ -414,6 +416,14 @@ class CreateNamespaceParameters implements Cloneable {
      * @return Builder instance for method chaining.
      */
     Builder scNative(boolean scNative) { return setParam('scNative', scNative) }
+
+    /**
+     * Deploys folio-apisix as the API gateway instead of folio-kong.
+     * folio-apisix is not CI-built and not tracked in any platform descriptor —
+     * Terraform always pulls folioci/folio-apisix:latest.
+     * @param useApisix true to deploy APISIX; false (default) to deploy kong.
+     */
+    Builder useApisix(boolean useApisix) { return setParam('useApisix', useApisix) }
 
     Builder initParams(InitializeFromScratchParameters initParams) { return setParam('initParams', initParams) }
 
