@@ -78,8 +78,10 @@ void call(CreateNamespaceParameters args) {
       }
 
       String keycloakVersion = appModules.getKeycloakModule()?.getVersion()
-      // Detect gateway from install JSON: folio-apisix presence means APISIX, otherwise fall back to kong.
-      boolean useApisix = appModules.getApisixModule() != null
+      // folio-apisix is not CI-built and not in any platform descriptor — always pulled
+      // from folioci/folio-apisix:latest by Terraform. Gateway selection comes exclusively
+      // from the GATEWAY_TYPE Jenkins parameter passed through args.useApisix.
+      boolean useApisix = args.useApisix
       String gatewayType = useApisix ? 'apisix' : 'kong'
       String kongVersion = useApisix ? null : appModules.getKongModule()?.getVersion()
       if (useApisix) {
