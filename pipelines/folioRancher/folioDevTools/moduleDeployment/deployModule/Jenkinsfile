@@ -28,6 +28,7 @@ properties([
     folioParameters.cluster(),
     folioParameters.namespace(),
     folioParameters.configType(),
+    choice(name: 'GATEWAY_TYPE', choices: ['kong', 'apisix'], description: '(Eureka only) API gateway in the target namespace.'),
     folioParameters.refreshParameters(),
   ])
 ])
@@ -66,7 +67,7 @@ String featureBranch = params.MODULE_BRANCH
 String featureHash = ""
 
 /** Init Eureka Application Instance */
-Eureka eureka = new Eureka(this, namespace.generateDomain('kong'), namespace.generateDomain('keycloak'), false)
+Eureka eureka = new Eureka(this, namespace.generateDomain(params.GATEWAY_TYPE), namespace.generateDomain('keycloak'), false)
 
 /** Collect Maven arguments */
 String mavenArguments = params.MAVEN_ARGS.trim()

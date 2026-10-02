@@ -22,7 +22,7 @@ class EurekaImage implements Serializable {
                       branches         : [[name: "*/${branch}"]],
                       extensions       : [],
                       userRemoteConfigs: [[url: "${Constants.FOLIO_GITHUB_URL}/${moduleName}.git"]]])
-      if (moduleName != 'folio-kong' && moduleName != 'folio-keycloak') {
+      if (moduleName != 'folio-kong' && moduleName != 'folio-keycloak' && moduleName != 'folio-apisix') {
         def pom = steps.readMavenPom file: 'pom.xml'
         pom.version = "${pom.getVersion()}.${steps.env.BUILD_NUMBER}"
         steps.writeMavenPom model: pom
@@ -132,6 +132,10 @@ class EurekaImage implements Serializable {
   def makeImage() {
     switch (moduleName) {
       case 'folio-kong':
+        prepare()
+        build(imageTag() as String, "--build-arg TARGETARCH=amd64 -f ./Dockerfile .")
+        break
+      case 'folio-apisix':
         prepare()
         build(imageTag() as String, "--build-arg TARGETARCH=amd64 -f ./Dockerfile .")
         break

@@ -12,10 +12,10 @@ resource "rancher2_secret" "kong-credentials" {
   project_id   = rancher2_project.this.id
   namespace_id = rancher2_namespace.this.id
   name         = "kong-credentials"
-  count        = var.eureka ? 1 : 0
+  count        = var.eureka && !var.use_apisix ? 1 : 0
 }
 resource "helm_release" "kong" {
-  count      = var.eureka ? 1 : 0
+  count      = var.eureka && !var.use_apisix ? 1 : 0
   chart      = "kong"
   depends_on = [rancher2_secret.db-credentials, rancher2_secret.db-credentials-eureka-components, helm_release.postgresql, helm_release.postgresql_qg, rancher2_secret.kong-credentials, module.rds.cluster_instances, postgresql_database.eureka_kong]
   name       = "kong-${var.rancher_project_name}"
@@ -216,7 +216,7 @@ EOF
   ]
 }
 resource "kubernetes_service" "kong_admin_api" {
-  count = var.eureka ? 1 : 0
+  count = var.eureka && !var.use_apisix ? 1 : 0
   metadata {
     name      = "kong-admin-api-${rancher2_namespace.this.id}"
     namespace = rancher2_namespace.this.id
@@ -239,7 +239,7 @@ resource "kubernetes_service" "kong_admin_api" {
 }
 
 resource "kubernetes_service" "kong_admin_api_external" {
-  count = var.eureka ? 1 : 0
+  count = var.eureka && !var.use_apisix ? 1 : 0
   metadata {
     name      = "kong-admin-api-external-${rancher2_namespace.this.id}"
     namespace = rancher2_namespace.this.id
@@ -263,7 +263,7 @@ resource "kubernetes_service" "kong_admin_api_external" {
 }
 
 resource "kubernetes_service" "kong_admin_ui" {
-  count = var.eureka ? 1 : 0
+  count = var.eureka && !var.use_apisix ? 1 : 0
   metadata {
     name      = "kong-admin-ui-${rancher2_namespace.this.id}"
     namespace = rancher2_namespace.this.id
@@ -288,7 +288,7 @@ resource "kubernetes_service" "kong_admin_ui" {
 
 resource "kubernetes_ingress_v1" "kong-ui" {
 
-  count = var.eureka ? 1 : 0
+  count = var.eureka && !var.use_apisix ? 1 : 0
   metadata {
     name      = "kong-ui-${rancher2_namespace.this.id}"
     namespace = rancher2_namespace.this.id
