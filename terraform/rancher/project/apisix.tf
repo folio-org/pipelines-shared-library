@@ -22,6 +22,13 @@
 resource "kubernetes_persistent_volume_claim" "etcd_data" {
   count = var.eureka && var.use_apisix ? 1 : 0
 
+  # Do NOT wait for the PVC to bind before proceeding. The cluster StorageClass uses
+  # WaitForFirstConsumer binding mode (standard on EKS gp2/gp3) — the PVC only binds
+  # once an etcd pod is scheduled to a node. Waiting here causes a deadlock: Terraform
+  # holds off creating the etcd Deployment until the PVC is Bound, but the PVC can't
+  # bind without a pod. Setting false lets Terraform continue; the PVC binds on pod start.
+  wait_until_bound = false
+
   metadata {
     name      = "etcd-data-${var.rancher_project_name}"
     namespace = rancher2_namespace.this.id
