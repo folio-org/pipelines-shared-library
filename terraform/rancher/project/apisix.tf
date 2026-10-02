@@ -7,6 +7,49 @@
 # etcd is APISIX's config store — it must be running before APISIX starts.
 # The Kubernetes service is named "etcd" so APISIX can resolve the default
 # endpoint http://etcd:2379 without any custom config.
+#
+# IMPORTANT: etcd data MUST survive pod restarts (stop/start cycles).
+# When the env is stopped (pods scaled to 0) and restarted, etcd comes back with
+# an empty dataset. APISIX would have no routes — mgr-tenant-entitlements does NOT
+# re-register routes on startup, only at initial tenant entitlement. An empty etcd
+# means no auth routes → endless login redirect in the UI.
+# A PVC is used so the etcd WAL/data directory survives scale-down/scale-up.
+
+# ---------------------------------------------------------------------------
+# etcd PVC (persists route data across stop/start cycles)
+# ---------------------------------------------------------------------------
+
+resource "kubernetes_persistent_volume_claim" "etcd_data" {
+  count = var.eureka && var.use_apisix ? 1 : 0
+
+  metadata {
+    name      = "etcd-data-${var.rancher_project_name}"
+    namespace = rancher2_namespace.this.id
+    labels = {
+      "app"                          = "etcd-${var.rancher_project_name}"
+      "app.kubernetes.io/name"       = "etcd"
+      "app.kubernetes.io/managed-by" = "terraform"
+    }
+  }
+
+  spec {
+    access_modes = ["ReadWriteOnce"]
+    resources {
+      requests = {
+        storage = "1Gi"
+      }
+    }
+    # No storage_class_name → uses the cluster default (gp2/gp3 on EKS).
+    # 1Gi is ample for APISIX route/upstream/plugin config in a CI namespace.
+  }
+
+  lifecycle {
+    # Never destroy data inadvertently — the PVC can only be cleaned up when
+    # the namespace is fully deprovisioned via Terraform destroy.
+    prevent_destroy = false
+    ignore_changes  = [metadata]
+  }
+}
 
 # ---------------------------------------------------------------------------
 # etcd (APISIX config store)
@@ -14,6 +57,8 @@
 
 resource "kubernetes_deployment" "etcd" {
   count = var.eureka && var.use_apisix ? 1 : 0
+
+  depends_on = [kubernetes_persistent_volume_claim.etcd_data]
 
   metadata {
     name      = "etcd-${var.rancher_project_name}"
@@ -113,8 +158,7 @@ resource "kubernetes_deployment" "etcd" {
             }
           }
 
-          # emptyDir is sufficient for CI/testing — etcd data does not need to survive
-          # pod restarts; APISIX re-syncs routes from mgr-* on tenant entitlement.
+          # Mount the persistent volume so route/upstream data survives pod restarts.
           volume_mount {
             name       = "etcd-data"
             mount_path = "/etcd-data"
@@ -123,7 +167,9 @@ resource "kubernetes_deployment" "etcd" {
 
         volume {
           name = "etcd-data"
-          empty_dir {}
+          persistent_volume_claim {
+            claim_name = kubernetes_persistent_volume_claim.etcd_data[0].metadata[0].name
+          }
         }
       }
     }
