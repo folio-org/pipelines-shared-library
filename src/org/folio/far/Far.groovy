@@ -62,9 +62,10 @@ class Far extends Base {
   /**
    * Fetch the latest application from FAR that contains a given module.
    *
-   * Uses a CQL wildcard query to find all applications whose module list includes
-   * an entry whose id starts with {@code "<moduleName>-"}, then picks the one with
-   * the highest SNAPSHOT build number (or the highest patch version for release apps).
+   * Two-step approach to avoid fetching huge full descriptors for every matching application:
+   *   1. Query without {@code full=true} to get lightweight records (id + version only) and
+   *      pick the one with the highest SNAPSHOT build number.
+   *   2. Fetch the single winning application's full descriptor.
    *
    * @param moduleName Module name without version suffix (e.g. "mod-inventory")
    * @return The latest matching {@link Application}, or {@code null} if none found.
@@ -72,9 +73,9 @@ class Far extends Base {
   Application getLatestApplicationByModuleName(String moduleName) {
     logger.info("Searching FAR for the latest application containing module '${moduleName}'...")
 
-    // CQL wildcard: match any application whose module ids start with "<moduleName>-"
-    // (e.g. "mod-inventory-1.2.3"). The trailing wildcard relies on standard FOLIO CQL.
-    String url = generateUrl("/applications?query=modules.id==${moduleName}*&full=true&limit=500")
+    // Step 1: lightweight query — no full=true, so each record is just {id, name, version}.
+    // The CQL wildcard matches any application whose module ids start with "<moduleName>-".
+    String url = generateUrl("/applications?query=modules.id==${moduleName}*&limit=500")
     Map response = restClient.get(url, getDefaultHeaders()).body as Map
 
     int total = (response.totalRecords ?: 0) as int
@@ -83,26 +84,14 @@ class Far extends Base {
       return null
     }
 
-    List<Map> descriptors = response.applicationDescriptors as List<Map>
+    List<Map> slim = response.applicationDescriptors as List<Map>
 
-    // Client-side guard: the CQL wildcard can match super-modules
-    // (e.g. "mod-inventory-storage-*" when searching for "mod-inventory").
-    // Keep only descriptors where at least one module id starts with "${moduleName}-".
-    List<Map> matching = descriptors.findAll { Map descriptor ->
-      (descriptor.modules ?: []).any { m -> (m.id as String).startsWith("${moduleName}-") } ||
-      (descriptor.uiModules ?: []).any { m -> (m.id as String).startsWith("${moduleName}-") }
-    }
-
-    if (!matching) {
-      logger.warning("FAR returned ${total} record(s) but none contained an exact match for " +
-        "module '${moduleName}' (checked modules.id prefix '${moduleName}-').")
-      return null
-    }
-
-    // Pick the application with the highest SNAPSHOT build number.
-    // For release versions the build number is treated as 0.
-    Map latestDescriptor = matching.max { Map descriptor ->
-      String ver = (descriptor.version ?: '0.0.0') as String
+    // Pick the record with the highest SNAPSHOT build number.
+    // We don't filter by module name here because without full=true the response contains
+    // only {id, name, version} — no modules list. Exact-module verification happens in step 2
+    // after we fetch only the single winning full descriptor.
+    Map latest = slim.max { Map d ->
+      String ver = (d.version ?: '0.0.0') as String
       if (ver.contains('SNAPSHOT.')) {
         try { return Long.parseLong(ver.split('SNAPSHOT\\.')[1]) }
         catch (ignored) { return 0L }
@@ -110,7 +99,25 @@ class Far extends Base {
       return 0L
     }
 
-    logger.info("Latest FAR application for module '${moduleName}': '${latestDescriptor.id}'")
-    return new Application().withDescriptor(latestDescriptor)
+    String latestId = latest.id as String
+    logger.info("Latest FAR application candidate for module '${moduleName}': '${latestId}'. " +
+      "Fetching full descriptor...")
+
+    // Step 2: fetch only the single winning descriptor with full=true.
+    Map fullDescriptor = getApplicationDescriptor(latestId, true)
+
+    // Verify the full descriptor actually contains the exact module (not a super-module false positive).
+    boolean hasModule =
+      (fullDescriptor.modules ?: []).any { m -> (m.id as String).startsWith("${moduleName}-") } ||
+      (fullDescriptor.uiModules ?: []).any { m -> (m.id as String).startsWith("${moduleName}-") }
+
+    if (!hasModule) {
+      logger.warning("Top candidate '${latestId}' does not contain module '${moduleName}' " +
+        "(super-module false positive). FAR fallback cannot proceed.")
+      return null
+    }
+
+    logger.info("Confirmed: '${latestId}' contains module '${moduleName}'. Using as FAR fallback application.")
+    return new Application().withDescriptor(fullDescriptor)
   }
 }
