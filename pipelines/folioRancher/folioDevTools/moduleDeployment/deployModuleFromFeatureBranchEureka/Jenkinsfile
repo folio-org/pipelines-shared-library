@@ -295,21 +295,23 @@ ansiColor('xterm') {
       def collectedTenants = eureka.getExistedTenantsForModule(
         "${namespace.getClusterName()}-${namespace.getNamespaceName()}", module.getName())
 
-      // FAR fallback: if the module is not running in the namespace *and* no tenant is currently
-      // subscribed to an application containing it, resolve the owning application descriptor
-      // from FAR, register it in Kong, then fall back to all namespace tenants so the full
-      // update-descriptor → module-discovery → helm-deploy → enable-app flow can proceed.
+      // FAR fallback: if no tenant is currently subscribed to an application containing this module,
+      // resolve the owning application descriptor from FAR, register it in Kong, then fall back to
+      // all namespace tenants so the full update-descriptor → module-discovery → helm-deploy →
+      // enable-app flow can proceed. This covers both the "pod not running" case and the case where
+      // the pod is listed (CrashLoopBackOff, Pending, etc.) but no tenant has the app enabled.
       def farFallbackApp = null
-      if (moduleIsNew && !collectedTenants) {
-        logger.info("Module '${module.getName()}' not found in any tenant's enabled applications. " +
-          "Fetching latest owning application from FAR for a fresh deployment.")
+      if (!collectedTenants) {
+        logger.info("Module '${module.getName()}' not found in any tenant's enabled applications " +
+          "(moduleIsNew=${moduleIsNew}). Fetching latest owning application from FAR for a fresh deployment.")
 
         Far far = new Far(this)
         farFallbackApp = far.getLatestApplicationByModuleName(module.getName())
         if (!farFallbackApp) {
           throw new Exception(
-            "Module '${module.getName()}' is not running in namespace '${namespace.getNamespaceName()}' " +
-            "and no owning application was found in FAR (https://far.ci.folio.org). Cannot proceed.")
+            "No tenant in namespace '${namespace.getNamespaceName()}' has an application containing " +
+              "module '${module.getName()}', and no owning application was found in FAR " +
+              "(https://far.ci.folio.org). Cannot proceed.")
         }
         logger.info("Resolved application '${farFallbackApp.id}' from FAR for module " +
           "'${module.getName()}'. Registering in Kong and using all namespace tenants.")
