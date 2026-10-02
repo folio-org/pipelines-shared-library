@@ -1,14 +1,17 @@
 #!groovy
 import hudson.AbortException
 import org.folio.Constants
+import org.folio.far.Far
 import org.folio.jenkins.PodTemplates
 import org.folio.models.EurekaNamespace
 import org.folio.models.EurekaRequestParams
 import org.folio.models.FolioInstallJson
+import org.folio.models.application.ApplicationList
 import org.folio.models.module.EurekaModule
 import org.folio.models.module.FolioModule
 import org.folio.models.module.ModuleBuildTool
 import org.folio.rest_v2.eureka.Eureka
+import org.folio.rest_v2.eureka.kong.Applications
 import org.folio.rest_v2.eureka.kong.Tenants
 import org.folio.utilities.GitHubClient
 import org.folio.utilities.Logger
@@ -72,6 +75,9 @@ String featureBranch = params.MODULE_BRANCH
 
 String featureHash = ''
 
+/** Whether the module is absent from the namespace and needs a fresh deployment */
+boolean moduleIsNew = false
+
 /** Collect Maven arguments */
 String mavenArguments = params.FORCE_MVN_CACHE_REFRESH ? "-U ${params.MAVEN_ARGS.trim()}" : params.MAVEN_ARGS.trim()
 
@@ -106,7 +112,10 @@ ansiColor('xterm') {
       folioHelm.withKubeConfig(namespace.getClusterName()) {
         def check = sh(script: "kubectl get pods --namespace ${namespace.getNamespaceName()} --no-headers", returnStdout: true).trim()
         if (!check.contains(module.getName())) {
-          logger.error("Reason: target env is not running or module: ${module.getName()} is not presented in environment")
+          logger.warning("Module '${module.getName()}' is not currently running in namespace " +
+            "'${namespace.getNamespaceName()}'. Will attempt to resolve its owning application " +
+            "from FAR and perform a fresh deployment.")
+          moduleIsNew = true
         }
       }
     }
@@ -281,7 +290,40 @@ ansiColor('xterm') {
 
     stage('Generate context') {
       def excludedTenantPattern = ~/(?i)^(university|central|college|consortium|testtenant)[a-z0-9]+$/
-      eureka.getExistedTenantsForModule("${namespace.getClusterName()}-${namespace.getNamespaceName()}", module.getName())
+
+      // Try the normal path: find tenants that already have this module in their enabled applications.
+      def collectedTenants = eureka.getExistedTenantsForModule(
+        "${namespace.getClusterName()}-${namespace.getNamespaceName()}", module.getName())
+
+      // FAR fallback: if the module is not running in the namespace *and* no tenant is currently
+      // subscribed to an application containing it, resolve the owning application descriptor
+      // from FAR, register it in Kong, then fall back to all namespace tenants so the full
+      // update-descriptor → module-discovery → helm-deploy → enable-app flow can proceed.
+      def farFallbackApp = null
+      if (moduleIsNew && !collectedTenants) {
+        logger.info("Module '${module.getName()}' not found in any tenant's enabled applications. " +
+          "Fetching latest owning application from FAR for a fresh deployment.")
+
+        Far far = new Far(this)
+        farFallbackApp = far.getLatestApplicationByModuleName(module.getName())
+        if (!farFallbackApp) {
+          throw new Exception(
+            "Module '${module.getName()}' is not running in namespace '${namespace.getNamespaceName()}' " +
+            "and no owning application was found in FAR (https://far.ci.folio.org). Cannot proceed.")
+        }
+        logger.info("Resolved application '${farFallbackApp.id}' from FAR for module " +
+          "'${module.getName()}'. Registering in Kong and using all namespace tenants.")
+
+        // Register the FAR-fetched descriptor in Kong so updateAppDescriptorFlow can resolve it.
+        // registerApplication handles the 409/already-exists case gracefully.
+        Applications.get(eureka.getKong()).registerApplication(farFallbackApp.descriptor)
+
+        // Collect all namespace tenants (none are subscribed to this module yet).
+        collectedTenants = eureka.getExistedTenantsFlow(
+          "${namespace.getClusterName()}-${namespace.getNamespaceName()}")
+      }
+
+      collectedTenants
         .findAll { tenantName, tenant ->
           if (!tenant) {
             return false
@@ -293,6 +335,23 @@ ansiColor('xterm') {
           return true
         }
         .values().each { tenant -> namespace.addTenant(tenant) }
+
+      // When the FAR fallback path was taken, namespace.addTenant accumulates every
+      // application from every tenant. Narrow namespace.applications to only those
+      // that actually contain the target module — exactly the set updateAppDescriptorFlow
+      // should update. If no tenant application already includes the module (brand-new
+      // deployment), seed namespace.applications with the FAR-fetched descriptor so
+      // updateAppDescriptorFlow can resolve and bump it from Kong.
+      if (farFallbackApp) {
+        def appsWithModule = namespace.applications.byModuleName(module.getName())
+        if (appsWithModule) {
+          namespace.withApplications(appsWithModule)
+        } else {
+          ApplicationList seedApps = new ApplicationList()
+          seedApps.add(farFallbackApp)
+          namespace.withApplications(seedApps)
+        }
+      }
 
       namespace.tenants.values().each { it.getModules().addModule(module) }
 
