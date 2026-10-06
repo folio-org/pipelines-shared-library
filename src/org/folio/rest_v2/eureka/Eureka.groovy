@@ -351,7 +351,20 @@ class Eureka extends Base {
    * @return Map of EurekaTenant objects.
    */
   Map<String, EurekaTenant> getExistedTenantsFlow(String namespace) {
-    return Tenants.get(kong).getTenants().collectEntries {
+    Set<String> defaultTenantNames = context.folioDefault.getDefaultTenantNames()
+
+    List<EurekaTenant> tenants = Tenants.get(kong).getTenants()
+    List<String> skippedTenants = tenants
+      .findAll { !defaultTenantNames.contains(it.tenantId) }
+      .collect { it.tenantId }
+
+    if (skippedTenants) {
+      logger.info("Skipping non-standard tenants not listed in the defaults library: ${skippedTenants}")
+    }
+
+    return tenants
+      .findAll { defaultTenantNames.contains(it.tenantId) }
+      .collectEntries {
       tenant ->
         tenant
           .withClientSecret(

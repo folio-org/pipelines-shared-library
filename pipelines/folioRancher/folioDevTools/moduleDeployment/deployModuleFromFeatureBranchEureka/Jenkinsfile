@@ -289,7 +289,8 @@ ansiColor('xterm') {
     }
 
     stage('Generate context') {
-      def excludedTenantPattern = ~/(?i)^(university|central|college|consortium|testtenant)[a-z0-9]+$/
+      // Non-standard (dynamically generated) tenants are filtered out centrally in
+      // Eureka.getExistedTenantsFlow() against the tenants listed in the defaults library.
 
       // Try the normal path: find tenants that already have this module in their enabled applications.
       def collectedTenants = eureka.getExistedTenantsForModule(
@@ -326,16 +327,6 @@ ansiColor('xterm') {
       }
 
       collectedTenants
-        .findAll { tenantName, tenant ->
-          if (!tenant) {
-            return false
-          }
-          if (tenantName ==~ excludedTenantPattern) {
-            logger.info("Skipping generated tenant ${tenantName}")
-            return false
-          }
-          return true
-        }
         .values().each { tenant -> namespace.addTenant(tenant) }
 
       // When the FAR fallback path was taken, namespace.addTenant accumulates every
