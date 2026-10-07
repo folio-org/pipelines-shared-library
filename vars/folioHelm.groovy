@@ -314,6 +314,17 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
       ]
     ]
 
+    //MOD_USERS_KEYCLOAK_URL is required by folio-module-sidecar only on Sunflower (R1-2025).
+    //Newer releases discover mod-users-keycloak dynamically (MODSIDECAR-211). See RANCHER-3171.
+    if (ns.configExtensions.contains('sunflower')) {
+      List sidecarExtraEnvVars = (moduleConfig.sidecarContainers.eureka.extraEnvVars ?: []) as List
+      sidecarExtraEnvVars.add([
+        name     : 'MOD_USERS_KEYCLOAK_URL',
+        valueFrom: [secretKeyRef: [name: 'eureka-common', key: 'MOD_USERS_KEYCLOAK_URL']]
+      ])
+      moduleConfig.sidecarContainers.eureka.extraEnvVars = sidecarExtraEnvVars
+    }
+
     switch (moduleName) { // let it still be switch in case we need to add an additional module
       case 'mod-consortia-keycloak':
         println('https://folio-org.atlassian.net/browse/RANCHER-2035')
@@ -411,6 +422,20 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
           ]
         }
         break
+    }
+
+    //RANCHER-3155: enable async entitlement processing feedback loop end-to-end for karate tests
+    if (['cikarate', 'karate'].contains(ns.getNamespaceName())) {
+      switch (moduleName) {
+        case 'mgr-tenant-entitlements':
+          moduleConfig['extraEnvVars'] += [name: 'EVENT_PUBLISHER_AWAIT_COMPLETION', value: 'true']
+          break
+        case 'mod-roles-keycloak':
+        case 'mod-users-keycloak':
+        case 'mod-scheduler':
+          moduleConfig['extraEnvVars'] += [name: 'EVENT_CONFIRMATION_ENABLED', value: 'true']
+          break
+      }
     }
   }
 

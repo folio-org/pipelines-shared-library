@@ -1,14 +1,17 @@
 #!groovy
 import hudson.AbortException
 import org.folio.Constants
+import org.folio.far.Far
 import org.folio.jenkins.PodTemplates
 import org.folio.models.EurekaNamespace
 import org.folio.models.EurekaRequestParams
 import org.folio.models.FolioInstallJson
+import org.folio.models.application.ApplicationList
 import org.folio.models.module.EurekaModule
 import org.folio.models.module.FolioModule
 import org.folio.models.module.ModuleBuildTool
 import org.folio.rest_v2.eureka.Eureka
+import org.folio.rest_v2.eureka.kong.Applications
 import org.folio.rest_v2.eureka.kong.Tenants
 import org.folio.utilities.GitHubClient
 import org.folio.utilities.Logger
@@ -34,6 +37,7 @@ properties([
     booleanParam(name: 'INVOKE_TENANT_API', defaultValue: true, description: 'Invoke /tenant API POST calls (only applicable when SIMPLIFIED is enabled)'),
     booleanParam(name: 'LOAD_REFERENCE_DATA', defaultValue: false, description: 'Load reference data after deployment'),
     booleanParam(name: 'LOAD_SAMPLE_DATA', defaultValue: false, description: 'Load sample data after deployment'),
+    choice(name: 'GATEWAY_TYPE', choices: ['kong', 'apisix'], description: '(Eureka only) API gateway in the target namespace.'),
     folioParameters.refreshParameters(),
   ])
 ])
@@ -71,6 +75,9 @@ String featureBranch = params.MODULE_BRANCH
 
 String featureHash = ''
 
+/** Whether the module is absent from the namespace and needs a fresh deployment */
+boolean moduleIsNew = false
+
 /** Collect Maven arguments */
 String mavenArguments = params.FORCE_MVN_CACHE_REFRESH ? "-U ${params.MAVEN_ARGS.trim()}" : params.MAVEN_ARGS.trim()
 
@@ -78,7 +85,7 @@ String mavenArguments = params.FORCE_MVN_CACHE_REFRESH ? "-U ${params.MAVEN_ARGS
 String commonGradleOpts = '--quiet --console plain --no-daemon'
 
 /** Init Eureka Application Instance */
-Eureka eureka = new Eureka(this, namespace.generateDomain('kong'), namespace.generateDomain('keycloak'), false)
+Eureka eureka = new Eureka(this, namespace.generateDomain(params.GATEWAY_TYPE), namespace.generateDomain('keycloak'), false)
 
 /** Pipeline */
 ansiColor('xterm') {
@@ -105,7 +112,10 @@ ansiColor('xterm') {
       folioHelm.withKubeConfig(namespace.getClusterName()) {
         def check = sh(script: "kubectl get pods --namespace ${namespace.getNamespaceName()} --no-headers", returnStdout: true).trim()
         if (!check.contains(module.getName())) {
-          logger.error("Reason: target env is not running or module: ${module.getName()} is not presented in environment")
+          logger.warning("Module '${module.getName()}' is not currently running in namespace " +
+            "'${namespace.getNamespaceName()}'. Will attempt to resolve its owning application " +
+            "from FAR and perform a fresh deployment.")
+          moduleIsNew = true
         }
       }
     }
@@ -268,26 +278,73 @@ ansiColor('xterm') {
       }
 
       // Upload Module Descriptor to Eureka Module Registry
-      sh(script: "[ -e ${module.modDescriptorPath} ] && curl -sS -X PUT ${Constants.EUREKA_REGISTRY_DESCRIPTORS_URL}${module.name}-${module.version} --upload-file ${module.modDescriptorPath}")
+      // --fail makes HTTP errors (4xx/5xx) fail the stage instead of being silently ignored,
+      // which previously left mgr-applications without the module and caused 404 EntityNotFoundException
+      // at the Module Discovery stage (RANCHER-3182)
+      sh(label: 'Upload Module Descriptor to Eureka Module Registry',
+        script: "[ -e ${module.modDescriptorPath} ] && curl -sS --fail --retry 3 --retry-delay 5 --retry-connrefused --connect-timeout 30 -X PUT ${Constants.EUREKA_REGISTRY_DESCRIPTORS_URL}${module.name}-${module.version} --upload-file ${module.modDescriptorPath}")
 
       // Save Module Descriptor to Module instance for further usage
       module.descriptor = [readJSON(file: module.modDescriptorPath)]
     }
 
     stage('Generate context') {
-      def excludedTenantPattern = ~/(?i)^(university|central|college|consortium|testtenant)[a-z0-9]+$/
-      eureka.getExistedTenantsForModule("${namespace.getClusterName()}-${namespace.getNamespaceName()}", module.getName())
-        .findAll { tenantName, tenant ->
-          if (!tenant) {
-            return false
-          }
-          if (tenantName ==~ excludedTenantPattern) {
-            logger.info("Skipping generated tenant ${tenantName}")
-            return false
-          }
-          return true
+      // Non-standard (dynamically generated) tenants are filtered out centrally in
+      // Eureka.getExistedTenantsFlow() against the tenants listed in the defaults library.
+
+      // Try the normal path: find tenants that already have this module in their enabled applications.
+      def collectedTenants = eureka.getExistedTenantsForModule(
+        "${namespace.getClusterName()}-${namespace.getNamespaceName()}", module.getName())
+
+      // FAR fallback: if no tenant is currently subscribed to an application containing this module,
+      // resolve the owning application descriptor from FAR, register it in Kong, then fall back to
+      // all namespace tenants so the full update-descriptor → module-discovery → helm-deploy →
+      // enable-app flow can proceed. This covers both the "pod not running" case and the case where
+      // the pod is listed (CrashLoopBackOff, Pending, etc.) but no tenant has the app enabled.
+      def farFallbackApp = null
+      if (!collectedTenants) {
+        logger.info("Module '${module.getName()}' not found in any tenant's enabled applications " +
+          "(moduleIsNew=${moduleIsNew}). Fetching latest owning application from FAR for a fresh deployment.")
+
+        Far far = new Far(this)
+        farFallbackApp = far.getLatestApplicationByModuleName(module.getName())
+        if (!farFallbackApp) {
+          throw new Exception(
+            "No tenant in namespace '${namespace.getNamespaceName()}' has an application containing " +
+              "module '${module.getName()}', and no owning application was found in FAR " +
+              "(https://far.ci.folio.org). Cannot proceed.")
         }
+        logger.info("Resolved application '${farFallbackApp.id}' from FAR for module " +
+          "'${module.getName()}'. Registering in Kong and using all namespace tenants.")
+
+        // Register the FAR-fetched descriptor in Kong so updateAppDescriptorFlow can resolve it.
+        // registerApplication handles the 409/already-exists case gracefully.
+        Applications.get(eureka.getKong()).registerApplication(farFallbackApp.descriptor)
+
+        // Collect all namespace tenants (none are subscribed to this module yet).
+        collectedTenants = eureka.getExistedTenantsFlow(
+          "${namespace.getClusterName()}-${namespace.getNamespaceName()}")
+      }
+
+      collectedTenants
         .values().each { tenant -> namespace.addTenant(tenant) }
+
+      // When the FAR fallback path was taken, namespace.addTenant accumulates every
+      // application from every tenant. Narrow namespace.applications to only those
+      // that actually contain the target module — exactly the set updateAppDescriptorFlow
+      // should update. If no tenant application already includes the module (brand-new
+      // deployment), seed namespace.applications with the FAR-fetched descriptor so
+      // updateAppDescriptorFlow can resolve and bump it from Kong.
+      if (farFallbackApp) {
+        def appsWithModule = namespace.applications.byModuleName(module.getName())
+        if (appsWithModule) {
+          namespace.withApplications(appsWithModule)
+        } else {
+          ApplicationList seedApps = new ApplicationList()
+          seedApps.add(farFallbackApp)
+          namespace.withApplications(seedApps)
+        }
+      }
 
       namespace.tenants.values().each { it.getModules().addModule(module) }
 
@@ -340,8 +397,8 @@ ansiColor('xterm') {
           stage('[Invoke] /tenant API POST calls') {
             RestClient restClient = new RestClient(this)
             Map<String, String> authHeaders = eureka.getKong().getMasterHttpHeaders(true)
-            def tenants = restClient.get("https://${namespace.generateDomain('kong')}/tenants?limit=500", authHeaders).body.tenants
-            def apps = restClient.get("https://${namespace.generateDomain('kong')}/applications?limit=500", authHeaders).body.applicationDescriptors
+            def tenants = restClient.get("https://${namespace.generateDomain(params.GATEWAY_TYPE)}/tenants?limit=500", authHeaders).body.tenants
+            def apps = restClient.get("https://${namespace.generateDomain(params.GATEWAY_TYPE)}/applications?limit=500", authHeaders).body.applicationDescriptors
             tenants.each { tenant ->
               Map body = [
                 tenantId    : tenant.id,
@@ -350,7 +407,7 @@ ansiColor('xterm') {
               // Refresh auth token per tenant to avoid expiry on large namespaces
               Map<String, String> requestHeaders = eureka.getKong().getMasterHttpHeaders(true)
               folioPrint.colored("Invoking /tenant API for tenant: ${tenant.name} with applications: ${body.applications}", 'green')
-              restClient.post("https://${namespace.generateDomain('kong')}/reinstall/applications", writeJSON(json: body, returnText: true), requestHeaders)
+              restClient.post("https://${namespace.generateDomain(params.GATEWAY_TYPE)}/reinstall/applications", writeJSON(json: body, returnText: true), requestHeaders)
               folioPrint.colored("Invokation for tenant: ${tenant.name} is complete", 'green')
               sleep time: 30, unit: 'SECONDS'
             }

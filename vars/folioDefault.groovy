@@ -346,3 +346,19 @@ Map<String, OkapiTenant> tenants(
       .withInstallRequestParams(installQueryParameters.clone())
   ]
 }
+
+/**
+ * Names of every standard (default) tenant defined by this library: regular tenants,
+ * consortia tenants and the extra consortia tenants.
+ *
+ * Used to filter out non-standard tenants - e.g. dynamically generated
+ * "&lt;name&gt;&lt;random&gt;" tenants - that are not provisioned by the platform and for which
+ * no per-tenant resources (Keycloak client secrets in AWS SSM, etc.) exist.
+ *
+ * @return Set of default tenant names.
+ */
+Set<String> getDefaultTenantNames() {
+  return (tenants().keySet()
+    + consortiaTenants().keySet()
+    + consortiaTenantsExtra().keySet()) as Set<String>
+}

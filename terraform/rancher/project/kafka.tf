@@ -6,6 +6,7 @@ resource "rancher2_secret" "kafka-credentials" {
     ENV        = base64encode(local.env_name)
     KAFKA_HOST = base64encode(var.kafka_shared ? local.msk_value["KAFKA_HOST"] : "kafka-${var.rancher_project_name}")
     KAFKA_PORT = base64encode("9092")
+    KAFKA_PRODUCER_TENANT_COLLECTION = base64encode("ALL")
   }
 }
 
@@ -18,6 +19,7 @@ resource "rancher2_secret" "kafka-credentials-2" {
     ENV        = base64encode(local.env_name)
     KAFKA_HOST = base64encode("kafka-${var.rancher_project_name}-2")
     KAFKA_PORT = base64encode("9092")
+    KAFKA_PRODUCER_TENANT_COLLECTION = base64encode("ALL")
   }
 }
 
