@@ -1,4 +1,25 @@
 locals {
+  builtin_ingress_annotations = concat([
+    { key = "alb.ingress.kubernetes.io/group.name", value = "rancher" },
+    { key = "alb.ingress.kubernetes.io/target-type", value = "ip" },
+    { key = "alb.ingress.kubernetes.io/target-group-attributes", value = "deregistration_delay.timeout_seconds=30" },
+    { key = "alb.ingress.kubernetes.io/healthcheck-path", value = "/admin/health" },
+    { key = "alb.ingress.kubernetes.io/listen-ports", value = "'[{\"HTTP\": 80}, {\"HTTPS\": 443}]'" },
+    { key = "alb.ingress.kubernetes.io/ssl-redirect", value = "\"443\"" },
+    { key = "alb.ingress.kubernetes.io/load-balancer-attributes", value = "idle_timeout.timeout_seconds=4000" },
+    { key = "alb.ingress.kubernetes.io/scheme", value = "internet-facing" },
+    { key = "alb.ingress.kubernetes.io/success-codes", value = "200-399" },
+    { key = "kubernetes.io/ingress.class", value = "alb" },
+  ], var.certificate_arn != "" ? [{ key = "alb.ingress.kubernetes.io/certificate-arn", value = var.certificate_arn }] : [])
+
+  ingress_annotations = concat(
+    [for a in local.builtin_ingress_annotations : {
+      key   = a.key
+      value = contains(keys(var.ingress_extra_annotations), a.key) ? jsonencode(var.ingress_extra_annotations[a.key]) : a.value
+    }],
+    [for k, v in var.ingress_extra_annotations : { key = k, value = jsonencode(v) } if !contains(local.builtin_ingress_annotations[*].key, k)]
+  )
+
   helm_values = templatefile(
     "${path.module}/values.yaml.tmpl",
     {
@@ -13,8 +34,7 @@ locals {
       autoscaling_max_replicas              = var.autoscaling_max_replicas
       autoscaling_target_memory_utilization = var.autoscaling_target_memory_utilization
       extra_java_opts                       = var.extra_java_opts
-      certificate_arn                       = var.certificate_arn
-      ingress_extra_annotations             = var.ingress_extra_annotations
+      ingress_annotations                   = local.ingress_annotations
     }
   )
 }

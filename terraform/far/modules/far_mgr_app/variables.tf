@@ -89,7 +89,7 @@ variable "certificate_arn" {
 }
 
 variable "ingress_extra_annotations" {
-  description = "Additional annotations for the ingress (e.g. alb.ingress.kubernetes.io/inbound-cidrs). Keys must not duplicate the built-in annotations."
+  description = "Additional annotations for the ingress (e.g. alb.ingress.kubernetes.io/inbound-cidrs). A key that matches a built-in annotation overrides its value."
   type        = map(string)
   default     = {}
 }
