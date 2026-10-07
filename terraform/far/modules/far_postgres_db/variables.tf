@@ -166,3 +166,9 @@ variable "dlm_execution_role_arn" {
   type        = string
   default     = null
 }
+
+variable "extra_helm_values" {
+  description = "Additional YAML values for the PostgreSQL Helm release, applied after the built-in values. Helm deep-merges maps and replaces lists."
+  type        = string
+  default     = ""
+}

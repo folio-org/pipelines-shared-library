@@ -69,6 +69,12 @@ variable "postgres_chart_version" {
   default     = "16.7.21"
 }
 
+variable "postgres_extra_helm_values" {
+  description = "Additional YAML values for the PostgreSQL Helm release (e.g. image registry overrides), applied after the built-in values. Helm deep-merges maps and replaces lists"
+  type        = string
+  default     = ""
+}
+
 variable "mgr_chart_version" {
   description = "Version of the mgr-applications Helm chart"
   type        = string
