@@ -22,19 +22,21 @@ resource "rancher2_namespace" "this" {
 module "far_postgres_helm" {
   source = "./modules/far_postgres_db"
 
-  chart_version        = var.postgres_chart_version
-  cluster_name         = var.cluster_name
-  cluster_id           = local.cluster_id
-  namespace_name       = rancher2_namespace.this.name
-  namespace_id         = rancher2_namespace.this.id
-  tags                 = var.tags
-  db_name              = "far_db"
-  db_username          = "far_admin"
-  ebs_size             = var.volume_size
-  ebs_type             = var.volume_type
-  snapshot_id          = var.snapshot_id
-  existing_secret_name = var.existing_secret_name
-  enable_backups       = var.enable_backups
+  chart_version          = var.postgres_chart_version
+  cluster_name           = var.cluster_name
+  cluster_id             = local.cluster_id
+  namespace_name         = rancher2_namespace.this.name
+  namespace_id           = rancher2_namespace.this.id
+  tags                   = var.tags
+  db_name                = "far_db"
+  db_username            = "far_admin"
+  ebs_size               = var.volume_size
+  ebs_type               = var.volume_type
+  snapshot_id            = var.snapshot_id
+  existing_secret_name   = var.existing_secret_name
+  enable_backups         = var.enable_backups
+  dlm_execution_role_arn = var.dlm_execution_role_arn
+  credentials_store      = var.credentials_store
 }
 
 module "far_mgr_app_helm" {
@@ -55,4 +57,6 @@ module "far_mgr_app_helm" {
   autoscaling_max_replicas              = var.mgr_app_autoscaling_max_replicas
   autoscaling_target_memory_utilization = var.mgr_app_autoscaling_target_memory_utilization
   extra_java_opts                       = var.mgr_app_extra_java_opts
+  certificate_arn                       = var.certificate_arn
+  ingress_extra_annotations             = var.ingress_extra_annotations
 }
