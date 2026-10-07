@@ -53,7 +53,7 @@ The infrastructure consists of:
 |------------------------------|-----------------------------------------------------------------------------------------------------------------------|-------------|----------------|
 | `credentials_store`          | Where DB credentials are kept: `secretsmanager` or `ssm` (SSM SecureString)                                           | string      | secretsmanager |
 | `certificate_arn`            | ACM certificate ARN for the ALB HTTPS listener; empty lets the ALB controller discover it by host                     | string      | ""             |
-| `ingress_extra_annotations`  | Additional ingress annotations (e.g. `alb.ingress.kubernetes.io/inbound-cidrs`)                                       | map(string) | {}             |
+| `ingress_extra_annotations`  | Additional ingress annotations (e.g. `alb.ingress.kubernetes.io/inbound-cidrs`); a built-in key is overridden         | map(string) | {}             |
 | `rancher_cluster_id`         | Rancher cluster ID; if not set, `local` for the `rancher` cluster, otherwise looked up by name                        | string      | null           |
 | `dlm_execution_role_arn`     | Existing IAM role for the DLM backup policy; if set, the DLM role and its policies are not created                    | string      | null           |
 | `postgres_extra_helm_values` | Additional YAML for the PostgreSQL Helm release, applied after the built-in values (maps deep-merged, lists replaced) | string      | ""             |
