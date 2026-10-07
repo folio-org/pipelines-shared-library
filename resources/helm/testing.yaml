@@ -4911,10 +4911,6 @@ mgr-tenant-entitlements:
     value: "3"
   - name: FLOW_ENGINE_EXECUTION_TIMEOUT
     value: "10m"
-  - name: EVENT_PUBLISHER_AWAIT_COMPLETION
-    value: "true"
-  - name: KAFKA_PRODUCER_TENANT_COLLECTION
-    value: "ALL"
   integrations:
     db:
       enabled: true
@@ -5036,8 +5032,6 @@ mod-roles-keycloak:
     value: "1s"
   - name: CAPABILITY_TOPIC_RETRY_ATTEMPTS
     value: "9223372036854775807"
-  - name: EVENT_CONFIRMATION_ENABLED
-    value: "true"
   integrations:
     db:
       enabled: true
@@ -5101,9 +5095,7 @@ mod-users-keycloak:
   - name: SYSTEM_USER_RETRY_COUNT
     value: "60"
   - name: SYSTEM_USER_RETRY_DELAY
-    value: "1000"
-  - name: EVENT_CONFIRMATION_ENABLED
-    value: "true"
+    value: "1000"    
   integrations:
     db:
       enabled: true
@@ -5166,8 +5158,6 @@ mod-scheduler:
     value: "500"
   - name: QUARTZ_POOL_THREAD_COUNT
     value: "5"
-  - name: EVENT_CONFIRMATION_ENABLED
-    value: "true"
   integrations:
     db:
       enabled: true
