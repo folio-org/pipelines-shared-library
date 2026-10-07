@@ -429,6 +429,7 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
       switch (moduleName) {
         case 'mgr-tenant-entitlements':
           moduleConfig['extraEnvVars'] += [name: 'EVENT_PUBLISHER_AWAIT_COMPLETION', value: 'true']
+          moduleConfig['extraEnvVars'] += [name: 'KAFKA_PRODUCER_TENANT_COLLECTION', value: 'ALL']
           break
         case 'mod-roles-keycloak':
         case 'mod-users-keycloak':
