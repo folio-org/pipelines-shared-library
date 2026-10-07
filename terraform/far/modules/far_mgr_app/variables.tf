@@ -81,3 +81,15 @@ variable "extra_java_opts" {
     "-XX:MaxRAMPercentage=70.0"
   ]
 }
+
+variable "certificate_arn" {
+  description = "ARN of the ACM certificate for the ALB HTTPS listener. If empty, the ALB controller discovers the certificate by host."
+  type        = string
+  default     = ""
+}
+
+variable "ingress_extra_annotations" {
+  description = "Additional annotations for the ingress (e.g. alb.ingress.kubernetes.io/inbound-cidrs). Keys must not duplicate the built-in annotations."
+  type        = map(string)
+  default     = {}
+}

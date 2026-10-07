@@ -48,6 +48,12 @@ ingress:
     alb.ingress.kubernetes.io/scheme: internet-facing
     alb.ingress.kubernetes.io/success-codes: 200-399
     kubernetes.io/ingress.class: alb
+%{ if certificate_arn != "" ~}
+    alb.ingress.kubernetes.io/certificate-arn: ${certificate_arn}
+%{ endif ~}
+%{ for key, value in ingress_extra_annotations ~}
+    ${key}: ${jsonencode(value)}
+%{ endfor ~}
   hosts:
   - host: "${domain_name}"
     paths:

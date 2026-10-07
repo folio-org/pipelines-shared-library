@@ -138,8 +138,19 @@ variable "snapshot_id" {
   default     = null
 }
 
+variable "credentials_store" {
+  description = "AWS service that keeps the database credentials: \"secretsmanager\" (Secrets Manager secret) or \"ssm\" (SSM Parameter Store SecureString)."
+  type        = string
+  default     = "secretsmanager"
+
+  validation {
+    condition     = contains(["secretsmanager", "ssm"], var.credentials_store)
+    error_message = "credentials_store must be either \"secretsmanager\" or \"ssm\"."
+  }
+}
+
 variable "existing_secret_name" {
-  description = "Name of existing AWS Secrets Manager secret containing database credentials. If provided, will use existing secret instead of creating new one."
+  description = "Name of existing Secrets Manager secret or SSM parameter (according to credentials_store) containing database credentials. If provided, will use existing secret instead of creating new one."
   type        = string
   default     = null
 }
@@ -148,4 +159,10 @@ variable "enable_backups" {
   description = "Enable automated EBS volume backups using AWS Data Lifecycle Manager"
   type        = bool
   default     = true
+}
+
+variable "dlm_execution_role_arn" {
+  description = "ARN of an existing IAM role for the DLM lifecycle policy. If provided, the DLM role and its policies are not created; the role must grant the snapshot permissions itself."
+  type        = string
+  default     = null
 }

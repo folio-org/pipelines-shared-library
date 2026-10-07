@@ -22,7 +22,7 @@ The infrastructure consists of:
 - AWS EBS volume with daily snapshots (180-day retention)
 - PostgreSQL database deployed via Helm
 - MGR Applications service in FAR mode
-- Secure credential management with AWS Secrets Manager
+- Secure credential management with AWS Secrets Manager or SSM Parameter Store
 
 ![Architecture Diagram](./images/architecture.svg)
 
@@ -46,6 +46,16 @@ The infrastructure consists of:
 | `rancher_token_key`      | Rancher API token                                  | string |                                 |
 | `postgres_chart_version` | PostgreSQL Helm chart version                      | string | 16.7.21                         |
 | `mgr_chart_version`      | MGR Applications Helm chart version                | string | 0.0.15                          |
+
+## Optional Variables
+
+| Variable                    | Description                                                                                         | Type        | Default          |
+|-----------------------------|-----------------------------------------------------------------------------------------------------|-------------|------------------|
+| `credentials_store`         | Where DB credentials are kept: `secretsmanager` or `ssm` (SSM SecureString)                         | string      | secretsmanager   |
+| `certificate_arn`           | ACM certificate ARN for the ALB HTTPS listener; empty lets the ALB controller discover it by host   | string      | ""               |
+| `ingress_extra_annotations` | Additional ingress annotations (e.g. `alb.ingress.kubernetes.io/inbound-cidrs`)                     | map(string) | {}               |
+| `rancher_cluster_id`        | Rancher cluster ID; if not set, `local` for the `rancher` cluster, otherwise looked up by name      | string      | null             |
+| `dlm_execution_role_arn`    | Existing IAM role for the DLM backup policy; if set, the DLM role and its policies are not created | string      | null             |
 
 For a complete list of variables, see the `variables.tf` file.
 
