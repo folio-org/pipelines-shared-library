@@ -37,6 +37,7 @@ module "far_postgres_helm" {
   enable_backups         = var.enable_backups
   dlm_execution_role_arn = var.dlm_execution_role_arn
   credentials_store      = var.credentials_store
+  extra_helm_values      = var.postgres_extra_helm_values
 }
 
 module "far_mgr_app_helm" {
