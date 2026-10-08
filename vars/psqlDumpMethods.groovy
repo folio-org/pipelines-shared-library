@@ -95,6 +95,15 @@ def getKongUrl(String cluster, String namespace) {
 }
 
 /**
+ * Derive the API gateway URL from cluster, namespace, and gateway type.
+ * Supports both 'kong' and 'apisix' gateway types.
+ * Returns: https://<cluster>-<namespace>-<gatewayType>.ci.folio.org
+ */
+def getGatewayUrl(String cluster, String namespace, String gatewayType) {
+  return "https://${cluster}-${namespace}-${gatewayType}.${Constants.CI_ROOT_DOMAIN}"
+}
+
+/**
  * Read PostgreSQL database connection parameters from the db-credentials
  * K8s secret in the target namespace.
  *

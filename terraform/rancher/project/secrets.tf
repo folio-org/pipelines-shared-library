@@ -18,8 +18,8 @@ resource "rancher2_secret" "eureka-edge" {
   project_id   = rancher2_project.this.id
   namespace_id = rancher2_namespace.this.id
   data = {
-    OKAPI_HOST = base64encode("kong-${rancher2_namespace.this.id}")
-    OKAPI_PORT = base64encode("8000")
+    OKAPI_HOST = base64encode(var.use_apisix ? "apisix-${rancher2_namespace.this.id}" : "kong-${rancher2_namespace.this.id}")
+    OKAPI_PORT = base64encode(var.use_apisix ? "9080" : "8000")
   }
 }
 
@@ -85,8 +85,10 @@ resource "rancher2_secret" "eureka_common" {
     KC_URL                                       = base64encode("http://keycloak-${rancher2_namespace.this.id}-headless.${rancher2_namespace.this.id}.svc.cluster.local:8080")
     KC_INTEGRATION_ENABLED                       = base64encode("true")
     KC_IDENTITY_PROVIDER_BASE_URL                = base64encode("https://${local.keycloak_url}")
-    KONG_ADMIN_URL                               = base64encode("http://kong-admin-api-${rancher2_namespace.this.id}")
-    KONG_INTEGRATION_ENABLED                     = base64encode("true")
+    APIGW_URL                                    = base64encode(var.use_apisix ? "http://apisix-admin-api-${rancher2_namespace.this.id}" : "http://kong-admin-api-${rancher2_namespace.this.id}")
+    APIGW_ENABLED                                = base64encode("true")
+    APIGW_TYPE                                   = base64encode(var.use_apisix ? "apisix" : "kong")
+    APIGW_API_KEY                                = base64encode(var.use_apisix ? "apisix-admin-secret" : "")
     OKAPI_INTEGRATION_ENABLED                    = base64encode(var.okapi_integration_enabled)
     SECRET_STORE_AWS_SSM_REGION                  = base64encode(var.aws_region)
     SECRET_STORE_TYPE                            = base64encode(var.secure_store_type)
@@ -96,7 +98,7 @@ resource "rancher2_secret" "eureka_common" {
     TE_URL                                       = base64encode("http://mgr-tenant-entitlements")
     MOD_USERS_BL                                 = base64encode("http://mod-users-bl:8082")
     MOD_USERS_KEYCLOAK_URL                       = base64encode("http://mod-users-keycloak:8082")
-    SIDECAR_FORWARD_UNKNOWN_REQUESTS_DESTINATION = base64encode("http://kong-${rancher2_namespace.this.id}:8000")
+    SIDECAR_FORWARD_UNKNOWN_REQUESTS_DESTINATION = base64encode(var.use_apisix ? "http://apisix-${rancher2_namespace.this.id}:9080" : "http://kong-${rancher2_namespace.this.id}:8000")
   }
 }
 #Must have SSM Eureka parameters
