@@ -423,21 +423,6 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
         }
         break
     }
-
-    //RANCHER-3155: enable async entitlement processing feedback loop end-to-end for karate tests
-    if (['cikarate', 'karate'].contains(ns.getNamespaceName())) {
-      switch (moduleName) {
-        case 'mgr-tenant-entitlements':
-          moduleConfig['extraEnvVars'] += [name: 'EVENT_PUBLISHER_AWAIT_COMPLETION', value: 'true']
-          moduleConfig['extraEnvVars'] += [name: 'KAFKA_PRODUCER_TENANT_COLLECTION', value: 'ALL']
-          break
-        case 'mod-roles-keycloak':
-        case 'mod-users-keycloak':
-        case 'mod-scheduler':
-          moduleConfig['extraEnvVars'] += [name: 'EVENT_CONFIRMATION_ENABLED', value: 'true']
-          break
-      }
-    }
   }
 
   //Enable RTR functionality
