@@ -50,6 +50,27 @@ class PodTemplates {
   private static final String MAVEN_CACHE_PVC = 'maven-cache-pvc'
   private static final String ECR_REPOSITORY = '732722833398.dkr.ecr.us-west-2.amazonaws.com'
 
+  /**
+   * Pod annotation that stops the Cluster Autoscaler from scaling down (and thereby
+   * deleting) a node while an agent pod is running on it.  Without it, idle-node
+   * scale-down reclaimed nodes mid-build and surfaced as
+   * {@code AgentOfflineException: ... was marked offline: Pod deleted}.
+   */
+  private static final String SAFE_TO_EVICT_ANNOTATION = '''metadata:
+  annotations:
+    cluster-autoscaler.kubernetes.io/safe-to-evict: "false"
+'''
+
+  /**
+   * Base pod YAML shared by every agent template: the safe-to-evict annotation plus the
+   * common pod security context.  Applied to all agent types so that nodes hosting any
+   * in-flight build are never reclaimed by the autoscaler.
+   */
+  private static final String BASE_POD_YAML = SAFE_TO_EVICT_ANNOTATION + '''spec:
+  securityContext:
+    fsGroup: 1000
+'''
+
   // ===== Instance State =====
   private Object steps
   private boolean debug
@@ -89,11 +110,7 @@ class PodTemplates {
       nodeUsageMode: 'EXCLUSIVE',
       showRawYaml: debug,
       yamlMergeStrategy: new Merge(),
-      yaml: '''
-spec:
-  securityContext:
-    fsGroup: 1000
-''',
+      yaml: BASE_POD_YAML,
       podRetention: podRetention,
       inheritYamlMergeStrategy: true,
       slaveConnectTimeout: 7200,
@@ -335,11 +352,7 @@ spec:
           requestsSize: '5Gi',
           storageClassName: 'gp3'
         ),
-        yaml: config.yaml ?: '''
-spec:
-  securityContext:
-    fsGroup: 1000
-''',
+        yaml: config.yaml ?: BASE_POD_YAML,
         containers: config.containers ?: [],
         volumes: config.volumes ?: []
       ) {
@@ -384,14 +397,7 @@ spec:
    void javaKarateAgent(String javaVersion, Closure body) {
      createTemplate(new PodTemplateConfig(
        label: JenkinsAgentLabel.JAVA_KARATE_AGENT.getLabel(),
-       yaml: '''
-metadata:
-  annotations:
-    cluster-autoscaler.kubernetes.io/safe-to-evict: "false"
-spec:
-  securityContext:
-    fsGroup: 1000
-''',
+       yaml: BASE_POD_YAML,
        workspaceVolume: steps.genericEphemeralVolume(accessModes: 'ReadWriteOnce',
          requestsSize: '20Gi',
          storageClassName: 'gp3'),
@@ -416,7 +422,7 @@ spec:
   void stripesAgent(Closure body) {
     createTemplate(new PodTemplateConfig(
       label: JenkinsAgentLabel.STRIPES_AGENT.getLabel(),
-      yaml: """
+      yaml: SAFE_TO_EVICT_ANNOTATION + """
 spec:
   topologySpreadConstraints:
   - maxSkew: 2
@@ -480,14 +486,7 @@ spec:
     createTemplate(new PodTemplateConfig(
       label: podLabel,
       idleMinutes: 0,   // Terminate immediately; never reuse pods across build steps.
-      yaml: """
-metadata:
-  annotations:
-    cluster-autoscaler.kubernetes.io/safe-to-evict: "false"
-spec:
-  securityContext:
-    fsGroup: 1000
-""",
+      yaml: BASE_POD_YAML,
       workspaceVolume: steps.genericEphemeralVolume(accessModes: 'ReadWriteOnce',
         requestsSize: '20Gi',
         storageClassName: 'gp3'),
