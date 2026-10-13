@@ -165,6 +165,8 @@ Without these, an idle-node scale-down or a node drain deletes an in-flight
 agent mid-build and the stage fails with
 `AgentOfflineException: ... was marked offline: Pod deleted`.
 
+Manifest (also committed as [`jenkins-agent-pdb.yml`](jenkins-agent-pdb.yml)):
+
 ```yaml
 apiVersion: policy/v1
 kind: PodDisruptionBudget
@@ -180,8 +182,11 @@ spec:
       jenkins: slave
 ```
 
+Apply it with **server-side apply** using the same field manager the object is
+already owned by, so no conflicting-manager warning is produced:
+
 ```bash
-kubectl apply -f jenkins-agent-pdb.yml
+kubectl apply --server-side --field-manager=kubernetes-mcp-server -f jenkins-agent-pdb.yml
 ```
 
 > `minAvailable` must be an **integer** for controller-less pods; a percentage

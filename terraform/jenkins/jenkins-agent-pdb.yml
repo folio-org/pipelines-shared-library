@@ -1,0 +1,24 @@
+# Protects Jenkins Kubernetes agent pods (bare pods, no controller) in the
+# folio-jenkins-agents cluster's jenkins-agents namespace.
+#
+# - minAvailable MUST be an integer: the disruption controller only counts
+#   controller-less pods for integer minAvailable, not for percentages or
+#   maxUnavailable (which fall back to expectedPods=0 and are ignored).
+# - This is a best-effort guard for API-initiated evictions (node drains). It
+#   does NOT protect against node-level termination (EKS managed node-group
+#   rollouts / node auto-repair), which deletes pods regardless of PDBs. The
+#   primary guard for Cluster Autoscaler scale-down is the per-pod annotation
+#   cluster-autoscaler.kubernetes.io/safe-to-evict: "false", set on every agent
+#   template in src/org/folio/jenkins/PodTemplates.groovy.
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: jenkins-agent-pods
+  namespace: jenkins-agents
+  labels:
+    app.kubernetes.io/managed-by: jenkins
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      jenkins: slave
