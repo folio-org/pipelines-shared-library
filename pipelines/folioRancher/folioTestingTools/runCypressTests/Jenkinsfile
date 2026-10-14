@@ -9,7 +9,7 @@ import org.jenkinsci.plugins.workflow.libs.Library
 @Library('pipelines-shared-library') _
 
 properties([
-  buildDiscarder(logRotator(numToKeepStr: '50')),
+  buildDiscarder(logRotator(numToKeepStr: '100')),
   parameters([
     folioParameters.branch('CYPRESS_BRANCH', 'stripes-testing'),
     string(name: 'TENANT_URL', defaultValue: "https://folio-etesting-cypress-diku.ci.folio.org", description: 'Target environment tenant UI URL', trim: true),
