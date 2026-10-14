@@ -391,6 +391,13 @@ class PodTemplates {
   /**
     * Defines a Java agent optimized for Karate tests.
     *
+    * <p>Memory is sized for a 4-thread {@code mvn test -T 4} run.  The request
+    * (8 GiB) covers realistic peak footprint (4 GiB heap + JVM off-heap overhead
+    * per thread × 4 + Maven plugins); the limit (16 GiB) provides burst headroom
+    * on large nightly runs.  Keeping the request close to actual usage avoids
+    * node-level eviction by the Kubernetes Eviction API that occurred when the
+    * pod was scheduled assuming only 5 GiB but consumed 6–8 GiB in practice.</p>
+    *
     * @param javaVersion Java version to install.
     * @param body Pipeline steps to execute inside this agent.
     */
@@ -403,7 +410,7 @@ class PodTemplates {
          storageClassName: 'gp3'),
        volumes: [steps.persistentVolumeClaim(claimName: MAVEN_CACHE_PVC, mountPath: "${WORKING_DIR}/.m2/repository")],
        containers: [
-         buildJavaContainer(javaVersion, [], '5120Mi', '12228Mi', '-Xmx4g -XX:+UseG1GC -XX:MaxGCPauseMillis=200')
+         buildJavaContainer(javaVersion, [], '8192Mi', '16384Mi', '-Xmx10g -XX:+UseG1GC -XX:MaxGCPauseMillis=200')
        ]
      )) {
        steps.node(JenkinsAgentLabel.JAVA_KARATE_AGENT.getLabel()) {
