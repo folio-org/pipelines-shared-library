@@ -15,7 +15,7 @@ import org.jenkinsci.plugins.workflow.libs.Library
 
 /**
  * Job properties and parameters*/
-properties([pipelineTriggers([cron('H 21 * * 1-5')]),
+properties([pipelineTriggers([cron('H 21 * * 6')]),
             buildDiscarder(logRotator(numToKeepStr: '30')),
             disableConcurrentBuilds(),
             parameters([string(name: 'KARATE_BRANCH', defaultValue: 'R1-2026', description: "(Required) Karate tests repository branch to checkout"),
