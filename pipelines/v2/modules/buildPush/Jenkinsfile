@@ -265,6 +265,9 @@ def buildAndPushImage(FolioModule module, String args) {
             case ModuleType.KONG:
               werfConfig = 'folio-kong'
               break
+            case ModuleType.APISIX:
+              werfConfig = 'folio-apisix'
+              break
             case ModuleType.KEYCLOAK:
               werfConfig = 'folio-keycloak'
               break
@@ -421,7 +424,7 @@ String getBuildDir(String moduleName, ModuleBuildTool buildTool) {
 ModuleBuildTool getBuildTool(String moduleName) {
   ModuleType type = ModuleType.determineModuleType(moduleName)
 
-  if (type == ModuleType.KONG || type == ModuleType.KEYCLOAK) {
+  if (type == ModuleType.KONG || type == ModuleType.KEYCLOAK || type == ModuleType.APISIX) {
     return ModuleBuildTool.NONE
   }
 

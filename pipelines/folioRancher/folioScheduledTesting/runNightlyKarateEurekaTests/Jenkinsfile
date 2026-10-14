@@ -23,6 +23,7 @@ properties([
     string(name: 'TESTS_TIMEOUT', defaultValue: '15', description: "(Required) Tests execution timeout in hours"),
     booleanParam(name: 'RETRY_FAILED', defaultValue: false, description: "(Optional) Retry failed tests"),
     booleanParam(name: 'DESTROY_AFTER', defaultValue: true, description: '(Optional) Set to false to not destroy namespace after tests execution'),
+    choice(name: 'GATEWAY_TYPE', choices: ['kong', 'apisix'], description: '(Eureka only) API gateway in the target namespace.'),
     folioParameters.refreshParameters()
   ])
 ])
@@ -58,6 +59,7 @@ ansiColor('xterm') {
       .mockServer(true)
       .splitFiles(true)
       .scNative(true)
+      .useApisix(params.GATEWAY_TYPE == 'apisix')
       .build(this)
 
     RancherNamespace namespace = new RancherNamespace(namespaceBaseParams.getClusterName(), namespaceBaseParams.getNamespaceName())
@@ -66,7 +68,7 @@ ansiColor('xterm') {
 
     KarateTestsParameters karateTestsParams = new KarateTestsParameters()
     karateTestsParams.gitBranch = params.TESTS_BRANCH
-    karateTestsParams.okapiUrl = "https://${namespace.getDomains().kong}"
+    karateTestsParams.okapiUrl = "https://${namespace.getDomains()[params.GATEWAY_TYPE ?: 'kong']}"
     karateTestsParams.keycloakUrl = "https://${namespace.getDomains().keycloak}"
     karateTestsParams.edgeUrl = "https://${namespace.getDomains().edge}"
     karateTestsParams.tenant = namespace.getDefaultTenantId()

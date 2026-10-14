@@ -1,0 +1,12 @@
+project: folio-apisix
+configVersion: 1
+
+cleanup:
+  disable: true
+---
+image: folio-apisix
+dockerfile: Dockerfile
+context: .
+
+args:
+  TARGETARCH: '{{ env "TARGETARCH" "amd64" }}'

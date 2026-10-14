@@ -15,6 +15,7 @@ properties([
     choice(name: 'TENANT', choices: ['diku', 'consortium', 'consortium2', 'cs00000int', 'college', 'university', 'fs09000000', 'fs09000002', 'fs09000003'], description: 'Tenant to reinstall applications on'),
     folioParameters.loadReference(false),
     folioParameters.loadSample(false),
+    choice(name: 'GATEWAY_TYPE', choices: ['kong', 'apisix'], description: '(Eureka only) API gateway in the target namespace.'),
     folioParameters.refreshParameters()
   ])
 ])
@@ -38,10 +39,10 @@ ansiColor('xterm') {
       checkout scm
     }
 
-    stage('[FIX] Reinstall applications via Kong') {
+    stage('[FIX] Reinstall applications') {
       logger.info("Reinstalling applications: ${params.APPLICATIONS} on tenant: ${params.TENANT}")
 
-      String kongBase = "https://${params.CLUSTER}-${params.NAMESPACE}-kong.ci.folio.org"
+      String kongBase = "https://${params.CLUSTER}-${params.NAMESPACE}-${params.GATEWAY_TYPE}.ci.folio.org"
 
       String tenantsResponse = sh(
         script: "curl -sf '${kongBase}/tenants?limit=500'",
@@ -65,7 +66,7 @@ ansiColor('xterm') {
       requestedApps.each { appName ->
         def appObj = appsPayload.applicationDescriptors.find { it.name == appName }
         if (!appObj) {
-          error("Application '${appName}' not found in Kong")
+          error("Application '${appName}' not found in application registry")
         }
         resolvedAppIds << appObj.id
       }

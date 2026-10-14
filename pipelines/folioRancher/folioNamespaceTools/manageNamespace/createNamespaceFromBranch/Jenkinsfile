@@ -12,7 +12,7 @@ import org.folio.rest_v2.EntitlementApproach
 import org.folio.rest_v2.PlatformType
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library') _
+@Library('pipelines-shared-library@RANCHER-3142') _
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
@@ -26,10 +26,11 @@ properties([
     folioParameters.applicationsFromPlatform(),
     folioParameters.configType(),
     booleanParam(name: 'SC_NATIVE', defaultValue: true, description: '(Optional) Set false to use Java based SC image'),
+    choice(name: 'GATEWAY_TYPE', choices: ['kong', 'apisix'], description: '(Eureka only) API gateway to deploy. apisix always uses folioci/folio-apisix:latest'),
     folioParameters.groupParameters('Environment features'
       , ['LOAD_REFERENCE', 'LOAD_SAMPLE', 'BUILD_UI', 'CONSORTIA', 'CONSORTIA_SINGLE_UI', 'CONSORTIA_EXTRA', 'LINKED_DATA', 'MARC_MIGRATIONS', 'RTAC_CACHE',  'EDGE_LOCATE'
          , 'SPLIT_FILES', 'RW_SPLIT', 'ECS_CCL', 'GREENMAIL', 'MOCK_SERVER', 'RTR', 'TYPE', 'ENTITLEMENT_APPROACH', 'SET_BASE_URL'
-         , 'HAS_SECURE_TENANT', 'SECURE_TENANT'
+         , 'HAS_SECURE_TENANT', 'SECURE_TENANT', 'GATEWAY_TYPE'
     ]),
     folioParameters.loadReference(),
     folioParameters.loadSample(),
@@ -67,7 +68,7 @@ properties([
     , folioParameters.hideParameters(
     [
       'EUREKA': ['OKAPI_VERSION', 'EDGE_LOCATE', 'RTAC_CACHE', 'FOLIO_BRANCH', 'LINKED_DATA', 'MARC_MIGRATIONS'],
-      'OKAPI' : ['PLATFORM_BRANCH', 'APPLICATIONS', 'SC_NATIVE', 'ENTITLEMENT_APPROACH', 'SET_BASE_URL']
+      'OKAPI' : ['PLATFORM_BRANCH', 'APPLICATIONS', 'SC_NATIVE', 'ENTITLEMENT_APPROACH', 'SET_BASE_URL', 'GATEWAY_TYPE']
     ]
     , 'PLATFORM')
     , folioParameters.hideParameters(
@@ -130,6 +131,7 @@ CreateNamespaceParameters namespaceParams = new CreateNamespaceParameters.Builde
   .dbBackupName(params.DB_BACKUP_NAME)
   .type(params.TYPE)
   .scNative(params.SC_NATIVE)
+  .useApisix(params.GATEWAY_TYPE == 'apisix')
   .initParams(new InitializeFromScratchParameters()
     .withEntitlementApproach(EntitlementApproach.valueOf(params.ENTITLEMENT_APPROACH))
     .withSetBaseUrl(params.SET_BASE_URL))
@@ -158,7 +160,7 @@ cypressSanityParameters.setTimeout('60')
 
 if (namespaceParams.platform == PlatformType.EUREKA) {
     cypressSanityParameters.setTestsSrcBranch('master')
-    cypressSanityParameters.setOkapiUrl("https://${namespace.getDomains().kong}")
+    cypressSanityParameters.setOkapiUrl("https://${namespace.getDomains()[params.GATEWAY_TYPE]}")
     cypressSanityParameters.setCompileExecParameters('tags="fse+sanity"')
 } else {
     cypressSanityParameters.setTestsSrcBranch('okapi')

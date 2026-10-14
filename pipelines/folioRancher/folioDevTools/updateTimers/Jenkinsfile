@@ -24,6 +24,7 @@ properties([
     folioParameters.namespace(),
     string(name: 'TENANT_IDS', description: 'Comma separated list of tenant ids, if not specified we consider all the tenants.', trim: true),
     booleanParam(name: 'RECREATE_ALL_TIMERS', defaultValue: false, description: 'Whether to re-create all timers or only those with non-valid moduleId.'),
+    choice(name: 'GATEWAY_TYPE', choices: ['kong', 'apisix'], description: '(Eureka only) API gateway in the target namespace.'),
     folioParameters.refreshParameters()
   ])
 ])
@@ -44,8 +45,8 @@ PodTemplates podTemplates = new PodTemplates(this)
 Logger logger = new Logger(this, env.JOB_BASE_NAME)
 
 EurekaNamespace namespace = new EurekaNamespace(params.CLUSTER, params.NAMESPACE)
-Eureka eureka = new Eureka(this, namespace.generateDomain('kong'), namespace.generateDomain('keycloak'), false)
-Kong kong = new Kong(this, namespace.generateDomain('kong'), namespace.generateDomain('keycloak'), false)
+Eureka eureka = new Eureka(this, namespace.generateDomain(params.GATEWAY_TYPE), namespace.generateDomain('keycloak'), false)
+Kong kong = new Kong(this, namespace.generateDomain(params.GATEWAY_TYPE), namespace.generateDomain('keycloak'), false)
 
 Map<String, EurekaTenant> tenants = [:]
 boolean recreateAllTimers = params.RECREATE_ALL_TIMERS
