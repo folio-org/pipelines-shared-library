@@ -124,8 +124,13 @@ class PodTemplates {
           alwaysPullImage: true,
           ttyEnabled: true,
           workingDir: WORKING_DIR,
-          resourceRequestMemory: '1024Mi',
-          resourceLimitMemory: '1024Mi',
+          // Doubled from 1024Mi: the jnlp process orchestrates the full pipeline lifecycle
+          // (namespace provisioning → parallel test workers → teardown), which can last
+          // hours for Cypress runs with 15 workers. The previous 1024Mi made the pod the
+          // smallest footprint on its node and therefore the first candidate for eviction
+          // under node memory pressure, causing mid-run UNSTABLE builds (build #590).
+          resourceRequestMemory: '2048Mi',
+          resourceLimitMemory: '2048Mi',
           envVars: [
             // Ping intervals are set to 30 s — half the AWS ALB/NLB default idle timeout.
             // The previous value of 60 s was equal to the ALB idle timeout; network jitter
@@ -278,15 +283,25 @@ class PodTemplates {
   /**
    * Builds a Cypress test container.
    *
+   * <p>Ephemeral storage limits mirror those of {@link #buildWerfContainer}: Cypress
+   * workers produce substantial disk I/O (screenshots per step, video recordings,
+   * allure-results JSON).  Without these limits Kubernetes cannot account for that
+   * disk usage during scheduling; nodes can reach disk pressure and begin evicting
+   * pods regardless of memory QoS tier.</p>
+   *
    * @param extraEnvVars Optional environment variables.
-   * @param resourceRequestMemory Minimum memory request (default {@code 2Gi}).
-   * @param resourceLimitMemory Memory limit (default {@code 3Gi}).
+   * @param resourceRequestMemory Minimum memory request (default {@code 3072Mi}).
+   * @param resourceLimitMemory Memory limit (default {@code 15285Mi}).
+   * @param resourceRequestEphemeralStorage Minimum ephemeral storage request (default {@code 10Gi}).
+   * @param resourceLimitEphemeralStorage Ephemeral storage limit (default {@code 20Gi}).
    * @return Cypress container definition.
    */
   private Object buildCypressContainer(
     List<KeyValueEnvVar> extraEnvVars = [],
     String resourceRequestMemory = '3072Mi',
-    String resourceLimitMemory = '15285Mi'
+    String resourceLimitMemory = '15285Mi',
+    String resourceRequestEphemeralStorage = '10Gi',
+    String resourceLimitEphemeralStorage = '20Gi'
   ) {
     return steps.containerTemplate(
       name: 'cypress',
@@ -301,7 +316,9 @@ class PodTemplates {
       runAsGroup: '1000',
       runAsUser: '1000',
       resourceRequestMemory: resourceRequestMemory,
-      resourceLimitMemory: resourceLimitMemory
+      resourceLimitMemory: resourceLimitMemory,
+      resourceRequestEphemeralStorage: resourceRequestEphemeralStorage,
+      resourceLimitEphemeralStorage: resourceLimitEphemeralStorage
     )
   }
 
