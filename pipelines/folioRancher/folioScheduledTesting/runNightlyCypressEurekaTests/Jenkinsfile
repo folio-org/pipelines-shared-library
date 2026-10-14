@@ -18,8 +18,8 @@ import org.jenkinsci.plugins.workflow.libs.Library
  */
 properties([
   pipelineTriggers([parameterizedCron('''
-    H 21 * * 0,2 # Sun, Tue — ECS follows the next night
-    H 21 * * 4 %DESTROY_AFTER=true # Thu — no ECS follows; destroy to avoid idle namespace over the weekend
+    H 21 * * 0,2
+    H 21 * * 4 %DESTROY_AFTER=true
   ''')]),
   buildDiscarder(logRotator(numToKeepStr: '30')),
   disableConcurrentBuilds(),
