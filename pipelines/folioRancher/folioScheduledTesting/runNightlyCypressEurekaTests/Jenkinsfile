@@ -17,12 +17,16 @@ import org.jenkinsci.plugins.workflow.libs.Library
  * Job properties and parameters
  */
 properties([
-  pipelineTriggers([cron('H 21 * * 1-5')]),
+  pipelineTriggers([parameterizedCron('''
+    H 21 * * 0,2 # Sun, Tue — ECS follows the next night
+    H 21 * * 4 %DESTROY_AFTER=true # Thu — no ECS follows; destroy to avoid idle namespace over the weekend
+  ''')]),
   buildDiscarder(logRotator(numToKeepStr: '30')),
   disableConcurrentBuilds(),
   parameters([
     string(name: 'CYPRESS_BRANCH', defaultValue: 'master', description: "(Required) Insert what 'stripes-testing' branch use for build"),
     string(name: 'NUMBER_WORKERS', defaultValue: '15', description: "(Required) Define number of workers for Cypress tests execution"),
+    booleanParam(name: 'DESTROY_AFTER', defaultValue: false, description: "(Optional) Destroy the environment after the tests are completed"),
     folioParameters.refreshParameters()
   ])
 ])
@@ -113,6 +117,11 @@ ansiColor('xterm') {
       slackSend(attachments: folioSlackNotificationUtils.renderFailedBuildResultMessage()
         , channel: "#rancher_tests_notifications")
     }
-    folioTriggerJob.downStreamJob(Constants.JENKINS_CYPRESS_ECS_JOB)
+
+    if (params.DESTROY_AFTER) {
+      stage('[Job] Destroy environment (after)') {
+        folioTriggerJob.deleteNamespace(deleteNamespaceJobName, namespaceBaseParams)
+      }
+    }
   }
 }
