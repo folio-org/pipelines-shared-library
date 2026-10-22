@@ -117,7 +117,7 @@ void stsKafkaLag(String cluster, String namespace, String tenantId, String modul
     } else {
       logger.debug("Kafka lag value is not a valid number: ${check}")
       kubectl.deletePod("${namespace}", 'kafka-sh', false)
-      stsKafkaLag(cluster, namespace, tenantId)
+      stsKafkaLag(cluster, namespace, tenantId, moduleVersion)
     }
     kubectl.deletePod("${namespace}", 'kafka-sh', false)
   }

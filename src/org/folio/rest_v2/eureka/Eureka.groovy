@@ -64,7 +64,7 @@ class Eureka extends Base {
       )
     }
 
-    context.folioTools.stsKafkaLag(cluster, namespace, tenant.tenantId, tenant.getModules()?.getModuleByName('mod-roles-keycloak')?.id)
+    context.folioTools.stsKafkaLag(cluster, namespace, tenant.tenantId, tenant.getModules()?.getModuleByName('mod-roles-keycloak')?.version)
 
     //create tenant admin user
     createUserFlow(tenant, tenant.adminUser
