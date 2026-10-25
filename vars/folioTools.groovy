@@ -96,12 +96,43 @@ void stsKafkaLag(String cluster, String namespace, String tenantId, String modul
     Logger logger = new Logger(this, 'CapabilitiesChecker')
     String kafka_host = kubectl.getSecretValue(namespace, namespace == 'cikarate' ? 'kafka-credentials-2' : 'kafka-credentials', 'KAFKA_HOST')
     String kafka_port = kubectl.getSecretValue(namespace, namespace == 'cikarate' ? 'kafka-credentials-2' : 'kafka-credentials', 'KAFKA_PORT')
-    String lag = "kafka-consumer-groups.sh --bootstrap-server ${kafka_host}:${kafka_port} --describe --group ${cluster}-${namespace}-mod-roles-keycloak-capability-group-${moduleVersion} | awk '\$6 ~ /^[0-9]+\$/ {sum += \$6} END {print sum}'"
+    String bootstrapServer = "${kafka_host}:${kafka_port}"
     def status = sh(script: "kubectl get pod kafka-sh --ignore-not-found=true --namespace ${namespace}", returnStdout: true).trim()
     if (status == '') {
       kubectl.runPodWithCommand("${namespace}", 'kafka-sh', Constants.ECR_FOLIO_REPOSITORY + '/kafka:3.5.0', 'sleep 60m')
       kubectl.waitPodIsRunning("${namespace}", 'kafka-sh')
     }
+
+    // Newer mod-roles-keycloak releases suffix the consumer group with the module version
+    // ("<base>-<version>"), older ones use the bare "<base>" name. Discover the real group name
+    // from Kafka instead of assuming it:
+    //   1. "<base>-<moduleVersion>" if it exists
+    //   2. bare "<base>" if it exists
+    //   3. otherwise the only/last "<base>-*" group found (e.g. version passed in doesn't match)
+    //   4. nothing found -> bare "<base>" (previous behaviour; the retry logic below handles it)
+    String groupBase = "${cluster}-${namespace}-mod-roles-keycloak-capability-group".toString()
+    String groupPrefix = groupBase + '-'
+    String existingGroups = kubectl.execCommand("${namespace}", 'kafka-sh', "kafka-consumer-groups.sh --bootstrap-server ${bootstrapServer} --list")
+    List<String> candidates = (existingGroups ?: '').readLines().collect { it.trim() }.findAll { it == groupBase || it.startsWith(groupPrefix) }
+
+    String versionedGroup = moduleVersion ? (groupPrefix + moduleVersion) : ''
+    String group
+    if (versionedGroup && candidates.contains(versionedGroup)) {
+      group = versionedGroup
+    } else if (candidates.contains(groupBase)) {
+      group = groupBase
+    } else if (candidates) {
+      if (candidates.size() > 1) {
+        logger.debug("Multiple consumer groups match ${groupPrefix}*: ${candidates}, none equals the expected one")
+      }
+      group = candidates.sort().last()
+    } else {
+      logger.debug("No consumer group matching ${groupBase}[-*] found, defaulting to ${groupBase}")
+      group = groupBase
+    }
+    logger.debug("Using consumer group: ${group}")
+
+    String lag = "kafka-consumer-groups.sh --bootstrap-server ${bootstrapServer} --describe --group ${group} | awk '\$6 ~ /^[0-9]+\$/ {sum += \$6} END {print sum}'"
 
     def check = kubectl.execCommand("${namespace}", 'kafka-sh', "${lag}")
 
