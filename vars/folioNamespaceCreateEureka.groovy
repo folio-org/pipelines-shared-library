@@ -242,6 +242,13 @@ void call(CreateNamespaceParameters args) {
               centralTenantUi.setIsConsortia(true)
               centralTenantUi.setIsConsortiaSingleUi(args.isConsortiaSingleUi)
               tenant.withTenantUi(centralTenantUi)
+            } else if (tenant.indexes.isEmpty()) {
+              // Reindex matrix for consortium members: authority and location are rebuilt in place
+              // (recreateIndex=false), because member records are stored in the central tenant's
+              // OpenSearch indices and those indices must not be dropped. Instance records are
+              // reindexed from the central tenant only.
+              tenant.withIndex(new Index('authority', false, false))
+              tenant.withIndex(new Index('location', false, false))
             }
 
             namespace.addTenant(tenant)

@@ -337,6 +337,7 @@ class Eureka extends Base {
       }
       if (tenant.indexes) {
         tenant.indexes.each { index ->
+          logger.info("Tenant '${tenantId}' reindex plan: ${index.getType()}(recreateIndex=${index.getRecreate()})")
           Indexes.get(kong).runIndexFlow(tenant, index)
         }
         tenant.indexed = true
