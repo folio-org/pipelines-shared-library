@@ -84,12 +84,27 @@ class TenantUi implements Cloneable {
   }
 
   /**
+   * Sets the RTR idle session TTL and recalculates the image tag.
+   * The value is baked into the rendered stripes.config.js, so a rebuild with a different TTL
+   * must produce a different tag: with a commit-only tag the deployment spec does not change and
+   * nodes keep serving the cached image (imagePullPolicy is IfNotPresent).
+   *
+   * @param idleSessionTTL Desired idle session TTL (e.g. '1h', '30m', '120s'). Blank keeps the
+   *                       repository value and the commit-only tag.
+   */
+  void setIdleSessionTTL(String idleSessionTTL) {
+    this.idleSessionTTL = idleSessionTTL?.trim() ?: ''
+    updateTagAndImageName()
+  }
+
+  /**
    * Updates the tag and image name for this TenantUi.
-   * This method is invoked when the tenantId is set.
+   * This method is invoked when the tenantId or idleSessionTTL is set.
    */
   private void updateTagAndImageName() {
     if (this.tenantId && this.hash) {
-      this.tag = "${this.workspace}.${this.tenantId}.${this.hash.take(7)}"
+      String ttlSuffix = this.idleSessionTTL ? ".${this.idleSessionTTL.replaceAll(/[^A-Za-z0-9]+/, '')}" : ''
+      this.tag = "${this.workspace}.${this.tenantId}.${this.hash.take(7)}${ttlSuffix}"
       this.imageName = "${Constants.ECR_FOLIO_REPOSITORY}/${IMAGE_NAME}:${this.tag}"
     }
   }
