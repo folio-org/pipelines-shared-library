@@ -13,6 +13,7 @@ properties([
   parameters([
     folioParameters.branch('CYPRESS_BRANCH', 'stripes-testing'),
     string(name: 'TENANT_URL', defaultValue: "https://folio-etesting-cypress-diku.ci.folio.org", description: 'Target environment tenant UI URL', trim: true),
+    choice(name: 'CYPRESS_IMAGE_VERSION', description: "Cypress Docker image version to use", choices: ["cypress-12.0.0", "cypress-15.19.0"]),
     string(name: 'KONG_URL', defaultValue: "https://folio-etesting-cypress-kong.ci.folio.org", description: 'Target environment KONG URL', trim: true),
     string(name: 'TENANT_ID', defaultValue: "diku", description: 'Tenant ID', trim: true),
     string(name: 'ADMIN_USERNAME', defaultValue: "diku_admin", description: 'Tenant admin username', trim: true),
@@ -22,7 +23,6 @@ properties([
     string(name: 'KB_ID', defaultValue: "apidvcorp", description: 'Tenant KB ID', trim: true),
     password(name: 'KB_KEY', defaultValueAsSecret: Secret.fromString('changeMe!'), description: 'Tenant KB key'),
     choice(name: 'NUMBER_OF_WORKERS', description: "Numbers of parallel cypress workers, if single thread run leave 1", choices: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]),
-    choice(name: 'CYPRESS_IMAGE_VERSION', description: "Cypress Docker image version to use", choices: ["cypress-12", "cypress-15"]),
     string(name: 'TIMEOUT', defaultValue: "240", description: '(MINUTES) Timeout for tests execution', trim: true),
     string(name: 'CUSTOM_BUILD_NAME', defaultValue: "", description: 'Custom name for build', trim: true),
     string(name: 'TESTRAIL_PROJECTID', defaultValue: "", description: 'To enable TestRail integration, enter ProjectID from TestRail, ex. 22', trim: true),
