@@ -3,7 +3,7 @@ ARG YARN_VERSION='1.22.22'
 ARG CHROME_VERSION='150.0.7871.186-1'
 ARG CYPRESS_VERSION='15.19.0'
 
-FROM cypress/factory:9.0.0
+FROM cypress/factory:8.6.2
 
 COPY . /opt/app
 WORKDIR /opt/app
