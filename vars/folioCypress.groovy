@@ -123,7 +123,6 @@ void compileCypressTests() {
       yarn config set @folio:registry ${Constants.FOLIO_NPM_REPO_URL}
       yarn install --network-timeout 300000
       yarn add -D cypress-testrail-simple@${readPackageJsonDependencyVersion('./package.json', 'cypress-testrail-simple')}
-      yarn global add cypress-cloud@${readPackageJsonDependencyVersion('./package.json', 'cypress-cloud')}
     """.stripIndent()
     // Uncomment to add Report Portal agent for Cypress
     // sh "yarn add @reportportal/agent-js-cypress@latest"
