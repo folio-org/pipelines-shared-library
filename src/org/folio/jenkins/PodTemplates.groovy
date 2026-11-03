@@ -294,7 +294,6 @@ class PodTemplates {
    * @param resourceLimitMemory Memory limit (default {@code 15285Mi}).
    * @param resourceRequestEphemeralStorage Minimum ephemeral storage request (default {@code 10Gi}).
    * @param resourceLimitEphemeralStorage Ephemeral storage limit (default {@code 20Gi}).
-   * @param imageTag Docker image tag to use (default {@code latest}).
    * @return Cypress container definition.
    */
   private Object buildCypressContainer(
@@ -302,12 +301,11 @@ class PodTemplates {
     String resourceRequestMemory = '3072Mi',
     String resourceLimitMemory = '15285Mi',
     String resourceRequestEphemeralStorage = '10Gi',
-    String resourceLimitEphemeralStorage = '20Gi',
-    String imageTag = 'latest'
+    String resourceLimitEphemeralStorage = '20Gi'
   ) {
     return steps.containerTemplate(
       name: 'cypress',
-      image: "${ECR_REPOSITORY}/cypress/browsers:${imageTag}",
+      image: "${ECR_REPOSITORY}/cypress/browsers:latest",
       alwaysPullImage: true,
       command: 'sleep',
       args: '99d',
@@ -503,9 +501,8 @@ spec:
    * worker was the second most common cause of non-deterministic ContainerErrors.</p>
    *
    * @param body Pipeline steps to execute inside this agent.
-   * @param imageTag Docker image tag to use for Cypress container (default {@code latest}).
    */
-  void cypressAgent(Closure body, String imageTag = 'latest') {
+  void cypressAgent(Closure body) {
     // Unique label per invocation — mirrors the pattern used by javaBuildAgent.
     // All 14 parallel workers call this method; without unique labels they all
     // compete in the same pod pool and can cause scheduling races / stale reuse.
@@ -519,7 +516,7 @@ spec:
         storageClassName: 'gp3'),
       volumes: [steps.persistentVolumeClaim(claimName: YARN_CACHE_PVC, mountPath: "${WORKING_DIR}/.yarn/cache")],
       containers: [
-        buildCypressContainer([], '5120Mi', '5120Mi', '10Gi', '20Gi', imageTag),
+        buildCypressContainer([], '5120Mi', '5120Mi'),
       ]
     )) {
       steps.node(podLabel) {

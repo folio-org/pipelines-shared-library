@@ -77,7 +77,7 @@ CypressRunExecutionSummary call(String ciBuildId, List<CypressTestsParameters> t
 
       // Retry agent provisioning and test compilation in case of eviction
       retry(2) {
-        podTemplates.cypressAgent({
+        podTemplates.cypressAgent {
           if (reportPortalUse) {
             folioCypress.validateParameter(reportPortalRunType, 'reportPortalRunType')
 
@@ -119,7 +119,7 @@ CypressRunExecutionSummary call(String ciBuildId, List<CypressTestsParameters> t
                 includes: "${cypressStash('archive')},${cypressStash('checksum')}")
             }
           }
-        }, testParams.cypressImageVersion)
+        }
       }
 
       stage('Run tests') {
@@ -132,7 +132,7 @@ CypressRunExecutionSummary call(String ciBuildId, List<CypressTestsParameters> t
           workers["Worker#${workerId}"] = {
             // Retry agent provisioning and batch execution in case of eviction
             retry(3) {
-              podTemplates.cypressAgent({
+              podTemplates.cypressAgent {
                 container('cypress') {
                   stage('[Stash] Extract tests') {
                     unstash name: cypressStash('name')
@@ -164,7 +164,7 @@ CypressRunExecutionSummary call(String ciBuildId, List<CypressTestsParameters> t
                   // across CPS serialization boundaries.
                   folioCypress.archiveTestResults(workerId)
                 }
-              }, testParams.cypressImageVersion)
+              }
             }
           }
         }
@@ -206,7 +206,7 @@ CypressRunExecutionSummary call(String ciBuildId, List<CypressTestsParameters> t
       // Run recheck for each tenant configuration
       testsToRun.each { CypressTestsParameters testParams ->
         retry(2) {
-          podTemplates.cypressAgent({
+          podTemplates.cypressAgent {
             container('cypress') {
               stage('[Stash] Extract tests') {
                 unstash name: cypressStash('name')
@@ -227,11 +227,9 @@ CypressRunExecutionSummary call(String ciBuildId, List<CypressTestsParameters> t
               flakyCount = folioCypress.runFailedTestsRecheck(ciBuildId,
                       testParams.testrailProjectID,
                       testParams.testrailRunID,
-                      numberOfRecheckRunners,
-                      6,
-                      testParams.cypressImageVersion)
+                      numberOfRecheckRunners)
             }
-          }, testParams.cypressImageVersion)
+          }
         }
       }
     }
