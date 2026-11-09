@@ -10,6 +10,10 @@ import org.folio.models.OkapiTenant
  * reporting configurations. It also provides methods for managing execution parameters.
  */
 class CypressTestsParameters implements Cloneable {
+
+  /** Docker tag used when no Cypress version is selected explicitly (Cypress 12 image, ECR). */
+  static final String DEFAULT_CYPRESS_DOCKER_TAG = 'node-25.6.1-cypress-12.0.0-chrome-145.0.7632.75-1'
+
   // Unique identifier for the CI build
   String ciBuildId
 
@@ -62,8 +66,9 @@ class CypressTestsParameters implements Cloneable {
   // Tenant's KB's key
   String kbKey = ''
 
-  // Cypress Docker image version to use for test execution
-  String cypressImageVersion = ''
+  // Cypress Docker image tag to use for test execution; never empty, an empty tag yields an
+  // invalid image reference ("cypress/browsers:") and the agent pod never starts.
+  String cypressImageVersion = DEFAULT_CYPRESS_DOCKER_TAG
 
   /**
    * Sets the CI build ID after sanitizing the input.
@@ -107,7 +112,7 @@ class CypressTestsParameters implements Cloneable {
       case 'cypress-15.19.0':
         return 'node-25.9.0-cypress-15.19.0-chrome-150.0.7871.186-1'
       default:
-        return 'node-25.6.1-cypress-12.0.0-chrome-145.0.7632.75-1'
+        return DEFAULT_CYPRESS_DOCKER_TAG
     }
   }
 
