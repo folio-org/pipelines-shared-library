@@ -22,6 +22,12 @@ variable "cluster_name" {
   type        = string
 }
 
+variable "rancher_cluster_id" {
+  description = "Rancher cluster ID. If not provided, it is \"local\" for the \"rancher\" cluster and is looked up by cluster_name otherwise."
+  type        = string
+  default     = null
+}
+
 variable "project_name" {
   description = "Name of the Rancher project/namespace"
   default     = "folio-applications-registry"
@@ -63,6 +69,12 @@ variable "postgres_chart_version" {
   default     = "16.7.21"
 }
 
+variable "postgres_extra_helm_values" {
+  description = "Additional YAML values for the PostgreSQL Helm release (e.g. image registry overrides), applied after the built-in values. Helm deep-merges maps and replaces lists"
+  type        = string
+  default     = ""
+}
+
 variable "mgr_chart_version" {
   description = "Version of the mgr-applications Helm chart"
   type        = string
@@ -87,8 +99,19 @@ variable "mgr_app_image_tag" {
   default     = "3.0.2"
 }
 
+variable "credentials_store" {
+  description = "AWS service that keeps the database credentials: \"secretsmanager\" (Secrets Manager secret) or \"ssm\" (SSM Parameter Store SecureString)"
+  type        = string
+  default     = "secretsmanager"
+
+  validation {
+    condition     = contains(["secretsmanager", "ssm"], var.credentials_store)
+    error_message = "credentials_store must be either \"secretsmanager\" or \"ssm\"."
+  }
+}
+
 variable "existing_secret_name" {
-  description = "Name of existing AWS Secrets Manager secret containing database credentials (use when restoring from snapshot)"
+  description = "Name of existing Secrets Manager secret or SSM parameter (according to credentials_store) containing database credentials (use when restoring from snapshot)"
   type        = string
   default     = null
 }
@@ -97,6 +120,12 @@ variable "enable_backups" {
   description = "Enable automated EBS volume backups using AWS Data Lifecycle Manager"
   type        = bool
   default     = true
+}
+
+variable "dlm_execution_role_arn" {
+  description = "ARN of an existing IAM role for the DLM lifecycle policy. If provided, the DLM role and its policies are not created"
+  type        = string
+  default     = null
 }
 
 variable "mgr_app_memory_limit" {
@@ -142,4 +171,16 @@ variable "mgr_app_extra_java_opts" {
     "-Dlogging.level.root=INFO -Dsecure_store=AwsSsm -Dsecure_store_props=/usr/ms/aws_ss.properties",
     "-XX:MaxRAMPercentage=70.0"
   ]
+}
+
+variable "certificate_arn" {
+  description = "ARN of the ACM certificate for the ALB HTTPS listener. If empty, the ALB controller discovers the certificate by host"
+  type        = string
+  default     = ""
+}
+
+variable "ingress_extra_annotations" {
+  description = "Additional annotations for the mgr-applications ingress (e.g. alb.ingress.kubernetes.io/inbound-cidrs). A key that matches a built-in annotation overrides its value"
+  type        = map(string)
+  default     = {}
 }

@@ -15,7 +15,7 @@ import org.jenkinsci.plugins.workflow.libs.Library
 
 /**
  * Job properties and parameters*/
-properties([pipelineTriggers([cron('H 21 * * 1-5')]),
+properties([pipelineTriggers([cron('H 21 * * 6')]),
             buildDiscarder(logRotator(numToKeepStr: '30')),
             disableConcurrentBuilds(),
             parameters([string(name: 'KARATE_BRANCH', defaultValue: 'R1-2026', description: "(Required) Karate tests repository branch to checkout"),
@@ -100,7 +100,7 @@ CypressTestsParameters cypressEcsParams = new CypressTestsParameters()
 cypressEcsParams.setCiBuildId("${env.JOB_BASE_NAME}-ecs")
 cypressEcsParams.setTestsSrcBranch(params.CYPRESS_BRANCH)
 cypressEcsParams.setTenantUrl("https://${namespace.generateDomain('consortium')}")
-cypressEcsParams.setOkapiUrl("https://${namespace.getDomains()[params.GATEWAY_TYPE ?: 'kong']}")
+cypressEcsParams.setOkapiUrl("https://ecs-${namespace.getDomains()[params.GATEWAY_TYPE ?: 'kong']}")
 cypressEcsParams.setTenant(new OkapiTenant('consortium')
   .withAdminUser(new OkapiUser('consortium_admin', 'admin')))
 cypressEcsParams.setCompileExecParameters('tags="smokeECS criticalPathECS extendedPathECS --nonParallel" env=ecs_env_name="trillium",ecsEnabled=true')

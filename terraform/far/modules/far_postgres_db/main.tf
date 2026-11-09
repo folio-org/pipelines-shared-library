@@ -47,7 +47,7 @@ resource "helm_release" "postgres" {
   chart           = var.helm_chart
   version         = var.chart_version
   cleanup_on_fail = true
-  values          = [local.helm_values]
+  values          = var.extra_helm_values == "" ? [local.helm_values] : [local.helm_values, var.extra_helm_values]
 
   atomic  = true
   timeout = var.helm_timeout

@@ -62,6 +62,9 @@ class CypressTestsParameters implements Cloneable {
   // Tenant's KB's key
   String kbKey = ''
 
+  // Cypress Docker image version to use for test execution
+  String cypressImageVersion = ''
+
   /**
    * Sets the CI build ID after sanitizing the input.
    *
@@ -88,6 +91,24 @@ class CypressTestsParameters implements Cloneable {
       return // Do nothing if the parameter is empty
     }
     this.execParameters = this.execParameters ? "${this.execParameters} ${parameter}" : parameter
+  }
+
+  void setCypressImageVersion(String imageVersion) {
+    if (!imageVersion?.isEmpty()) {
+      String dockerTag = mapVersionToDockerTag(imageVersion)
+      this.cypressImageVersion = dockerTag
+    }
+  }
+
+  private String mapVersionToDockerTag(String version) {
+    switch(version) {
+      case 'cypress-12.0.0':
+        return 'node-25.6.1-cypress-12.0.0-chrome-145.0.7632.75-1'
+      case 'cypress-15.19.0':
+        return 'node-25.9.0-cypress-15.19.0-chrome-150.0.7871.186-1'
+      default:
+        return 'node-25.6.1-cypress-12.0.0-chrome-145.0.7632.75-1'
+    }
   }
 
   /**

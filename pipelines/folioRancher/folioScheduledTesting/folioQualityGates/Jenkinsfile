@@ -117,6 +117,7 @@ ansiColor('xterm') {
         cypressParameters.setCompileExecParameters('tags="shiftLeft"')
         cypressParameters.setNumberOfWorkers(5)
         cypressParameters.setTimeout('180')
+        cypressParameters.setCypressImageVersion('cypress-12.0.0')
 
         cypressTestsExecutionSummary = folioCypressFlow.call(cypressParameters.getCiBuildId(), [cypressParameters], false, true, 'ci', false)
       }

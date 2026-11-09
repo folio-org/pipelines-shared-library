@@ -247,6 +247,10 @@ The Kubernetes Secret containing database credentials has been deleted, but othe
    ```bash
    aws secretsmanager get-secret-value --secret-id "/<cluster-name>/<namespace>/postgres-credentials" --query 'SecretString' --output text
    ```
+   With `credentials_store = "ssm"` the credentials are kept in SSM Parameter Store instead:
+   ```bash
+   aws ssm get-parameter --name "/<cluster-name>/<namespace>/postgres-credentials" --with-decryption --query 'Parameter.Value' --output text
+   ```
 
 3. **Recreate Kubernetes Secret Manually**
    ```bash

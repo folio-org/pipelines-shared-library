@@ -3,6 +3,7 @@ package org.folio.rest_v2.eureka.kong
 import com.cloudbees.groovy.cps.NonCPS
 import groovy.json.JsonOutput
 import org.folio.models.EurekaTenant
+import org.folio.models.EurekaTenantConsortia
 import org.folio.models.Index
 import org.folio.rest_v2.eureka.Keycloak
 import org.folio.rest_v2.eureka.Kong
@@ -24,6 +25,14 @@ class Indexes extends Kong{
   //TODO: Unify instance vs. generic index flow so both return the same type
   String runIndexFlow(EurekaTenant tenant, Index index) {
     if (index.getType() == 'instance') {
+      // In ECS all instance records live in the central tenant's index, and mod-search rejects
+      // a full reindex triggered from a member tenant. Member records are covered by the
+      // central reindex, which reindexes all consortium members when no tenantId is passed.
+      if (tenant instanceof EurekaTenantConsortia && !tenant.isCentralConsortiaTenant) {
+        logger.warning("[${tenant.getTenantId()}] Skipping Elastic Search 'instance' reindex: " +
+          "member tenants are reindexed from the central tenant")
+        return null
+      }
       runInstanceIndex(tenant)
       return null   // instance reindex has no job-id concept; callers must not rely on return value
     }
@@ -37,9 +46,9 @@ class Indexes extends Kong{
 
     String url = generateUrl("/search/index/instance-records/reindex/full")
 
-    Map body = [
-      "indexSettings": []
-    ]
+    // The full reindex endpoint always rebuilds the indices and has no `recreateIndex` flag,
+    // so an empty request body is the equivalent of `recreateIndex: true` (legacy API shape).
+    Map body = [:]
 
     try {
       restClient.post(url, body, headers).body
@@ -84,12 +93,23 @@ class Indexes extends Kong{
     logger.info("[${tenant.getTenantId()}] Reindex job started with id: ${jobId}")
 
     if (index.getWaitComplete()) {
-      checkIndexStatus(tenant, jobId)
+      // Only the authority reindex is asynchronous and exposes a polling endpoint.
+      // The location reindex is synchronous and already returns "Completed".
+      if (index.getType() == 'authority') {
+        checkIndexStatus(tenant, jobId)
+      } else {
+        logger.info("[${tenant.getTenantId()}] '${index.getType()}' reindex finished with status: ${responseBody?.jobStatus}")
+      }
     }
 
     return jobId
   }
 
+  /**
+   * Polls the authority reindex job until all the ids are published.
+   * Only valid for the `authority` resource: `location` reindexing is synchronous and
+   * `instance` reindexing is tracked via /search/index/instance-records/reindex/status.
+   */
   void checkIndexStatus(EurekaTenant tenant, String jobId) {
     Map<String, String> headers = getTenantHttpHeaders(tenant)
 
