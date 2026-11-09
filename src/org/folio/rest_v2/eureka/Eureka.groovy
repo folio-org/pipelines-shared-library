@@ -94,7 +94,20 @@ class Eureka extends Base {
     if (tenant.getModules().getModuleByName('mod-kb-ebsco-java'))
       configs.setRmapiConfig(tenant)
 
+    if (isReportingEnabled(tenant))
+      configs.setLdpDbSettings(tenant)
+
     return this
+  }
+
+  /**
+   * Checks whether the Reporting app (mod-reporting or its predecessor mod-ldp) is part of the tenant modules.
+   *
+   * @param tenant Tenant to inspect.
+   * @return true when the Reporting backend module is enabled for the tenant.
+   */
+  private static boolean isReportingEnabled(EurekaTenant tenant) {
+    return Constants.REPORTING_MODULES.any { moduleName -> tenant.getModules()?.getModuleByName(moduleName) }
   }
 
   /**

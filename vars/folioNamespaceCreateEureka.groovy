@@ -255,6 +255,14 @@ void call(CreateNamespaceParameters args) {
           }
       }
 
+      if (ldpSettings.isReportingEnabled(namespace.getModules())) {
+        LdpConfig reportingLdpConfig = ldpSettings.metadbConfig()
+        if (reportingLdpConfig) {
+          namespace.getTenants().values().each { tenant -> tenant.getOkapiConfig().withLdp(reportingLdpConfig) }
+          logger.info("Reporting database configuration will be applied to ${namespace.getTenants().size()} tenant(s)")
+        }
+      }
+
       //In case update environment or reindex skip is requested, the reindex is not needed
       if (args.type == 'update' || args.skipReindex)
         namespace.getTenants().values().each { tenant -> tenant.indexes.clear() }

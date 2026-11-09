@@ -138,6 +138,13 @@ class Constants {
   static String ECS_EDGE_GENERAL_USERNAME = 'EBSCOEdge'
   static String ECS_EDGE_GENERAL_PASSWORD = 'edge'
 
+  //Reporting (MetaDB) database for the Reporting app, see RANCHER-3213
+  static String METADB_HOST = 'id-test-metadb.folio.indexdata.com'
+  static String METADB_PORT = '5432'
+  static String METADB_DB_NAME = 'metadb_indexdata_test'
+  static String METADB_CREDENTIALS_ID = 'metadb-community-credentials'
+  static List<String> REPORTING_MODULES = ['mod-reporting', 'mod-ldp']
+
   //Eureka base constants
   static String EUREKA_REGISTRY_URL = 'https://eureka-registry.ci.folio.org/'
   static String EUREKA_REGISTRY_DESCRIPTORS_URL = EUREKA_REGISTRY_URL + 'descriptors/'

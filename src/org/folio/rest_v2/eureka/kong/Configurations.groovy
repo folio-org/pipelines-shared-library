@@ -1,12 +1,16 @@
 package org.folio.rest_v2.eureka.kong
 
 import com.cloudbees.groovy.cps.NonCPS
+import groovy.json.JsonOutput
 import groovy.text.GStringTemplateEngine
 import org.folio.models.EurekaTenant
+import org.folio.models.LdpConfig
 import org.folio.rest_v2.Constants
 import org.folio.rest_v2.eureka.Keycloak
 import org.folio.rest_v2.eureka.Kong
 import org.folio.utilities.RequestException
+
+import java.net.URLEncoder
 
 /**
  * The Configurations class is responsible for managing various configurations
@@ -17,6 +21,10 @@ class Configurations extends Kong {
   static final String KB_CREDENTIALS_ID = '80898dee-449f-44dd-9c8e-37d5eb469b1d'
 
   static final String COPYCAT_PROFILE_ID = 'f26df83c-aa25-40b6-876e-96852c3d4fd4'
+
+  /** mod-settings scope and key read by mod-reporting/ui-ldp for the Reporting database connection. */
+  static final String LDP_SETTINGS_SCOPE = 'ui-ldp.admin'
+  static final String LDP_SETTINGS_KEY = 'dbinfo'
 
   Configurations(def context, String kongUrl, Keycloak keycloak, boolean debug = false) {
     super(context, kongUrl, keycloak, debug)
@@ -191,6 +199,85 @@ class Configurations extends Kong {
 
     restClient.put(url, body, headers)
     logger.info("base-url on tenant ${tenant.tenantId} with ${tenant.uuid} was set successfully")
+
+    return this
+  }
+
+  /**
+   * Stores the Reporting app database configuration (scope "ui-ldp.admin", key "dbinfo")
+   * in mod-settings. mod-reporting reads this record on every request, so the database
+   * connection no longer has to be entered manually in Settings -> Database configuration.
+   *
+   * @param tenant The tenant for which the reporting database configuration is to be set.
+   */
+  Configurations setLdpDbSettings(EurekaTenant tenant) {
+    LdpConfig ldpConfig = tenant.okapiConfig?.ldpConfig
+    if (!ldpConfig) {
+      logger.info("LDP configuration is not defined for tenant ${tenant.tenantId}. " +
+        "Skipping '${LDP_SETTINGS_SCOPE}/${LDP_SETTINGS_KEY}' setting")
+      return this
+    }
+
+    String value = JsonOutput.toJson([
+      url : "jdbc:postgresql://${ldpConfig.dbHost}:${ldpConfig.dbPort ?: '5432'}/${ldpConfig.ldpDbName}".toString(),
+      user: ldpConfig.ldpDbUserName,
+      pass: ldpConfig.ldpDbUserPassword
+    ])
+
+    try {
+      upsertSettingsEntry(tenant, LDP_SETTINGS_SCOPE, LDP_SETTINGS_KEY, value)
+    } catch (RequestException e) {
+      logger.error("Setting '${LDP_SETTINGS_SCOPE}/${LDP_SETTINGS_KEY}' " +
+        "on tenant ${tenant.tenantId} can not be applied: ${e.getMessage()}. Status code: ${e.statusCode}")
+    }
+
+    return this
+  }
+
+  /**
+   * Retrieves a single mod-settings entry identified by scope and key.
+   *
+   * @param tenant The tenant the settings entry belongs to.
+   * @param scope  The settings scope.
+   * @param key    The settings key within the scope.
+   * @return The settings entry as a Map, or null when it does not exist.
+   */
+  Map getSettingsEntry(EurekaTenant tenant, String scope, String key) {
+    logger.info("Get '${scope}/${key}' setting on tenant ${tenant.tenantId}...")
+
+    Map<String, String> headers = getTenantHttpHeaders(tenant)
+    String query = URLEncoder.encode("scope==\"${scope}\" and key==\"${key}\"", 'UTF-8').replace('+', '%20')
+    String url = generateUrl("/settings/entries?query=${query}&limit=1")
+
+    def response = restClient.get(url, headers, [200, 404])
+    if (response.responseCode == 404) {
+      return null
+    }
+
+    List entries = response.body['items'] as List
+    return entries ? entries.first() as Map : null
+  }
+
+  /**
+   * Creates or updates a mod-settings entry, so the call is safe to repeat on every tenant configuration run.
+   *
+   * @param tenant The tenant the settings entry belongs to.
+   * @param scope  The settings scope.
+   * @param key    The settings key within the scope.
+   * @param value  The settings value.
+   */
+  Configurations upsertSettingsEntry(EurekaTenant tenant, String scope, String key, Object value) {
+    Map<String, String> headers = getTenantHttpHeaders(tenant)
+    Map existing = getSettingsEntry(tenant, scope, key)
+
+    if (existing) {
+      restClient.put(generateUrl("/settings/entries/${existing['id']}"),
+        [id: existing['id'], scope: scope, key: key, value: value], headers)
+      logger.info("Setting '${scope}/${key}' on tenant ${tenant.tenantId} was updated")
+    } else {
+      restClient.post(generateUrl('/settings/entries'), [scope: scope, key: key, value: value], headers)
+      logger.info("Setting '${scope}/${key}' on tenant ${tenant.tenantId} was created")
+    }
 
     return this
   }
