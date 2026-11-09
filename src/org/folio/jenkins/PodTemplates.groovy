@@ -307,7 +307,7 @@ class PodTemplates {
   ) {
     return steps.containerTemplate(
       name: 'cypress',
-      image: "${ECR_REPOSITORY}/cypress/browsers:${imageTag}",
+      image: "${ECR_REPOSITORY}/cypress/browsers:${imageTag ?: 'latest'}",
       alwaysPullImage: true,
       command: 'sleep',
       args: '99d',
