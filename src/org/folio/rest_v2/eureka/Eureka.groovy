@@ -64,7 +64,7 @@ class Eureka extends Base {
       )
     }
 
-    context.folioTools.stsKafkaLag(cluster, namespace, tenant.tenantId)
+    context.folioTools.stsKafkaLag(cluster, namespace, tenant.tenantId, tenant.getModules()?.getModuleByName('mod-roles-keycloak')?.version)
 
     //create tenant admin user
     createUserFlow(tenant, tenant.adminUser
@@ -94,7 +94,20 @@ class Eureka extends Base {
     if (tenant.getModules().getModuleByName('mod-kb-ebsco-java'))
       configs.setRmapiConfig(tenant)
 
+    if (isReportingEnabled(tenant))
+      configs.setLdpDbSettings(tenant)
+
     return this
+  }
+
+  /**
+   * Checks whether the Reporting app (mod-reporting or its predecessor mod-ldp) is part of the tenant modules.
+   *
+   * @param tenant Tenant to inspect.
+   * @return true when the Reporting backend module is enabled for the tenant.
+   */
+  private static boolean isReportingEnabled(EurekaTenant tenant) {
+    return Constants.REPORTING_MODULES.any { moduleName -> tenant.getModules()?.getModuleByName(moduleName) }
   }
 
   /**
@@ -337,6 +350,7 @@ class Eureka extends Base {
       }
       if (tenant.indexes) {
         tenant.indexes.each { index ->
+          logger.info("Tenant '${tenantId}' reindex plan: ${index.getType()}(recreateIndex=${index.getRecreate()})")
           Indexes.get(kong).runIndexFlow(tenant, index)
         }
         tenant.indexed = true
@@ -351,7 +365,20 @@ class Eureka extends Base {
    * @return Map of EurekaTenant objects.
    */
   Map<String, EurekaTenant> getExistedTenantsFlow(String namespace) {
-    return Tenants.get(kong).getTenants().collectEntries {
+    Set<String> defaultTenantNames = context.folioDefault.getDefaultTenantNames()
+
+    List<EurekaTenant> tenants = Tenants.get(kong).getTenants()
+    List<String> skippedTenants = tenants
+      .findAll { !defaultTenantNames.contains(it.tenantId) }
+      .collect { it.tenantId }
+
+    if (skippedTenants) {
+      logger.info("Skipping non-standard tenants not listed in the defaults library: ${skippedTenants}")
+    }
+
+    return tenants
+      .findAll { defaultTenantNames.contains(it.tenantId) }
+      .collectEntries {
       tenant ->
         tenant
           .withClientSecret(

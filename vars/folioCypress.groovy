@@ -123,7 +123,6 @@ void compileCypressTests() {
       yarn config set @folio:registry ${Constants.FOLIO_NPM_REPO_URL}
       yarn install --network-timeout 300000
       yarn add -D cypress-testrail-simple@${readPackageJsonDependencyVersion('./package.json', 'cypress-testrail-simple')}
-      yarn global add cypress-cloud@${readPackageJsonDependencyVersion('./package.json', 'cypress-cloud')}
     """.stripIndent()
     // Uncomment to add Report Portal agent for Cypress
     // sh "yarn add @reportportal/agent-js-cypress@latest"
@@ -383,7 +382,7 @@ void finalizeReportPortal(ReportPortalClient reportPortalClient) {
  * @param timeoutHours The timeout in hours for the entire re-check phase. Defaults to 5.
  * @return The count of flaky tests that failed on re-check.
  */
-int runFailedTestsRecheck(String launchName, String testrailProjectID, String testrailRunID, int numberOfRunners = 6, int timeoutHours = 5) {
+int runFailedTestsRecheck(String launchName, String testrailProjectID, String testrailRunID, int numberOfRunners = 6, int timeoutHours = 5, String cypressImageTag = 'latest') {
   validateParameter(testrailProjectID, 'TestRail project ID')
   validateParameter(testrailRunID, 'TestRail run ID')
   validateParameter(launchName, 'launchName')
@@ -432,7 +431,7 @@ int runFailedTestsRecheck(String launchName, String testrailProjectID, String te
             parallelPods["Pod#${podId}"] = {
               retry(2) {
                 PodTemplates podTemplates = new PodTemplates(this, true)
-                podTemplates.cypressAgent {
+                podTemplates.cypressAgent({
                   container('cypress') {
                     // Clone the Cypress repo in each worker pod
                     cloneCypressRepo(env.BRANCH_NAME ?: 'master')
@@ -500,7 +499,7 @@ int runFailedTestsRecheck(String launchName, String testrailProjectID, String te
 
                     parallel(podWorkers)
                   }
-                }
+                }, cypressImageTag)
               }
             }
           }

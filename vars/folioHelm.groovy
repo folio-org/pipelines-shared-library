@@ -359,6 +359,17 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
 //            name : 'FLOW_ENGINE_THREADS_NUM',
 //            value: '1'
 //          ] : []
+          //https://folio-org.atlassian.net/browse/RANCHER-3155
+          moduleConfig['extraEnvVars'] += ns.getNamespaceName() == 'cikarate' ? [
+            [
+              name : 'EVENT_PUBLISHER_AWAIT_COMPLETION',
+              value: 'true'
+            ],
+            [
+              name : 'KAFKA_PRODUCER_TENANT_COLLECTION',
+              value: 'ALL'
+            ]
+          ] : []
         break
 
       case 'mod-search':
@@ -373,6 +384,13 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
           name: 'MOD_USERS_ID',
           value: 'mod-users-' + ns.getModules().getModuleByName('mod-users').getVersion()
         ]
+        //https://folio-org.atlassian.net/browse/RANCHER-3155
+        if (ns.getNamespaceName() == 'cikarate' && moduleName in ['mod-roles-keycloak', 'mod-users-keycloak']) {
+          moduleConfig['extraEnvVars'] += [
+            name : 'EVENT_CONFIRMATION_ENABLED',
+            value: 'true'
+          ]
+        }
 
         break
       case 'mod-circulation-bff':
@@ -438,6 +456,8 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
 //https://folio-org.atlassian.net/browse/RANCHER-3002
   if (moduleName == 'mod-scheduler' && ns.getNamespaceName() == 'cikarate') {
     moduleConfig['extraEnvVars'] += [name: 'SCHEDULER_API_ALLOW_SYSTEM_TIMER_MUTATION', value: 'true']
+    //https://folio-org.atlassian.net/browse/RANCHER-3155
+    moduleConfig['extraEnvVars'] += [name: 'EVENT_CONFIRMATION_ENABLED', value: 'true']
   }
 
   //Bulk operations bucket configuration

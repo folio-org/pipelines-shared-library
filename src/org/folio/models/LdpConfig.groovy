@@ -4,6 +4,8 @@ class LdpConfig {
 
   String dbHost
 
+  String dbPort = '5432'
+
   String ldpDbName = 'ldp'
 
   String ldpDbUserName = 'ldp'

@@ -50,6 +50,27 @@ class PodTemplates {
   private static final String MAVEN_CACHE_PVC = 'maven-cache-pvc'
   private static final String ECR_REPOSITORY = '732722833398.dkr.ecr.us-west-2.amazonaws.com'
 
+  /**
+   * Pod annotation that stops the Cluster Autoscaler from scaling down (and thereby
+   * deleting) a node while an agent pod is running on it.  Without it, idle-node
+   * scale-down reclaimed nodes mid-build and surfaced as
+   * {@code AgentOfflineException: ... was marked offline: Pod deleted}.
+   */
+  private static final String SAFE_TO_EVICT_ANNOTATION = '''metadata:
+  annotations:
+    cluster-autoscaler.kubernetes.io/safe-to-evict: "false"
+'''
+
+  /**
+   * Base pod YAML shared by every agent template: the safe-to-evict annotation plus the
+   * common pod security context.  Applied to all agent types so that nodes hosting any
+   * in-flight build are never reclaimed by the autoscaler.
+   */
+  private static final String BASE_POD_YAML = SAFE_TO_EVICT_ANNOTATION + '''spec:
+  securityContext:
+    fsGroup: 1000
+'''
+
   // ===== Instance State =====
   private Object steps
   private boolean debug
@@ -89,11 +110,7 @@ class PodTemplates {
       nodeUsageMode: 'EXCLUSIVE',
       showRawYaml: debug,
       yamlMergeStrategy: new Merge(),
-      yaml: '''
-spec:
-  securityContext:
-    fsGroup: 1000
-''',
+      yaml: BASE_POD_YAML,
       podRetention: podRetention,
       inheritYamlMergeStrategy: true,
       slaveConnectTimeout: 7200,
@@ -107,8 +124,13 @@ spec:
           alwaysPullImage: true,
           ttyEnabled: true,
           workingDir: WORKING_DIR,
-          resourceRequestMemory: '1024Mi',
-          resourceLimitMemory: '1024Mi',
+          // Doubled from 1024Mi: the jnlp process orchestrates the full pipeline lifecycle
+          // (namespace provisioning → parallel test workers → teardown), which can last
+          // hours for Cypress runs with 15 workers. The previous 1024Mi made the pod the
+          // smallest footprint on its node and therefore the first candidate for eviction
+          // under node memory pressure, causing mid-run UNSTABLE builds (build #590).
+          resourceRequestMemory: '2048Mi',
+          resourceLimitMemory: '2048Mi',
           envVars: [
             // Ping intervals are set to 30 s — half the AWS ALB/NLB default idle timeout.
             // The previous value of 60 s was equal to the ALB idle timeout; network jitter
@@ -261,19 +283,31 @@ spec:
   /**
    * Builds a Cypress test container.
    *
+   * <p>Ephemeral storage limits mirror those of {@link #buildWerfContainer}: Cypress
+   * workers produce substantial disk I/O (screenshots per step, video recordings,
+   * allure-results JSON).  Without these limits Kubernetes cannot account for that
+   * disk usage during scheduling; nodes can reach disk pressure and begin evicting
+   * pods regardless of memory QoS tier.</p>
+   *
    * @param extraEnvVars Optional environment variables.
-   * @param resourceRequestMemory Minimum memory request (default {@code 2Gi}).
-   * @param resourceLimitMemory Memory limit (default {@code 3Gi}).
+   * @param resourceRequestMemory Minimum memory request (default {@code 3072Mi}).
+   * @param resourceLimitMemory Memory limit (default {@code 15285Mi}).
+   * @param resourceRequestEphemeralStorage Minimum ephemeral storage request (default {@code 10Gi}).
+   * @param resourceLimitEphemeralStorage Ephemeral storage limit (default {@code 20Gi}).
+   * @param imageTag Docker image tag to use (default {@code latest}).
    * @return Cypress container definition.
    */
   private Object buildCypressContainer(
     List<KeyValueEnvVar> extraEnvVars = [],
     String resourceRequestMemory = '3072Mi',
-    String resourceLimitMemory = '15285Mi'
+    String resourceLimitMemory = '15285Mi',
+    String resourceRequestEphemeralStorage = '10Gi',
+    String resourceLimitEphemeralStorage = '20Gi',
+    String imageTag = 'latest'
   ) {
     return steps.containerTemplate(
       name: 'cypress',
-      image: "${ECR_REPOSITORY}/cypress/browsers:latest",
+      image: "${ECR_REPOSITORY}/cypress/browsers:${imageTag}",
       alwaysPullImage: true,
       command: 'sleep',
       args: '99d',
@@ -284,7 +318,9 @@ spec:
       runAsGroup: '1000',
       runAsUser: '1000',
       resourceRequestMemory: resourceRequestMemory,
-      resourceLimitMemory: resourceLimitMemory
+      resourceLimitMemory: resourceLimitMemory,
+      resourceRequestEphemeralStorage: resourceRequestEphemeralStorage,
+      resourceLimitEphemeralStorage: resourceLimitEphemeralStorage
     )
   }
 
@@ -335,11 +371,7 @@ spec:
           requestsSize: '5Gi',
           storageClassName: 'gp3'
         ),
-        yaml: config.yaml ?: '''
-spec:
-  securityContext:
-    fsGroup: 1000
-''',
+        yaml: config.yaml ?: BASE_POD_YAML,
         containers: config.containers ?: [],
         volumes: config.volumes ?: []
       ) {
@@ -378,26 +410,26 @@ spec:
   /**
     * Defines a Java agent optimized for Karate tests.
     *
+    * <p>Memory is sized for a 4-thread {@code mvn test -T 4} run.  The request
+    * (8 GiB) covers realistic peak footprint (4 GiB heap + JVM off-heap overhead
+    * per thread × 4 + Maven plugins); the limit (16 GiB) provides burst headroom
+    * on large nightly runs.  Keeping the request close to actual usage avoids
+    * node-level eviction by the Kubernetes Eviction API that occurred when the
+    * pod was scheduled assuming only 5 GiB but consumed 6–8 GiB in practice.</p>
+    *
     * @param javaVersion Java version to install.
     * @param body Pipeline steps to execute inside this agent.
     */
    void javaKarateAgent(String javaVersion, Closure body) {
      createTemplate(new PodTemplateConfig(
        label: JenkinsAgentLabel.JAVA_KARATE_AGENT.getLabel(),
-       yaml: '''
-metadata:
-  annotations:
-    cluster-autoscaler.kubernetes.io/safe-to-evict: "false"
-spec:
-  securityContext:
-    fsGroup: 1000
-''',
+       yaml: BASE_POD_YAML,
        workspaceVolume: steps.genericEphemeralVolume(accessModes: 'ReadWriteOnce',
          requestsSize: '20Gi',
          storageClassName: 'gp3'),
        volumes: [steps.persistentVolumeClaim(claimName: MAVEN_CACHE_PVC, mountPath: "${WORKING_DIR}/.m2/repository")],
        containers: [
-         buildJavaContainer(javaVersion, [], '5120Mi', '12228Mi', '-Xmx4g -XX:+UseG1GC -XX:MaxGCPauseMillis=200')
+         buildJavaContainer(javaVersion, [], '8192Mi', '16384Mi', '-Xmx10g -XX:+UseG1GC -XX:MaxGCPauseMillis=200')
        ]
      )) {
        steps.node(JenkinsAgentLabel.JAVA_KARATE_AGENT.getLabel()) {
@@ -416,7 +448,7 @@ spec:
   void stripesAgent(Closure body) {
     createTemplate(new PodTemplateConfig(
       label: JenkinsAgentLabel.STRIPES_AGENT.getLabel(),
-      yaml: """
+      yaml: SAFE_TO_EVICT_ANNOTATION + """
 spec:
   topologySpreadConstraints:
   - maxSkew: 2
@@ -471,8 +503,9 @@ spec:
    * worker was the second most common cause of non-deterministic ContainerErrors.</p>
    *
    * @param body Pipeline steps to execute inside this agent.
+   * @param imageTag Docker image tag to use for Cypress container (default {@code latest}).
    */
-  void cypressAgent(Closure body) {
+  void cypressAgent(Closure body, String imageTag = 'latest') {
     // Unique label per invocation — mirrors the pattern used by javaBuildAgent.
     // All 14 parallel workers call this method; without unique labels they all
     // compete in the same pod pool and can cause scheduling races / stale reuse.
@@ -480,20 +513,13 @@ spec:
     createTemplate(new PodTemplateConfig(
       label: podLabel,
       idleMinutes: 0,   // Terminate immediately; never reuse pods across build steps.
-      yaml: """
-metadata:
-  annotations:
-    cluster-autoscaler.kubernetes.io/safe-to-evict: "false"
-spec:
-  securityContext:
-    fsGroup: 1000
-""",
+      yaml: BASE_POD_YAML,
       workspaceVolume: steps.genericEphemeralVolume(accessModes: 'ReadWriteOnce',
         requestsSize: '20Gi',
         storageClassName: 'gp3'),
       volumes: [steps.persistentVolumeClaim(claimName: YARN_CACHE_PVC, mountPath: "${WORKING_DIR}/.yarn/cache")],
       containers: [
-        buildCypressContainer([], '5120Mi', '5120Mi'),
+        buildCypressContainer([], '5120Mi', '5120Mi', '10Gi', '20Gi', imageTag),
       ]
     )) {
       steps.node(podLabel) {

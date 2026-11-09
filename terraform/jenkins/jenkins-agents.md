@@ -152,7 +152,47 @@ echo $TOKEN
   - Add a **Secret Text** credential in Jenkins with the extracted token.
   - Save and test connection.
 
-## 7. Troubleshooting Tips
+## 7. Protect Agent Pods from Node Drain / Autoscaler Scale-Down
+
+Jenkins agent pods are **bare pods** (no controller/owner), so a
+`PodDisruptionBudget` that uses `maxUnavailable` cannot track them and is
+effectively ignored (Kubernetes emits an `UnmanagedPods` warning). Use an
+**integer `minAvailable`** instead. In addition, every agent pod template
+carries the `cluster-autoscaler.kubernetes.io/safe-to-evict: "false"`
+annotation (set centrally in `src/org/folio/jenkins/PodTemplates.groovy`).
+
+Without these, an idle-node scale-down or a node drain deletes an in-flight
+agent mid-build and the stage fails with
+`AgentOfflineException: ... was marked offline: Pod deleted`.
+
+Manifest (also committed as [`jenkins-agent-pdb.yml`](jenkins-agent-pdb.yml)):
+
+```yaml
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: jenkins-agent-pods
+  namespace: jenkins-agents
+  labels:
+    app.kubernetes.io/managed-by: jenkins
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      jenkins: slave
+```
+
+Apply it with **server-side apply** using the same field manager the object is
+already owned by, so no conflicting-manager warning is produced:
+
+```bash
+kubectl apply --server-side --field-manager=kubernetes-mcp-server -f jenkins-agent-pdb.yml
+```
+
+> `minAvailable` must be an **integer** for controller-less pods; a percentage
+> (or `maxUnavailable`) does not count bare pods.
+
+## 8. Troubleshooting Tips
 
 ### Jenkins cannot connect to Kubernetes
 
