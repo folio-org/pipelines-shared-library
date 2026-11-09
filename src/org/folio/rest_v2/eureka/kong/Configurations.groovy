@@ -11,6 +11,7 @@ import org.folio.rest_v2.eureka.Kong
 import org.folio.utilities.RequestException
 
 import java.net.URLEncoder
+import java.util.UUID
 
 /**
  * The Configurations class is responsible for managing various configurations
@@ -245,7 +246,10 @@ class Configurations extends Kong {
   Map getSettingsEntry(EurekaTenant tenant, String scope, String key) {
     logger.info("Get '${scope}/${key}' setting on tenant ${tenant.tenantId}...")
 
-    Map<String, String> headers = getTenantHttpHeaders(tenant)
+    // mod-settings enforces X-Okapi-Permissions on /settings/*, and the sidecar only populates
+    // that header when the request carries a user token (Keycloak 'user_id' claim). A
+    // client-credentials token has no user context, so the call is rejected with 400/401.
+    Map<String, String> headers = getTenantUserHttpHeaders(tenant)
     String query = URLEncoder.encode("scope==\"${scope}\" and key==\"${key}\"", 'UTF-8').replace('+', '%20')
     String url = generateUrl("/settings/entries?query=${query}&limit=1")
 
@@ -267,7 +271,9 @@ class Configurations extends Kong {
    * @param value  The settings value.
    */
   Configurations upsertSettingsEntry(EurekaTenant tenant, String scope, String key, Object value) {
-    Map<String, String> headers = getTenantHttpHeaders(tenant)
+    // Same user-context requirement as getSettingsEntry: mod-settings rejects requests
+    // without X-Okapi-Permissions, which the sidecar derives from a user token only.
+    Map<String, String> headers = getTenantUserHttpHeaders(tenant)
     Map existing = getSettingsEntry(tenant, scope, key)
 
     if (existing) {
@@ -275,7 +281,9 @@ class Configurations extends Kong {
         [id: existing['id'], scope: scope, key: key, value: value], headers)
       logger.info("Setting '${scope}/${key}' on tenant ${tenant.tenantId} was updated")
     } else {
-      restClient.post(generateUrl('/settings/entries'), [scope: scope, key: key, value: value], headers)
+      // mod-settings rejects POST without an id ("Entry must have an id"), so one is generated here.
+      restClient.post(generateUrl('/settings/entries'),
+        [id: UUID.randomUUID().toString(), scope: scope, key: key, value: value], headers)
       logger.info("Setting '${scope}/${key}' on tenant ${tenant.tenantId} was created")
     }
 
