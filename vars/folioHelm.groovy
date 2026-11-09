@@ -525,7 +525,7 @@ String generateModuleValues(RancherNamespace ns, String moduleName, String modul
     switch (moduleName) {
       case 'edge-sip2':
         edgeNlbDomain = common.generateDomain(ns.clusterName, ns.namespaceName, 'sip2', Constants.CI_ROOT_DOMAIN)
-        moduleConfig << [okapiUrl         : "https://" + ns.domains["kong"],
+        moduleConfig << [okapiUrl         : "https://" + ns.getGatewayDomain(),
                          sip2TenantsConfig: """{
   "scTenants": [
     {

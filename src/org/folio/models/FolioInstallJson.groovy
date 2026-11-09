@@ -147,6 +147,15 @@ class FolioInstallJson<T extends FolioModule> {
   }
 
   /**
+   * Retrieves APISIX module from the installJsonObject.
+   *
+   * @return the FolioModule representing folio-apisix, or null if not found.
+   */
+  T getApisixModule() {
+    return this.installJsonObject.find { module -> module.getType() == ModuleType.APISIX }
+  }
+
+  /**
    * Retrieves Keycloak module from the installJsonObject.
    *
    * @return the FolioModule representing Keycloak, or null if not found.

@@ -1,7 +1,7 @@
 package org.folio.models.module
 
 enum ModuleType {
-  BACKEND, FRONTEND, EDGE, OKAPI, MGR, SIDECAR, KONG, KEYCLOAK
+  BACKEND, FRONTEND, EDGE, OKAPI, MGR, SIDECAR, KONG, KEYCLOAK, APISIX
 
   /**
    * Determines the module type based on its moduleName.
@@ -30,6 +30,8 @@ enum ModuleType {
         return KONG
       case 'folio-keycloak':
         return KEYCLOAK
+      case 'folio-apisix':
+        return APISIX
       default:
         throw new Exception("Type of ${moduleName} module is unknown")
     }

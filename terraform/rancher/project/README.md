@@ -72,3 +72,19 @@ pg_password                    = "<PASSWORD>"
 pgadmin_password               = "<PASSWORD>"
 frontend_image_tag              = "<TAG>"
 ```
+
+### API gateway selection
+
+Eureka environments run `folio-kong` by default. Set `use_apisix = true` to run `folio-apisix`
+instead, with its own etcd config store and no Kong database:
+
+```hcl
+eureka        = true
+use_apisix    = false          # default — folio-kong
+apisix_version = "latest"      # used only when use_apisix = true
+```
+
+In Jenkins this is the `GATEWAY_TYPE` parameter (`kong` or `apisix`) of the environment creation
+pipelines; the value is passed to Terraform as `use_apisix` together with the `folio-apisix`
+version resolved from the platform descriptor `eureka-components`.
+

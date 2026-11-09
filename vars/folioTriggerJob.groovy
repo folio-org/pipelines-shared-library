@@ -14,8 +14,7 @@ def deleteNamespace(String jobName, CreateNamespaceParameters namespaceParams) {
 }
 
 def createNamespaceFromBranch(String jobName, CreateNamespaceParameters namespaceParams, boolean propagateJobRunStatus = true, boolean waitJobComplete = true) {
-  def jobResult = build job: jobName, wait: waitJobComplete, propagate: propagateJobRunStatus,
-    parameters: [
+  def triggerParameters = [
       string(name: 'PLATFORM', value: namespaceParams.getPlatform().name()),
       string(name: 'CLUSTER', value: namespaceParams.getClusterName()),
       string(name: 'NAMESPACE', value: namespaceParams.getNamespaceName()),
@@ -50,6 +49,15 @@ def createNamespaceFromBranch(String jobName, CreateNamespaceParameters namespac
       booleanParam(name: 'SET_BASE_URL', value: namespaceParams.getInitParams().getSetBaseUrl()),
       booleanParam(name: 'RUN_SANITY_CHECK', value: namespaceParams.getRunSanityCheck()),
       string(name: 'MEMBERS', value: namespaceParams.getMembers())]
+
+  // Only sent when APISIX is explicitly requested, so Kong-based (default) downstream
+  // calls keep exactly the previous parameter set.
+  if (namespaceParams.getUseApisix()) {
+    triggerParameters.add(string(name: 'GATEWAY_TYPE', value: 'apisix'))
+  }
+
+  def jobResult = build job: jobName, wait: waitJobComplete, propagate: propagateJobRunStatus,
+    parameters: triggerParameters
   return jobResult
 }
 

@@ -217,7 +217,7 @@ def filterModules(List<String> modules, String platform, boolean includeUi) {
   modules.findAll { name ->
     def isStandardModule = name.startsWith('mod-') || name.startsWith('edge-')
     def isOkapiSpecific = name == 'okapi'
-    def isEurekaSpecific = ['folio-kong', 'folio-keycloak', 'folio-module-sidecar'].contains(name) || name.startsWith('mgr-')
+    def isEurekaSpecific = ['folio-kong', 'folio-apisix', 'folio-keycloak', 'folio-module-sidecar'].contains(name) || name.startsWith('mgr-')
 
     def result = isStandardModule
     if (platform?.toUpperCase() == 'OKAPI') {
