@@ -14,11 +14,15 @@ class RancherNamespace {
 
   protected static final List DOMAINS_LIST = ['okapi', 'edge', 'kong', 'keycloak', 'apisix']
 
+  static final String DEFAULT_GATEWAY_TYPE = 'kong'
+
   protected static final String GITHUB_SHARED_LIBRARY_RAW = "https://raw.githubusercontent.com/folio-org/pipelines-shared-library"
 
   String clusterName
 
   String namespaceName
+
+  String gatewayType = DEFAULT_GATEWAY_TYPE
 
   String deploymentConfigType
 
@@ -138,6 +142,24 @@ class RancherNamespace {
    */
   String generateDomain(String prefix) {
     return "${this.clusterName}-${this.namespaceName}-${prefix}.${Constants.CI_ROOT_DOMAIN}"
+  }
+
+  /**
+   * Selects the API gateway used by the environment. Kong stays the default.
+   * @param gatewayType 'kong' or 'apisix'
+   * @return this namespace
+   */
+  RancherNamespace withGatewayType(String gatewayType) {
+    this.gatewayType = gatewayType ?: DEFAULT_GATEWAY_TYPE
+    return this
+  }
+
+  /**
+   * Returns the public domain of the environment's API gateway.
+   * @return the gateway domain, e.g. cluster-namespace-kong.ci.folio.org
+   */
+  String getGatewayDomain() {
+    return generateDomain(this.gatewayType ?: DEFAULT_GATEWAY_TYPE)
   }
 
   /**

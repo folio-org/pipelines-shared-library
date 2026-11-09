@@ -122,7 +122,7 @@ ansiColor('xterm') {
 
     stage('[Pre-condition] CleanUp Karate tenants') {
       if (params.CLEANUP_ENV) {
-        folioTools.karateTenantsCleanUp(params.CLUSTER, params.NAMESPACE)
+        folioTools.karateTenantsCleanUp(params.CLUSTER, params.NAMESPACE, params.GATEWAY_TYPE ?: 'kong')
       }
     }
 

@@ -1,6 +1,6 @@
 # folio-apisix: Apache APISIX gateway as an alternative to folio-kong.
-# All resources are gated on var.eureka && var.use_apisix.
-# folio-apisix always uses the :latest tag from the folioci Docker Hub registry.
+# All resources are gated on var.eureka && var.use_apisix — Kong stays the default.
+# The image version is resolved from the platform descriptor (eureka-components).
 # Unlike folio-kong, no PostgreSQL database or Bitnami Helm chart is required.
 # Ports: 9080 (proxy HTTP), 9443 (proxy HTTPS), 9180 (admin API).
 #
@@ -51,10 +51,9 @@ resource "kubernetes_persistent_volume_claim" "etcd_data" {
   }
 
   lifecycle {
-    # Never destroy data inadvertently — the PVC can only be cleaned up when
-    # the namespace is fully deprovisioned via Terraform destroy.
-    prevent_destroy = false
-    ignore_changes  = [metadata]
+    # The data only has to outlive pod restarts within the environment's lifetime;
+    # terraform destroy of the namespace is expected to remove it.
+    ignore_changes = [metadata]
   }
 }
 
@@ -80,6 +79,12 @@ resource "kubernetes_deployment" "etcd" {
 
   spec {
     replicas = 1
+
+    # Recreate (not RollingUpdate): the etcd data volume is ReadWriteOnce, so the
+    # replacement pod would block on a volume still attached to the old node.
+    strategy {
+      type = "Recreate"
+    }
 
     selector {
       match_labels = {
@@ -225,17 +230,16 @@ resource "rancher2_secret" "apisix-credentials" {
   project_id   = rancher2_project.this.id
   namespace_id = rancher2_namespace.this.id
   data = {
-    APISIX_ADMIN_KEY = base64encode("apisix-admin-secret")
+    APISIX_ADMIN_KEY = base64encode(local.apisix_admin_key)
   }
 }
 
 resource "kubernetes_deployment" "apisix" {
   count = var.eureka && var.use_apisix ? 1 : 0
 
-  # Wait for etcd to be fully available before starting APISIX.
-  # Terraform's kubernetes_deployment resource waits for the deployment to reach
-  # its desired replica count, so APISIX will not start until etcd is ready.
-  depends_on = [kubernetes_deployment.etcd]
+  # Wait for etcd (deployment readiness + service) before starting APISIX.
+  # The image's config.yaml hardcodes http://etcd:2379, so the Service must exist too.
+  depends_on = [kubernetes_deployment.etcd, kubernetes_service.etcd]
 
   metadata {
     name      = "apisix-${var.rancher_project_name}"
@@ -271,7 +275,7 @@ resource "kubernetes_deployment" "apisix" {
       spec {
         container {
           name              = "apisix"
-          image             = "folioci/folio-apisix:latest"
+          image             = "folioci/folio-apisix:${var.apisix_version}"
           image_pull_policy = "Always"
 
           port {
@@ -313,6 +317,31 @@ resource "kubernetes_deployment" "apisix" {
             }
           }
 
+          # /version is the FOLIO route shipped inside the image (version-info plugin) and is
+          # registered once the entrypoint has configured the gateway, so readiness also proves
+          # the Admin API bootstrap succeeded. It matches the ALB healthcheck path below.
+          readiness_probe {
+            http_get {
+              path = "/version"
+              port = 9080
+            }
+            initial_delay_seconds = 10
+            period_seconds        = 5
+            timeout_seconds       = 3
+            failure_threshold     = 6
+          }
+
+          liveness_probe {
+            http_get {
+              path = "/version"
+              port = 9080
+            }
+            initial_delay_seconds = 30
+            period_seconds        = 15
+            timeout_seconds       = 5
+            failure_threshold     = 3
+          }
+
           security_context {
             run_as_user                = 65532
             run_as_non_root            = true
@@ -335,7 +364,9 @@ resource "kubernetes_deployment" "apisix" {
   }
 }
 
-# ClusterIP service for internal traffic to the APISIX proxy (port 9080).
+# NodePort service for internal traffic to the APISIX proxy (port 9080).
+# NodePort (not ClusterIP) because the ALB ingress uses the instance target type —
+# same pattern as the kong helm release service.
 # Named apisix-{namespace-id} to mirror the kong-{namespace-id} convention used
 # in SIDECAR_FORWARD_UNKNOWN_REQUESTS_DESTINATION and eureka-edge OKAPI_HOST.
 resource "kubernetes_service" "apisix_proxy" {
@@ -446,7 +477,7 @@ resource "kubernetes_ingress_v1" "apisix" {
       "alb.ingress.kubernetes.io/group.name"       = local.group_name
       "alb.ingress.kubernetes.io/listen-ports"     = "[{\"HTTPS\":443}]"
       "alb.ingress.kubernetes.io/success-codes"    = "200-399"
-      "alb.ingress.kubernetes.io/healthcheck-path" = "/apisix/status"
+      "alb.ingress.kubernetes.io/healthcheck-path" = "/version"
     }
   }
 
@@ -560,12 +591,13 @@ resource "kubernetes_ingress_v1" "apisix-admin-api" {
     name      = "apisix-admin-api-${rancher2_namespace.this.id}"
     namespace = rancher2_namespace.this.id
     annotations = {
-      "kubernetes.io/ingress.class"                = "alb"
-      "alb.ingress.kubernetes.io/scheme"           = "internet-facing"
-      "alb.ingress.kubernetes.io/group.name"       = local.group_name
-      "alb.ingress.kubernetes.io/listen-ports"     = "[{\"HTTPS\":443}]"
-      "alb.ingress.kubernetes.io/success-codes"    = "200-399"
-      "alb.ingress.kubernetes.io/healthcheck-path" = "/apisix/status"
+      "kubernetes.io/ingress.class"             = "alb"
+      "alb.ingress.kubernetes.io/scheme"        = "internet-facing"
+      "alb.ingress.kubernetes.io/group.name"    = local.group_name
+      "alb.ingress.kubernetes.io/listen-ports"  = "[{\"HTTPS\":443}]"
+      "alb.ingress.kubernetes.io/success-codes" = "200-399"
+      # No HTTP healthcheck-path: the Admin API answers 401 without X-API-KEY, so the
+      # target group uses a TCP healthcheck instead of a guaranteed-failing HTTP probe.
     }
   }
 

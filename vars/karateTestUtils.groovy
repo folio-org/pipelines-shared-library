@@ -396,7 +396,7 @@ String renderKarateConfig(String config, KarateTestsParameters params) {
       "baseUrl"                            : params.okapiUrl,
       "edgeUrl"                            : params.edgeUrl,
       "baseKeycloakUrl"                    : params.keycloakUrl,
-      "centralServerUrl"                   : params.okapiUrl.replaceAll("kong", "mockserver"),
+      "centralServerUrl"                   : params.okapiUrl.replaceAll(/-(kong|apisix)\./, "-mockserver."),
       "admin"                              : [
         tenant      : params.tenant,
         name        : params.adminUserName,

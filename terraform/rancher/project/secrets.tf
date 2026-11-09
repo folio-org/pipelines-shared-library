@@ -88,7 +88,10 @@ resource "rancher2_secret" "eureka_common" {
     APIGW_URL                                    = base64encode(var.use_apisix ? "http://apisix-admin-api-${rancher2_namespace.this.id}" : "http://kong-admin-api-${rancher2_namespace.this.id}")
     APIGW_ENABLED                                = base64encode("true")
     APIGW_TYPE                                   = base64encode(var.use_apisix ? "apisix" : "kong")
-    APIGW_API_KEY                                = base64encode(var.use_apisix ? "apisix-admin-secret" : "")
+    APIGW_API_KEY                                = base64encode(var.use_apisix ? local.apisix_admin_key : "")
+    # Deprecated aliases for module versions predating APIGW_*; APIGW_* takes precedence.
+    KONG_ADMIN_URL                               = base64encode("http://kong-admin-api-${rancher2_namespace.this.id}")
+    KONG_INTEGRATION_ENABLED                     = base64encode(var.use_apisix ? "false" : "true")
     OKAPI_INTEGRATION_ENABLED                    = base64encode(var.okapi_integration_enabled)
     SECRET_STORE_AWS_SSM_REGION                  = base64encode(var.aws_region)
     SECRET_STORE_TYPE                            = base64encode(var.secure_store_type)

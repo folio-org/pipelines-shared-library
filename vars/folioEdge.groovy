@@ -62,7 +62,7 @@ void renderEphemeralProperties(RancherNamespace namespace) {
 
 void renderEphemeralPropertiesEureka(RancherNamespace namespace) {
   Tools tools = new Tools(this)
-  Common common = new Common(this, "https://${namespace.generateDomain('kong')}")
+  Common common = new Common(this, "https://${namespace.getGatewayDomain()}")
   Map edgeConfig = tools.steps.readYaml file: tools.copyResourceFileToCurrentDirectory("edge/config_eureka.yaml")
   String config_template = tools.steps.readFile file: tools.copyResourceFileToCurrentDirectory("edge/ephemeral-properties.tpl")
   List mappings = []

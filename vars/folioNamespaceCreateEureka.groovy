@@ -78,14 +78,18 @@ void call(CreateNamespaceParameters args) {
       }
 
       String keycloakVersion = appModules.getKeycloakModule()?.getVersion()
-      // folio-apisix is not CI-built and not in any platform descriptor — always pulled
-      // from folioci/folio-apisix:latest by Terraform. Gateway selection comes exclusively
-      // from the GATEWAY_TYPE Jenkins parameter passed through args.useApisix.
+      // Gateway selection comes from the GATEWAY_TYPE Jenkins parameter (args.useApisix).
+      // folio-kong stays the default; folio-apisix is opt-in.
       boolean useApisix = args.useApisix
       String gatewayType = useApisix ? 'apisix' : 'kong'
-      String kongVersion = useApisix ? null : appModules.getKongModule()?.getVersion()
+      // Only the selected gateway is deployed: the platform descriptor declares both once
+      // folio-apisix is part of eureka-components, so drop the other one from the install set.
+      String excludedGateway = useApisix ? 'folio-kong' : 'folio-apisix'
+      appModules.removeModuleByName(excludedGateway)
+      String apisixVersion = appModules.getApisixModule()?.getVersion() ?: 'latest'
+      String kongVersion = appModules.getKongModule()?.getVersion() ?: 'latest'
       if (useApisix) {
-        logger.info("Using APISIX gateway (latest tag from folioci), Keycloak version: ${keycloakVersion}")
+        logger.info("Using APISIX gateway version: ${apisixVersion}, Keycloak version: ${keycloakVersion}")
       } else {
         logger.info("Using Kong version: ${kongVersion}, Keycloak version: ${keycloakVersion}")
       }
@@ -100,6 +104,7 @@ void call(CreateNamespaceParameters args) {
       archiveArtifacts 'used-install.json'
 
       EurekaNamespace namespace = new EurekaNamespace(args.clusterName, args.namespaceName)
+        .withGatewayType(gatewayType)
       //Set terraform configuration
       TerraformConfig tfConfig = new TerraformConfig('terraform/rancher/project')
         .withWorkspace("${args.clusterName}-${args.namespaceName}")
@@ -119,10 +124,8 @@ void call(CreateNamespaceParameters args) {
       tfConfig.addVar('pg_version', args.pgVersion)
       tfConfig.addVar('eureka', args.platform == PlatformType.EUREKA)
       tfConfig.addVar('use_apisix', useApisix)
-      if (!useApisix) {
-        // folio-apisix always uses :latest — no version tracking needed
-        tfConfig.addVar('kong_version', kongVersion)
-      }
+      tfConfig.addVar('apisix_version', apisixVersion)
+      tfConfig.addVar('kong_version', kongVersion)
       tfConfig.addVar('keycloak_version', keycloakVersion)
       tfConfig.addVar('setup_type', args.type)
       if (args.dataset) {
@@ -179,7 +182,7 @@ void call(CreateNamespaceParameters args) {
 
       TenantUi tenantUi = new TenantUi("${namespace.getClusterName()}-${namespace.getNamespaceName()}",
         commitHash, args.platformBranch)
-      tenantUi.setKongDomain(namespace.getDomains()[gatewayType])
+      tenantUi.setKongDomain(namespace.getGatewayDomain())
       tenantUi.setKeycloakDomain(namespace.getDomains()['keycloak'])
 
       EurekaRequestParams installRequestParams = new EurekaRequestParams()
@@ -296,7 +299,7 @@ void call(CreateNamespaceParameters args) {
       }
 
       //Don't move from here because it increases Keycloak TTL before mgr modules to be deployed
-      Eureka eureka = new Eureka(this, namespace.generateDomain(gatewayType), namespace.generateDomain('keycloak'))
+      Eureka eureka = new Eureka(this, namespace.getGatewayDomain(), namespace.generateDomain('keycloak'))
       Boolean check = false
       timeout(time: 15, unit: 'MINUTES') {
         while (!check) {
@@ -422,7 +425,7 @@ void call(CreateNamespaceParameters args) {
 
       stage('[Rest] Configure edge') {
         retry(5) {
-          new Edge(this, "${namespace.generateDomain(gatewayType)}", "${namespace.generateDomain('keycloak')}").createEurekaUsers(namespace)
+          new Edge(this, "${namespace.getGatewayDomain()}", "${namespace.generateDomain('keycloak')}").createEurekaUsers(namespace)
         }
       }
 
