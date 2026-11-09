@@ -7,7 +7,7 @@ import org.jenkinsci.plugins.workflow.libs.Library
 
 import java.time.DayOfWeek
 import java.time.LocalDate
-import java.time.temporal.ChronoUnit
+import java.time.temporal.TemporalAdjusters
 
 @Library('pipelines-shared-library') _
 
@@ -15,13 +15,38 @@ import java.time.temporal.ChronoUnit
 @Field final String deleteNamespaceJobName = Constants.JENKINS_DELETE_NAMESPACE_JOB
 
 @Field final LocalDate today = LocalDate.now()
-@Field final LocalDate thisWednesday = today.with(java.time.temporal.TemporalAdjusters.nextOrSame(DayOfWeek.WEDNESDAY))
-@Field final LocalDate lastWednesday = thisWednesday.minusWeeks(1)
-@Field final LocalDate nextWednesday = thisWednesday.plusWeeks(1)
 
-@Field final int weeksSinceEpoch = (int)(java.time.temporal.ChronoUnit.WEEKS.between(LocalDate.of(2026, 1, 14), thisWednesday))
-@Field final boolean isSecondWednesday =
-  today.getDayOfWeek() == DayOfWeek.WEDNESDAY && (weeksSinceEpoch % 2 == 0)
+// Sprint schedule of the RANCHER project (Eureka Scrum Board). Sprints start on Monday and last 2 weeks;
+// Sprint 257 is 3 weeks long (winter holidays). Extend the list when new sprints are planned -
+// the regular 2-week cadence is extrapolated for sprints beyond the list.
+@Field final List<LocalDate> sprintStartDates = [
+  LocalDate.of(2026, 11, 9),  // Sprint 254
+  LocalDate.of(2026, 11, 23), // Sprint 255
+  LocalDate.of(2026, 12, 7),  // Sprint 256
+  LocalDate.of(2026, 12, 21), // Sprint 257
+  LocalDate.of(2027, 1, 11)   // Sprint 258
+]
+@Field final int sprintLengthDays = 14
+
+LocalDate sprintStart
+for (int i = 0; i < sprintStartDates.size(); i++) {
+  LocalDate intervalEnd = (i + 1 < sprintStartDates.size()) ?
+    sprintStartDates[i + 1] : sprintStartDates[i].plusDays(sprintLengthDays)
+  if (!today.isBefore(sprintStartDates[i]) && today.isBefore(intervalEnd)) {
+    sprintStart = sprintStartDates[i]
+    break
+  }
+}
+if (sprintStart == null) {
+  sprintStart = sprintStartDates.last()
+  while (!today.isBefore(sprintStart.plusDays(sprintLengthDays))) {
+    sprintStart = sprintStart.plusDays(sprintLengthDays)
+  }
+}
+
+// Full rebuild runs on the first Wednesday of the sprint, daily updates run on all other days
+LocalDate sprintRebuildDay = sprintStart.with(TemporalAdjusters.nextOrSame(DayOfWeek.WEDNESDAY))
+boolean isSprintRebuildDay = today == sprintRebuildDay
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
@@ -57,16 +82,16 @@ if (params.CONFIG_TYPE == 'release') {
 }
 
 if (params.IS_CRON_JOB) {
-  if (isSecondWednesday && params.TYPE != 'full') {
-    echo "REASON: Second Wednesday but TYPE is '${params.TYPE}' (expected 'full')"
+  if (isSprintRebuildDay && params.TYPE != 'full') {
+    echo "REASON: Sprint ${sprintStart} first-week rebuild day ${sprintRebuildDay} but TYPE is '${params.TYPE}' (expected 'full')"
     currentBuild.result = 'ABORTED'
     return
-  } else if (!isSecondWednesday && params.TYPE != 'update') {
-    echo "REASON: Not second Wednesday but TYPE is '${params.TYPE}' (expected 'update')"
+  } else if (!isSprintRebuildDay && params.TYPE != 'update') {
+    echo "REASON: ${today} is not the sprint rebuild day ${sprintRebuildDay} (sprint started ${sprintStart}) but TYPE is '${params.TYPE}' (expected 'update')"
     currentBuild.result = 'ABORTED'
     return
   }
-  echo "Proceeding with execution - conditions met"
+  echo "Proceeding with execution - sprint ${sprintStart}, rebuild day ${sprintRebuildDay}, TYPE '${params.TYPE}'"
 }
 
 CreateNamespaceParameters namespace = new CreateNamespaceParameters.Builder()
