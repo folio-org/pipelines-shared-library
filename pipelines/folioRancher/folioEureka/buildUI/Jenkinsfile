@@ -8,7 +8,7 @@ import org.folio.models.TenantUi
 import org.folio.models.module.FolioModule
 import org.jenkinsci.plugins.workflow.libs.Library
 
-@Library('pipelines-shared-library@RANCHER-3142') _
+@Library('pipelines-shared-library') _
 
 properties([
   buildDiscarder(logRotator(numToKeepStr: '30')),
@@ -61,7 +61,7 @@ EurekaNamespace namespace = new EurekaNamespace("${params.CLUSTER}", "${params.N
 namespace.setIsConsortiaSingleUi(params.CONSORTIA_SINGLE_UI)
 
 TenantUi tenantUi = new TenantUi(namespace.getWorkspaceName(), commitHash, params.FOLIO_BRANCH as String)
-tenantUi.setKongDomain(namespace.getDomains()[params.GATEWAY_TYPE])
+tenantUi.setKongDomain(namespace.getDomains()[params.GATEWAY_TYPE ?: 'kong'])
 tenantUi.setKeycloakDomain(namespace.getDomains()['keycloak'])
 tenantUi.setIdleSessionTTL(params.IDLE_SESSION_TTL)
 if (params.CONSORTIA) {

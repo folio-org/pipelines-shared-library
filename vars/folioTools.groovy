@@ -368,7 +368,8 @@ void deleteTestTenantSSMParameters(String cluster, String namespace, List tenant
   return totalDeleted
 }
 
-void karateTenantsCleanUp(String cluster, String namespace) {
+void karateTenantsCleanUp(String cluster, String namespace, String gatewayType = 'kong') {
+  String gatewayHost = "${cluster}-${namespace}-${gatewayType ?: 'kong'}"
   String url = "https://${cluster}-${namespace}-keycloak.ci.folio.org/realms/master/protocol/openid-connect/token"
   String body = "grant_type=client_credentials&client_id=folio-backend-admin-client&client_secret=SecretPassword"
 
@@ -383,7 +384,7 @@ void karateTenantsCleanUp(String cluster, String namespace) {
     error("Failed to obtain access token from Keycloak. Response: ${tokenResp}")
   }
 
-  String tenantsUrl = "https://${cluster}-${namespace}-kong.ci.folio.org/tenants?limit=500"
+  String tenantsUrl = "https://${gatewayHost}.ci.folio.org/tenants?limit=500"
   def tenantsResp = sh(script: "curl -s -H 'Authorization: Bearer ${token}' '${tenantsUrl}'", returnStdout: true).trim()
   def tenantsJson = readJSON(text: tenantsResp)
 
@@ -391,7 +392,7 @@ void karateTenantsCleanUp(String cluster, String namespace) {
     String tenantName = tenantObj.name
     String tenantId = tenantObj.id
     if (tenantName ==~ /(?i)^(university|central|college|consortium|testtenant)[a-z0-9]+$/) {
-      String entitlementsUrl = "https://${cluster}-${namespace}-kong.ci.folio.org/entitlements?query=tenantId==${tenantId}&limit=500"
+      String entitlementsUrl = "https://${gatewayHost}.ci.folio.org/entitlements?query=tenantId==${tenantId}&limit=500"
       def entitlementsResp = sh(script: "curl -s -H 'Authorization: Bearer ${token}' '${entitlementsUrl}'", returnStdout: true).trim()
       def entitlementsJson = readJSON(text: entitlementsResp)
       List applications = (entitlementsJson.entitlements ?: []).collect { entitlement ->
@@ -408,13 +409,13 @@ void karateTenantsCleanUp(String cluster, String namespace) {
         String uninstallPayload = JsonOutput.toJson([tenantId: tenantId, applications: applications])
         String uninstallPayloadFile = "entitlements-uninstall-${tenantId}.json"
         writeFile(file: uninstallPayloadFile, text: uninstallPayload)
-        def uninstallResp = sh(script: "curl -s -X DELETE -H 'Authorization: Bearer ${token}' -H 'x-okapi-token: ${token}' -H 'Content-Type: application/json' 'https://${cluster}-${namespace}-kong.ci.folio.org/entitlements?purge=true&ignoreErrors=true' --data @${uninstallPayloadFile}", returnStdout: true).trim()
+        def uninstallResp = sh(script: "curl -s -X DELETE -H 'Authorization: Bearer ${token}' -H 'x-okapi-token: ${token}' -H 'Content-Type: application/json' 'https://${gatewayHost}.ci.folio.org/entitlements?purge=true&ignoreErrors=true' --data @${uninstallPayloadFile}", returnStdout: true).trim()
         sh(script: "rm -f ${uninstallPayloadFile}", returnStdout: false)
         echo "Entitlements uninstall response for tenant ${tenantName}: ${uninstallResp}"
       }
 
       println "Deleting tenant: ${tenantName} (ID: ${tenantId})"
-      String deleteUrl = "https://${cluster}-${namespace}-kong.ci.folio.org/tenants/${tenantId}?purge=true"
+      String deleteUrl = "https://${gatewayHost}.ci.folio.org/tenants/${tenantId}?purge=true"
       sh(script: "curl -s -X DELETE -H 'Authorization: Bearer ${token}' '${deleteUrl}'", returnStdout: false)
     }
   }

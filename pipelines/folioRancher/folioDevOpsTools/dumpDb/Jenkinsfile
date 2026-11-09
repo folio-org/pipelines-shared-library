@@ -62,7 +62,7 @@ ansiColor('xterm') {
     if (params.BACKUP_SCOPE == 'full') {
       stage('Fetch tenants from gateway') {
         awscli.withAwsClient {
-          String gatewayUrl = psqlDumpMethods.getGatewayUrl(params.CLUSTER, params.NAMESPACE, params.GATEWAY_TYPE)
+          String gatewayUrl = psqlDumpMethods.getGatewayUrl(params.CLUSTER, params.NAMESPACE, params.GATEWAY_TYPE ?: 'kong')
           def tenantsJson = psqlDumpMethods.fetchTenants(gatewayUrl)
           List tenants = tenantsJson.tenants ?: []
 

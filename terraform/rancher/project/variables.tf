@@ -264,7 +264,13 @@ variable "kong_version" {
 variable "use_apisix" {
   type        = bool
   default     = false
-  description = "Deploy folio-apisix instead of folio-kong when true. folio-apisix always uses :latest from folioci."
+  description = "Deploy folio-apisix instead of folio-kong when true. Kong remains the default gateway."
+}
+
+variable "apisix_version" {
+  type        = string
+  default     = "latest"
+  description = "folio-apisix version (resolved from the platform descriptor eureka-components)"
 }
 
 variable "setup_type" {

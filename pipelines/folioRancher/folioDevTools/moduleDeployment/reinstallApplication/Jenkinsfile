@@ -42,10 +42,10 @@ ansiColor('xterm') {
     stage('[FIX] Reinstall applications') {
       logger.info("Reinstalling applications: ${params.APPLICATIONS} on tenant: ${params.TENANT}")
 
-      String kongBase = "https://${params.CLUSTER}-${params.NAMESPACE}-${params.GATEWAY_TYPE}.ci.folio.org"
+      String gatewayBase = "https://${params.CLUSTER}-${params.NAMESPACE}-${params.GATEWAY_TYPE ?: 'kong'}.ci.folio.org"
 
       String tenantsResponse = sh(
-        script: "curl -sf '${kongBase}/tenants?limit=500'",
+        script: "curl -sf '${gatewayBase}/tenants?limit=500'",
         returnStdout: true
       ).trim()
       def tenantsPayload = readJSON text: tenantsResponse
@@ -56,7 +56,7 @@ ansiColor('xterm') {
       String tenantId = tenantObj.id
 
       String appsResponse = sh(
-        script: "curl -sf '${kongBase}/applications?limit=500'",
+        script: "curl -sf '${gatewayBase}/applications?limit=500'",
         returnStdout: true
       ).trim()
       def appsPayload = readJSON text: appsResponse
@@ -85,7 +85,7 @@ ansiColor('xterm') {
         applications: resolvedAppIds
       ])
 
-      sh "curl -sf -X POST -H 'Content-Type: application/json' -H 'x-okapi-token: ${accessToken}' -d '${body}' '${kongBase}/reinstall/applications?tenantParameters=loadReference=${params.LOAD_REFERENCE},loadSample=${params.LOAD_SAMPLE}'"
+      sh "curl -sf -X POST -H 'Content-Type: application/json' -H 'x-okapi-token: ${accessToken}' -d '${body}' '${gatewayBase}/reinstall/applications?tenantParameters=loadReference=${params.LOAD_REFERENCE},loadSample=${params.LOAD_SAMPLE}'"
 
       logger.info("Applications ${resolvedAppIds} reinstalled successfully on tenant ${params.TENANT}")
     }
