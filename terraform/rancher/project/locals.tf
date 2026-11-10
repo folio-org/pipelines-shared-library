@@ -56,6 +56,9 @@ EOF
   kong_custom_snapshot       = can(regex("^.+-SNAPSHOT\\.[0-9a-f]{7}$", var.kong_version))
   kong_standard_snapshot     = var.kong_version == "latest" || can(regex("^.+-SNAPSHOT\\.[0-9]+$", var.kong_version)) || can(regex("^.+-SNAPSHOT\\.pr\\d+\\.[0-9a-f]{7}$", var.kong_version))
   kong_image_registry        = local.kong_custom_snapshot ? "732722833398.dkr.ecr.us-west-2.amazonaws.com" : local.kong_standard_snapshot ? "folioci" : "folioorg"
+  apisix_custom_snapshot     = can(regex("^.+-SNAPSHOT\\.[0-9a-f]{7}$", var.apisix_version))
+  apisix_standard_snapshot   = var.apisix_version == "latest" || can(regex("^.+-SNAPSHOT\\.[0-9]+$", var.apisix_version)) || can(regex("^.+-SNAPSHOT\\.pr\\d+\\.[0-9a-f]{7}$", var.apisix_version))
+  apisix_image_registry      = local.apisix_custom_snapshot ? "732722833398.dkr.ecr.us-west-2.amazonaws.com" : local.apisix_standard_snapshot ? "folioci" : "folioorg"
 
   # Conditional PostgreSQL resource sizing based on cluster
   # folio-edev uses reduced resources since actual memory consumption averages ~2Gi (24% of default 8Gi request)
