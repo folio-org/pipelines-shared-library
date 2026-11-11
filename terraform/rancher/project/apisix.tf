@@ -275,7 +275,7 @@ resource "kubernetes_deployment" "apisix" {
       spec {
         container {
           name              = "apisix"
-          image             = "folioci/folio-apisix:${var.apisix_version}"
+          image             = "${local.apisix_image_registry}/folio-apisix:${var.apisix_version}"
           image_pull_policy = "Always"
 
           port {
